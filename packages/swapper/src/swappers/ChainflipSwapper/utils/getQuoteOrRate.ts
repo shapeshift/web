@@ -26,11 +26,11 @@ import {
   getChainFlipIdFromAssetId,
   getChainflipRate,
   getChainFlipSwap,
-  getEvmTransactionData,
   getMaxBoostFee,
   getProtocolFees,
   getStepFeeData,
   getSwapSource,
+  getTransactionData,
 } from './helpers'
 
 export const getQuoteOrRate = async (
@@ -188,10 +188,12 @@ export const getQuoteOrRate = async (
 
             if (!swapId || !depositAddress) throw new Error('Invalid swap response')
 
-            const transactionData = getEvmTransactionData({
+            const transactionData = await getTransactionData({
+              deps,
               sellAsset,
               depositAddress,
               sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              from: input.sendAddress,
             })
 
             const feeData = await getStepFeeData({

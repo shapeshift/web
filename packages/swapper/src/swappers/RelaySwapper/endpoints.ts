@@ -3,6 +3,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
+import type { SolanaComputeBudgetOptions } from '../../solana-utils/getUnsignedSolanaTransaction'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
@@ -23,6 +24,8 @@ import type { RelayStatus, RelayTradeQuoteInput, RelayTradeRateInput } from './u
 
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
+
+const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.6 }
 
 export const relayApi: SwapperApi = {
   getTradeQuote: (input, deps) =>
@@ -142,8 +145,12 @@ export const relayApi: SwapperApi = {
 
     return fast.txFee
   },
-  getSolanaTransactionFees,
-  getUnsignedSolanaTransaction,
+  getSolanaTransactionFees: input => {
+    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
+  },
+  getUnsignedSolanaTransaction: input => {
+    return getUnsignedSolanaTransaction(input, solanaComputeBudget)
+  },
   getTronTransactionFees,
   getUnsignedTronTransaction,
   checkTradeStatus: async ({

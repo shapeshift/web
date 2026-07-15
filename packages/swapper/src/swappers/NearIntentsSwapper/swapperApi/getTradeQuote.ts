@@ -16,9 +16,12 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { TransactionInstruction } from '@solana/web3.js'
+import { ComputeBudgetProgram } from '@solana/web3.js'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import { calculateAccountCreationCosts } from '../../../solana-utils'
 import type {
   CommonTradeQuoteInput,
   GetUtxoTradeQuoteInput,
@@ -42,7 +45,7 @@ import {
 } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset } from '../utils/helpers/helpers'
 import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeQuote = async (
@@ -180,25 +183,10 @@ export const getTradeQuote = async (
     const depositAddress = quote.depositAddress
     const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-    const transactionData: TxBuildData | undefined = (() => {
-      switch (chainNamespace) {
-        case CHAIN_NAMESPACE.Evm: {
-          return {
-            type: 'evm',
-            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-            to: contractAddress ?? depositAddress,
-            data: evm.getErc20Data(depositAddress, sellAmount, contractAddress) || '0x',
-            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-          }
-        }
-        default:
-          return undefined
-      }
-    })()
-
     const getFeeData = async (): Promise<{
       networkFeeCryptoBaseUnit: string | undefined
       chainSpecific?: { satsPerByte: string }
+      instructions?: TransactionInstruction[]
     }> => {
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
@@ -270,7 +258,7 @@ export const getTradeQuote = async (
           const ataCreationCost = calculateAccountCreationCosts(instructions)
           const totalFee = bn(txFee).plus(ataCreationCost).toString()
 
-          return { networkFeeCryptoBaseUnit: totalFee }
+          return { networkFeeCryptoBaseUnit: totalFee, instructions }
         }
 
         case CHAIN_NAMESPACE.Tron: {
@@ -360,7 +348,35 @@ export const getTradeQuote = async (
       }
     }
 
-    const { networkFeeCryptoBaseUnit, chainSpecific } = await getFeeData()
+    const { networkFeeCryptoBaseUnit, chainSpecific, instructions } = await getFeeData()
+
+    const transactionData: TxBuildData | undefined = (() => {
+      switch (chainNamespace) {
+        case CHAIN_NAMESPACE.Evm: {
+          return {
+            type: 'evm',
+            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+            to: contractAddress ?? depositAddress,
+            data: evm.getErc20Data(depositAddress, sellAmount, contractAddress) || '0x',
+            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+          }
+        }
+        case CHAIN_NAMESPACE.Solana: {
+          if (!instructions) return undefined
+          // Business instructions only; compute budget is dynamic and must be derived at execution time
+          return {
+            type: 'solana',
+            instructions: instructions.filter(
+              instruction =>
+                instruction.programId.toString() !== ComputeBudgetProgram.programId.toString(),
+            ),
+            addressLookupTableAddresses: [],
+          }
+        }
+        default:
+          return undefined
+      }
+    })()
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: quote.amountIn,

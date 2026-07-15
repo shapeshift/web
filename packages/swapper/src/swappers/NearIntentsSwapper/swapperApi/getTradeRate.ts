@@ -15,6 +15,7 @@ import type { Hex } from 'viem'
 import { getAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import { calculateAccountCreationCosts } from '../../../solana-utils'
 import type {
   GetTradeRateInput,
   GetUtxoTradeRateInput,
@@ -34,7 +35,7 @@ import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset } from '../utils/helpers/helpers'
 import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeRate = async (

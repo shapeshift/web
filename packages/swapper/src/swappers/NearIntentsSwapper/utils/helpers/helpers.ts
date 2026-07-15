@@ -1,9 +1,7 @@
-import { ASSOCIATED_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
 import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero, isToken } from '@shapeshiftoss/utils'
-import type { TransactionInstruction } from '@solana/web3.js'
+import { isToken } from '@shapeshiftoss/utils'
 import { zeroAddress } from 'viem'
 
 import type { GetExecutionStatusResponse, TokenResponse } from '../../types'
@@ -32,19 +30,6 @@ const getTokensWithRetry = async (): Promise<TokenResponse[]> => {
   throw lastError ?? new Error('Failed to get tokens after retries')
 }
 
-const ATA_RENT_LAMPORTS = 2040000
-
-export const calculateAccountCreationCosts = (instructions: TransactionInstruction[]): string => {
-  let totalCost = bnOrZero(0)
-
-  for (const ix of instructions) {
-    if (ix.programId.toString() === ASSOCIATED_PROGRAM_ID.toString()) {
-      totalCost = totalCost.plus(ATA_RENT_LAMPORTS)
-    }
-  }
-
-  return totalCost.toString()
-}
 
 export const getNearIntentsAsset = ({
   nearNetwork,

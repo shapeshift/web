@@ -1,6 +1,7 @@
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
+import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../solana-utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
 import type {
@@ -117,59 +118,11 @@ export const nearIntentsApi: SwapperApi = {
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
 
-  getUnsignedSolanaTransaction: async ({
-    stepIndex,
-    tradeQuote,
-    from,
-    assertGetSolanaChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset } = step
-
-    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
-
-    const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
-
-    const to = depositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const tokenId = contractAddressOrUndefined(sellAsset.assetId)
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value,
-      chainSpecific: { from, tokenId },
-    })
-
-    return adapter.buildSendApiTransaction({
-      to,
-      from,
-      value,
-      accountNumber,
-      chainSpecific: tokenId
-        ? {
-            // For SPL tokens: include compute budget parameters
-            tokenId,
-            computeUnitLimit: fast.chainSpecific.computeUnits,
-            computeUnitPrice: fast.chainSpecific.priorityFee,
-          }
-        : {
-            // For native SOL: no compute budget needed for simple transfers
-            tokenId,
-          },
-    })
+  getUnsignedSolanaTransaction: input => {
+    return getUnsignedSolanaTransaction(input, { skipForNativeSend: true })
   },
-
-  getSolanaTransactionFees: ({ tradeQuote, stepIndex }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    if (!step.feeData.networkFeeCryptoBaseUnit) {
-      throw new Error('Missing network fee in quote')
-    }
-    return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
+  getSolanaTransactionFees: input => {
+    return getSolanaTransactionFees(input, { includeAtaCreationRent: true })
   },
 
   getUnsignedTronTransaction,

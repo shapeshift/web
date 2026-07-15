@@ -1,30 +1,35 @@
+import { bnOrZero } from '@shapeshiftoss/utils'
+import BigNumber from 'bignumber.js'
+
 import type { GetUnsignedSolanaTransactionArgs } from '../types'
-import { getExecutableTradeStep, isExecutableTradeQuote } from '../utils'
+import { calculateAccountCreationCosts } from './calculateAccountCreationCosts'
+import { getSolanaExecutionContext } from './getSolanaExecutionContext'
+import type { SolanaComputeBudgetOptions } from './getUnsignedSolanaTransaction'
 
-export const getSolanaTransactionFees = async ({
-  stepIndex,
-  tradeQuote,
-  from,
-  assertGetSolanaChainAdapter,
-}: GetUnsignedSolanaTransactionArgs): Promise<string> => {
-  if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+type SolanaTransactionFeesOptions = {
+  computeBudget?: SolanaComputeBudgetOptions
+  includeAtaCreationRent?: boolean
+}
 
-  const step = getExecutableTradeStep(tradeQuote, stepIndex)
+export const getSolanaTransactionFees = async (
+  args: GetUnsignedSolanaTransactionArgs,
+  { computeBudget, includeAtaCreationRent }: SolanaTransactionFeesOptions = {},
+): Promise<string> => {
+  const { feeData, transactionData } = await getSolanaExecutionContext(args)
 
-  const { transactionData, sellAsset } = step
-  if (transactionData?.type !== 'solana') throw new Error('Missing solana transactionData')
+  if (!computeBudget && !includeAtaCreationRent) return feeData.txFee
 
-  const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
+  const computeUnits = bnOrZero(feeData.chainSpecific.computeUnits)
 
-  const { fast } = await adapter.getFeeData({
-    to: '',
-    value: '0',
-    chainSpecific: {
-      from,
-      addressLookupTableAccounts: transactionData.addressLookupTableAddresses,
-      instructions: transactionData.instructions,
-    },
-  })
+  const feeScale = computeUnits.gt(0)
+    ? BigNumber.max(computeUnits, computeBudget?.minComputeUnits ?? 0)
+        .times(computeBudget?.marginMultiplier ?? 1)
+        .div(computeUnits)
+    : bnOrZero(1)
 
-  return fast.txFee
+  const ataCreationRent = includeAtaCreationRent
+    ? calculateAccountCreationCosts(transactionData.instructions)
+    : 0
+
+  return bnOrZero(feeData.txFee).times(feeScale).plus(ataCreationRent).toFixed(0)
 }

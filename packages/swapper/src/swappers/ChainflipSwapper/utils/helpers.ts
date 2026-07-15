@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import {
   assertUnreachable,
@@ -12,6 +12,7 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { ComputeBudgetProgram } from '@solana/web3.js'
 import type { AxiosResponse } from 'axios'
 
 import type {
@@ -312,27 +313,53 @@ export const getMaxBoostFee = (assetId: AssetId): number => {
   }
 }
 
-export const getEvmTransactionData = ({
+export const getTransactionData = async ({
+  deps,
   sellAsset,
   depositAddress,
   sellAmountCryptoBaseUnit,
+  from,
 }: {
+  deps: SwapperDeps
   sellAsset: Asset
   depositAddress: string
   sellAmountCryptoBaseUnit: string
-}): TxBuildData | undefined => {
-  if (!isEvmChainId(sellAsset.chainId)) return
+  from: string
+}): Promise<TxBuildData | undefined> => {
+  const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
-  const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-  const data = evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress)
+  if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    const data = evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress)
 
-  return {
-    type: 'evm',
-    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    to: contractAddress ?? depositAddress,
-    data: data || '0x',
-    value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+    return {
+      type: 'evm',
+      chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+      to: contractAddress ?? depositAddress,
+      data: data || '0x',
+      value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+    }
   }
+
+  if (chainNamespace === CHAIN_NAMESPACE.Solana) {
+    const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+    // Business instructions only; compute budget is dynamic and must be derived at execution time
+    const instructions = (
+      await adapter.buildEstimationInstructions({
+        from,
+        to: depositAddress,
+        tokenId: contractAddressOrUndefined(sellAsset.assetId),
+        value: sellAmountCryptoBaseUnit,
+      })
+    ).filter(
+      instruction => instruction.programId.toString() !== ComputeBudgetProgram.programId.toString(),
+    )
+
+    return { type: 'solana', instructions, addressLookupTableAddresses: [] }
+  }
+
+  return undefined
 }
 
 export const getProtocolFees = ({

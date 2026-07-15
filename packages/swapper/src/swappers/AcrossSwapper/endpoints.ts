@@ -3,6 +3,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
+import type { SolanaComputeBudgetOptions } from '../../solana-utils/getUnsignedSolanaTransaction'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
 import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
@@ -14,6 +15,8 @@ import type {
   AcrossTradeQuoteInput,
   AcrossTradeRateInput,
 } from './utils/types'
+
+const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.6 }
 
 export const acrossApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as AcrossTradeQuoteInput, deps),
@@ -148,6 +151,10 @@ export const acrossApi: SwapperApi = {
       message,
     }
   },
-  getUnsignedSolanaTransaction,
-  getSolanaTransactionFees,
+  getUnsignedSolanaTransaction: input => {
+    return getUnsignedSolanaTransaction(input, solanaComputeBudget)
+  },
+  getSolanaTransactionFees: input => {
+    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
+  },
 }

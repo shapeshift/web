@@ -2,6 +2,8 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
+import type { SolanaComputeBudgetOptions } from '../../solana-utils'
+import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../solana-utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
@@ -11,6 +13,12 @@ import { getTradeRate } from './swapperApi/getTradeRate'
 import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
+
+// Chainflip deposit addresses are program-owned and require a higher compute floor than a regular transfer
+const solanaComputeBudget: SolanaComputeBudgetOptions = {
+  marginMultiplier: 1.6,
+  minComputeUnits: 50_000,
+}
 
 export const chainflipApi: SwapperApi = {
   getTradeQuote,
@@ -122,80 +130,11 @@ export const chainflipApi: SwapperApi = {
 
     return fast.txFee
   },
-  getUnsignedSolanaTransaction: async ({
-    stepIndex,
-    tradeQuote,
-    from,
-    assertGetSolanaChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
-
-    const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
-
-    const to = chainflipSpecific.depositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const tokenId = contractAddressOrUndefined(sellAsset.assetId)
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value,
-      chainSpecific: { from, tokenId },
-    })
-
-    // Chainflip deposit addresses are program-owned accounts that require more compute
-    // than a regular SOL transfer. Apply a safety margin to avoid "Computational budget exceeded".
-    const computeUnits = Math.ceil(Math.max(Number(fast.chainSpecific.computeUnits), 50_000) * 1.6)
-
-    return adapter.buildSendApiTransaction({
-      to,
-      from,
-      value,
-      accountNumber,
-      chainSpecific: {
-        tokenId,
-        computeUnitLimit: String(computeUnits),
-        computeUnitPrice: fast.chainSpecific.priorityFee,
-      },
-    })
+  getUnsignedSolanaTransaction: input => {
+    return getUnsignedSolanaTransaction(input, solanaComputeBudget)
   },
-  getSolanaTransactionFees: async ({
-    stepIndex,
-    tradeQuote,
-    from,
-    assertGetSolanaChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
-
-    const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to: chainflipSpecific.depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: {
-        from,
-        tokenId: contractAddressOrUndefined(sellAsset.assetId),
-      },
-    })
-
-    // Mirror the same compute budget boost as getUnsignedSolanaTransaction
-    // to avoid underquoting fees for Chainflip deposit addresses
-    const simulatedUnits = Number(fast.chainSpecific.computeUnits)
-    const boostedUnits = Math.ceil(Math.max(simulatedUnits, 50_000) * 1.6)
-    const ratio = simulatedUnits > 0 ? boostedUnits / simulatedUnits : 1
-
-    return String(Math.ceil(Number(fast.txFee) * ratio))
+  getSolanaTransactionFees: input => {
+    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
   },
   getUnsignedTronTransaction: ({ stepIndex, tradeQuote, from, assertGetTronChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')

@@ -1,57 +1,46 @@
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero, isToken } from '@shapeshiftoss/utils'
+import BigNumber from 'bignumber.js'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../types'
-import { getExecutableTradeStep, isExecutableTradeQuote } from '../utils'
+import { getSolanaExecutionContext } from './getSolanaExecutionContext'
 
-// Jupiter (and Relay which uses Jupiter under the hood) use 40% as a compute unit margin while
-// calculating them, some TX reverts without this. For stability purposes we add 60% margin.
-const COMPUTE_UNIT_MARGIN_MULTIPLIER = 1.6
+export type SolanaComputeBudgetOptions = {
+  marginMultiplier?: number
+  minComputeUnits?: number
+  skipForNativeSend?: boolean
+}
 
-export const getUnsignedSolanaTransaction = async ({
-  stepIndex,
-  tradeQuote,
-  from,
-  assertGetSolanaChainAdapter,
-}: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
-  if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+export const getUnsignedSolanaTransaction = async (
+  args: GetUnsignedSolanaTransactionArgs,
+  computeBudget: SolanaComputeBudgetOptions = {},
+): Promise<SolanaSignTx> => {
+  const { step, adapter, feeData, transactionData } = await getSolanaExecutionContext(args)
 
-  const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-  const { accountNumber, transactionData, sellAsset } = step
-  if (transactionData?.type !== 'solana') throw new Error('Missing solana transactionData')
-
+  const { accountNumber, sellAsset } = step
   const { instructions, addressLookupTableAddresses } = transactionData
+  const { marginMultiplier, minComputeUnits, skipForNativeSend } = computeBudget
 
-  const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
-
-  const { fast } = await adapter.getFeeData({
-    to: '',
-    value: '0',
-    chainSpecific: {
-      from,
-      addressLookupTableAccounts: addressLookupTableAddresses,
-      instructions,
-    },
-  })
-
-  const solanaInstructions = instructions.map(instruction =>
-    adapter.convertInstruction(instruction),
+  const computeUnitLimit = BigNumber.max(
+    bnOrZero(feeData.chainSpecific.computeUnits),
+    minComputeUnits ?? 0,
   )
 
+  // Simple native transfers don't need a compute budget; everything else opts into one
+  const includeComputeBudget = !skipForNativeSend || isToken(sellAsset.assetId)
+
   return adapter.buildSendApiTransaction({
-    from,
+    from: args.from,
     to: '',
     value: '0',
     accountNumber,
     chainSpecific: {
       addressLookupTableAccounts: addressLookupTableAddresses,
-      instructions: solanaInstructions,
-      // As always, as relay uses jupiter under the hood, we need to add the compute unit safety margin
-      computeUnitLimit: bnOrZero(fast.chainSpecific.computeUnits)
-        .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
-        .toFixed(0),
-      computeUnitPrice: fast.chainSpecific.priorityFee,
+      instructions: instructions.map(instruction => adapter.convertInstruction(instruction)),
+      ...(includeComputeBudget && {
+        computeUnitLimit: computeUnitLimit.times(marginMultiplier ?? 1).toFixed(0),
+        computeUnitPrice: feeData.chainSpecific.priorityFee,
+      }),
     },
   })
 }

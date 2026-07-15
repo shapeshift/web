@@ -453,10 +453,6 @@ export type TradeQuoteStep = {
   chainflipSpecific?: {
     depositAddress?: string
   }
-  nearIntentsSpecific?: {
-    depositAddress: string
-    depositMemo?: string
-  }
   thorchainTransactionMetadata?: {
     to: string
     data?: string

@@ -1,5 +1,4 @@
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
@@ -15,9 +14,9 @@ import type {
 import {
   createDefaultStatusResponse,
   getExecutableTradeStep,
+  getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers/helpers'
@@ -40,32 +39,16 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('[NearIntents] invalid evm transaction')
 
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-    const data = evm.getErc20Data(to, value, contractAddress)
+    const { to, data, value } = transactionData
 
-    const feeData = await evm.getFees({
-      adapter,
-      data: data || '0x',
-      to: contractAddress ?? to,
-      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
-      from,
-      supportsEIP1559,
-    })
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
-    return adapter.buildSendApiTransaction({
-      accountNumber,
-      from,
-      to,
-      value,
-      chainSpecific: { contractAddress, ...feeData },
-    })
+    return adapter.buildCustomApiTx({ accountNumber, from, to, value, data, ...feeData })
   },
 
   getEvmTransactionFees: async ({
@@ -79,24 +62,14 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('[NearIntents] invalid evm transaction')
 
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-    const data = evm.getErc20Data(to, value, contractAddress)
+    const { to, data, value } = transactionData
 
-    const feeData = await evm.getFees({
-      adapter,
-      data: data || '0x',
-      to: contractAddress ?? to,
-      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
-      from,
-      supportsEIP1559,
-    })
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
     return feeData.networkFeeCryptoBaseUnit
   },
@@ -112,9 +85,10 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { sellAsset, accountNumber, nearIntentsSpecific, feeData } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { sellAsset, accountNumber, feeData } = step
     if (!xpub) throw new Error('xpub is required for UTXO transactions')
+
+    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
@@ -122,7 +96,7 @@ export const nearIntentsApi: SwapperApi = {
 
     return adapter.buildSendApiTransaction({
       accountNumber,
-      to: nearIntentsSpecific.depositAddress,
+      to: depositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sendMax: false,
       chainSpecific: {
@@ -153,12 +127,13 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { accountNumber, sellAsset } = step
+
+    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
 
     const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
+    const to = depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const tokenId = contractAddressOrUndefined(sellAsset.assetId)
 
@@ -209,12 +184,13 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { accountNumber, sellAsset } = step
+
+    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
 
     const adapter = assertGetSuiChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
+    const to = depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const tokenId = contractAddressOrUndefined(sellAsset.assetId)
 
@@ -257,12 +233,13 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { accountNumber, sellAsset } = step
+
+    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
 
     const adapter = assertGetNearChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
+    const to = depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
@@ -295,12 +272,13 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { accountNumber, sellAsset } = step
+
+    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
 
     const adapter = assertGetStarknetChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
+    const to = depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
@@ -346,12 +324,13 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { accountNumber, sellAsset } = step
+
+    const { depositAddress, depositMemo } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
 
     const adapter = assertGetTonChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
+    const to = depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
@@ -362,7 +341,7 @@ export const nearIntentsApi: SwapperApi = {
       accountNumber,
       chainSpecific: {
         contractAddress,
-        memo: nearIntentsSpecific.depositMemo,
+        memo: depositMemo,
       },
     })
   },

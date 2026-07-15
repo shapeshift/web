@@ -1,4 +1,10 @@
-import { btcChainId, CHAIN_NAMESPACE, fromAssetId, nearChainId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  CHAIN_NAMESPACE,
+  fromAssetId,
+  fromChainId,
+  nearChainId,
+} from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import {
   bn,
@@ -19,6 +25,7 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TxBuildData,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
@@ -171,6 +178,23 @@ export const getTradeQuote = async (
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     const depositAddress = quote.depositAddress
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+
+    const transactionData: TxBuildData | undefined = (() => {
+      switch (chainNamespace) {
+        case CHAIN_NAMESPACE.Evm: {
+          return {
+            type: 'evm',
+            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+            to: contractAddress ?? depositAddress,
+            data: evm.getErc20Data(depositAddress, sellAmount, contractAddress) || '0x',
+            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+          }
+        }
+        default:
+          return undefined
+      }
+    })()
 
     const getFeeData = async (): Promise<{
       networkFeeCryptoBaseUnit: string | undefined
@@ -179,7 +203,6 @@ export const getTradeQuote = async (
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
           const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
           const feeData = await sellAdapter.getFeeData({
@@ -373,10 +396,7 @@ export const getTradeQuote = async (
           sellAsset,
           source: SwapperName.NearIntents,
           estimatedExecutionTimeMs: quote.timeEstimate ? quote.timeEstimate * 1000 : undefined,
-          nearIntentsSpecific: {
-            depositAddress: quote.depositAddress ?? '',
-            depositMemo: quote.depositMemo,
-          },
+          transactionData,
           swapperMetadata: {
             name: 'nearIntents',
             depositAddress: quote.depositAddress ?? '',

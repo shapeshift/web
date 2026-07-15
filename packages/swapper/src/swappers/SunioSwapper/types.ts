@@ -16,6 +16,10 @@ export type SunioRoute = {
   stepAmountsOut: string[]
 }
 
+export type SunioTransactionData = {
+  route: SunioRoute
+}
+
 export type SunioQuoteResponse = {
   code: number
   message: string

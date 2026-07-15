@@ -186,7 +186,7 @@ export async function getQuoteOrRate(
           allowanceContract: SUNIO_SMART_ROUTER_CONTRACT,
           estimatedExecutionTimeMs: undefined,
           ...(isQuote && {
-            sunioTransactionMetadata: {
+            sunioTransactionData: {
               route: bestRoute,
             },
           }),

@@ -52,6 +52,7 @@ import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
 import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { StonfiMetadata, StonfiTransactionData } from './swappers/StonfiSwapper/types'
+import type { SunioTransactionData } from './swappers/SunioSwapper/types'
 import type { MayachainMetadata, ThorchainMetadata } from './thorchain-utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
@@ -422,6 +423,7 @@ export type TxBuildData =
     }
   | { type: 'cosmos'; chainId: string; to: string; value: string; memo?: string }
   | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
+  | { type: 'tron'; to: string; data: string; value: string }
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -445,39 +447,22 @@ export type TradeQuoteStep = {
 
   // To be collapsed into transactionData and swapperMetadata
   stonfiTransactionData?: StonfiTransactionData
+  sunioTransactionData?: SunioTransactionData
+
+  relayTransactionMetadata?: RelayTransactionMetadata
+  butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
+
+  chainflipSpecific?: { depositAddress?: string }
+  thorchainTransactionMetadata?: { to: string; data?: string; value?: string; memo?: string }
+
   bebopSolanaSerializedTx?: string
+  cowswapQuoteResponse?: OrderQuoteResponse
+
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
     /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
     isOversized?: boolean
-  }
-  cowswapQuoteResponse?: OrderQuoteResponse
-  chainflipSpecific?: {
-    depositAddress?: string
-  }
-  thorchainTransactionMetadata?: {
-    to: string
-    data?: string
-    value?: string
-    memo?: string
-  }
-  relayTransactionMetadata?: RelayTransactionMetadata
-  butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
-  sunioTransactionMetadata?: {
-    route: {
-      amountIn: string
-      amountOut: string
-      inUsd: string
-      outUsd: string
-      impact: string
-      fee: string
-      tokens: string[]
-      symbols: string[]
-      poolFees: string[]
-      poolVersions: string[]
-      stepAmountsOut: string[]
-    }
   }
   affiliateFee?: AffiliateFee
 }

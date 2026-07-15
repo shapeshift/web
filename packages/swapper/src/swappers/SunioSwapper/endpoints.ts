@@ -65,10 +65,8 @@ export const sunioApi: SwapperApi = {
 
     const adapter = assertGetTronChainAdapter(tronChainId)
 
-    const sunioMetadata = step.sunioTransactionMetadata
-    if (!sunioMetadata) {
-      throw new Error('[Sun.io] Missing transaction metadata in quote')
-    }
+    const sunioTransactionData = step.sunioTransactionData
+    if (!sunioTransactionData) throw new Error('[Sun.io] Missing transaction data in quote')
 
     const rpcUrl = adapter.httpProvider.getRpcUrl()
 
@@ -80,7 +78,7 @@ export const sunioApi: SwapperApi = {
     })
 
     const routeParams = buildSwapRouteParameters(
-      sunioMetadata.route,
+      sunioTransactionData.route,
       step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       step.buyAmountAfterFeesCryptoBaseUnit,
       tradeQuote.receiveAddress,

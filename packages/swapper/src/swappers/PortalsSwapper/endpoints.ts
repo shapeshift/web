@@ -49,7 +49,7 @@ export const portalsApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[Portals] invalid evm transaction')
 
     const { to, value, data } = transactionData
 
@@ -71,7 +71,7 @@ export const portalsApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[Portals] invalid evm transaction')
 
     // Portals has a 15% buffer on gas estimations, which may or may not turn out to be more reliable than our "pure" simulations
     const { to, value, data, gasLimit: gasLimitFromApi } = transactionData

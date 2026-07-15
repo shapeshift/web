@@ -8,7 +8,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
-import type { OmnistonAssetAddress, StonfiTradeSpecific } from '../types'
+import type { OmnistonAssetAddress, StonfiTransactionData } from '../types'
 import { STONFI_DEFAULT_SLIPPAGE_BPS, STONFI_QUOTE_TIMEOUT_MS } from '../utils/constants'
 import {
   affiliateBpsToNumber,
@@ -24,7 +24,7 @@ const buildStonfiSpecific = (
   quote: Quote,
   bidAssetAddress: OmnistonAssetAddress,
   askAssetAddress: OmnistonAssetAddress,
-): StonfiTradeSpecific => ({
+): StonfiTransactionData => ({
   quoteId: quote.quoteId,
   resolverId: quote.resolverId,
   resolverName: quote.resolverName,
@@ -156,7 +156,8 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
           accountNumber,
           allowanceContract: '',
           estimatedExecutionTimeMs: 30000,
-          stonfiSpecific: buildStonfiSpecific(quote, bidAssetAddress, askAssetAddress),
+          stonfiTransactionData: buildStonfiSpecific(quote, bidAssetAddress, askAssetAddress),
+          swapperMetadata: { name: 'stonfi', quoteId: quote.quoteId },
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',
             affiliateBps,

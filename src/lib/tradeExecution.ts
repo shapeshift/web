@@ -197,7 +197,7 @@ export class TradeExecution {
         metadata: firstStep
           ? buildSwapMetadata(firstStep, {
               stepIndex,
-              quoteId: firstStep.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
+              quoteId: swap.metadata.quoteId,
               relayerTxHash: swap.metadata.relayerTxHash,
               relayerExplorerTxLink: swap.metadata.relayerExplorerTxLink,
               streamingSwapMetadata: swap.metadata.streamingSwapMetadata,

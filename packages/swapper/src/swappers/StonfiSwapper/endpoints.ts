@@ -56,33 +56,11 @@ export const stonfiApi: SwapperApi = {
     }
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { accountNumber, sellAsset, stonfiSpecific } = step
+    const { accountNumber, sellAsset, stonfiTransactionData } = step
 
-    if (!stonfiSpecific) {
-      throw new Error('stonfiSpecific is required')
-    }
+    if (!stonfiTransactionData) throw new Error('[Stonfi] invalid ton transaction')
 
     const adapter = assertGetTonChainAdapter(sellAsset.chainId)
-
-    const storedQuote = {
-      quoteId: stonfiSpecific.quoteId,
-      resolverId: stonfiSpecific.resolverId,
-      resolverName: stonfiSpecific.resolverName,
-      bidAssetAddress: stonfiSpecific.bidAssetAddress,
-      askAssetAddress: stonfiSpecific.askAssetAddress,
-      bidUnits: stonfiSpecific.bidUnits,
-      askUnits: stonfiSpecific.askUnits,
-      referrerAddress: stonfiSpecific.referrerAddress,
-      referrerFeeAsset: stonfiSpecific.referrerFeeAsset,
-      referrerFeeUnits: stonfiSpecific.referrerFeeUnits,
-      protocolFeeAsset: stonfiSpecific.protocolFeeAsset,
-      protocolFeeUnits: stonfiSpecific.protocolFeeUnits,
-      quoteTimestamp: stonfiSpecific.quoteTimestamp,
-      tradeStartDeadline: stonfiSpecific.tradeStartDeadline,
-      gasBudget: stonfiSpecific.gasBudget,
-      estimatedGasConsumption: stonfiSpecific.estimatedGasConsumption,
-      params: stonfiSpecific.params,
-    }
 
     const omniston = omnistonManager.getInstance()
 
@@ -97,7 +75,7 @@ export const stonfiApi: SwapperApi = {
             blockchain: Blockchain.TON,
             address: tradeQuote.receiveAddress,
           },
-          quote: storedQuote as Parameters<typeof omniston.buildTransfer>[0]['quote'],
+          quote: stonfiTransactionData as Parameters<typeof omniston.buildTransfer>[0]['quote'],
           useRecommendedSlippage: true,
         })
 
@@ -178,16 +156,17 @@ export const stonfiApi: SwapperApi = {
       }
     }
 
-    const { metadata } = swap
+    const stonfiMetadata =
+      swap.metadata.swapperMetadata?.name === 'stonfi' ? swap.metadata.swapperMetadata : undefined
 
-    if (!metadata?.quoteId) {
+    if (!stonfiMetadata?.quoteId) {
       return checkTxStatusViaChainAdapter()
     }
 
     try {
       const tradeStatus = await waitForFirstTradeStatus(
         {
-          quoteId: metadata.quoteId,
+          quoteId: stonfiMetadata.quoteId,
           traderWalletAddress: {
             blockchain: Blockchain.TON,
             address: swap.sellAccountId.split(':')[2] ?? '',

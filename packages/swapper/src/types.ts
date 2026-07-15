@@ -51,6 +51,7 @@ import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
 import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { StonfiMetadata, StonfiTransactionData } from './swappers/StonfiSwapper/types'
 import type { MayachainMetadata, ThorchainMetadata } from './thorchain-utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
@@ -420,6 +421,7 @@ export type TxBuildData =
       addressLookupTableAddresses: string[]
     }
   | { type: 'cosmos'; chainId: string; to: string; value: string; memo?: string }
+  | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -442,6 +444,7 @@ export type TradeQuoteStep = {
   swapperMetadata?: SwapperMetadata
 
   // To be collapsed into transactionData and swapperMetadata
+  stonfiTransactionData?: StonfiTransactionData
   bebopSolanaSerializedTx?: string
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
@@ -475,25 +478,6 @@ export type TradeQuoteStep = {
       poolVersions: string[]
       stepAmountsOut: string[]
     }
-  }
-  stonfiSpecific?: {
-    quoteId: string
-    resolverId: string
-    resolverName: string
-    tradeStartDeadline: number
-    gasBudget: string
-    bidAssetAddress: { blockchain: number; address: string }
-    askAssetAddress: { blockchain: number; address: string }
-    bidUnits: string
-    askUnits: string
-    referrerAddress?: { blockchain: number; address: string }
-    referrerFeeAsset?: { blockchain: number; address: string }
-    referrerFeeUnits: string
-    protocolFeeAsset?: { blockchain: number; address: string }
-    protocolFeeUnits: string
-    quoteTimestamp: number
-    estimatedGasConsumption: string
-    params?: unknown
   }
   affiliateFee?: AffiliateFee
 }
@@ -565,6 +549,7 @@ export type SwapperMetadata =
   | BebopMetadata
   | ThorchainMetadata
   | MayachainMetadata
+  | StonfiMetadata
 
 export type SwapMetadata = CommonSwapMetadata & { swapperMetadata?: SwapperMetadata }
 

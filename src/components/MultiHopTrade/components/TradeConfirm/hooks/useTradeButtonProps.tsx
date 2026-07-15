@@ -118,7 +118,7 @@ export const useTradeButtonProps = ({
       expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
       metadata: buildSwapMetadata(firstStep, {
         stepIndex: currentHopIndex,
-        quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
+        quoteId: activeQuote.id,
         relayerTxHash,
         relayerExplorerTxLink,
       }),

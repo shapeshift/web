@@ -8,6 +8,31 @@ export type StonfiSupportedChainId = typeof KnownChainIds.TonMainnet
 
 export const stonfiSupportedChainIds = [KnownChainIds.TonMainnet] as const
 
+export type StonfiMetadata = {
+  name: 'stonfi'
+  quoteId: string
+}
+
+export type StonfiTransactionData = {
+  quoteId: string
+  resolverId: string
+  resolverName: string
+  tradeStartDeadline: number
+  gasBudget: string
+  bidAssetAddress: OmnistonAssetAddress
+  askAssetAddress: OmnistonAssetAddress
+  bidUnits: string
+  askUnits: string
+  referrerAddress?: OmnistonAssetAddress
+  referrerFeeAsset?: OmnistonAssetAddress
+  referrerFeeUnits: string
+  protocolFeeAsset?: OmnistonAssetAddress
+  protocolFeeUnits: string
+  quoteTimestamp: number
+  estimatedGasConsumption: string
+  params?: unknown
+}
+
 export type OmnistonAssetAddress = {
   blockchain: number
   address: string
@@ -41,24 +66,4 @@ export type StonfiQuote = {
   gasBudget: string
   estimatedGasConsumption: string
   tradeStartDeadline: number
-}
-
-export type StonfiTradeSpecific = {
-  quoteId: string
-  resolverId: string
-  resolverName: string
-  tradeStartDeadline: number
-  gasBudget: string
-  bidAssetAddress: OmnistonAssetAddress
-  askAssetAddress: OmnistonAssetAddress
-  bidUnits: string
-  askUnits: string
-  referrerAddress?: OmnistonAssetAddress
-  referrerFeeAsset?: OmnistonAssetAddress
-  referrerFeeUnits: string
-  protocolFeeAsset?: OmnistonAssetAddress
-  protocolFeeUnits: string
-  quoteTimestamp: number
-  estimatedGasConsumption: string
-  params?: unknown
 }

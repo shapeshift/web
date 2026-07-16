@@ -4,7 +4,7 @@ import {
   solanaChainId,
   usdcOnSolanaAssetId,
 } from '@shapeshiftoss/caip'
-import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   BigAmount,
   bnOrZero,
@@ -39,7 +39,7 @@ import {
   DEFAULT_ACROSS_SOLANA_USER_ADDRESS,
 } from '../constant'
 import { fetchAcrossTrade } from './fetchAcrossTrade'
-import { getAcrossTransactionData } from './getAcrossTransactionData'
+import { getAcrossStepData } from './getAcrossStepData'
 import type { AcrossTradeQuoteInput, AcrossTradeRateInput } from './types'
 import { isAcrossError } from './types'
 
@@ -240,63 +240,18 @@ export async function getTrade({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
 
-  const maybeTransactionData = await getAcrossTransactionData(
-    quote.swapTx,
+  const maybeStepData = await getAcrossStepData({
+    swapTx: quote.swapTx,
     sellAsset,
-    deps.assertGetSolanaChainAdapter,
-  )
+    from: depositor,
+    supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+    fallbackNetworkFeeCryptoBaseUnit: quote.fees.originGas.amount,
+    assertGetEvmChainAdapter: deps.assertGetEvmChainAdapter,
+    assertGetSolanaChainAdapter: deps.assertGetSolanaChainAdapter,
+  })
 
-  if (maybeTransactionData.isErr()) return Err(maybeTransactionData.unwrapErr())
-  const transactionData = maybeTransactionData.unwrap()
-
-  const networkFeeCryptoBaseUnit = await (async () => {
-    if (transactionData?.type === 'solana') {
-      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-      const { fast } = await adapter.getFeeData({
-        to: '',
-        value: '0',
-        chainSpecific: {
-          from: depositor,
-          addressLookupTableAccounts: transactionData.addressLookupTableAddresses,
-          instructions: transactionData.instructions,
-        },
-      })
-      return fast.txFee
-    }
-
-    if (transactionData?.type === 'evm') {
-      const { data, to, value, gasLimit } = transactionData
-
-      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-      const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
-
-      if (bnOrZero(gasLimit).gt(0)) {
-        const { average } = await adapter.getGasFeeData()
-        return evm.calcNetworkFeeCryptoBaseUnit({
-          ...average,
-          supportsEIP1559,
-          gasLimit: gasLimit ?? '0',
-        })
-      }
-
-      try {
-        const feeData = await evm.getFees({
-          adapter,
-          data,
-          to,
-          value,
-          from: depositor,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      } catch {
-        return quote.fees.originGas.amount
-      }
-    }
-
-    return quote.fees.originGas.amount
-  })()
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   // Build protocol fee asset ID — Across returns its own numeric chain IDs, convert to CAIP
   const bridgeFeeAssetCaipChainId = acrossChainIdToChainId[bridgeFeeAsset.chainId.toString()]

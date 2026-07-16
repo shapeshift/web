@@ -10,25 +10,55 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
 import type { SwapErrorRight, SwapperDeps, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { AcrossSwapTx } from './types'
 
-export const getAcrossTransactionData = async (
-  swapTx: AcrossSwapTx,
-  sellAsset: Asset,
-  assertGetSolanaChainAdapter: SwapperDeps['assertGetSolanaChainAdapter'],
-): Promise<Result<TxBuildData | undefined, SwapErrorRight>> => {
+export const getAcrossStepData = async ({
+  swapTx,
+  sellAsset,
+  from,
+  supportsEIP1559,
+  fallbackNetworkFeeCryptoBaseUnit,
+  assertGetEvmChainAdapter,
+  assertGetSolanaChainAdapter,
+}: {
+  swapTx: AcrossSwapTx
+  sellAsset: Asset
+  from: string
+  supportsEIP1559: boolean
+  fallbackNetworkFeeCryptoBaseUnit: string
+  assertGetEvmChainAdapter: SwapperDeps['assertGetEvmChainAdapter']
+  assertGetSolanaChainAdapter: SwapperDeps['assertGetSolanaChainAdapter']
+}): Promise<
+  Result<{ transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }, SwapErrorRight>
+> => {
   if (swapTx.ecosystem === 'evm') {
-    return Ok({
+    const transactionData = {
       type: 'evm' as const,
       chainId: Number(fromChainId(sellAsset.chainId).chainReference),
       to: swapTx.to,
       data: swapTx.data,
       value: swapTx.value ?? '0',
       gasLimit: swapTx.gas,
-    })
+    }
+
+    const networkFeeCryptoBaseUnit = await (async () => {
+      try {
+        return await getEvmNetworkFeeCryptoBaseUnit({
+          adapter: assertGetEvmChainAdapter(sellAsset.chainId),
+          transactionData,
+          from,
+          supportsEIP1559,
+        })
+      } catch {
+        return fallbackNetworkFeeCryptoBaseUnit
+      }
+    })()
+
+    return Ok({ transactionData, networkFeeCryptoBaseUnit })
   }
 
   if (swapTx.ecosystem === 'svm') {
@@ -62,16 +92,34 @@ export const getAcrossTransactionData = async (
         instruction => instruction.programId.toString() !== computeBudgetProgramId,
       )
 
-      return Ok({ type: 'solana' as const, instructions, addressLookupTableAddresses })
+      const { fast } = await adapter.getFeeData({
+        to: '',
+        value: '0',
+        chainSpecific: {
+          from,
+          addressLookupTableAccounts: addressLookupTableAddresses,
+          instructions,
+        },
+      })
+
+      return Ok({
+        transactionData: { type: 'solana' as const, instructions, addressLookupTableAddresses },
+        networkFeeCryptoBaseUnit: fast.txFee,
+      })
     } catch (e) {
       return Err(
         makeSwapErrorRight({
-          message: `[getAcrossTransactionData] Failed to decompile Solana transaction: ${e}`,
+          message: `[getAcrossStepData] Failed to build Solana step: ${e}`,
           code: TradeQuoteError.UnknownError,
         }),
       )
     }
   }
 
-  return Ok(undefined)
+  return Err(
+    makeSwapErrorRight({
+      message: `[getAcrossStepData] unsupported ecosystem: ${swapTx.ecosystem}`,
+      code: TradeQuoteError.UnsupportedChain,
+    }),
+  )
 }

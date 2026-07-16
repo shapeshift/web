@@ -1,7 +1,6 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import BigNumber from 'bignumber.js'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import type {
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
@@ -61,40 +60,8 @@ export const bebopApi: SwapperApi = {
 
     return tradeRateResult.map(tradeRate => [tradeRate])
   },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[Bebop] invalid evm transaction')
-
-    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    if (!gasLimitFromApi) {
-      throw new Error('Bebop API did not provide gas estimate - cannot execute trade safely')
-    }
-
-    return adapter.buildCustomApiTx({
-      accountNumber,
-      data,
-      from,
-      to,
-      value,
-      ...feeData,
-      gasLimit: BigNumber.max(feeData.gasLimit, gasLimitFromApi).toFixed(),
-    })
-  },
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
   getUnsignedSolanaMessage: ({ tradeQuote, stepIndex }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -110,28 +77,6 @@ export const bebopApi: SwapperApi = {
       serializedTx: bebopSolanaSerializedTx,
       quoteId,
     })
-  },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[Bebop] invalid evm transaction')
-
-    const { to, value, data } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
   },
   checkTradeStatus: input => {
     if (input.chainId === solanaChainId) {

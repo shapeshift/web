@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -10,6 +9,7 @@ import type { Address } from 'viem'
 import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
 import type { GetEvmTradeRateInput, SwapErrorRight, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -79,13 +79,11 @@ export async function getBebopTradeRate(
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
   const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-  const { fast } = await adapter.getGasFeeData()
-  const gasLimit = bnOrZero(quote.tx.gas).toString()
 
-  const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-    ...fast,
+  const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+    adapter,
     supportsEIP1559: Boolean(input.supportsEIP1559),
-    gasLimit,
+    gasLimit: bnOrZero(quote.tx.gas).toString(),
   })
 
   const tradeRate: TradeRate = {

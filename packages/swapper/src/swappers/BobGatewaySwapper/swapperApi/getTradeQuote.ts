@@ -87,8 +87,8 @@ export const getBobGatewayTradeQuote = async (
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   })
-  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
 
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { orderId, transactionData, feeData } = maybeStepData.unwrap()
 
   const {

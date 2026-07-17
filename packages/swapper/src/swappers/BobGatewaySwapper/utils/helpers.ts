@@ -171,6 +171,31 @@ export const getBobGatewayQuote = async ({
   }
 }
 
+export const createBobGatewayOrder = async (config: SwapperConfig, quote: GatewayQuoteV3) => {
+  try {
+    const order = await getBobGatewayClient(config).api.createOrderV3({ gatewayQuoteV3: quote })
+    return Ok(order)
+  } catch (err) {
+    if (isGatewayError(err) && err.code === GatewayErrorCode.InsufficientConfirmedFunds) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[BobGateway] insufficient confirmed balance',
+          code: TradeQuoteError.InsufficientFundsUnconfirmed,
+          cause: err,
+        }),
+      )
+    }
+
+    return Err(
+      makeSwapErrorRight({
+        message: '[BobGateway] failed to create order',
+        code: TradeQuoteError.QueryFailed,
+        cause: err,
+      }),
+    )
+  }
+}
+
 export const registerBobGatewayTx = async ({
   config,
   orderId,
@@ -215,27 +240,27 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
       const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
       const { fast } = await adapter.httpProvider.getNetworkFees()
+      if (!fast?.satsPerKiloByte) return
 
-      if (!fast?.satsPerKiloByte) return undefined
       const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
 
       return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
     }
 
     if (sellAsset.chainId === tronChainId) {
+      const adapter = assertGetTronChainAdapter(sellAsset.chainId)
+
       const order = (() => {
         if ('offramp' in quote) return quote.offramp
         if ('tokenSwap' in quote) return quote.tokenSwap
-        return undefined
       })()
-      if (!order) return undefined
 
-      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+      if (!order) return
 
-      const { fast } = await assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
+      const { fast } = await adapter.getFeeData({
         to: toTronBase58(order.txTo),
         value: order.inputAmount.amount,
-        chainSpecific: { contractAddress },
+        chainSpecific: { contractAddress: contractAddressOrUndefined(sellAsset.assetId) },
       })
 
       return fast.txFee
@@ -248,10 +273,8 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
         ? BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT
         : BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT
 
-    return await getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit })
-  } catch {
-    return undefined
-  }
+    return getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit })
+  } catch {}
 }
 
 export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV3): TxStatus => {

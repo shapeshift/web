@@ -20,6 +20,7 @@ import { CHAINFLIP_DCA_QUOTE } from '../constants'
 import type { ChainflipBaasQuoteQuote } from '../models'
 import type { ChainflipMetadata } from '../types'
 import { chainflipService } from './chainflipService'
+import { getChainflipStepData } from './getChainflipStepData'
 import {
   assertValidTrade,
   calculateChainflipMinPrice,
@@ -28,9 +29,7 @@ import {
   getChainFlipSwap,
   getMaxBoostFee,
   getProtocolFees,
-  getStepFeeData,
   getSwapSource,
-  getTransactionData,
 } from './helpers'
 
 export const getQuoteOrRate = async (
@@ -141,15 +140,14 @@ export const getQuoteOrRate = async (
         const { chainflipSpecific, swapperMetadata, transactionData, feeData } =
           await (async () => {
             if (quoteOrRate === 'rate') {
-              const feeData = await getStepFeeData({
+              const { networkFeeCryptoBaseUnit, chainSpecific } = await getChainflipStepData({
                 deps,
                 input,
                 sellAsset,
-                sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-                to: input.sendAddress,
-                transactionData: undefined,
+                sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                depositAddress: undefined,
               })
-              return { feeData }
+              return { feeData: { networkFeeCryptoBaseUnit, chainSpecific } }
             }
 
             if (input.accountNumber === undefined) throw new Error('accountNumber is required')
@@ -188,28 +186,20 @@ export const getQuoteOrRate = async (
 
             if (!swapId || !depositAddress) throw new Error('Invalid swap response')
 
-            const transactionData = await getTransactionData({
-              deps,
-              sellAsset,
-              depositAddress,
-              sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              from: input.sendAddress,
-            })
-
-            const feeData = await getStepFeeData({
-              deps,
-              input,
-              sellAsset,
-              sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              to: depositAddress,
-              transactionData,
-            })
+            const { transactionData, networkFeeCryptoBaseUnit, chainSpecific } =
+              await getChainflipStepData({
+                deps,
+                input,
+                sellAsset,
+                sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                depositAddress,
+              })
 
             return {
               chainflipSpecific: { depositAddress },
               swapperMetadata: { name: 'chainflip', swapId } satisfies ChainflipMetadata,
               transactionData,
-              feeData,
+              feeData: { networkFeeCryptoBaseUnit, chainSpecific },
             }
           })()
 

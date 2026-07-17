@@ -1,7 +1,7 @@
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import type { SolanaComputeBudgetOptions } from '../../solana-utils'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../solana-utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
@@ -23,64 +23,8 @@ const solanaComputeBudget: SolanaComputeBudgetOptions = {
 export const chainflipApi: SwapperApi = {
   getTradeQuote,
   getTradeRate,
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    assertGetEvmChainAdapter,
-    supportsEIP1559,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[Chainflip] invalid evm transaction')
-
-    const { to, data, value } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return adapter.buildCustomApiTx({
-      accountNumber,
-      from,
-      to,
-      value,
-      data,
-      ...feeData,
-    })
-  },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[Chainflip] invalid evm transaction')
-
-    const { to, data, value } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter,
-      data,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
-
-    return networkFeeCryptoBaseUnit
-  },
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
   getUnsignedUtxoTransaction: ({
     stepIndex,
     tradeQuote,

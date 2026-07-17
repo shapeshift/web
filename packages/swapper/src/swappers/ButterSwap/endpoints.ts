@@ -1,6 +1,4 @@
-import { evm } from '@shapeshiftoss/chain-adapters'
-import BigNumber from 'bignumber.js'
-
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
 import type { SolanaComputeBudgetOptions } from '../../solana-utils/getUnsignedSolanaTransaction'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
@@ -18,76 +16,8 @@ export const butterSwapApi: SwapperApi = {
   getTradeQuote,
   getTradeRate,
   checkTradeStatus,
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('[ButterSwap] invalid evm transaction')
-
-    const { to, data, value, gasLimit: gasLimitFromApi } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({
-      adapter,
-      data,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
-
-    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      gasLimit: gasLimitFromApi ?? '0',
-      gasPrice: feeData.gasPrice ?? '0',
-      maxFeePerGas: feeData.maxFeePerGas,
-      maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
-      supportsEIP1559,
-    })
-
-    return BigNumber.max(feeData.networkFeeCryptoBaseUnit, networkFeeCryptoBaseUnit).toFixed()
-  },
-  getUnsignedEvmTransaction: async args => {
-    const { from, stepIndex, tradeQuote, supportsEIP1559, assertGetEvmChainAdapter } = args
-
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[ButterSwap] invalid evm transaction')
-
-    const { to, data, value, gasLimit: gasLimitFromApi } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({
-      adapter,
-      data,
-      to,
-      value,
-      from,
-      supportsEIP1559,
-    })
-
-    return adapter.buildCustomApiTx({
-      accountNumber,
-      data,
-      from,
-      to,
-      value,
-      ...feeData,
-      gasLimit: BigNumber.max(feeData.gasLimit, gasLimitFromApi ?? '0').toFixed(),
-    })
-  },
+  getEvmTransactionFees,
+  getUnsignedEvmTransaction,
   getUnsignedUtxoTransaction: async ({
     stepIndex,
     tradeQuote,

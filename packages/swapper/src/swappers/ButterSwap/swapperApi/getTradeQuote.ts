@@ -2,7 +2,6 @@ import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   BigAmount,
-  bnOrZero,
   chainIdToFeeAssetId,
   convertDecimalPercentageToBasisPoints,
 } from '@shapeshiftoss/utils'
@@ -19,7 +18,7 @@ import {
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { makeButterSwapAffiliate } from '../utils/constants'
-import { getButterSwapTransactionData } from '../utils/getButterSwapTransactionData'
+import { getButterSwapStepData } from '../utils/getButterSwapStepData'
 import {
   ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
@@ -28,6 +27,8 @@ import {
   isBuildTxSuccess,
   isRouteSuccess,
 } from '../xhr'
+
+// TODO: Debug why same-chain Tron swaps revert (swapAndCall method works on EVM but 0 successful on Tron)
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -58,8 +59,6 @@ export const getTradeQuote = async (
     )
   }
 
-  // TODO: Debug why same-chain Tron swaps revert (swapAndCall method works on EVM but 0 successful on Tron)
-
   if (!sendAddress) {
     return Err(
       makeSwapErrorRight({
@@ -72,6 +71,7 @@ export const getTradeQuote = async (
   const slippageDecimal =
     slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
+
   const slippage = convertDecimalPercentageToBasisPoints(slippageDecimal).toString()
 
   // Call ButterSwap /route API
@@ -130,6 +130,7 @@ export const getTradeQuote = async (
 
   if (buildTxResult.isErr()) return Err(buildTxResult.unwrapErr())
   const buildTxResponse = buildTxResult.unwrap()
+
   if (!isBuildTxSuccess(buildTxResponse)) {
     return Err(
       makeSwapErrorRight({
@@ -138,6 +139,7 @@ export const getTradeQuote = async (
       }),
     )
   }
+
   const buildTx = buildTxResponse.data[0]
   if (!buildTx) {
     return Err(
@@ -159,12 +161,6 @@ export const getTradeQuote = async (
     )
   }
 
-  // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
-  const networkFeeCryptoBaseUnit = BigAmount.fromPrecision({
-    value: bnOrZero(route.gasFee?.amount),
-    precision: feeAsset.precision,
-  }).toBaseUnit()
-
   // Use destination receive amount as a priority if present and defined
   // It won't for same-chain swaps, so we fall back to the source chain receive amount (i.e source chain *is* the destination chain)
   const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
@@ -183,15 +179,18 @@ export const getTradeQuote = async (
     buyAsset,
   })
 
-  const maybeTransactionData = await getButterSwapTransactionData(
+  const maybeStepData = await getButterSwapStepData(
     buildTx,
     route,
     sellAsset,
-    _deps.assertGetSolanaChainAdapter,
+    feeAsset,
+    _deps,
+    Boolean('supportsEIP1559' in input ? input.supportsEIP1559 : false),
   )
 
-  if (maybeTransactionData.isErr()) return Err(maybeTransactionData.unwrapErr())
-  const transactionData = maybeTransactionData.unwrap()
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit, transactionData, butterSwapTransactionMetadata } =
+    maybeStepData.unwrap()
 
   const tradeQuote: TradeQuote = {
     id: route.hash,
@@ -221,7 +220,8 @@ export const getTradeQuote = async (
         accountNumber,
         allowanceContract: sellAsset.chainId === tronChainId ? buildTx.to : route.contract ?? '',
         estimatedExecutionTimeMs: route.timeEstimated * 1000,
-        ...transactionData,
+        transactionData,
+        butterSwapTransactionMetadata,
         affiliateFee: buildAffiliateFee({
           strategy: 'buy_asset',
           affiliateBps,

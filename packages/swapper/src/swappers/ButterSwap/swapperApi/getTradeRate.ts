@@ -2,7 +2,6 @@ import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   BigAmount,
-  bnOrZero,
   chainIdToFeeAssetId,
   convertDecimalPercentageToBasisPoints,
 } from '@shapeshiftoss/utils'
@@ -19,6 +18,7 @@ import {
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { makeButterSwapAffiliate } from '../utils/constants'
+import { getButterSwapNetworkFeeCryptoBaseUnit } from '../utils/getButterSwapStepData'
 import {
   ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
@@ -63,6 +63,7 @@ export const getTradeRate = async (
   const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
     SwapperName.ButterSwap,
   )
+
   const slippage = convertDecimalPercentageToBasisPoints(
     slippageTolerancePercentageDecimal,
   ).toString()
@@ -74,9 +75,8 @@ export const getTradeRate = async (
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps),
   })
-  if (result.isErr()) {
-    return Err(result.unwrapErr())
-  }
+
+  if (result.isErr()) return Err(result.unwrapErr())
   const routeResponse = result.unwrap()
 
   if (!isRouteSuccess(routeResponse)) {
@@ -85,11 +85,9 @@ export const getTradeRate = async (
         value: (routeResponse as any).minAmount,
         precision: sellAsset.precision,
       }).toBaseUnit()
+
       return Err(
-        createTradeAmountTooSmallErr({
-          minAmountCryptoBaseUnit,
-          assetId: sellAsset.assetId,
-        }),
+        createTradeAmountTooSmallErr({ minAmountCryptoBaseUnit, assetId: sellAsset.assetId }),
       )
     }
     return Err(
@@ -138,13 +136,13 @@ export const getTradeRate = async (
     )
   }
 
-  // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
-  const networkFeeCryptoBaseUnit = bnOrZero(route.gasFee?.amount).gt(0)
-    ? BigAmount.fromPrecision({
-        value: route.gasFee.amount,
-        precision: feeAsset.precision,
-      }).toBaseUnit()
-    : '0'
+  const networkFeeCryptoBaseUnit = await getButterSwapNetworkFeeCryptoBaseUnit({
+    route,
+    sellAsset,
+    feeAsset,
+    assertGetEvmChainAdapter: _deps.assertGetEvmChainAdapter,
+    supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+  })
 
   const tradeRate: TradeRate = {
     id: route.hash,

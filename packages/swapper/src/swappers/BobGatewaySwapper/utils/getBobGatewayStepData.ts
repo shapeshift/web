@@ -17,10 +17,6 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { createBobGatewayOrder, toTronBase58 } from './helpers'
 
-// Builds the executable BOB Gateway step from the order response: a single per-chain branch creates the
-// transactionData and prices the network fee from that same tx. EVM bakes a 1.2x-buffered gasLimit onto
-// the tx while pricing the unbuffered estimate for display; UTXO/Tron price via their respective
-// adapters. Tron flows through the TxBuildData tron variant (Bob's feeLimit is unused at exec).
 export const getBobGatewayStepData = async ({
   input,
   deps,

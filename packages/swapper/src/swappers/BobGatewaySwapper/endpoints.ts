@@ -1,8 +1,8 @@
 import { isGatewayError } from '@gobob/bob-sdk'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero } from '@shapeshiftoss/utils'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
+import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
@@ -11,6 +11,7 @@ import {
   getBobGatewayClient,
   mapBobGatewayOrderStatusToTxStatus,
   registerBobGatewayTx,
+  toTronBase58,
 } from './utils/helpers'
 
 const registeredSwapIds = new Set<string>()
@@ -78,13 +79,9 @@ export const bobGatewayApi: SwapperApi = {
 
     return fast.txFee
   },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    assertGetEvmChainAdapter,
-    supportsEIP1559,
-  }) => {
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
+  getUnsignedTronTransaction: ({ from, stepIndex, tradeQuote, assertGetTronChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) {
       throw new Error('[BobGateway] unable to execute a trade rate')
     }
@@ -92,51 +89,21 @@ export const bobGatewayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[BobGateway] invalid evm transaction')
+    if (transactionData?.type !== 'tron') throw new Error('[BobGateway] invalid tron transaction')
 
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+    const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
     const { to, data, value } = transactionData
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    // Pad the gas limit of the tx we actually broadcast to reduce the risk of out-of-gas reverts.
-    const gasLimit = bnOrZero(feeData.gasLimit).times(1.2).toFixed(0)
 
     return adapter.buildCustomApiTx({
       accountNumber,
       from,
-      to,
+      to: toTronBase58(to),
       value,
       data,
-      ...feeData,
-      gasLimit,
     })
   },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('[BobGateway] unable to execute a trade rate')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[BobGateway] invalid evm transaction')
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const { to, data, value } = transactionData
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
-  },
+  getTronTransactionFees,
   checkTradeStatus: async ({ swap, config, txHash }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 

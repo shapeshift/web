@@ -2112,8 +2112,8 @@ importers:
         specifier: ^0.1.1-0.2
         version: 0.1.16
       '@gobob/bob-sdk':
-        specifier: 5.6.0
-        version: 5.6.0(@tanstack/react-query@5.69.0(react@19.2.4))(bufferutil@4.1.0)(eslint@8.57.1)(react-dom@18.2.0(patch_hash=472f33b26781cbf66543b4c1cdf5be1c2ea4cd7232403bb255cd75e280bf3158)(react@19.2.4))(react@19.2.4)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+        specifier: 5.8.1
+        version: 5.8.1(@tanstack/react-query@5.69.0(react@19.2.4))(bufferutil@4.1.0)(eslint@8.57.1)(react-dom@18.2.0(patch_hash=472f33b26781cbf66543b4c1cdf5be1c2ea4cd7232403bb255cd75e280bf3158)(react@19.2.4))(react@19.2.4)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@mysten/sui':
         specifier: 1.45.2
         version: 1.45.2(typescript@5.8.2)
@@ -4065,8 +4065,8 @@ packages:
   '@gobob/bob-sdk@3.1.7-alpha0':
     resolution: {integrity: sha512-1qdKAYEigbqNt9x/0jYKeeC/d0u1lh6GluHaBIxp2Pt6p2+4fUVFnDdtGo5pMcgft7Bvo8/tdmlFBTzb3BEc5g==}
 
-  '@gobob/bob-sdk@5.6.0':
-    resolution: {integrity: sha512-EjolhqPdLB8C1jaDpQoGYLZfe1NyOUdmg9XDBCozBjugfRu79iQ1c5jKxlNzTmLNOTL9SYYQT+8vk7wwentS7w==}
+  '@gobob/bob-sdk@5.8.1':
+    resolution: {integrity: sha512-fF8q3CnWEtUMcc4+WWWMq8dY08qL1kBV+/sn6gVSQv8wGVe95Qg0OLTZm0HbrPyvXjZreDTCIrO7ztmwp+mWxg==}
 
   '@gobob/sats-wagmi@0.3.23':
     resolution: {integrity: sha512-7YAcQXo20v/SKNBv4Jhv9SYJJ9fzXUSC1ntUKwR0hjdCV9Kj0ivIRmGKvZwb8fqwgNYEaL4R5PbrMWnvFNTRgQ==}
@@ -20131,7 +20131,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@gobob/bob-sdk@5.6.0(@tanstack/react-query@5.69.0(react@19.2.4))(bufferutil@4.1.0)(eslint@8.57.1)(react-dom@18.2.0(patch_hash=472f33b26781cbf66543b4c1cdf5be1c2ea4cd7232403bb255cd75e280bf3158)(react@19.2.4))(react@19.2.4)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@gobob/bob-sdk@5.8.1(@tanstack/react-query@5.69.0(react@19.2.4))(bufferutil@4.1.0)(eslint@8.57.1)(react-dom@18.2.0(patch_hash=472f33b26781cbf66543b4c1cdf5be1c2ea4cd7232403bb255cd75e280bf3158)(react@19.2.4))(react@19.2.4)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@bitcoinerlab/secp256k1': 1.2.0
       '@eslint/eslintrc': 3.3.5

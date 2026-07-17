@@ -116,7 +116,8 @@ export const getEnabledSwappers = (
       DebridgeSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Debridge)),
     [SwapperName.BobGateway]:
       BobGatewaySwap &&
-      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.BobGateway)),
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.BobGateway)) &&
+      !isLedgerTronSell,
     [SwapperName.Test]: false,
   }
 }

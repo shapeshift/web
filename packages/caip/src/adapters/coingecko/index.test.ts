@@ -316,6 +316,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0x2d270e6886d130d724215a266106e6832161eaed',
       })
+      const usdcOnCronos = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.CronosMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x3d7f2c478aafdb65542bcb44bceec05849999d2d',
+      })
       const usdcOnSonic = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.SonicMainnet,
@@ -353,6 +359,7 @@ describe('adapters:coingecko', () => {
         usdcOnZkSyncEra,
         usdcOnWorldChain,
         usdcOnInk,
+        usdcOnCronos,
         usdcOnSonic,
         usdcOnUnichain,
         usdcOnCelo,

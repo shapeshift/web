@@ -1,19 +1,20 @@
 import type {
-  GatewayOrderStatusV2,
-  GatewayQuoteV2,
+  GatewayOrderStatusV3,
+  GatewayQuoteV3,
   GetQuoteParams,
-  RegisterTxV2,
+  RegisterTxV3,
 } from '@gobob/bob-sdk'
 import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
+  btcChainId,
   ethChainId,
   fromAssetId,
-  fromChainId,
   toAssetId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
-import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import {
@@ -24,21 +25,15 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { TronWeb } from 'tronweb'
 import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetTradeQuoteInput,
-  QuoteFeeData,
-  SwapErrorRight,
-  SwapperConfig,
-  SwapperDeps,
-  TxBuildData,
-} from '../../../types'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import type { QuoteFeeData, SwapErrorRight, SwapperConfig, SwapperDeps } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
-import type { BobGatewayOrder } from '../types'
 import type { BobGatewayChainName } from './constants'
 import {
   BOB_GATEWAY_BASE_URL,
@@ -48,10 +43,25 @@ import {
   bobGatewayChainNameToChainId,
   chainIdToBobGatewayChainName,
   decimalSlippageToBobBps,
+  DUMMY_BTC_ADDRESS,
+  DUMMY_EVM_ADDRESS,
+  DUMMY_TRON_ADDRESS,
 } from './constants'
+
+export const dummyAddressForChainId = (chainId: ChainId): string => {
+  if (chainId === btcChainId) return DUMMY_BTC_ADDRESS
+  if (chainId === tronChainId) return DUMMY_TRON_ADDRESS
+  return DUMMY_EVM_ADDRESS
+}
 
 export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK => {
   return new GatewaySDK({ basePath: BOB_GATEWAY_BASE_URL, apiKey: config.VITE_BOB_GATEWAY_API_KEY })
+}
+
+export const toTronBase58 = (address: string): string => {
+  if (address.startsWith('T')) return address
+  if (address.startsWith('0x')) return TronWeb.address.fromHex(address.slice(2))
+  return TronWeb.address.fromHex(address)
 }
 
 export const assetIdToBobGatewayToken = (assetId: string): string => {
@@ -91,7 +101,7 @@ export const getBobGatewayQuote = async ({
   amount: string
   affiliateBps: string
   slippageTolerancePercentageDecimal: string | undefined
-}): Promise<Result<GatewayQuoteV2, SwapErrorRight>> => {
+}): Promise<Result<GatewayQuoteV3, SwapErrorRight>> => {
   const slippage = decimalSlippageToBobBps(
     slippageTolerancePercentageDecimal ??
       getDefaultSlippageDecimalPercentageForSwapper(SwapperName.BobGateway),
@@ -107,6 +117,7 @@ export const getBobGatewayQuote = async ({
       toUserAddress: recipient,
       amount,
       maxSlippage: Number(slippage),
+      ownerAddress: sellChainName === 'bitcoin' ? recipient : (sender as string),
       affiliates: getBobGatewayAffiliates(affiliateBps),
     })
 
@@ -160,63 +171,6 @@ export const getBobGatewayQuote = async ({
   }
 }
 
-export const createBobGatewayOrder = async (
-  config: SwapperConfig,
-  gatewayQuote: GatewayQuoteV2,
-  sellAsset: Asset,
-  value: string,
-): Promise<Result<BobGatewayOrder, SwapErrorRight>> => {
-  try {
-    const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
-      gatewayQuoteV2: gatewayQuote,
-    })
-
-    // onramp (BTC→EVM)
-    if ('onramp' in orderResponse) {
-      return Ok({
-        orderId: orderResponse.onramp.orderId,
-        transactionData: {
-          type: 'utxo' as const,
-          to: orderResponse.onramp.address,
-          opReturnData: orderResponse.onramp.opReturnData ?? '',
-          value,
-        },
-      })
-    }
-
-    // offramp (EVM→BTC) and tokenSwap (EVM→EVM) orders share the same tx shape
-    const order = 'offramp' in orderResponse ? orderResponse.offramp : orderResponse.tokenSwap
-    return Ok({
-      orderId: order.orderId,
-      transactionData: {
-        type: 'evm' as const,
-        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-        to: order.tx.to,
-        data: order.tx.data,
-        value: order.tx.value,
-      },
-    })
-  } catch (err) {
-    if (isGatewayError(err) && err.code === GatewayErrorCode.InsufficientConfirmedFunds) {
-      return Err(
-        makeSwapErrorRight({
-          message: '[BobGateway] insufficient confirmed balance',
-          code: TradeQuoteError.InsufficientFundsUnconfirmed,
-          cause: err,
-        }),
-      )
-    }
-
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] failed to create order',
-        code: TradeQuoteError.QueryFailed,
-        cause: err,
-      }),
-    )
-  }
-}
-
 export const registerBobGatewayTx = async ({
   config,
   orderId,
@@ -230,79 +184,31 @@ export const registerBobGatewayTx = async ({
   sellAsset: Asset
   buyAsset: Asset
 }): Promise<void> => {
-  const registerTxV2: RegisterTxV2 = (() => {
+  const registerTxV3: RegisterTxV3 = (() => {
+    const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
+
     // BTC→EVM
-    if (chainIdToBobGatewayChainName[sellAsset.chainId] === 'bitcoin') {
+    if (sellChainName === 'bitcoin') {
       return { onramp: { orderId, bitcoinTxid: txHash } }
     }
 
     // EVM→BTC
     if (chainIdToBobGatewayChainName[buyAsset.chainId] === 'bitcoin') {
-      return { offramp: { orderId, evmTxhash: txHash } }
+      return { offramp: { orderId, srcChain: sellChainName, srcTxHash: txHash } }
     }
 
     // EVM→EVM
-    return { tokenSwap: { orderId, evmTxhash: txHash } }
+    return { tokenSwap: { orderId, srcChain: sellChainName, srcTxHash: txHash } }
   })()
 
-  await getBobGatewayClient(config).api.registerTxV2({ registerTxV2 })
-}
-
-export const getBobGatewayQuoteFeeData = async (
-  input: GetTradeQuoteInput,
-  { assertGetUtxoChainAdapter, assertGetEvmChainAdapter }: SwapperDeps,
-  transactionData: TxBuildData,
-): Promise<Result<Omit<QuoteFeeData, 'protocolFees'>, SwapErrorRight>> => {
-  const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
-
-  try {
-    if (transactionData.type === 'utxo' && 'xpub' in input) {
-      const { to, opReturnData } = transactionData
-
-      const { fast } = await assertGetUtxoChainAdapter(sellAsset.chainId).getFeeData({
-        to,
-        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        chainSpecific: { pubkey: input.xpub, opReturnData },
-        sendMax: false,
-      })
-
-      return Ok({
-        networkFeeCryptoBaseUnit: fast.txFee,
-        chainSpecific: { satsPerByte: fast.chainSpecific.satoshiPerByte },
-      })
-    }
-
-    if (transactionData.type === 'evm' && input.sendAddress && 'supportsEIP1559' in input) {
-      const { to, data, value } = transactionData
-
-      const { networkFeeCryptoBaseUnit } = await evm.getFees({
-        adapter: assertGetEvmChainAdapter(sellAsset.chainId),
-        to,
-        data,
-        value,
-        from: input.sendAddress,
-        supportsEIP1559: input.supportsEIP1559,
-      })
-
-      return Ok({ networkFeeCryptoBaseUnit })
-    }
-
-    throw new Error('[BobGateway] invalid quote')
-  } catch (err) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] failed to estimate network fee',
-        code: TradeQuoteError.NetworkFeeEstimationFailed,
-        cause: err,
-      }),
-    )
-  }
+  await getBobGatewayClient(config).api.registerTxV3({ registerTxV3 })
 }
 
 export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
-  quote: GatewayQuoteV2,
+  quote: GatewayQuoteV3,
   sellAsset: Asset,
-  { assertGetEvmChainAdapter, assertGetUtxoChainAdapter }: SwapperDeps,
+  { assertGetEvmChainAdapter, assertGetUtxoChainAdapter, assertGetTronChainAdapter }: SwapperDeps,
+  supportsEIP1559: boolean,
 ): Promise<string | undefined> => {
   try {
     if ('onramp' in quote) {
@@ -316,21 +222,39 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
       return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
     }
 
-    const defaultGasLimit =
+    if (sellAsset.chainId === tronChainId) {
+      const order = (() => {
+        if ('offramp' in quote) return quote.offramp
+        if ('tokenSwap' in quote) return quote.tokenSwap
+        return undefined
+      })()
+      if (!order) return undefined
+
+      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+
+      const { fast } = await assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
+        to: toTronBase58(order.txTo),
+        value: order.inputAmount.amount,
+        chainSpecific: { contractAddress },
+      })
+
+      return fast.txFee
+    }
+
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
+    const gasLimit =
       'offramp' in quote
         ? BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT
         : BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT
 
-    const { average } = await assertGetEvmChainAdapter(sellAsset.chainId).getGasFeeData()
-    const feePerGas = bnOrZero(average.maxFeePerGas).gt(0) ? average.maxFeePerGas : average.gasPrice
-
-    return bnOrZero(defaultGasLimit).times(bnOrZero(feePerGas)).toFixed(0)
+    return await getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit })
   } catch {
     return undefined
   }
 }
 
-export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV2): TxStatus => {
+export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV3): TxStatus => {
   if ('inProgress' in status) return TxStatus.Pending
   if ('success' in status) return TxStatus.Confirmed
   if ('failed' in status) return TxStatus.Failed
@@ -344,6 +268,14 @@ const bobGatewayFeeToAssetId = (fee: { address: string; chain: string }): AssetI
 
   if (fee.address.toLowerCase() === zeroAddress) return chainIdToFeeAssetId(chainId)
 
+  if (chainId === tronChainId) {
+    return toAssetId({
+      chainId,
+      assetNamespace: ASSET_NAMESPACE.trc20,
+      assetReference: toTronBase58(fee.address),
+    })
+  }
+
   return toAssetId({
     chainId,
     assetNamespace: ASSET_NAMESPACE.erc20,
@@ -352,7 +284,7 @@ const bobGatewayFeeToAssetId = (fee: { address: string; chain: string }): AssetI
 }
 
 export const parseBobGatewayQuote = (
-  quote: GatewayQuoteV2,
+  quote: GatewayQuoteV3,
   buyAsset: Asset,
   assetsById: AssetsByIdPartial,
 ) => {
@@ -411,12 +343,20 @@ export const parseBobGatewayQuote = (
   }
 }
 
-export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV2, sellAsset: Asset): string => {
-  if (!isEvmChainId(sellAsset.chainId)) return ''
+export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV3, sellAsset: Asset): string => {
+  const isTron = sellAsset.chainId === tronChainId
+  if (!isEvmChainId(sellAsset.chainId) && !isTron) return ''
   if (!contractAddressOrUndefined(sellAsset.assetId)) return ''
-  if ('offramp' in quote) return quote.offramp.txTo
-  if ('tokenSwap' in quote) return quote.tokenSwap.txTo
-  return ''
+
+  const txTo = (() => {
+    if ('offramp' in quote) return quote.offramp.txTo
+    if ('tokenSwap' in quote) return quote.tokenSwap.txTo
+    return ''
+  })()
+  if (!txTo) return ''
+
+  if (isTron) return toTronBase58(txTo)
+  return txTo
 }
 
 export const assertValidTrade = ({

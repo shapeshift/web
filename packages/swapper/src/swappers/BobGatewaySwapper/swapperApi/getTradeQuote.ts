@@ -12,12 +12,11 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { getBobGatewayStepData } from '../utils/getBobGatewayStepData'
 import {
   assertValidTrade,
-  createBobGatewayOrder,
   getBobGatewayAllowanceContract,
   getBobGatewayQuote,
-  getBobGatewayQuoteFeeData,
   parseBobGatewayQuote,
 } from '../utils/helpers'
 
@@ -81,24 +80,16 @@ export const getBobGatewayTradeQuote = async (
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
   const quote = maybeQuote.unwrap()
 
-  const maybeOrder = await createBobGatewayOrder(
-    config,
+  const maybeStepData = await getBobGatewayStepData({
+    input: input as GetTradeQuoteInput,
+    deps,
     quote,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  )
-  if (maybeOrder.isErr()) return Err(maybeOrder.unwrapErr())
+  })
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
 
-  const order = maybeOrder.unwrap()
-
-  const maybeFeeData = await getBobGatewayQuoteFeeData(
-    input as GetTradeQuoteInput,
-    deps,
-    order.transactionData,
-  )
-
-  if (maybeFeeData.isErr()) return Err(maybeFeeData.unwrapErr())
-  const feeData = maybeFeeData.unwrap()
+  const { orderId, transactionData, feeData } = maybeStepData.unwrap()
 
   const {
     buyAmountBeforeFeesCryptoBaseUnit,
@@ -137,8 +128,8 @@ export const getBobGatewayTradeQuote = async (
         accountNumber,
         allowanceContract,
         estimatedExecutionTimeMs,
-        swapperMetadata: { name: 'bob', orderId: order.orderId },
-        transactionData: order.transactionData,
+        swapperMetadata: { name: 'bob', orderId },
+        transactionData,
       },
     ],
   }

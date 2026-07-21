@@ -1,5 +1,6 @@
 export * from './constants'
 export * from './cowswap-utils'
+export * from './evm-utils'
 export * from './safe-utils'
 export * from './solana-utils'
 export * from './swapper'

@@ -6,9 +6,9 @@ import { v4 as uuid } from 'uuid'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName } from '../../../types'
 import { getInputOutputRate } from '../../../utils'
-import { DUMMY_BTC_ADDRESS, DUMMY_EVM_ADDRESS } from '../utils/constants'
 import {
   assertValidTrade,
+  dummyAddressForChainId,
   getBobGatewayAllowanceContract,
   getBobGatewayQuote,
   getBobGatewayRateNetworkFeeCryptoBaseUnit,
@@ -36,9 +36,9 @@ export const getBobGatewayTradeRate = async (
 
   const { sellChainName, buyChainName } = assertion.unwrap()
 
-  const recipient =
-    receiveAddress ?? (buyAsset.chainId === btcChainId ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS)
-  const sender = sellAsset.chainId === btcChainId ? undefined : DUMMY_EVM_ADDRESS
+  const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
+  const sender =
+    sellAsset.chainId === btcChainId ? undefined : dummyAddressForChainId(sellAsset.chainId)
 
   const maybeQuote = await getBobGatewayQuote({
     config,

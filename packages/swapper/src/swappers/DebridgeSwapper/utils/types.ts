@@ -150,11 +150,7 @@ export type DebridgeSingleChainTransactionResponse = {
   protocolFee?: string
   costsDetails: DebridgeSingleChainCostDetail[]
   estimatedTransactionFee?: DebridgeSingleChainEstimatedTransactionFee
-  tx: {
-    to: string
-    data: string
-    value: string
-  }
+  tx: DebridgeTx
 }
 
 export type DebridgeError = {

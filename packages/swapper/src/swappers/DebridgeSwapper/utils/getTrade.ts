@@ -1,4 +1,4 @@
-import { fromAssetId, fromChainId, isAssetReference } from '@shapeshiftoss/caip'
+import { fromAssetId, isAssetReference } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   BigAmount,
@@ -22,7 +22,6 @@ import type {
   TradeQuoteStep,
   TradeRate,
   TradeRateStep,
-  TxBuildData,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
@@ -35,7 +34,7 @@ import {
 } from '../constant'
 import { fetchDebridgeSingleChainTrade } from './fetchDebridgeSingleChainTrade'
 import { fetchDebridgeTrade } from './fetchDebridgeTrade'
-import { getEvmFeeData } from './getEvmFeeData'
+import { getDebridgeStepData } from './getDebridgeStepData'
 import { isDebridgeError } from './types'
 
 const getDebridgeAssetAddress = (assetId: string): string => {
@@ -172,19 +171,12 @@ export async function getTrade({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.tx.to : ''
 
-  const transactionData: TxBuildData = {
-    type: 'evm',
-    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    to: quote.tx.to,
-    data: quote.tx.data,
-    value: quote.tx.value,
+  const { transactionData, networkFeeCryptoBaseUnit } = await getDebridgeStepData({
+    tx: quote.tx,
     gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
-  }
-
-  const networkFeeCryptoBaseUnit = await getNetworkFee({
+    fallbackNetworkFeeCryptoBaseUnit: quote.estimatedTransactionFee?.total,
     sellAsset,
-    transactionData,
-    senderAddress,
+    from: senderAddress,
     supportsEIP1559: input.supportsEIP1559,
     deps,
   })
@@ -280,35 +272,6 @@ function handleDebridgeError(error: SwapErrorRight): Result<never, SwapErrorRigh
   return Err(makeSwapErrorRight({ message: errorMessage, code: TradeQuoteError.UnknownError }))
 }
 
-async function getNetworkFee({
-  sellAsset,
-  transactionData,
-  senderAddress,
-  supportsEIP1559,
-  deps,
-}: {
-  sellAsset: { chainId: string }
-  transactionData: Extract<TxBuildData, { type: 'evm' }>
-  senderAddress: string
-  supportsEIP1559: boolean
-  deps: SwapperDeps
-}): Promise<string | undefined> {
-  const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-
-  try {
-    const { networkFeeCryptoBaseUnit } = await getEvmFeeData({
-      transactionData,
-      from: senderAddress,
-      supportsEIP1559,
-      adapter,
-    })
-
-    return networkFeeCryptoBaseUnit
-  } catch {
-    return undefined
-  }
-}
-
 async function getSameChainTrade({
   input,
   deps,
@@ -379,19 +342,12 @@ async function getSameChainTrade({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.tx.to : ''
 
-  const transactionData: Extract<TxBuildData, { type: 'evm' }> = {
-    type: 'evm',
-    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    to: quote.tx.to,
-    data: quote.tx.data,
-    value: quote.tx.value,
+  const { transactionData, networkFeeCryptoBaseUnit } = await getDebridgeStepData({
+    tx: quote.tx,
     gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
-  }
-
-  const networkFeeCryptoBaseUnit = await getNetworkFee({
+    fallbackNetworkFeeCryptoBaseUnit: quote.estimatedTransactionFee?.total,
     sellAsset,
-    transactionData,
-    senderAddress,
+    from: senderAddress,
     supportsEIP1559: input.supportsEIP1559,
     deps,
   })

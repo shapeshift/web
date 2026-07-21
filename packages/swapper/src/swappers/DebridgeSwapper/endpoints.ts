@@ -1,16 +1,11 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
-import {
-  checkEvmSwapStatus,
-  getExecutableTradeStep,
-  getSwapMetadata,
-  isExecutableTradeQuote,
-} from '../../utils'
+import { checkEvmSwapStatus, getSwapMetadata } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { debridgeService } from './utils/debridgeService'
-import { getEvmFeeData } from './utils/getEvmFeeData'
 import type {
   DebridgeOrderDetail,
   DebridgeOrderIdsResponse,
@@ -22,62 +17,8 @@ const DEBRIDGE_STATS_API_URL = 'https://stats-api.dln.trade'
 export const debridgeApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as GetEvmTradeQuoteInputBase, deps),
   getTradeRate: (input, deps) => getTradeRate(input as GetEvmTradeRateInput, deps),
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('[deBridge] invalid evm transaction')
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const { networkFeeCryptoBaseUnit } = await getEvmFeeData({
-      transactionData,
-      from,
-      supportsEIP1559,
-      adapter,
-    })
-
-    return networkFeeCryptoBaseUnit
-  },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('[deBridge] invalid evm transaction')
-
-    const { to, value, data } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await getEvmFeeData({ transactionData, from, supportsEIP1559, adapter })
-
-    const unsignedTx = await adapter.buildCustomApiTx({
-      accountNumber,
-      data,
-      from,
-      to,
-      value,
-      ...feeData,
-    })
-
-    return unsignedTx
-  },
+  getEvmTransactionFees,
+  getUnsignedEvmTransaction,
   checkTradeStatus: async ({
     txHash,
     chainId,

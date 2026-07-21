@@ -4,9 +4,9 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'
 import { zeroAddress } from 'viem'
 
-import type { GetExecutionStatusResponse, TokenResponse } from '../../types'
-import { chainIdToNearIntentsChain } from '../../types'
-import { OneClickService } from '../oneClickService'
+import type { GetExecutionStatusResponse, TokenResponse } from '../types'
+import { chainIdToNearIntentsChain } from '../types'
+import { OneClickService } from './oneClickService'
 
 const getTokensWithRetry = async (): Promise<TokenResponse[]> => {
   const maxRetries = 3
@@ -29,7 +29,6 @@ const getTokensWithRetry = async (): Promise<TokenResponse[]> => {
 
   throw lastError ?? new Error('Failed to get tokens after retries')
 }
-
 
 export const getNearIntentsAsset = ({
   nearNetwork,

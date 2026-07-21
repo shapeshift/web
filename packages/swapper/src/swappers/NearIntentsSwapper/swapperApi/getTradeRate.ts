@@ -1,41 +1,23 @@
-import { CHAIN_NAMESPACE, fromAssetId, monadChainId, nearChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import {
-  bn,
-  bnOrZero,
-  chainIdToFeeAssetId,
-  contractAddressOrUndefined,
-  DAO_TREASURY_NEAR,
-  isToken,
-} from '@shapeshiftoss/utils'
+import { nearChainId } from '@shapeshiftoss/caip'
+import { bnOrZero, chainIdToFeeAssetId, DAO_TREASURY_NEAR } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Hex } from 'viem'
-import { getAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import { calculateAccountCreationCosts } from '../../../solana-utils'
-import type {
-  GetTradeRateInput,
-  GetUtxoTradeRateInput,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeRate,
-} from '../../../types'
+import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   createTradeAmountTooSmallErr,
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
-import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset } from '../utils/helpers/helpers'
+import { getNearIntentsRateNetworkFeeCryptoBaseUnit } from '../utils/getNearIntentsStepData'
+import { assetToNearIntentsAsset } from '../utils/helpers'
 import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeRate = async (
@@ -142,252 +124,24 @@ export const getTradeRate = async (
       throw new Error('Missing deposit address in quote response')
     }
 
-    const { chainNamespace } = fromAssetId(sellAsset.assetId)
     const depositAddress = quote.depositAddress
 
-    const getFeeData = async (): Promise<string | undefined> => {
-      switch (chainNamespace) {
-        case CHAIN_NAMESPACE.Evm: {
-          const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-          const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
-
-          // For Monad, skip Tenderly and use adapter's getFeeData directly
-          if (sellAsset.chainId === monadChainId) {
-            try {
-              const feeData = await sellAdapter.getFeeData({
-                to: contractAddress ?? depositAddress,
-                value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-                chainSpecific: {
-                  from: sendAddress || depositAddress,
-                  contractAddress,
-                  data: data || '0x',
-                },
-                sendMax: false,
-              })
-              return feeData.fast.txFee
-            } catch (error) {
-              console.error('Failed to estimate fees for Monad Near Intents:', error)
-              return '0'
-            }
-          }
-
-          // For other EVM chains, use Tenderly simulation
-          try {
-            const simulationResult = await simulateWithStateOverrides(
-              {
-                chainId: sellAsset.chainId,
-                from: getAddress(sendAddress || depositAddress),
-                to: getAddress(contractAddress ?? depositAddress),
-                data: (data || '0x') as Hex,
-                value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-                sellAsset,
-              },
-              {
-                apiKey: deps.config.VITE_TENDERLY_API_KEY,
-                accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-                projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-              },
-            )
-
-            if (!simulationResult.success) {
-              return '0'
-            }
-
-            // Calculate network fee using the simulated gas limit
-            const { average } = await sellAdapter.getGasFeeData()
-            const supportsEIP1559 = 'maxFeePerGas' in average
-            const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-              ...average,
-              supportsEIP1559,
-              gasLimit: simulationResult.gasLimit.toString(),
-            })
-
-            return networkFeeCryptoBaseUnit
-          } catch (error) {
-            return '0'
-          }
-        }
-
-        case CHAIN_NAMESPACE.Utxo: {
-          const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-          const pubkey = (input as GetUtxoTradeRateInput).xpub
-
-          if (!pubkey) {
-            return undefined
-          }
-
-          const feeData = await sellAdapter.getFeeData({
-            to: depositAddress,
-            value: sellAmount,
-            chainSpecific: { pubkey },
-            sendMax: false,
-          })
-          return feeData.fast.txFee
-        }
-
-        case CHAIN_NAMESPACE.Solana: {
-          try {
-            const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-            const tokenId = isToken(sellAsset.assetId)
-              ? fromAssetId(sellAsset.assetId).assetReference
-              : undefined
-
-            if (!sendAddress) {
-              return '0'
-            }
-
-            const instructions = await sellAdapter.buildEstimationInstructions({
-              from: sendAddress,
-              to: depositAddress,
-              tokenId,
-              value: sellAmount,
-            })
-
-            const feeData = await sellAdapter.getFeeData({
-              to: depositAddress,
-              value: sellAmount,
-              chainSpecific: {
-                from: sendAddress,
-                tokenId,
-                instructions,
-              },
-              sendMax: false,
-            })
-
-            const txFee = feeData.fast.txFee
-            const ataCreationCost = calculateAccountCreationCosts(instructions)
-            return bn(txFee).plus(ataCreationCost).toString()
-          } catch (error) {
-            return '0'
-          }
-        }
-
-        case CHAIN_NAMESPACE.Tron: {
-          try {
-            const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
-            const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-            const feeData = await sellAdapter.getFeeData({
-              to: depositAddress,
-              value: sellAmount,
-              chainSpecific: {
-                from: sendAddress,
-                contractAddress,
-              },
-            })
-
-            return feeData.fast.txFee
-          } catch (error) {
-            return '0'
-          }
-        }
-
-        case CHAIN_NAMESPACE.Sui: {
-          try {
-            const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
-            const tokenId = isToken(sellAsset.assetId)
-              ? fromAssetId(sellAsset.assetId).assetReference
-              : undefined
-
-            if (!sendAddress) {
-              return '0'
-            }
-
-            const feeData = await sellAdapter.getFeeData({
-              to: depositAddress,
-              value: sellAmount,
-              chainSpecific: {
-                from: sendAddress,
-                tokenId,
-              },
-              sendMax: false,
-            })
-
-            return feeData.fast.txFee
-          } catch (error) {
-            return '0'
-          }
-        }
-
-        case CHAIN_NAMESPACE.Starknet: {
-          try {
-            const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
-            const tokenContractAddress = isToken(sellAsset.assetId)
-              ? fromAssetId(sellAsset.assetId).assetReference
-              : undefined
-
-            if (!sendAddress) {
-              return '0'
-            }
-
-            const feeData = await sellAdapter.getFeeData({
-              to: depositAddress,
-              value: sellAmount,
-              chainSpecific: {
-                from: sendAddress,
-                tokenContractAddress,
-              },
-              sendMax: false,
-            })
-
-            return feeData.fast.txFee
-          } catch (error) {
-            return '0'
-          }
-        }
-
-        case CHAIN_NAMESPACE.Near: {
-          try {
-            const sellAdapter = deps.assertGetNearChainAdapter(sellAsset.chainId)
-
-            if (!sendAddress) {
-              return '0'
-            }
-
-            const feeData = await sellAdapter.getFeeData({
-              to: depositAddress,
-              value: sellAmount,
-              chainSpecific: { from: sendAddress },
-            })
-
-            return feeData.fast.txFee
-          } catch (error) {
-            return '0'
-          }
-        }
-
-        case CHAIN_NAMESPACE.Ton: {
-          try {
-            const sellAdapter = deps.assertGetTonChainAdapter(sellAsset.chainId)
-            const contractAddress = isToken(sellAsset.assetId)
-              ? fromAssetId(sellAsset.assetId).assetReference
-              : undefined
-
-            if (!sendAddress) {
-              return '0'
-            }
-
-            const feeData = await sellAdapter.getFeeData({
-              to: depositAddress,
-              value: sellAmount,
-              chainSpecific: {
-                from: sendAddress,
-                contractAddress,
-              },
-            })
-
-            return feeData.fast.txFee
-          } catch (error) {
-            return '0'
-          }
-        }
-
-        default:
-          return undefined
+    const networkFeeCryptoBaseUnit = await (async () => {
+      try {
+        const networkFeeCryptoBaseUnit = await getNearIntentsRateNetworkFeeCryptoBaseUnit({
+          deps,
+          input,
+          sellAsset,
+          sellAmountCryptoBaseUnit: sellAmount,
+          sendAddress,
+          depositAddress,
+        })
+        return networkFeeCryptoBaseUnit ?? '0'
+      } catch (error) {
+        console.error('Failed to estimate NEAR Intents rate network fee:', error)
+        return '0'
       }
-    }
-
-    const networkFeeCryptoBaseUnit = (await getFeeData()) || '0'
+    })()
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: quote.amountIn,

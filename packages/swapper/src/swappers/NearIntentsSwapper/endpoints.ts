@@ -1,6 +1,6 @@
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../solana-utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
@@ -20,7 +20,7 @@ import {
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers/helpers'
+import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers'
 import { initializeOneClickService, OneClickService } from './utils/oneClickService'
 
 export const nearIntentsApi: SwapperApi = {
@@ -28,52 +28,8 @@ export const nearIntentsApi: SwapperApi = {
   getTradeRate: (input, deps) => {
     return getTradeRate(input, deps)
   },
-
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[NearIntents] invalid evm transaction')
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const { to, data, value } = transactionData
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return adapter.buildCustomApiTx({ accountNumber, from, to, value, data, ...feeData })
-  },
-
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('[NearIntents] invalid evm transaction')
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const { to, data, value } = transactionData
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
-  },
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
 
   getUnsignedUtxoTransaction: ({
     stepIndex,

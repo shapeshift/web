@@ -250,6 +250,7 @@ export class VultisigHDWallet
   readonly _supportsCronos = false
   readonly _supportsUnichain = false
   readonly _supportsSoneium = false
+  readonly _supportsRobinhood = false
   readonly _supportsBSC = true
   readonly _supportsSolana = true
   readonly _supportsThorchain = true

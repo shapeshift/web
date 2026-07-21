@@ -13,6 +13,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  robinhoodChainId,
   scrollChainId,
   solanaChainId,
   soneiumChainId,
@@ -68,6 +69,7 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [solanaChainId]: 34268394551451,
   [scrollChainId]: scroll.id,
   [megaethChainId]: 4326,
+  [robinhoodChainId]: 4663,
 }
 
 export const acrossChainIdToChainId = invert(chainIdToAcrossChainId)

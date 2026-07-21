@@ -34,6 +34,7 @@ import {
   plasmaChainId,
   plumeChainId,
   polygonChainId,
+  robinhoodChainId,
   scrollChainId,
   seiChainId,
   solanaChainId,
@@ -87,6 +88,7 @@ import {
   supportsPlasma,
   supportsPlume,
   supportsPolygon,
+  supportsRobinhood,
   supportsScroll,
   supportsSei,
   supportsSolana,
@@ -224,6 +226,7 @@ export const walletSupportsChain = ({
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
+  const isRobinhoodEnabled = selectFeatureFlag(store.getState(), 'Robinhood')
 
   switch (chainId) {
     case btcChainId:
@@ -327,6 +330,8 @@ export const walletSupportsChain = ({
       return isStarknetEnabled && supportsStarknet(wallet)
     case tonChainId:
       return isTonEnabled && supportsTon(wallet)
+    case robinhoodChainId:
+      return isRobinhoodEnabled && supportsRobinhood(wallet)
     default: {
       return false
     }

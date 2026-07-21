@@ -34,6 +34,7 @@ import {
   plasmaAssetId,
   plumeAssetId,
   polygonAssetId,
+  robinhoodAssetId,
   scrollAssetId,
   seiAssetId,
   solAssetId,
@@ -155,6 +156,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return tonAssetId
     case KnownChainIds.AbstractMainnet:
       return abstractAssetId
+    case KnownChainIds.RobinhoodMainnet:
+      return robinhoodAssetId
     default:
       return assertUnreachable(chainId)
   }

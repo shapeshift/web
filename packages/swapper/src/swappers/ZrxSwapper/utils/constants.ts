@@ -20,6 +20,7 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BaseMainnet,
+  KnownChainIds.RobinhoodMainnet,
 ])
 
 // https://0x.org/docs/developer-resources/faqs-and-troubleshooting

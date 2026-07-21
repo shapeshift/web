@@ -139,6 +139,7 @@ export type FeatureFlags = {
   YieldMultiAccount: boolean
   EarnTab: boolean
   MmNativeMultichain: boolean
+  Robinhood: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -312,6 +313,7 @@ const initialState: Preferences = {
     YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
     EarnTab: getConfig().VITE_FEATURE_EARN_TAB,
     MmNativeMultichain: getConfig().VITE_FEATURE_MM_NATIVE_MULTICHAIN,
+    Robinhood: getConfig().VITE_FEATURE_ROBINHOOD,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

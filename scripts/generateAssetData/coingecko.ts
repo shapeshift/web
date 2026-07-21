@@ -29,6 +29,7 @@ import {
   plasmaChainId,
   plumeChainId,
   polygonChainId,
+  robinhoodChainId,
   scrollChainId,
   seiChainId,
   solanaChainId,
@@ -73,6 +74,7 @@ import {
   plasma,
   plume,
   polygon,
+  robinhood,
   scroll,
   sei,
   solana,
@@ -442,6 +444,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: ton.explorer,
           explorerAddressLink: ton.explorerAddressLink,
           explorerTxLink: ton.explorerTxLink,
+        }
+      case robinhoodChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: robinhood.explorer,
+          explorerAddressLink: robinhood.explorerAddressLink,
+          explorerTxLink: robinhood.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

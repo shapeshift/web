@@ -27,6 +27,7 @@ import {
   plasmaChainId,
   plumeChainId,
   polygonChainId,
+  robinhoodChainId,
   scrollChainId,
   seiChainId,
   solanaChainId,
@@ -118,6 +119,7 @@ export const chainIdToRelayChainId = {
   [soneiumChainId]: soneium.id,
   [seiChainId]: sei.id,
   [abstractChainId]: 2741,
+  [robinhoodChainId]: 4663,
 }
 
 export enum RelayStatusMessage {

@@ -9,6 +9,7 @@ export const zrxSupportedChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BaseMainnet,
+  KnownChainIds.RobinhoodMainnet,
 ] as const
 
 export type ZrxSupportedChainId = (typeof zrxSupportedChainIds)[number]

@@ -257,6 +257,21 @@ export const viemSoneiumClient = createPublicClient({
   transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.soneium),
 }) as PublicClient
 
+export const robinhood = defineChain({
+  id: 4663,
+  name: 'Robinhood Chain',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.mainnet.chain.robinhood.com'] } },
+  blockExplorers: {
+    default: { name: 'Robinhood Chain Explorer', url: 'https://robinhoodchain.blockscout.com' },
+  },
+})
+
+export const viemRobinhoodClient = createPublicClient({
+  chain: robinhood,
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.robinhood),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -293,6 +308,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
   [KnownChainIds.AbstractMainnet]: viemAbstractClient,
+  [KnownChainIds.RobinhoodMainnet]: viemRobinhoodClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -331,6 +347,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
   [KnownChainIds.AbstractMainnet]: abstract.id,
+  [KnownChainIds.RobinhoodMainnet]: robinhood.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -369,6 +386,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
   [abstract.id]: viemAbstractClient,
+  [robinhood.id]: viemRobinhoodClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

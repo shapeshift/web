@@ -6,14 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import type {
-  CommonTradeQuoteInput,
-  GetTradeRateInput,
-  ProtocolFee,
-  SwapErrorRight,
-  SwapperDeps,
-  SwapSource,
-} from '../../../types'
+import type { ProtocolFee, SwapErrorRight, SwapSource } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import type { ChainflipSupportedChainId } from '../constants'

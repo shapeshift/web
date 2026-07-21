@@ -21,7 +21,11 @@ vi.mock('../utils/butterSwapService', () => ({
 const mockEvmChainAdapter = {
   getGasFeeData: () =>
     Promise.resolve({
-      average: { gasPrice: '1000000000', maxFeePerGas: '2000000000', maxPriorityFeePerGas: '1000000000' },
+      average: {
+        gasPrice: '1000000000',
+        maxFeePerGas: '2000000000',
+        maxPriorityFeePerGas: '1000000000',
+      },
     }),
 }
 

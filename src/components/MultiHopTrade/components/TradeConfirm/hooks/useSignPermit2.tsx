@@ -87,7 +87,6 @@ export const useSignPermit2 = (
     hopIndex,
     showErrorToast,
     tradeQuoteStep,
-    tradeQuoteStep.sellAsset.chainId,
     wallet,
   ])
 

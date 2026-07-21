@@ -3,6 +3,7 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
+import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
@@ -11,6 +12,7 @@ import {
   getBobGatewayClient,
   mapBobGatewayOrderStatusToTxStatus,
   registerBobGatewayTx,
+  toTronBase58,
 } from './utils/helpers'
 
 const registeredSwapIds = new Set<string>()
@@ -133,6 +135,28 @@ export const bobGatewayApi: SwapperApi = {
 
     return feeData.networkFeeCryptoBaseUnit
   },
+  getUnsignedTronTransaction: ({ from, stepIndex, tradeQuote, assertGetTronChainAdapter }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) {
+      throw new Error('[BobGateway] unable to execute a trade rate')
+    }
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    const { accountNumber, bobSpecific, sellAsset } = step
+
+    const adapter = assertGetTronChainAdapter(sellAsset.chainId)
+
+    if (!bobSpecific?.tronTx) throw new Error('[BobGateway] invalid tron transaction')
+    const { to, data, value } = bobSpecific.tronTx
+
+    return adapter.buildCustomApiTx({
+      accountNumber,
+      from,
+      to: toTronBase58(to),
+      value,
+      data,
+    })
+  },
+  getTronTransactionFees,
   checkTradeStatus: async ({ swap, config, txHash }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 

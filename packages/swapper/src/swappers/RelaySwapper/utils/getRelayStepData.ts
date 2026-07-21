@@ -1,6 +1,6 @@
 import { fromChainId, monadChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { isToken } from '@shapeshiftoss/utils'
+import { bnOrZero, isToken } from '@shapeshiftoss/utils'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
 import type { Hex } from 'viem'
@@ -134,10 +134,9 @@ export const getRelayStepData = async ({
 
     if (!to) throw new Error('Missing Relay EVM transaction target address')
 
-    const isTokenSell = isToken(sellAsset.assetId)
-    if (isTokenSell && !callData) throw new Error('Missing Relay EVM transaction data')
+    if (!callData) throw new Error('Missing Relay EVM transaction data')
 
-    const value = isTokenSell ? '0' : _value
+    const value = isToken(sellAsset.assetId) ? '0' : _value
     if (typeof value !== 'string') throw new Error('Missing Relay EVM transaction value')
 
     const transactionData: TxBuildData = {
@@ -145,36 +144,46 @@ export const getRelayStepData = async ({
       chainId: Number(fromChainId(sellAsset.chainId).chainReference),
       to,
       value,
-      data: callData ?? '0x',
-      gasLimit: relayGasLimit,
+      data: callData,
+      gasLimit: bnOrZero(relayGasLimit).gt(0) ? relayGasLimit : undefined,
     }
 
     const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
 
     const networkFeeCryptoBaseUnit = await (async () => {
       if (quoteOrRate === 'rate') {
-        const simulatedGasLimit = await simulateEvmGasLimit({
-          transactionData,
-          sellAsset,
-          sendAddress,
-          config: deps.config,
-        })
+        try {
+          const simulatedGasLimit = await simulateEvmGasLimit({
+            transactionData,
+            sellAsset,
+            sendAddress,
+            config: deps.config,
+          })
 
-        if (!simulatedGasLimit) return fallbackNetworkFeeCryptoBaseUnit
+          if (!simulatedGasLimit) return fallbackNetworkFeeCryptoBaseUnit
 
-        return getEvmNetworkFeeCryptoBaseUnit({
-          adapter,
-          supportsEIP1559,
-          gasLimit: simulatedGasLimit,
-        })
+          return await getEvmNetworkFeeCryptoBaseUnit({
+            adapter,
+            supportsEIP1559,
+            gasLimit: simulatedGasLimit,
+          })
+        } catch {
+          return fallbackNetworkFeeCryptoBaseUnit
+        }
       }
 
-      return getEvmNetworkFeeCryptoBaseUnit({
-        adapter,
-        transactionData,
-        from: sendAddress ?? zeroAddress,
-        supportsEIP1559,
-      })
+      try {
+        return await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          transactionData,
+          from: sendAddress ?? zeroAddress,
+          supportsEIP1559,
+        })
+      } catch (error) {
+        // A quote missing a gas limit will throw at execution, so fail it here instead
+        if (!transactionData.gasLimit) throw error
+        return fallbackNetworkFeeCryptoBaseUnit
+      }
     })()
 
     return { transactionData, networkFeeCryptoBaseUnit }

@@ -2,11 +2,11 @@ import { mayachainAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { mayachain, SignTx } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import type { ThorTradeQuote } from '../../thorchain-utils'
 import {
   checkTradeStatus,
   cosmossdk,
-  evm,
   getInboundAddressDataForChain,
   utxo,
 } from '../../thorchain-utils'
@@ -21,8 +21,8 @@ const swapperName = SwapperName.Mayachain
 export const mayachainApi: SwapperApi = {
   getTradeRate,
   getTradeQuote,
-  getUnsignedEvmTransaction: input => evm.getUnsignedEvmTransaction(input, swapperName),
-  getEvmTransactionFees: input => evm.getEvmTransactionFees(input, swapperName),
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
   getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction(input, swapperName),
   getUtxoTransactionFees: input => utxo.getUtxoTransactionFees(input, swapperName),
   getUnsignedCosmosSdkTransaction: async ({

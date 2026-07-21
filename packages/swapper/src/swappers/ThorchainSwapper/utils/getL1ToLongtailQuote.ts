@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import {
   convertDecimalPercentageToBasisPoints,
@@ -9,10 +10,16 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { ThorTradeQuote } from '../../../thorchain-utils'
-import { getAffiliate, getL1RateOrQuote, TradeType } from '../../../thorchain-utils'
+import type { ThorEvmTradeQuote, ThorTradeQuote } from '../../../thorchain-utils'
+import {
+  depositWithExpiry,
+  getAffiliate,
+  getL1RateOrQuote,
+  TradeType,
+} from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -22,6 +29,7 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo/addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
 import type { AggregatorContract } from './longTailHelpers'
@@ -147,6 +155,17 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
+      // Paranoia - a zero expected amount out would likely lead to a loss of funds, and gets baked into
+      // the memo below as well as the calldata
+      if (quotedAmountOut <= 0n) {
+        return Err(
+          makeSwapErrorRight({
+            message: '[getL1ToLongtailQuote] - expected a positive amount out',
+            code: TradeQuoteError.InternalError,
+          }),
+        )
+      }
+
       const updatedMemo = addL1ToLongtailPartsToMemo({
         sellAssetChainId,
         aggregator: bestAggregator,
@@ -161,9 +180,25 @@ export const getL1ToLongtailQuote = async (
         affiliate: getAffiliate(swapperName),
       })
 
+      // getL1RateOrQuote built its calldata against the pre-aggregator memo, so re-encode the deposit
+      // now that the final memo is known. Only applies to evm sell assets - a utxo or cosmos sell side
+      // carries a memo rather than calldata, and needs nothing here.
+      const data = isEvmChainId(sellAsset.chainId)
+        ? depositWithExpiry({
+            vault: getAddress((quote as ThorEvmTradeQuote).vault),
+            asset: isNativeEvmAsset(sellAsset.assetId)
+              ? zeroAddress
+              : getAddress(fromAssetId(sellAsset.assetId).assetReference),
+            amount: BigInt(onlyStep.sellAmountIncludingProtocolFeesCryptoBaseUnit),
+            memo: updatedMemo,
+            expiry: BigInt(quote.expiry),
+          })
+        : undefined
+
       return Ok({
         ...quote,
         memo: updatedMemo,
+        data,
         aggregator: bestAggregator,
         steps: quote.steps.map(s => ({
           ...s,
@@ -172,6 +207,10 @@ export const getL1ToLongtailQuote = async (
           // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
           allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
+          transactionData:
+            data && s.transactionData?.type === 'evm'
+              ? { ...s.transactionData, data }
+              : s.transactionData,
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {

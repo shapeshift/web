@@ -1,11 +1,11 @@
 import { cosmosAssetId, rujiAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { thorchain } from '@shapeshiftoss/chain-adapters'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import type { ThorTradeQuote } from '../../thorchain-utils'
 import {
   checkTradeStatus,
   cosmossdk,
-  evm,
   getInboundAddressDataForChain,
   solana,
   tron,
@@ -22,8 +22,8 @@ const swapperName = SwapperName.Thorchain
 export const thorchainApi: SwapperApi = {
   getTradeRate,
   getTradeQuote,
-  getUnsignedEvmTransaction: input => evm.getUnsignedEvmTransaction(input, swapperName),
-  getEvmTransactionFees: input => evm.getEvmTransactionFees(input, swapperName),
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
   getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction(input, swapperName),
   getUtxoTransactionFees: input => utxo.getUtxoTransactionFees(input, swapperName),
   getUnsignedSolanaTransaction: input => solana.getUnsignedSolanaTransaction(input, swapperName),

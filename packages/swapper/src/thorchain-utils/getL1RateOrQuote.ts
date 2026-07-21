@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import * as adapters from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
   BigAmount,
@@ -17,7 +16,9 @@ import { Err, Ok } from '@sniptt/monads'
 import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 import { TronWeb } from 'tronweb'
 import { v4 as uuid } from 'uuid'
+import { getAddress, zeroAddress } from 'viem'
 
+import { getEvmNetworkFeeCryptoBaseUnit } from '../evm-utils'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
 import { buildAffiliateFee } from '../swappers/utils/affiliateFee'
 import { isNativeEvmAsset } from '../swappers/utils/helpers/helpers'
@@ -46,6 +47,7 @@ import {
   getNativePrecision,
   getSwapSource,
 } from './index'
+import { depositWithExpiry } from './routerCallData/routerCalldata'
 import * as solana from './solana'
 import * as tron from './tron'
 import type {
@@ -61,7 +63,11 @@ import type {
 import { TradeType } from './types'
 import * as utxo from './utxo'
 
-const SAFE_GAS_LIMIT = '100000' // depositWithExpiry()
+// depositWithExpiry() measured at 44k (native) / 74k (erc20) on mainnet
+const SAFE_GAS_LIMIT = '100000'
+// swapIn() bundles a uniswap v3 swap ahead of the deposit, measured at 206k-222k on mainnet across
+// usdc/usdt/link/uni/wbtc and both the 0.05% and 0.3% pools
+const SAFE_SWAP_IN_GAS_LIMIT = '250000'
 const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 type ThorTradeRateOrQuote = ThorTradeRate | ThorTradeQuote
@@ -341,25 +347,33 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
       const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
+      // Route invariant, so the inbound lookup happens once rather than per route
+      const { router, vault } = await evm.getThorRouterAndVault({ sellAsset, config, swapperName })
+
+      const depositAsset = isNativeEvmAsset(sellAsset.assetId)
+        ? zeroAddress
+        : getAddress(fromAssetId(sellAsset.assetId).assetReference)
+
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(async (route): Promise<T> => {
           const memo = getMemo(route)
 
-          const { data, router, vault } = await evm.getThorTxData({
-            sellAsset,
-            sellAmountCryptoBaseUnit,
+          const data = depositWithExpiry({
+            vault,
+            asset: depositAsset,
+            amount: BigInt(sellAmountCryptoBaseUnit),
             memo,
-            expiry: route.quote.expiry,
-            config,
-            swapperName,
+            expiry: BigInt(route.quote.expiry),
           })
 
-          const { average } = await adapter.getGasFeeData()
+          // LongTailToL1 executes swapIn against an aggregator, every other trade type deposits directly
+          const gasLimit =
+            tradeType === TradeType.LongTailToL1 ? SAFE_SWAP_IN_GAS_LIMIT : SAFE_GAS_LIMIT
 
-          const networkFeeCryptoBaseUnit = adapters.evm.calcNetworkFeeCryptoBaseUnit({
-            ...average,
+          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+            adapter,
             supportsEIP1559,
-            gasLimit: SAFE_GAS_LIMIT,
+            gasLimit,
           })
 
           return makeThorTradeRateOrQuote<ThorEvmTradeRateOrQuote>({
@@ -369,26 +383,19 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             data,
             router,
             vault,
-            // Only L1ToL1 quotes are executable directly from the stored tx; longtail rebuilds the
-            // aggregator/slippage-guarded calldata at execution via getEvmData, so keep it on the
-            // legacy thorchainTransactionMetadata (consumed only by the public-api snapshot).
-            ...(tradeType === TradeType.L1ToL1
-              ? {
-                  transactionData: {
+            // Rates aren't executable, so they carry no tx data - longtail quotes patch to/data/value
+            // onto this once their aggregator and final memo are known
+            transactionData:
+              input.quoteOrRate === 'quote'
+                ? {
                     type: 'evm' as const,
                     chainId: Number(fromChainId(sellAsset.chainId).chainReference),
                     to: router,
                     data,
                     value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-                  },
-                }
-              : {
-                  thorchainTransactionMetadata: {
-                    to: router,
-                    data,
-                    value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-                  },
-                }),
+                    gasLimit,
+                  }
+                : undefined,
             feeData: {
               protocolFees: getProtocolFees(route.quote),
               networkFeeCryptoBaseUnit,
@@ -415,15 +422,12 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
       const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
+      // Route invariant, so the inbound lookup happens once rather than per route
+      const { vault } = await utxo.getThorTxData({ sellAsset, config, swapperName })
+
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(async (route): Promise<T> => {
           const memo = getMemo(route)
-
-          const { vault } = await utxo.getThorTxData({
-            sellAsset,
-            config,
-            swapperName,
-          })
 
           const feeData = await (async (): Promise<QuoteFeeData> => {
             const protocolFees = getProtocolFees(route.quote)

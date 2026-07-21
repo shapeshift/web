@@ -112,7 +112,7 @@ describe('getZrxTradeQuote', () => {
           requiresBalance: false,
         },
       },
-      networkFeeCryptoBaseUnit: '22507856397000000',
+      networkFeeCryptoBaseUnit: '18756546997500000',
     })
 
     expect(quote.steps[0].rate).toBe('1')

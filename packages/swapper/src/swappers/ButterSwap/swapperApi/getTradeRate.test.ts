@@ -18,12 +18,19 @@ vi.mock('../utils/butterSwapService', () => ({
   },
 }))
 
+const mockEvmChainAdapter = {
+  getGasFeeData: () =>
+    Promise.resolve({
+      average: { gasPrice: '1000000000', maxFeePerGas: '2000000000', maxPriorityFeePerGas: '1000000000' },
+    }),
+}
+
 describe('getTradeRate', () => {
   it('should return a trade rate', async () => {
     const deps: SwapperDeps = {
       assetsById: { [ETH.assetId]: ETH },
       assertGetChainAdapter: () => vi.fn() as any,
-      assertGetEvmChainAdapter: () => vi.fn() as any,
+      assertGetEvmChainAdapter: () => mockEvmChainAdapter as any,
       assertGetUtxoChainAdapter: () => vi.fn() as any,
       assertGetCosmosSdkChainAdapter: () => vi.fn() as any,
       assertGetSolanaChainAdapter: () => vi.fn() as any,
@@ -67,7 +74,7 @@ describe('getTradeRate', () => {
     const deps: SwapperDeps = {
       assetsById: { [ETH.assetId]: ETH, [BTC.assetId]: BTC },
       assertGetChainAdapter: () => vi.fn() as any,
-      assertGetEvmChainAdapter: () => vi.fn() as any,
+      assertGetEvmChainAdapter: () => mockEvmChainAdapter as any,
       assertGetUtxoChainAdapter: () => vi.fn() as any,
       assertGetCosmosSdkChainAdapter: () => vi.fn() as any,
       assertGetSolanaChainAdapter: () => vi.fn() as any,

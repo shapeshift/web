@@ -178,6 +178,7 @@ export async function getTrade({
     sellAsset,
     from: senderAddress,
     supportsEIP1559: input.supportsEIP1559,
+    quoteOrRate: input.quoteOrRate,
     deps,
   })
 
@@ -349,6 +350,7 @@ async function getSameChainTrade({
     sellAsset,
     from: senderAddress,
     supportsEIP1559: input.supportsEIP1559,
+    quoteOrRate: input.quoteOrRate,
     deps,
   })
 

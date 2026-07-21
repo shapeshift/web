@@ -12,6 +12,7 @@ export const getDebridgeStepData = async ({
   sellAsset,
   from,
   supportsEIP1559,
+  quoteOrRate,
   deps,
 }: {
   tx: DebridgeTx
@@ -20,6 +21,7 @@ export const getDebridgeStepData = async ({
   sellAsset: Asset
   from: string
   supportsEIP1559: boolean
+  quoteOrRate: 'quote' | 'rate'
   deps: SwapperDeps
 }): Promise<{
   transactionData: TxBuildData
@@ -41,8 +43,11 @@ export const getDebridgeStepData = async ({
         transactionData,
         from,
         supportsEIP1559,
+        gasLimitBuffer: 1.2,
       })
-    } catch {
+    } catch (error) {
+      // A quote missing a gas limit will throw at execution, so fail it here instead
+      if (quoteOrRate === 'quote' && !transactionData.gasLimit) throw error
       return fallbackNetworkFeeCryptoBaseUnit
     }
   })()

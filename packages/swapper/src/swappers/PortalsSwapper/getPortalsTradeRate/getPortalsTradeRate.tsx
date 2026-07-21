@@ -1,14 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Hex } from 'viem'
-import { getAddress, zeroAddress } from 'viem'
+import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
@@ -20,10 +18,10 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { getPortalsRateNetworkFeeCryptoBaseUnit } from '../utils/getPortalsStepData'
 import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeRate(
@@ -176,46 +174,17 @@ export async function getPortalsTradeRate(
 
     const slippageTolerancePercentageDecimal = actualBufferDecimal
 
-    const gasLimit = await (async () => {
-      const tenderlySimulation = await simulateWithStateOverrides(
-        {
-          chainId: sellAsset.chainId,
-          from: tx.from,
-          to: tx.to,
-          data: tx.data as Hex,
-          value: tx.value,
-          sellAsset,
-          spenderAddress: getAddress(context.target),
-        },
-        {
-          apiKey: swapperConfig.VITE_TENDERLY_API_KEY,
-          accountSlug: swapperConfig.VITE_TENDERLY_ACCOUNT_SLUG,
-          projectSlug: swapperConfig.VITE_TENDERLY_PROJECT_SLUG,
-        },
-      )
-
-      if (tenderlySimulation.success) {
-        return tenderlySimulation.gasLimit.toString()
-      }
-
-      // Fallback to estimate endpoint (i.e simulation with overrides failed, but Portals still able to do their magic here)
-      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-        inputToken,
-        outputToken,
-        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
-        swapperConfig,
-      })
-
-      return quoteEstimateResponse.context.gasLimit.toString()
-    })()
-
-    const { average } = await adapter.getGasFeeData()
-
-    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      ...average,
-      supportsEIP1559: Boolean(supportsEIP1559),
-      gasLimit,
+    const networkFeeCryptoBaseUnit = await getPortalsRateNetworkFeeCryptoBaseUnit({
+      adapter,
+      tx,
+      sellAsset,
+      target: context.target,
+      inputToken,
+      outputToken,
+      inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
+      supportsEIP1559,
+      swapperConfig,
     })
 
     const tradeRate = {

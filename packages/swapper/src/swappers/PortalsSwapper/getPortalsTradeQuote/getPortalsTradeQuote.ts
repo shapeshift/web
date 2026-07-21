@@ -1,7 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import {
   BigNumber,
@@ -27,6 +26,7 @@ import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
+import { getPortalsStepData } from '../utils/getPortalsStepData'
 import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
@@ -191,10 +191,8 @@ export async function getPortalsTradeQuote(
 
     const portalsTradeOrderResponse = maybePortalsTradeOrderResponse.unwrap()
 
-    const {
-      context: { orderId, outputAmount, minOutputAmount, target, feeAmount, gasLimit, feeToken },
-      tx,
-    } = portalsTradeOrderResponse
+    const { context, tx } = portalsTradeOrderResponse
+    const { orderId, outputAmount, minOutputAmount, target, feeAmount, feeToken } = context
 
     const allowanceContract = isCrossChain ? target : getPortalsRouterAddressByChainId(chainId)
 
@@ -211,15 +209,12 @@ export async function getPortalsTradeQuote(
       buyAsset,
     })
 
-    const adapter = assertGetEvmChainAdapter(chainId)
-    const { average } = await adapter.getGasFeeData()
-
-    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      ...average,
-      supportsEIP1559: Boolean(supportsEIP1559),
-      // times 1 isn't a mistake, it's just so we can write this comment above to mention that Portals already add a
-      // buffer of ~15% to the gas limit
-      gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
+    const { transactionData, networkFeeCryptoBaseUnit } = await getPortalsStepData({
+      adapter: assertGetEvmChainAdapter(chainId),
+      chainId: sellAsset.chainId,
+      tx,
+      from: sendAddress,
+      supportsEIP1559,
     })
 
     // Don't use Portals' slippageTolerancePercentage field (it's what we requested, not what they applied)
@@ -267,14 +262,7 @@ export async function getPortalsTradeQuote(
           },
           source: SwapperName.Portals,
           estimatedExecutionTimeMs: isCrossChain ? 300000 : 0,
-          transactionData: {
-            type: 'evm',
-            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-            to: tx.to,
-            data: tx.data,
-            value: tx.value,
-            gasLimit: tx.gasLimit,
-          },
+          transactionData,
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',
             affiliateBps,

@@ -32,6 +32,14 @@ type PortalsTradeOrderEstimateParams = Omit<
   'partner' | 'validate' | 'sender'
 >
 
+export type PortalsTx = {
+  to: Address
+  from: Address
+  data: string
+  value: string
+  gasLimit: string
+}
+
 type PortalsTradeOrderResponse = {
   context: {
     orderId: string
@@ -58,13 +66,7 @@ type PortalsTradeOrderResponse = {
     feeAmount?: string
     feeAmountUsd?: number
   }
-  tx?: {
-    to: Address
-    from: Address
-    data: string
-    value: string
-    gasLimit: string
-  }
+  tx?: PortalsTx
 }
 
 type PortalsTradeOrderEstimateResponse = {

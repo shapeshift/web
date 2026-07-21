@@ -100,7 +100,8 @@ export const getQuoteOrRate = async (
   for (const quote of quotes) {
     if (!quote.type) throw new Error('Missing quote type')
 
-    const isStreaming = quote.type === CHAINFLIP_DCA_QUOTE
+    const quoteType = quote.type
+    const isStreaming = quoteType === CHAINFLIP_DCA_QUOTE
     if (isStreaming && !deps.config.VITE_FEATURE_CHAINFLIP_SWAP_DCA) continue
 
     const buildRateOrQuote = async (
@@ -215,18 +216,17 @@ export const getQuoteOrRate = async (
           steps: [
             {
               // Not a real pre-fee amount, but an input/output calc prorated to the buy asset price to determine price impact
+              // estimatedPrice only exists on the parent quote, not the boost variant
               buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
-                value: bnOrZero(variantQuote.ingressAmount).times(
-                  bnOrZero(variantQuote.estimatedPrice),
-                ),
+                value: bnOrZero(variantQuote.ingressAmount).times(bnOrZero(quote.estimatedPrice)),
                 precision: buyAsset.precision,
               }).toBaseUnit(),
               buyAmountAfterFeesCryptoBaseUnit,
               sellAmountIncludingProtocolFeesCryptoBaseUnit,
               feeData: { ...feeData, protocolFees },
               rate,
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              source: getSwapSource(variantQuote.type!, isBoosted),
+              // type only exists on the parent quote, not the boost variant
+              source: getSwapSource(quoteType, isBoosted),
               buyAsset,
               sellAsset,
               accountNumber,

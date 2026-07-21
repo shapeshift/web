@@ -11,59 +11,31 @@ import type {
 import { getEvmChainIdNumber } from './utils'
 
 const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | undefined => {
+  if (step.transactionData?.type !== 'evm') return undefined
+
   const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
+  const { to, data, value, gasLimit, signatureRequired } = step.transactionData
 
-  const txData: EvmTransactionData | undefined = (() => {
-    if (step.transactionData?.type === 'evm') {
-      const { to, data, value, gasLimit, signatureRequired } = step.transactionData
-      return { type: 'evm' as const, chainId, to, data, value, gasLimit, signatureRequired }
-    }
-
-    if (step.chainflipSpecific?.depositAddress) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.chainflipSpecific.depositAddress,
-        data: '0x',
-        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      }
-    }
-
-    if (step.thorchainTransactionMetadata?.data) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.thorchainTransactionMetadata.to,
-        data: step.thorchainTransactionMetadata.data,
-        value: step.thorchainTransactionMetadata.value ?? '0',
-      }
-    }
-
-    return undefined
-  })()
-
-  if (!txData) return undefined
-
-  return txData
+  return { type: 'evm', chainId, to, data, value, gasLimit, signatureRequired }
 }
 
 const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
   if (step.transactionData?.type !== 'solana') return undefined
 
-  const instructions = step.transactionData.instructions.map(instruction => ({
-    programId: instruction.programId.toBase58(),
-    keys: instruction.keys.map(key => ({
-      pubkey: key.pubkey.toBase58(),
-      isSigner: key.isSigner,
-      isWritable: key.isWritable,
-    })),
-    data: Buffer.from(instruction.data).toString('base64'),
-  }))
+  const { instructions, addressLookupTableAddresses } = step.transactionData
 
   return {
     type: 'solana',
-    instructions,
-    addressLookupTableAddresses: step.transactionData.addressLookupTableAddresses,
+    instructions: instructions.map(instruction => ({
+      programId: instruction.programId.toBase58(),
+      keys: instruction.keys.map(key => ({
+        pubkey: key.pubkey.toBase58(),
+        isSigner: key.isSigner,
+        isWritable: key.isWritable,
+      })),
+      data: Buffer.from(instruction.data).toString('base64'),
+    })),
+    addressLookupTableAddresses,
   }
 }
 

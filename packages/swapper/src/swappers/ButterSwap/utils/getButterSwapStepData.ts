@@ -84,7 +84,7 @@ export const getButterSwapStepData = async ({
         to: buildTx.to,
         data: buildTx.data,
         value: fromHex(buildTx.value, 'bigint').toString(),
-        // Leave unset when the provider omits gas so the fee helper estimates and bakes one
+        // Leave unset when the provider omits gas so the fee helper estimates and sets one
         gasLimit: providerGasLimit.gt(0) ? providerGasLimit.toFixed() : undefined,
       }
 

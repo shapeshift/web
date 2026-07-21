@@ -155,7 +155,7 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      // Paranoia - a zero expected amount out would likely lead to a loss of funds, and gets baked into
+      // Paranoia - a zero expected amount out would likely lead to a loss of funds, and is encoded into
       // the memo below as well as the calldata
       if (quotedAmountOut <= 0n) {
         return Err(

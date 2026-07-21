@@ -9,7 +9,7 @@ type GetEvmNetworkFeeCryptoBaseUnitArgs = {
   supportsEIP1559: boolean
 } & ( // Rate network fee: only a provider gas limit is known (there's no executable tx data), so price it
   | { gasLimit: string }
-  // Executable quote: price the provider gas limit baked onto the tx data, or estimate and bake one
+  // Executable quote: price the provider gas limit set on the tx data, or estimate and set one
   | {
       transactionData: Extract<TxBuildData, { type: 'evm' }>
       from: string
@@ -33,13 +33,13 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
 
   const { transactionData, from, gasLimitBuffer = 1 } = args
 
-  // Executable quote: the provider already baked a gas limit onto the tx data, price it as-is
+  // Executable quote: the provider supplied a gas limit on the tx data, price it as-is
   const providerGasLimit = transactionData.gasLimit
   if (providerGasLimit && bnOrZero(providerGasLimit).gt(0)) {
     return priceProviderGasLimit(providerGasLimit)
   }
 
-  // Executable quote with no provider gas limit: estimate on chain, then bake the buffered limit onto
+  // Executable quote with no provider gas limit: estimate on chain, then set the buffered limit on
   // the tx data in place so the executable tx always carries a gas limit
   const { to, data, value } = transactionData
   const estimatedFees = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })

@@ -48,7 +48,7 @@ export const getChainflipStepData = async ({
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
       const supportsEIP1559 = (input as GetEvmTradeRateInput).supportsEIP1559
 
-      // Executable quote: build the deposit tx and price the estimated gas limit baked onto it
+      // Executable quote: build the deposit tx and price the estimated gas limit set on it
       if (depositAddress && input.sendAddress) {
         const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
         const data = evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress)

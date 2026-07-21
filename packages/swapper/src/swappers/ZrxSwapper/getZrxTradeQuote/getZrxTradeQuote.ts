@@ -1,13 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { TypedData } from 'eip-712'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -22,6 +18,7 @@ import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
+import { getZrxStepData } from '../utils/getZrxStepData'
 import {
   assertValidTrade,
   calculateBuyAmountBeforeFeesCryptoBaseUnit,
@@ -105,15 +102,13 @@ export async function getZrxTradeQuote(
   })
 
   try {
-    const adapter = assertGetEvmChainAdapter(chainId)
-    const { average } = await adapter.getGasFeeData()
-
-    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      ...average,
+    const { transactionData, networkFeeCryptoBaseUnit } = await getZrxStepData({
+      adapter: assertGetEvmChainAdapter(chainId),
+      chainId: sellAsset.chainId,
+      transaction,
+      permit2Eip712,
+      from: receiveAddress,
       supportsEIP1559: Boolean(supportsEIP1559),
-      // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
-      // which are inaccurate and not what we use for the tx to broadcast
-      gasLimit: bnOrZero(transaction.gas).times(1.2).toFixed(),
     })
 
     return Ok({
@@ -151,20 +146,7 @@ export async function getZrxTradeQuote(
             sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
             buyAmountCryptoBaseUnit: buyAmount,
           }),
-          transactionData: {
-            type: 'evm',
-            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-            to: transaction.to,
-            data: transaction.data,
-            value: transaction.value,
-            gasLimit: transaction.gas || undefined,
-            ...(permit2Eip712 && {
-              signatureRequired: {
-                type: 'permit2' as const,
-                eip712: permit2Eip712 as unknown as TypedData,
-              },
-            }),
-          },
+          transactionData,
         },
       ] as SingleHopTradeQuoteSteps,
     })

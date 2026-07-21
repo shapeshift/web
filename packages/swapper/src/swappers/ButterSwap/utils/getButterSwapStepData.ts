@@ -46,14 +46,25 @@ export const getButterSwapNetworkFeeCryptoBaseUnit = async ({
   }).toBaseUnit()
 }
 
-export const getButterSwapStepData = async (
-  buildTx: BuildTxSuccessItem,
-  route: RouteSuccessItem,
-  sellAsset: Asset,
-  feeAsset: Asset,
-  deps: SwapperDeps,
-  supportsEIP1559: boolean,
-): Promise<
+export const getButterSwapStepData = async ({
+  buildTx,
+  route,
+  sellAsset,
+  feeAsset,
+  sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  deps,
+  supportsEIP1559,
+  from,
+}: {
+  buildTx: BuildTxSuccessItem
+  route: RouteSuccessItem
+  sellAsset: Asset
+  feeAsset: Asset
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  deps: SwapperDeps
+  supportsEIP1559: boolean
+  from: string
+}): Promise<
   Result<
     Pick<TradeQuoteStep, 'transactionData' | 'butterSwapTransactionMetadata'> & {
       networkFeeCryptoBaseUnit: string
@@ -61,79 +72,158 @@ export const getButterSwapStepData = async (
     SwapErrorRight
   >
 > => {
-  const networkFeeCryptoBaseUnit = await getButterSwapNetworkFeeCryptoBaseUnit({
-    route,
-    sellAsset,
-    feeAsset,
-    assertGetEvmChainAdapter: deps.assertGetEvmChainAdapter,
-    supportsEIP1559,
-  })
+  const { chainNamespace, chainReference } = fromChainId(sellAsset.chainId)
 
-  if (fromChainId(sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Evm) {
-    return Ok({
-      transactionData: {
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Evm: {
+      const providerGasLimit = bnOrZero(route.gasEstimatedTarget)
+
+      const transactionData = {
         type: 'evm' as const,
-        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+        chainId: Number(chainReference),
         to: buildTx.to,
         data: buildTx.data,
         value: fromHex(buildTx.value, 'bigint').toString(),
-        gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-      },
-      networkFeeCryptoBaseUnit,
-    })
-  }
+        // Leave unset when the provider omits gas so the fee helper estimates and bakes one
+        gasLimit: providerGasLimit.gt(0) ? providerGasLimit.toFixed() : undefined,
+      }
 
-  if (fromChainId(sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Solana) {
-    try {
-      const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
-      const txBytes = Buffer.from(txData, 'hex')
-      const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
+      try {
+        const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+          adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
+          supportsEIP1559,
+          transactionData,
+          from,
+        })
 
-      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-
-      const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups.map(
-        lookup => lookup.accountKey.toString(),
-      )
-
-      const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
-        addressLookupTableAddresses,
-      )
-
-      const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
-        info =>
-          new AddressLookupTableAccount({
-            key: new PublicKey(info.key),
-            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+      } catch (error) {
+        return Err(
+          makeSwapErrorRight({
+            message: `[getButterSwapStepData] Error estimating network fee: ${error}`,
+            code: TradeQuoteError.NetworkFeeEstimationFailed,
           }),
-      )
+        )
+      }
+    }
 
-      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
-        addressLookupTableAccounts,
-      }).instructions
+    case CHAIN_NAMESPACE.Solana: {
+      try {
+        const networkFeeCryptoBaseUnit = await getButterSwapNetworkFeeCryptoBaseUnit({
+          route,
+          sellAsset,
+          feeAsset,
+          assertGetEvmChainAdapter: deps.assertGetEvmChainAdapter,
+          supportsEIP1559,
+        })
+
+        const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
+        const txBytes = Buffer.from(txData, 'hex')
+        const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
+
+        const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+        const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups.map(
+          lookup => lookup.accountKey.toString(),
+        )
+
+        const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
+          addressLookupTableAddresses,
+        )
+
+        const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
+          info =>
+            new AddressLookupTableAccount({
+              key: new PublicKey(info.key),
+              state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+            }),
+        )
+
+        const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+          addressLookupTableAccounts,
+        }).instructions
+
+        return Ok({
+          transactionData: { type: 'solana' as const, instructions, addressLookupTableAddresses },
+          networkFeeCryptoBaseUnit,
+        })
+      } catch (error) {
+        return Err(
+          makeSwapErrorRight({
+            message: `[getButterSwapStepData] Error decompiling VersionedMessage: ${error}`,
+            code: TradeQuoteError.UnknownError,
+          }),
+        )
+      }
+    }
+
+    case CHAIN_NAMESPACE.Utxo: {
+      if (!buildTx.to) {
+        return Err(
+          makeSwapErrorRight({
+            message: '[getButterSwapStepData] Missing deposit address',
+            code: TradeQuoteError.InvalidResponse,
+          }),
+        )
+      }
+
+      if (!buildTx.memo) {
+        return Err(
+          makeSwapErrorRight({
+            message: '[getButterSwapStepData] Missing memo (opReturnData)',
+            code: TradeQuoteError.InvalidResponse,
+          }),
+        )
+      }
+
+      const networkFeeCryptoBaseUnit = await getButterSwapNetworkFeeCryptoBaseUnit({
+        route,
+        sellAsset,
+        feeAsset,
+        assertGetEvmChainAdapter: deps.assertGetEvmChainAdapter,
+        supportsEIP1559,
+      })
 
       return Ok({
-        transactionData: { type: 'solana' as const, instructions, addressLookupTableAddresses },
+        transactionData: {
+          type: 'utxo' as const,
+          to: buildTx.to,
+          opReturnData: buildTx.memo,
+          value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        },
         networkFeeCryptoBaseUnit,
       })
-    } catch (error) {
+    }
+
+    // Not yet migrated to a TxBuildData variant - exec still builds from legacy metadata
+    case CHAIN_NAMESPACE.Tron: {
+      const networkFeeCryptoBaseUnit = await getButterSwapNetworkFeeCryptoBaseUnit({
+        route,
+        sellAsset,
+        feeAsset,
+        assertGetEvmChainAdapter: deps.assertGetEvmChainAdapter,
+        supportsEIP1559,
+      })
+
+      return Ok({
+        butterSwapTransactionMetadata: {
+          to: buildTx.to,
+          data: buildTx.data,
+          value: buildTx.value,
+          method: buildTx.method,
+          args: buildTx.args,
+          memo: buildTx.memo,
+        },
+        networkFeeCryptoBaseUnit,
+      })
+    }
+
+    default:
       return Err(
         makeSwapErrorRight({
-          message: `[getButterSwapStepData] Error decompiling VersionedMessage: ${error}`,
-          code: TradeQuoteError.UnknownError,
+          message: `[getButterSwapStepData] unsupported chain namespace: ${chainNamespace}`,
+          code: TradeQuoteError.UnsupportedChain,
         }),
       )
-    }
   }
-
-  return Ok({
-    butterSwapTransactionMetadata: {
-      to: buildTx.to,
-      data: buildTx.data,
-      value: buildTx.value,
-      method: buildTx.method,
-      args: buildTx.args,
-      memo: buildTx.memo,
-    },
-    networkFeeCryptoBaseUnit,
-  })
 }

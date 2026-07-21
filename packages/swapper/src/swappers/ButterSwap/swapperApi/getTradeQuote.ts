@@ -32,7 +32,7 @@ import {
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
-  _deps: SwapperDeps,
+  deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -151,7 +151,7 @@ export const getTradeQuote = async (
   }
 
   // Fee asset for network fees
-  const feeAsset = _deps.assetsById[chainIdToFeeAssetId(sellAsset.chainId)]
+  const feeAsset = deps.assetsById[chainIdToFeeAssetId(sellAsset.chainId)]
   if (!feeAsset) {
     return Err(
       makeSwapErrorRight({
@@ -179,14 +179,16 @@ export const getTradeQuote = async (
     buyAsset,
   })
 
-  const maybeStepData = await getButterSwapStepData(
+  const maybeStepData = await getButterSwapStepData({
     buildTx,
     route,
     sellAsset,
     feeAsset,
-    _deps,
-    Boolean('supportsEIP1559' in input ? input.supportsEIP1559 : false),
-  )
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    deps,
+    supportsEIP1559: Boolean('supportsEIP1559' in input ? input.supportsEIP1559 : false),
+    from: sendAddress,
+  })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { networkFeeCryptoBaseUnit, transactionData, butterSwapTransactionMetadata } =

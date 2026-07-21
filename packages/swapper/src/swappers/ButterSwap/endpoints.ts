@@ -28,30 +28,28 @@ export const butterSwapApi: SwapperApi = {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { accountNumber, sellAsset, butterSwapTransactionMetadata } = step
-    if (!butterSwapTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'utxo') throw new Error('invalid utxo transaction')
 
-    const { to, memo } = butterSwapTransactionMetadata
-    if (!to) throw new Error('Missing deposit address')
-    if (!memo) throw new Error('Missing memo (opReturnData)')
+    const { to, opReturnData, value } = transactionData
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
     const { fast } = await adapter.getFeeData({
       to,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub, opReturnData: memo },
+      value,
+      chainSpecific: { pubkey: xpub, opReturnData },
       sendMax: false,
     })
 
     return adapter.buildSendApiTransaction({
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      value,
       xpub,
       to,
       accountNumber,
       chainSpecific: {
         accountType,
-        opReturnData: memo,
+        opReturnData,
         satoshiPerByte: fast.chainSpecific.satoshiPerByte,
       },
     })
@@ -60,19 +58,17 @@ export const butterSwapApi: SwapperApi = {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { sellAsset, butterSwapTransactionMetadata } = step
-    if (!butterSwapTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { sellAsset, transactionData } = step
+    if (transactionData?.type !== 'utxo') throw new Error('invalid utxo transaction')
 
-    const { to, memo } = butterSwapTransactionMetadata
-    if (!to) throw new Error('Missing deposit address')
-    if (!memo) throw new Error('Missing memo (opReturnData)')
+    const { to, opReturnData, value } = transactionData
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
     const { fast } = await adapter.getFeeData({
       to,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub, opReturnData: memo },
+      value,
+      chainSpecific: { pubkey: xpub, opReturnData },
       sendMax: false,
     })
 

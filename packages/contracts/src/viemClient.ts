@@ -265,6 +265,9 @@ export const robinhood = defineChain({
   blockExplorers: {
     default: { name: 'Robinhood Chain Explorer', url: 'https://robinhoodchain.blockscout.com' },
   },
+  contracts: {
+    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
+  },
 })
 
 export const viemRobinhoodClient = createPublicClient({

@@ -1,7 +1,6 @@
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import BigNumber from 'bignumber.js'
 
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
 import type { SolanaComputeBudgetOptions } from '../../solana-utils/getUnsignedSolanaTransaction'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
@@ -32,61 +31,8 @@ export const relayApi: SwapperApi = {
     getTradeQuote(input as RelayTradeQuoteInput, deps, chainIdToRelayChainId),
   getTradeRate: (input, deps) =>
     getTradeRate(input as RelayTradeRateInput, deps, chainIdToRelayChainId),
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('[Relay] invalid evm transaction')
-
-    const { to, value, data } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
-  },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('[Relay] invalid evm transaction')
-
-    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    const unsignedTx = await adapter.buildCustomApiTx({
-      accountNumber,
-      data,
-      from,
-      to,
-      value,
-      ...feeData,
-      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
-      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
-    })
-
-    return unsignedTx
-  },
+  getEvmTransactionFees,
+  getUnsignedEvmTransaction,
   getUnsignedUtxoTransaction: async ({
     stepIndex,
     tradeQuote,

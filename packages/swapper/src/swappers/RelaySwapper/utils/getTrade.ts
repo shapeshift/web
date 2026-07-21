@@ -1,13 +1,5 @@
-import {
-  baseChainId,
-  btcChainId,
-  monadChainId,
-  solanaChainId,
-  tronChainId,
-} from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { UtxoChainId } from '@shapeshiftoss/types'
+import { baseChainId, btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,
   chainIdToFeeAssetId,
@@ -19,8 +11,7 @@ import {
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
-import type { Hex } from 'viem'
-import { getAddress, zeroAddress } from 'viem'
+import { zeroAddress } from 'viem'
 
 import type {
   SwapErrorRight,
@@ -32,7 +23,6 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
@@ -41,11 +31,10 @@ import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelayTradeQuoteInput, RelayTradeRateInput } from '../utils/types'
-import { isRelayError, isRelayQuoteEvmItemData, isRelayQuoteUtxoItemData } from '../utils/types'
+import { isRelayError } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
-import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
-import { getRelayStepTransactionData } from './getRelayStepTransactionData'
+import { getRelayStepData } from './getRelayStepData'
 
 export async function getTrade(args: {
   input: RelayTradeQuoteInput
@@ -461,168 +450,81 @@ export async function getTrade({
     return '0'
   })()
 
-  const networkFeeCryptoBaseUnit = await (async () => {
-    if (sellAsset.chainId === btcChainId) {
-      const firstStep = swapSteps[0]
-
-      if (!firstStep) throw new Error('Relay quote step contains no items')
-
-      const selectedItem = firstStep.items?.[0]
-
+  const steps = await Promise.all(
+    swapSteps.map(async (quoteStep): Promise<TradeQuoteStep | TradeRateStep> => {
+      const selectedItem = quoteStep.items?.[0]
       if (!selectedItem) throw new Error('Relay quote step contains no items')
 
-      if (!selectedItem.data) throw new Error('Relay quote step contains no data')
+      // Add back relayer service and gas fees (relayer is including both) since they are downsides
+      // And add appFees
+      const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
+        .plus(relayerFeesBuyAssetCryptoBaseUnit)
+        .plus(appFeesBaseUnit)
+        .toFixed()
 
-      if (!isRelayQuoteUtxoItemData(selectedItem.data))
-        throw new Error('Relay BTC quote step contains no psbt')
+      const { transactionData, relayTransactionMetadata, networkFeeCryptoBaseUnit } =
+        await getRelayStepData({
+          data: selectedItem.data,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          orderId,
+          sendAddress,
+          supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+          xpub,
+          quoteOrRate: input.quoteOrRate,
+          fallbackNetworkFeeCryptoBaseUnit: quote.fees.gas.amount,
+          deps,
+        })
 
-      if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
+      // The spender to approve: EVM routes approve the router (transactionData.to); Tron approves the
+      // token contract (relayTransactionMetadata.to); UTXO/Solana need no allowance
+      const allowanceContract =
+        transactionData?.type === 'evm' ? transactionData.to : relayTransactionMetadata?.to ?? ''
 
-      const relayer = getRelayPsbtRelayer(
-        selectedItem.data.psbt,
+      return {
+        allowanceContract,
+        rate,
+        buyAmountBeforeFeesCryptoBaseUnit,
+        buyAmountAfterFeesCryptoBaseUnit,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      )
-
-      if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
-
-      const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
-        to: relayer,
-        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        chainSpecific: {
-          pubkey: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
-          opReturnData: orderId,
-        },
-        sendMax: false,
-      }
-
-      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-
-      const feeData = await adapter.getFeeData(getFeeDataInput)
-
-      return feeData.fast.txFee
-    }
-
-    // Use Tenderly simulation with state overrides for EVM chains
-    if (isEvmChainId(sellAsset.chainId)) {
-      const firstStep = swapSteps[0]
-      const selectedItem = firstStep?.items?.[0]
-
-      if (selectedItem?.data && isRelayQuoteEvmItemData(selectedItem.data)) {
-        try {
-          const tenderlySimulation = await simulateWithStateOverrides(
-            {
-              chainId: sellAsset.chainId,
-              // NOTE: zeroAddress is here purely for the purpose of satisfying the type sistem
-              // That should never happen
-              from: getAddress(sendAddress ?? zeroAddress),
-              to: getAddress(selectedItem.data.to ?? zeroAddress),
-              data: (selectedItem.data.data ?? '0x') as Hex,
-              value: selectedItem.data.value ?? '0',
-              sellAsset,
-              // Pass Relay's gas limit to Tenderly for Monad as tenderly return crazy gas
-              gas:
-                selectedItem.data.gas && sellAsset.chainId === monadChainId
-                  ? Number(selectedItem.data.gas)
-                  : undefined,
-            },
-            {
-              apiKey: deps.config.VITE_TENDERLY_API_KEY,
-              accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-              projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-            },
-          )
-
-          if (tenderlySimulation.success) {
-            // Use Tenderly's gas estimate instead of Relay's
-            const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-            const { average } = await adapter.getGasFeeData()
-
-            const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
-
-            const tenderlyNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
-              ...average,
-              supportsEIP1559,
-              gasLimit: tenderlySimulation.gasLimit.toString(),
-            })
-
-            return tenderlyNetworkFee
-          }
-        } catch (error) {
-          // Silently fall through to use Relay's gas estimate
-        }
-      }
-    }
-
-    // Fallback to Relay's gas amount
-    return quote.fees.gas.amount
-  })()
-
-  const steps = swapSteps.map((quoteStep): TradeQuoteStep | TradeRateStep => {
-    const selectedItem = quoteStep.items?.[0]
-    if (!selectedItem) throw new Error('Relay quote step contains no items')
-
-    // Add back relayer service and gas fees (relayer is including both) since they are downsides
-    // And add appFees
-    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
-      .plus(relayerFeesBuyAssetCryptoBaseUnit)
-      .plus(appFeesBaseUnit)
-      .toFixed()
-
-    const { transactionData, relayTransactionMetadata } = getRelayStepTransactionData({
-      data: selectedItem.data,
-      sellAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      orderId,
-    })
-
-    // The spender to approve: EVM routes approve the router (transactionData.to); Tron approves the
-    // token contract (relayTransactionMetadata.to); UTXO/Solana need no allowance
-    const allowanceContract =
-      transactionData?.type === 'evm' ? transactionData.to : relayTransactionMetadata?.to ?? ''
-
-    return {
-      allowanceContract,
-      rate,
-      buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAsset,
-      sellAsset,
-      accountNumber,
-      feeData: {
-        networkFeeCryptoBaseUnit,
-        protocolFees: {
-          [protocolAssetId]: {
-            amountCryptoBaseUnit: quote.fees.relayer.amount,
-            asset: protocolAsset,
-            requiresBalance: false,
-          },
-          ...appFeesAsProtocolFee,
-        },
-      },
-      source: SwapperName.Relay,
-      estimatedExecutionTimeMs: timeEstimate * 1000,
-      transactionData,
-      relayTransactionMetadata,
-      swapperMetadata: {
-        name: 'relay',
-        relayId: quote.steps[0].requestId,
-        orderId,
-        data: transactionData?.type === 'evm' ? transactionData.data : undefined,
-      },
-      affiliateFee: buildAffiliateFee({
-        strategy: 'fixed_asset',
-        affiliateBps,
-        sellAsset,
         buyAsset,
-        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-        fixedAssetId: chainIdToFeeAssetId(baseChainId),
-        fixedAsset: deps.assetsById[chainIdToFeeAssetId(baseChainId)],
-        isEstimate: true,
-      }),
-    }
-  })
+        sellAsset,
+        accountNumber,
+        feeData: {
+          networkFeeCryptoBaseUnit,
+          protocolFees: {
+            [protocolAssetId]: {
+              amountCryptoBaseUnit: quote.fees.relayer.amount,
+              asset: protocolAsset,
+              requiresBalance: false,
+            },
+            ...appFeesAsProtocolFee,
+          },
+        },
+        source: SwapperName.Relay,
+        estimatedExecutionTimeMs: timeEstimate * 1000,
+        transactionData,
+        relayTransactionMetadata,
+        swapperMetadata: {
+          name: 'relay',
+          relayId: quote.steps[0].requestId,
+          orderId,
+          data: transactionData?.type === 'evm' ? transactionData.data : undefined,
+        },
+        affiliateFee: buildAffiliateFee({
+          strategy: 'fixed_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          fixedAssetId: chainIdToFeeAssetId(baseChainId),
+          fixedAsset: deps.assetsById[chainIdToFeeAssetId(baseChainId)],
+          isEstimate: true,
+        }),
+      }
+    }),
+  )
 
   const baseQuoteOrRate = {
     id: quote.steps[0].requestId,

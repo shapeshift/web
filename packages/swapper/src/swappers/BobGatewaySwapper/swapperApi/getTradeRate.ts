@@ -6,12 +6,12 @@ import { v4 as uuid } from 'uuid'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName } from '../../../types'
 import { getInputOutputRate } from '../../../utils'
+import { getBobGatewayRateNetworkFeeCryptoBaseUnit } from '../utils/getBobGatewayStepData'
 import {
   assertValidTrade,
   dummyAddressForChainId,
   getBobGatewayAllowanceContract,
   getBobGatewayQuote,
-  getBobGatewayRateNetworkFeeCryptoBaseUnit,
   parseBobGatewayQuote,
 } from '../utils/helpers'
 

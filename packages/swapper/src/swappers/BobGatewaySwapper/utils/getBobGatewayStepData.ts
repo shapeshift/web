@@ -1,7 +1,7 @@
 import type { GatewayQuoteV3 } from '@gobob/bob-sdk'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId, tronChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -15,7 +15,60 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import {
+  BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
+  BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE,
+  BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,
+} from './constants'
 import { createBobGatewayOrder, toTronBase58 } from './helpers'
+
+export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
+  quote: GatewayQuoteV3,
+  sellAsset: Asset,
+  { assertGetEvmChainAdapter, assertGetUtxoChainAdapter, assertGetTronChainAdapter }: SwapperDeps,
+  supportsEIP1559: boolean,
+): Promise<string | undefined> => {
+  try {
+    if ('onramp' in quote) {
+      const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+
+      const { fast } = await adapter.httpProvider.getNetworkFees()
+      if (!fast?.satsPerKiloByte) return
+
+      const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
+
+      return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
+    }
+
+    if (sellAsset.chainId === tronChainId) {
+      const adapter = assertGetTronChainAdapter(sellAsset.chainId)
+
+      const order = (() => {
+        if ('offramp' in quote) return quote.offramp
+        if ('tokenSwap' in quote) return quote.tokenSwap
+      })()
+
+      if (!order) return
+
+      const { fast } = await adapter.getFeeData({
+        to: toTronBase58(order.txTo),
+        value: order.inputAmount.amount,
+        chainSpecific: { contractAddress: contractAddressOrUndefined(sellAsset.assetId) },
+      })
+
+      return fast.txFee
+    }
+
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
+    const gasLimit =
+      'offramp' in quote
+        ? BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT
+        : BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT
+
+    return getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit })
+  } catch {}
+}
 
 export const getBobGatewayStepData = async ({
   input,

@@ -40,7 +40,6 @@ export * from './types'
 export * from './getL1RateOrQuote'
 export * from './getPoolDetails'
 
-export * as cosmossdk from './cosmossdk'
 export * as solana from './solana'
 export * as tron from './tron'
 

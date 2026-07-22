@@ -44,19 +44,30 @@ const UtxoTransactionDataSchema = z.object({
   value: z.string(),
 })
 
-const CosmosTransactionDataSchema = z.object({
-  type: z.literal('cosmos').openapi({ example: 'cosmos' }),
+const CosmosSdkMsgSendTransactionDataSchema = z.object({
+  type: z.literal('cosmossdk_msg_send').openapi({ example: 'cosmossdk_msg_send' }),
   chainId: z.string(),
   to: z.string(),
+  denom: z.string().openapi({ example: 'uatom' }),
   value: z.string(),
   memo: z.string().optional(),
+})
+
+// A native MsgDeposit (e.g. THORChain/MAYAChain) rather than a bank send
+const CosmosSdkMsgDepositTransactionDataSchema = z.object({
+  type: z.literal('cosmossdk_msg_deposit').openapi({ example: 'cosmossdk_msg_deposit' }),
+  chainId: z.string(),
+  value: z.string(),
+  memo: z.string(),
+  coin: z.string().openapi({ example: 'THOR.RUNE' }),
 })
 
 const TransactionDataSchema = z.discriminatedUnion('type', [
   EvmTransactionDataSchema,
   SolanaTransactionDataSchema,
   UtxoTransactionDataSchema,
-  CosmosTransactionDataSchema,
+  CosmosSdkMsgSendTransactionDataSchema,
+  CosmosSdkMsgDepositTransactionDataSchema,
 ])
 
 export const ApprovalInfoSchema = z.object({

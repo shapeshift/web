@@ -176,7 +176,8 @@ export type RatesResponse = {
 }
 
 export type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
   Permit2SignatureRequired,
   SolanaTransactionData,

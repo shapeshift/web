@@ -1,5 +1,6 @@
 import type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
   Permit2SignatureRequired,
   SolanaTransactionData,
@@ -12,7 +13,8 @@ import { RateLimitErrorCode } from './middleware/rateLimit'
 import { registry } from './registry'
 
 export type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
   Permit2SignatureRequired,
   SolanaTransactionData,

@@ -34,16 +34,26 @@ export type UtxoTransactionData = {
   value: string
 }
 
-export type CosmosTransactionData = {
-  type: 'cosmos'
+export type CosmosSdkMsgSendTransactionData = {
+  type: 'cosmossdk_msg_send'
   chainId: string
   to: string
+  denom: string
   value: string
   memo?: string
+}
+
+export type CosmosSdkMsgDepositTransactionData = {
+  type: 'cosmossdk_msg_deposit'
+  chainId: string
+  value: string
+  memo: string
+  coin: string
 }
 
 export type TransactionData =
   | EvmTransactionData
   | SolanaTransactionData
   | UtxoTransactionData
-  | CosmosTransactionData
+  | CosmosSdkMsgSendTransactionData
+  | CosmosSdkMsgDepositTransactionData

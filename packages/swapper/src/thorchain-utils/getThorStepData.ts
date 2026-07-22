@@ -1,4 +1,13 @@
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_NAMESPACE,
+  cosmosAssetId,
+  fromAssetId,
+  fromChainId,
+  mayachainAssetId,
+  rujiAssetId,
+  tcyAssetId,
+  thorchainAssetId,
+} from '@shapeshiftoss/caip'
 import { THOR_ROUTER_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
@@ -196,8 +205,49 @@ export const getThorStepData = async ({
       const { fast } = await adapter.getFeeData({})
       const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
+      const transactionData: TxBuildData | undefined = (() => {
+        if (type === 'rate') return
+
+        if (vault) {
+          // Blockchain-literal denom so consumers can construct the MsgSend amount
+          const denom = (() => {
+            if (sellAsset.assetId === cosmosAssetId) return 'uatom'
+            if (sellAsset.assetId === thorchainAssetId) return 'rune'
+            throw new Error(`Unsupported sellAsset: ${sellAsset.assetId}`)
+          })()
+
+          return {
+            type: 'cosmossdk_msg_send',
+            chainId: sellAsset.chainId,
+            to: vault,
+            denom,
+            value: sellAmountCryptoBaseUnit,
+            memo,
+          }
+        }
+
+        // Native sells (no vault) are MsgDeposits; the coin must be explicit as the thorchain
+        // adapter otherwise defaults to THOR.RUNE
+        const coin = (() => {
+          if (sellAsset.assetId === thorchainAssetId) return 'THOR.RUNE'
+          if (sellAsset.assetId === tcyAssetId) return 'THOR.TCY'
+          if (sellAsset.assetId === rujiAssetId) return 'THOR.RUJI'
+          if (sellAsset.assetId === mayachainAssetId) return 'MAYA.CACAO'
+          throw new Error(`Unsupported sellAsset: ${sellAsset.assetId}`)
+        })()
+
+        return {
+          type: 'cosmossdk_msg_deposit',
+          chainId: sellAsset.chainId,
+          value: sellAmountCryptoBaseUnit,
+          memo,
+          coin,
+        }
+      })()
+
       return {
         vault,
+        transactionData,
         networkFeeCryptoBaseUnit: fast.txFee,
         chainSpecific: { estimatedGasCryptoBaseUnit: fast.chainSpecific.gasLimit },
         thorchainTransactionMetadata: { to: vault, memo, value: sellAmountCryptoBaseUnit },

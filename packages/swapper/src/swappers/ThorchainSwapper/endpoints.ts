@@ -1,18 +1,8 @@
-import { cosmosAssetId, rujiAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { thorchain } from '@shapeshiftoss/chain-adapters'
-
+import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '../../cosmossdk-utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
-import type { ThorTradeQuote } from '../../thorchain-utils'
-import {
-  checkTradeStatus,
-  cosmossdk,
-  getInboundAddressDataForChain,
-  solana,
-  tron,
-} from '../../thorchain-utils'
-import type { CosmosSdkFeeData, SwapperApi } from '../../types'
+import { checkTradeStatus, solana, tron } from '../../thorchain-utils'
+import type { SwapperApi } from '../../types'
 import { SwapperName } from '../../types'
-import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -30,77 +20,8 @@ export const thorchainApi: SwapperApi = {
   getSolanaTransactionFees: input => solana.getSolanaTransactionFees(input, swapperName),
   getUnsignedTronTransaction: input => tron.getUnsignedTronTransaction(input, swapperName),
   getTronTransactionFees: input => tron.getTronTransactionFees(input, swapperName),
-  getUnsignedCosmosSdkTransaction: async ({
-    tradeQuote,
-    stepIndex,
-    from,
-    config,
-    assertGetCosmosSdkChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const { memo } = tradeQuote as ThorTradeQuote
-    if (!memo) throw new Error('Memo is required')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
-      step
-
-    const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit
-    const fee = feeData.networkFeeCryptoBaseUnit ?? '0'
-
-    switch (sellAsset.assetId) {
-      case thorchainAssetId:
-      case rujiAssetId:
-      case tcyAssetId: {
-        const coin = (() => {
-          if (sellAsset.assetId === tcyAssetId) return 'THOR.TCY'
-          if (sellAsset.assetId === rujiAssetId) return 'THOR.RUJI'
-          return 'THOR.RUNE'
-        })()
-        const adapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId) as thorchain.ChainAdapter
-
-        const { txToSign } = await adapter.buildDepositTransaction({
-          accountNumber,
-          from,
-          value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          memo,
-          chainSpecific: {
-            gas,
-            fee,
-            coin,
-          },
-        })
-
-        return txToSign
-      }
-      case cosmosAssetId: {
-        const adapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
-
-        const url = `${config.VITE_THORCHAIN_NODE_URL}/thorchain`
-
-        const data = await getInboundAddressDataForChain(url, cosmosAssetId, true, swapperName)
-        if (data.isErr()) throw data.unwrapErr()
-
-        const { address: vault } = data.unwrap()
-
-        const { txToSign } = await adapter.buildSendApiTransaction({
-          accountNumber,
-          from,
-          to: vault,
-          value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          memo,
-          chainSpecific: { gas, fee },
-        })
-
-        return txToSign
-      }
-      default:
-        throw Error(`Unsupported sellAsset: ${sellAsset.assetId}`)
-    }
-  },
-  getCosmosSdkTransactionFees: input => cosmossdk.getCosmosSdkTransactionFees(input),
+  getUnsignedCosmosSdkTransaction,
+  getCosmosSdkTransactionFees,
   checkTradeStatus: input => {
     const { config } = input
 

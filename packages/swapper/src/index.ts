@@ -1,4 +1,5 @@
 export * from './constants'
+export * from './cosmossdk-utils'
 export * from './cowswap-utils'
 export * from './evm-utils'
 export * from './safe-utils'

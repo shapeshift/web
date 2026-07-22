@@ -144,7 +144,8 @@ export const useSwapExecution = () => {
               return executeUtxo(txData, bitcoin)
             case 'solana':
               return executeSolana(txData, solana)
-            case 'cosmos':
+            case 'cosmossdk_msg_send':
+            case 'cosmossdk_msg_deposit':
               throw new Error('This swap is not yet supported — please try a different route')
             default: {
               const _exhaustive: never = txData

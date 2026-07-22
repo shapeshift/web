@@ -2,7 +2,8 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 
 import type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
   SolanaTransactionData,
   TransactionData,
@@ -47,20 +48,18 @@ const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData |
   return { type: 'utxo', to, opReturnData, value }
 }
 
-const extractCosmosTransactionData = (step: TradeQuoteStep): CosmosTransactionData | undefined => {
-  if (step.thorchainTransactionMetadata?.to) {
-    return {
-      type: 'cosmos',
-      chainId: step.sellAsset.chainId,
-      to: step.thorchainTransactionMetadata.to,
-      value:
-        step.thorchainTransactionMetadata.value ??
-        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      memo: step.thorchainTransactionMetadata.memo ?? '',
-    }
+const extractCosmosSdkTransactionData = (
+  step: TradeQuoteStep,
+): CosmosSdkMsgSendTransactionData | CosmosSdkMsgDepositTransactionData | undefined => {
+  if (step.transactionData?.type === 'cosmossdk_msg_send') {
+    const { chainId, to, denom, value, memo } = step.transactionData
+    return { type: 'cosmossdk_msg_send', chainId, to, denom, value, memo }
   }
 
-  return undefined
+  if (step.transactionData?.type === 'cosmossdk_msg_deposit') {
+    const { chainId, value, memo, coin } = step.transactionData
+    return { type: 'cosmossdk_msg_deposit', chainId, value, memo, coin }
+  }
 }
 
 export const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
@@ -79,7 +78,7 @@ export const extractTransactionData = (step: TradeQuoteStep): TransactionData | 
   }
 
   if (chainNamespace === 'cosmos') {
-    return extractCosmosTransactionData(step)
+    return extractCosmosSdkTransactionData(step)
   }
 
   return undefined

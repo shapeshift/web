@@ -581,13 +581,9 @@
         "emptyWithdraws": "Les demandes de déstaking en attente s'affichent ici.",
         "availableDate": "disponible %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Retraits",
         "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici.",
-        "availableDate": "disponible %{date}",
-        "disabledTitle": "Les dépôts FOXy sont désactivés"
-      },
-      "foxFarmingOverview": {
         "header": "Déposer des jetons LP ETH-FOX dans %{opportunity} pour gagner",
         "body": "Autorisez et stakez vos jetons de liquidité pour gagner des récompenses bonus en FOX.",
         "rewards": "Les récompenses que vous gagnez s'accumuleront automatiquement.",
@@ -857,12 +853,6 @@
         "swap": "Échange",
         "swapRefund": "Remboursement d'échange"
       },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Déstake",
-        "instantUnstake": "Déstake instantané",
-        "claimWithdraw": "Réclamation de retrait"
-      },
       "erc20": {
         "approve": "Autorisation",
         "approveSymbol": "Autorisation %{symbol}",
@@ -1034,6 +1024,7 @@
       "amountTooSmallUnknownMinimum": "Montant insuffisant",
       "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",
       "insufficientFunds": "Fonds insuffisants pour les frais de minage et le montant",
+      "insufficientFundsUnconfirmed": "Les fonds sont en cours de confirmation. Veuillez réessayer après confirmation.",
       "transactionRejected": "L'utilisateur a rejeté la transaction",
       "insufficientFundsForProtocolFee": "%{symbol} insuffisant sur %{chainName} pour les frais",
       "unsupportedTradePair": "Paire d'échange non prise en charge",
@@ -1408,6 +1399,11 @@
         "feesTooLow": "Les frais actuels correspondent déjà aux tarifs du réseau",
         "alreadySpentOrReplaced": "Cette transaction ne peut plus être accélérée car elle a déjà été remplacée ou confirmée.",
         "alreadyConfirmed": "Cette transaction est déjà confirmée et ne peut plus être accélérée.",
+        "errors": {
+          "multipleChange": "Impossible d'accélérer les transactions avec plusieurs sorties de change.",
+          "multipleOpReturn": "Impossible d'accélérer les transactions comportant plusieurs sorties OP_RETURN.",
+          "addresslessOutput": "Impossible d'accélérer les transactions contenant des sorties non standard."
+        },
         "speedUpFailed": "Échec de l'accélération de la transaction",
         "broadcastNotObserved": "La diffusion de la transaction de remplacement n'a pas encore été observée par le réseau. Veuillez réessayer."
       }
@@ -2237,7 +2233,7 @@
     "thisMonth": "Ce mois-ci",
     "speedUp": "Accélération",
     "cancelTransaction": "Transaction d'annulation",
-    "replaced": "Remplacé",
+    "replaced": "Vous avez accéléré l'envoi de %{amount} %{symbol}",
     "replacedBy": "Remplacé par %{txHash}",
     "replaces": "Remplace %{txHash}"
   },
@@ -3147,6 +3143,9 @@
     "stake": "Staker",
     "unstake": "Déstaker",
     "staking": "Staking TCY",
+    "claimingHalted": "Réclamation de TCY suspendue",
+    "stakingHalted": "Staking de TCY suspendu",
+    "unstakingHalted": "Déstaking de TCY suspendu",
     "myPosition": "Ma position",
     "myStakedBalance": "Mon solde staké",
     "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez staké",

@@ -16,17 +16,22 @@ import {
   katanaChainId,
   ltcChainId,
   mayachainChainId,
+  megaethChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
+  suiChainId,
   thorchainChainId,
-  worldChainChainId,
+  tonChainId,
+  tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
-import type { WalletClient } from 'viem'
 
 export type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
 export type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
@@ -38,7 +43,7 @@ export enum SwapperName {
   NearIntents = 'NEAR Intents',
   Relay = 'Relay',
   Thorchain = 'THORChain',
-  //Mayachain = 'MAYAChain',
+  Mayachain = 'MAYAChain',
   //ArbitrumBridge = 'Arbitrum Bridge',
   //Avnu = 'AVNU',
   //Bebop = 'Bebop',
@@ -96,6 +101,8 @@ export type TradeQuote = {
   swapperName: SwapperName
   steps: TradeQuoteStep[]
   receiveAddress: string
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
   slippageTolerancePercentageDecimal?: string
   isStreaming?: boolean
@@ -108,6 +115,8 @@ export type TradeRate = {
   sellAmountCryptoBaseUnit: string
   steps: number
   estimatedExecutionTimeMs?: number
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
   networkFeeCryptoBaseUnit?: string
   error?: {
@@ -135,35 +144,29 @@ export type ThemeConfig = {
   buttonVariant?: 'filled' | 'outline'
 }
 
+export type SwapWidgetFilters = {
+  allowedChainIds?: ChainId[]
+  disabledChainIds?: ChainId[]
+  allowedAssetIds?: AssetId[]
+  disabledAssetIds?: AssetId[]
+}
+
 export type SwapWidgetProps = {
   partnerCode?: string
   apiBaseUrl?: string
-  appUrl?: string
+  allowShapeshiftRedirect?: boolean
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
-  disabledChainIds?: ChainId[]
-  disabledAssetIds?: AssetId[]
-  allowedChainIds?: ChainId[]
-  sellDisabledChainIds?: ChainId[]
-  buyDisabledChainIds?: ChainId[]
-  sellDisabledAssetIds?: AssetId[]
-  buyDisabledAssetIds?: AssetId[]
-  sellAllowedChainIds?: ChainId[]
-  buyAllowedChainIds?: ChainId[]
-  sellAllowedAssetIds?: AssetId[]
-  buyAllowedAssetIds?: AssetId[]
+  sellFilters?: SwapWidgetFilters
+  buyFilters?: SwapWidgetFilters
   allowedSwapperNames?: SwapperName[]
-  walletClient?: WalletClient
-  onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   theme?: ThemeMode | ThemeConfig
   defaultSlippage?: string
   showPoweredBy?: boolean
-  enableWalletConnection?: boolean
+  showConnectButton?: boolean
   walletConnectProjectId?: string
-  defaultReceiveAddress?: string
   ratesRefetchInterval?: number
   isBuyAssetLocked?: boolean
 }
@@ -213,8 +216,9 @@ export type QuoteResponse = {
   sellAmountCryptoBaseUnit: string
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
-  affiliateAddress?: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
   steps: ApiQuoteStep[]
@@ -237,9 +241,9 @@ export const EVM_CHAIN_IDS = {
   bsc: bscChainId,
   gnosis: gnosisChainId,
   monad: monadChainId,
+  megaEth: megaethChainId,
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,
-  worldChain: worldChainChainId,
   katana: katanaChainId,
 } as const
 
@@ -258,6 +262,15 @@ export const COSMOS_CHAIN_IDS = {
 
 export const OTHER_CHAIN_IDS = {
   solana: solanaChainId,
+} as const
+
+export const REDIRECT_ONLY_CHAIN_IDS = {
+  zcash: zecChainId,
+  tron: tronChainId,
+  sui: suiChainId,
+  ton: tonChainId,
+  near: nearChainId,
+  starknet: starknetChainId,
 } as const
 
 export const isEvmChainId = (chainId: string): boolean => {
@@ -285,6 +298,34 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
       return 'other'
   }
 }
+
+const EXECUTABLE_EVM_CHAIN_ID_SET: ReadonlySet<string> = new Set(Object.values(EVM_CHAIN_IDS))
+const EXECUTABLE_UTXO_CHAIN_ID_SET: ReadonlySet<string> = new Set(Object.values(UTXO_CHAIN_IDS))
+
+export const isWidgetExecutableEvmChainId = (chainId: string): boolean =>
+  EXECUTABLE_EVM_CHAIN_ID_SET.has(chainId)
+
+export const isWidgetExecutableUtxoChainId = (chainId: string): boolean =>
+  EXECUTABLE_UTXO_CHAIN_ID_SET.has(chainId)
+
+export const isWidgetExecutableSolanaChainId = (chainId: string): boolean =>
+  chainId === OTHER_CHAIN_IDS.solana
+
+export const isWidgetExecutableChainId = (chainId: string): boolean =>
+  isWidgetExecutableEvmChainId(chainId) ||
+  isWidgetExecutableUtxoChainId(chainId) ||
+  isWidgetExecutableSolanaChainId(chainId)
+
+const SUPPORTED_CHAIN_ID_SET: ReadonlySet<string> = new Set([
+  ...Object.values(EVM_CHAIN_IDS),
+  ...Object.values(UTXO_CHAIN_IDS),
+  ...Object.values(COSMOS_CHAIN_IDS),
+  ...Object.values(OTHER_CHAIN_IDS),
+  ...Object.values(REDIRECT_ONLY_CHAIN_IDS),
+])
+
+export const isWidgetSupportedChainId = (chainId: string): boolean =>
+  SUPPORTED_CHAIN_ID_SET.has(chainId)
 
 export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
   const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)

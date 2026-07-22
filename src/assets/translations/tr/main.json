@@ -581,13 +581,9 @@
         "emptyWithdraws": "Bekleyen staking istekleri burada gösterilir.",
         "availableDate": "kullanılabilir %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Para Çekme",
         "emptyWithdraws": "Bekleyen veya etkin para çekme işlemleri burada gösterilir.",
-        "availableDate": "kullanılabilir %{date}",
-        "disabledTitle": "FOXy para yatırma işlemleri devre dışı bırakıldı"
-      },
-      "foxFarmingOverview": {
         "header": "Kazanmak için ETH-FOX LP jetonlarını %{opportunity}'e yatırın",
         "body": "Bonus FOX ödülleri kazanmak için likidite jetonlarınızı onaylayın ve stake edin.",
         "rewards": "Kazandığınız ödüller otomatik olarak tahakkuk edecektir.",
@@ -857,12 +853,6 @@
         "swap": "Takas",
         "swapRefund": "Takas İadesi"
       },
-      "foxy": {
-        "stake": "Stake Et",
-        "unstake": "Stake Kaldır",
-        "instantUnstake": "Stake'i Anında Geri Al",
-        "claimWithdraw": "Ödülleri Topla"
-      },
       "erc20": {
         "approve": "Onayla",
         "approveSymbol": "%{symbol} Onayla",
@@ -1034,6 +1024,7 @@
       "amountTooSmallUnknownMinimum": "Tutar çok düşük",
       "sellAmountDoesNotCoverFee": "Ücretten daha düşük satış tutarı",
       "insufficientFunds": "Madenci ücreti ve miktarı için yetersiz bakiye",
+      "insufficientFundsUnconfirmed": "Fonların onaylanması devam ediyor. Onaylandıktan sonra tekrar deneyin.",
       "transactionRejected": "Kullanıcı işlemi reddetti",
       "insufficientFundsForProtocolFee": "%{chainName} üzerinde ücretler için yetersiz %{symbol}",
       "unsupportedTradePair": "Desteklenmeyen Takas Çifti",
@@ -1408,6 +1399,11 @@
         "feesTooLow": "Mevcut ücretler zaten ağ tarifeleri üzerinden belirleniyor.",
         "alreadySpentOrReplaced": "Bu işlem zaten değiştirildiği veya onaylandığı için artık hızlandırılamaz.",
         "alreadyConfirmed": "Bu işlem zaten onaylandı ve artık hızlandırılamaz.",
+        "errors": {
+          "multipleChange": "Birden fazla para üstü çıktısı olan işlemleri hızlandırmak mümkün değildir.",
+          "multipleOpReturn": "Birden fazla OP_RETURN çıktısı içeren işlemleri hızlandırmak mümkün değildir.",
+          "addresslessOutput": "Standart dışı çıktılar içeren işlemleri hızlandırmak mümkün değildir."
+        },
         "speedUpFailed": "İşlem hızlandırılamadı.",
         "broadcastNotObserved": "Yedek işlem yayını henüz ağ tarafından yayınlanmadı. Lütfen tekrar deneyin."
       }
@@ -2237,7 +2233,7 @@
     "thisMonth": "Bu Ay",
     "speedUp": "Hızlandır",
     "cancelTransaction": "İşlemi İptal Et",
-    "replaced": "Değiştirildi",
+    "replaced": "%{amount} %{symbol} gönderim hızınızı artırdınız.",
     "replacedBy": "%{txHash} ile değiştirildi.",
     "replaces": "%{txHash}'i değiştirir."
   },
@@ -3147,6 +3143,9 @@
     "stake": "Stake",
     "unstake": "Unstake",
     "staking": "TCY Stake",
+    "claimingHalted": "TCY Talebi Durduruldu",
+    "stakingHalted": "TCY Stake Durduruldu",
+    "unstakingHalted": "TCY Stake Çekilmesi Durduruldu",
     "myPosition": "Pozisyonum",
     "myStakedBalance": "Stake Edilmiş Bakiyem",
     "myStakedBalanceHelper": "Stake edilen %{symbol} miktarı",

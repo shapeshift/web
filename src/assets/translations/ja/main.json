@@ -581,13 +581,9 @@
         "emptyWithdraws": "保留中のステーキング解除のリクエストはここに表示されます。",
         "availableDate": "利用可能 %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "出金",
         "emptyWithdraws": "保留中の出金またはアクティブな出金はここに表示されます。",
-        "availableDate": "利用可能 %{date}",
-        "disabledTitle": "FOXyデポジットは無効になっています"
-      },
-      "foxFarmingOverview": {
         "header": "ETH-FOX LP トークンを %{opportunity} に入金して獲得する",
         "body": "流動性トークンを承認してステーキングして、ボーナスFOX報酬を獲得する",
         "rewards": "獲得した報酬は自動的に蓄積されます。",
@@ -857,12 +853,6 @@
         "swap": "トレード",
         "swapRefund": "スワップ払い戻し"
       },
-      "foxy": {
-        "stake": "ステーク",
-        "unstake": "ステークを解除する",
-        "instantUnstake": "一時的にステークを解除する",
-        "claimWithdraw": "出金の獲得"
-      },
       "erc20": {
         "approve": "承認する",
         "approveSymbol": "%{symbol}を承認",
@@ -1034,6 +1024,7 @@
       "amountTooSmallUnknownMinimum": "金額が低すぎます",
       "sellAmountDoesNotCoverFee": "手数料よりも低い金額で売却する",
       "insufficientFunds": "マイナーの手数料と金額に対して資金が不十分です",
+      "insufficientFundsUnconfirmed": "資金の確認中です。承認され次第、再度お試しください。",
       "transactionRejected": "ユーザーが取引を拒否しました",
       "insufficientFundsForProtocolFee": "%{chainName} の %{symbol} が手数料として不十分です",
       "unsupportedTradePair": "サポートされていないトレードペア",
@@ -1408,6 +1399,11 @@
         "feesTooLow": "現在の料金はすでにネットワーク料金となっています",
         "alreadySpentOrReplaced": "この取引は既に置換または確認済みのため、これ以上処理を早めることはできません。",
         "alreadyConfirmed": "この取引は既に確定しており、これ以上早めることはできません。",
+        "errors": {
+          "multipleChange": "複数のお釣り（Change）出力を持つトランザクションは高速化できません。",
+          "multipleOpReturn": "複数のOP_RETURN出力を含むトランザクションを高速化することはできません。",
+          "addresslessOutput": "非標準出力を含むトランザクションは高速化できません。"
+        },
         "speedUpFailed": "取引の高速化に失敗しました",
         "broadcastNotObserved": "置換トランザクションのブロードキャストはまだネットワークで検出されていません。もう一度お試しください。"
       }
@@ -2237,7 +2233,7 @@
     "thisMonth": "今月",
     "speedUp": "スピードアップ",
     "cancelTransaction": "取引をキャンセルする",
-    "replaced": "置換済み",
+    "replaced": "%{amount} %{symbol} の送金を高速化しました",
     "replacedBy": "%{txHash} に置き換えられました",
     "replaces": "%{txHash} を置き換えます"
   },
@@ -2476,7 +2472,7 @@
       "executingTitle": "供給中...",
       "executingDescription": "供給を処理中です",
       "successTitle": "供給成功",
-      "successDescription": "あなたの資産は現在、利回りを生み出しています。",
+      "successDescription": "あなたの%{asset}は現在、収益を生んでいます。",
       "supplied": "供給済み",
       "transactionId": "取引ID",
       "errorTitle": "供給に失敗しました",
@@ -2517,7 +2513,7 @@
         "confirming": "ローンの確認"
       },
       "noCollateral": "借り入れにはまず担保が必要です",
-      "minimumLoan": "最低融資額：%{金額}",
+      "minimumLoan": "最低融資額：%{amount}",
       "availableTooltip": "担保価値と目標LTVに基づいて借り入れ可能な最大金額",
       "needMorePower": "借入能力をさらに高めたいですか？",
       "addCollateral": "担保を追加する"
@@ -2597,7 +2593,7 @@
         "signing": "担保更新の署名中",
         "confirming": "更新内容を確認中"
       },
-      "minimumAmount": "最低担保額の更新: %{金額}",
+      "minimumAmount": "最低担保額の更新: %{amount}",
       "noFreeBalance": "担保として追加できる空き残高がありません",
       "noRemovable": "LTVを目標値以下に引き下げなければ担保を解除することはできません"
     },
@@ -2693,8 +2689,8 @@
       "alsoWithdrawToWallet": "ウォレットに引き出すこともできます",
       "freeBalanceExplainer": "デフォルトでは、資金はChainflip State Chain上のフリー残高に引き出されます。ウォレットにも引き出す​​場合は、下のチェックボックスをオンにしてください。",
       "fullWithdrawalOnlyTooltip": "お客様のポジションは、一部出金に必要な最低残高を下回っています。全額出金のみ可能です。",
-      "partialBelowMinimum": "最低出金額は %{金額} です",
-      "remainingBelowMinimum": "残高は少なくとも%{金額}以上でなければ、全額引き出す必要があります。",
+      "partialBelowMinimum": "最低出金額は %{amount} です",
+      "remainingBelowMinimum": "残高は少なくとも%{amount}以上でなければ、全額引き出す必要があります。",
       "destinationAddress": "宛先住所",
       "transactionId": "取引ID"
     },
@@ -2728,12 +2724,12 @@
       "fullRepayment": "全額返済",
       "partialRepayment": "一部返済",
       "confirmTitle": "返済を確認する",
-      "confirmDescription": "%{金額} %{資産}を返済する",
+      "confirmDescription": "%{amount} %{asset}を返済する",
       "confirmAndRepay": "確認して返済する",
       "executingTitle": "返済中...",
       "executingDescription": "お客様の返済手続きが進められています。",
       "successTitle": "返済完了",
-      "successDescription": "あなたは%{金額} %{資産}を返済しました",
+      "successDescription": "あなたは%{amount} %{asset}を返済しました",
       "repaid": "返済済み",
       "transactionId": "取引ID",
       "errorTitle": "返済失敗",
@@ -2744,7 +2740,7 @@
       },
       "availableBalance": "自由残高",
       "availableTooltip": "Chainflipの無料残高は返済にご利用いただけます",
-      "minimumRepayment": "最低返済額：%{金額}",
+      "minimumRepayment": "最低返済額：%{amount}",
       "remainingBelowMinimum": "残りのローン残高は最低返済額の%{amount}を下回ります。全額返済をご利用ください。",
       "insufficientBalance": "全額返済に必要な残高が不足しています",
       "noFreeBalance": "まずChainflipアカウントに資金を入金してください。"
@@ -3147,6 +3143,9 @@
     "stake": "ステーク",
     "unstake": "ステーク解除",
     "staking": "TCYステーキング",
+    "claimingHalted": "TCYの受け取りが停止されました",
+    "stakingHalted": "TCYステーキングが停止されました",
+    "unstakingHalted": "TCYのアンステーキングが停止されました",
     "myPosition": "現在のポジション",
     "myStakedBalance": "ステーク残高",
     "myStakedBalanceHelper": "あなたが賭けた%{symbol}の量",

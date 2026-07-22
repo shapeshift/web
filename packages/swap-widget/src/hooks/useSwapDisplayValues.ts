@@ -1,11 +1,12 @@
 import type { Asset as ShapeshiftAsset } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import type { ApiClient } from '../api/client'
 import { getBaseAsset } from '../constants/chains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { TradeRate } from '../types'
+import type { SwapperName, TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
 import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
@@ -16,9 +17,11 @@ import { useSwapRates } from './useSwapRates'
 
 type UseSwapDisplayValuesParams = {
   apiClient: ApiClient
+  allowedSwapperNames?: SwapperName[]
+  ratesRefetchInterval?: number
 }
 
-type SwapDisplayValues = {
+export type SwapDisplayValues = {
   rates: TradeRate[] | undefined
   isLoadingRates: boolean
   ratesError: Error | null
@@ -44,6 +47,8 @@ type SwapDisplayValues = {
 
 export const useSwapDisplayValues = ({
   apiClient,
+  allowedSwapperNames,
+  ratesRefetchInterval,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
   const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
@@ -53,7 +58,8 @@ export const useSwapDisplayValues = ({
   const isSellAssetSolana = SwapMachineCtx.useSelector(s => s.context.isSellAssetSolana)
   const selectedRate = SwapMachineCtx.useSelector(s => s.context.selectedRate)
 
-  const { walletAddress, effectiveReceiveAddress, bitcoin, solana } = useSwapWallet()
+  const { receiveAddress, evm, bitcoin, solana } = useSwapWallet()
+  const evmAddress = evm.address
   const bitcoinAddress = bitcoin.address
   const solanaAddress = solana.address
 
@@ -67,6 +73,8 @@ export const useSwapDisplayValues = ({
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+    allowedSwapperNames,
+    refetchInterval: ratesRefetchInterval,
     enabled:
       !!sellAmountBaseUnit &&
       sellAmountBaseUnit !== '0' &&
@@ -78,7 +86,7 @@ export const useSwapDisplayValues = ({
     isLoading: isSellBalanceLoading,
     refetch: refetchSellBalance,
   } = useMultiChainBalance(
-    walletAddress,
+    evmAddress,
     bitcoinAddress,
     solanaAddress,
     sellAsset.assetId,
@@ -86,18 +94,18 @@ export const useSwapDisplayValues = ({
   )
 
   const buyAssetAddressForBalance = useMemo(() => {
-    if (buyChainType === 'evm') return effectiveReceiveAddress || walletAddress
-    if (buyChainType === 'utxo') return effectiveReceiveAddress || bitcoinAddress
-    if (buyChainType === 'solana') return effectiveReceiveAddress || solanaAddress
-    return effectiveReceiveAddress
-  }, [buyChainType, effectiveReceiveAddress, walletAddress, bitcoinAddress, solanaAddress])
+    if (buyChainType === 'evm') return receiveAddress || evmAddress
+    if (buyChainType === 'utxo') return receiveAddress || bitcoinAddress
+    if (buyChainType === 'solana') return receiveAddress || solanaAddress
+    return receiveAddress
+  }, [buyChainType, receiveAddress, evmAddress, bitcoinAddress, solanaAddress])
 
   const {
     data: buyAssetBalance,
     isLoading: isBuyBalanceLoading,
     refetch: refetchBuyBalance,
   } = useMultiChainBalance(
-    buyChainType === 'evm' ? buyAssetAddressForBalance : walletAddress,
+    buyChainType === 'evm' ? buyAssetAddressForBalance : evmAddress,
     buyChainType === 'utxo' ? buyAssetAddressForBalance : bitcoinAddress,
     buyChainType === 'solana' ? buyAssetAddressForBalance : solanaAddress,
     buyAsset.assetId,
@@ -121,7 +129,11 @@ export const useSwapDisplayValues = ({
   }, [sellAsset.assetId, buyAsset.assetId, sellChainNativeAsset])
 
   const { data: marketData } = useMarketData(assetIdsForPrices)
-  const sellAssetUsdPrice = marketData?.[sellAsset.assetId]?.price
+  const sellAssetMarketDataPrice = marketData?.[sellAsset.assetId]?.price
+  const sellAssetUsdPrice =
+    sellAssetMarketDataPrice && bn(sellAssetMarketDataPrice).gt(0)
+      ? sellAssetMarketDataPrice
+      : undefined
   const buyAssetUsdPrice = marketData?.[buyAsset.assetId]?.price
   const nativeAssetUsdPrice = sellChainNativeAsset
     ? marketData?.[sellChainNativeAsset.assetId]?.price
@@ -161,27 +173,52 @@ export const useSwapDisplayValues = ({
     return formatUsdValue(buyAssetBalance.balance, buyAsset.precision, buyAssetUsdPrice)
   }, [buyAssetBalance?.balance, buyAsset.precision, buyAssetUsdPrice])
 
-  return {
-    rates,
-    isLoadingRates,
-    ratesError,
-    sellAssetBalance,
-    isSellBalanceLoading,
-    refetchSellBalance,
-    buyAssetBalance,
-    isBuyBalanceLoading,
-    refetchBuyBalance,
-    sellChainInfo,
-    buyChainInfo,
-    displayRate,
-    buyAmount,
-    sellChainNativeAsset,
-    networkFeeDisplay,
-    sellUsdValue,
-    buyUsdValue,
-    sellAssetUsdPrice,
-    buyAssetUsdPrice,
-    sellBalanceFiatValue,
-    buyBalanceFiatValue,
-  }
+  return useMemo(
+    () => ({
+      rates,
+      isLoadingRates,
+      ratesError,
+      sellAssetBalance,
+      isSellBalanceLoading,
+      refetchSellBalance,
+      buyAssetBalance,
+      isBuyBalanceLoading,
+      refetchBuyBalance,
+      sellChainInfo,
+      buyChainInfo,
+      displayRate,
+      buyAmount,
+      sellChainNativeAsset,
+      networkFeeDisplay,
+      sellUsdValue,
+      buyUsdValue,
+      sellAssetUsdPrice,
+      buyAssetUsdPrice,
+      sellBalanceFiatValue,
+      buyBalanceFiatValue,
+    }),
+    [
+      rates,
+      isLoadingRates,
+      ratesError,
+      sellAssetBalance,
+      isSellBalanceLoading,
+      refetchSellBalance,
+      buyAssetBalance,
+      isBuyBalanceLoading,
+      refetchBuyBalance,
+      sellChainInfo,
+      buyChainInfo,
+      displayRate,
+      buyAmount,
+      sellChainNativeAsset,
+      networkFeeDisplay,
+      sellUsdValue,
+      buyUsdValue,
+      sellAssetUsdPrice,
+      buyAssetUsdPrice,
+      sellBalanceFiatValue,
+      buyBalanceFiatValue,
+    ],
+  )
 }

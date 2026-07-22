@@ -10,6 +10,7 @@ const envSchema = z.object({
 
   // Swap service
   SWAP_SERVICE_BASE_URL: url,
+  SWAP_SERVICE_API_KEY: z.string().min(1),
 
   // Unchained URLs
   UNCHAINED_ETHEREUM_HTTP_URL: url,
@@ -27,6 +28,9 @@ const envSchema = z.object({
   UNCHAINED_DOGECOIN_HTTP_URL: url,
   UNCHAINED_LITECOIN_HTTP_URL: url,
   UNCHAINED_BITCOINCASH_HTTP_URL: url,
+  UNCHAINED_ZCASH_HTTP_URL: url,
+  UNCHAINED_SOLANA_HTTP_URL: url,
+  UNCHAINED_THORCHAIN_V1_HTTP_URL: url,
 
   // First-class EVM node URLs — passed to chain adapter constructors and
   // consumed by @shapeshiftoss/contracts via process.env.VITE_*_NODE_URL.
@@ -39,11 +43,25 @@ const envSchema = z.object({
   VITE_POLYGON_NODE_URL: url,
   VITE_BASE_NODE_URL: url,
 
+  // Second-class EVM node URLs — same VITE_*_NODE_URL contract as first-class.
+  VITE_HYPEREVM_NODE_URL: url,
+  VITE_KATANA_NODE_URL: url,
+  VITE_MEGAETH_NODE_URL: url,
+  VITE_MONAD_NODE_URL: url,
+  VITE_PLASMA_NODE_URL: url,
+
   // Node URLs
   THORCHAIN_NODE_URL: url,
   MAYACHAIN_NODE_URL: url,
   TRON_NODE_URL: url,
   SUI_NODE_URL: url,
+  SOLANA_NODE_URL: url,
+  TON_NODE_URL: url,
+  STARKNET_NODE_URL: url,
+  NEAR_NODE_URL: url,
+  NEAR_NODE_URL_FALLBACK_1: z.union([url, z.literal('')]).default(''),
+  NEAR_NODE_URL_FALLBACK_2: z.union([url, z.literal('')]).default(''),
+  FASTNEAR_API_URL: url,
 
   // Midgard URLs
   THORCHAIN_MIDGARD_URL: url,
@@ -58,14 +76,16 @@ const envSchema = z.object({
   DEBRIDGE_API_URL: url,
   CHAINFLIP_API_URL: url,
 
-  // Swapper API keys (optional)
-  CHAINFLIP_API_KEY: z.string().default(''),
-  BEBOP_API_KEY: z.string().default(''),
-  NEAR_INTENTS_API_KEY: z.string().default(''),
-  TENDERLY_API_KEY: z.string().default(''),
-  TENDERLY_ACCOUNT_SLUG: z.string().default(''),
-  TENDERLY_PROJECT_SLUG: z.string().default(''),
+  // Swapper API keys
   ACROSS_INTEGRATOR_ID: z.string().default(''),
+  BEBOP_API_KEY: z.string().min(1),
+  BOB_GATEWAY_API_KEY: z.string().default(''),
+  CHAINFLIP_API_KEY: z.string().min(1),
+  NEAR_INTENTS_API_KEY: z.string().min(1),
+  TENDERLY_API_KEY: z.string().min(1),
+  TENDERLY_ACCOUNT_SLUG: z.string().min(1),
+  TENDERLY_PROJECT_SLUG: z.string().min(1),
+  TRON_GRID_API_KEY: z.string().default(''),
 
   // Feature flags
   FEATURE_THORCHAINSWAP_LONGTAIL: flag,

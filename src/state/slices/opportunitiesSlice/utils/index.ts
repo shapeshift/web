@@ -8,7 +8,6 @@ import type {
   CosmosSdkStakingSpecificUserStakingOpportunity,
   UserUndelegation,
 } from '../resolvers/cosmosSdk/types'
-import type { FoxySpecificUserStakingOpportunity } from '../resolvers/foxy/types'
 import type {
   OpportunityId,
   OpportunityMetadataBase,
@@ -132,9 +131,8 @@ export const toValidatorId = (...[args]: Parameters<typeof toAccountId>) =>
 
 export const supportsUndelegations = (
   userStakingOpportunity: Partial<UserStakingOpportunity>,
-): userStakingOpportunity is
-  | CosmosSdkStakingSpecificUserStakingOpportunity
-  | FoxySpecificUserStakingOpportunity => 'undelegations' in userStakingOpportunity
+): userStakingOpportunity is CosmosSdkStakingSpecificUserStakingOpportunity =>
+  'undelegations' in userStakingOpportunity
 
 export const makeTotalUndelegationsCryptoBaseUnit = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))

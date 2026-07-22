@@ -581,13 +581,9 @@
         "emptyWithdraws": "Pending unstaking requests will show here.",
         "availableDate": "available %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Withdrawals",
         "emptyWithdraws": "Pending or active withdrawals will show here.",
-        "availableDate": "available %{date}",
-        "disabledTitle": "FOXy deposits are disabled"
-      },
-      "foxFarmingOverview": {
         "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
         "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
         "rewards": "The rewards you earn will accrue automatically.",
@@ -857,12 +853,6 @@
         "swap": "Trade",
         "swapRefund": "Swap Refund"
       },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Unstake",
-        "instantUnstake": "Instant Unstake",
-        "claimWithdraw": "Claim Withdraw"
-      },
       "erc20": {
         "approve": "Approve",
         "approveSymbol": "Approve %{symbol}",
@@ -1034,6 +1024,7 @@
       "amountTooSmallUnknownMinimum": "Amount too low",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
+      "insufficientFundsUnconfirmed": "Funds still confirming. Try again once confirmed.",
       "transactionRejected": "User has rejected the transaction",
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "unsupportedTradePair": "Unsupported Trade Pair",
@@ -1041,6 +1032,7 @@
       "quoteExpired": "Quote expired, try again.",
       "quoteUnsupportedChain": "Chain not supported",
       "quoteCrossChainNotSupported": "Cross chain not supported",
+      "crossAccountNotSupported": "Cross-account not supported",
       "networkFeeEstimateFailed": "Failed to estimate network fee",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} not supported by wallet",
       "intermediaryAssetNotSupportedByWallet": "Intermediary asset %{assetSymbol}.%{chainSymbol} not supported by wallet",
@@ -1408,6 +1400,11 @@
         "feesTooLow": "Current fees are already at network rates",
         "alreadySpentOrReplaced": "This transaction can no longer be sped up because it was already replaced or confirmed.",
         "alreadyConfirmed": "This transaction is already confirmed and can no longer be sped up.",
+        "errors": {
+          "multipleChange": "Cannot speed up transactions with multiple change outputs.",
+          "multipleOpReturn": "Cannot speed up transactions with multiple OP_RETURN outputs.",
+          "addresslessOutput": "Cannot speed up transactions containing non-standard outputs."
+        },
         "speedUpFailed": "Failed to speed up transaction",
         "broadcastNotObserved": "Replacement transaction broadcast was not observed by the network yet. Please try again."
       }
@@ -2184,7 +2181,7 @@
   },
   "tron": {
     "recipientNotActivated": {
-      "sendWarning": "This address hasn't been activated on Tron yet. Your tokens will arrive, but the recipient won't be able to move them until they also receive some TRX."
+      "sendWarning": "This account hasn't been activated on Tron yet. Your tokens will arrive, but you won't be able to move or swap them out until the account holds some TRX to cover fees."
     }
   },
   "transactionHistory": {
@@ -2237,7 +2234,7 @@
     "thisMonth": "This Month",
     "speedUp": "Speed Up",
     "cancelTransaction": "Cancel Transaction",
-    "replaced": "Replaced",
+    "replaced": "You sped up your send of %{amount} %{symbol}",
     "replacedBy": "Replaced by %{txHash}",
     "replaces": "Replaces %{txHash}"
   },
@@ -3147,6 +3144,9 @@
     "stake": "Stake",
     "unstake": "Unstake",
     "staking": "TCY Staking",
+    "claimingHalted": "TCY Claiming Halted",
+    "stakingHalted": "TCY Staking Halted",
+    "unstakingHalted": "TCY Unstaking Halted",
     "myPosition": "My Position",
     "myStakedBalance": "My Staked Balance",
     "myStakedBalanceHelper": "The amount of %{symbol} you have staked",

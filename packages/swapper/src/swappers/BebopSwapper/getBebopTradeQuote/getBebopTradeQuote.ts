@@ -73,19 +73,7 @@ export async function getBebopTradeQuote(
   })
 
   if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
-  const bebopQuoteResponse = maybeBebopQuoteResponse.unwrap()
-
-  const bestRoute = bebopQuoteResponse.routes.find(r => r.type === bebopQuoteResponse.bestPrice)
-  if (!bestRoute || !bestRoute.quote) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'No best route found',
-        code: TradeQuoteError.NoRouteFound,
-      }),
-    )
-  }
-
-  const quote = bestRoute.quote
+  const quote = maybeBebopQuoteResponse.unwrap()
 
   const sellTokenAddress = Object.keys(quote.sellTokens)[0]
   const buyTokenAddress = Object.keys(quote.buyTokens)[0]

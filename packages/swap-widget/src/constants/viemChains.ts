@@ -1,4 +1,5 @@
 import type { Chain, WalletClient } from 'viem'
+import { defineChain } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -12,50 +13,59 @@ import {
   optimism,
   plasma,
   polygon,
-  worldchain,
 } from 'viem/chains'
 
+const megaeth = defineChain({
+  id: 4326,
+  name: 'MegaETH',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://mainnet.megaeth.com/rpc'] } },
+  blockExplorers: {
+    default: { name: 'MegaETH Explorer', url: 'https://megaeth.blockscout.com' },
+  },
+})
+
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
-  1: {
+  [mainnet.id]: {
     ...mainnet,
     rpcUrls: { default: { http: ['https://api.ethereum.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  10: {
+  [optimism.id]: {
     ...optimism,
     rpcUrls: { default: { http: ['https://api.optimism.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  56: {
+  [bsc.id]: {
     ...bsc,
     rpcUrls: { default: { http: ['https://api.bnbsmartchain.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  100: {
+  [gnosis.id]: {
     ...gnosis,
     rpcUrls: { default: { http: ['https://api.gnosis.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  137: {
+  [polygon.id]: {
     ...polygon,
     rpcUrls: { default: { http: ['https://api.polygon.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  143: { ...monad, rpcUrls: { default: { http: ['https://rpc.monad.xyz'] } } },
-  480: {
-    ...worldchain,
-    rpcUrls: { default: { http: ['https://worldchain-mainnet.g.alchemy.com/public'] } },
-  },
-  999: { ...hyperEvm, rpcUrls: { default: { http: ['https://rpc.hyperliquid.xyz/evm'] } } },
-  8453: {
+  [base.id]: {
     ...base,
     rpcUrls: { default: { http: ['https://api.base.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  9745: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
-  42161: {
+  [arbitrum.id]: {
     ...arbitrum,
     rpcUrls: { default: { http: ['https://api.arbitrum.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  43114: {
+  [avalanche.id]: {
     ...avalanche,
     rpcUrls: { default: { http: ['https://api.avalanche.shapeshift.com/api/v1/jsonrpc'] } },
   },
-  747474: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
+  [monad.id]: { ...monad, rpcUrls: { default: { http: ['https://rpc.monad.xyz'] } } },
+  [megaeth.id]: megaeth,
+  [hyperEvm.id]: {
+    ...hyperEvm,
+    rpcUrls: { default: { http: ['https://rpc.hyperliquid.xyz/evm'] } },
+  },
+  [plasma.id]: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
+  [katana.id]: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
 }
 
 export const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {

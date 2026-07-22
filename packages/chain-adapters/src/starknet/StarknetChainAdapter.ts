@@ -175,22 +175,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         // Wrap the entire batch in a single queue operation
         // The batchedProvider (with batch: 0) will automatically batch all concurrent callContract calls
         // into a single JSON-RPC request, avoiding RPC spamming
-        const batchResults = await this.requestQueue.add(() =>
-          Promise.all(
-            batch.map(tokenAddress => {
-              const calldata = [normalizedAddress]
-              return this.batchedProvider
-                .callContract({
-                  contractAddress: tokenAddress,
-                  entrypoint: 'balanceOf',
-                  calldata,
-                })
-                .catch(() => {
-                  // Return zero balance if call fails (e.g., account not deployed, token doesn't exist)
-                  return ['0x0', '0x0']
-                })
-            }),
-          ),
+        const batchResults = await this.requestQueue.add(
+          () =>
+            Promise.all(
+              batch.map(tokenAddress => {
+                const calldata = [normalizedAddress]
+                return this.batchedProvider
+                  .callContract({
+                    contractAddress: tokenAddress,
+                    entrypoint: 'balanceOf',
+                    calldata,
+                  })
+                  .catch(() => {
+                    // Return zero balance if call fails (e.g., account not deployed, token doesn't exist)
+                    return ['0x0', '0x0']
+                  })
+              }),
+            ),
+          { throwOnTimeout: true },
         )
         results.push(...batchResults)
       }

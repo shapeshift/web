@@ -1,19 +1,16 @@
-import type { Asset, AssetId } from '../types'
-import { isEvmChainId } from '../types'
+import type { AssetId } from '../types'
 
-const DEFAULT_APP_URL = 'https://app.shapeshift.com'
+const SHAPESHIFT_APP_URL = 'https://app.shapeshift.com'
 
 export type RedirectParams = {
   sellAssetId: AssetId
   buyAssetId: AssetId
   sellAmountBaseUnit?: string
   partnerCode?: string
-  appUrl?: string
 }
 
 export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
-  const { sellAssetId, buyAssetId, sellAmountBaseUnit, partnerCode, appUrl } = params
-  const baseUrl = appUrl || DEFAULT_APP_URL
+  const { sellAssetId, buyAssetId, sellAmountBaseUnit, partnerCode } = params
 
   // CAIP-19 assetIds have format "chainId/assetSubId" e.g. "eip155:1/slip44:60"
   // The first "/" separates chainId from assetSubId
@@ -28,29 +25,5 @@ export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
   const amount = sellAmountBaseUnit || '0'
   const partner = partnerCode ? `?partner=${encodeURIComponent(partnerCode)}` : ''
 
-  return `${baseUrl}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${partner}`
-}
-
-export const redirectToShapeShift = (params: RedirectParams): void => {
-  window.open(buildShapeShiftTradeUrl(params), '_blank', 'noopener,noreferrer')
-}
-
-export type ChainType = 'evm' | 'utxo' | 'cosmos' | 'solana' | 'other'
-
-export const getChainTypeFromAsset = (asset: Asset): ChainType => {
-  const chainId = asset.chainId
-
-  if (isEvmChainId(chainId)) return 'evm'
-  if (chainId.startsWith('bip122:')) return 'utxo'
-  if (chainId.startsWith('cosmos:')) return 'cosmos'
-  if (chainId.startsWith('solana:')) return 'solana'
-
-  return 'other'
-}
-
-export const canExecuteInWidget = (sellAsset: Asset, buyAsset: Asset): boolean => {
-  const sellChainType = getChainTypeFromAsset(sellAsset)
-  const buyChainType = getChainTypeFromAsset(buyAsset)
-
-  return sellChainType === 'evm' && buyChainType === 'evm'
+  return `${SHAPESHIFT_APP_URL}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${partner}`
 }

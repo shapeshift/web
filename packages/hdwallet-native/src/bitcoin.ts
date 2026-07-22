@@ -26,7 +26,7 @@ const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
   5: 0x26a7270a,
 }
 
-const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0
+const ZCASH_CONSENSUS_BRANCH_ID = 0x5437f330
 
 type NonWitnessUtxo = Buffer
 

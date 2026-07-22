@@ -22,6 +22,8 @@ describe('SwapMachine Types', () => {
       },
       sellAmount: '1.0',
       sellAmountBaseUnit: '1000000000000000000',
+      isSellAmountFiat: false,
+      sellAmountFiat: '',
       selectedRate: null,
       quote: null,
       txHash: null,
@@ -31,8 +33,8 @@ describe('SwapMachine Types', () => {
       retryCount: 0,
       chainType: 'evm',
       slippage: '0.5',
-      walletAddress: undefined,
-      effectiveReceiveAddress: '0x1234567890abcdef1234567890abcdef12345678',
+      sendAddress: undefined,
+      receiveAddress: '0x1234567890abcdef1234567890abcdef12345678',
       isSellAssetEvm: true,
       isSellAssetUtxo: false,
       isSellAssetSolana: false,
@@ -67,7 +69,13 @@ describe('SwapMachine Types', () => {
           precision: 6,
         },
       },
-      { type: 'SET_SELL_AMOUNT', amount: '1.0', amountBaseUnit: '1000000000000000000' },
+      {
+        type: 'SET_SELL_AMOUNT',
+        amount: '1.0',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      },
+      { type: 'SET_SELL_FIAT_MODE', isFiat: true },
       { type: 'SET_SLIPPAGE', slippage: '1.0' },
       {
         type: 'SELECT_RATE',
@@ -78,6 +86,7 @@ describe('SwapMachine Types', () => {
           sellAmountCryptoBaseUnit: '1000000000000000000',
           steps: 1,
           affiliateBps: '0',
+          shapeshiftBps: '0',
         },
       },
       { type: 'FETCH_QUOTE' },
@@ -92,7 +101,7 @@ describe('SwapMachine Types', () => {
       { type: 'STATUS_FAILED', error: 'Transaction reverted' },
       { type: 'RETRY' },
       { type: 'RESET' },
-      { type: 'SET_WALLET_ADDRESS', address: '0x1234' },
+      { type: 'SET_SEND_ADDRESS', address: '0x1234' },
       { type: 'SET_RECEIVE_ADDRESS', address: '0x5678' },
       {
         type: 'UPDATE_CHAIN_INFO',
@@ -104,7 +113,7 @@ describe('SwapMachine Types', () => {
       },
     ]
 
-    expect(events).toHaveLength(20)
+    expect(events).toHaveLength(21)
     const eventTypes = events.map(e => e.type)
     expect(eventTypes).toContain('SET_SELL_ASSET')
     expect(eventTypes).toContain('RESET')

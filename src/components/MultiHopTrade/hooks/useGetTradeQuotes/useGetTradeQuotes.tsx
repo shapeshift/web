@@ -105,7 +105,7 @@ export const useGetTradeQuotes = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-  const affiliateAddress = useAffiliateTracking()
+  useAffiliateTracking()
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
@@ -207,7 +207,6 @@ export const useGetTradeQuotes = () => {
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
           affiliateBps: getAffiliateBps(sellAsset, buyAsset),
-          affiliateAddress: affiliateAddress ?? undefined,
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
             skipDeviceDerivation && sellAccountId
@@ -219,7 +218,6 @@ export const useGetTradeQuotes = () => {
     }
   }, [
     activeTrade,
-    affiliateAddress,
     buyAsset,
     dispatch,
     isFetchStep,
@@ -250,7 +248,6 @@ export const useGetTradeQuotes = () => {
         isBuyAssetChainSupported,
         hopExecutionMetadata,
         activeTrade,
-        affiliateAddress,
       },
     ],
     queryFn: queryFnOrSkip,

@@ -8,6 +8,7 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react'
 import { fromAssetId, tcyAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import noop from 'lodash/noop'
@@ -31,8 +32,10 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
+import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import {
@@ -78,7 +81,30 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     state: { isConnected },
   } = useWallet()
   const dispatch = useAppDispatch()
-  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
+
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(
+    fromAssetId(claim.assetId).chainId,
+  )
+  const { data: isTcyClaimingHalted, isFetching: isTcyClaimingHaltedFetching } = useThorchainMimir({
+    chainId: thorchainChainId,
+    select: mimir => mimir.TCYCLAIMINGHALT === 1,
+  })
+
+  // The claim is an L1 inbound deposit, so a halted inbound vault blocks it. useIsChainHalted only
+  // covers the mimir-based halt, so check the inbound halted flag (via isTradingActive) here too.
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: claim.assetId,
+    swapperName: SwapperName.Thorchain,
+  })
+  const isInboundHalted = useMemo(
+    () => !isTradingActiveLoading && isTradingActive === false,
+    [isTradingActive, isTradingActiveLoading],
+  )
+
+  const isHalted = useMemo(
+    () => Boolean(isChainHalted) || Boolean(isTcyClaimingHalted) || isInboundHalted,
+    [isChainHalted, isInboundHalted, isTcyClaimingHalted],
+  )
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
 
@@ -136,7 +162,11 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   const { data: isSweepNeeded, isFetching: isSweepNeededFeching } =
     useIsSweepNeededQuery(isSweepNeededArgs)
 
-  const { mutateAsync: handleClaim, isPending: isClaimMutationPending } = useMutation({
+  const {
+    mutateAsync: handleClaim,
+    isPending: isClaimMutationPending,
+    error: claimError,
+  } = useMutation({
     mutationFn: async () => {
       if (!runeAddress) return
 
@@ -171,7 +201,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     if (isSweepNeeded) {
       return navigate(TCYClaimRoute.Sweep, { state: { selectedClaim: claim } })
     }
-    await handleClaim()
+    await handleClaim().catch(err => console.error('[TCY claim] failed:', err))
   }, [handleClaim, isSweepNeeded, navigate, claim])
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, claim.assetId))
@@ -228,31 +258,49 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   ])
 
   const isError = useMemo(() => {
-    return estimatedFeesData && !hasEnoughBalanceForDustAndFees
-  }, [hasEnoughBalanceForDustAndFees, estimatedFeesData])
+    return (estimatedFeesData && !hasEnoughBalanceForDustAndFees) || isHalted
+  }, [hasEnoughBalanceForDustAndFees, estimatedFeesData, isHalted])
 
   const confirmCopy = useMemo(() => {
-    if (isChainHalted) return translate('common.chainHalted')
+    if (isTcyClaimingHalted) return translate('TCY.claimingHalted')
+    if (isChainHalted || isInboundHalted) return translate('common.chainHalted')
     if (isError) return translate('common.insufficientFunds')
     return translate('TCY.claimConfirm.confirmAndClaim')
-  }, [isError, translate, isChainHalted])
+  }, [isError, translate, isChainHalted, isInboundHalted, isTcyClaimingHalted])
 
   const confirmAlert = useMemo(() => {
-    if (hasEnoughBalanceForDustAndFees) return null
-    if (!feeAsset) return null
+    if (isHalted) return null
 
-    return (
-      <Alert status='error' variant='subtle' mt={2}>
-        <AlertIcon />
-        <RawText fontSize='sm'>
-          {translate('TCY.claimConfirm.missingFundsForGasAlert', {
-            symbol: feeAsset.symbol,
-            amount: requiredAmountCryptoPrecision,
-          })}
-        </RawText>
-      </Alert>
-    )
-  }, [feeAsset, hasEnoughBalanceForDustAndFees, requiredAmountCryptoPrecision, translate])
+    if (claimError) {
+      return (
+        <Alert status='error' variant='subtle' mt={2}>
+          <AlertIcon />
+          <RawText fontSize='sm'>{translate('common.somethingWentWrong')}</RawText>
+        </Alert>
+      )
+    }
+
+    if (!hasEnoughBalanceForDustAndFees && feeAsset) {
+      return (
+        <Alert status='error' variant='subtle' mt={2}>
+          <AlertIcon />
+          <RawText fontSize='sm'>
+            {translate('TCY.claimConfirm.missingFundsForGasAlert', {
+              symbol: feeAsset.symbol,
+              amount: requiredAmountCryptoPrecision,
+            })}
+          </RawText>
+        </Alert>
+      )
+    }
+  }, [
+    claimError,
+    feeAsset,
+    hasEnoughBalanceForDustAndFees,
+    isHalted,
+    requiredAmountCryptoPrecision,
+    translate,
+  ])
 
   const assetAccountHelper = useMemo(() => {
     if (!feeAsset) return null
@@ -316,13 +364,15 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           isSweepNeededFeching ||
           !estimatedFeesData ||
           !hasEnoughBalanceForDustAndFees ||
-          Boolean(isChainHalted)
+          isHalted
         }
         isLoading={
           isClaimMutationPending ||
           isSweepNeededFeching ||
           isEstimatedFeesDataLoading ||
-          isChainHaltedFetching
+          isChainHaltedFetching ||
+          isTcyClaimingHaltedFetching ||
+          isTradingActiveLoading
         }
         dustAmountUserCurrency={dustAmountUserCurrency}
         isError={isError}

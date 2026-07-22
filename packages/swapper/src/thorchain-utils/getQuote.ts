@@ -4,15 +4,19 @@ import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { AxiosError } from 'axios'
 import qs from 'qs'
 
 import type { SwapErrorRight, SwapperDeps, SwapperName } from '../types'
 import { TradeQuoteError } from '../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../utils'
-import { getThresholdedAffiliateBps } from './getThresholdedAffiliateBps/getThresholdedAffiliateBps'
 import { getAffiliate, getDaemonUrl, getNativePrecision, getPoolAssetId } from './index'
 import { thorService } from './service'
-import type { ThornodeQuoteResponse, ThornodeQuoteResponseSuccess } from './types'
+import type {
+  ThornodeQuoteResponse,
+  ThornodeQuoteResponseSuccess,
+  ThornodeResponseError,
+} from './types'
 
 type GetQuoteArgs = {
   sellAsset: Asset
@@ -48,15 +52,6 @@ export const getQuote = async (
     swapperName,
   } = input
 
-  // don't apply an affiliate fee if it's below the outbound fee for the inbound pool
-  const thresholdedAffiliateBps = await getThresholdedAffiliateBps({
-    sellAsset,
-    sellAmountCryptoBaseUnit,
-    affiliateBps,
-    config: deps.config,
-    swapperName,
-  })
-
   const buyPoolId = getPoolAssetId({ assetId: buyAssetId, swapperName })
   const sellPoolId = getPoolAssetId({ assetId: sellAsset.assetId, swapperName })
 
@@ -84,42 +79,52 @@ export const getQuote = async (
     from_asset: sellPoolId,
     to_asset: buyPoolId,
     destination: parsedReceiveAddress,
-    affiliate_bps: thresholdedAffiliateBps,
+    affiliate_bps: affiliateBps,
     affiliate: getAffiliate(swapperName),
     ...(streaming && { streaming_interval: streamingInterval }),
   })
 
   const daemonUrl = getDaemonUrl(deps.config, swapperName)
   const res = await thorService.get<ThornodeQuoteResponse>(`${daemonUrl}/quote/swap?${queryString}`)
-  if (res.isErr()) return Err(res.unwrapErr())
 
-  const { data } = res.unwrap()
-  const isError = 'error' in data
+  // Thornode returns errors as `{ error: string }` in both the 2xx body and the 4xx body.
+  // On 4xx axios rejects, so the body lands on `cause.response.data` instead of in the success data.
+  const errorMessage: string | undefined = (() => {
+    if (res.isErr()) {
+      const cause = res.unwrapErr().cause as AxiosError<ThornodeResponseError> | undefined
+      return cause?.response?.data?.error
+    }
+    const { data } = res.unwrap()
+    return 'error' in data ? data.error : undefined
+  })()
 
-  const notEnoughFeeError = isError && /not enough fee/i.test(data.error)
-  const notEnoughToPayTxFeeError = isError && /not enough to pay transaction fee/i.test(data.error)
-  const tradingIsHaltedError = isError && /trading is halted/.test(data.error)
+  if (errorMessage) {
+    if (
+      /not enough fee/i.test(errorMessage) ||
+      /not enough to pay transaction fee/i.test(errorMessage)
+    ) {
+      return Err(createTradeAmountTooSmallErr())
+    }
 
-  if (notEnoughFeeError || notEnoughToPayTxFeeError) return Err(createTradeAmountTooSmallErr())
+    if (/trading is halted/i.test(errorMessage)) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[getQuote]: Trading is halted, cannot process swap`,
+          code: TradeQuoteError.TradingHalted,
+          details: { sellAssetId: sellAsset.assetId, buyAssetId },
+        }),
+      )
+    }
 
-  if (tradingIsHaltedError) {
     return Err(
       makeSwapErrorRight({
-        message: `[getQuote]: Trading is halted, cannot process swap`,
-        code: TradeQuoteError.TradingHalted,
-        details: { sellAssetId: sellAsset.assetId, buyAssetId },
-      }),
-    )
-  }
-
-  if (isError) {
-    return Err(
-      makeSwapErrorRight({
-        message: data.error,
+        message: errorMessage,
         code: TradeQuoteError.UnknownError,
       }),
     )
   }
 
-  return Ok(data)
+  if (res.isErr()) return Err(res.unwrapErr())
+
+  return Ok(res.unwrap().data as ThornodeQuoteResponseSuccess)
 }

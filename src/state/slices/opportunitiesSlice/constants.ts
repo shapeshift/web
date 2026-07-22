@@ -85,12 +85,6 @@ export const rFOXStakingIds = RFOX_STAKING_ASSET_IDS as readonly StakingId[]
 export const STAKING_ID_DELIMITER = '*'
 
 export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadata> = {
-  [DefiProvider.ShapeShift]: {
-    provider: DefiProvider.ShapeShift,
-    icon: '/fox-token-logo.png',
-    color: '#3761F9',
-    url: 'https://app.shapeshift.com',
-  },
   [DefiProvider.EthFoxStaking]: {
     provider: DefiProvider.EthFoxStaking,
     icon: '/fox-token-logo.png',

@@ -137,8 +137,9 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
   async getTransactionStatus(txHash: string): Promise<TxStatus> {
     try {
-      const receipt = await this.requestQueue.add(() =>
-        this.viemClient.getTransactionReceipt({ hash: txHash as Hex }),
+      const receipt = await this.requestQueue.add(
+        () => this.viemClient.getTransactionReceipt({ hash: txHash as Hex }),
+        { throwOnTimeout: true },
       )
 
       switch (receipt.status) {
@@ -159,9 +160,12 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const [balance, nonce] = await Promise.all([
-        this.requestQueue.add(() => this.viemClient.getBalance({ address: getAddress(pubkey) })),
-        this.requestQueue.add(() =>
-          this.viemClient.getTransactionCount({ address: getAddress(pubkey) }),
+        this.requestQueue.add(() => this.viemClient.getBalance({ address: getAddress(pubkey) }), {
+          throwOnTimeout: true,
+        }),
+        this.requestQueue.add(
+          () => this.viemClient.getTransactionCount({ address: getAddress(pubkey) }),
+          { throwOnTimeout: true },
         ),
       ])
 
@@ -243,17 +247,19 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     const multicallAddress = this.viemClient.chain?.contracts?.multicall3?.address
     if (!multicallAddress) throw new Error(`No multicall address on chain: ${this.chainId}`)
 
-    const results = await this.requestQueue.add(() =>
-      this.viemClient.multicall({
-        contracts: tokens.map(token => ({
-          address: getAddress(token.contractAddress),
-          abi: erc20Abi,
-          functionName: 'balanceOf' as const,
-          args: [getAddress(pubkey)],
-        })),
-        allowFailure: true,
-        multicallAddress,
-      }),
+    const results = await this.requestQueue.add(
+      () =>
+        this.viemClient.multicall({
+          contracts: tokens.map(token => ({
+            address: getAddress(token.contractAddress),
+            abi: erc20Abi,
+            functionName: 'balanceOf' as const,
+            args: [getAddress(pubkey)],
+          })),
+          allowFailure: true,
+          multicallAddress,
+        }),
+      { throwOnTimeout: true },
     )
 
     return tokens
@@ -288,13 +294,15 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     const results = await Promise.all(
       tokens.map(async token => {
         try {
-          const balance = await this.requestQueue.add(() =>
-            this.viemClient.readContract({
-              address: getAddress(token.contractAddress),
-              abi: erc20Abi,
-              functionName: 'balanceOf',
-              args: [getAddress(pubkey)],
-            }),
+          const balance = await this.requestQueue.add(
+            () =>
+              this.viemClient.readContract({
+                address: getAddress(token.contractAddress),
+                abi: erc20Abi,
+                functionName: 'balanceOf',
+                args: [getAddress(pubkey)],
+              }),
+            { throwOnTimeout: true },
           )
 
           return {
@@ -321,13 +329,15 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     try {
       const estimateGasBody = this.buildEstimateGasBody(input)
 
-      const gasLimit = await this.requestQueue.add(() =>
-        this.viemClient.estimateGas({
-          account: getAddress(estimateGasBody.from),
-          to: getAddress(estimateGasBody.to),
-          value: parseUnits(estimateGasBody.value, 0),
-          data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
-        }),
+      const gasLimit = await this.requestQueue.add(
+        () =>
+          this.viemClient.estimateGas({
+            account: getAddress(estimateGasBody.from),
+            to: getAddress(estimateGasBody.to),
+            value: parseUnits(estimateGasBody.value, 0),
+            data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
+          }),
+        { throwOnTimeout: true },
       )
 
       const { fast, average, slow } = await this.getGasFeeData()
@@ -370,8 +380,9 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      const hash = await this.requestQueue.add(() =>
-        this.viemClient.sendRawTransaction({ serializedTransaction: hex as Hex }),
+      const hash = await this.requestQueue.add(
+        () => this.viemClient.sendRawTransaction({ serializedTransaction: hex as Hex }),
+        { throwOnTimeout: true },
       )
       return hash
     } catch (err) {
@@ -417,11 +428,13 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     }
 
     try {
-      const trace = await this.requestQueue.add(() =>
-        this.viemClient.request({
-          method: 'debug_traceTransaction' as any,
-          params: [txHash, { tracer: 'callTracer' }] as any,
-        }),
+      const trace = await this.requestQueue.add(
+        () =>
+          this.viemClient.request({
+            method: 'debug_traceTransaction' as any,
+            params: [txHash, { tracer: 'callTracer' }] as any,
+          }),
+        { throwOnTimeout: true },
       )
 
       const internalTxs: { from: string; to: string; value: string }[] = []

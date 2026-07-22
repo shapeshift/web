@@ -29,6 +29,7 @@ const AffiliateSwapSchema = z.object({
   buyAmountCryptoPrecision: z.string().nullable(),
   buyAmountUsd: z.string().nullable(),
   affiliateFeeAmountUsd: z.string().nullable(),
+  affiliateBps: z.number(),
   partnerBps: z.number().nullable(),
   shapeshiftBps: z.number(),
   swapperName: z.string(),
@@ -50,12 +51,12 @@ export interface AffiliateSwapsPage {
 }
 
 const fetchSwaps = async (
-  address: string,
+  partnerCode: string,
   period: Period,
   cursor: string | undefined,
 ): Promise<AffiliateSwapsPage> => {
   const params = new URLSearchParams({
-    address,
+    partnerCode,
     limit: String(SWAPS_PER_PAGE),
   })
 
@@ -68,13 +69,13 @@ const fetchSwaps = async (
 }
 
 export const useAffiliateSwaps = (
-  address: string,
+  partnerCode: string,
   period: Period,
 ): UseInfiniteQueryResult<InfiniteData<AffiliateSwapsPage, string | undefined>, Error> =>
   useInfiniteQuery({
-    queryKey: ['affiliate', 'swaps', address, period.key],
-    queryFn: ({ pageParam }) => fetchSwaps(address, period, pageParam),
-    enabled: Boolean(address),
+    queryKey: ['affiliate', 'swaps', partnerCode, period.key],
+    queryFn: ({ pageParam }) => fetchSwaps(partnerCode, period, pageParam),
+    enabled: Boolean(partnerCode),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: lastPage => {
       const next = lastPage.nextCursor?.trim()

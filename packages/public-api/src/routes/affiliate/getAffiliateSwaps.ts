@@ -21,7 +21,7 @@ registry.registerPath({
   operationId: 'getAffiliateSwaps',
   summary: 'Get affiliate swaps',
   description:
-    'Retrieve paginated swap history for an affiliate address. Supports optional date range filtering.',
+    'Retrieve paginated swap history for an affiliate by partnerCode. Supports optional date range filtering.',
   tags: ['Affiliate'],
   request: {
     query: AffiliateSwapsRequestSchema,
@@ -51,11 +51,11 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const { address, startDate, endDate, limit, cursor } = queryResult.data
+    const { partnerCode, startDate, endDate, limit, cursor } = queryResult.data
 
     const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/swaps`)
 
-    url.searchParams.append('address', address)
+    url.searchParams.append('partnerCode', partnerCode)
     url.searchParams.append('limit', String(limit))
 
     if (cursor) url.searchParams.append('cursor', cursor)
@@ -102,9 +102,7 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
         }).toBN()
 
         const affiliateBps = swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps
-
-        const partnerBps =
-          affiliateBps == null ? null : Math.max(0, affiliateBps - swap.shapeshiftBps)
+        const partnerBps = swap.partnerBps
 
         const affiliateFeeAmountUsd = calculatePartnerFeeAmountUsd(
           partnerBps,
@@ -123,6 +121,7 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
           buyAmountCryptoPrecision: buyAmount.toPrecision(),
           buyAmountUsd: swap.buyAssetUsd ? buyAmount.times(swap.buyAssetUsd).toFixed() : null,
           affiliateFeeAmountUsd,
+          affiliateBps,
           partnerBps,
           shapeshiftBps: swap.shapeshiftBps,
           swapperName: swap.swapperName,

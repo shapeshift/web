@@ -14,6 +14,7 @@ export type Account = {
 export type Address = {
   pubkey: string
   balance: string
+  path?: string
 }
 
 export type GetAddressInput = GetAddressInputBase & {

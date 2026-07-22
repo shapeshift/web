@@ -1,6 +1,7 @@
-import { useAppKitAccount } from '@reown/appkit/react'
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { useCallback, useEffect, useState } from 'react'
-import { useSignMessage } from 'wagmi'
+import type { EIP1193Provider } from 'viem'
+import { getAddress, stringToHex } from 'viem'
 import { z } from 'zod'
 
 import { parseResponse } from '../lib/api'
@@ -30,7 +31,7 @@ interface UseSiweAuthReturn extends SiweAuthState {
 
 export const useSiweAuth = (): UseSiweAuthReturn => {
   const { address, isConnected } = useAppKitAccount()
-  const { signMessageAsync } = useSignMessage()
+  const { walletProvider } = useAppKitProvider<EIP1193Provider>('eip155')
 
   const [token, setToken] = useState<string | null>(null)
   const [authenticatedAddress, setAuthenticatedAddress] = useState<string | null>(null)
@@ -51,7 +52,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
   }, [isConnected, address, authenticatedAddress])
 
   const signIn = useCallback(async (): Promise<void> => {
-    if (!address) return
+    if (!address || !walletProvider) return
 
     setIsAuthenticating(true)
     setError(null)
@@ -77,7 +78,10 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
         `Issued At: ${issuedAt}`,
       ].join('\n')
 
-      const signature = await signMessageAsync({ message })
+      const signature = (await walletProvider.request({
+        method: 'personal_sign',
+        params: [stringToHex(message), getAddress(address)],
+      })) as string
 
       const verifyRes = await fetch(`${AUTH_SIWE_URL}/verify`, {
         method: 'POST',
@@ -97,7 +101,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
     } finally {
       setIsAuthenticating(false)
     }
-  }, [address, signMessageAsync])
+  }, [address, walletProvider])
 
   const signOut = useCallback((): void => {
     setToken(null)

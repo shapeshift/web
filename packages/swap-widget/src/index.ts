@@ -8,6 +8,7 @@ export type {
   TradeRate,
   TradeQuote,
   SwapWidgetProps,
+  SwapWidgetFilters,
   ThemeMode,
   ThemeConfig,
 } from './types'
@@ -24,6 +25,9 @@ export {
   UTXO_CHAIN_IDS,
   COSMOS_CHAIN_IDS,
   OTHER_CHAIN_IDS,
+  REDIRECT_ONLY_CHAIN_IDS,
+  isWidgetExecutableChainId,
+  isWidgetSupportedChainId,
 } from './types'
 
 export {

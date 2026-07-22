@@ -47,12 +47,18 @@ export const createThornodeQueries = <T extends string>(key: T, baseUrl: string)
         },
       }
     },
-    inboundAddresses: () => {
+    // Halted chains are filtered out by default so consumers never route funds to a halted vault.
+    // Pass `includeHalted` to keep them - useful for read-only concerns like fee estimation, which
+    // is an L1-network operation that still works during a THORChain halt. Uses a distinct query key
+    // so it never clobbers the filtered cache entry that everything else relies on.
+    inboundAddresses: (includeHalted = false) => {
       return {
-        queryKey: [`${key}InboundAddress`],
+        queryKey: includeHalted
+          ? ([`${key}InboundAddressIncludingHalted`] as const)
+          : ([`${key}InboundAddress`] as const),
         queryFn: async () => {
           const { data } = await axios.get<InboundAddressResponse[]>(`${baseUrl}/inbound_addresses`)
-          return data.filter(v => !v.halted)
+          return includeHalted ? data : data.filter(v => !v.halted)
         },
       }
     },

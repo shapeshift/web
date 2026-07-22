@@ -2,6 +2,7 @@ import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
+import { isSupportedChainId } from '../constants/chains'
 import type { Asset, AssetId, ChainId } from '../types'
 
 type AssetQueryResult<TData> = Omit<UseQueryResult<RawAssetData>, 'data'> & { data: TData }
@@ -52,7 +53,9 @@ export const useAssetData = (): UseQueryResult<RawAssetData> => {
 export const useAssets = (): AssetQueryResult<Asset[]> => {
   const { data, ...rest } = useAssetData()
 
-  const assets = data ? data.ids.map(id => data.byId[id]).filter(Boolean) : []
+  const assets = data
+    ? data.ids.map(id => data.byId[id]).filter(asset => asset && isSupportedChainId(asset.chainId))
+    : []
 
   return { data: assets, ...rest }
 }

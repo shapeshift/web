@@ -223,7 +223,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
     if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
       protocolFees[buyAsset.assetId] = {
-        amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
+        amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toFixed(0),
         requiresBalance: false,
         asset: buyAsset,
       }
@@ -267,7 +267,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       value: route.expectedAmountOutThorBaseUnit,
       inputExponent: buyAssetNativePrecision,
       outputExponent: buyAsset.precision,
-    }).toFixed()
+    }).toFixed(0)
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit,
@@ -553,6 +553,9 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
               // Estimate fees using the receive address for accurate energy calculation
               const tronWeb = new TronWeb({
                 fullHost: deps.config.VITE_TRON_NODE_URL,
+                headers: deps.config.VITE_TRON_GRID_API_KEY
+                  ? { 'TRON-PRO-API-KEY': deps.config.VITE_TRON_GRID_API_KEY }
+                  : {},
               })
               const params = await tronWeb.trx.getChainParameters()
               const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000

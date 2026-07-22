@@ -40,7 +40,7 @@ export const ConfigBar = ({ config }: ConfigBarProps): React.JSX.Element => (
     <HStack spacing={2}>
       <Label>BPS</Label>
       <Value>
-        {config.bps} ({bpsToPercent(config.bps)})
+        {config.partnerBps} ({bpsToPercent(config.partnerBps)})
       </Value>
     </HStack>
     {config.partnerCode && (

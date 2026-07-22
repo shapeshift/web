@@ -40,6 +40,7 @@ export interface ChainAdapterArgs {
     http: unchained.tron.TronApi
   }
   rpcUrl: string
+  apiKey?: string
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
@@ -57,16 +58,22 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   }
 
   protected readonly rpcUrl: string
+  private readonly apiKey: string
   private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
     this.providers = args.providers
     this.rpcUrl = args.rpcUrl
+    this.apiKey = args.apiKey ?? ''
     this.requestQueue = new PQueue({
       intervalCap: 1,
       interval: 400,
       concurrency: 1,
     })
+  }
+
+  private get tronGridHeaders(): Record<string, string> {
+    return this.apiKey ? { 'TRON-PRO-API-KEY': this.apiKey } : {}
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is TronWallet {
@@ -192,6 +199,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // Create TronWeb instance once and reuse
       const tronWeb = new TronWeb({
         fullHost: this.rpcUrl,
+        headers: this.tronGridHeaders,
       })
 
       let txData: TronUnsignedTx
@@ -210,14 +218,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           callValue: 0,
         }
 
-        const result = await this.requestQueue.add(() =>
-          tronWeb.transactionBuilder.triggerSmartContract(
-            contractAddress,
-            functionSelector,
-            options,
-            parameter,
-            from,
-          ),
+        const result = await this.requestQueue.add(
+          () =>
+            tronWeb.transactionBuilder.triggerSmartContract(
+              contractAddress,
+              functionSelector,
+              options,
+              parameter,
+              from,
+            ),
+          { throwOnTimeout: true },
         )
 
         if (!result.result || !result.result.result) {
@@ -233,12 +243,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           visible: true,
         }
 
-        const response = await this.requestQueue.add(() =>
-          fetch(`${this.rpcUrl}/wallet/createtransaction`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-          }),
+        const response = await this.requestQueue.add(
+          () =>
+            fetch(`${this.rpcUrl}/wallet/createtransaction`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
+              body: JSON.stringify(requestBody),
+            }),
+          { throwOnTimeout: true },
         )
 
         const responseData = await response.json()
@@ -252,8 +264,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       // Add memo if provided
       if (memo) {
-        txData = (await this.requestQueue.add(() =>
-          tronWeb.transactionBuilder.addUpdateData(txData as any, memo, 'utf8'),
+        txData = (await this.requestQueue.add(
+          () => tronWeb.transactionBuilder.addUpdateData(txData as any, memo, 'utf8'),
+          { throwOnTimeout: true },
         )) as TronUnsignedTx
       }
 
@@ -315,12 +328,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         visible: true,
       }
 
-      const response = await this.requestQueue.add(() =>
-        fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        }),
+      const response = await this.requestQueue.add(
+        () =>
+          fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
+            body: JSON.stringify(requestBody),
+          }),
+        { throwOnTimeout: true },
       )
 
       const result = await response.json()
@@ -449,20 +464,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
-  // TODO: CRITICAL - Fix fee estimation for TRC20 tokens
-  // Current implementation returns FIXED 0.268 TRX for all transactions
-  // Reality: TRC20 transfers cost 6-15 TRX (energy + bandwidth + memo)
-  // This causes UI to show wrong fees and transactions to fail on-chain
-  // See TRON_FEE_ESTIMATION_ISSUES.md for detailed analysis and fix
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
       const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
 
-      // Get live network prices from chain parameters
-      const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
-      const params = await this.requestQueue.add(() => tronWeb.trx.getChainParameters())
+      const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
+      const params = await this.requestQueue.add(() => tronWeb.trx.getChainParameters(), {
+        throwOnTimeout: true,
+      })
+
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
@@ -496,14 +508,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         try {
           // Use actual sender if available, otherwise use recipient for estimation
           const estimationFrom = from || to
-          const baseTx = await this.requestQueue.add(() =>
-            tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom),
+          const baseTx = await this.requestQueue.add(
+            () => tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom),
+            { throwOnTimeout: true },
           )
 
           // Add memo if provided to get accurate size
           const finalTx = memo
-            ? await this.requestQueue.add(() =>
-                tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
+            ? await this.requestQueue.add(
+                () => tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
+                { throwOnTimeout: true },
               )
             : baseTx
 
@@ -525,15 +539,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // Check if recipient address needs activation (1 TRX cost)
       let accountActivationFee = 0
       try {
-        const recipientInfoResponse = await this.requestQueue.add(() =>
-          fetch(`${this.rpcUrl}/wallet/getaccount`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              address: to,
-              visible: true,
+        const recipientInfoResponse = await this.requestQueue.add(
+          () =>
+            fetch(`${this.rpcUrl}/wallet/getaccount`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
+              body: JSON.stringify({
+                address: to,
+                visible: true,
+              }),
             }),
-          }),
+          { throwOnTimeout: true },
         )
         const recipientInfo = await recipientInfoResponse.json()
         const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
@@ -718,7 +734,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     const TRANSFER_EVENT_SIGNATURE =
       'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
     const ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
-    const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
+    const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
 
     for (const log of tx.log) {
       try {

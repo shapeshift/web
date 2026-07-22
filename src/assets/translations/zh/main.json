@@ -581,13 +581,9 @@
         "emptyWithdraws": "此处将显示待处理的取消质押请求。",
         "availableDate": "在 %{date} 可用"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "提现",
         "emptyWithdraws": "此处将显示待处理或进行的提现。",
-        "availableDate": "在 %{date} 可用",
-        "disabledTitle": "FOXy 充值已被禁用"
-      },
-      "foxFarmingOverview": {
         "header": "充值 ETH-FOX LP 代币 %{opportunity} 来赚取收益",
         "body": "授权并质押你的流动性代币以获得额外的 FOX 奖励。",
         "rewards": "你获得的奖励将自动累积。",
@@ -857,12 +853,6 @@
         "swap": "交易",
         "swapRefund": "交换退款"
       },
-      "foxy": {
-        "stake": "质押",
-        "unstake": "取消质押",
-        "instantUnstake": "立即取消质押",
-        "claimWithdraw": "领取提款"
-      },
       "erc20": {
         "approve": "授权",
         "approveSymbol": "授权 %{symbol}",
@@ -1034,6 +1024,7 @@
       "amountTooSmallUnknownMinimum": "数量太少",
       "sellAmountDoesNotCoverFee": "卖出数量低于手续费",
       "insufficientFunds": "矿工费及金额数量不足",
+      "insufficientFundsUnconfirmed": "资金仍在确认中。请在确认后重试。",
       "transactionRejected": "用户已拒绝交易",
       "insufficientFundsForProtocolFee": "没有足够的 %{symbol} 来支付%{chainName} 上的费用",
       "unsupportedTradePair": "不支持的交易对",
@@ -1408,6 +1399,11 @@
         "feesTooLow": "当前费用已处于网络标准费率",
         "alreadySpentOrReplaced": "无法加速此交易，因为其已被替换或确认。",
         "alreadyConfirmed": "此交易已确认，无法再进行加速。",
+        "errors": {
+          "multipleChange": "无法加速带有多个退款输出的交易。",
+          "multipleOpReturn": "无法加速带有 OP_RETURN 输出的交易。",
+          "addresslessOutput": "无法加速包含非标准输出的交易。"
+        },
         "speedUpFailed": "无法加速交易",
         "broadcastNotObserved": "网络尚未接收到替换交易广播，请重试。"
       }
@@ -2237,7 +2233,7 @@
     "thisMonth": "本月",
     "speedUp": "加速",
     "cancelTransaction": "取消交易",
-    "replaced": "已替换",
+    "replaced": "您已加速发送 %{amount} %{symbol} 的交易",
     "replacedBy": "已替换为 %{txHash}",
     "replaces": "替换 %{txHash}"
   },
@@ -3147,6 +3143,9 @@
     "stake": "质押",
     "unstake": "取消质押",
     "staking": "TCY 质押",
+    "claimingHalted": "TCY 领取已暂停",
+    "stakingHalted": "TCY 质押已暂停",
+    "unstakingHalted": "TCY 取消质押已暂停",
     "myPosition": "我的仓位",
     "myStakedBalance": "我的质押余额",
     "myStakedBalanceHelper": "您已经质押的 %{symbol} 数量。",

@@ -581,13 +581,9 @@
         "emptyWithdraws": "Ausstehende Stake Beendigungs-Anfragen werden hier angezeigt.",
         "availableDate": "verfügbar %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Abhebungen",
         "emptyWithdraws": "Ausstehende oder aktive Auszahlungen werden hier angezeigt.",
-        "availableDate": "Verfügbar %{date}",
-        "disabledTitle": "FOXy Einzahlungen sind deaktiviert"
-      },
-      "foxFarmingOverview": {
         "header": "Zahlen Sie ETH-FOX LP Tokens bei %{opportunity} ein, um zu verdienen",
         "body": "Genehmigen und Staken Sie Ihre Liquiditätstoken, um Ihre FOX Bonusprämien zu erhalten.",
         "rewards": "Die Belohnungen, die Sie verdienen, fallen automatisch an.",
@@ -857,12 +853,6 @@
         "swap": "Handel",
         "swapRefund": "Swap Rückerstattung"
       },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Staking beenden",
-        "instantUnstake": "Staking sofort beenden",
-        "claimWithdraw": "Abhebung anfordern"
-      },
       "erc20": {
         "approve": "Genehmigen",
         "approveSymbol": "Genehmige %{symbol}",
@@ -1034,6 +1024,7 @@
       "amountTooSmallUnknownMinimum": "Betrag zu niedrig",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
       "insufficientFunds": "Unzureichende Mittel für Miner-Gebühr und -Betrag",
+      "insufficientFundsUnconfirmed": "Die Zahlung wird noch überprüft. Bitte versuchen Sie es nach der Bestätigung erneut.",
       "transactionRejected": "Der Benutzer hat die Transaktion abgelehnt",
       "insufficientFundsForProtocolFee": "Nicht genügend %{symbol} auf %{chainName} für Gebühren",
       "unsupportedTradePair": "Nicht unterstütztes Handelspaar",
@@ -1408,6 +1399,11 @@
         "feesTooLow": "Die aktuellen Gebühren entsprechen bereits den Netzwerktarifen.",
         "alreadySpentOrReplaced": "Diese Transaktion kann nicht mehr beschleunigt werden, da sie bereits ersetzt oder bestätigt wurde.",
         "alreadyConfirmed": "Diese Transaktion ist bereits bestätigt und kann nicht mehr beschleunigt werden.",
+        "errors": {
+          "multipleChange": "Transaktionen mit mehreren sich ändernden Ausgängen können nicht beschleunigt werden.",
+          "multipleOpReturn": "Transaktionen mit mehreren OP_RETURN Ausgängen können nicht beschleunigt werden.",
+          "addresslessOutput": "Transaktionen mit nicht standardmäßigen Ausgängen  können nicht beschleunigt werden."
+        },
         "speedUpFailed": "Die Transaktion konnte nicht beschleunigt werden.",
         "broadcastNotObserved": "Die Ersatztransaktion wurde vom Netzwerk noch nicht empfangen. Bitte versuchen Sie es erneut."
       }
@@ -2237,7 +2233,7 @@
     "thisMonth": "Diesen Monat",
     "speedUp": "Beschleunigen",
     "cancelTransaction": "Transaktion stornieren",
-    "replaced": "Ersetzt",
+    "replaced": "Sie haben Ihre Übertragung von %{amount} %{symbol} beschleunigt.",
     "replacedBy": "Ersetzt durch %{txHash}",
     "replaces": "Ersetzt %{txHash}"
   },
@@ -3147,6 +3143,9 @@
     "stake": "Stake",
     "unstake": "Stake beenden",
     "staking": "TCY Staking",
+    "claimingHalted": "TCY Ansprüche angehalten",
+    "stakingHalted": "TCY Staking angehalten",
+    "unstakingHalted": "TCY Unstaking angehalten",
     "myPosition": "Meine Position",
     "myStakedBalance": "Mein eingesetztes Guthaben",
     "myStakedBalanceHelper": "Der Betrag von %{symbol}, den Sie eingesetzt haben",

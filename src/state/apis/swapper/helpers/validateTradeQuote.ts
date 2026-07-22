@@ -21,6 +21,7 @@ import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
+import { isCrossAccountTradeSupported } from '@/state/helpers'
 import type { ReduxState } from '@/state/reducer'
 import {
   selectPortfolioAccountBalances,
@@ -32,10 +33,12 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectPortfolioAccountIdByNumberByChainId,
+  selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputSellAmountCryptoPrecision,
+  selectLastHopBuyAccountId,
   selectSecondHopSellAccountId,
 } from '@/state/slices/tradeInputSlice/selectors'
 import { getTotalProtocolFeeByAssetForStep } from '@/state/slices/tradeQuoteSlice/helpers'
@@ -84,6 +87,8 @@ export const validateTradeQuote = (
         case SwapperTradeQuoteError.RateLimitExceeded:
         case SwapperTradeQuoteError.Timeout:
         case SwapperTradeQuoteError.InvalidResponse:
+        case SwapperTradeQuoteError.InsufficientFunds:
+        case SwapperTradeQuoteError.InsufficientFundsUnconfirmed:
           // no metadata associated with this error
           return { error: errorCode }
         case SwapperTradeQuoteError.FinalQuoteMaxSlippageExceeded:
@@ -165,6 +170,26 @@ export const validateTradeQuote = (
   // this is the account we're selling from - network fees are paid from the sell account for the current hop
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
+
+  // A trade is cross-account when the sell and receive accounts belong to different account numbers.
+  // Account number (not accountId) is the correct discriminator: the same account number maps to the
+  // same address across EVM chains, so a normal L1<->L2 bridge (e.g. account 0 -> account 0) is NOT
+  // cross-account, whereas account 0 -> account 1 is. Some swappers (e.g. Arbitrum Bridge) surface a
+  // rate but cannot fulfill a cross-account trade, so we flag it here to block execution while still
+  // surfacing the rate.
+  const buyAccountId = selectLastHopBuyAccountId(state)
+  const sellAccountNumber = firstHopSellAccountId
+    ? selectPortfolioAccountMetadataByAccountId(state, { accountId: firstHopSellAccountId })
+        ?.bip44Params?.accountNumber
+    : undefined
+  const buyAccountNumber = buyAccountId
+    ? selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId })?.bip44Params
+        ?.accountNumber
+    : undefined
+  const isCrossAccountTrade =
+    sellAccountNumber !== undefined &&
+    buyAccountNumber !== undefined &&
+    sellAccountNumber !== buyAccountNumber
 
   const firstHopFeeAssetBalance = selectPortfolioCryptoBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
@@ -334,6 +359,10 @@ export const validateTradeQuote = (
         },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
       invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
+      isCrossAccountTrade &&
+        !isCrossAccountTradeSupported(swapperName) && {
+          error: TradeQuoteValidationError.CrossAccountNotSupported,
+        },
 
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),

@@ -4,6 +4,16 @@ import { registry } from '../../registry'
 import { EVM_ADDRESS } from '../../types'
 import { AssetSchema } from '../assets/types'
 
+const PartnerCodeSchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(32)
+  .regex(
+    /^[a-z0-9]+$/,
+    'partnerCode must be 3–32 lowercase letters or numbers (e.g. mypartnercode)',
+  )
+
 // --- Affiliate Config ---
 
 export const AffiliateAddressParamsSchema = z.object({
@@ -16,8 +26,9 @@ export const AffiliateConfigResponseSchema = registry.register(
     id: z.string().openapi({ example: 'abc123' }),
     walletAddress: EVM_ADDRESS,
     receiveAddress: EVM_ADDRESS.nullable(),
-    partnerCode: z.string().nullable().openapi({ example: 'mypartner' }),
-    bps: z.number().openapi({ example: 30 }),
+    partnerCode: z.string().openapi({ example: 'mypartner' }),
+    partnerBps: z.number().openapi({ example: 50 }),
+    shapeshiftBps: z.number().openapi({ example: 10 }),
     isActive: z.boolean().openapi({ example: true }),
     createdAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
     updatedAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
@@ -27,18 +38,13 @@ export const AffiliateConfigResponseSchema = registry.register(
 export const CreateAffiliateRequestSchema = z.object({
   walletAddress: EVM_ADDRESS,
   receiveAddress: EVM_ADDRESS.optional(),
-  partnerCode: z.string().trim().min(1, 'partnerCode must not be empty').optional(),
-  bps: z.number().int().min(0).optional(),
+  partnerCode: PartnerCodeSchema,
+  bps: z.number().int().min(0).max(1000),
 })
 
 export const UpdateAffiliateRequestSchema = z.object({
   receiveAddress: EVM_ADDRESS.optional(),
-  bps: z.number().int().min(0).optional(),
-})
-
-export const ClaimPartnerCodeRequestSchema = z.object({
-  walletAddress: EVM_ADDRESS,
-  partnerCode: z.string().trim().min(1, 'partnerCode must not be empty'),
+  bps: z.number().int().min(0).max(1000).optional(),
 })
 
 // --- Affiliate Swaps ---
@@ -55,6 +61,7 @@ export const AffiliateSwapSchema = registry.register(
     buyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
     buyAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
     affiliateFeeAmountUsd: z.string().nullable().openapi({ example: '3.70' }),
+    affiliateBps: z.number().int().min(0).openapi({ example: 60 }),
     partnerBps: z.number().int().min(0).nullable().openapi({ example: 20 }),
     shapeshiftBps: z.number().int().min(0).openapi({ example: 10 }),
     swapperName: z.string().openapi({ example: 'THORChain' }),
@@ -78,7 +85,8 @@ export const SwapServiceAffiliateSwapSchema = z.object({
   actualAffiliateFeeAmountCryptoBaseUnit: z.string().nullable(),
   affiliateAssetUsd: z.string().nullable(),
   affiliateFeeAssetId: z.string().nullable(),
-  affiliateBps: z.number().int().min(0).nullable(),
+  affiliateBps: z.number().int().min(0),
+  partnerBps: z.number().int().min(0),
   shapeshiftBps: z.number().int().min(0),
   affiliateVerificationDetails: z
     .object({
@@ -106,7 +114,7 @@ export const SwapServiceAffiliateSwapsResponseSchema = z.object({
 
 export const AffiliateSwapsRequestSchema = z
   .object({
-    address: EVM_ADDRESS,
+    partnerCode: PartnerCodeSchema,
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(50),
@@ -133,7 +141,7 @@ export const AffiliateSwapsResponseSchema = registry.register(
 
 export const AffiliateStatsRequestSchema = z
   .object({
-    address: EVM_ADDRESS,
+    partnerCode: PartnerCodeSchema,
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
   })
@@ -161,7 +169,6 @@ export type AffiliateAddressParams = z.infer<typeof AffiliateAddressParamsSchema
 export type AffiliateConfig = z.infer<typeof AffiliateConfigResponseSchema>
 export type CreateAffiliateRequest = z.infer<typeof CreateAffiliateRequestSchema>
 export type UpdateAffiliateRequest = z.infer<typeof UpdateAffiliateRequestSchema>
-export type ClaimPartnerCodeRequest = z.infer<typeof ClaimPartnerCodeRequestSchema>
 export type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
 export type SwapServiceAffiliateSwap = z.infer<typeof SwapServiceAffiliateSwapSchema>
 export type AffiliateSwapsRequest = z.infer<typeof AffiliateSwapsRequestSchema>

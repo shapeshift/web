@@ -35,16 +35,17 @@ const TEST_RATE: TradeRate = {
   sellAmountCryptoBaseUnit: '1000000000000000000',
   steps: 1,
   affiliateBps: '0',
+  shapeshiftBps: '0',
 }
 
 const TEST_QUOTE_NO_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
-} as QuoteResponse
+} as unknown as QuoteResponse
 
 const TEST_QUOTE_WITH_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
   approval: { isRequired: true, spender: '0xSpender' },
-} as QuoteResponse
+} as unknown as QuoteResponse
 
 describe('swapMachine', () => {
   describe('initial state', () => {
@@ -98,7 +99,12 @@ describe('swapMachine', () => {
     it('SET_SELL_ASSET recalculates sellAmountBaseUnit with new precision', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '0.001', amountBaseUnit: '1000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '0.001',
+        amountBaseUnit: '1000000000000000',
+        fiatValue: '',
+      })
       expect(actor.getSnapshot().context.sellAmountBaseUnit).toBe('1000000000000000')
 
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_BTC })
@@ -130,7 +136,12 @@ describe('swapMachine', () => {
     it('SET_SELL_AMOUNT updates sellAmount and sellAmountBaseUnit', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '2.5', amountBaseUnit: '2500000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '2.5',
+        amountBaseUnit: '2500000000000000000',
+        fiatValue: '',
+      })
       const ctx = actor.getSnapshot().context
       expect(ctx.sellAmount).toBe('2.5')
       expect(ctx.sellAmountBaseUnit).toBe('2500000000000000000')
@@ -153,19 +164,19 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
-    it('SET_WALLET_ADDRESS updates walletAddress', () => {
+    it('SET_SEND_ADDRESS updates sendAddress', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_WALLET_ADDRESS', address: '0xWallet' })
-      expect(actor.getSnapshot().context.walletAddress).toBe('0xWallet')
+      actor.send({ type: 'SET_SEND_ADDRESS', address: '0xWallet' })
+      expect(actor.getSnapshot().context.sendAddress).toBe('0xWallet')
       actor.stop()
     })
 
-    it('SET_RECEIVE_ADDRESS updates effectiveReceiveAddress', () => {
+    it('SET_RECEIVE_ADDRESS updates receiveAddress', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_RECEIVE_ADDRESS', address: '0xReceiver' })
-      expect(actor.getSnapshot().context.effectiveReceiveAddress).toBe('0xReceiver')
+      expect(actor.getSnapshot().context.receiveAddress).toBe('0xReceiver')
       actor.stop()
     })
 
@@ -193,7 +204,12 @@ describe('swapMachine', () => {
     it('FETCH_QUOTE transitions to quoting when hasValidInput', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       expect(actor.getSnapshot().value).toBe('quoting')
       actor.stop()
@@ -210,7 +226,7 @@ describe('swapMachine', () => {
     it('FETCH_QUOTE stays in input when sellAmountBaseUnit is "0"', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '0', amountBaseUnit: '0' })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '0', amountBaseUnit: '0', fiatValue: '' })
       actor.send({ type: 'FETCH_QUOTE' })
       expect(actor.getSnapshot().value).toBe('input')
       actor.stop()
@@ -221,7 +237,12 @@ describe('swapMachine', () => {
     it('QUOTE_SUCCESS transitions to executing when no approval required', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
       expect(actor.getSnapshot().value).toBe('executing')
@@ -233,7 +254,7 @@ describe('swapMachine', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000', fiatValue: '' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       expect(actor.getSnapshot().value).toBe('approval_needed')
@@ -244,7 +265,12 @@ describe('swapMachine', () => {
     it('QUOTE_SUCCESS skips approval for native assets even when API says required', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       expect(actor.getSnapshot().value).toBe('executing')
@@ -255,7 +281,12 @@ describe('swapMachine', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_BTC })
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '100000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '100000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       expect(actor.getSnapshot().value).toBe('executing')
@@ -265,7 +296,12 @@ describe('swapMachine', () => {
     it('QUOTE_ERROR transitions to error with error message', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_ERROR', error: 'No quotes available' })
       expect(actor.getSnapshot().value).toBe('error')
@@ -279,7 +315,7 @@ describe('swapMachine', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000', fiatValue: '' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       expect(actor.getSnapshot().value).toBe('approval_needed')
@@ -292,7 +328,7 @@ describe('swapMachine', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000', fiatValue: '' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       actor.send({ type: 'RESET' })
@@ -306,7 +342,7 @@ describe('swapMachine', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000', fiatValue: '' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       actor.send({ type: 'APPROVE' })
@@ -320,7 +356,7 @@ describe('swapMachine', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000', fiatValue: '' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       actor.send({ type: 'APPROVE' })
@@ -335,7 +371,12 @@ describe('swapMachine', () => {
     it('EXECUTE_SUCCESS transitions to polling_status with txHash', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
       actor.send({ type: 'EXECUTE_SUCCESS', txHash: '0xTxHash' })
@@ -347,7 +388,12 @@ describe('swapMachine', () => {
     it('EXECUTE_ERROR transitions to error', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
       actor.send({ type: 'EXECUTE_ERROR', error: 'Transaction failed' })
@@ -361,7 +407,12 @@ describe('swapMachine', () => {
     it('STATUS_CONFIRMED transitions to complete', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
       actor.send({ type: 'EXECUTE_SUCCESS', txHash: '0xTxHash' })
@@ -373,7 +424,12 @@ describe('swapMachine', () => {
     it('STATUS_FAILED transitions to error', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
       actor.send({ type: 'EXECUTE_SUCCESS', txHash: '0xTxHash' })
@@ -388,7 +444,12 @@ describe('swapMachine', () => {
     it('RETRY transitions to executing and increments retryCount', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
       actor.send({ type: 'EXECUTE_ERROR', error: 'Gas too low' })
@@ -403,7 +464,12 @@ describe('swapMachine', () => {
     it('RETRY works up to 3 times then stays in error', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
 
@@ -432,7 +498,12 @@ describe('swapMachine', () => {
     it('RESET from error transitions to input and resets context', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_ERROR', error: 'Some error' })
       actor.send({ type: 'RESET' })
@@ -450,7 +521,12 @@ describe('swapMachine', () => {
     it('RESET from complete transitions to input and resets context', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
       actor.send({ type: 'EXECUTE_SUCCESS', txHash: '0xTxHash' })
@@ -494,7 +570,12 @@ describe('swapMachine', () => {
       actor.start()
       expect(actor.getSnapshot().value).toBe('input')
 
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
       actor.send({ type: 'FETCH_QUOTE' })
       expect(actor.getSnapshot().value).toBe('quoting')
 
@@ -520,7 +601,7 @@ describe('swapMachine', () => {
       expect(actor.getSnapshot().value).toBe('input')
 
       actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000', fiatValue: '' })
       actor.send({ type: 'FETCH_QUOTE' })
       expect(actor.getSnapshot().value).toBe('quoting')
 
@@ -538,6 +619,68 @@ describe('swapMachine', () => {
 
       actor.send({ type: 'STATUS_CONFIRMED' })
       expect(actor.getSnapshot().value).toBe('complete')
+      actor.stop()
+    })
+  })
+
+  describe('fiat sell mode', () => {
+    it('initial context defaults to crypto mode', () => {
+      const ctx = createInitialContext()
+      expect(ctx.isSellAmountFiat).toBe(false)
+      expect(ctx.sellAmountFiat).toBe('')
+    })
+
+    it('SET_SELL_FIAT_MODE flips only the mode, leaving the amount untouched', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '100',
+      })
+      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
+      const { context } = actor.getSnapshot()
+      expect(context.isSellAmountFiat).toBe(true)
+      expect(context.sellAmount).toBe('1')
+      expect(context.sellAmountBaseUnit).toBe('1000000000000000000')
+      expect(context.sellAmountFiat).toBe('100')
+      actor.stop()
+    })
+
+    it('SET_SELL_AMOUNT stores the fiat string alongside the crypto amount', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '0.03125',
+        amountBaseUnit: '31250000000000000',
+        fiatValue: '100',
+      })
+      const { context } = actor.getSnapshot()
+      expect(context.sellAmount).toBe('0.03125')
+      expect(context.sellAmountBaseUnit).toBe('31250000000000000')
+      expect(context.sellAmountFiat).toBe('100')
+      actor.stop()
+    })
+
+    it('clears stale crypto on sell asset change while in fiat mode, keeping the fiat string', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '0.03125',
+        amountBaseUnit: '31250000000000000',
+        fiatValue: '100',
+      })
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_BTC })
+      const { context } = actor.getSnapshot()
+      expect(context.sellAsset.symbol).toBe('BTC')
+      expect(context.isSellAmountFiat).toBe(true)
+      expect(context.sellAmountFiat).toBe('100')
+      expect(context.sellAmount).toBe('')
+      expect(context.sellAmountBaseUnit).toBeUndefined()
       actor.stop()
     })
   })

@@ -18,9 +18,11 @@ vi.mock('../../../generated/solana', async importActual => {
   const actual = await importActual<any>()
   return {
     ...actual,
-    V1Api: vi.fn().mockImplementation(() => ({
-      getToken: getTokenMock,
-    })),
+    V1Api: vi.fn().mockImplementation(function () {
+      return {
+        getToken: getTokenMock,
+      }
+    }),
   }
 })
 

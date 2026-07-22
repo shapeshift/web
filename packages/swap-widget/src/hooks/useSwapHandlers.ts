@@ -1,55 +1,92 @@
+import { useAppKit } from '@reown/appkit/react'
 import { useCallback } from 'react'
 
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
 import { parseAmount } from '../types'
+import { cryptoToFiat, fiatToCrypto } from '../utils/fiatConversion'
 import { buildShapeShiftTradeUrl } from '../utils/redirect'
 
 type UseSwapHandlersParams = {
-  onConnectWallet?: () => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   partnerCode?: string
-  appUrl?: string
+  allowShapeshiftRedirect: boolean
 }
 
 export const useSwapHandlers = ({
-  onConnectWallet,
-  onAssetSelect,
   partnerCode,
-  appUrl,
+  allowShapeshiftRedirect,
 }: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
-  const { walletClient, bitcoin, solana } = useSwapWallet()
+  const { evm, bitcoin, solana } = useSwapWallet()
+  const { open: openAppKit } = useAppKit()
 
   const handleSwapTokens = useCallback(() => {
     const snap = actorRef.getSnapshot()
     actorRef.send({ type: 'SET_SELL_ASSET', asset: snap.context.buyAsset })
     actorRef.send({ type: 'SET_BUY_ASSET', asset: snap.context.sellAsset })
-    actorRef.send({ type: 'SET_SELL_AMOUNT', amount: '', amountBaseUnit: undefined })
+    actorRef.send({ type: 'SET_SELL_AMOUNT', amount: '', amountBaseUnit: undefined, fiatValue: '' })
   }, [actorRef])
 
   const handleSellAssetSelect = useCallback(
     (asset: Asset) => {
       actorRef.send({ type: 'SET_SELL_ASSET', asset })
-      onAssetSelect?.('sell', asset)
     },
-    [actorRef, onAssetSelect],
+    [actorRef],
   )
 
   const handleBuyAssetSelect = useCallback(
     (asset: Asset) => {
       actorRef.send({ type: 'SET_BUY_ASSET', asset })
-      onAssetSelect?.('buy', asset)
     },
-    [actorRef, onAssetSelect],
+    [actorRef],
   )
 
   const handleSellAmountChange = useCallback(
-    (value: string) => {
+    (value: string, sellAssetUsdPrice?: string) => {
       const snap = actorRef.getSnapshot()
-      const baseUnit = value ? parseAmount(value, snap.context.sellAsset.precision) : undefined
-      actorRef.send({ type: 'SET_SELL_AMOUNT', amount: value, amountBaseUnit: baseUnit })
+      const { sellAsset, isSellAmountFiat } = snap.context
+
+      if (isSellAmountFiat) {
+        const { amount, amountBaseUnit } = fiatToCrypto(
+          value,
+          sellAssetUsdPrice ?? '',
+          sellAsset.precision,
+        )
+
+        actorRef.send({ type: 'SET_SELL_AMOUNT', amount, amountBaseUnit, fiatValue: value })
+        return
+      }
+
+      const amountBaseUnit = value ? parseAmount(value, sellAsset.precision) : undefined
+      actorRef.send({ type: 'SET_SELL_AMOUNT', amount: value, amountBaseUnit, fiatValue: '' })
+    },
+    [actorRef],
+  )
+
+  const handleToggleSellFiat = useCallback(
+    (sellAssetUsdPrice?: string) => {
+      if (!sellAssetUsdPrice) return
+
+      const snap = actorRef.getSnapshot()
+      const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
+
+      if (isSellAmountFiat) {
+        actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: false })
+        return
+      }
+
+      // Seed the fiat input for display but keep the exact crypto, so a round-trip toggle
+      // doesn't snap the amount to its 2-decimal fiat value.
+      const fiatValue = cryptoToFiat(sellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
+
+      actorRef.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: sellAmount,
+        amountBaseUnit: sellAmountBaseUnit,
+        fiatValue,
+      })
+      actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
     },
     [actorRef],
   )
@@ -78,21 +115,22 @@ export const useSwapHandlers = ({
       buyAssetId: snap.context.buyAsset.assetId,
       sellAmountBaseUnit,
       partnerCode,
-      appUrl,
     })
     window.open(url, '_blank', 'noopener,noreferrer')
-  }, [actorRef, partnerCode, appUrl])
+  }, [actorRef, partnerCode])
 
   const handleButtonClick = useCallback(() => {
     const snap = actorRef.getSnapshot()
     if (snap.context.isSellAssetUtxo && !bitcoin.isConnected) {
+      openAppKit({ namespace: 'bip122' })
       return
     }
     if (snap.context.isSellAssetSolana && !solana.isConnected) {
+      openAppKit({ namespace: 'solana' })
       return
     }
-    if (!walletClient && snap.context.isSellAssetEvm && onConnectWallet) {
-      onConnectWallet()
+    if (snap.context.isSellAssetEvm && !evm.isConnected) {
+      openAppKit({ namespace: 'eip155' })
       return
     }
     if (
@@ -100,6 +138,7 @@ export const useSwapHandlers = ({
       !snap.context.isSellAssetUtxo &&
       !snap.context.isSellAssetSolana
     ) {
+      if (!allowShapeshiftRedirect) return
       const sellAmountBaseUnit = snap.context.sellAmount
         ? parseAmount(snap.context.sellAmount, snap.context.sellAsset.precision)
         : undefined
@@ -108,7 +147,6 @@ export const useSwapHandlers = ({
         buyAssetId: snap.context.buyAsset.assetId,
         sellAmountBaseUnit,
         partnerCode,
-        appUrl,
       })
       window.open(url, '_blank', 'noopener,noreferrer')
       return
@@ -118,10 +156,10 @@ export const useSwapHandlers = ({
     actorRef,
     bitcoin.isConnected,
     solana.isConnected,
-    walletClient,
-    onConnectWallet,
+    evm.isConnected,
+    openAppKit,
     partnerCode,
-    appUrl,
+    allowShapeshiftRedirect,
   ])
 
   return {
@@ -129,6 +167,7 @@ export const useSwapHandlers = ({
     handleSellAssetSelect,
     handleBuyAssetSelect,
     handleSellAmountChange,
+    handleToggleSellFiat,
     handleSelectRate,
     handleSlippageChange,
     redirectToShapeShift,

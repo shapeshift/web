@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import type { SwapperSpecificMetadata } from '@shapeshiftoss/swapper'
 
 export type StoredQuote = {
@@ -8,16 +7,17 @@ export type StoredQuote = {
   buyAssetId: string
   sellAmountCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
-  affiliateAddress: string | undefined
-  affiliateBps: string
-  sellChainId: ChainId
+  sendAddress: string
   receiveAddress: string
-  sendAddress: string | undefined
+  partnerAddress?: string
+  partnerCode?: string
+  partnerBps?: string
+  shapeshiftBps: string
+  affiliateBps: string
   rate: string
   createdAt: number
   expiresAt: number
   metadata: SwapperSpecificMetadata
-  stepChainIds: ChainId[]
   txHash?: string
   registeredAt?: number
   status: 'pending' | 'submitted' | 'confirmed' | 'failed'

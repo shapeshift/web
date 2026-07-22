@@ -5,8 +5,9 @@ import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-util
 import type { SolanaComputeBudgetOptions } from '../../solana-utils'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../solana-utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
-import type { SwapperApi, UtxoFeeData } from '../../types'
+import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { ChainflipStatusMessage } from './constants'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
@@ -25,55 +26,8 @@ export const chainflipApi: SwapperApi = {
   getTradeRate,
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
-  getUnsignedUtxoTransaction: ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    accountType,
-    assertGetUtxoChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    return adapter.buildSendApiTransaction({
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub,
-      to: chainflipSpecific.depositAddress,
-      accountNumber,
-      skipToAddressValidation: true,
-      chainSpecific: {
-        accountType,
-        satoshiPerByte: (step.feeData.chainSpecific as UtxoFeeData).satsPerByte,
-      },
-    })
-  },
-  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to: chainflipSpecific.depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub },
-      sendMax: false,
-    })
-
-    return fast.txFee
-  },
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
   getUnsignedSolanaTransaction: input => {
     return getUnsignedSolanaTransaction(input, solanaComputeBudget)
   },

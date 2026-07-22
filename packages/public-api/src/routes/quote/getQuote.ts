@@ -71,6 +71,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       swapperName,
       slippageTolerancePercentageDecimal,
       accountNumber,
+      xpub,
     } = bodyResult.data
 
     const validSwapperName = Object.values(SwapperName).find(v => v === swapperName)
@@ -132,6 +133,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       receiveAddress,
       sendAddress,
       accountNumber,
+      xpub,
       quoteOrRate: 'quote' as const,
       chainId: sellAsset.chainId,
     }

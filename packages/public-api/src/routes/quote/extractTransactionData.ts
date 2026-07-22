@@ -40,36 +40,11 @@ const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionDa
 }
 
 const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData | undefined => {
-  if (step.transactionData?.type === 'utxo') {
-    return {
-      type: 'utxo_deposit',
-      depositAddress: step.transactionData.to,
-      memo: step.transactionData.opReturnData,
-      value: step.transactionData.value,
-    }
-  }
+  if (step.transactionData?.type !== 'utxo') return undefined
 
-  if (step.chainflipSpecific?.depositAddress) {
-    return {
-      type: 'utxo_deposit',
-      depositAddress: step.chainflipSpecific.depositAddress,
-      memo: '',
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    }
-  }
+  const { to, opReturnData, value } = step.transactionData
 
-  if (step.thorchainTransactionMetadata?.to) {
-    return {
-      type: 'utxo_deposit',
-      depositAddress: step.thorchainTransactionMetadata.to,
-      memo: step.thorchainTransactionMetadata.memo ?? '',
-      value:
-        step.thorchainTransactionMetadata.value ??
-        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    }
-  }
-
-  return undefined
+  return { type: 'utxo', to, opReturnData, value }
 }
 
 const extractCosmosTransactionData = (step: TradeQuoteStep): CosmosTransactionData | undefined => {

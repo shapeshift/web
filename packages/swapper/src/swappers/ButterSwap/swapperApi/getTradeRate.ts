@@ -28,7 +28,7 @@ import {
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
-  _deps: SwapperDeps,
+  deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -126,7 +126,7 @@ export const getTradeRate = async (
     buyAsset,
   })
 
-  const feeAsset = _deps.assetsById[feeAssetId]
+  const feeAsset = deps.assetsById[feeAssetId]
   if (!feeAsset) {
     return Err(
       makeSwapErrorRight({
@@ -137,11 +137,11 @@ export const getTradeRate = async (
   }
 
   const networkFeeCryptoBaseUnit = await getButterSwapNetworkFeeCryptoBaseUnit({
+    input,
     route,
     sellAsset,
     feeAsset,
-    assertGetEvmChainAdapter: _deps.assertGetEvmChainAdapter,
-    supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+    deps,
   })
 
   const tradeRate: TradeRate = {

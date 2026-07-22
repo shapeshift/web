@@ -27,20 +27,12 @@ export type SolanaTransactionData = {
   addressLookupTableAddresses: string[]
 }
 
-export type UtxoPsbtTransactionData = {
-  type: 'utxo_psbt'
-  psbt: string
+export type UtxoTransactionData = {
+  type: 'utxo'
+  to: string
   opReturnData?: string
-}
-
-export type UtxoDepositTransactionData = {
-  type: 'utxo_deposit'
-  depositAddress: string
-  memo: string
   value: string
 }
-
-export type UtxoTransactionData = UtxoPsbtTransactionData | UtxoDepositTransactionData
 
 export type CosmosTransactionData = {
   type: 'cosmos'

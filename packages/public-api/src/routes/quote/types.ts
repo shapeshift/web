@@ -37,18 +37,10 @@ const SolanaTransactionDataSchema = z.object({
   addressLookupTableAddresses: z.array(z.string()),
 })
 
-const UtxoPsbtTransactionDataSchema = z.object({
-  type: z.literal('utxo_psbt').openapi({ example: 'utxo_psbt' }),
-  psbt: z.string(),
+const UtxoTransactionDataSchema = z.object({
+  type: z.literal('utxo').openapi({ example: 'utxo' }),
+  to: z.string(),
   opReturnData: z.string().optional(),
-  depositAddress: z.string().optional(),
-  value: z.string().optional(),
-})
-
-const UtxoDepositTransactionDataSchema = z.object({
-  type: z.literal('utxo_deposit').openapi({ example: 'utxo_deposit' }),
-  depositAddress: z.string(),
-  memo: z.string(),
   value: z.string(),
 })
 
@@ -63,8 +55,7 @@ const CosmosTransactionDataSchema = z.object({
 const TransactionDataSchema = z.discriminatedUnion('type', [
   EvmTransactionDataSchema,
   SolanaTransactionDataSchema,
-  UtxoPsbtTransactionDataSchema,
-  UtxoDepositTransactionDataSchema,
+  UtxoTransactionDataSchema,
   CosmosTransactionDataSchema,
 ])
 
@@ -111,6 +102,12 @@ export const QuoteRequestSchema = z.object({
   swapperName: z.string().min(1).openapi({ example: 'Relay' }),
   slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
   accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),
+  // UTXO sells only: account xpub used to compute an exact network fee from the wallet's utxo set.
+  // Without it the returned network fee is a rough estimate.
+  xpub: z.string().optional().openapi({
+    example:
+      'zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs',
+  }),
 })
 
 export const QuoteResponseSchema = registry.register(

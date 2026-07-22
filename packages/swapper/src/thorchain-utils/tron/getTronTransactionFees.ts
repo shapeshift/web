@@ -4,7 +4,7 @@ import { TronWeb } from 'tronweb'
 import type { GetUnsignedTronTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
-import { getThorTxData } from './getThorTxData'
+import { getThorTxData } from '../getThorTxData'
 
 const getChainPrices = async (
   rpcUrl: string,

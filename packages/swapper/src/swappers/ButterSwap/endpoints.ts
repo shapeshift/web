@@ -5,7 +5,7 @@ import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSola
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
 import type { SwapperApi } from '../../types'
-import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { checkTradeStatus } from './swapperApi/checkTradeStatus'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
@@ -18,62 +18,8 @@ export const butterSwapApi: SwapperApi = {
   checkTradeStatus,
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
-  getUnsignedUtxoTransaction: async ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    accountType,
-    assertGetUtxoChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('invalid utxo transaction')
-
-    const { to, opReturnData, value } = transactionData
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value,
-      chainSpecific: { pubkey: xpub, opReturnData },
-      sendMax: false,
-    })
-
-    return adapter.buildSendApiTransaction({
-      value,
-      xpub,
-      to,
-      accountNumber,
-      chainSpecific: {
-        accountType,
-        opReturnData,
-        satoshiPerByte: fast.chainSpecific.satoshiPerByte,
-      },
-    })
-  },
-  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('invalid utxo transaction')
-
-    const { to, opReturnData, value } = transactionData
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value,
-      chainSpecific: { pubkey: xpub, opReturnData },
-      sendMax: false,
-    })
-
-    return fast.txFee
-  },
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
   getUnsignedSolanaTransaction: input => {
     return getUnsignedSolanaTransaction(input, solanaComputeBudget)
   },

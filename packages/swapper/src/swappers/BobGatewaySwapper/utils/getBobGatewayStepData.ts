@@ -1,13 +1,14 @@
 import type { GatewayQuoteV3 } from '@gobob/bob-sdk'
 import { fromChainId, tronChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
 import type {
   GetTradeQuoteInput,
+  GetTradeRateInput,
   QuoteFeeData,
   SwapErrorRight,
   SwapperDeps,
@@ -15,29 +16,31 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utxo-utils'
 import {
   BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
-  BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE,
   BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,
 } from './constants'
 import { createBobGatewayOrder, toTronBase58 } from './helpers'
 
 export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
+  input: GetTradeRateInput,
   quote: GatewayQuoteV3,
   sellAsset: Asset,
   { assertGetEvmChainAdapter, assertGetUtxoChainAdapter, assertGetTronChainAdapter }: SwapperDeps,
-  supportsEIP1559: boolean,
 ): Promise<string | undefined> => {
   try {
     if ('onramp' in quote) {
       const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-      const { fast } = await adapter.httpProvider.getNetworkFees()
-      if (!fast?.satsPerKiloByte) return
+      const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
+        adapter,
+        pubkey: 'xpub' in input ? input.xpub : undefined,
+        to: input.sendAddress ?? UTXO_PLACEHOLDER_ADDRESS,
+        value: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      })
 
-      const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
-
-      return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
+      return networkFeeCryptoBaseUnit
     }
 
     if (sellAsset.chainId === tronChainId) {
@@ -66,7 +69,11 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
         ? BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT
         : BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT
 
-    return getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit })
+    return getEvmNetworkFeeCryptoBaseUnit({
+      adapter,
+      supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+      gasLimit,
+    })
   } catch {}
 }
 
@@ -98,30 +105,27 @@ export const getBobGatewayStepData = async ({
   try {
     // onramp (BTC→EVM): utxo deposit
     if ('onramp' in orderResponse) {
-      if (!('xpub' in input)) throw new Error('[BobGateway] invalid utxo quote')
-
       const transactionData: TxBuildData = {
         type: 'utxo',
         to: orderResponse.onramp.address,
-        opReturnData: orderResponse.onramp.opReturnData ?? '',
+        opReturnData: orderResponse.onramp.opReturnData ?? undefined,
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       }
 
-      const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-      const { fast } = await adapter.getFeeData({
+      const { networkFeeCryptoBaseUnit, satsPerByte } = await getUtxoNetworkFeeCryptoBaseUnit({
+        adapter: assertGetUtxoChainAdapter(sellAsset.chainId),
+        pubkey: 'xpub' in input ? input.xpub : undefined,
         to: transactionData.to,
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        chainSpecific: { pubkey: input.xpub, opReturnData: transactionData.opReturnData },
-        sendMax: false,
+        opReturnData: transactionData.opReturnData,
       })
 
       return Ok({
         orderId: orderResponse.onramp.orderId,
         transactionData,
         feeData: {
-          networkFeeCryptoBaseUnit: fast.txFee,
-          chainSpecific: { satsPerByte: fast.chainSpecific.satoshiPerByte },
+          networkFeeCryptoBaseUnit,
+          chainSpecific: { satsPerByte },
         },
       })
     }

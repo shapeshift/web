@@ -140,18 +140,18 @@ export const getQuoteOrRate = async (
       try {
         const { chainflipSpecific, swapperMetadata, transactionData, feeData } =
           await (async () => {
-            if (quoteOrRate === 'rate') {
+            if (input.quoteOrRate === 'rate') {
               const { networkFeeCryptoBaseUnit, chainSpecific } = await getChainflipStepData({
+                type: 'rate',
                 deps,
                 input,
                 sellAsset,
                 sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-                depositAddress: undefined,
               })
               return { feeData: { networkFeeCryptoBaseUnit, chainSpecific } }
             }
 
-            if (input.accountNumber === undefined) throw new Error('accountNumber is required')
+            if (accountNumber === undefined) throw new Error('accountNumber is required')
             if (!input.sendAddress) throw new Error('sendAddress is required')
             if (!input.receiveAddress) throw new Error('receiveAddress is required')
 
@@ -189,11 +189,13 @@ export const getQuoteOrRate = async (
 
             const { transactionData, networkFeeCryptoBaseUnit, chainSpecific } =
               await getChainflipStepData({
+                type: 'quote',
                 deps,
                 input,
                 sellAsset,
                 sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
                 depositAddress,
+                from: input.sendAddress,
               })
 
             return {

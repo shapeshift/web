@@ -4,7 +4,7 @@ import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.j
 import type { GetUnsignedSolanaTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
-import { getThorTxData } from './getThorTxData'
+import { getThorTxData } from '../getThorTxData'
 
 const MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 

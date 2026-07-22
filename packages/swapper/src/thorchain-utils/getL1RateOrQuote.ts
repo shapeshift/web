@@ -1,11 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  assertUnreachable,
   BigAmount,
   bn,
   bnOrZero,
-  contractAddressOrUndefined,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
   isFulfilled,
@@ -13,21 +11,13 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
-import { TronWeb } from 'tronweb'
 import { v4 as uuid } from 'uuid'
-import { getAddress, zeroAddress } from 'viem'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../evm-utils'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
 import { buildAffiliateFee } from '../swappers/utils/affiliateFee'
-import { isNativeEvmAsset } from '../swappers/utils/helpers/helpers'
 import type {
   CommonTradeQuoteInput,
-  GetEvmTradeQuoteInput,
-  GetEvmTradeRateInput,
   GetTradeRateInput,
-  GetUtxoTradeRateInput,
   ProtocolFee,
   QuoteFeeData,
   SwapErrorRight,
@@ -36,10 +26,9 @@ import type {
 } from '../types'
 import { SwapperName, TradeQuoteError } from '../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../utils'
-import * as cosmossdk from './cosmossdk'
-import * as evm from './evm'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
+import { getThorStepData } from './getThorStepData'
 import {
   addLimitToMemo,
   assertAndProcessMemo,
@@ -47,54 +36,28 @@ import {
   getNativePrecision,
   getSwapSource,
 } from './index'
-import { depositWithExpiry } from './routerCallData/routerCalldata'
-import * as solana from './solana'
-import * as tron from './tron'
 import type {
-  ThorEvmTradeQuote,
-  ThorEvmTradeRate,
   ThornodeQuoteResponseSuccess,
   ThorTradeQuote,
   ThorTradeRate,
   ThorTradeRoute,
-  ThorTradeUtxoOrCosmosQuote,
-  ThorTradeUtxoOrCosmosRate,
+  TradeType,
 } from './types'
-import { TradeType } from './types'
-import * as utxo from './utxo'
-
-// depositWithExpiry() measured at 44k (native) / 74k (erc20) on mainnet
-const SAFE_GAS_LIMIT = '100000'
-// swapIn() bundles a uniswap v3 swap ahead of the deposit, measured at 206k-222k on mainnet across
-// usdc/usdt/link/uni/wbtc and both the 0.05% and 0.3% pools
-const SAFE_SWAP_IN_GAS_LIMIT = '250000'
-const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 type ThorTradeRateOrQuote = ThorTradeRate | ThorTradeQuote
-type ThorEvmTradeRateOrQuote = ThorEvmTradeRate | ThorEvmTradeQuote
-type ThorUtxoOrCosmosTradeRateOrQuote = ThorTradeUtxoOrCosmosRate | ThorTradeUtxoOrCosmosQuote
 
-type MakeThorTradeInputBase = {
+type MakeThorTradeInput = {
   route: ThorTradeRoute
   memo: string
   allowanceContract: string
   feeData: QuoteFeeData
+  transactionData?: TxBuildData
   thorchainTransactionMetadata?: ThorTradeRateOrQuote['steps']['0']['thorchainTransactionMetadata']
+  // Evm only
+  data?: string
+  router?: string
+  vault?: string
 }
-
-type MakeThorTradeInput<T extends ThorTradeRateOrQuote> = T extends ThorEvmTradeRateOrQuote
-  ? MakeThorTradeInputBase & {
-      data: string
-      router: string
-      vault: string
-      transactionData?: TxBuildData
-    }
-  : MakeThorTradeInputBase & {
-      data?: never
-      router?: never
-      vault?: never
-      transactionData?: never
-    }
 
 export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   input: T extends ThorTradeRate ? GetTradeRateInput : CommonTradeQuoteInput,
@@ -110,15 +73,23 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     accountNumber,
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
+    quoteOrRate,
+    sendAddress,
   } = input
 
-  const {
-    config,
-    assertGetEvmChainAdapter,
-    assertGetUtxoChainAdapter,
-    assertGetCosmosSdkChainAdapter,
-    assertGetSolanaChainAdapter,
-  } = deps
+  if (quoteOrRate === 'quote' && !sendAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'sendAddress is required',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
+  }
+
+  const quoteOrRateArgs =
+    quoteOrRate === 'quote' && sendAddress
+      ? { type: 'quote' as const, input: input as CommonTradeQuoteInput, from: sendAddress }
+      : { type: 'rate' as const, input: input as GetTradeRateInput }
 
   // "NativePrecision" is intended to indicate the base unit precision of the asset
   // for the corresponding swapper network (THORChain or MAYAChain)
@@ -261,7 +232,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     })
   }
 
-  const makeThorTradeRateOrQuote = <U extends ThorTradeRateOrQuote>({
+  const makeThorTradeRateOrQuote = ({
     route,
     memo,
     allowanceContract,
@@ -271,7 +242,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     vault,
     transactionData,
     thorchainTransactionMetadata,
-  }: MakeThorTradeInput<U>): T => {
+  }: MakeThorTradeInput): T => {
     const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
       value: route.expectedAmountOutThorBaseUnit,
       inputExponent: buyAssetNativePrecision,
@@ -341,365 +312,75 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     } as T
   }
 
-  switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Evm: {
-      const { supportsEIP1559 } = input as GetEvmTradeRateInput | GetEvmTradeQuoteInput
+  const supportedChainNamespaces: string[] = [
+    CHAIN_NAMESPACE.Evm,
+    CHAIN_NAMESPACE.Utxo,
+    CHAIN_NAMESPACE.CosmosSdk,
+    CHAIN_NAMESPACE.Solana,
+    CHAIN_NAMESPACE.Tron,
+  ]
 
-      const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-      // Route invariant, so the inbound lookup happens once rather than per route
-      const { router, vault } = await evm.getThorRouterAndVault({ sellAsset, config, swapperName })
-
-      const depositAsset = isNativeEvmAsset(sellAsset.assetId)
-        ? zeroAddress
-        : getAddress(fromAssetId(sellAsset.assetId).assetReference)
-
-      const maybeRoutes = await Promise.allSettled(
-        perRouteValues.map(async (route): Promise<T> => {
-          const memo = getMemo(route)
-
-          const data = depositWithExpiry({
-            vault,
-            asset: depositAsset,
-            amount: BigInt(sellAmountCryptoBaseUnit),
-            memo,
-            expiry: BigInt(route.quote.expiry),
-          })
-
-          // LongTailToL1 executes swapIn against an aggregator, every other trade type deposits directly
-          const gasLimit =
-            tradeType === TradeType.LongTailToL1 ? SAFE_SWAP_IN_GAS_LIMIT : SAFE_GAS_LIMIT
-
-          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-            adapter,
-            supportsEIP1559,
-            gasLimit,
-          })
-
-          return makeThorTradeRateOrQuote<ThorEvmTradeRateOrQuote>({
-            route,
-            memo,
-            allowanceContract: router,
-            data,
-            router,
-            vault,
-            // Rates aren't executable, so they carry no tx data - longtail quotes patch to/data/value
-            // onto this once their aggregator and final memo are known
-            transactionData:
-              input.quoteOrRate === 'quote'
-                ? {
-                    type: 'evm' as const,
-                    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-                    to: router,
-                    data,
-                    value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-                    gasLimit,
-                  }
-                : undefined,
-            feeData: {
-              protocolFees: getProtocolFees(route.quote),
-              networkFeeCryptoBaseUnit,
-            },
-          })
-        }),
-      )
-
-      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
-
-      if (!routes.length)
-        return Err(
-          makeSwapErrorRight({
-            message: 'Unable to create any routes',
-            code: TradeQuoteError.UnsupportedTradePair,
-            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
-          }),
-        )
-
-      return Ok(routes)
-    }
-    case CHAIN_NAMESPACE.Utxo: {
-      const { xpub = '' } = input as GetUtxoTradeRateInput
-
-      const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-      // Route invariant, so the inbound lookup happens once rather than per route
-      const { vault } = await utxo.getThorTxData({ sellAsset, config, swapperName })
-
-      const maybeRoutes = await Promise.allSettled(
-        perRouteValues.map(async (route): Promise<T> => {
-          const memo = getMemo(route)
-
-          const feeData = await (async (): Promise<QuoteFeeData> => {
-            const protocolFees = getProtocolFees(route.quote)
-
-            // This is a rate without a wallet connected, so we can't get fees
-            if (!xpub) return { networkFeeCryptoBaseUnit: undefined, protocolFees }
-
-            const { fast } = await sellAdapter.getFeeData({
-              to: vault,
-              value: sellAmountCryptoBaseUnit,
-              chainSpecific: { pubkey: xpub, opReturnData: memo },
-            })
-
-            return {
-              networkFeeCryptoBaseUnit: fast.txFee,
-              protocolFees,
-              chainSpecific: {
-                satsPerByte: fast.chainSpecific.satoshiPerByte,
-              },
-            }
-          })()
-
-          return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
-            route,
-            allowanceContract: '', // not applicable to UTXOs
-            memo,
-            thorchainTransactionMetadata: {
-              to: vault,
-              memo,
-              value: sellAmountCryptoBaseUnit,
-            },
-            feeData,
-          })
-        }),
-      )
-
-      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
-
-      if (!routes.length)
-        return Err(
-          makeSwapErrorRight({
-            message: 'Unable to create any routes',
-            code: TradeQuoteError.UnsupportedTradePair,
-            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
-          }),
-        )
-
-      return Ok(routes)
-    }
-    case CHAIN_NAMESPACE.CosmosSdk: {
-      const cosmosChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
-
-      const { fast } = await cosmosChainAdapter.getFeeData({})
-      const { vault } = await cosmossdk.getThorTxData({ sellAsset, config, swapperName })
-
-      return Ok(
-        perRouteValues.map((route): T => {
-          const memo = getMemo(route)
-          return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
-            route,
-            memo,
-            allowanceContract: '', // not applicable to cosmossdk
-            thorchainTransactionMetadata: {
-              to: vault,
-              memo,
-              value: sellAmountCryptoBaseUnit,
-            },
-            feeData: {
-              networkFeeCryptoBaseUnit: fast.txFee,
-              protocolFees: getProtocolFees(route.quote),
-              chainSpecific: {
-                estimatedGasCryptoBaseUnit: fast.chainSpecific.gasLimit,
-              },
-            },
-          })
-        }),
-      )
-    }
-    case CHAIN_NAMESPACE.Solana: {
-      const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
-      const sendAddress = (input as CommonTradeQuoteInput).sendAddress
-
-      const { vault } = await solana.getThorTxData({ sellAsset, config, swapperName })
-
-      const maybeRoutes = await Promise.allSettled(
-        perRouteValues.map(async (route): Promise<T> => {
-          const memo = getMemo(route)
-          const protocolFees = getProtocolFees(route.quote)
-
-          const feeData = await (async (): Promise<QuoteFeeData> => {
-            if (!sendAddress) return { networkFeeCryptoBaseUnit: undefined, protocolFees }
-            const memoInstruction = new TransactionInstruction({
-              keys: [],
-              programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
-              data: Buffer.from(memo, 'utf8'),
-            })
-            const transferInstruction = SystemProgram.transfer({
-              fromPubkey: new PublicKey(sendAddress),
-              toPubkey: new PublicKey(vault),
-              lamports: BigInt(sellAmountCryptoBaseUnit),
-            })
-            const { fast } = await adapter.getFeeData({
-              to: vault,
-              value: '0',
-              chainSpecific: {
-                from: sendAddress,
-                tokenId: contractAddressOrUndefined(sellAsset.assetId),
-                instructions: [memoInstruction, transferInstruction],
-              },
-            })
-            return { networkFeeCryptoBaseUnit: fast.txFee, protocolFees }
-          })()
-
-          return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
-            route,
-            allowanceContract: '',
-            memo,
-            thorchainTransactionMetadata: {
-              to: vault,
-              memo,
-              value: sellAmountCryptoBaseUnit,
-            },
-            feeData,
-          })
-        }),
-      )
-
-      const routes = maybeRoutes.filter(isFulfilled).map(r => r.value)
-      if (!routes.length)
-        return Err(
-          makeSwapErrorRight({
-            message: 'Unable to create any routes',
-            code: TradeQuoteError.UnsupportedTradePair,
-            cause: maybeRoutes.filter(isRejected).map(r => r.reason),
-          }),
-        )
-      return Ok(routes)
-    }
-    case CHAIN_NAMESPACE.Tron: {
-      const { vault } = await tron.getThorTxData({ sellAsset, config, swapperName })
-
-      const maybeRoutes = await Promise.allSettled(
-        perRouteValues.map(async (route): Promise<T> => {
-          const memo = getMemo(route)
-          let networkFeeCryptoBaseUnit: string | undefined = undefined
-
-          // Calculate fees for rates when we have a receive address (wallet connected)
-          if (input.quoteOrRate === 'rate' && input.receiveAddress && vault) {
-            try {
-              const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
-              const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
-              // Estimate fees using the receive address for accurate energy calculation
-              const tronWeb = new TronWeb({
-                fullHost: deps.config.VITE_TRON_NODE_URL,
-                headers: deps.config.VITE_TRON_GRID_API_KEY
-                  ? { 'TRON-PRO-API-KEY': deps.config.VITE_TRON_GRID_API_KEY }
-                  : {},
-              })
-              const params = await tronWeb.trx.getChainParameters()
-              const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-              const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
-
-              let totalFee = 0
-
-              if (contractAddress) {
-                // TRC20: Estimate energy with actual recipient
-                try {
-                  const result = await tronWeb.transactionBuilder.triggerConstantContract(
-                    contractAddress,
-                    'transfer(address,uint256)',
-                    {},
-                    [
-                      { type: 'address', value: vault }, // Use vault as recipient
-                      {
-                        type: 'uint256',
-                        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-                      },
-                    ],
-                    input.receiveAddress, // Use user's address as sender for estimation
-                  )
-
-                  const energyUsed = result.energy_used ?? 65000
-                  const energyFee = energyUsed * energyPrice * 1.5 // 1.5x safety margin
-                  const bandwidthFee = 276 * bandwidthPrice // TRC20 bandwidth
-                  totalFee = Math.ceil(energyFee + bandwidthFee)
-                } catch {
-                  // Fallback: Conservative estimate
-                  totalFee = 13_000_000 // 13 TRX worst case
-                }
-              } else {
-                // TRX transfer bandwidth: Base tx + memo bytes
-                const baseBytes = 198
-                const memoBytes = route.quote.memo
-                  ? Buffer.from(route.quote.memo, 'utf8').length
-                  : 0
-                const totalBandwidth = baseBytes + memoBytes
-                totalFee = totalBandwidth * bandwidthPrice
-              }
-
-              networkFeeCryptoBaseUnit = String(totalFee)
-            } catch {
-              // Leave as undefined if estimation fails
-            }
-          }
-          // For quotes, fees will be calculated in getTronTransactionFees when executing
-
-          return Promise.resolve(
-            makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
-              route,
-              allowanceContract: '', // not applicable to TRON
-              memo,
-              thorchainTransactionMetadata: {
-                to: vault,
-                memo,
-                value: sellAmountCryptoBaseUnit,
-              },
-              feeData: {
-                networkFeeCryptoBaseUnit,
-                protocolFees: getProtocolFees(route.quote),
-              },
-            }),
-          )
-        }),
-      )
-
-      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
-
-      if (!routes.length)
-        return Err(
-          makeSwapErrorRight({
-            message: 'Unable to create any routes',
-            code: TradeQuoteError.UnsupportedTradePair,
-            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
-          }),
-        )
-
-      return Ok(routes)
-    }
-    case CHAIN_NAMESPACE.Sui: {
-      return Err(
-        makeSwapErrorRight({
-          message: 'SUI is not supported',
-          code: TradeQuoteError.UnsupportedTradePair,
-        }),
-      )
-    }
-    case CHAIN_NAMESPACE.Near: {
-      return Err(
-        makeSwapErrorRight({
-          message: 'NEAR is not supported',
-          code: TradeQuoteError.UnsupportedTradePair,
-        }),
-      )
-    }
-    case CHAIN_NAMESPACE.Starknet: {
-      return Err(
-        makeSwapErrorRight({
-          message: 'Starknet is not supported',
-          code: TradeQuoteError.UnsupportedTradePair,
-        }),
-      )
-    }
-    case CHAIN_NAMESPACE.Ton: {
-      return Err(
-        makeSwapErrorRight({
-          message: 'TON is not supported',
-          code: TradeQuoteError.UnsupportedTradePair,
-        }),
-      )
-    }
-    default:
-      return assertUnreachable(chainNamespace)
+  if (!supportedChainNamespaces.includes(chainNamespace)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `${chainNamespace} is not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
   }
+
+  const maybeRoutes = await Promise.allSettled(
+    perRouteValues.map(async (route): Promise<T> => {
+      const memo = getMemo(route)
+
+      const {
+        vault,
+        router,
+        data,
+        transactionData,
+        networkFeeCryptoBaseUnit,
+        chainSpecific,
+        thorchainTransactionMetadata,
+      } = await getThorStepData({
+        ...quoteOrRateArgs,
+        deps,
+        swapperName,
+        tradeType,
+        sellAsset,
+        sellAmountCryptoBaseUnit,
+        memo,
+        expiry: route.quote.expiry,
+        rawMemo: route.quote.memo,
+      })
+
+      return makeThorTradeRateOrQuote({
+        route,
+        memo,
+        allowanceContract: router ?? '',
+        data,
+        router,
+        vault,
+        transactionData,
+        thorchainTransactionMetadata,
+        feeData: {
+          networkFeeCryptoBaseUnit,
+          protocolFees: getProtocolFees(route.quote),
+          chainSpecific,
+        },
+      })
+    }),
+  )
+
+  const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
+
+  if (!routes.length)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Unable to create any routes',
+        code: TradeQuoteError.UnsupportedTradePair,
+        cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
+      }),
+    )
+
+  return Ok(routes)
 }

@@ -9,11 +9,11 @@ import {
   getInboundAddressDataForChain,
   solana,
   tron,
-  utxo,
 } from '../../thorchain-utils'
 import type { CosmosSdkFeeData, SwapperApi } from '../../types'
 import { SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 
@@ -24,8 +24,8 @@ export const thorchainApi: SwapperApi = {
   getTradeQuote,
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
-  getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction(input, swapperName),
-  getUtxoTransactionFees: input => utxo.getUtxoTransactionFees(input, swapperName),
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
   getUnsignedSolanaTransaction: input => solana.getUnsignedSolanaTransaction(input, swapperName),
   getSolanaTransactionFees: input => solana.getSolanaTransactionFees(input, swapperName),
   getUnsignedTronTransaction: input => tron.getUnsignedTronTransaction(input, swapperName),

@@ -31,6 +31,8 @@ import { TradeType } from './types'
 
 export * from './checkTradeStatus'
 export * from './getInboundAddressDataForChain'
+export * from './getThorStepData'
+export * from './getThorTxData'
 export * from './memo'
 export * from './routerCallData/routerCalldata'
 export * from './service'
@@ -39,10 +41,8 @@ export * from './getL1RateOrQuote'
 export * from './getPoolDetails'
 
 export * as cosmossdk from './cosmossdk'
-export * as evm from './evm'
 export * as solana from './solana'
 export * as tron from './tron'
-export * as utxo from './utxo'
 
 export const getChainIdBySwapper = (swapperName: SwapperName) => {
   switch (swapperName) {

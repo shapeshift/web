@@ -73,10 +73,10 @@ export const getBobGatewayTradeRate = async (
   const allowanceContract = getBobGatewayAllowanceContract(quote, sellAsset)
 
   const networkFeeCryptoBaseUnit = await getBobGatewayRateNetworkFeeCryptoBaseUnit(
+    input,
     quote,
     sellAsset,
     deps,
-    'supportsEIP1559' in input ? input.supportsEIP1559 : false,
   )
 
   const tradeRate: TradeRate = {

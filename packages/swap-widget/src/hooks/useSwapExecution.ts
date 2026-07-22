@@ -8,7 +8,7 @@ import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type {
   EvmTransactionData,
   SolanaTransactionData,
-  UtxoDepositTransactionData,
+  UtxoTransactionData,
 } from '../types'
 import { getErrorMessage } from '../utils/errors'
 
@@ -51,18 +51,15 @@ const executeEvm = async (
   })
 }
 
-const executeUtxoDeposit = (
-  txData: UtxoDepositTransactionData,
-  bitcoin: BitcoinSigner,
-): Promise<string> => {
+const executeUtxo = (txData: UtxoTransactionData, bitcoin: BitcoinSigner): Promise<string> => {
   if (!bitcoin.isConnected || !bitcoin.address) throw new Error('Bitcoin wallet not connected')
 
   bitcoin.reset()
 
   return bitcoin.sendTransfer({
-    recipientAddress: txData.depositAddress,
+    recipientAddress: txData.to,
     amount: txData.value,
-    memo: txData.memo,
+    memo: txData.opReturnData,
   })
 }
 
@@ -143,11 +140,10 @@ export const useSwapExecution = () => {
           switch (txData.type) {
             case 'evm':
               return executeEvm(txData, walletClient, walletAddress)
-            case 'utxo_deposit':
-              return executeUtxoDeposit(txData, bitcoin)
+            case 'utxo':
+              return executeUtxo(txData, bitcoin)
             case 'solana':
               return executeSolana(txData, solana)
-            case 'utxo_psbt':
             case 'cosmos':
               throw new Error('This swap is not yet supported — please try a different route')
             default: {

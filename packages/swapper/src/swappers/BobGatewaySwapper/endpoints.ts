@@ -3,8 +3,9 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
-import type { SwapperApi, UtxoFeeData } from '../../types'
+import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'
 import {
@@ -23,62 +24,8 @@ export const bobGatewayApi: SwapperApi = {
   getTradeQuote: async (input, deps) => {
     return (await getBobGatewayTradeQuote(input, deps)).map(tradeQuote => [tradeQuote])
   },
-  getUnsignedUtxoTransaction: ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    accountType,
-    assertGetUtxoChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('[BobGateway] unable to execute a trade rate')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('[BobGateway] invalid utxo transaction')
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { to, opReturnData } = transactionData
-
-    return adapter.buildSendApiTransaction({
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub,
-      to,
-      accountNumber: step.accountNumber,
-      skipToAddressValidation: true,
-      chainSpecific: {
-        accountType,
-        opReturnData,
-        satoshiPerByte: (step.feeData.chainSpecific as UtxoFeeData).satsPerByte,
-      },
-    })
-  },
-  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('[BobGateway] unable to execute a trade rate')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('[BobGateway] invalid utxo transaction')
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { to, opReturnData } = transactionData
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub, opReturnData },
-      sendMax: false,
-    })
-
-    return fast.txFee
-  },
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
   getUnsignedTronTransaction: ({ from, stepIndex, tradeQuote, assertGetTronChainAdapter }) => {

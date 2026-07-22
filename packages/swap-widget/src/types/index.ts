@@ -181,8 +181,6 @@ export type {
   Permit2SignatureRequired,
   SolanaTransactionData,
   TransactionData,
-  UtxoDepositTransactionData,
-  UtxoPsbtTransactionData,
   UtxoTransactionData,
 } from '@shapeshiftoss/types'
 

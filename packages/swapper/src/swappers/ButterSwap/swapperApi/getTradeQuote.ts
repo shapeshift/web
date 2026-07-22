@@ -180,13 +180,13 @@ export const getTradeQuote = async (
   })
 
   const maybeStepData = await getButterSwapStepData({
+    input,
     buildTx,
     route,
     sellAsset,
     feeAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     deps,
-    supportsEIP1559: Boolean('supportsEIP1559' in input ? input.supportsEIP1559 : false),
     from: sendAddress,
   })
 

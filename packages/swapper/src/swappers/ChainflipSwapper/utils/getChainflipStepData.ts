@@ -13,30 +13,42 @@ import type {
   SwapperDeps,
   TxBuildData,
 } from '../../../types'
+import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utxo-utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
-// Conservative gas limit for rate network fees, where there's no deposit channel to build (or price) a tx yet
 const SAFE_GAS_LIMIT = '100000'
 
-// Placeholder vault address for utxo rates without a deposit address — fee simulation requires one or it throws
-const UTXO_PLACEHOLDER_ADDRESS = 'bc1pfh5x55a3v92klcrdy5yv6yrt7fzr0g929klkdtapp3njfyu4qsyq8qacyf'
+type BaseArgs = {
+  deps: SwapperDeps
+  sellAsset: Asset
+  sellAmountCryptoBaseUnit: string
+}
 
-// Builds the executable Chainflip step: a single per-chain branch creates the transactionData (for the chains
-// whose exec reads it - evm/solana) and prices the network fee. With a deposit address (quote) it builds the
-// executable tx and prices the real gas; without one (rate) it returns an approximate fee and no tx data.
+type RateArgs = BaseArgs & {
+  type: 'rate'
+  input: GetTradeRateInput
+  depositAddress?: undefined
+  from?: undefined
+}
+
+type QuoteArgs = BaseArgs & {
+  type: 'quote'
+  input: CommonTradeQuoteInput
+  depositAddress: string
+  from: string
+}
+
+type GetChainflipStepDataArgs = RateArgs | QuoteArgs
+
 export const getChainflipStepData = async ({
   deps,
+  type,
   input,
   sellAsset,
   sellAmountCryptoBaseUnit,
   depositAddress,
-}: {
-  deps: SwapperDeps
-  input: GetTradeRateInput | CommonTradeQuoteInput
-  sellAsset: Asset
-  sellAmountCryptoBaseUnit: string
-  depositAddress: string | undefined
-}): Promise<{
+  from,
+}: GetChainflipStepDataArgs): Promise<{
   transactionData?: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
   chainSpecific?: { satsPerByte: string }
@@ -48,37 +60,35 @@ export const getChainflipStepData = async ({
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
       const supportsEIP1559 = (input as GetEvmTradeRateInput).supportsEIP1559
 
-      // Executable quote: build the deposit tx and price the estimated gas limit set on it
-      if (depositAddress && input.sendAddress) {
-        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-        const data = evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress)
-
-        const transactionData: TxBuildData = {
-          type: 'evm',
-          chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-          to: contractAddress ?? depositAddress,
-          data: data || '0x',
-          value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-        }
-
+      if (type === 'rate') {
         const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
           adapter,
-          transactionData,
-          from: input.sendAddress,
           supportsEIP1559,
+          gasLimit: SAFE_GAS_LIMIT,
         })
 
-        return { transactionData, networkFeeCryptoBaseUnit }
+        return { networkFeeCryptoBaseUnit }
       }
 
-      // Rate: no deposit channel yet, approximate with a safe gas limit
+      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+      const data = evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress)
+
+      const transactionData: TxBuildData = {
+        type: 'evm',
+        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+        to: contractAddress ?? depositAddress,
+        data: data || '0x',
+        value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+      }
+
       const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
         adapter,
+        transactionData,
+        from,
         supportsEIP1559,
-        gasLimit: SAFE_GAS_LIMIT,
       })
 
-      return { networkFeeCryptoBaseUnit }
+      return { transactionData, networkFeeCryptoBaseUnit }
     }
     case CHAIN_NAMESPACE.Solana: {
       const to = depositAddress ?? input.sendAddress
@@ -96,7 +106,7 @@ export const getChainflipStepData = async ({
       })
 
       // Only an executable quote (deposit channel known) carries tx data; exec reads it via transactionData
-      if (!depositAddress) return { networkFeeCryptoBaseUnit: fast.txFee }
+      if (type === 'rate') return { networkFeeCryptoBaseUnit: fast.txFee }
 
       // Business instructions only; compute budget is dynamic and must be derived at execution time
       const instructions = (
@@ -117,22 +127,24 @@ export const getChainflipStepData = async ({
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
-      const pubkey = (input as GetUtxoTradeQuoteInput).xpub
-      if (!pubkey) return { networkFeeCryptoBaseUnit: undefined }
-
       const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 
-      const { fast } = await adapter.getFeeData({
-        to: depositAddress ?? input.sendAddress ?? UTXO_PLACEHOLDER_ADDRESS,
+      const { networkFeeCryptoBaseUnit, satsPerByte } = await getUtxoNetworkFeeCryptoBaseUnit({
+        adapter,
+        pubkey: (input as GetUtxoTradeQuoteInput).xpub,
+        to: depositAddress ?? UTXO_PLACEHOLDER_ADDRESS,
         value: sellAmountCryptoBaseUnit,
-        chainSpecific: { pubkey },
       })
 
-      // Utxo exec builds its tx from chainflipSpecific.depositAddress, so no transactionData is carried
-      return {
-        networkFeeCryptoBaseUnit: fast.txFee,
-        chainSpecific: { satsPerByte: fast.chainSpecific.satoshiPerByte },
+      if (type === 'rate') return { networkFeeCryptoBaseUnit, chainSpecific: { satsPerByte } }
+
+      const transactionData: TxBuildData = {
+        type: 'utxo',
+        to: depositAddress,
+        value: sellAmountCryptoBaseUnit,
       }
+
+      return { transactionData, networkFeeCryptoBaseUnit, chainSpecific: { satsPerByte } }
     }
     case CHAIN_NAMESPACE.Tron: {
       const to = depositAddress ?? input.sendAddress

@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import {
   convertDecimalPercentageToBasisPoints,
@@ -10,16 +9,10 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { ThorEvmTradeQuote, ThorTradeQuote } from '../../../thorchain-utils'
-import {
-  depositWithExpiry,
-  getAffiliate,
-  getL1RateOrQuote,
-  TradeType,
-} from '../../../thorchain-utils'
+import type { ThorTradeQuote } from '../../../thorchain-utils'
+import { getAffiliate, getL1RateOrQuote, getThorStepData, TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -29,7 +22,6 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo/addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
 import type { AggregatorContract } from './longTailHelpers'
@@ -48,6 +40,17 @@ export const getL1ToLongtailQuote = async (
     sellAsset,
     slippageTolerancePercentageDecimal,
   } = input
+
+  const { sendAddress: from } = input
+
+  if (!from) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'sendAddress is required',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
+  }
 
   const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
   const longtailTokens: AssetId[] = longtailTokensJson.default
@@ -180,20 +183,27 @@ export const getL1ToLongtailQuote = async (
         affiliate: getAffiliate(swapperName),
       })
 
-      // getL1RateOrQuote built its calldata against the pre-aggregator memo, so re-encode the deposit
-      // now that the final memo is known. Only applies to evm sell assets - a utxo or cosmos sell side
-      // carries a memo rather than calldata, and needs nothing here.
-      const data = isEvmChainId(sellAsset.chainId)
-        ? depositWithExpiry({
-            vault: getAddress((quote as ThorEvmTradeQuote).vault),
-            asset: isNativeEvmAsset(sellAsset.assetId)
-              ? zeroAddress
-              : getAddress(fromAssetId(sellAsset.assetId).assetReference),
-            amount: BigInt(onlyStep.sellAmountIncludingProtocolFeesCryptoBaseUnit),
-            memo: updatedMemo,
-            expiry: BigInt(quote.expiry),
-          })
-        : undefined
+      // getL1RateOrQuote built the step against the pre-aggregator memo, so rebuild the tx data and
+      // fees through the shared step data now that the final memo is known
+      const {
+        data,
+        transactionData,
+        networkFeeCryptoBaseUnit,
+        chainSpecific,
+        thorchainTransactionMetadata,
+      } = await getThorStepData({
+        type: 'quote',
+        input,
+        from,
+        deps,
+        swapperName,
+        tradeType: TradeType.L1ToLongTail,
+        sellAsset,
+        sellAmountCryptoBaseUnit: onlyStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        memo: updatedMemo,
+        expiry: quote.expiry,
+        rawMemo: updatedMemo,
+      })
 
       return Ok({
         ...quote,
@@ -207,10 +217,9 @@ export const getL1ToLongtailQuote = async (
           // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
           allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
-          transactionData:
-            data && s.transactionData?.type === 'evm'
-              ? { ...s.transactionData, data }
-              : s.transactionData,
+          transactionData,
+          thorchainTransactionMetadata,
+          feeData: { ...s.feeData, networkFeeCryptoBaseUnit, chainSpecific },
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {

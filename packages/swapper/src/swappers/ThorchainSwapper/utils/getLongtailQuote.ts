@@ -1,18 +1,16 @@
-import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import {
-  THOR_ROUTER_CONTRACT_MAINNET,
   TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
   viemClientByChainId,
 } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
-import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero, isFulfilled, isRejected } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
-import type { Address } from 'viem'
 
 import type { ThorEvmTradeQuote, ThorTradeQuote } from '../../../thorchain-utils'
-import { getL1RateOrQuote, swapIn, TradeType } from '../../../thorchain-utils'
+import { getL1RateOrQuote, getThorStepData, TradeType } from '../../../thorchain-utils'
 import type {
   CommonTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -35,6 +33,17 @@ export const getLongtailToL1Quote = async (
   swapperName: SwapperName,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
+
+  const { sendAddress: from } = input
+
+  if (!from) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'sendAddress is required',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
+  }
 
   /*
     We only support ethereum longtail -> L1 swaps for now.
@@ -105,8 +114,10 @@ export const getLongtailToL1Quote = async (
     )
   }
 
-  return thorchainQuotes.andThen(quotes => {
-    const updatedQuotes = quotes.map(q => {
+  if (thorchainQuotes.isErr()) return Err(thorchainQuotes.unwrapErr())
+
+  const promises = await Promise.allSettled(
+    thorchainQuotes.unwrap().map(async (q): Promise<ThorTradeQuote> => {
       const amountOutMin = BigInt(
         bnOrZero(quotedAmountOut.toString())
           .times(bn(1).minus(q.slippageTolerancePercentageDecimal ?? 0))
@@ -120,18 +131,26 @@ export const getLongtailToL1Quote = async (
       // than being refreshed at execution - a stale quote reverts instead of executing on newer terms
       const deadline = BigInt(Math.floor(Date.now() / 1000)) + LONGTAIL_TO_L1_DEADLINE_SECONDS
 
-      const data = swapIn({
-        tcRouter: THOR_ROUTER_CONTRACT_MAINNET as Address,
-        tcVault: q.vault as Address,
-        tcMemo: q.memo,
-        token: fromAssetId(sellAsset.assetId).assetReference as Address,
-        amount: BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        amountOutMin,
-        deadline,
-      })
+      // Swap the direct deposit built by getL1RateOrQuote for the aggregator swapIn we actually execute
+      const { data, transactionData, networkFeeCryptoBaseUnit, chainSpecific } =
+        await getThorStepData({
+          type: 'quote',
+          input,
+          from,
+          deps,
+          swapperName,
+          tradeType: TradeType.LongTailToL1,
+          sellAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: q.memo,
+          expiry: q.expiry,
+          rawMemo: q.memo,
+          longtail: { aggregator: bestAggregator, amountOutMin, deadline },
+        })
 
       return {
         ...q,
+        data: data ?? q.data,
         aggregator: bestAggregator,
         // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
         steps: q.steps.map(s => ({
@@ -139,19 +158,28 @@ export const getLongtailToL1Quote = async (
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           sellAsset,
           allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
-          // Swap the direct deposit built by getL1RateOrQuote for the aggregator swapIn we actually execute
-          transactionData:
-            s.transactionData?.type === 'evm'
-              ? { ...s.transactionData, to: bestAggregator, data, value: '0' }
-              : s.transactionData,
+          transactionData,
+          feeData: { ...s.feeData, networkFeeCryptoBaseUnit, chainSpecific },
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
         isLongtail: true,
         longtailData: {
           longtailToL1ExpectedAmountOut: quotedAmountOut.toString(),
         },
       } satisfies ThorTradeQuote
-    })
+    }),
+  )
 
-    return Ok(updatedQuotes)
-  })
+  const updatedQuotes = promises.filter(isFulfilled).map(promise => promise.value)
+
+  if (!updatedQuotes.length) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getLongtailToL1Quote] - failed to build swapIn quotes',
+        code: TradeQuoteError.InternalError,
+        cause: promises.filter(isRejected).map(promise => promise.reason),
+      }),
+    )
+  }
+
+  return Ok(updatedQuotes)
 }

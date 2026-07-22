@@ -10,7 +10,6 @@ import type {
   GetUnsignedTonTransactionArgs,
   SwapperApi,
   TradeStatus,
-  UtxoFeeData,
 } from '../../types'
 import {
   createDefaultStatusResponse,
@@ -18,6 +17,7 @@ import {
   getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers'
@@ -25,54 +25,11 @@ import { initializeOneClickService, OneClickService } from './utils/oneClickServ
 
 export const nearIntentsApi: SwapperApi = {
   getTradeQuote,
-  getTradeRate: (input, deps) => {
-    return getTradeRate(input, deps)
-  },
+  getTradeRate,
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
-
-  getUnsignedUtxoTransaction: ({
-    stepIndex,
-    tradeQuote,
-    assertGetUtxoChainAdapter,
-    xpub,
-    accountType,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, accountNumber, feeData } = step
-    if (!xpub) throw new Error('xpub is required for UTXO transactions')
-
-    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const satoshiPerByte = (feeData.chainSpecific as UtxoFeeData | undefined)?.satsPerByte ?? '0'
-
-    return adapter.buildSendApiTransaction({
-      accountNumber,
-      to: depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      sendMax: false,
-      chainSpecific: {
-        satoshiPerByte,
-        accountType,
-      },
-      xpub,
-    })
-  },
-
-  getUtxoTransactionFees: ({ tradeQuote, stepIndex }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    if (!step.feeData.networkFeeCryptoBaseUnit) {
-      throw new Error('Missing network fee in quote')
-    }
-    return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
-  },
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
 
   getUnsignedSolanaTransaction: input => {
     return getUnsignedSolanaTransaction(input, { skipForNativeSend: true })

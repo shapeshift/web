@@ -9,7 +9,7 @@ import { getAddress, zeroAddress } from 'viem'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
 import type { SwapperDeps, TxBuildData } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
-import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
+import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utxo-utils'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import type { RelayQuoteItem, RelaySolanaInstruction, RelayTransactionMetadata } from './types'
 import {
@@ -106,16 +106,12 @@ export const getRelayStepData = async ({
     if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
     if (!orderId) throw new Error('Relay BTC quote step contains no orderId')
 
-    const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
+    const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
+      adapter: deps.assertGetUtxoChainAdapter(sellAsset.chainId),
+      pubkey: xpub,
       to: relayer,
       value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: {
-        pubkey: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
-        opReturnData: orderId,
-      },
-      sendMax: false,
+      opReturnData: orderId,
     })
 
     return {
@@ -125,7 +121,7 @@ export const getRelayStepData = async ({
         opReturnData: orderId,
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       },
-      networkFeeCryptoBaseUnit: fast.txFee,
+      networkFeeCryptoBaseUnit,
     }
   }
 

@@ -7,12 +7,8 @@ import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSola
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
 import type { SwapperApi } from '../../types'
-import {
-  checkSafeTransactionStatus,
-  getExecutableTradeStep,
-  getSwapMetadata,
-  isExecutableTradeQuote,
-} from '../../utils'
+import { checkSafeTransactionStatus, getSwapMetadata } from '../../utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -33,64 +29,8 @@ export const relayApi: SwapperApi = {
     getTradeRate(input as RelayTradeRateInput, deps, chainIdToRelayChainId),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
-  getUnsignedUtxoTransaction: async ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    accountType,
-    assertGetUtxoChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('[Relay] invalid utxo transaction')
-
-    const { to, opReturnData } = transactionData
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub, opReturnData },
-      sendMax: false,
-    })
-
-    return assertGetUtxoChainAdapter(sellAsset.chainId).buildSendApiTransaction({
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub,
-      to,
-      accountNumber,
-      chainSpecific: {
-        accountType,
-        opReturnData,
-        satoshiPerByte: fast.chainSpecific.satoshiPerByte,
-      },
-    })
-  },
-  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('[Relay] invalid utxo transaction')
-
-    const { to, opReturnData } = transactionData
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub, opReturnData },
-      sendMax: false,
-    })
-
-    return fast.txFee
-  },
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
   getSolanaTransactionFees: input => {
     return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
   },

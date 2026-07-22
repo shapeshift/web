@@ -17,6 +17,7 @@ import type {
   TxBuildData,
 } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utxo-utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 type NearIntentsStepDataArgs = {
@@ -53,40 +54,52 @@ export const getNearIntentsRateNetworkFeeCryptoBaseUnit = async (
   const { deps, input, sellAsset, sellAmountCryptoBaseUnit, sendAddress, depositAddress } = args
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
-  // Monad has no Tenderly support, so it falls through to the same estimate the quote uses
-  const isSimulated = chainNamespace === CHAIN_NAMESPACE.Evm && sellAsset.chainId !== monadChainId
-  if (!isSimulated) return (await getNearIntentsStepData(args)).networkFeeCryptoBaseUnit
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Evm: {
+      // Monad has no Tenderly support
+      if (sellAsset.chainId === monadChainId) {
+        const { networkFeeCryptoBaseUnit } = await getNearIntentsStepData(args)
+        return networkFeeCryptoBaseUnit
+      }
 
-  const transactionData = getEvmTransactionData({
-    sellAsset,
-    sellAmountCryptoBaseUnit,
-    depositAddress,
-  })
+      const transactionData = getEvmTransactionData({
+        sellAsset,
+        sellAmountCryptoBaseUnit,
+        depositAddress,
+      })
 
-  // Evm rates simulate the deposit transfer rather than estimate it, so an unapproved or unfunded sender still prices
-  const simulationResult = await simulateWithStateOverrides(
-    {
-      chainId: sellAsset.chainId,
-      from: getAddress(sendAddress || depositAddress),
-      to: getAddress(transactionData.to),
-      data: transactionData.data as Hex,
-      value: transactionData.value,
-      sellAsset,
-    },
-    {
-      apiKey: deps.config.VITE_TENDERLY_API_KEY,
-      accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-      projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-    },
-  )
+      // Evm rates simulate the deposit transfer rather than estimate it, so an unapproved or unfunded sender still prices
+      const simulationResult = await simulateWithStateOverrides(
+        {
+          chainId: sellAsset.chainId,
+          from: getAddress(sendAddress || depositAddress),
+          to: getAddress(transactionData.to),
+          data: transactionData.data as Hex,
+          value: transactionData.value,
+          sellAsset,
+        },
+        {
+          apiKey: deps.config.VITE_TENDERLY_API_KEY,
+          accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
+          projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
+        },
+      )
 
-  if (!simulationResult.success) return '0'
+      if (!simulationResult.success) return '0'
 
-  return await getEvmNetworkFeeCryptoBaseUnit({
-    adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
-    supportsEIP1559: Boolean('supportsEIP1559' in input ? input.supportsEIP1559 : false),
-    gasLimit: simulationResult.gasLimit.toString(),
-  })
+      const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+        adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
+        supportsEIP1559: Boolean('supportsEIP1559' in input ? input.supportsEIP1559 : false),
+        gasLimit: simulationResult.gasLimit.toString(),
+      })
+
+      return networkFeeCryptoBaseUnit
+    }
+    default: {
+      const { networkFeeCryptoBaseUnit } = await getNearIntentsStepData(args)
+      return networkFeeCryptoBaseUnit
+    }
+  }
 }
 
 export const getNearIntentsStepData = async ({
@@ -121,22 +134,19 @@ export const getNearIntentsStepData = async ({
       return { transactionData, networkFeeCryptoBaseUnit }
     }
     case CHAIN_NAMESPACE.Utxo: {
-      const pubkey = (input as GetUtxoTradeQuoteInput | GetUtxoTradeRateInput).xpub
-      if (!pubkey) return { networkFeeCryptoBaseUnit: undefined }
-
       const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 
-      const { fast } = await adapter.getFeeData({
+      const { networkFeeCryptoBaseUnit, satsPerByte } = await getUtxoNetworkFeeCryptoBaseUnit({
+        adapter,
+        pubkey: (input as GetUtxoTradeQuoteInput | GetUtxoTradeRateInput).xpub,
         to: depositAddress,
         value: sellAmountCryptoBaseUnit,
-        chainSpecific: { pubkey },
-        sendMax: false,
       })
 
-      // Utxo exec builds its tx from the deposit address carried on the swapper metadata
       return {
-        networkFeeCryptoBaseUnit: fast.txFee,
-        chainSpecific: { satsPerByte: fast.chainSpecific.satoshiPerByte },
+        transactionData: { type: 'utxo', to: depositAddress, value: sellAmountCryptoBaseUnit },
+        networkFeeCryptoBaseUnit,
+        chainSpecific: { satsPerByte },
       }
     }
     case CHAIN_NAMESPACE.Solana: {

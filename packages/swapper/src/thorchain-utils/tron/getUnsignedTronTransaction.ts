@@ -4,7 +4,7 @@ import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { GetUnsignedTronTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
-import { getThorTxData } from './getThorTxData'
+import { getThorTxData } from '../getThorTxData'
 
 export const getUnsignedTronTransaction = async (
   args: GetUnsignedTronTransactionArgs,

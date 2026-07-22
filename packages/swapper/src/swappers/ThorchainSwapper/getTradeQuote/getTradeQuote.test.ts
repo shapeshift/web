@@ -12,7 +12,12 @@ import type {
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
 } from '../../../thorchain-utils'
-import { depositWithExpiry, evm, thorService, TradeType } from '../../../thorchain-utils'
+import {
+  depositWithExpiry,
+  getThorRouterAndVault,
+  thorService,
+  TradeType,
+} from '../../../thorchain-utils'
 import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
 import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
@@ -21,7 +26,7 @@ import { mockInboundAddresses, thornodePools } from '../utils/test-data/response
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
 import { getTradeQuote } from './getTradeQuote'
 
-const mockedGetThorRouterAndVault = vi.mocked(evm.getThorRouterAndVault)
+const mockedGetThorRouterAndVault = vi.mocked(getThorRouterAndVault)
 const mockedThorService = vi.mocked(thorService)
 
 const mocks = vi.hoisted(() => ({
@@ -29,7 +34,7 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
-vi.mock('../../../thorchain-utils/evm/getThorRouterAndVault')
+vi.mock('../../../thorchain-utils/getThorTxData')
 vi.mock('../../../thorchain-utils/service', () => {
   const mockAxios = {
     default: {
@@ -249,6 +254,7 @@ describe('getTradeQuote', () => {
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
+      sendAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
       slippageTolerancePercentageDecimal: '0.04357',
     }
 

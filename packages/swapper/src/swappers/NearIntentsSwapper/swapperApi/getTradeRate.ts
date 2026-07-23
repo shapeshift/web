@@ -16,7 +16,7 @@ import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { getNearIntentsRateNetworkFeeCryptoBaseUnit } from '../utils/getNearIntentsStepData'
+import { getNearIntentsStepData } from '../utils/getNearIntentsStepData'
 import { assetToNearIntentsAsset } from '../utils/helpers'
 import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
@@ -128,13 +128,13 @@ export const getTradeRate = async (
 
     const networkFeeCryptoBaseUnit = await (async () => {
       try {
-        const networkFeeCryptoBaseUnit = await getNearIntentsRateNetworkFeeCryptoBaseUnit({
+        const { networkFeeCryptoBaseUnit } = await getNearIntentsStepData({
           type: 'rate',
           deps,
           input,
           sellAsset,
           sellAmountCryptoBaseUnit: sellAmount,
-          sendAddress,
+          from: sendAddress,
           depositAddress,
         })
         return networkFeeCryptoBaseUnit ?? '0'

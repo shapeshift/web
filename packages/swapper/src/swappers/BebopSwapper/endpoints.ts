@@ -22,41 +22,31 @@ import { getBebopTradeRate } from './getBebopTradeRate/getBebopTradeRate'
 import { isSolanaChainId } from './utils/helpers/helpers'
 
 export const bebopApi: SwapperApi = {
-  getTradeQuote: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
+  getTradeQuote: async (input, deps) => {
     if (isSolanaChainId(input.sellAsset.chainId)) {
       const tradeQuoteResult = await getBebopSolanaTradeQuote(
         input as GetSolanaTradeQuoteInput,
-        assetsById,
-        config.VITE_BEBOP_API_KEY,
+        deps.assetsById,
+        deps.config.VITE_BEBOP_API_KEY,
       )
       return tradeQuoteResult.map(tradeQuote => [tradeQuote])
     }
 
-    const tradeQuoteResult = await getBebopTradeQuote(
-      input as GetEvmTradeQuoteInputBase,
-      assertGetEvmChainAdapter,
-      assetsById,
-      config.VITE_BEBOP_API_KEY,
-    )
+    const tradeQuoteResult = await getBebopTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
+  getTradeRate: async (input, deps) => {
     if (isSolanaChainId(input.sellAsset.chainId)) {
       const tradeRateResult = await getBebopSolanaTradeRate(
         input as GetSolanaTradeRateInput,
-        assetsById,
-        config.VITE_BEBOP_API_KEY,
+        deps.assetsById,
+        deps.config.VITE_BEBOP_API_KEY,
       )
       return tradeRateResult.map(tradeRate => [tradeRate])
     }
 
-    const tradeRateResult = await getBebopTradeRate(
-      input as GetEvmTradeRateInput,
-      assertGetEvmChainAdapter,
-      assetsById,
-      config.VITE_BEBOP_API_KEY,
-    )
+    const tradeRateResult = await getBebopTradeRate(input as GetEvmTradeRateInput, deps)
 
     return tradeRateResult.map(tradeRate => [tradeRate])
   },

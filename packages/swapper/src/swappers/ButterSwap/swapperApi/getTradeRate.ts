@@ -18,7 +18,7 @@ import {
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { makeButterSwapAffiliate } from '../utils/constants'
-import { getButterSwapNetworkFeeCryptoBaseUnit } from '../utils/getButterSwapStepData'
+import { getButterSwapStepData } from '../utils/getButterSwapStepData'
 import {
   ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
@@ -136,13 +136,18 @@ export const getTradeRate = async (
     )
   }
 
-  const networkFeeCryptoBaseUnit = await getButterSwapNetworkFeeCryptoBaseUnit({
+  const maybeStepData = await getButterSwapStepData({
+    type: 'rate',
     input,
     route,
     sellAsset,
     feeAsset,
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     deps,
   })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeRate: TradeRate = {
     id: route.hash,

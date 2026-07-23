@@ -1,6 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -8,7 +5,12 @@ import type { Address } from 'viem'
 import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetEvmTradeQuoteInputBase, SwapErrorRight, TradeQuote } from '../../../types'
+import type {
+  GetEvmTradeQuoteInputBase,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+} from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
@@ -20,9 +22,7 @@ import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
 
 export async function getBebopTradeQuote(
   input: GetEvmTradeQuoteInputBase,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  _assetsById: AssetsByIdPartial,
-  apiKey: string,
+  deps: SwapperDeps,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
@@ -31,8 +31,6 @@ export async function getBebopTradeQuote(
     sendAddress,
     receiveAddress,
     affiliateBps,
-    chainId,
-    supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
@@ -62,7 +60,7 @@ export async function getBebopTradeQuote(
     receiverAddress: receiveAddress as Address,
     slippageTolerancePercentageDecimal,
     affiliateBps,
-    apiKey,
+    apiKey: deps.config.VITE_BEBOP_API_KEY,
   })
 
   if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
@@ -91,11 +89,12 @@ export async function getBebopTradeQuote(
 
   try {
     const { transactionData, networkFeeCryptoBaseUnit } = await getBebopStepData({
+      type: 'quote',
+      input,
       tx: quote.tx,
       sellAsset,
       from: takerAddress,
-      supportsEIP1559: Boolean(supportsEIP1559),
-      adapter: assertGetEvmChainAdapter(chainId),
+      deps,
     })
 
     const tradeQuote: TradeQuote = {

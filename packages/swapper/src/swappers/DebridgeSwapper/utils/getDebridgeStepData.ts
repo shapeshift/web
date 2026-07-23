@@ -1,9 +1,17 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
-import type { SwapperDeps, TxBuildData } from '../../../types'
+import type { StepDataArgs, TxBuildData } from '../../../types'
 import type { DebridgeTx } from './types'
+
+type BaseArgs = {
+  tx: DebridgeTx
+  gasLimit: string | undefined
+  fallbackNetworkFeeCryptoBaseUnit: string | undefined
+}
+
+// Walletless rates estimate from the default sender, so from is always present
+type GetDebridgeStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
 
 export const getDebridgeStepData = async ({
   tx,
@@ -11,22 +19,15 @@ export const getDebridgeStepData = async ({
   fallbackNetworkFeeCryptoBaseUnit,
   sellAsset,
   from,
-  supportsEIP1559,
-  quoteOrRate,
+  type,
+  input,
   deps,
-}: {
-  tx: DebridgeTx
-  gasLimit: string | undefined
-  fallbackNetworkFeeCryptoBaseUnit: string | undefined
-  sellAsset: Asset
-  from: string
-  supportsEIP1559: boolean
-  quoteOrRate: 'quote' | 'rate'
-  deps: SwapperDeps
-}): Promise<{
-  transactionData: TxBuildData
+}: GetDebridgeStepDataArgs): Promise<{
+  transactionData?: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
 }> => {
+  const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
+
   const transactionData: TxBuildData = {
     type: 'evm',
     chainId: Number(fromChainId(sellAsset.chainId).chainReference),
@@ -46,11 +47,13 @@ export const getDebridgeStepData = async ({
         gasLimitBuffer: 1.2,
       })
     } catch (error) {
-      // A quote missing a gas limit will throw at execution, so fail it here instead
-      if (quoteOrRate === 'quote' && !transactionData.gasLimit) throw error
+      // Execution needs the same fee data, so estimation failure fails the quote
+      if (type === 'quote') throw error
       return fallbackNetworkFeeCryptoBaseUnit
     }
   })()
+
+  if (type === 'rate') return { networkFeeCryptoBaseUnit }
 
   return { transactionData, networkFeeCryptoBaseUnit }
 }

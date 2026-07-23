@@ -11,7 +11,7 @@ import {
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
 } from '../../../solana-utils'
-import type { SwapperDeps, TxBuildData } from '../../../types'
+import type { StepDataArgs, SwapperDeps, TxBuildData } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utxo-utils'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
@@ -24,7 +24,7 @@ import {
 } from './types'
 
 type RelayStepData = {
-  transactionData: TxBuildData | undefined
+  transactionData?: TxBuildData
   relayTransactionMetadata?: RelayTransactionMetadata
   networkFeeCryptoBaseUnit: string
 }
@@ -78,34 +78,30 @@ const simulateEvmGasLimit = async ({
 
 type BaseArgs = {
   data: RelayQuoteItem['data']
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAmountCryptoBaseUnit: string
   orderId: string | undefined
-  from: string
-  supportsEIP1559: boolean
   xpub: string | undefined
   fallbackNetworkFeeCryptoBaseUnit: string
-  deps: SwapperDeps
 }
 
-type RateArgs = BaseArgs & { type: 'rate' }
-type QuoteArgs = BaseArgs & { type: 'quote' }
-
-type GetRelayStepDataArgs = RateArgs | QuoteArgs
+// Walletless rates estimate from the unfunded default user, so from is always present
+type GetRelayStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
 
 export const getRelayStepData = async ({
   data,
   sellAsset,
-  sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  sellAmountCryptoBaseUnit,
   orderId,
   from,
-  supportsEIP1559,
   xpub,
   type,
+  input,
   fallbackNetworkFeeCryptoBaseUnit,
   deps,
 }: GetRelayStepDataArgs): Promise<RelayStepData> => {
   if (!data) throw new Error('Relay quote step contains no data')
+
+  const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
   if (isRelayQuoteEvmItemData(data)) {
     const { data: callData, gas: relayGasLimit, to, value: _value } = data
@@ -128,8 +124,8 @@ export const getRelayStepData = async ({
 
     const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const networkFeeCryptoBaseUnit = await (async () => {
-      if (type === 'rate') {
+    if (type === 'rate') {
+      const networkFeeCryptoBaseUnit = await (async () => {
         try {
           const simulatedGasLimit = await simulateEvmGasLimit({
             transactionData,
@@ -148,21 +144,18 @@ export const getRelayStepData = async ({
         } catch {
           return fallbackNetworkFeeCryptoBaseUnit
         }
-      }
+      })()
 
-      try {
-        return await getEvmNetworkFeeCryptoBaseUnit({
-          adapter,
-          transactionData,
-          from,
-          supportsEIP1559,
-        })
-      } catch (error) {
-        // A quote missing a gas limit will throw at execution, so fail it here instead
-        if (!transactionData.gasLimit) throw error
-        return fallbackNetworkFeeCryptoBaseUnit
-      }
-    })()
+      return { networkFeeCryptoBaseUnit }
+    }
+
+    // Execution needs the same fee data, so estimation failure fails the quote
+    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      adapter,
+      transactionData,
+      from,
+      supportsEIP1559,
+    })
 
     return { transactionData, networkFeeCryptoBaseUnit }
   }
@@ -170,7 +163,7 @@ export const getRelayStepData = async ({
   if (isRelayQuoteUtxoItemData(data)) {
     if (!data.psbt) throw new Error('Relay BTC quote step contains no psbt')
 
-    const relayer = getRelayPsbtRelayer(data.psbt, sellAmountIncludingProtocolFeesCryptoBaseUnit)
+    const relayer = getRelayPsbtRelayer(data.psbt, sellAmountCryptoBaseUnit)
 
     if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
     if (!orderId) throw new Error('Relay BTC quote step contains no orderId')
@@ -179,16 +172,18 @@ export const getRelayStepData = async ({
       adapter: deps.assertGetUtxoChainAdapter(sellAsset.chainId),
       pubkey: xpub,
       to: relayer,
-      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      value: sellAmountCryptoBaseUnit,
       opReturnData: orderId,
     })
+
+    if (type === 'rate') return { networkFeeCryptoBaseUnit }
 
     return {
       transactionData: {
         type: 'utxo',
         to: relayer,
         opReturnData: orderId,
-        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        value: sellAmountCryptoBaseUnit,
       },
       networkFeeCryptoBaseUnit,
     }
@@ -202,15 +197,8 @@ export const getRelayStepData = async ({
     )
     const addressLookupTableAddresses = data.addressLookupTableAddresses ?? []
 
-    const transactionData: TxBuildData = {
-      type: 'solana',
-      instructions,
-      addressLookupTableAddresses,
-    }
-
     if (type === 'rate') {
-      // Rates are best effort - simulation from the unfunded walletless default user fails, and
-      // the provider fee (which under-reports below the 5000 lamport signature fee) stands in
+      // No placeholder estimation for provider built routes - best effort with provider fee fallback
       try {
         const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
           adapter,
@@ -219,10 +207,16 @@ export const getRelayStepData = async ({
           addressLookupTableAddresses,
           tokenId: contractAddressOrUndefined(sellAsset.assetId),
         })
-        return { transactionData, networkFeeCryptoBaseUnit }
+        return { networkFeeCryptoBaseUnit }
       } catch {
-        return { transactionData, networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit }
+        return { networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit }
       }
+    }
+
+    const transactionData: TxBuildData = {
+      type: 'solana',
+      instructions,
+      addressLookupTableAddresses,
     }
 
     const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
@@ -244,8 +238,9 @@ export const getRelayStepData = async ({
     if (isTronToken && !contractAddress) throw new Error('Missing Relay Tron contract address')
     if (isTronToken && !tronCallData) throw new Error('Missing Relay Tron transaction data')
 
+    if (type === 'rate') return { networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit }
+
     return {
-      transactionData: undefined,
       relayTransactionMetadata: { to: contractAddress, data: tronCallData },
       networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
     }

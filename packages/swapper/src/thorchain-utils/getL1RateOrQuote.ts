@@ -16,7 +16,7 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
 import { buildAffiliateFee } from '../swappers/utils/affiliateFee'
 import type {
-  CommonTradeQuoteInput,
+  GetTradeQuoteInput,
   GetTradeRateInput,
   ProtocolFee,
   QuoteFeeData,
@@ -59,7 +59,7 @@ type MakeThorTradeInput = {
 }
 
 export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
-  input: T extends ThorTradeRate ? GetTradeRateInput : CommonTradeQuoteInput,
+  input: T extends ThorTradeRate ? GetTradeRateInput : GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
@@ -87,7 +87,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
   const quoteOrRateArgs =
     quoteOrRate === 'quote' && sendAddress
-      ? { type: 'quote' as const, input: input as CommonTradeQuoteInput, from: sendAddress }
+      ? { type: 'quote' as const, input: input as GetTradeQuoteInput, from: sendAddress }
       : { type: 'rate' as const, input: input as GetTradeRateInput, from: sendAddress }
 
   // "NativePrecision" is intended to indicate the base unit precision of the asset

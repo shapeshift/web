@@ -18,21 +18,13 @@ import {
 import { fetchSquidBridgeStatus, getSquidTrackingLink } from './utils/fetchSquidStatus'
 
 export const portalsApi: SwapperApi = {
-  getTradeQuote: async (input, { config, assertGetEvmChainAdapter }) => {
-    const tradeQuoteResult = await getPortalsTradeQuote(
-      input as GetEvmTradeQuoteInputBase,
-      assertGetEvmChainAdapter,
-      config,
-    )
+  getTradeQuote: async (input, deps) => {
+    const tradeQuoteResult = await getPortalsTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (input, { config, assertGetEvmChainAdapter }) => {
-    const tradeRateResult = await getPortalsTradeRate(
-      input as GetEvmTradeRateInput,
-      assertGetEvmChainAdapter,
-      config,
-    )
+  getTradeRate: async (input, deps) => {
+    const tradeRateResult = await getPortalsTradeRate(input as GetEvmTradeRateInput, deps)
 
     return tradeRateResult.map(tradeRate => [tradeRate])
   },

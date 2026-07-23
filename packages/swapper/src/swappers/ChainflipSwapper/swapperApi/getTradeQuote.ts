@@ -1,5 +1,5 @@
 import type {
-  CommonTradeQuoteInput,
+  GetTradeQuoteInput,
   SwapperDeps,
   TradeQuote,
   TradeQuoteResult,
@@ -7,7 +7,7 @@ import type {
 import { getQuoteOrRate } from '../utils/getQuoteOrRate'
 
 export const getTradeQuote = async (
-  input: CommonTradeQuoteInput,
+  input: GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<TradeQuoteResult> => {
   return (await getQuoteOrRate(input, deps)).map(quotes => quotes as TradeQuote[])

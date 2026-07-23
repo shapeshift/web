@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   createTradeAmountTooSmallErr,
@@ -25,7 +25,7 @@ import { assetToNearIntentsAsset } from '../utils/helpers'
 import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeQuote = async (
-  input: CommonTradeQuoteInput,
+  input: GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
@@ -155,16 +155,15 @@ export const getTradeQuote = async (
 
     const depositAddress = quote.depositAddress
 
-    const { networkFeeCryptoBaseUnit, transactionData } =
-      await getNearIntentsStepData({
-        type: 'quote',
-        deps,
-        input,
-        sellAsset,
-        sellAmountCryptoBaseUnit: sellAmount,
-        sendAddress,
-        depositAddress,
-      })
+    const { networkFeeCryptoBaseUnit, transactionData } = await getNearIntentsStepData({
+      type: 'quote',
+      deps,
+      input,
+      sellAsset,
+      sellAmountCryptoBaseUnit: sellAmount,
+      from: sendAddress,
+      depositAddress,
+    })
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: quote.amountIn,

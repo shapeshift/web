@@ -1,6 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -13,7 +11,7 @@ import type {
   GetEvmTradeRateInput,
   SingleHopTradeRateSteps,
   SwapErrorRight,
-  SwapperConfig,
+  SwapperDeps,
   TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
@@ -21,13 +19,12 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
-import { getPortalsRateNetworkFeeCryptoBaseUnit } from '../utils/getPortalsStepData'
+import { getPortalsStepData } from '../utils/getPortalsStepData'
 import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeRate(
   input: GetEvmTradeRateInput,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  swapperConfig: SwapperConfig,
+  deps: SwapperDeps,
 ): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
     sellAsset,
@@ -37,7 +34,6 @@ export async function getPortalsTradeRate(
     chainId,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
-    supportsEIP1559,
   } = input
 
   const sellAssetChainId = sellAsset.chainId
@@ -73,7 +69,6 @@ export async function getPortalsTradeRate(
     )
   }
 
-  const adapter = assertGetEvmChainAdapter(chainId)
   const isCrossChain = sellAssetChainId !== buyAssetChainId
 
   try {
@@ -136,7 +131,7 @@ export async function getPortalsTradeRate(
       partner: getTreasuryAddressFromChainId(chainId),
       feePercentage: affiliateBpsPercentage,
       validate: false, // Skip Portals' simulation validation
-      swapperConfig,
+      swapperConfig: deps.config,
     })
 
     if (!quoteResponse.tx) {
@@ -174,8 +169,9 @@ export async function getPortalsTradeRate(
 
     const slippageTolerancePercentageDecimal = actualBufferDecimal
 
-    const networkFeeCryptoBaseUnit = await getPortalsRateNetworkFeeCryptoBaseUnit({
-      adapter,
+    const { networkFeeCryptoBaseUnit } = await getPortalsStepData({
+      type: 'rate',
+      input,
       tx,
       sellAsset,
       target: context.target,
@@ -183,8 +179,7 @@ export async function getPortalsTradeRate(
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
-      supportsEIP1559,
-      swapperConfig,
+      deps,
     })
 
     const tradeRate = {

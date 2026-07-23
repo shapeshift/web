@@ -1,6 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import {
   BigNumber,
@@ -17,7 +15,7 @@ import type {
   GetEvmTradeQuoteInputBase,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
-  SwapperConfig,
+  SwapperDeps,
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
@@ -31,8 +29,7 @@ import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/h
 
 export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInputBase,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  swapperConfig: SwapperConfig,
+  deps: SwapperDeps,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
@@ -40,8 +37,6 @@ export async function getPortalsTradeQuote(
     sendAddress,
     accountNumber,
     affiliateBps,
-    chainId,
-    supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
@@ -126,7 +121,7 @@ export async function getPortalsTradeQuote(
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
-      swapperConfig,
+      swapperConfig: deps.config,
     })
       .then(res => Ok(res))
       .catch(async err => {
@@ -142,7 +137,7 @@ export async function getPortalsTradeQuote(
             partner: getTreasuryAddressFromChainId(sellAsset.chainId),
             feePercentage: affiliateBpsPercentage,
             validate: true,
-            swapperConfig,
+            swapperConfig: deps.config,
           })
             // This should never happen but could in very rare cases if original call failed on slippage slightly over 2.5% but this one succeeds on slightly under 2.5%
             .then(res => res.context.slippageTolerancePercentage)
@@ -210,11 +205,12 @@ export async function getPortalsTradeQuote(
     })
 
     const { transactionData, networkFeeCryptoBaseUnit } = await getPortalsStepData({
-      adapter: assertGetEvmChainAdapter(chainId),
-      chainId: sellAsset.chainId,
+      type: 'quote',
+      input,
       tx,
+      sellAsset,
       from: sendAddress,
-      supportsEIP1559,
+      deps,
     })
 
     // Don't use Portals' slippageTolerancePercentage field (it's what we requested, not what they applied)

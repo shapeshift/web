@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  CommonTradeQuoteInput,
+  GetTradeQuoteInput,
   GetTradeRateInput,
   SwapErrorRight,
   SwapperDeps,
@@ -33,7 +33,7 @@ import {
 } from './helpers'
 
 export const getQuoteOrRate = async (
-  input: GetTradeRateInput | CommonTradeQuoteInput,
+  input: GetTradeRateInput | GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> => {
   const brokerUrl = deps.config.VITE_CHAINFLIP_API_URL
@@ -189,14 +189,14 @@ export const getQuoteOrRate = async (
             if (!swapId || !depositAddress) throw new Error('Invalid swap response')
 
             const { transactionData, networkFeeCryptoBaseUnit } = await getChainflipStepData({
-                type: 'quote',
-                deps,
-                input,
-                sellAsset,
-                sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-                depositAddress,
-                from: input.sendAddress,
-              })
+              type: 'quote',
+              deps,
+              input,
+              sellAsset,
+              sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              depositAddress,
+              from: input.sendAddress,
+            })
 
             return {
               chainflipSpecific: { depositAddress },

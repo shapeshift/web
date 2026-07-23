@@ -9,7 +9,6 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { THOR_ROUTER_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
-import type { Asset } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { TronWeb } from 'tronweb'
 import type { Address } from 'viem'
@@ -19,12 +18,7 @@ import { getEvmNetworkFeeCryptoBaseUnit } from '../evm-utils'
 import { getSolanaNetworkFeeCryptoBaseUnit } from '../solana-utils'
 import { isNativeEvmAsset } from '../swappers/utils/helpers/helpers'
 import type {
-  CommonTradeQuoteInput,
-  GetEvmTradeQuoteInput,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUtxoTradeRateInput,
-  SwapperDeps,
+  StepDataArgs,
   SwapperName,
   TxBuildData,
 } from '../types'
@@ -41,10 +35,8 @@ const SAFE_GAS_LIMIT = '100000'
 const SAFE_SWAP_IN_GAS_LIMIT = '250000'
 
 type BaseArgs = {
-  deps: SwapperDeps
   swapperName: SwapperName
   tradeType: TradeType
-  sellAsset: Asset
   sellAmountCryptoBaseUnit: string
   // Fully processed memo with limit and affiliate applied ('' for rates)
   memo: string
@@ -59,10 +51,7 @@ type BaseArgs = {
   }
 }
 
-type QuoteArgs = BaseArgs & { type: 'quote'; input: CommonTradeQuoteInput; from: string }
-type RateArgs = BaseArgs & { type: 'rate'; input: GetTradeRateInput; from?: string }
-
-type GetThorStepDataArgs = QuoteArgs | RateArgs
+type GetThorStepDataArgs = StepDataArgs<BaseArgs>
 
 type GetThorStepDataReturn = {
   vault: string
@@ -91,7 +80,7 @@ export const getThorStepData = async ({
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
-      const { supportsEIP1559 } = input as GetEvmTradeRateInput | GetEvmTradeQuoteInput
+      const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -166,7 +155,7 @@ export const getThorStepData = async ({
       return { vault, router, data, transactionData, networkFeeCryptoBaseUnit }
     }
     case CHAIN_NAMESPACE.Utxo: {
-      const { xpub } = input as GetUtxoTradeRateInput
+      const xpub = 'xpub' in input ? input.xpub : undefined
 
       const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 

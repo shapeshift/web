@@ -31,7 +31,7 @@ import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import type { RelayTradeQuoteInput, RelayTradeRateInput } from '../utils/types'
-import { isRelayError } from '../utils/types'
+import { isRelayError, isRelayQuoteEvmItemData, isRelayQuoteTronItemData } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import { getRelayStepData } from './getRelayStepData'
@@ -467,10 +467,9 @@ export async function getTrade({
       const stepDataArgs = {
         data: selectedItem.data,
         sellAsset,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         orderId,
         from: sendAddress,
-        supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
         xpub,
         fallbackNetworkFeeCryptoBaseUnit: quote.fees.gas.amount,
         deps,
@@ -478,13 +477,18 @@ export async function getTrade({
 
       const { transactionData, relayTransactionMetadata, networkFeeCryptoBaseUnit } =
         input.quoteOrRate === 'quote'
-          ? await getRelayStepData({ ...stepDataArgs, type: 'quote' })
-          : await getRelayStepData({ ...stepDataArgs, type: 'rate' })
+          ? await getRelayStepData({ ...stepDataArgs, type: 'quote', input })
+          : await getRelayStepData({ ...stepDataArgs, type: 'rate', input })
 
-      // The spender to approve: EVM routes approve the router (transactionData.to); Tron approves the
-      // token contract (relayTransactionMetadata.to); UTXO/Solana need no allowance
-      const allowanceContract =
-        transactionData?.type === 'evm' ? transactionData.to : relayTransactionMetadata?.to ?? ''
+      // The spender to approve: EVM routes approve the router (data.to); Tron approves the token
+      // contract; UTXO/Solana need no allowance
+      const allowanceContract = (() => {
+        if (isRelayQuoteEvmItemData(selectedItem.data)) return selectedItem.data.to ?? ''
+        if (isRelayQuoteTronItemData(selectedItem.data)) {
+          return selectedItem.data.parameter?.contract_address ?? ''
+        }
+        return ''
+      })()
 
       return {
         allowanceContract,

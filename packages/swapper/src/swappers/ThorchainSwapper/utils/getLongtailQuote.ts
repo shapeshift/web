@@ -12,7 +12,7 @@ import assert from 'assert'
 import type { ThorEvmTradeQuote, ThorTradeQuote } from '../../../thorchain-utils'
 import { getL1RateOrQuote, getThorStepData, TradeType } from '../../../thorchain-utils'
 import type {
-  CommonTradeQuoteInput,
+  GetTradeQuoteInput,
   MultiHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
@@ -27,7 +27,7 @@ const LONGTAIL_TO_L1_DEADLINE_SECONDS = 600n
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Quote = async (
-  input: CommonTradeQuoteInput,
+  input: GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
   swapperName: SwapperName,
@@ -89,7 +89,7 @@ export const getLongtailToL1Quote = async (
 
   const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
 
-  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
+  const l1Tol1QuoteInput: GetTradeQuoteInput = {
     ...input,
     sellAsset: buyAssetFeeAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),

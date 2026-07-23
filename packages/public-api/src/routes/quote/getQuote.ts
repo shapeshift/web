@@ -1,6 +1,6 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
-import type { GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import {
   buildSwapMetadata,
   getDefaultSlippageDecimalPercentageForSwapper,
@@ -136,13 +136,12 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       xpub,
       quoteOrRate: 'quote' as const,
       chainId: sellAsset.chainId,
+      // Consumers sign themselves - price with legacy gas semantics
+      supportsEIP1559: false,
     }
 
-    const result = await getTradeQuotes(
-      quoteInput as GetTradeQuoteInputWithWallet,
-      validSwapperName,
-      deps,
-    )
+    // utxo accountType/xpub are not first class public api inputs yet, the cast covers that gap
+    const result = await getTradeQuotes(quoteInput as GetTradeQuoteInput, validSwapperName, deps)
 
     if (!result) {
       res.status(404).json({

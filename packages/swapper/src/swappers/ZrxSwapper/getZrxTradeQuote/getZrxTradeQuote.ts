@@ -1,7 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -11,6 +8,7 @@ import type {
   GetEvmTradeQuoteInputBase,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
+  SwapperDeps,
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
@@ -28,18 +26,15 @@ import {
 
 export async function getZrxTradeQuote(
   input: GetEvmTradeQuoteInputBase,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  assetsById: AssetsByIdPartial,
-  zrxBaseUrl: string,
+  deps: SwapperDeps,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
+  const { assetsById } = deps
   const {
     sellAsset,
     buyAsset,
     accountNumber,
     receiveAddress,
     affiliateBps,
-    chainId,
-    supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
@@ -58,7 +53,7 @@ export async function getZrxTradeQuote(
     sellAddress: receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
-    zrxBaseUrl,
+    zrxBaseUrl: deps.config.VITE_ZRX_BASE_URL,
   })
 
   if (maybeZrxQuoteResponse.isErr()) return Err(maybeZrxQuoteResponse.unwrapErr())
@@ -103,12 +98,13 @@ export async function getZrxTradeQuote(
 
   try {
     const { transactionData, networkFeeCryptoBaseUnit } = await getZrxStepData({
-      adapter: assertGetEvmChainAdapter(chainId),
-      chainId: sellAsset.chainId,
+      type: 'quote',
+      input,
+      sellAsset,
       transaction,
       permit2Eip712,
       from: receiveAddress,
-      supportsEIP1559: Boolean(supportsEIP1559),
+      deps,
     })
 
     return Ok({

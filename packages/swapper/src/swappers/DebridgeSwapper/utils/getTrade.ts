@@ -171,16 +171,19 @@ export async function getTrade({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.tx.to : ''
 
-  const { transactionData, networkFeeCryptoBaseUnit } = await getDebridgeStepData({
+  const stepDataArgs = {
     tx: quote.tx,
     gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
     fallbackNetworkFeeCryptoBaseUnit: quote.estimatedTransactionFee?.total,
     sellAsset,
     from: senderAddress,
-    supportsEIP1559: input.supportsEIP1559,
-    quoteOrRate: input.quoteOrRate,
     deps,
-  })
+  }
+
+  const { transactionData, networkFeeCryptoBaseUnit } =
+    input.quoteOrRate === 'quote'
+      ? await getDebridgeStepData({ ...stepDataArgs, type: 'quote', input })
+      : await getDebridgeStepData({ ...stepDataArgs, type: 'rate', input })
 
   const protocolFeeAssetCaipChainId = debridgeChainIdToChainId[sellDebridgeChainId.toString()]
 
@@ -343,16 +346,19 @@ async function getSameChainTrade({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.tx.to : ''
 
-  const { transactionData, networkFeeCryptoBaseUnit } = await getDebridgeStepData({
+  const stepDataArgs = {
     tx: quote.tx,
     gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
     fallbackNetworkFeeCryptoBaseUnit: quote.estimatedTransactionFee?.total,
     sellAsset,
     from: senderAddress,
-    supportsEIP1559: input.supportsEIP1559,
-    quoteOrRate: input.quoteOrRate,
     deps,
-  })
+  }
+
+  const { transactionData, networkFeeCryptoBaseUnit } =
+    input.quoteOrRate === 'quote'
+      ? await getDebridgeStepData({ ...stepDataArgs, type: 'quote', input })
+      : await getDebridgeStepData({ ...stepDataArgs, type: 'rate', input })
 
   const tradeId = uuid()
 

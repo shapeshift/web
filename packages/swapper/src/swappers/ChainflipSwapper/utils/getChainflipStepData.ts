@@ -1,6 +1,5 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
@@ -10,11 +9,7 @@ import {
   SOLANA_PLACEHOLDER_ADDRESS,
 } from '../../../solana-utils'
 import type {
-  CommonTradeQuoteInput,
-  GetEvmTradeRateInput,
-  GetTradeRateInput,
-  GetUtxoTradeQuoteInput,
-  SwapperDeps,
+  StepDataArgs,
   TxBuildData,
 } from '../../../types'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utxo-utils'
@@ -23,26 +18,14 @@ import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 const SAFE_GAS_LIMIT = '100000'
 
 type BaseArgs = {
-  deps: SwapperDeps
-  sellAsset: Asset
   sellAmountCryptoBaseUnit: string
 }
 
-type RateArgs = BaseArgs & {
-  type: 'rate'
-  input: GetTradeRateInput
-  depositAddress?: undefined
-  from?: string
-}
-
-type QuoteArgs = BaseArgs & {
-  type: 'quote'
-  input: CommonTradeQuoteInput
-  depositAddress: string
-  from: string
-}
-
-type GetChainflipStepDataArgs = RateArgs | QuoteArgs
+type GetChainflipStepDataArgs = StepDataArgs<
+  BaseArgs,
+  { depositAddress?: undefined },
+  { depositAddress: string }
+>
 
 export const getChainflipStepData = async ({
   deps,
@@ -61,7 +44,7 @@ export const getChainflipStepData = async ({
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-      const supportsEIP1559 = (input as GetEvmTradeRateInput).supportsEIP1559
+      const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
       if (type === 'rate') {
         const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
@@ -98,7 +81,7 @@ export const getChainflipStepData = async ({
 
       const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
         adapter,
-        pubkey: (input as GetUtxoTradeQuoteInput).xpub,
+        pubkey: 'xpub' in input ? input.xpub : undefined,
         to: depositAddress ?? UTXO_PLACEHOLDER_ADDRESS,
         value: sellAmountCryptoBaseUnit,
       })

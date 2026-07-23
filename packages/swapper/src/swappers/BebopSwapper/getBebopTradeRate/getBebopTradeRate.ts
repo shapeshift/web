@@ -1,7 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -9,21 +5,19 @@ import type { Address } from 'viem'
 import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
-import type { GetEvmTradeRateInput, SwapErrorRight, TradeRate } from '../../../types'
+import type { GetEvmTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { BEBOP_DUMMY_ADDRESS } from '../types'
 import { fetchBebopQuote } from '../utils/fetchFromBebop'
+import { getBebopStepData } from '../utils/getBebopStepData'
 import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
 
 export async function getBebopTradeRate(
   input: GetEvmTradeRateInput,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  _assetsById: AssetsByIdPartial,
-  apiKey: string,
+  deps: SwapperDeps,
 ): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
     sellAsset,
@@ -51,7 +45,7 @@ export async function getBebopTradeRate(
     receiverAddress: address,
     slippageTolerancePercentageDecimal,
     affiliateBps,
-    apiKey,
+    apiKey: deps.config.VITE_BEBOP_API_KEY,
   })
 
   if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
@@ -78,12 +72,12 @@ export async function getBebopTradeRate(
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
-  const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-  const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-    adapter,
-    supportsEIP1559: Boolean(input.supportsEIP1559),
-    gasLimit: bnOrZero(quote.tx.gas).toString(),
+  const { networkFeeCryptoBaseUnit } = await getBebopStepData({
+    type: 'rate',
+    input,
+    tx: quote.tx,
+    sellAsset,
+    deps,
   })
 
   const tradeRate: TradeRate = {

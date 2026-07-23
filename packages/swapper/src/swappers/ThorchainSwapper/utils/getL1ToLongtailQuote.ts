@@ -19,7 +19,7 @@ import {
   TradeType,
 } from '../../../thorchain-utils'
 import type {
-  CommonTradeQuoteInput,
+  GetTradeQuoteInput,
   MultiHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
@@ -34,7 +34,7 @@ import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getL1ToLongtailQuote = async (
-  input: CommonTradeQuoteInput,
+  input: GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
   swapperName: SwapperName,
@@ -112,7 +112,7 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
+  const l1Tol1QuoteInput: GetTradeQuoteInput = {
     ...input,
     buyAsset: buyAssetFeeAsset,
     sellAsset,

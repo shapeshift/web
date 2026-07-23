@@ -2,7 +2,7 @@ import { bnOrZero, timeoutMonadic, timeoutMonadicWithOriginal } from '@shapeshif
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type {
-  GetTradeQuoteInputWithWallet,
+  GetTradeQuoteInput,
   GetTradeRateInput,
   QuoteResult,
   RateResult,
@@ -16,7 +16,7 @@ import { TradeQuoteError } from './types'
 import { makeSwapErrorRight } from './utils'
 
 export const getTradeQuotes = async (
-  getTradeQuoteInput: GetTradeQuoteInputWithWallet,
+  getTradeQuoteInput: GetTradeQuoteInput,
   swapperName: SwapperName,
   deps: SwapperDeps,
 ): Promise<QuoteResult | undefined> => {

@@ -4,7 +4,6 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import type {
-  CommonTradeQuoteInput,
   GetTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
@@ -21,7 +20,7 @@ import {
 } from '../utils/helpers'
 
 export const getBobGatewayTradeQuote = async (
-  input: CommonTradeQuoteInput,
+  input: GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote, SwapErrorRight>> => {
   const {
@@ -81,15 +80,17 @@ export const getBobGatewayTradeQuote = async (
   const quote = maybeQuote.unwrap()
 
   const maybeStepData = await getBobGatewayStepData({
-    input: input as GetTradeQuoteInput,
+    type: 'quote',
+    input,
+    from: sendAddress,
     deps,
     quote,
     sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
   })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
-  const { orderId, transactionData, feeData } = maybeStepData.unwrap()
+  const { orderId, transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const {
     buyAmountBeforeFeesCryptoBaseUnit,

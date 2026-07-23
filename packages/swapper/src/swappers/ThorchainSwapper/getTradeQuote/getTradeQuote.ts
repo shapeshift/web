@@ -4,7 +4,7 @@ import { Err } from '@sniptt/monads'
 
 import type { ThorTradeQuote } from '../../../thorchain-utils'
 import { getL1RateOrQuote, getPoolDetails, TradeType } from '../../../thorchain-utils'
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../../types'
+import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from '../constants'
@@ -13,7 +13,7 @@ import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
 import { getTradeType } from '../utils/longTailHelpers'
 
 export const getTradeQuote = async (
-  input: CommonTradeQuoteInput,
+  input: GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = deps.config.VITE_FEATURE_THORCHAINSWAP_LONGTAIL

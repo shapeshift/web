@@ -1,5 +1,4 @@
 import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -9,12 +8,14 @@ import type {
   GetEvmTradeRateInput,
   SingleHopTradeRateSteps,
   SwapErrorRight,
+  SwapperDeps,
   TradeRate,
 } from '../../../types'
 import { SwapperName } from '../../../types'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchZrxPrice } from '../utils/fetchFromZrx'
+import { getZrxStepData } from '../utils/getZrxStepData'
 import {
   assertValidTrade,
   calculateBuyAmountBeforeFeesCryptoBaseUnit,
@@ -24,9 +25,9 @@ import {
 
 export async function getZrxTradeRate(
   input: GetEvmTradeRateInput,
-  assetsById: AssetsByIdPartial,
-  zrxBaseUrl: string,
+  deps: SwapperDeps,
 ): Promise<Result<TradeRate, SwapErrorRight>> {
+  const { assetsById } = deps
   const {
     sellAsset,
     buyAsset,
@@ -51,7 +52,7 @@ export async function getZrxTradeRate(
     sellAddress: receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
-    zrxBaseUrl,
+    zrxBaseUrl: deps.config.VITE_ZRX_BASE_URL,
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
@@ -64,6 +65,14 @@ export async function getZrxTradeRate(
   )
 
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
+
+  const { networkFeeCryptoBaseUnit } = await getZrxStepData({
+    type: 'rate',
+    input,
+    sellAsset,
+    totalNetworkFee,
+    deps,
+  })
 
   const buyAmountBeforeFeesCryptoBaseUnit = calculateBuyAmountBeforeFeesCryptoBaseUnit({
     buyAmount,
@@ -94,7 +103,7 @@ export async function getZrxTradeRate(
         rate,
         feeData: {
           protocolFees: getProtocolFees({ fees, sellAsset, assetsById }),
-          networkFeeCryptoBaseUnit: totalNetworkFee,
+          networkFeeCryptoBaseUnit,
         },
         buyAmountBeforeFeesCryptoBaseUnit,
         buyAmountAfterFeesCryptoBaseUnit: buyAmount,

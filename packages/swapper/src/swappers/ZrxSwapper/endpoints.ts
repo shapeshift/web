@@ -5,22 +5,13 @@ import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { getZrxTradeRate } from './getZrxTradeRate/getZrxTradeRate'
 
 export const zrxApi: SwapperApi = {
-  getTradeQuote: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
-    const tradeQuoteResult = await getZrxTradeQuote(
-      input as GetEvmTradeQuoteInputBase,
-      assertGetEvmChainAdapter,
-      assetsById,
-      config.VITE_ZRX_BASE_URL,
-    )
+  getTradeQuote: async (input, deps) => {
+    const tradeQuoteResult = await getZrxTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (input, { assetsById, config }) => {
-    const tradeRateResult = await getZrxTradeRate(
-      input as GetEvmTradeRateInput,
-      assetsById,
-      config.VITE_ZRX_BASE_URL,
-    )
+  getTradeRate: async (input, deps) => {
+    const tradeRateResult = await getZrxTradeRate(input as GetEvmTradeRateInput, deps)
 
     return tradeRateResult.map(tradeRate => [tradeRate])
   },

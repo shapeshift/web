@@ -9,7 +9,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   createTradeAmountTooSmallErr,
@@ -31,7 +31,7 @@ import {
 // TODO: Debug why same-chain Tron swaps revert (swapAndCall method works on EVM but 0 successful on Tron)
 
 export const getTradeQuote = async (
-  input: CommonTradeQuoteInput,
+  input: GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
@@ -180,12 +180,13 @@ export const getTradeQuote = async (
   })
 
   const maybeStepData = await getButterSwapStepData({
+    type: 'quote',
     input,
     buildTx,
     route,
     sellAsset,
     feeAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     deps,
     from: sendAddress,
   })

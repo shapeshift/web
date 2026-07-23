@@ -319,14 +319,14 @@ export type GetTradeRateInput =
   | GetTonTradeRateInput
   | GetSolanaTradeRateInput
 
-export type GetTradeQuoteInputWithWallet =
-  | GetUtxoTradeQuoteWithWallet
-  | GetEvmTradeQuoteInputBase
-  | GetCosmosSdkTradeQuoteInputBase
-  | GetTronTradeQuoteInputBase
-  | GetNearTradeQuoteInputBase
-  | GetTonTradeQuoteInputBase
-  | GetSolanaTradeQuoteInputBase
+type StepDataBaseArgs = {
+  deps: SwapperDeps
+  sellAsset: Asset
+}
+
+export type StepDataArgs<Base, Rate = unknown, Quote = unknown> =
+  | (StepDataBaseArgs & Base & { type: 'rate'; input: GetTradeRateInput; from?: string } & Rate)
+  | (StepDataBaseArgs & Base & { type: 'quote'; input: GetTradeQuoteInput; from: string } & Quote)
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -414,7 +414,7 @@ export type TxBuildData =
   | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
   | { type: 'tron'; to: string; data: string; value: string }
 
-export type TradeQuoteStep = {
+export type TradeStepCommon = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
@@ -423,14 +423,11 @@ export type TradeQuoteStep = {
   source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
-  // Undefined in case this is a trade rate - this means we *cannot* execute this guy
-  accountNumber: number | undefined
   // describes intermediary asset and amount the user may end up with in the event of a trade
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
-  transactionData?: TxBuildData
   swapperMetadata?: SwapperMetadata
 
   // To be collapsed into transactionData and swapperMetadata
@@ -448,24 +445,36 @@ export type TradeQuoteStep = {
   affiliateFee?: AffiliateFee
 }
 
-export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
-  accountNumber: undefined
-}
-export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & {
+export type TradeQuoteStep = TradeStepCommon & {
   accountNumber: number
+  transactionData?: TxBuildData
 }
 
-type TradeQuoteBase = {
+export type TradeRateStep = TradeStepCommon & {
+  accountNumber: undefined
+  // Rates are not executable and never carry transaction data
+  transactionData?: undefined
+}
+
+export type ExecutableTradeStep = TradeStepCommon & {
+  accountNumber: number
+  transactionData?: TxBuildData
+}
+
+export type TradeCommon = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   priceImpactPercentageDecimal?: string
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
-  quoteOrRate: 'quote' | 'rate'
   swapperName: SwapperName // The swapper that generated this quote/rate
+}
+
+type TradeQuoteBase = TradeCommon & {
+  receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
+  quoteOrRate: 'quote' | 'rate'
 }
 
 export type StreamingSwapFailedSwap = {
@@ -820,7 +829,7 @@ export type Swapper = {
 export type SwapperApi = {
   checkTradeStatus: (input: CheckTradeStatusInput) => Promise<TradeStatus>
 
-  getTradeQuote: (input: CommonTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 

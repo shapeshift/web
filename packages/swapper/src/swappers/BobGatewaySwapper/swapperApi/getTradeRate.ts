@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName } from '../../../types'
 import { getInputOutputRate } from '../../../utils'
-import { getBobGatewayRateNetworkFeeCryptoBaseUnit } from '../utils/getBobGatewayStepData'
+import { getBobGatewayStepData } from '../utils/getBobGatewayStepData'
 import {
   assertValidTrade,
   dummyAddressForChainId,
@@ -72,12 +72,17 @@ export const getBobGatewayTradeRate = async (
 
   const allowanceContract = getBobGatewayAllowanceContract(quote, sellAsset)
 
-  const networkFeeCryptoBaseUnit = await getBobGatewayRateNetworkFeeCryptoBaseUnit(
+  const maybeStepData = await getBobGatewayStepData({
+    type: 'rate',
     input,
     quote,
     sellAsset,
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     deps,
-  )
+  })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeRate: TradeRate = {
     id: uuid(),

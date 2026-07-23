@@ -1,5 +1,4 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -15,40 +14,39 @@ import {
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
 } from '../../../solana-utils'
-import type { SwapErrorRight, SwapperDeps, TxBuildData } from '../../../types'
+import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import {
+  makeNetworkFeeEstimationFailedErr,
+  makeSwapErrorRight,
+  makeTradeStepBuildFailedErr,
+} from '../../../utils'
 import type { AcrossSwapTx } from './types'
 
 type BaseArgs = {
   swapTx: AcrossSwapTx
-  sellAsset: Asset
-  from: string
-  supportsEIP1559: boolean
   fallbackNetworkFeeCryptoBaseUnit: string
-  assertGetEvmChainAdapter: SwapperDeps['assertGetEvmChainAdapter']
-  assertGetSolanaChainAdapter: SwapperDeps['assertGetSolanaChainAdapter']
 }
 
-type RateArgs = BaseArgs & { type: 'rate' }
-type QuoteArgs = BaseArgs & { type: 'quote' }
-
-type GetAcrossStepDataArgs = RateArgs | QuoteArgs
+export type GetAcrossStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
 
 export const getAcrossStepData = async ({
   swapTx,
   sellAsset,
   from,
   type,
-  supportsEIP1559,
+  input,
   fallbackNetworkFeeCryptoBaseUnit,
-  assertGetEvmChainAdapter,
-  assertGetSolanaChainAdapter,
+  deps,
 }: GetAcrossStepDataArgs): Promise<
-  Result<{ transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }, SwapErrorRight>
+  Result<{ transactionData?: TxBuildData; networkFeeCryptoBaseUnit: string }, SwapErrorRight>
 > => {
+  const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
+
   switch (swapTx.ecosystem) {
     case 'evm': {
+      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+
       const transactionData = {
         type: 'evm' as const,
         chainId: Number(fromChainId(sellAsset.chainId).chainReference),
@@ -58,27 +56,38 @@ export const getAcrossStepData = async ({
         gasLimit: swapTx.gas,
       }
 
-      const networkFeeCryptoBaseUnit = await (async () => {
+      if (type === 'rate') {
         try {
-          return await getEvmNetworkFeeCryptoBaseUnit({
-            adapter: assertGetEvmChainAdapter(sellAsset.chainId),
+          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+            adapter,
             transactionData,
             from,
             supportsEIP1559,
           })
+          return Ok({ networkFeeCryptoBaseUnit })
         } catch {
-          return fallbackNetworkFeeCryptoBaseUnit
+          return Ok({ networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit })
         }
-      })()
+      }
 
-      return Ok({ transactionData, networkFeeCryptoBaseUnit })
+      try {
+        const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          transactionData,
+          from,
+          supportsEIP1559,
+        })
+        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+      } catch (error) {
+        return Err(makeNetworkFeeEstimationFailedErr('getAcrossStepData', error))
+      }
     }
     case 'svm': {
       try {
         const txBytes = Buffer.from(swapTx.data, 'base64')
         const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
 
-        const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
+        const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
         const addressLookupTableAddresses = versionedTransaction.message.addressTableLookups.map(
           lookup => lookup.accountKey.toString(),
@@ -101,15 +110,8 @@ export const getAcrossStepData = async ({
             .instructions,
         )
 
-        const transactionData: TxBuildData = {
-          type: 'solana',
-          instructions,
-          addressLookupTableAddresses,
-        }
-
         if (type === 'rate') {
-          // Rates are best effort - the unfunded default depositor can't simulate, and the
-          // provider fee stands in when estimation isn't possible
+          // No placeholder estimation for provider built routes - best effort with provider fee fallback
           try {
             const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
               adapter,
@@ -118,13 +120,16 @@ export const getAcrossStepData = async ({
               addressLookupTableAddresses,
               tokenId: contractAddressOrUndefined(sellAsset.assetId),
             })
-            return Ok({ transactionData, networkFeeCryptoBaseUnit })
+            return Ok({ networkFeeCryptoBaseUnit })
           } catch {
-            return Ok({
-              transactionData,
-              networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
-            })
+            return Ok({ networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit })
           }
+        }
+
+        const transactionData: TxBuildData = {
+          type: 'solana',
+          instructions,
+          addressLookupTableAddresses,
         }
 
         try {
@@ -136,21 +141,16 @@ export const getAcrossStepData = async ({
             tokenId: contractAddressOrUndefined(sellAsset.assetId),
           })
           return Ok({ transactionData, networkFeeCryptoBaseUnit })
-        } catch {
-          return Err(
-            makeSwapErrorRight({
-              message: '[getAcrossStepData] Error estimating network fee',
-              code: TradeQuoteError.NetworkFeeEstimationFailed,
-            }),
-          )
+        } catch (e) {
+          return Err(makeNetworkFeeEstimationFailedErr('getAcrossStepData', e))
         }
       } catch (e) {
-        return Err(
-          makeSwapErrorRight({
-            message: `[getAcrossStepData] Failed to build Solana step: ${e}`,
-            code: TradeQuoteError.UnknownError,
-          }),
-        )
+        // Rates degrade to the provider fee, quotes can't be built from an undecodable payload
+        if (type === 'rate') {
+          return Ok({ networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit })
+        }
+
+        return Err(makeTradeStepBuildFailedErr('getAcrossStepData', e))
       }
     }
     default: {

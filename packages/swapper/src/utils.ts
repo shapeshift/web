@@ -81,6 +81,20 @@ export const createTradeAmountTooSmallErr = (details?: {
     details,
   })
 
+export const makeNetworkFeeEstimationFailedErr = (context: string, cause?: unknown) =>
+  makeSwapErrorRight({
+    code: TradeQuoteError.NetworkFeeEstimationFailed,
+    message: `[${context}] Error estimating network fee`,
+    cause,
+  })
+
+export const makeTradeStepBuildFailedErr = (context: string, cause?: unknown) =>
+  makeSwapErrorRight({
+    code: TradeQuoteError.InvalidResponse,
+    message: `[${context}] Error building trade step`,
+    cause,
+  })
+
 const getRequestFilter = (cachedUrls: string[]) => (request: AxiosRequestConfig) =>
   !cachedUrls.some(url => request.url?.includes(url))
 

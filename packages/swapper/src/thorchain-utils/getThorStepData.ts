@@ -24,7 +24,6 @@ import type {
   GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUtxoTradeRateInput,
-  QuoteFeeData,
   SwapperDeps,
   SwapperName,
   TxBuildData,
@@ -71,7 +70,6 @@ type GetThorStepDataReturn = {
   data?: string
   transactionData?: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
-  chainSpecific?: QuoteFeeData['chainSpecific']
 }
 
 export const getThorStepData = async ({
@@ -174,7 +172,7 @@ export const getThorStepData = async ({
 
       const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
-      const { networkFeeCryptoBaseUnit, satsPerByte } = await getUtxoNetworkFeeCryptoBaseUnit({
+      const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
         adapter,
         pubkey: xpub,
         to: vault,
@@ -188,12 +186,7 @@ export const getThorStepData = async ({
         return { type: 'utxo', to: vault, opReturnData: memo, value: sellAmountCryptoBaseUnit }
       })()
 
-      return {
-        vault,
-        transactionData,
-        networkFeeCryptoBaseUnit,
-        chainSpecific: { satsPerByte },
-      }
+      return { vault, transactionData, networkFeeCryptoBaseUnit }
     }
     case CHAIN_NAMESPACE.CosmosSdk: {
       const adapter = deps.assertGetCosmosSdkChainAdapter(sellAsset.chainId)
@@ -241,12 +234,7 @@ export const getThorStepData = async ({
         }
       })()
 
-      return {
-        vault,
-        transactionData,
-        networkFeeCryptoBaseUnit: fast.txFee,
-        chainSpecific: { estimatedGasCryptoBaseUnit: fast.chainSpecific.gasLimit },
-      }
+      return { vault, transactionData, networkFeeCryptoBaseUnit: fast.txFee }
     }
     case CHAIN_NAMESPACE.Solana: {
       const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)

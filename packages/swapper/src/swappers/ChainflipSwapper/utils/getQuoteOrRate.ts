@@ -141,7 +141,7 @@ export const getQuoteOrRate = async (
         const { chainflipSpecific, swapperMetadata, transactionData, feeData } =
           await (async () => {
             if (input.quoteOrRate === 'rate') {
-              const { networkFeeCryptoBaseUnit, chainSpecific } = await getChainflipStepData({
+              const { networkFeeCryptoBaseUnit } = await getChainflipStepData({
                 type: 'rate',
                 deps,
                 input,
@@ -149,7 +149,7 @@ export const getQuoteOrRate = async (
                 sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
                 from: input.sendAddress,
               })
-              return { feeData: { networkFeeCryptoBaseUnit, chainSpecific } }
+              return { feeData: { networkFeeCryptoBaseUnit } }
             }
 
             if (accountNumber === undefined) throw new Error('accountNumber is required')
@@ -188,8 +188,7 @@ export const getQuoteOrRate = async (
 
             if (!swapId || !depositAddress) throw new Error('Invalid swap response')
 
-            const { transactionData, networkFeeCryptoBaseUnit, chainSpecific } =
-              await getChainflipStepData({
+            const { transactionData, networkFeeCryptoBaseUnit } = await getChainflipStepData({
                 type: 'quote',
                 deps,
                 input,
@@ -203,7 +202,7 @@ export const getQuoteOrRate = async (
               chainflipSpecific: { depositAddress },
               swapperMetadata: { name: 'chainflip', swapId } satisfies ChainflipMetadata,
               transactionData,
-              feeData: { networkFeeCryptoBaseUnit, chainSpecific },
+              feeData: { networkFeeCryptoBaseUnit },
             }
           })()
 

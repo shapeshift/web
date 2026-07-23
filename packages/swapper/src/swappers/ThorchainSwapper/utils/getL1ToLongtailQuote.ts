@@ -190,20 +190,19 @@ export const getL1ToLongtailQuote = async (
 
       // getL1RateOrQuote built the step against the pre-aggregator memo, so rebuild the tx data and
       // fees through the shared step data now that the final memo is known
-      const { data, transactionData, networkFeeCryptoBaseUnit, chainSpecific } =
-        await getThorStepData({
-          type: 'quote',
-          input,
-          from,
-          deps,
-          swapperName,
-          tradeType: TradeType.L1ToLongTail,
-          sellAsset,
-          sellAmountCryptoBaseUnit: onlyStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          memo: updatedMemo,
-          expiry: quote.expiry,
-          rawMemo: updatedMemo,
-        })
+      const { data, transactionData, networkFeeCryptoBaseUnit } = await getThorStepData({
+        type: 'quote',
+        input,
+        from,
+        deps,
+        swapperName,
+        tradeType: TradeType.L1ToLongTail,
+        sellAsset,
+        sellAmountCryptoBaseUnit: onlyStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        memo: updatedMemo,
+        expiry: quote.expiry,
+        rawMemo: updatedMemo,
+      })
 
       return Ok({
         ...quote,
@@ -218,7 +217,7 @@ export const getL1ToLongtailQuote = async (
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
           allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
           transactionData,
-          feeData: { ...s.feeData, networkFeeCryptoBaseUnit, chainSpecific },
+          feeData: { ...s.feeData, networkFeeCryptoBaseUnit },
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {

@@ -330,7 +330,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     perRouteValues.map(async (route): Promise<T> => {
       const memo = getMemo(route)
 
-      const { vault, router, data, transactionData, networkFeeCryptoBaseUnit, chainSpecific } =
+      const { vault, router, data, transactionData, networkFeeCryptoBaseUnit } =
         await getThorStepData({
           ...quoteOrRateArgs,
           deps,
@@ -354,7 +354,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         feeData: {
           networkFeeCryptoBaseUnit,
           protocolFees: getProtocolFees(route.quote),
-          chainSpecific,
         },
       })
     }),

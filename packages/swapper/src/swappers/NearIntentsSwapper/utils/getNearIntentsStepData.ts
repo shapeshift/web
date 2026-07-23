@@ -128,7 +128,6 @@ export const getNearIntentsStepData = async ({
 }: NearIntentsStepDataArgs): Promise<{
   transactionData?: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
-  chainSpecific?: { satsPerByte: string }
 }> => {
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
@@ -152,7 +151,7 @@ export const getNearIntentsStepData = async ({
     case CHAIN_NAMESPACE.Utxo: {
       const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 
-      const { networkFeeCryptoBaseUnit, satsPerByte } = await getUtxoNetworkFeeCryptoBaseUnit({
+      const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
         adapter,
         pubkey: (input as GetUtxoTradeQuoteInput | GetUtxoTradeRateInput).xpub,
         to: depositAddress,
@@ -162,7 +161,6 @@ export const getNearIntentsStepData = async ({
       return {
         transactionData: { type: 'utxo', to: depositAddress, value: sellAmountCryptoBaseUnit },
         networkFeeCryptoBaseUnit,
-        chainSpecific: { satsPerByte },
       }
     }
     case CHAIN_NAMESPACE.Solana: {

@@ -55,7 +55,6 @@ export const getChainflipStepData = async ({
 }: GetChainflipStepDataArgs): Promise<{
   transactionData?: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
-  chainSpecific?: { satsPerByte: string }
 }> => {
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
@@ -97,14 +96,14 @@ export const getChainflipStepData = async ({
     case CHAIN_NAMESPACE.Utxo: {
       const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 
-      const { networkFeeCryptoBaseUnit, satsPerByte } = await getUtxoNetworkFeeCryptoBaseUnit({
+      const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
         adapter,
         pubkey: (input as GetUtxoTradeQuoteInput).xpub,
         to: depositAddress ?? UTXO_PLACEHOLDER_ADDRESS,
         value: sellAmountCryptoBaseUnit,
       })
 
-      if (type === 'rate') return { networkFeeCryptoBaseUnit, chainSpecific: { satsPerByte } }
+      if (type === 'rate') return { networkFeeCryptoBaseUnit }
 
       const transactionData: TxBuildData = {
         type: 'utxo',
@@ -112,7 +111,7 @@ export const getChainflipStepData = async ({
         value: sellAmountCryptoBaseUnit,
       }
 
-      return { transactionData, networkFeeCryptoBaseUnit, chainSpecific: { satsPerByte } }
+      return { transactionData, networkFeeCryptoBaseUnit }
     }
     case CHAIN_NAMESPACE.Solana: {
       const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)

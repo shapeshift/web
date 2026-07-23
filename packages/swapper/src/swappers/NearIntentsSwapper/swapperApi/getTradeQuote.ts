@@ -155,7 +155,7 @@ export const getTradeQuote = async (
 
     const depositAddress = quote.depositAddress
 
-    const { networkFeeCryptoBaseUnit, chainSpecific, transactionData } =
+    const { networkFeeCryptoBaseUnit, transactionData } =
       await getNearIntentsStepData({
         type: 'quote',
         deps,
@@ -193,7 +193,6 @@ export const getTradeQuote = async (
           feeData: {
             protocolFees: {},
             networkFeeCryptoBaseUnit,
-            ...(chainSpecific && { chainSpecific }),
           },
           rate,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,

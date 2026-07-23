@@ -18,10 +18,7 @@ export const getUtxoNetworkFeeCryptoBaseUnit = async ({
   to,
   value,
   opReturnData,
-}: GetUtxoNetworkFeeCryptoBaseUnitArgs): Promise<{
-  networkFeeCryptoBaseUnit: string
-  satsPerByte: string
-}> => {
+}: GetUtxoNetworkFeeCryptoBaseUnitArgs): Promise<{ networkFeeCryptoBaseUnit: string }> => {
   if (pubkey && to && value) {
     const { fast } = await adapter.getFeeData({
       to,
@@ -30,7 +27,7 @@ export const getUtxoNetworkFeeCryptoBaseUnit = async ({
       sendMax: false,
     })
 
-    return { networkFeeCryptoBaseUnit: fast.txFee, satsPerByte: fast.chainSpecific.satoshiPerByte }
+    return { networkFeeCryptoBaseUnit: fast.txFee }
   }
 
   const { fast } = await adapter.httpProvider.getNetworkFees()
@@ -47,6 +44,5 @@ export const getUtxoNetworkFeeCryptoBaseUnit = async ({
     networkFeeCryptoBaseUnit: bn(satsPerByte)
       .times(DEFAULT_TX_VSIZE + opReturnVsize)
       .toFixed(0),
-    satsPerByte,
   }
 }

@@ -167,24 +167,6 @@ export enum TradeQuoteError {
   InsufficientFundsUnconfirmed = 'InsufficientFundsUnconfirmed',
 }
 
-export type UtxoFeeData = {
-  satsPerByte: string
-}
-
-export type CosmosSdkFeeData = {
-  estimatedGasCryptoBaseUnit: string
-}
-
-export type SolanaFeeData = {
-  computeUnits: string
-  priorityFee: string
-}
-
-export type SuiFeeData = {
-  gasBudget: string
-  gasPrice: string
-}
-
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -195,7 +177,6 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData | SuiFeeData
 }
 
 export type BuyAssetBySellIdInput = {

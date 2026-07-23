@@ -112,7 +112,7 @@ export const getBobGatewayStepData = async ({
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       }
 
-      const { networkFeeCryptoBaseUnit, satsPerByte } = await getUtxoNetworkFeeCryptoBaseUnit({
+      const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
         adapter: assertGetUtxoChainAdapter(sellAsset.chainId),
         pubkey: 'xpub' in input ? input.xpub : undefined,
         to: transactionData.to,
@@ -123,10 +123,7 @@ export const getBobGatewayStepData = async ({
       return Ok({
         orderId: orderResponse.onramp.orderId,
         transactionData,
-        feeData: {
-          networkFeeCryptoBaseUnit,
-          chainSpecific: { satsPerByte },
-        },
+        feeData: { networkFeeCryptoBaseUnit },
       })
     }
 

@@ -147,6 +147,7 @@ export const getQuoteOrRate = async (
                 input,
                 sellAsset,
                 sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                from: input.sendAddress,
               })
               return { feeData: { networkFeeCryptoBaseUnit, chainSpecific } }
             }

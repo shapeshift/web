@@ -421,7 +421,14 @@ export type TxBuildData =
       instructions: TransactionInstruction[]
       addressLookupTableAddresses: string[]
     }
-  | { type: 'cosmossdk_msg_send'; chainId: string; to: string; denom: string; value: string; memo?: string }
+  | {
+      type: 'cosmossdk_msg_send'
+      chainId: string
+      to: string
+      denom: string
+      value: string
+      memo?: string
+    }
   | { type: 'cosmossdk_msg_deposit'; chainId: string; value: string; memo: string; coin: string }
   | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
   | { type: 'tron'; to: string; data: string; value: string }
@@ -453,7 +460,6 @@ export type TradeQuoteStep = {
   butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
 
   chainflipSpecific?: { depositAddress?: string }
-  thorchainTransactionMetadata?: { to: string; data?: string; value?: string; memo?: string }
 
   bebopSolanaSerializedTx?: string
   cowswapQuoteResponse?: OrderQuoteResponse

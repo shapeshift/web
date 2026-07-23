@@ -16,13 +16,21 @@ import type {
   AcrossTradeRateInput,
 } from './utils/types'
 
-const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.6 }
+// Solana-origin routes are CCTP-only (no swap legs) with constant measured compute
+// consumption, so the margin is safety only
+const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.1 }
 
 export const acrossApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as AcrossTradeQuoteInput, deps),
   getTradeRate: (input, deps) => getTradeRate(input as AcrossTradeRateInput, deps),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
+  getUnsignedSolanaTransaction: input => {
+    return getUnsignedSolanaTransaction(input, { computeBudget: solanaComputeBudget })
+  },
+  getSolanaTransactionFees: input => {
+    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
+  },
   checkTradeStatus: async ({
     txHash,
     chainId,
@@ -98,11 +106,5 @@ export const acrossApi: SwapperApi = {
       buyTxHash,
       message,
     }
-  },
-  getUnsignedSolanaTransaction: input => {
-    return getUnsignedSolanaTransaction(input, solanaComputeBudget)
-  },
-  getSolanaTransactionFees: input => {
-    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
   },
 }

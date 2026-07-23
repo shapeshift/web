@@ -52,7 +52,6 @@ type MakeThorTradeInput = {
   allowanceContract: string
   feeData: QuoteFeeData
   transactionData?: TxBuildData
-  thorchainTransactionMetadata?: ThorTradeRateOrQuote['steps']['0']['thorchainTransactionMetadata']
   // Evm only
   data?: string
   router?: string
@@ -89,7 +88,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   const quoteOrRateArgs =
     quoteOrRate === 'quote' && sendAddress
       ? { type: 'quote' as const, input: input as CommonTradeQuoteInput, from: sendAddress }
-      : { type: 'rate' as const, input: input as GetTradeRateInput }
+      : { type: 'rate' as const, input: input as GetTradeRateInput, from: sendAddress }
 
   // "NativePrecision" is intended to indicate the base unit precision of the asset
   // for the corresponding swapper network (THORChain or MAYAChain)
@@ -241,7 +240,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     router,
     vault,
     transactionData,
-    thorchainTransactionMetadata,
   }: MakeThorTradeInput): T => {
     const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
       value: route.expectedAmountOutThorBaseUnit,
@@ -306,7 +304,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
                   maxStreamingQuantity: route.quote.max_streaming_quantity,
                 },
           transactionData,
-          thorchainTransactionMetadata,
         },
       ],
     } as T
@@ -333,25 +330,18 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     perRouteValues.map(async (route): Promise<T> => {
       const memo = getMemo(route)
 
-      const {
-        vault,
-        router,
-        data,
-        transactionData,
-        networkFeeCryptoBaseUnit,
-        chainSpecific,
-        thorchainTransactionMetadata,
-      } = await getThorStepData({
-        ...quoteOrRateArgs,
-        deps,
-        swapperName,
-        tradeType,
-        sellAsset,
-        sellAmountCryptoBaseUnit,
-        memo,
-        expiry: route.quote.expiry,
-        rawMemo: route.quote.memo,
-      })
+      const { vault, router, data, transactionData, networkFeeCryptoBaseUnit, chainSpecific } =
+        await getThorStepData({
+          ...quoteOrRateArgs,
+          deps,
+          swapperName,
+          tradeType,
+          sellAsset,
+          sellAmountCryptoBaseUnit,
+          memo,
+          expiry: route.quote.expiry,
+          rawMemo: route.quote.memo,
+        })
 
       return makeThorTradeRateOrQuote({
         route,
@@ -361,7 +351,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         router,
         vault,
         transactionData,
-        thorchainTransactionMetadata,
         feeData: {
           networkFeeCryptoBaseUnit,
           protocolFees: getProtocolFees(route.quote),

@@ -129,6 +129,7 @@ export const getTradeRate = async (
     const networkFeeCryptoBaseUnit = await (async () => {
       try {
         const networkFeeCryptoBaseUnit = await getNearIntentsRateNetworkFeeCryptoBaseUnit({
+          type: 'rate',
           deps,
           input,
           sellAsset,

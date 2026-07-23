@@ -240,7 +240,7 @@ export async function getTrade({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
 
-  const maybeStepData = await getAcrossStepData({
+  const stepDataArgs = {
     swapTx: quote.swapTx,
     sellAsset,
     from: depositor,
@@ -248,7 +248,12 @@ export async function getTrade({
     fallbackNetworkFeeCryptoBaseUnit: quote.fees.originGas.amount,
     assertGetEvmChainAdapter: deps.assertGetEvmChainAdapter,
     assertGetSolanaChainAdapter: deps.assertGetSolanaChainAdapter,
-  })
+  }
+
+  const maybeStepData =
+    input.quoteOrRate === 'quote'
+      ? await getAcrossStepData({ ...stepDataArgs, type: 'quote' })
+      : await getAcrossStepData({ ...stepDataArgs, type: 'rate' })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()

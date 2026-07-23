@@ -1,12 +1,16 @@
 import { fromChainId, monadChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bnOrZero, isToken } from '@shapeshiftoss/utils'
+import { bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
 import type { Hex } from 'viem'
-import { getAddress, zeroAddress } from 'viem'
+import { getAddress } from 'viem'
 
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import {
+  getSolanaNetworkFeeCryptoBaseUnit,
+  omitComputeBudgetInstructions,
+} from '../../../solana-utils'
 import type { SwapperDeps, TxBuildData } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utxo-utils'
@@ -38,20 +42,19 @@ const convertSolanaInstruction = (instruction: RelaySolanaInstruction): Transact
 const simulateEvmGasLimit = async ({
   transactionData,
   sellAsset,
-  sendAddress,
+  from,
   config,
 }: {
   transactionData: Extract<TxBuildData, { type: 'evm' }>
   sellAsset: Asset
-  sendAddress: string | undefined
+  from: string
   config: SwapperDeps['config']
 }): Promise<string | undefined> => {
   try {
     const simulation = await simulateWithStateOverrides(
       {
         chainId: sellAsset.chainId,
-        // sendAddress should always be set here - zeroAddress only satisfies the type
-        from: getAddress(sendAddress ?? zeroAddress),
+        from: getAddress(from),
         to: getAddress(transactionData.to),
         data: transactionData.data as Hex,
         value: transactionData.value,
@@ -73,30 +76,96 @@ const simulateEvmGasLimit = async ({
   } catch {}
 }
 
+type BaseArgs = {
+  data: RelayQuoteItem['data']
+  sellAsset: Asset
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  orderId: string | undefined
+  from: string
+  supportsEIP1559: boolean
+  xpub: string | undefined
+  fallbackNetworkFeeCryptoBaseUnit: string
+  deps: SwapperDeps
+}
+
+type RateArgs = BaseArgs & { type: 'rate' }
+type QuoteArgs = BaseArgs & { type: 'quote' }
+
+type GetRelayStepDataArgs = RateArgs | QuoteArgs
+
 export const getRelayStepData = async ({
   data,
   sellAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
   orderId,
-  sendAddress,
+  from,
   supportsEIP1559,
   xpub,
-  quoteOrRate,
+  type,
   fallbackNetworkFeeCryptoBaseUnit,
   deps,
-}: {
-  data: RelayQuoteItem['data']
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  orderId: string | undefined
-  sendAddress: string | undefined
-  supportsEIP1559: boolean
-  xpub: string | undefined
-  quoteOrRate: 'quote' | 'rate'
-  fallbackNetworkFeeCryptoBaseUnit: string
-  deps: SwapperDeps
-}): Promise<RelayStepData> => {
+}: GetRelayStepDataArgs): Promise<RelayStepData> => {
   if (!data) throw new Error('Relay quote step contains no data')
+
+  if (isRelayQuoteEvmItemData(data)) {
+    const { data: callData, gas: relayGasLimit, to, value: _value } = data
+
+    if (!to) throw new Error('Missing Relay EVM transaction target address')
+
+    if (!callData) throw new Error('Missing Relay EVM transaction data')
+
+    const value = isToken(sellAsset.assetId) ? '0' : _value
+    if (typeof value !== 'string') throw new Error('Missing Relay EVM transaction value')
+
+    const transactionData: TxBuildData = {
+      type: 'evm',
+      chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+      to,
+      value,
+      data: callData,
+      gasLimit: bnOrZero(relayGasLimit).gt(0) ? relayGasLimit : undefined,
+    }
+
+    const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+
+    const networkFeeCryptoBaseUnit = await (async () => {
+      if (type === 'rate') {
+        try {
+          const simulatedGasLimit = await simulateEvmGasLimit({
+            transactionData,
+            sellAsset,
+            from,
+            config: deps.config,
+          })
+
+          if (!simulatedGasLimit) return fallbackNetworkFeeCryptoBaseUnit
+
+          return await getEvmNetworkFeeCryptoBaseUnit({
+            adapter,
+            supportsEIP1559,
+            gasLimit: simulatedGasLimit,
+          })
+        } catch {
+          return fallbackNetworkFeeCryptoBaseUnit
+        }
+      }
+
+      try {
+        return await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          transactionData,
+          from,
+          supportsEIP1559,
+        })
+      } catch (error) {
+        // A quote missing a gas limit will throw at execution, so fail it here instead
+        if (!transactionData.gasLimit) throw error
+        return fallbackNetworkFeeCryptoBaseUnit
+      }
+    })()
+
+    return { transactionData, networkFeeCryptoBaseUnit }
+  }
 
   if (isRelayQuoteUtxoItemData(data)) {
     if (!data.psbt) throw new Error('Relay BTC quote step contains no psbt')
@@ -125,75 +194,46 @@ export const getRelayStepData = async ({
     }
   }
 
-  if (isRelayQuoteEvmItemData(data)) {
-    const { data: callData, gas: relayGasLimit, to, value: _value } = data
+  if (isRelayQuoteSolanaItemData(data)) {
+    const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
-    if (!to) throw new Error('Missing Relay EVM transaction target address')
-
-    if (!callData) throw new Error('Missing Relay EVM transaction data')
-
-    const value = isToken(sellAsset.assetId) ? '0' : _value
-    if (typeof value !== 'string') throw new Error('Missing Relay EVM transaction value')
+    const instructions = omitComputeBudgetInstructions(
+      data.instructions?.map(convertSolanaInstruction) ?? [],
+    )
+    const addressLookupTableAddresses = data.addressLookupTableAddresses ?? []
 
     const transactionData: TxBuildData = {
-      type: 'evm',
-      chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-      to,
-      value,
-      data: callData,
-      gasLimit: bnOrZero(relayGasLimit).gt(0) ? relayGasLimit : undefined,
+      type: 'solana',
+      instructions,
+      addressLookupTableAddresses,
     }
 
-    const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const networkFeeCryptoBaseUnit = await (async () => {
-      if (quoteOrRate === 'rate') {
-        try {
-          const simulatedGasLimit = await simulateEvmGasLimit({
-            transactionData,
-            sellAsset,
-            sendAddress,
-            config: deps.config,
-          })
-
-          if (!simulatedGasLimit) return fallbackNetworkFeeCryptoBaseUnit
-
-          return await getEvmNetworkFeeCryptoBaseUnit({
-            adapter,
-            supportsEIP1559,
-            gasLimit: simulatedGasLimit,
-          })
-        } catch {
-          return fallbackNetworkFeeCryptoBaseUnit
-        }
-      }
-
+    if (type === 'rate') {
+      // Rates are best effort - simulation from the unfunded walletless default user fails, and
+      // the provider fee (which under-reports below the 5000 lamport signature fee) stands in
       try {
-        return await getEvmNetworkFeeCryptoBaseUnit({
+        const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
           adapter,
-          transactionData,
-          from: sendAddress ?? zeroAddress,
-          supportsEIP1559,
+          from,
+          instructions,
+          addressLookupTableAddresses,
+          tokenId: contractAddressOrUndefined(sellAsset.assetId),
         })
-      } catch (error) {
-        // A quote missing a gas limit will throw at execution, so fail it here instead
-        if (!transactionData.gasLimit) throw error
-        return fallbackNetworkFeeCryptoBaseUnit
+        return { transactionData, networkFeeCryptoBaseUnit }
+      } catch {
+        return { transactionData, networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit }
       }
-    })()
+    }
+
+    const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+      adapter,
+      from,
+      instructions,
+      addressLookupTableAddresses,
+      tokenId: contractAddressOrUndefined(sellAsset.assetId),
+    })
 
     return { transactionData, networkFeeCryptoBaseUnit }
-  }
-
-  if (isRelayQuoteSolanaItemData(data)) {
-    return {
-      transactionData: {
-        type: 'solana',
-        instructions: data.instructions?.map(convertSolanaInstruction) ?? [],
-        addressLookupTableAddresses: data.addressLookupTableAddresses ?? [],
-      },
-      networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
-    }
   }
 
   if (isRelayQuoteTronItemData(data)) {

@@ -1,5 +1,4 @@
 import { bnOrZero } from '@shapeshiftoss/utils'
-import BigNumber from 'bignumber.js'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../types'
 import { calculateAccountCreationCosts } from './calculateAccountCreationCosts'
@@ -8,28 +7,17 @@ import type { SolanaComputeBudgetOptions } from './getUnsignedSolanaTransaction'
 
 type SolanaTransactionFeesOptions = {
   computeBudget?: SolanaComputeBudgetOptions
-  includeAtaCreationRent?: boolean
 }
 
 export const getSolanaTransactionFees = async (
   args: GetUnsignedSolanaTransactionArgs,
-  { computeBudget, includeAtaCreationRent }: SolanaTransactionFeesOptions = {},
+  { computeBudget }: SolanaTransactionFeesOptions = {},
 ): Promise<string> => {
   const { feeData, transactionData } = await getSolanaExecutionContext(args)
 
-  if (!computeBudget && !includeAtaCreationRent) return feeData.txFee
-
-  const computeUnits = bnOrZero(feeData.chainSpecific.computeUnits)
-
-  const feeScale = computeUnits.gt(0)
-    ? BigNumber.max(computeUnits, computeBudget?.minComputeUnits ?? 0)
-        .times(computeBudget?.marginMultiplier ?? 1)
-        .div(computeUnits)
-    : bnOrZero(1)
-
-  const ataCreationRent = includeAtaCreationRent
-    ? calculateAccountCreationCosts(transactionData.instructions)
-    : 0
-
-  return bnOrZero(feeData.txFee).times(feeScale).plus(ataCreationRent).toFixed(0)
+  // Rent for any token account creation in the instructions is part of what the payer spends
+  return bnOrZero(feeData.txFee)
+    .times(computeBudget?.marginMultiplier ?? 1)
+    .plus(calculateAccountCreationCosts(transactionData.instructions))
+    .toFixed(0)
 }

@@ -1,10 +1,14 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import { ComputeBudgetProgram } from '@solana/web3.js'
+import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import {
+  ATA_RENT_LAMPORTS,
+  getSolanaNetworkFeeCryptoBaseUnit,
+  SOLANA_PLACEHOLDER_ADDRESS,
+} from '../../../solana-utils'
 import type {
   CommonTradeQuoteInput,
   GetEvmTradeRateInput,
@@ -28,7 +32,7 @@ type RateArgs = BaseArgs & {
   type: 'rate'
   input: GetTradeRateInput
   depositAddress?: undefined
-  from?: undefined
+  from?: string
 }
 
 type QuoteArgs = BaseArgs & {
@@ -90,42 +94,6 @@ export const getChainflipStepData = async ({
 
       return { transactionData, networkFeeCryptoBaseUnit }
     }
-    case CHAIN_NAMESPACE.Solana: {
-      const to = depositAddress ?? input.sendAddress
-      if (!to || !input.sendAddress) return { networkFeeCryptoBaseUnit: undefined }
-
-      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-
-      const { fast } = await adapter.getFeeData({
-        to,
-        value: sellAmountCryptoBaseUnit,
-        chainSpecific: {
-          from: input.sendAddress,
-          tokenId: contractAddressOrUndefined(sellAsset.assetId),
-        },
-      })
-
-      // Only an executable quote (deposit channel known) carries tx data; exec reads it via transactionData
-      if (type === 'rate') return { networkFeeCryptoBaseUnit: fast.txFee }
-
-      // Business instructions only; compute budget is dynamic and must be derived at execution time
-      const instructions = (
-        await adapter.buildEstimationInstructions({
-          from: input.sendAddress,
-          to: depositAddress,
-          tokenId: contractAddressOrUndefined(sellAsset.assetId),
-          value: sellAmountCryptoBaseUnit,
-        })
-      ).filter(
-        instruction =>
-          instruction.programId.toString() !== ComputeBudgetProgram.programId.toString(),
-      )
-
-      return {
-        transactionData: { type: 'solana', instructions, addressLookupTableAddresses: [] },
-        networkFeeCryptoBaseUnit: fast.txFee,
-      }
-    }
     case CHAIN_NAMESPACE.Utxo: {
       const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 
@@ -146,15 +114,69 @@ export const getChainflipStepData = async ({
 
       return { transactionData, networkFeeCryptoBaseUnit, chainSpecific: { satsPerByte } }
     }
+    case CHAIN_NAMESPACE.Solana: {
+      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+      const tokenId = contractAddressOrUndefined(sellAsset.assetId)
+
+      if (type === 'rate') {
+        // Rates have no deposit channel; estimate with a self transfer from the send address, or
+        // from a funded placeholder (1 lamport, native shape) when no wallet is connected. The
+        // self transfer can't include the deposit token account creation (fresh channels always
+        // need one), so the static rent is added for token sells
+        const address = from ?? SOLANA_PLACEHOLDER_ADDRESS
+
+        const instructions = await adapter.buildTransferInstructions({
+          from: address,
+          to: address,
+          tokenId: from ? tokenId : undefined,
+          value: from ? sellAmountCryptoBaseUnit : '1',
+        })
+
+        const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+          adapter,
+          from: address,
+          instructions,
+          tokenId,
+        })
+
+        return {
+          networkFeeCryptoBaseUnit: bn(networkFeeCryptoBaseUnit)
+            .plus(tokenId ? ATA_RENT_LAMPORTS : 0)
+            .toString(),
+        }
+      }
+
+      const instructions = await adapter.buildTransferInstructions({
+        from,
+        to: depositAddress,
+        tokenId,
+        value: sellAmountCryptoBaseUnit,
+      })
+
+      const transactionData: TxBuildData = {
+        type: 'solana',
+        instructions,
+        addressLookupTableAddresses: [],
+      }
+
+      const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+        adapter,
+        from,
+        instructions,
+        tokenId,
+      })
+
+      return { transactionData, networkFeeCryptoBaseUnit }
+    }
     case CHAIN_NAMESPACE.Tron: {
-      const to = depositAddress ?? input.sendAddress
-      if (!to || !input.sendAddress) return { networkFeeCryptoBaseUnit: undefined }
+      const to = depositAddress ?? from
+      if (!to || !from) return { networkFeeCryptoBaseUnit: undefined }
 
       const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
         to,
         value: sellAmountCryptoBaseUnit,
         chainSpecific: {
-          from: input.sendAddress,
+          from,
           contractAddress: contractAddressOrUndefined(sellAsset.assetId),
         },
       })

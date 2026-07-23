@@ -1,5 +1,5 @@
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import { bnOrZero, isToken } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../types'
@@ -8,26 +8,27 @@ import { getSolanaExecutionContext } from './getSolanaExecutionContext'
 export type SolanaComputeBudgetOptions = {
   marginMultiplier?: number
   minComputeUnits?: number
-  skipForNativeSend?: boolean
+}
+
+type SolanaTransactionOptions = {
+  computeBudget?: SolanaComputeBudgetOptions
 }
 
 export const getUnsignedSolanaTransaction = async (
   args: GetUnsignedSolanaTransactionArgs,
-  computeBudget: SolanaComputeBudgetOptions = {},
+  { computeBudget = {} }: SolanaTransactionOptions = {},
 ): Promise<SolanaSignTx> => {
-  const { step, adapter, feeData, transactionData } = await getSolanaExecutionContext(args)
+  const { step, adapter, feeData, transactionData, instructions, includeComputeBudget } =
+    await getSolanaExecutionContext(args)
 
-  const { accountNumber, sellAsset } = step
-  const { instructions, addressLookupTableAddresses } = transactionData
-  const { marginMultiplier, minComputeUnits, skipForNativeSend } = computeBudget
+  const { accountNumber } = step
+  const { addressLookupTableAddresses } = transactionData
+  const { marginMultiplier, minComputeUnits } = computeBudget
 
   const computeUnitLimit = BigNumber.max(
     bnOrZero(feeData.chainSpecific.computeUnits),
     minComputeUnits ?? 0,
   )
-
-  // Simple native transfers don't need a compute budget; everything else opts into one
-  const includeComputeBudget = !skipForNativeSend || isToken(sellAsset.assetId)
 
   return adapter.buildSendApiTransaction({
     from: args.from,

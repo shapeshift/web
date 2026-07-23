@@ -157,6 +157,7 @@ export const getTradeQuote = async (
 
     const { networkFeeCryptoBaseUnit, chainSpecific, transactionData } =
       await getNearIntentsStepData({
+        type: 'quote',
         deps,
         input,
         sellAsset,

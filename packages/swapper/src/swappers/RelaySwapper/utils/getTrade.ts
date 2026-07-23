@@ -131,6 +131,8 @@ export async function getTrade({
       return input.sendAddress ?? getRelayDefaultUserAddress(sellAsset.chainId)
     }
 
+    if (!input.sendAddress) throw new Error('Send address is required for Relay quotes')
+
     return input.sendAddress
   })()
 
@@ -462,19 +464,22 @@ export async function getTrade({
         .plus(appFeesBaseUnit)
         .toFixed()
 
+      const stepDataArgs = {
+        data: selectedItem.data,
+        sellAsset,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        orderId,
+        from: sendAddress,
+        supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+        xpub,
+        fallbackNetworkFeeCryptoBaseUnit: quote.fees.gas.amount,
+        deps,
+      }
+
       const { transactionData, relayTransactionMetadata, networkFeeCryptoBaseUnit } =
-        await getRelayStepData({
-          data: selectedItem.data,
-          sellAsset,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          orderId,
-          sendAddress,
-          supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
-          xpub,
-          quoteOrRate: input.quoteOrRate,
-          fallbackNetworkFeeCryptoBaseUnit: quote.fees.gas.amount,
-          deps,
-        })
+        input.quoteOrRate === 'quote'
+          ? await getRelayStepData({ ...stepDataArgs, type: 'quote' })
+          : await getRelayStepData({ ...stepDataArgs, type: 'rate' })
 
       // The spender to approve: EVM routes approve the router (transactionData.to); Tron approves the
       // token contract (relayTransactionMetadata.to); UTXO/Solana need no allowance

@@ -15,10 +15,13 @@ import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
 
-// Chainflip deposit addresses are program-owned and require a higher compute floor than a regular transfer
+// Deposits are plain (token) transfers with constant measured compute consumption (max 15394 CU
+// with ata creation), so the margin is safety only; the floor guarantees the limit covers full
+// ata recreation if the deposit ata is closed between simulation and landing (a no-op create
+// simulates ~3x cheaper than a real one)
 const solanaComputeBudget: SolanaComputeBudgetOptions = {
-  marginMultiplier: 1.6,
-  minComputeUnits: 50_000,
+  marginMultiplier: 1.1,
+  minComputeUnits: 20_000,
 }
 
 export const chainflipApi: SwapperApi = {
@@ -29,7 +32,7 @@ export const chainflipApi: SwapperApi = {
   getUnsignedUtxoTransaction,
   getUtxoTransactionFees,
   getUnsignedSolanaTransaction: input => {
-    return getUnsignedSolanaTransaction(input, solanaComputeBudget)
+    return getUnsignedSolanaTransaction(input, { computeBudget: solanaComputeBudget })
   },
   getSolanaTransactionFees: input => {
     return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })

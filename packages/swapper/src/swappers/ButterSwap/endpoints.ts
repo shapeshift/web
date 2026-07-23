@@ -10,7 +10,9 @@ import { checkTradeStatus } from './swapperApi/checkTradeStatus'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 
-const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.6 }
+// Jupiter swap legs can consume more units than simulated when pool state moves between
+// simulation and landing (CLMM tick crossings), 1.4 matches Jupiter's dynamicComputeUnitLimit margin
+const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.4 }
 
 export const butterSwapApi: SwapperApi = {
   getTradeQuote,
@@ -21,7 +23,7 @@ export const butterSwapApi: SwapperApi = {
   getUnsignedUtxoTransaction,
   getUtxoTransactionFees,
   getUnsignedSolanaTransaction: input => {
-    return getUnsignedSolanaTransaction(input, solanaComputeBudget)
+    return getUnsignedSolanaTransaction(input, { computeBudget: solanaComputeBudget })
   },
   getSolanaTransactionFees: input => {
     return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })

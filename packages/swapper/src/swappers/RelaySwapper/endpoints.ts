@@ -20,7 +20,10 @@ import type { RelayStatus, RelayTradeQuoteInput, RelayTradeRateInput } from './u
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
 
-const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.6 }
+// Bridge-out deposits measure constant compute consumption, but same-chain routes swap through
+// Jupiter where pool state moving between simulation and landing (CLMM tick crossings) measured
+// ~4% drift on a live route; 1.4 matches Jupiter's dynamicComputeUnitLimit margin
+const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.4 }
 
 export const relayApi: SwapperApi = {
   getTradeQuote: (input, deps) =>
@@ -35,7 +38,7 @@ export const relayApi: SwapperApi = {
     return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
   },
   getUnsignedSolanaTransaction: input => {
-    return getUnsignedSolanaTransaction(input, solanaComputeBudget)
+    return getUnsignedSolanaTransaction(input, { computeBudget: solanaComputeBudget })
   },
   getTronTransactionFees,
   getUnsignedTronTransaction,

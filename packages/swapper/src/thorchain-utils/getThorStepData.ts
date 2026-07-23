@@ -11,12 +11,12 @@ import {
 import { THOR_ROUTER_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 import { TronWeb } from 'tronweb'
 import type { Address } from 'viem'
 import { getAddress, zeroAddress } from 'viem'
 
 import { getEvmNetworkFeeCryptoBaseUnit } from '../evm-utils'
+import { getSolanaNetworkFeeCryptoBaseUnit } from '../solana-utils'
 import { isNativeEvmAsset } from '../swappers/utils/helpers/helpers'
 import type {
   CommonTradeQuoteInput,
@@ -27,7 +27,6 @@ import type {
   QuoteFeeData,
   SwapperDeps,
   SwapperName,
-  TradeQuoteStep,
   TxBuildData,
 } from '../types'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../utxo-utils'
@@ -41,8 +40,6 @@ const SAFE_GAS_LIMIT = '100000'
 // swapIn() bundles a uniswap v3 swap ahead of the deposit, measured at 206k-222k on mainnet across
 // usdc/usdt/link/uni/wbtc and both the 0.05% and 0.3% pools
 const SAFE_SWAP_IN_GAS_LIMIT = '250000'
-
-const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 type BaseArgs = {
   deps: SwapperDeps
@@ -64,7 +61,7 @@ type BaseArgs = {
 }
 
 type QuoteArgs = BaseArgs & { type: 'quote'; input: CommonTradeQuoteInput; from: string }
-type RateArgs = BaseArgs & { type: 'rate'; input: GetTradeRateInput; from?: undefined }
+type RateArgs = BaseArgs & { type: 'rate'; input: GetTradeRateInput; from?: string }
 
 type GetThorStepDataArgs = QuoteArgs | RateArgs
 
@@ -75,7 +72,6 @@ type GetThorStepDataReturn = {
   transactionData?: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
   chainSpecific?: QuoteFeeData['chainSpecific']
-  thorchainTransactionMetadata?: TradeQuoteStep['thorchainTransactionMetadata']
 }
 
 export const getThorStepData = async ({
@@ -183,7 +179,8 @@ export const getThorStepData = async ({
         pubkey: xpub,
         to: vault,
         value: sellAmountCryptoBaseUnit,
-        opReturnData: memo,
+        // Rates size the op_return with the raw thornode memo (processed memo is '' for rates)
+        opReturnData: type === 'quote' ? memo : rawMemo,
       })
 
       const transactionData: TxBuildData | undefined = (() => {
@@ -196,7 +193,6 @@ export const getThorStepData = async ({
         transactionData,
         networkFeeCryptoBaseUnit,
         chainSpecific: { satsPerByte },
-        thorchainTransactionMetadata: { to: vault, memo, value: sellAmountCryptoBaseUnit },
       }
     }
     case CHAIN_NAMESPACE.CosmosSdk: {
@@ -250,46 +246,54 @@ export const getThorStepData = async ({
         transactionData,
         networkFeeCryptoBaseUnit: fast.txFee,
         chainSpecific: { estimatedGasCryptoBaseUnit: fast.chainSpecific.gasLimit },
-        thorchainTransactionMetadata: { to: vault, memo, value: sellAmountCryptoBaseUnit },
       }
     }
     case CHAIN_NAMESPACE.Solana: {
       const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-      const sendAddress = (input as CommonTradeQuoteInput).sendAddress
+      const tokenId = contractAddressOrUndefined(sellAsset.assetId)
 
       const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        if (!sendAddress) return undefined
-
-        const memoInstruction = new TransactionInstruction({
-          keys: [],
-          programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
-          data: Buffer.from(memo, 'utf8'),
-        })
-        const transferInstruction = SystemProgram.transfer({
-          fromPubkey: new PublicKey(sendAddress),
-          toPubkey: new PublicKey(vault),
-          lamports: BigInt(sellAmountCryptoBaseUnit),
-        })
-        const { fast } = await adapter.getFeeData({
+      const buildInstructions = (address: string, value: string) =>
+        adapter.buildTransferInstructions({
+          from: address,
           to: vault,
-          value: '0',
-          chainSpecific: {
-            from: sendAddress,
-            tokenId: contractAddressOrUndefined(sellAsset.assetId),
-            instructions: [memoInstruction, transferInstruction],
-          },
+          tokenId,
+          value,
+          // Rates size the memo instruction with the raw thornode memo (processed memo is '' for rates)
+          memo: type === 'quote' ? memo : rawMemo,
         })
 
-        return fast.txFee
-      })()
+      if (type === 'rate') {
+        // Without a connected wallet the funded vault stands in as payer with a 1 lamport
+        // self-transfer, simulating the same instruction shape (compute cost is amount independent)
+        const address = from ?? vault
+        const value = from ? sellAmountCryptoBaseUnit : '1'
 
-      return {
-        vault,
-        networkFeeCryptoBaseUnit,
-        thorchainTransactionMetadata: { to: vault, memo, value: sellAmountCryptoBaseUnit },
+        const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+          adapter,
+          from: address,
+          instructions: await buildInstructions(address, value),
+        })
+
+        return { vault, networkFeeCryptoBaseUnit }
       }
+
+      const instructions = await buildInstructions(from, sellAmountCryptoBaseUnit)
+
+      const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+        adapter,
+        from,
+        instructions,
+      })
+
+      const transactionData: TxBuildData = {
+        type: 'solana',
+        instructions,
+        addressLookupTableAddresses: [],
+      }
+
+      return { vault, transactionData, networkFeeCryptoBaseUnit }
     }
     case CHAIN_NAMESPACE.Tron: {
       const { vault } = await getThorTxData({ sellAsset, config, swapperName })
@@ -349,11 +353,7 @@ export const getThorStepData = async ({
         }
       })()
 
-      return {
-        vault,
-        networkFeeCryptoBaseUnit,
-        thorchainTransactionMetadata: { to: vault, memo, value: sellAmountCryptoBaseUnit },
-      }
+      return { vault, networkFeeCryptoBaseUnit }
     }
     default:
       throw new Error(`Unsupported chainNamespace: ${chainNamespace}`)

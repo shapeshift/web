@@ -40,7 +40,6 @@ export * from './types'
 export * from './getL1RateOrQuote'
 export * from './getPoolDetails'
 
-export * as solana from './solana'
 export * as tron from './tron'
 
 export const getChainIdBySwapper = (swapperName: SwapperName) => {

@@ -8,6 +8,7 @@ import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from 
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'
+import type { BobGatewayTradeQuoteInput, BobGatewayTradeRateInput } from './types'
 import {
   getBobGatewayClient,
   mapBobGatewayOrderStatusToTxStatus,
@@ -18,12 +19,8 @@ import {
 const registeredSwapIds = new Set<string>()
 
 export const bobGatewayApi: SwapperApi = {
-  getTradeRate: async (input, deps) => {
-    return (await getBobGatewayTradeRate(input, deps)).map(tradeRate => [tradeRate])
-  },
-  getTradeQuote: async (input, deps) => {
-    return (await getBobGatewayTradeQuote(input, deps)).map(tradeQuote => [tradeQuote])
-  },
+  getTradeRate: (input, deps) => getBobGatewayTradeRate(input as BobGatewayTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getBobGatewayTradeQuote(input as BobGatewayTradeQuoteInput, deps),
   getUnsignedUtxoTransaction,
   getUtxoTransactionFees,
   getUnsignedEvmTransaction,

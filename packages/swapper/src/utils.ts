@@ -71,6 +71,34 @@ export const makeSwapErrorRight = ({
   code,
 })
 
+export const assertQuoteAddresses = ({
+  sendAddress,
+  receiveAddress,
+}: {
+  sendAddress?: string
+  receiveAddress?: string
+}): Result<{ sendAddress: string; receiveAddress: string }, SwapErrorRight> => {
+  if (!sendAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'sendAddress is required',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  if (!receiveAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'receiveAddress is required',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  return Ok({ sendAddress, receiveAddress })
+}
+
 export const createTradeAmountTooSmallErr = (details?: {
   minAmountCryptoBaseUnit: string
   assetId: AssetId
@@ -385,8 +413,9 @@ export const getInputOutputRate = ({
 export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is TradeQuote =>
   quote.quoteOrRate === 'quote'
 
-export const isExecutableTradeStep = (step: TradeQuoteStep): step is ExecutableTradeStep =>
-  step.accountNumber !== undefined
+export const isExecutableTradeStep = (
+  step: TradeQuoteStep | TradeRateStep,
+): step is ExecutableTradeStep => step.accountNumber !== undefined
 
 export const getExecutableTradeStep = (
   tradeQuote: TradeQuote,

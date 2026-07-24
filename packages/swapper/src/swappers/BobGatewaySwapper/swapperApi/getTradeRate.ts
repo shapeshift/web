@@ -1,116 +1,45 @@
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
 
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import { SwapperName } from '../../../types'
-import { getInputOutputRate } from '../../../utils'
+import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import type { BobGatewayTradeRateInput } from '../types'
 import { getBobGatewayStepData } from '../utils/getBobGatewayStepData'
-import {
-  assertValidTrade,
-  dummyAddressForChainId,
-  getBobGatewayAllowanceContract,
-  getBobGatewayQuote,
-  parseBobGatewayQuote,
-} from '../utils/helpers'
+import { getBobGatewayTradeContext } from '../utils/getBobGatewayTradeContext'
+import { dummyAddressForChainId } from '../utils/helpers'
 
 export const getBobGatewayTradeRate = async (
-  input: GetTradeRateInput,
+  input: BobGatewayTradeRateInput,
   deps: SwapperDeps,
-): Promise<Result<TradeRate, SwapErrorRight>> => {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
-    accountNumber,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-  } = input
-
-  const { config } = deps
-
-  const assertion = assertValidTrade({ sellAsset, buyAsset })
-  if (assertion.isErr()) return Err(assertion.unwrapErr())
-
-  const { sellChainName, buyChainName } = assertion.unwrap()
+): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  const { sellAsset, buyAsset, receiveAddress } = input
 
   const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
   const sender =
     sellAsset.chainId === btcChainId ? undefined : dummyAddressForChainId(sellAsset.chainId)
 
-  const maybeQuote = await getBobGatewayQuote({
-    config,
-    sellAsset,
-    buyAsset,
-    sellChainName,
-    buyChainName,
-    sender,
-    recipient,
-    amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-  })
+  const maybeContext = await getBobGatewayTradeContext({ input, deps, sender, recipient })
 
-  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
-  const quote = maybeQuote.unwrap()
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
 
-  const {
-    buyAmountBeforeFeesCryptoBaseUnit,
-    buyAmountAfterFeesCryptoBaseUnit,
-    protocolFees,
-    estimatedExecutionTimeMs,
-  } = parseBobGatewayQuote(quote, buyAsset, deps.assetsById)
-
-  const rate = getInputOutputRate({
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-    sellAsset,
-    buyAsset,
-  })
-
-  const allowanceContract = getBobGatewayAllowanceContract(quote, sellAsset)
-
-  const maybeStepData = await getBobGatewayStepData({
-    type: 'rate',
-    input,
-    quote,
-    sellAsset,
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    deps,
-  })
+  const maybeStepData = await getBobGatewayStepData({ ...stepDataArgs, type: 'rate', input })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeRate: TradeRate = {
-    id: uuid(),
+    ...tradeCommon,
     quoteOrRate: 'rate',
-    rate,
     receiveAddress,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-    swapperName: SwapperName.BobGateway,
     steps: [
       {
-        buyAmountBeforeFeesCryptoBaseUnit,
-        buyAmountAfterFeesCryptoBaseUnit,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        feeData: {
-          networkFeeCryptoBaseUnit,
-          protocolFees,
-        },
-        rate,
-        source: SwapperName.BobGateway,
-        buyAsset,
-        sellAsset,
-        accountNumber,
-        allowanceContract,
-        estimatedExecutionTimeMs,
+        ...stepCommon,
+        accountNumber: undefined,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],
   }
 
-  return Ok(tradeRate)
+  return Ok([tradeRate])
 }

@@ -3,6 +3,13 @@ import { AggregatorClient, Env } from '@cetusprotocol/aggregator-sdk'
 import { SuiClient } from '@mysten/sui/client'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+
+import type { SwapErrorRight } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
+import { isSupportedChainId } from './constants'
 
 let suiClientInstance: SuiClient | undefined
 let aggregatorClientInstance: AggregatorClient | undefined
@@ -27,6 +34,36 @@ export const getSuiClient = (rpcUrl: string): SuiClient => {
     currentRpcUrl = rpcUrl
   }
   return suiClientInstance
+}
+
+export const assertValidTrade = ({
+  sellAsset,
+  buyAsset,
+}: {
+  sellAsset: Asset
+  buyAsset: Asset
+}): Result<void, SwapErrorRight> => {
+  if (!isSupportedChainId(sellAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: buyAsset.chainId },
+      }),
+    )
+  }
+
+  return Ok(undefined)
 }
 
 export const getCoinType = (asset: Asset): string => {

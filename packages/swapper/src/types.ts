@@ -30,6 +30,7 @@ import type {
   PartialRecord,
   SolanaChainId,
   StarknetChainId,
+  SuiChainId,
   TonChainId,
   TronChainId,
   UtxoAccountType,
@@ -272,6 +273,14 @@ export type GetStarknetTradeRateInput = CommonTradeRateInput & {
   chainId: StarknetChainId
 }
 
+export type GetSuiTradeQuoteInput = CommonTradeInput & {
+  chainId: SuiChainId
+}
+
+export type GetSuiTradeRateInput = CommonTradeRateInput & {
+  chainId: SuiChainId
+}
+
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
@@ -299,6 +308,7 @@ export type GetTradeQuoteInput =
   | GetTonTradeQuoteInput
   | GetSolanaTradeQuoteInput
   | GetStarknetTradeQuoteInput
+  | GetSuiTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -309,6 +319,7 @@ export type GetTradeRateInput =
   | GetTonTradeRateInput
   | GetSolanaTradeRateInput
   | GetStarknetTradeRateInput
+  | GetSuiTradeRateInput
 
 type StepDataBaseArgs = {
   deps: SwapperDeps

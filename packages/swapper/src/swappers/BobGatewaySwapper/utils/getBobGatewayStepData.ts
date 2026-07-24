@@ -122,68 +122,6 @@ export async function getBobGatewayStepData(
         return Err(makeNetworkFeeEstimationFailedErr('getBobGatewayStepData', err))
       }
     }
-    // Tron sells (offramp Tron → BTC, or tokenSwap TRON → EVM)
-    case CHAIN_NAMESPACE.Tron: {
-      const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
-      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
-      if (resolved.type === 'rate') {
-        const networkFeeCryptoBaseUnit = await (async () => {
-          try {
-            if (!('offramp' in quote) && !('tokenSwap' in quote)) return
-
-            const order = 'offramp' in quote ? quote.offramp : quote.tokenSwap
-
-            const { fast } = await adapter.getFeeData({
-              to: toTronBase58(order.txTo),
-              value: order.inputAmount.amount,
-              chainSpecific: { contractAddress },
-            })
-
-            return fast.txFee
-          } catch {}
-        })()
-
-        const stepData: BobGatewayRateStepData = { networkFeeCryptoBaseUnit }
-
-        return Ok(stepData)
-      }
-
-      const { orderResponse, from } = resolved
-
-      if (!('offramp' in orderResponse) && !('tokenSwap' in orderResponse))
-        return Err(makeTradeStepBuildFailedErr('getBobGatewayStepData'))
-
-      const order = 'offramp' in orderResponse ? orderResponse.offramp : orderResponse.tokenSwap
-
-      if (order.tx.type !== 'tron') return Err(makeTradeStepBuildFailedErr('getBobGatewayStepData'))
-      const { tx, orderId } = order
-
-      const transactionData: TxBuildData = {
-        type: 'tron',
-        to: tx.to,
-        data: tx.data,
-        value: tx.value,
-      }
-
-      try {
-        const { fast } = await adapter.getFeeData({
-          to: toTronBase58(tx.to),
-          value: sellAmountCryptoBaseUnit,
-          chainSpecific: { from, contractAddress },
-        })
-
-        const stepData: BobGatewayQuoteStepData = {
-          orderId,
-          transactionData,
-          networkFeeCryptoBaseUnit: fast.txFee,
-        }
-
-        return Ok(stepData)
-      } catch (err) {
-        return Err(makeNetworkFeeEstimationFailedErr('getBobGatewayStepData', err))
-      }
-    }
     // EVM sells (offramp EVM → BTC, or tokenSwap EVM → Tron)
     case CHAIN_NAMESPACE.Evm: {
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
@@ -245,6 +183,68 @@ export async function getBobGatewayStepData(
           orderId,
           transactionData,
           networkFeeCryptoBaseUnit,
+        }
+
+        return Ok(stepData)
+      } catch (err) {
+        return Err(makeNetworkFeeEstimationFailedErr('getBobGatewayStepData', err))
+      }
+    }
+    // Tron sells (offramp Tron → BTC, or tokenSwap TRON → EVM)
+    case CHAIN_NAMESPACE.Tron: {
+      const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+
+      if (resolved.type === 'rate') {
+        const networkFeeCryptoBaseUnit = await (async () => {
+          try {
+            if (!('offramp' in quote) && !('tokenSwap' in quote)) return
+
+            const order = 'offramp' in quote ? quote.offramp : quote.tokenSwap
+
+            const { fast } = await adapter.getFeeData({
+              to: toTronBase58(order.txTo),
+              value: order.inputAmount.amount,
+              chainSpecific: { contractAddress },
+            })
+
+            return fast.txFee
+          } catch {}
+        })()
+
+        const stepData: BobGatewayRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
+      }
+
+      const { orderResponse, from } = resolved
+
+      if (!('offramp' in orderResponse) && !('tokenSwap' in orderResponse))
+        return Err(makeTradeStepBuildFailedErr('getBobGatewayStepData'))
+
+      const order = 'offramp' in orderResponse ? orderResponse.offramp : orderResponse.tokenSwap
+
+      if (order.tx.type !== 'tron') return Err(makeTradeStepBuildFailedErr('getBobGatewayStepData'))
+      const { tx, orderId } = order
+
+      const transactionData: TxBuildData = {
+        type: 'tron',
+        to: tx.to,
+        data: tx.data,
+        value: tx.value,
+      }
+
+      try {
+        const { fast } = await adapter.getFeeData({
+          to: toTronBase58(tx.to),
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: { from, contractAddress },
+        })
+
+        const stepData: BobGatewayQuoteStepData = {
+          orderId,
+          transactionData,
+          networkFeeCryptoBaseUnit: fast.txFee,
         }
 
         return Ok(stepData)

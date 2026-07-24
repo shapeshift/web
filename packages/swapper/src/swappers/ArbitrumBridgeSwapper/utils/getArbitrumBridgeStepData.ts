@@ -22,11 +22,24 @@ export type GetArbitrumBridgeStepDataArgs = StepDataArgs<
   { receiveAddress: string }
 >
 
-export const getArbitrumBridgeStepData = async (
+type ArbitrumBridgeRateStepData = {
+  networkFeeCryptoBaseUnit: string
+}
+
+type ArbitrumBridgeQuoteStepData = {
+  transactionData: TxBuildData
+  networkFeeCryptoBaseUnit: string
+}
+
+export function getArbitrumBridgeStepData(
+  args: Extract<GetArbitrumBridgeStepDataArgs, { type: 'rate' }>,
+): Promise<Result<ArbitrumBridgeRateStepData, SwapErrorRight>>
+export function getArbitrumBridgeStepData(
+  args: Extract<GetArbitrumBridgeStepDataArgs, { type: 'quote' }>,
+): Promise<Result<ArbitrumBridgeQuoteStepData, SwapErrorRight>>
+export async function getArbitrumBridgeStepData(
   args: GetArbitrumBridgeStepDataArgs,
-): Promise<
-  Result<{ transactionData?: TxBuildData; networkFeeCryptoBaseUnit: string }, SwapErrorRight>
-> => {
+): Promise<Result<ArbitrumBridgeRateStepData | ArbitrumBridgeQuoteStepData, SwapErrorRight>> {
   const { input, deps, bridgeType, sellAmountCryptoBaseUnit, sellAsset, buyAsset } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
@@ -40,7 +53,9 @@ export const getArbitrumBridgeStepData = async (
       gasLimit: fallbackGasLimit,
     })
 
-    return Ok({ networkFeeCryptoBaseUnit })
+    const stepData: ArbitrumBridgeRateStepData = { networkFeeCryptoBaseUnit }
+
+    return Ok(stepData)
   }
 
   const request = await buildArbitrumBridgeRequest({
@@ -72,7 +87,9 @@ export const getArbitrumBridgeStepData = async (
       supportsEIP1559,
     })
 
-    return Ok({ transactionData, networkFeeCryptoBaseUnit })
+    const stepData: ArbitrumBridgeQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+    return Ok(stepData)
   } catch (error) {
     return Err(makeNetworkFeeEstimationFailedErr('getArbitrumBridgeStepData', error))
   }

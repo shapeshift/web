@@ -30,17 +30,20 @@ type BaseArgs = {
 
 export type GetAcrossStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
 
-export const getAcrossStepData = async ({
-  swapTx,
-  sellAsset,
-  from,
-  type,
-  input,
-  fallbackNetworkFeeCryptoBaseUnit,
-  deps,
-}: GetAcrossStepDataArgs): Promise<
-  Result<{ transactionData?: TxBuildData; networkFeeCryptoBaseUnit: string }, SwapErrorRight>
-> => {
+type AcrossRateStepData = { networkFeeCryptoBaseUnit: string }
+type AcrossQuoteStepData = { transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }
+
+export function getAcrossStepData(
+  args: Extract<GetAcrossStepDataArgs, { type: 'rate' }>,
+): Promise<Result<AcrossRateStepData, SwapErrorRight>>
+export function getAcrossStepData(
+  args: Extract<GetAcrossStepDataArgs, { type: 'quote' }>,
+): Promise<Result<AcrossQuoteStepData, SwapErrorRight>>
+export async function getAcrossStepData(
+  args: GetAcrossStepDataArgs,
+): Promise<Result<AcrossRateStepData | AcrossQuoteStepData, SwapErrorRight>> {
+  const { swapTx, sellAsset, from, type, input, fallbackNetworkFeeCryptoBaseUnit, deps } = args
+
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
   switch (swapTx.ecosystem) {
@@ -57,17 +60,22 @@ export const getAcrossStepData = async ({
       }
 
       if (type === 'rate') {
-        try {
-          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-            adapter,
-            transactionData,
-            from,
-            supportsEIP1559,
-          })
-          return Ok({ networkFeeCryptoBaseUnit })
-        } catch {
-          return Ok({ networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit })
-        }
+        const networkFeeCryptoBaseUnit = await (async () => {
+          try {
+            return await getEvmNetworkFeeCryptoBaseUnit({
+              adapter,
+              transactionData,
+              from,
+              supportsEIP1559,
+            })
+          } catch {
+            return fallbackNetworkFeeCryptoBaseUnit
+          }
+        })()
+
+        const stepData: AcrossRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       }
 
       try {
@@ -77,7 +85,10 @@ export const getAcrossStepData = async ({
           from,
           supportsEIP1559,
         })
-        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+
+        const stepData: AcrossQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       } catch (error) {
         return Err(makeNetworkFeeEstimationFailedErr('getAcrossStepData', error))
       }
@@ -112,18 +123,24 @@ export const getAcrossStepData = async ({
 
         if (type === 'rate') {
           // No placeholder estimation for provider built routes - best effort with provider fee fallback
-          try {
-            const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
-              adapter,
-              from,
-              instructions,
-              addressLookupTableAddresses,
-              tokenId: contractAddressOrUndefined(sellAsset.assetId),
-            })
-            return Ok({ networkFeeCryptoBaseUnit })
-          } catch {
-            return Ok({ networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit })
-          }
+          const networkFeeCryptoBaseUnit = await (async () => {
+            try {
+              const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+                adapter,
+                from,
+                instructions,
+                addressLookupTableAddresses,
+                tokenId: contractAddressOrUndefined(sellAsset.assetId),
+              })
+              return networkFeeCryptoBaseUnit
+            } catch {
+              return fallbackNetworkFeeCryptoBaseUnit
+            }
+          })()
+
+          const stepData: AcrossRateStepData = { networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
         }
 
         const transactionData: TxBuildData = {
@@ -140,14 +157,21 @@ export const getAcrossStepData = async ({
             addressLookupTableAddresses,
             tokenId: contractAddressOrUndefined(sellAsset.assetId),
           })
-          return Ok({ transactionData, networkFeeCryptoBaseUnit })
+
+          const stepData: AcrossQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
         } catch (e) {
           return Err(makeNetworkFeeEstimationFailedErr('getAcrossStepData', e))
         }
       } catch (e) {
         // Rates degrade to the provider fee, quotes can't be built from an undecodable payload
         if (type === 'rate') {
-          return Ok({ networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit })
+          const stepData: AcrossRateStepData = {
+            networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
+          }
+
+          return Ok(stepData)
         }
 
         return Err(makeTradeStepBuildFailedErr('getAcrossStepData', e))

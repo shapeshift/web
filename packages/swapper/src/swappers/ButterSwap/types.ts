@@ -1,5 +1,28 @@
 import type { Hex } from 'viem'
 
+import type {
+  GetEvmTradeQuoteInput,
+  GetEvmTradeRateInput,
+  GetSolanaTradeQuoteInput,
+  GetSolanaTradeRateInput,
+  GetTronTradeQuoteInput,
+  GetTronTradeRateInput,
+  GetUtxoTradeQuoteInput,
+  GetUtxoTradeRateInput,
+} from '../../types'
+
+export type ButterSwapTradeQuoteInput =
+  | GetEvmTradeQuoteInput
+  | GetUtxoTradeQuoteInput
+  | GetSolanaTradeQuoteInput
+  | GetTronTradeQuoteInput
+
+export type ButterSwapTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetUtxoTradeRateInput
+  | GetSolanaTradeRateInput
+  | GetTronTradeRateInput
+
 export type ButterSwapTransactionMetadata = {
   to: string
   data: string

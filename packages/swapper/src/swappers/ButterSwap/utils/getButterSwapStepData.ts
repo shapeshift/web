@@ -1,6 +1,6 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import {
@@ -16,15 +16,7 @@ import {
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
 } from '../../../solana-utils'
-import type {
-  GetTradeQuoteInput,
-  GetTradeRateInput,
-  StepDataArgs,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuoteStep,
-  TxBuildData,
-} from '../../../types'
+import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import {
   makeNetworkFeeEstimationFailedErr,
@@ -32,67 +24,8 @@ import {
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utxo-utils'
-import type { BuildTxSuccessItem, RouteSuccessItem } from '../types'
-
-// Best effort fee pricing for rates (and the un-migrated tron quote path): estimate where the
-// route allows it, falling back to the provider reported fee
-const getRateNetworkFeeCryptoBaseUnit = async ({
-  input,
-  route,
-  sellAsset,
-  feeAsset,
-  sellAmountCryptoBaseUnit,
-  deps,
-}: {
-  input: GetTradeRateInput | GetTradeQuoteInput
-  route: RouteSuccessItem
-  sellAsset: Asset
-  feeAsset: Asset
-  sellAmountCryptoBaseUnit: string
-  deps: SwapperDeps
-}): Promise<string> => {
-  const { chainNamespace } = fromChainId(sellAsset.chainId)
-
-  switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Evm: {
-      try {
-        return await getEvmNetworkFeeCryptoBaseUnit({
-          adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
-          supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
-          gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-        })
-      } catch {
-        break
-      }
-    }
-    case CHAIN_NAMESPACE.Utxo: {
-      try {
-        const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
-          adapter: deps.assertGetUtxoChainAdapter(sellAsset.chainId),
-          pubkey: 'xpub' in input ? input.xpub : undefined,
-          to: input.sendAddress ?? UTXO_PLACEHOLDER_ADDRESS,
-          value: sellAmountCryptoBaseUnit,
-        })
-
-        return networkFeeCryptoBaseUnit
-      } catch {
-        break
-      }
-    }
-    case CHAIN_NAMESPACE.Solana:
-      // Swap instructions don't exist for rates - fall through to the provider reported fee
-      break
-    default:
-      break
-  }
-
-  if (bnOrZero(route.gasFee?.amount).lte(0)) return '0'
-
-  return BigAmount.fromPrecision({
-    value: route.gasFee.amount,
-    precision: feeAsset.precision,
-  }).toBaseUnit()
-}
+import type { BuildTxSuccessItem, ButterSwapTransactionMetadata, RouteSuccessItem } from '../types'
+import { getProviderNetworkFeeCryptoBaseUnit } from './helpers'
 
 type BaseArgs = {
   route: RouteSuccessItem
@@ -101,42 +34,59 @@ type BaseArgs = {
 }
 
 // Swap transactions are only built for quotes - rates price from the route alone
-type GetButterSwapStepDataArgs = StepDataArgs<
+export type GetButterSwapStepDataArgs = StepDataArgs<
   BaseArgs,
   { buildTx?: undefined },
   { buildTx: BuildTxSuccessItem }
 >
 
-export const getButterSwapStepData = async (
+type ButterSwapRateStepData = {
+  networkFeeCryptoBaseUnit: string
+}
+
+// transactionData for migrated namespaces; butterSwapTransactionMetadata for the un-migrated tron path
+type ButterSwapQuoteStepData = {
+  transactionData?: TxBuildData
+  butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
+  networkFeeCryptoBaseUnit: string
+}
+
+export function getButterSwapStepData(
+  args: Extract<GetButterSwapStepDataArgs, { type: 'rate' }>,
+): Promise<Result<ButterSwapRateStepData, SwapErrorRight>>
+export function getButterSwapStepData(
+  args: Extract<GetButterSwapStepDataArgs, { type: 'quote' }>,
+): Promise<Result<ButterSwapQuoteStepData, SwapErrorRight>>
+export async function getButterSwapStepData(
   args: GetButterSwapStepDataArgs,
-): Promise<
-  Result<
-    Pick<TradeQuoteStep, 'transactionData' | 'butterSwapTransactionMetadata'> & {
-      networkFeeCryptoBaseUnit: string
-    },
-    SwapErrorRight
-  >
-> => {
+): Promise<Result<ButterSwapRateStepData | ButterSwapQuoteStepData, SwapErrorRight>> {
   const { input, route, sellAsset, feeAsset, sellAmountCryptoBaseUnit, deps } = args
-
-  if (args.type === 'rate') {
-    const networkFeeCryptoBaseUnit = await getRateNetworkFeeCryptoBaseUnit({
-      input,
-      route,
-      sellAsset,
-      feeAsset,
-      sellAmountCryptoBaseUnit,
-      deps,
-    })
-
-    return Ok({ networkFeeCryptoBaseUnit })
-  }
-
-  const { buildTx, from } = args
   const { chainNamespace, chainReference } = fromChainId(sellAsset.chainId)
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
+      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+      const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
+
+      if (args.type === 'rate') {
+        const networkFeeCryptoBaseUnit = await (async () => {
+          try {
+            return await getEvmNetworkFeeCryptoBaseUnit({
+              adapter,
+              supportsEIP1559,
+              gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
+            })
+          } catch {
+            return getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
+          }
+        })()
+
+        const stepData: ButterSwapRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
+      }
+
+      const { buildTx, from } = args
       const providerGasLimit = bnOrZero(route.gasEstimatedTarget)
 
       const transactionData = {
@@ -151,27 +101,47 @@ export const getButterSwapStepData = async (
 
       try {
         const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-          adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
-          supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+          adapter,
+          supportsEIP1559,
           transactionData,
           from,
         })
 
-        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+        const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       } catch (error) {
         return Err(makeNetworkFeeEstimationFailedErr('getButterSwapStepData', error))
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
-      if (!buildTx.to) {
-        return Err(
-          makeSwapErrorRight({
-            message: '[getButterSwapStepData] Missing deposit address',
-            code: TradeQuoteError.InvalidResponse,
-          }),
-        )
+      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+      const pubkey = 'xpub' in input ? input.xpub : undefined
+
+      if (args.type === 'rate') {
+        const networkFeeCryptoBaseUnit = await (async () => {
+          try {
+            const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
+              adapter,
+              pubkey,
+              to: input.sendAddress ?? UTXO_PLACEHOLDER_ADDRESS,
+              value: sellAmountCryptoBaseUnit,
+            })
+
+            return networkFeeCryptoBaseUnit
+          } catch {
+            return getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
+          }
+        })()
+
+        const stepData: ButterSwapRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       }
 
+      const { buildTx } = args
+
+      // opReturnData routes the bridge for BTC deposits
       if (!buildTx.memo) {
         return Err(
           makeSwapErrorRight({
@@ -190,20 +160,33 @@ export const getButterSwapStepData = async (
 
       try {
         const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
-          adapter: deps.assertGetUtxoChainAdapter(sellAsset.chainId),
-          pubkey: 'xpub' in input ? input.xpub : undefined,
+          adapter,
+          pubkey,
           to: transactionData.to,
           value: transactionData.value,
           opReturnData: transactionData.opReturnData,
         })
 
-        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+        const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       } catch (error) {
         return Err(makeNetworkFeeEstimationFailedErr('getButterSwapStepData', error))
       }
     }
     case CHAIN_NAMESPACE.Solana: {
       const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+      if (args.type === 'rate') {
+        // Swap instructions don't exist for rates - best effort with provider fee fallback
+        const networkFeeCryptoBaseUnit = getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
+
+        const stepData: ButterSwapRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
+      }
+
+      const { buildTx, from } = args
 
       try {
         const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
@@ -245,7 +228,9 @@ export const getButterSwapStepData = async (
             addressLookupTableAddresses,
           })
 
-          return Ok({ transactionData, networkFeeCryptoBaseUnit })
+          const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
         } catch (error) {
           return Err(makeNetworkFeeEstimationFailedErr('getButterSwapStepData', error))
         }
@@ -253,19 +238,19 @@ export const getButterSwapStepData = async (
         return Err(makeTradeStepBuildFailedErr('getButterSwapStepData', error))
       }
     }
-
     // Not yet migrated to a TxBuildData variant - exec still builds from legacy metadata
     case CHAIN_NAMESPACE.Tron: {
-      const networkFeeCryptoBaseUnit = await getRateNetworkFeeCryptoBaseUnit({
-        input,
-        route,
-        sellAsset,
-        feeAsset,
-        sellAmountCryptoBaseUnit,
-        deps,
-      })
+      const networkFeeCryptoBaseUnit = getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
 
-      return Ok({
+      if (args.type === 'rate') {
+        const stepData: ButterSwapRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
+      }
+
+      const { buildTx } = args
+
+      const stepData: ButterSwapQuoteStepData = {
         butterSwapTransactionMetadata: {
           to: buildTx.to,
           data: buildTx.data,
@@ -275,9 +260,10 @@ export const getButterSwapStepData = async (
           memo: buildTx.memo,
         },
         networkFeeCryptoBaseUnit,
-      })
-    }
+      }
 
+      return Ok(stepData)
+    }
     default:
       return Err(
         makeSwapErrorRight({

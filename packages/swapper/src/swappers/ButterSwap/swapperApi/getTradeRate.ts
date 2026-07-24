@@ -1,190 +1,46 @@
-import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import {
-  BigAmount,
-  chainIdToFeeAssetId,
-  convertDecimalPercentageToBasisPoints,
-} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import {
-  createTradeAmountTooSmallErr,
-  getInputOutputRate,
-  makeSwapErrorRight,
-} from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { makeButterSwapAffiliate } from '../utils/constants'
+import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import { SwapperName } from '../../../types'
+import type { ButterSwapTradeRateInput } from '../types'
 import { getButterSwapStepData } from '../utils/getButterSwapStepData'
-import {
-  ButterSwapErrorCode,
-  butterSwapErrorToTradeQuoteError,
-  getButterRoute,
-  isRouteSuccess,
-} from '../xhr'
+import { getButterSwapTradeContext } from '../utils/getButterSwapTradeContext'
 
 export const getTradeRate = async (
-  input: GetTradeRateInput,
+  input: ButterSwapTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const {
-    sellAsset,
-    buyAsset,
-    affiliateBps,
-    accountNumber,
-    receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  } = input
-
-  if (
-    !isEvmChainId(sellAsset.chainId) &&
-    sellAsset.chainId !== btcChainId &&
-    sellAsset.chainId !== solanaChainId &&
-    sellAsset.chainId !== tronChainId
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Unsupported chain`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
-
-  const amount = BigAmount.fromBaseUnit({
-    value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    precision: sellAsset.precision,
-  }).toPrecision()
-
-  const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
+  const { receiveAddress } = input
 
   const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
     SwapperName.ButterSwap,
   )
 
-  const slippage = convertDecimalPercentageToBasisPoints(
-    slippageTolerancePercentageDecimal,
-  ).toString()
-
-  const result = await getButterRoute({
-    sellAsset,
-    buyAsset,
-    sellAmountCryptoPrecision: amount,
-    slippage,
-    affiliate: makeButterSwapAffiliate(affiliateBps),
-  })
-
-  if (result.isErr()) return Err(result.unwrapErr())
-  const routeResponse = result.unwrap()
-
-  if (!isRouteSuccess(routeResponse)) {
-    if (routeResponse.errno === ButterSwapErrorCode.InsufficientAmount) {
-      const minAmountCryptoBaseUnit = BigAmount.fromPrecision({
-        value: (routeResponse as any).minAmount,
-        precision: sellAsset.precision,
-      }).toBaseUnit()
-
-      return Err(
-        createTradeAmountTooSmallErr({ minAmountCryptoBaseUnit, assetId: sellAsset.assetId }),
-      )
-    }
-    return Err(
-      makeSwapErrorRight({
-        message: `[getTradeRate] ${routeResponse.message}`,
-        code: butterSwapErrorToTradeQuoteError(routeResponse.errno),
-      }),
-    )
-  }
-
-  const route = routeResponse.data[0]
-  if (!route) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeRate] No route found',
-        code: TradeQuoteError.NoRouteFound,
-      }),
-    )
-  }
-
-  // Use destination receive amount as a priority if present and defined
-  // It won't for same-chain swaps, so we fall back to the source chain receive amount (i.e source chain *is* the destination chain)
-  const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
-
-  // TODO: affiliate fees not yet here, gut feel is that Butter won't do the swap output - fees logic for us here
-  // Sanity check me when affiliates are implemented, and do the math ourselves if needed
-  const buyAmountAfterFeesCryptoBaseUnit = BigAmount.fromPrecision({
-    value: outputAmount,
-    precision: buyAsset.precision,
-  }).toBaseUnit()
-
-  const rate = getInputOutputRate({
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-    sellAsset,
-    buyAsset,
-  })
-
-  const feeAsset = deps.assetsById[feeAssetId]
-  if (!feeAsset) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getTradeRate] Fee asset not found for chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
-
-  const maybeStepData = await getButterSwapStepData({
-    type: 'rate',
+  const maybeContext = await getButterSwapTradeContext({
     input,
-    route,
-    sellAsset,
-    feeAsset,
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     deps,
+    slippageTolerancePercentageDecimal,
   })
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getButterSwapStepData({ ...stepDataArgs, type: 'rate', input })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeRate: TradeRate = {
-    id: route.hash,
-    rate,
-    swapperName: SwapperName.ButterSwap,
+    ...tradeCommon,
+    quoteOrRate: 'rate' as const,
     receiveAddress,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-    quoteOrRate: 'rate',
     steps: [
       {
-        rate,
-        buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
-          value: outputAmount,
-          precision: buyAsset.precision,
-        }).toBaseUnit(),
-        buyAmountAfterFeesCryptoBaseUnit,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        feeData: {
-          networkFeeCryptoBaseUnit,
-          protocolFees: undefined,
-        },
-        source: SwapperName.ButterSwap,
-        buyAsset,
-        sellAsset,
-        accountNumber,
-        allowanceContract: route.contract ?? '',
-        estimatedExecutionTimeMs: route.timeEstimated * 1000,
-        affiliateFee: buildAffiliateFee({
-          strategy: 'buy_asset',
-          affiliateBps,
-          sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-          isEstimate: true,
-        }),
+        ...stepCommon,
+        accountNumber: undefined,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],
   }

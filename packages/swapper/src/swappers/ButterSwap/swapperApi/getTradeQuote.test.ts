@@ -1,7 +1,8 @@
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { CommonTradeQuoteInput, SwapperDeps } from '../../../types'
+import type { GetEvmTradeQuoteInput, SwapperDeps } from '../../../types'
 import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { getTradeQuote } from './getTradeQuote'
@@ -61,7 +62,7 @@ describe('getTradeQuote', () => {
       fetchIsSmartContractAddressQuery: vi.fn(),
     }
 
-    const input: CommonTradeQuoteInput = {
+    const input: GetEvmTradeQuoteInput = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
       sellAsset: WETH,
       buyAsset: USDC_MAINNET,
@@ -71,6 +72,8 @@ describe('getTradeQuote', () => {
       affiliateBps: '0',
       allowMultiHop: true,
       quoteOrRate: 'quote',
+      chainId: KnownChainIds.EthereumMainnet,
+      supportsEIP1559: false,
     }
 
     const result = await getTradeQuote(input, deps)

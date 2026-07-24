@@ -1,96 +1,38 @@
-import { ethChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetEvmTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
-import { fetchArbitrumBridgePrice } from '../utils/fetchArbitrumBridgeSwap'
-import { assertValidTrade } from '../utils/helpers'
+import { getArbitrumBridgeStepData } from '../utils/getArbitrumBridgeStepData'
+import { getArbitrumBridgeTradeContext } from '../utils/getArbitrumBridgeTradeContext'
 
-export async function getTradeRate(
+export const getTradeRate = async (
   input: GetEvmTradeRateInput,
-  { assertGetEvmChainAdapter }: SwapperDeps,
-): Promise<Result<TradeRate, SwapErrorRight>> {
-  const {
-    chainId,
-    sellAsset,
-    buyAsset,
-    supportsEIP1559,
+  deps: SwapperDeps,
+): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  const { receiveAddress } = input
+
+  const maybeContext = await getArbitrumBridgeTradeContext({ input, deps })
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getArbitrumBridgeStepData({ ...stepDataArgs, type: 'rate', input })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
+
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
+    quoteOrRate: 'rate',
     receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sendAddress,
-    accountNumber,
-  } = input
-
-  const assertion = await assertValidTrade({ buyAsset, sellAsset })
-  if (assertion.isErr()) return Err(assertion.unwrapErr())
-
-  const isDeposit = sellAsset.chainId === ethChainId
-
-  // 15 minutes for deposits, 7 days for withdrawals
-  const estimatedExecutionTimeMs = isDeposit ? 15 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
-
-  // 1/1 when bridging on Arbitrum bridge
-  const rate = '1'
-
-  try {
-    const args = {
-      supportsEIP1559,
-      chainId,
-      buyAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      sellAsset,
-      sendAddress,
-      receiveAddress,
-      assertGetEvmChainAdapter,
-      quoteOrRate: 'rate',
-    }
-    const swap = await fetchArbitrumBridgePrice(args)
-
-    const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
-
-    const tradeRate: TradeRate = {
-      id: uuid(),
-      quoteOrRate: 'rate',
-      receiveAddress,
-      affiliateBps: '0',
-      rate,
-      slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
-        SwapperName.ArbitrumBridge,
-      ),
-      swapperName: SwapperName.ArbitrumBridge,
-      steps: [
-        {
-          estimatedExecutionTimeMs,
-          allowanceContract: swap.allowanceContract,
-          rate,
-          buyAsset,
-          sellAsset,
-          accountNumber,
-          buyAmountBeforeFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          feeData: {
-            protocolFees: {},
-            networkFeeCryptoBaseUnit: swap.networkFeeCryptoBaseUnit,
-          },
-          source: SwapperName.ArbitrumBridge,
-        },
-      ],
-    }
-
-    return Ok(tradeRate)
-  } catch (err) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[ArbitrumBridge: tradeQuote] - failed to get fee data',
-        cause: err,
-        code: TradeQuoteError.NetworkFeeEstimationFailed,
-      }),
-    )
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber: undefined,
+        feeData: { protocolFees: {}, networkFeeCryptoBaseUnit },
+      },
+    ],
   }
+
+  return Ok([tradeRate])
 }

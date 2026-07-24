@@ -1,78 +1,52 @@
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetSolanaTradeQuoteInput, SwapErrorRight, TradeQuote } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
+import type {
+  GetSolanaTradeQuoteInput,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+} from '../../../types'
+import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { fetchBebopSolanaQuote } from '../utils/fetchFromBebop'
-import { assertValidTrade, calculateRate, isBebopSolanaTxSafe } from '../utils/helpers/helpers'
+import { getBebopSolanaTradeContext } from '../utils/getBebopSolanaTradeContext'
+import { isBebopSolanaTxSafe } from '../utils/helpers'
 
-export async function getBebopSolanaTradeQuote(
+export const getBebopSolanaTradeQuote = async (
   input: GetSolanaTradeQuoteInput,
-  _assetsById: AssetsByIdPartial,
-  apiKey: string,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    accountNumber,
-    sendAddress,
-    receiveAddress,
-    affiliateBps,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  } = input
+  deps: SwapperDeps,
+): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  const { sendAddress, receiveAddress, accountNumber } = input
 
-  const assertion = assertValidTrade({ buyAsset, sellAsset })
-  if (assertion.isErr()) return Err(assertion.unwrapErr())
-
-  const takerAddress = sendAddress || receiveAddress
-
-  if (!takerAddress) {
+  if (!sendAddress) {
     return Err(
       makeSwapErrorRight({
-        message: 'Cannot execute quote without a wallet address',
+        message: '[getBebopSolanaTradeQuote] sendAddress is required',
         code: TradeQuoteError.UnknownError,
       }),
     )
   }
 
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
-
-  const maybeBebopQuoteResponse = await fetchBebopSolanaQuote({
-    buyAsset,
-    sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    takerAddress,
-    receiverAddress: receiveAddress ?? takerAddress,
-    slippageTolerancePercentageDecimal,
-    affiliateBps,
-    apiKey,
-  })
-
-  if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
-  const bebopQuoteResponse = maybeBebopQuoteResponse.unwrap()
-
-  const sellTokenAddress = Object.keys(bebopQuoteResponse.sellTokens)[0]
-  const buyTokenAddress = Object.keys(bebopQuoteResponse.buyTokens)[0]
-
-  if (!sellTokenAddress || !buyTokenAddress) {
+  if (!receiveAddress) {
     return Err(
       makeSwapErrorRight({
-        message: 'Invalid token addresses in response',
-        code: TradeQuoteError.InvalidResponse,
+        message: '[getBebopSolanaTradeQuote] receiveAddress is required',
+        code: TradeQuoteError.UnknownError,
       }),
     )
   }
 
-  if (
-    bebopQuoteResponse.solana_tx &&
-    !isBebopSolanaTxSafe(bebopQuoteResponse.solana_tx, takerAddress)
-  ) {
+  const maybeContext = await getBebopSolanaTradeContext({
+    input,
+    deps,
+    takerAddress: sendAddress,
+    receiverAddress: receiveAddress,
+  })
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, response } = maybeContext.unwrap()
+
+  if (!isBebopSolanaTxSafe(response.solana_tx, sendAddress)) {
     return Err(
       makeSwapErrorRight({
         message: 'Bebop signer index mismatch - taker not at expected position',
@@ -81,44 +55,21 @@ export async function getBebopSolanaTradeQuote(
     )
   }
 
-  const sellAmount = bebopQuoteResponse.sellTokens[sellTokenAddress].amount
-  const buyAmount = bebopQuoteResponse.buyTokens[buyTokenAddress].amount
-
-  const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
-
-  const buyTokenData = bebopQuoteResponse.buyTokens[buyTokenAddress]
-  const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
-  const buyAmountAfterFeesCryptoBaseUnit = buyAmount
-
   const tradeQuote: TradeQuote = {
-    id: uuid(),
+    ...tradeCommon,
     quoteOrRate: 'quote',
-    receiveAddress: receiveAddress ?? takerAddress,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-    rate,
-    swapperName: SwapperName.Bebop,
+    receiveAddress,
     steps: [
       {
-        estimatedExecutionTimeMs: 0,
-        allowanceContract: '',
-        buyAsset,
-        sellAsset,
+        ...stepCommon,
         accountNumber,
-        rate,
-        feeData: {
-          protocolFees: {},
-          networkFeeCryptoBaseUnit: '0', // Bebop Solana is gasless - Bebop pays the network fees via co-signing
-        },
-        buyAmountBeforeFeesCryptoBaseUnit,
-        buyAmountAfterFeesCryptoBaseUnit,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        source: SwapperName.Bebop,
-        bebopSolanaSerializedTx: bebopQuoteResponse.solana_tx,
-        swapperMetadata: { name: 'bebop', quoteId: bebopQuoteResponse.quoteId },
+        // Bebop Solana is gasless - Bebop pays the network fees via co-signing
+        feeData: { protocolFees: {}, networkFeeCryptoBaseUnit: '0' },
+        bebopSolanaSerializedTx: response.solana_tx,
+        swapperMetadata: { name: 'bebop', quoteId: response.quoteId },
       },
     ],
   }
 
-  return Ok(tradeQuote)
+  return Ok([tradeQuote])
 }

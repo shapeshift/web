@@ -13,7 +13,7 @@ import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { BebopQuoteResponse, BebopSolanaQuoteResponse, BebopSupportedChainId } from '../types'
 import { chainIdToBebopChain } from '../types'
 import { bebopServiceFactory } from './bebopService'
-import { assetIdToBebopSolanaToken, assetIdToBebopToken } from './helpers/helpers'
+import { assetIdToBebopSolanaToken, assetIdToBebopToken } from './helpers'
 
 export const fetchBebopQuote = async ({
   buyAsset,

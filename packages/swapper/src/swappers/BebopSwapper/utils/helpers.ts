@@ -6,14 +6,10 @@ import { Err, Ok } from '@sniptt/monads'
 import { PublicKey, VersionedTransaction } from '@solana/web3.js'
 import { getAddress } from 'viem'
 
-import { TradeQuoteError } from '../../../../types'
-import { makeSwapErrorRight } from '../../../../utils'
-import type { BebopSupportedChainId } from '../../types'
-import { BEBOP_NATIVE_MARKER, bebopSupportedChainIds } from '../../types'
-
-export const isSolanaChainId = (chainId: ChainId): boolean => {
-  return chainId === solanaChainId
-}
+import { TradeQuoteError } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
+import type { BebopSupportedChainId } from '../types'
+import { BEBOP_NATIVE_MARKER, bebopSupportedChainIds } from '../types'
 
 export const assetIdToBebopToken = (assetId: AssetId): string => {
   if (!isToken(assetId)) return BEBOP_NATIVE_MARKER

@@ -1,8 +1,13 @@
 import { quoteToCalls } from '@avnu/avnu-sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { CallData, hash, num, validateAndParseAddress } from 'starknet'
+import { CallData, hash, validateAndParseAddress } from 'starknet'
 
-import type { SwapperApi, TradeStatus } from '../../types'
+import type {
+  GetStarknetTradeQuoteInput,
+  GetStarknetTradeRateInput,
+  SwapperApi,
+  TradeStatus,
+} from '../../types'
 import {
   checkStarknetSwapStatus,
   createDefaultStatusResponse,
@@ -12,39 +17,11 @@ import {
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-
-/**
- * Normalize a value to hex format for Starknet RPC
- * Handles various input types: decimal strings, hex strings (with/without 0x), numbers, BigInts
- */
-const toHexString = (value: unknown): string => {
-  const strValue = String(value)
-
-  // Already a proper hex string with 0x prefix
-  if (strValue.startsWith('0x')) {
-    return strValue
-  }
-
-  // Check if it looks like a hex string without 0x prefix (contains a-f characters)
-  // Starknet addresses and felts often come as hex without 0x prefix
-  if (/^[0-9a-fA-F]+$/.test(strValue) && /[a-fA-F]/.test(strValue)) {
-    return `0x${strValue}`
-  }
-
-  // Otherwise treat as decimal and convert to hex
-  try {
-    return num.toHex(strValue)
-  } catch {
-    // If conversion fails, assume it's already hex and add prefix
-    return `0x${strValue}`
-  }
-}
+import { toHexString } from './utils/helpers'
 
 export const avnuApi: SwapperApi = {
-  getTradeQuote,
-  getTradeRate: (input, deps) => {
-    return getTradeRate(input, deps)
-  },
+  getTradeQuote: (input, deps) => getTradeQuote(input as GetStarknetTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as GetStarknetTradeRateInput, deps),
 
   getUnsignedStarknetTransaction: async ({
     stepIndex,

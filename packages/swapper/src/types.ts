@@ -29,6 +29,7 @@ import type {
   OrderQuoteResponse,
   PartialRecord,
   SolanaChainId,
+  StarknetChainId,
   TonChainId,
   TronChainId,
   UtxoAccountType,
@@ -223,16 +224,8 @@ export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 's
   wallet: HDWallet
 }
 
-export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
-  chainId: CosmosSdkChainId
-}
-
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
-}
-
-export type GetTronTradeQuoteInputBase = CommonTradeInput & {
-  chainId: TronChainId
 }
 
 export type GetTronTradeQuoteInput = CommonTradeInput & {
@@ -247,20 +240,12 @@ export type GetTronTradeRateInput = CommonTradeRateInput & {
   chainId: TronChainId
 }
 
-export type GetNearTradeQuoteInputBase = CommonTradeInput & {
-  chainId: NearChainId
-}
-
 export type GetNearTradeQuoteInput = CommonTradeInput & {
   chainId: NearChainId
 }
 
 export type GetNearTradeRateInput = CommonTradeRateInput & {
   chainId: NearChainId
-}
-
-export type GetTonTradeQuoteInputBase = CommonTradeInput & {
-  chainId: TonChainId
 }
 
 export type GetTonTradeQuoteInput = CommonTradeInput & {
@@ -271,16 +256,20 @@ export type GetTonTradeRateInput = CommonTradeRateInput & {
   chainId: TonChainId
 }
 
-export type GetSolanaTradeQuoteInputBase = CommonTradeInput & {
-  chainId: SolanaChainId
-}
-
 export type GetSolanaTradeQuoteInput = CommonTradeInput & {
   chainId: SolanaChainId
 }
 
 export type GetSolanaTradeRateInput = CommonTradeRateInput & {
   chainId: SolanaChainId
+}
+
+export type GetStarknetTradeQuoteInput = CommonTradeInput & {
+  chainId: StarknetChainId
+}
+
+export type GetStarknetTradeRateInput = CommonTradeRateInput & {
+  chainId: StarknetChainId
 }
 
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
@@ -309,6 +298,7 @@ export type GetTradeQuoteInput =
   | GetNearTradeQuoteInput
   | GetTonTradeQuoteInput
   | GetSolanaTradeQuoteInput
+  | GetStarknetTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -318,6 +308,7 @@ export type GetTradeRateInput =
   | GetNearTradeRateInput
   | GetTonTradeRateInput
   | GetSolanaTradeRateInput
+  | GetStarknetTradeRateInput
 
 type StepDataBaseArgs = {
   deps: SwapperDeps

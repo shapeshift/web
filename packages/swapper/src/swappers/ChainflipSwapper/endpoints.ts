@@ -11,7 +11,7 @@ import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-u
 import { ChainflipStatusMessage } from './constants'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-import type { ChainFlipStatus } from './types'
+import type { ChainFlipStatus, ChainflipTradeQuoteInput, ChainflipTradeRateInput } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
 
@@ -25,8 +25,8 @@ const solanaComputeBudget: SolanaComputeBudgetOptions = {
 }
 
 export const chainflipApi: SwapperApi = {
-  getTradeQuote,
-  getTradeRate,
+  getTradeQuote: (input, deps) => getTradeQuote(input as ChainflipTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as ChainflipTradeRateInput, deps),
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
   getUnsignedUtxoTransaction,

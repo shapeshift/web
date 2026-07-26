@@ -1,7 +1,7 @@
 import type { AxiosStatic } from 'axios'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getFullAppData } from '../../../../cowswap-utils'
+import { getFullAppData } from '../../../cowswap-utils'
 import { getNowPlusThirtyMinutesTimestamp } from './helpers'
 
 vi.mock('../cowService', async () => {

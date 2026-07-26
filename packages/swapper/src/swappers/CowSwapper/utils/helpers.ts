@@ -11,9 +11,9 @@ import {
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorRight } from '../../../../types'
-import { TradeQuoteError } from '../../../../types'
-import { makeSwapErrorRight } from '../../../../utils'
+import type { SwapErrorRight } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
 
 export type CowSwapQuoteApiInputBase = {
   appData: string

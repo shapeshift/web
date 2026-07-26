@@ -1,26 +1,49 @@
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import type {
-  GetEvmTradeQuoteInputBase,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-} from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
-import { getTrade } from '../utils/getTrade'
+import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import { assertQuoteAddresses } from '../../../utils'
+import { getDebridgeStepData } from '../utils/getDebridgeStepData'
+import { getDebridgeTradeContext } from '../utils/getDebridgeTradeContext'
+import type { DebridgeTradeQuoteInput } from '../utils/types'
 
-export const getTradeQuote = (
-  input: GetEvmTradeQuoteInputBase,
+export const getTradeQuote = async (
+  input: DebridgeTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  if (!input.sendAddress) {
-    return Promise.resolve(Err(makeSwapErrorRight({ message: 'sendAddress is required' })))
+  const maybeAddresses = assertQuoteAddresses(input)
+
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
+
+  const maybeContext = await getDebridgeTradeContext({
+    input,
+    deps,
+    senderAddress: sendAddress,
+    recipientAddress: receiveAddress,
+  })
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getDebridgeStepData({ ...stepDataArgs, type: 'quote', input })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
+
+  const tradeQuote: TradeQuote = {
+    ...tradeCommon,
+    quoteOrRate: 'quote' as const,
+    receiveAddress,
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber: input.accountNumber,
+        transactionData,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
+      },
+    ],
   }
 
-  if (!input.receiveAddress) {
-    return Promise.resolve(Err(makeSwapErrorRight({ message: 'receiveAddress is required' })))
-  }
-
-  return getTrade({ input, deps })
+  return Ok([tradeQuote])
 }

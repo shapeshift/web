@@ -1,3 +1,8 @@
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput } from '../../../types'
+
+export type DebridgeTradeQuoteInput = GetEvmTradeQuoteInputBase
+export type DebridgeTradeRateInput = GetEvmTradeRateInput
+
 export type DebridgeMetadata = {
   name: 'debridge'
   isSameChainSwap: boolean

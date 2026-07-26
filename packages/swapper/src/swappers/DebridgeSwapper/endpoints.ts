@@ -1,7 +1,7 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
+import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getSwapMetadata } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -10,13 +10,15 @@ import type {
   DebridgeOrderDetail,
   DebridgeOrderIdsResponse,
   DebridgeOrderStatus,
+  DebridgeTradeQuoteInput,
+  DebridgeTradeRateInput,
 } from './utils/types'
 
 const DEBRIDGE_STATS_API_URL = 'https://stats-api.dln.trade'
 
 export const debridgeApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input as GetEvmTradeQuoteInputBase, deps),
-  getTradeRate: (input, deps) => getTradeRate(input as GetEvmTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getTradeQuote(input as DebridgeTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as DebridgeTradeRateInput, deps),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
   checkTradeStatus: async ({

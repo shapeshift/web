@@ -126,7 +126,6 @@ export const getL1ToLongtailQuote = async (
         ...quote,
         memo: updatedMemo,
         data,
-        aggregator: bestAggregator,
         steps: quote.steps.map(s => ({
           ...s,
           buyAsset,
@@ -138,9 +137,6 @@ export const getL1ToLongtailQuote = async (
           feeData: { ...s.feeData, networkFeeCryptoBaseUnit },
         })) as MultiHopTradeQuoteSteps,
         isLongtail: true,
-        longtailData: {
-          L1ToLongtailExpectedAmountOut: quotedAmountOut.toString(),
-        },
       })
     }),
   )

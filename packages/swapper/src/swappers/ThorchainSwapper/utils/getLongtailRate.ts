@@ -38,7 +38,7 @@ export const getLongtailToL1Rate = async (
     return Err(maybeBestAggregator.unwrapErr())
   }
 
-  const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
+  const { quotedAmountOut } = maybeBestAggregator.unwrap()
 
   const l1Tol1QuoteInput: ThorTradeRateInput = {
     ...input,
@@ -57,7 +57,6 @@ export const getLongtailToL1Rate = async (
   return maybeL1Rates.map(rates =>
     rates.map(rate => ({
       ...rate,
-      aggregator: bestAggregator,
       // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
       steps: rate.steps.map(s => ({
         ...s,
@@ -66,9 +65,6 @@ export const getLongtailToL1Rate = async (
         allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
       })) as MultiHopTradeRateSteps,
       isLongtail: true,
-      longtailData: {
-        longtailToL1ExpectedAmountOut: quotedAmountOut.toString(),
-      },
     })),
   )
 }

@@ -28,7 +28,7 @@ export const getTradeQuote = async (
 
   const maybeContext = await getRelayTradeContext({ input, deps, relayChainMap })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
-  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId, orderId } =
+  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId } =
     maybeContext.unwrap()
 
   const stepResults = await Promise.all(
@@ -49,7 +49,6 @@ export const getTradeQuote = async (
           swapperMetadata: {
             name: 'relay',
             relayId,
-            orderId,
             data: transactionData?.type === 'evm' ? transactionData.data : undefined,
           },
           feeData: { networkFeeCryptoBaseUnit, protocolFees },

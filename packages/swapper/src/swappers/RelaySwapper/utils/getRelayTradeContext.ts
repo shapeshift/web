@@ -42,7 +42,6 @@ type RelayTradeContext = {
   relayStepInputs: { data: RelayQuoteItem['data']; allowanceContract: string }[]
   stepDataArgs: Omit<GetRelayStepDataArgs, 'type' | 'input' | 'data'>
   relayId: string
-  orderId: string | undefined
 }
 
 export const getRelayTradeContext = async ({
@@ -414,6 +413,5 @@ export const getRelayTradeContext = async ({
       deps,
     },
     relayId,
-    orderId,
   })
 }

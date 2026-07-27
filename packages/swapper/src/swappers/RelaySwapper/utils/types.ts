@@ -31,7 +31,6 @@ export type RelayTransactionMetadata = {
 export type RelayMetadata = {
   name: 'relay'
   relayId: string
-  orderId?: string
   // EVM calldata, preserved solely for relay's /transactions/single indexer `tx` param.
   data?: string
 }

@@ -21,7 +21,7 @@ export const getTradeRate = async (
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const maybeContext = await getRelayTradeContext({ input, deps, relayChainMap })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
-  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId, orderId } =
+  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId } =
     maybeContext.unwrap()
 
   const stepResults = await Promise.all(
@@ -33,7 +33,7 @@ export const getTradeRate = async (
           ...stepCommon,
           accountNumber: undefined,
           allowanceContract,
-          swapperMetadata: { name: 'relay', relayId, orderId, data: undefined },
+          swapperMetadata: { name: 'relay', relayId, data: undefined },
           feeData: { networkFeeCryptoBaseUnit, protocolFees },
         }),
       )

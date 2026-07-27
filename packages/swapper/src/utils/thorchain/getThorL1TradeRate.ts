@@ -43,15 +43,13 @@ export const getThorL1TradeRate = async (
         })
 
         if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
-        const { networkFeeCryptoBaseUnit, data, router, vault } = maybeStepData.unwrap()
+        const { networkFeeCryptoBaseUnit, data, router } = maybeStepData.unwrap()
 
         const rate: ThorTradeRate = {
           ...tradeCommon,
           quoteOrRate: 'rate',
           memo: '',
           receiveAddress,
-          vault,
-          router,
           data,
           steps: [
             {

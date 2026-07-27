@@ -43,8 +43,6 @@ export type NearIntentsMetadata = {
   name: 'nearIntents'
   depositAddress: string
   depositMemo?: string
-  timeEstimate: number
-  deadline: string
 }
 
 export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'

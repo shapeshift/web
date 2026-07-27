@@ -1,11 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  mayachainAssetId,
-  mayachainChainId,
-  thorchainAssetId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
-import * as adapters from '@shapeshiftoss/chain-adapters'
+import { mayachainAssetId, mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
 
 import {
   assetIdToMayaPoolAssetId,
@@ -100,28 +94,6 @@ export const getNativePrecision = (assetId: AssetId, swapperName: SwapperName) =
       return THORCHAIN_PRECISION
     case SwapperName.Mayachain:
       return assetId === mayachainAssetId ? CACAO_PRECISION : MAYACHAIN_PRECISION
-    default:
-      throw new Error(`Invalid swapper: ${swapperName}`)
-  }
-}
-
-export const getSwapperNativeAssetId = (swapperName: SwapperName): AssetId => {
-  switch (swapperName) {
-    case SwapperName.Thorchain:
-      return thorchainAssetId
-    case SwapperName.Mayachain:
-      return mayachainAssetId
-    default:
-      throw new Error(`Invalid swapper: ${swapperName}`)
-  }
-}
-
-export const getNativeFee = (swapperName: SwapperName) => {
-  switch (swapperName) {
-    case SwapperName.Thorchain:
-      return adapters.thorchain.NATIVE_FEE
-    case SwapperName.Mayachain:
-      return adapters.mayachain.NATIVE_FEE
     default:
       throw new Error(`Invalid swapper: ${swapperName}`)
   }

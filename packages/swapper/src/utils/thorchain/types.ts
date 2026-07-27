@@ -250,12 +250,9 @@ export type ThorNodeTxResponseSuccess = {
 export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeResponseError
 export type ThornodeTxResponse = ThorNodeTxResponseSuccess | ThornodeResponseError
 
-// vault is always set; router/aggregator/data are evm-only (absent on utxo/cosmos/solana/tron)
+// data is evm-only (absent on utxo/cosmos/solana/tron)
 export type ThorTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
-    vault: string
-    router?: string
-    aggregator?: string
     data?: string
   }
 
@@ -288,18 +285,11 @@ type ThorTradeQuoteSpecificMetadata = {
   recommendedMinimumCryptoBaseUnit: string
   tradeType: TradeType
   expiry: number
-  longtailData?: {
-    longtailToL1ExpectedAmountOut?: string
-    L1ToLongtailExpectedAmountOut?: string
-  }
 }
 
-// vault is always set; router/aggregator/data are evm-only (absent on utxo/cosmos/solana/tron)
+// data is evm-only (absent on utxo/cosmos/solana/tron)
 export type ThorTradeRate = TradeRate &
   ThorTradeQuoteSpecificMetadata & {
-    vault: string
-    router?: string
-    aggregator?: string
     data?: string
   }
 

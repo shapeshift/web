@@ -81,16 +81,13 @@ export const getThorL1TradeQuote = async (
         })
 
         if (maybeStepDate.isErr()) return Err(maybeStepDate.unwrapErr())
-        const { networkFeeCryptoBaseUnit, transactionData, data, router, vault } =
-          maybeStepDate.unwrap()
+        const { networkFeeCryptoBaseUnit, transactionData, data, router } = maybeStepDate.unwrap()
 
         const quote: ThorTradeQuote = {
           ...tradeCommon,
           quoteOrRate: 'quote',
           memo,
           receiveAddress,
-          vault,
-          router,
           data,
           steps: [
             {

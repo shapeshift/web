@@ -59,13 +59,12 @@ export const getL1ToLongtailRate = async (
       )
 
       if (maybeBestAggregator.isErr()) return Err(maybeBestAggregator.unwrapErr())
-      const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
+      const { quotedAmountOut } = maybeBestAggregator.unwrap()
 
       return Ok({
         ...quote,
         // No memo is returned upstream for rates
         memo: '',
-        aggregator: bestAggregator,
         steps: quote.steps.map(s => ({
           ...s,
           buyAsset,
@@ -75,9 +74,6 @@ export const getL1ToLongtailRate = async (
           allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
         })) as MultiHopTradeRateSteps,
         isLongtail: true,
-        longtailData: {
-          L1ToLongtailExpectedAmountOut: quotedAmountOut.toString(),
-        },
       })
     }),
   )

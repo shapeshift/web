@@ -82,8 +82,6 @@ export const getTradeQuote = async (
           name: 'nearIntents',
           depositAddress: quote.depositAddress ?? '',
           depositMemo: quote.depositMemo,
-          timeEstimate: quote.timeEstimate,
-          deadline: quote.deadline ?? '',
         },
       },
     ],

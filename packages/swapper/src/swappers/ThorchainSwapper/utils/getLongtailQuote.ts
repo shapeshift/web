@@ -122,7 +122,6 @@ export const getLongtailToL1Quote = async (
       return Ok({
         ...quote,
         data: data ?? quote.data,
-        aggregator: bestAggregator,
         // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
         steps: quote.steps.map(s => ({
           ...s,
@@ -133,9 +132,6 @@ export const getLongtailToL1Quote = async (
           feeData: { ...s.feeData, networkFeeCryptoBaseUnit },
         })) as MultiHopTradeQuoteSteps,
         isLongtail: true,
-        longtailData: {
-          longtailToL1ExpectedAmountOut: quotedAmountOut.toString(),
-        },
       })
     }),
   )

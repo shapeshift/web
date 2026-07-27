@@ -1,9 +1,5 @@
-import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import type { SolanaComputeBudgetOptions } from '../../utils/solana'
-import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
 import type {
   GetUnsignedNearTransactionArgs,
   GetUnsignedSuiTransactionArgs,
@@ -17,9 +13,14 @@ import {
   getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import type { SolanaComputeBudgetOptions } from '../../utils/solana'
+import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
+import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import type { NearIntentsTradeQuoteInput, NearIntentsTradeRateInput } from './types'
 import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers'
 import { initializeOneClickService, OneClickService } from './utils/oneClickService'
 
@@ -33,8 +34,8 @@ const solanaComputeBudget: SolanaComputeBudgetOptions = {
 }
 
 export const nearIntentsApi: SwapperApi = {
-  getTradeQuote,
-  getTradeRate,
+  getTradeQuote: (input, deps) => getTradeQuote(input as NearIntentsTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as NearIntentsTradeRateInput, deps),
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
   getUnsignedUtxoTransaction,

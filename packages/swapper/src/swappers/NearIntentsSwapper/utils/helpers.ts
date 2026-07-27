@@ -1,12 +1,22 @@
-import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
+import { btcChainId, fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { isToken } from '@shapeshiftoss/utils'
+import { bnOrZero, DAO_TREASURY_NEAR, isToken } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
-import type { GetExecutionStatusResponse, TokenResponse } from '../types'
-import { chainIdToNearIntentsChain } from '../types'
-import { OneClickService } from './oneClickService'
+import type { SwapErrorRight } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
+import {
+  BTC_QUOTE_DEADLINE_MS,
+  DEFAULT_QUOTE_DEADLINE_MS,
+  DEFAULT_SLIPPAGE_BPS,
+} from '../constants'
+import type { GetExecutionStatusResponse, QuoteResponse, TokenResponse } from '../types'
+import { chainIdToNearIntentsChain, QuoteRequest } from '../types'
+import { ApiError, OneClickService } from './oneClickService'
 
 const getTokensWithRetry = async (): Promise<TokenResponse[]> => {
   const maxRetries = 3
@@ -121,6 +131,176 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
     : zeroAddress
 
   return getNearIntentsAsset({ nearNetwork, contractAddress })
+}
+
+export const resolveNearIntentsAssets = async ({
+  sellAsset,
+  buyAsset,
+}: {
+  sellAsset: Asset
+  buyAsset: Asset
+}): Promise<Result<{ originAsset: string; destinationAsset: string }, SwapErrorRight>> => {
+  try {
+    const originAsset = await assetToNearIntentsAsset(sellAsset)
+    const destinationAsset = await assetToNearIntentsAsset(buyAsset)
+
+    if (!originAsset) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: `Asset ${sellAsset.symbol} on ${
+            sellAsset.networkName || sellAsset.chainId
+          } is not supported by NEAR Intents`,
+        }),
+      )
+    }
+
+    if (!destinationAsset) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: `Asset ${buyAsset.symbol} on ${
+            buyAsset.networkName || buyAsset.chainId
+          } is not supported by NEAR Intents`,
+        }),
+      )
+    }
+
+    return Ok({ originAsset, destinationAsset })
+  } catch (error) {
+    return Err(
+      makeSwapErrorRight({
+        message: error instanceof Error ? error.message : 'Failed to resolve NEAR Intents assets',
+        code: TradeQuoteError.QueryFailed,
+        cause: error,
+      }),
+    )
+  }
+}
+
+// BTC deposits confirm slowly, so BTC pairs get a longer deadline
+export const getNearIntentsQuoteDeadline = ({
+  sellAsset,
+  buyAsset,
+}: {
+  sellAsset: Asset
+  buyAsset: Asset
+}): string => {
+  const deadlineMs =
+    sellAsset.chainId === btcChainId || buyAsset.chainId === btcChainId
+      ? BTC_QUOTE_DEADLINE_MS
+      : DEFAULT_QUOTE_DEADLINE_MS
+
+  return new Date(Date.now() + deadlineMs).toISOString()
+}
+
+export const buildNearIntentsQuoteRequest = ({
+  originAsset,
+  destinationAsset,
+  sellAmountCryptoBaseUnit,
+  slippageTolerancePercentageDecimal,
+  affiliateBps,
+  refundTo,
+  recipient,
+  refundType,
+  recipientType,
+  deadline,
+}: {
+  originAsset: string
+  destinationAsset: string
+  sellAmountCryptoBaseUnit: string
+  slippageTolerancePercentageDecimal: string | undefined
+  affiliateBps: string
+  refundTo: string
+  recipient: string
+  refundType: QuoteRequest.refundType
+  recipientType: QuoteRequest.recipientType
+  deadline: string
+}): QuoteRequest => ({
+  dry: false,
+  swapType: QuoteRequest.swapType.EXACT_INPUT,
+  slippageTolerance: slippageTolerancePercentageDecimal
+    ? bnOrZero(slippageTolerancePercentageDecimal).times(10000).toNumber()
+    : DEFAULT_SLIPPAGE_BPS,
+  originAsset,
+  destinationAsset,
+  amount: sellAmountCryptoBaseUnit,
+  depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
+  refundTo,
+  refundType,
+  recipient,
+  recipientType,
+  deadline,
+  referral: 'shapeshift',
+  appFees: [
+    {
+      recipient: DAO_TREASURY_NEAR,
+      fee: Number(affiliateBps),
+    },
+  ],
+})
+
+// One retry loop for the SDK's flaky WebSocket transport; maps provider errors to swap errors
+export const fetchNearIntentsQuote = async ({
+  quoteRequest,
+  sellAsset,
+}: {
+  quoteRequest: QuoteRequest
+  sellAsset: Asset
+}): Promise<Result<QuoteResponse, SwapErrorRight>> => {
+  const maxRetries = 3
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return Ok(await OneClickService.getQuote(quoteRequest))
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      const isWebSocketError = lastError.message.includes('WebSocket is not ready')
+
+      if (isWebSocketError && attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+        continue
+      }
+      break
+    }
+  }
+
+  const error = lastError ?? new Error('Failed to get quote after retries')
+
+  if (error instanceof ApiError) {
+    if (
+      error.body?.message === 'tokenIn is not valid' ||
+      error.body?.message === 'tokenOut is not valid'
+    ) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
+
+    if (error.body?.message?.includes('Amount is too low')) {
+      const match = error.body.message.match(/try at least (\d+)/)
+      if (match) {
+        return Err(
+          createTradeAmountTooSmallErr({
+            minAmountCryptoBaseUnit: match[1],
+            assetId: sellAsset.assetId,
+          }),
+        )
+      }
+    }
+  }
+
+  return Err(
+    makeSwapErrorRight({
+      message: error instanceof Error ? error.message : 'Unknown error getting NEAR Intents quote',
+      code: TradeQuoteError.QueryFailed,
+      cause: error,
+    }),
+  )
 }
 
 export const mapNearIntentsStatus = (status: GetExecutionStatusResponse['status']): TxStatus => {

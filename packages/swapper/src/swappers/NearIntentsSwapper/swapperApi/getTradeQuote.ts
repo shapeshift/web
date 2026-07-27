@@ -1,264 +1,93 @@
-import { btcChainId, nearChainId } from '@shapeshiftoss/caip'
-import { bnOrZero, chainIdToFeeAssetId, DAO_TREASURY_NEAR } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import {
-  createTradeAmountTooSmallErr,
-  getInputOutputRate,
-  makeSwapErrorRight,
-} from '../../../utils'
-import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import {
-  BTC_QUOTE_DEADLINE_MS,
-  DEFAULT_QUOTE_DEADLINE_MS,
-  DEFAULT_SLIPPAGE_BPS,
-} from '../constants'
-import type { QuoteResponse } from '../types'
+import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import { assertQuoteAddresses } from '../../../utils'
+import type { NearIntentsTradeQuoteInput } from '../types'
 import { QuoteRequest } from '../types'
 import { getNearIntentsStepData } from '../utils/getNearIntentsStepData'
-import { assetToNearIntentsAsset } from '../utils/helpers'
-import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
+import { getNearIntentsTradeContext } from '../utils/getNearIntentsTradeContext'
+import {
+  buildNearIntentsQuoteRequest,
+  fetchNearIntentsQuote,
+  getNearIntentsQuoteDeadline,
+  resolveNearIntentsAssets,
+} from '../utils/helpers'
+import { initializeOneClickService } from '../utils/oneClickService'
 
 export const getTradeQuote = async (
-  input: GetTradeQuoteInput,
+  input: NearIntentsTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
     accountNumber,
-    sendAddress,
-    receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    slippageTolerancePercentageDecimal,
     affiliateBps,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
   } = input
 
-  if (accountNumber === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: `accountNumber is required`,
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  const addresses = assertQuoteAddresses(input)
+  if (addresses.isErr()) return Err(addresses.unwrapErr())
+  const { sendAddress, receiveAddress } = addresses.unwrap()
 
-  if (sendAddress === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: `sendAddress is required`,
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY)
 
-  if (receiveAddress === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: `receiveAddress is required`,
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  const maybeAssets = await resolveNearIntentsAssets({ sellAsset, buyAsset })
+  if (maybeAssets.isErr()) return Err(maybeAssets.unwrapErr())
+  const { originAsset, destinationAsset } = maybeAssets.unwrap()
 
-  try {
-    initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY)
+  const quoteRequest = buildNearIntentsQuoteRequest({
+    originAsset,
+    destinationAsset,
+    sellAmountCryptoBaseUnit: sellAmount,
+    slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
+    affiliateBps,
+    refundTo: sendAddress,
+    recipient: receiveAddress,
+    refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
+    recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
+    deadline: getNearIntentsQuoteDeadline({ sellAsset, buyAsset }),
+  })
 
-    const originAsset = await assetToNearIntentsAsset(sellAsset)
-    const destinationAsset = await assetToNearIntentsAsset(buyAsset)
+  const maybeQuoteResponse = await fetchNearIntentsQuote({ quoteRequest, sellAsset })
+  if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
+  const { quote } = maybeQuoteResponse.unwrap()
 
-    if (!originAsset) {
-      return Err(
-        makeSwapErrorRight({
-          code: TradeQuoteError.UnsupportedTradePair,
-          message: `Asset ${sellAsset.symbol} on ${
-            sellAsset.networkName || sellAsset.chainId
-          } is not supported by NEAR Intents`,
-        }),
-      )
-    }
+  const maybeContext = getNearIntentsTradeContext({ input, deps, quote })
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
 
-    if (!destinationAsset) {
-      return Err(
-        makeSwapErrorRight({
-          code: TradeQuoteError.UnsupportedTradePair,
-          message: `Asset ${buyAsset.symbol} on ${
-            buyAsset.networkName || buyAsset.chainId
-          } is not supported by NEAR Intents`,
-        }),
-      )
-    }
+  const maybeStepData = await getNearIntentsStepData({
+    ...stepDataArgs,
+    type: 'quote',
+    input,
+    from: sendAddress,
+  })
 
-    const quoteDeadline =
-      sellAsset.chainId === btcChainId || buyAsset.chainId === btcChainId
-        ? BTC_QUOTE_DEADLINE_MS
-        : DEFAULT_QUOTE_DEADLINE_MS
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
-    const quoteRequest: QuoteRequest = {
-      dry: false,
-      swapType: QuoteRequest.swapType.EXACT_INPUT,
-      slippageTolerance: slippageTolerancePercentageDecimal
-        ? bnOrZero(slippageTolerancePercentageDecimal).times(10000).toNumber()
-        : DEFAULT_SLIPPAGE_BPS,
-      originAsset,
-      destinationAsset,
-      amount: sellAmount,
-      depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
-      refundTo: sendAddress,
-      refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
-      recipient: receiveAddress,
-      recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
-      deadline: new Date(Date.now() + quoteDeadline).toISOString(),
-      referral: 'shapeshift',
-      appFees: [
-        {
-          recipient: DAO_TREASURY_NEAR,
-          fee: Number(affiliateBps),
+  const tradeQuote: TradeQuote = {
+    ...tradeCommon,
+    quoteOrRate: 'quote' as const,
+    receiveAddress,
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber,
+        transactionData,
+        feeData: { protocolFees, networkFeeCryptoBaseUnit },
+        swapperMetadata: {
+          name: 'nearIntents',
+          depositAddress: quote.depositAddress ?? '',
+          depositMemo: quote.depositMemo,
+          timeEstimate: quote.timeEstimate,
+          deadline: quote.deadline ?? '',
         },
-      ],
-    }
-
-    const maxRetries = 3
-    let quoteResponse: QuoteResponse | null = null
-    let lastError: Error | null = null
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        quoteResponse = await OneClickService.getQuote(quoteRequest)
-        break
-      } catch (err) {
-        lastError = err instanceof Error ? err : new Error(String(err))
-        const isWebSocketError = lastError.message.includes('WebSocket is not ready')
-
-        if (isWebSocketError && attempt < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
-          continue
-        }
-        throw lastError
-      }
-    }
-
-    if (!quoteResponse) {
-      throw lastError ?? new Error('Failed to get quote after retries')
-    }
-
-    const { quote } = quoteResponse
-
-    if (!quote.depositAddress) {
-      throw new Error('Missing deposit address in quote response')
-    }
-
-    const depositAddress = quote.depositAddress
-
-    const { networkFeeCryptoBaseUnit, transactionData } = await getNearIntentsStepData({
-      type: 'quote',
-      deps,
-      input,
-      sellAsset,
-      sellAmountCryptoBaseUnit: sellAmount,
-      from: sendAddress,
-      depositAddress,
-    })
-
-    const rate = getInputOutputRate({
-      sellAmountCryptoBaseUnit: quote.amountIn,
-      buyAmountCryptoBaseUnit: quote.amountOut,
-      sellAsset,
-      buyAsset,
-    })
-
-    const tradeQuote: TradeQuote = {
-      id: uuid(),
-      receiveAddress,
-      affiliateBps,
-      rate,
-      slippageTolerancePercentageDecimal:
-        slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.NearIntents),
-      quoteOrRate: 'quote' as const,
-      swapperName: SwapperName.NearIntents,
-      steps: [
-        {
-          accountNumber,
-          allowanceContract: '',
-          buyAmountBeforeFeesCryptoBaseUnit: quote.amountOut,
-          buyAmountAfterFeesCryptoBaseUnit: quote.amountOut,
-          buyAsset,
-          feeData: {
-            protocolFees: {},
-            networkFeeCryptoBaseUnit,
-          },
-          rate,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,
-          sellAsset,
-          source: SwapperName.NearIntents,
-          estimatedExecutionTimeMs: quote.timeEstimate ? quote.timeEstimate * 1000 : undefined,
-          transactionData,
-          swapperMetadata: {
-            name: 'nearIntents',
-            depositAddress: quote.depositAddress ?? '',
-            depositMemo: quote.depositMemo,
-            timeEstimate: quote.timeEstimate,
-            deadline: quote.deadline ?? '',
-          },
-          affiliateFee: buildAffiliateFee({
-            strategy: 'fixed_asset',
-            affiliateBps,
-            sellAsset,
-            buyAsset,
-            sellAmountCryptoBaseUnit: quote.amountIn,
-            buyAmountCryptoBaseUnit: quote.amountOut,
-            fixedAssetId: chainIdToFeeAssetId(nearChainId),
-            fixedAsset: deps.assetsById[chainIdToFeeAssetId(nearChainId)],
-            isEstimate: true,
-          }),
-        },
-      ],
-    }
-
-    return Ok([tradeQuote])
-  } catch (error) {
-    console.error('[NEAR Intents] getTradeQuote error:', error)
-
-    if (error instanceof ApiError) {
-      if (
-        error.body?.message === 'tokenIn is not valid' ||
-        error.body?.message === 'tokenOut is not valid'
-      ) {
-        return Err(
-          makeSwapErrorRight({
-            code: TradeQuoteError.UnsupportedTradePair,
-            message: 'Unsupported asset',
-          }),
-        )
-      }
-
-      if (error.body?.message?.includes('Amount is too low')) {
-        const match = error.body.message.match(/try at least (\d+)/)
-        if (match) {
-          const minAmountCryptoBaseUnit = match[1]
-          return Err(
-            createTradeAmountTooSmallErr({
-              minAmountCryptoBaseUnit,
-              assetId: sellAsset.assetId,
-            }),
-          )
-        }
-      }
-    }
-
-    return Err(
-      makeSwapErrorRight({
-        message:
-          error instanceof Error ? error.message : 'Unknown error getting NEAR Intents quote',
-        code: TradeQuoteError.QueryFailed,
-        cause: error,
-      }),
-    )
+      },
+    ],
   }
+
+  return Ok([tradeQuote])
 }

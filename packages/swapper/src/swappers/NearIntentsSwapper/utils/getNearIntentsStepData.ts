@@ -1,257 +1,260 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId, monadChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { Hex } from 'viem'
 import { getAddress } from 'viem'
 
+import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import {
   ATA_RENT_LAMPORTS,
   getSolanaNetworkFeeCryptoBaseUnit,
   SOLANA_PLACEHOLDER_ADDRESS,
 } from '../../../utils/solana'
-import type {
-  StepDataArgs,
-  TxBuildData,
-} from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
-import { isNativeEvmAsset } from '../../../utils/helpers'
 
 type BaseArgs = {
   sellAmountCryptoBaseUnit: string
   depositAddress: string
 }
 
-type NearIntentsStepDataArgs = StepDataArgs<BaseArgs>
+export type GetNearIntentsStepDataArgs = StepDataArgs<BaseArgs>
 
-const getEvmTransactionData = ({
-  sellAsset,
-  sellAmountCryptoBaseUnit,
-  depositAddress,
-}: Pick<
-  NearIntentsStepDataArgs,
-  'sellAsset' | 'sellAmountCryptoBaseUnit' | 'depositAddress'
->): Extract<TxBuildData, { type: 'evm' }> => {
-  const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
-  return {
-    type: 'evm',
-    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    to: contractAddress ?? depositAddress,
-    data: evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress) || '0x',
-    value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-  }
+// Un-migrated namespaces (tron/sui/starknet/near/ton) never build transactionData - exec does; a
+// walletless rate can also come back without a fee
+type NearIntentsRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
+type NearIntentsQuoteStepData = {
+  transactionData?: TxBuildData
+  networkFeeCryptoBaseUnit: string
 }
 
-export const getNearIntentsStepData = async ({
-  deps,
-  type,
-  input,
-  sellAsset,
-  sellAmountCryptoBaseUnit,
-  from,
-  depositAddress,
-}: NearIntentsStepDataArgs): Promise<{
-  transactionData?: TxBuildData
-  networkFeeCryptoBaseUnit: string | undefined
-}> => {
+export function getNearIntentsStepData(
+  args: Extract<GetNearIntentsStepDataArgs, { type: 'rate' }>,
+): Promise<Result<NearIntentsRateStepData, SwapErrorRight>>
+export function getNearIntentsStepData(
+  args: Extract<GetNearIntentsStepDataArgs, { type: 'quote' }>,
+): Promise<Result<NearIntentsQuoteStepData, SwapErrorRight>>
+export async function getNearIntentsStepData(
+  args: GetNearIntentsStepDataArgs,
+): Promise<Result<NearIntentsRateStepData | NearIntentsQuoteStepData, SwapErrorRight>> {
+  const { deps, type, input, sellAsset, sellAmountCryptoBaseUnit, from, depositAddress } = args
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
+  const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-  switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Evm: {
-      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-      const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
+  try {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Evm: {
+        const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+        const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
-      const transactionData = getEvmTransactionData({
-        sellAsset,
-        sellAmountCryptoBaseUnit,
-        depositAddress,
-      })
+        const transactionData: TxBuildData = {
+          type: 'evm',
+          chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+          to: contractAddress ?? depositAddress,
+          data: evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress) || '0x',
+          value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+        }
 
-      // Rates simulate the deposit transfer rather than estimate it, so an unapproved or
-      // unfunded sender still prices (Monad has no Tenderly support, so it estimates like quotes)
-      if (type === 'rate' && sellAsset.chainId !== monadChainId) {
-        const simulationResult = await simulateWithStateOverrides(
-          {
-            chainId: sellAsset.chainId,
-            from: getAddress(from || depositAddress),
-            to: getAddress(transactionData.to),
-            data: transactionData.data as Hex,
-            value: transactionData.value,
-            sellAsset,
-          },
-          {
-            apiKey: deps.config.VITE_TENDERLY_API_KEY,
-            accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-            projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-          },
-        )
+        // Rates simulate the deposit transfer rather than estimate it, so an unapproved or
+        // unfunded sender still prices (Monad has no Tenderly support, so it estimates like quotes)
+        if (type === 'rate' && sellAsset.chainId !== monadChainId) {
+          const simulationResult = await simulateWithStateOverrides(
+            {
+              chainId: sellAsset.chainId,
+              from: getAddress(from || depositAddress),
+              to: getAddress(transactionData.to),
+              data: transactionData.data as Hex,
+              value: transactionData.value,
+              sellAsset,
+            },
+            {
+              apiKey: deps.config.VITE_TENDERLY_API_KEY,
+              accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
+              projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
+            },
+          )
 
-        if (!simulationResult.success) return { networkFeeCryptoBaseUnit: '0' }
+          if (!simulationResult.success) return Ok({ networkFeeCryptoBaseUnit: '0' })
+
+          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+            adapter,
+            supportsEIP1559,
+            gasLimit: simulationResult.gasLimit.toString(),
+          })
+
+          return Ok({ networkFeeCryptoBaseUnit })
+        }
 
         const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
           adapter,
+          transactionData,
+          from: from || depositAddress,
           supportsEIP1559,
-          gasLimit: simulationResult.gasLimit.toString(),
         })
 
-        return { networkFeeCryptoBaseUnit }
+        if (type === 'rate') return Ok({ networkFeeCryptoBaseUnit })
+
+        return Ok({ transactionData, networkFeeCryptoBaseUnit })
       }
+      case CHAIN_NAMESPACE.Utxo: {
+        const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
 
-      const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-        adapter,
-        transactionData,
-        from: from || depositAddress,
-        supportsEIP1559,
-      })
-
-      if (type === 'rate') return { networkFeeCryptoBaseUnit }
-
-      return { transactionData, networkFeeCryptoBaseUnit }
-    }
-    case CHAIN_NAMESPACE.Utxo: {
-      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-
-      const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
-        adapter,
-        pubkey: 'xpub' in input ? input.xpub : undefined,
-        to: depositAddress,
-        value: sellAmountCryptoBaseUnit,
-      })
-
-      if (type === 'rate') return { networkFeeCryptoBaseUnit }
-
-      return {
-        transactionData: { type: 'utxo', to: depositAddress, value: sellAmountCryptoBaseUnit },
-        networkFeeCryptoBaseUnit,
-      }
-    }
-    case CHAIN_NAMESPACE.Solana: {
-      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-      const tokenId = contractAddressOrUndefined(sellAsset.assetId)
-
-      if (type === 'rate') {
-        // Rates estimate with a transfer from the send address, or a self transfer from the
-        // funded placeholder (1 lamport, native shape) when no wallet is connected; fresh
-        // deposit addresses always need their token account created, so rent is included
-        const address = from ?? SOLANA_PLACEHOLDER_ADDRESS
-
-        const instructions = await adapter.buildTransferInstructions({
-          from: address,
-          to: from ? depositAddress : address,
-          tokenId: from ? tokenId : undefined,
-          value: from ? sellAmountCryptoBaseUnit : '1',
+        const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
+          adapter,
+          pubkey: 'xpub' in input ? input.xpub : undefined,
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
         })
 
-        const { networkFeeCryptoBaseUnit: transactionFeeCryptoBaseUnit } =
-          await getSolanaNetworkFeeCryptoBaseUnit({
-            adapter,
+        if (type === 'rate') return Ok({ networkFeeCryptoBaseUnit })
+
+        return Ok({
+          transactionData: { type: 'utxo', to: depositAddress, value: sellAmountCryptoBaseUnit },
+          networkFeeCryptoBaseUnit,
+        })
+      }
+      case CHAIN_NAMESPACE.Solana: {
+        const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+        const tokenId = contractAddressOrUndefined(sellAsset.assetId)
+
+        if (type === 'rate') {
+          // Rates estimate with a transfer from the send address, or a self transfer from the
+          // funded placeholder (1 lamport, native shape) when no wallet is connected; fresh
+          // deposit addresses always need their token account created, so rent is included
+          const address = from ?? SOLANA_PLACEHOLDER_ADDRESS
+
+          const instructions = await adapter.buildTransferInstructions({
             from: address,
-            instructions,
-            tokenId,
+            to: from ? depositAddress : address,
+            tokenId: from ? tokenId : undefined,
+            value: from ? sellAmountCryptoBaseUnit : '1',
           })
 
-        // The walletless native shape can't include the deposit token account creation
-        const ataCreationRent = !from && tokenId ? ATA_RENT_LAMPORTS : 0
+          const { networkFeeCryptoBaseUnit: transactionFeeCryptoBaseUnit } =
+            await getSolanaNetworkFeeCryptoBaseUnit({
+              adapter,
+              from: address,
+              instructions,
+              tokenId,
+            })
 
-        return {
-          networkFeeCryptoBaseUnit: bn(transactionFeeCryptoBaseUnit)
-            .plus(ataCreationRent)
-            .toString(),
+          // The walletless native shape can't include the deposit token account creation
+          const ataCreationRent = !from && tokenId ? ATA_RENT_LAMPORTS : 0
+
+          return Ok({
+            networkFeeCryptoBaseUnit: bn(transactionFeeCryptoBaseUnit)
+              .plus(ataCreationRent)
+              .toString(),
+          })
         }
+
+        const instructions = await adapter.buildTransferInstructions({
+          from,
+          to: depositAddress,
+          tokenId,
+          value: sellAmountCryptoBaseUnit,
+        })
+
+        const transactionData: TxBuildData = {
+          type: 'solana',
+          instructions,
+          addressLookupTableAddresses: [],
+        }
+
+        const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+          adapter,
+          from,
+          instructions,
+          tokenId,
+        })
+
+        return Ok({ transactionData, networkFeeCryptoBaseUnit })
       }
+      case CHAIN_NAMESPACE.Tron: {
+        const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: {
+            from,
+            contractAddress: contractAddressOrUndefined(sellAsset.assetId),
+          },
+        })
 
-      const instructions = await adapter.buildTransferInstructions({
-        from,
-        to: depositAddress,
-        tokenId,
-        value: sellAmountCryptoBaseUnit,
-      })
-
-      const transactionData: TxBuildData = {
-        type: 'solana',
-        instructions,
-        addressLookupTableAddresses: [],
+        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
       }
+      case CHAIN_NAMESPACE.Sui: {
+        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
 
-      const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
-        adapter,
-        from,
-        instructions,
-        tokenId,
-      })
+        const { fast } = await deps.assertGetSuiChainAdapter(sellAsset.chainId).getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: {
+            from,
+            tokenId: contractAddressOrUndefined(sellAsset.assetId),
+          },
+          sendMax: false,
+        })
 
-      return { transactionData, networkFeeCryptoBaseUnit }
+        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+      }
+      case CHAIN_NAMESPACE.Starknet: {
+        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
+
+        const { fast } = await deps.assertGetStarknetChainAdapter(sellAsset.chainId).getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: {
+            from,
+            tokenContractAddress: contractAddressOrUndefined(sellAsset.assetId),
+          },
+          sendMax: false,
+        })
+
+        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+      }
+      case CHAIN_NAMESPACE.Near: {
+        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
+
+        const { fast } = await deps.assertGetNearChainAdapter(sellAsset.chainId).getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: { from },
+        })
+
+        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+      }
+      case CHAIN_NAMESPACE.Ton: {
+        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
+
+        const { fast } = await deps.assertGetTonChainAdapter(sellAsset.chainId).getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: {
+            from,
+            contractAddress: contractAddressOrUndefined(sellAsset.assetId),
+          },
+        })
+
+        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+      }
+      default:
+        return Err(
+          makeSwapErrorRight({
+            message: `[getNearIntentsStepData] unsupported chain namespace: ${chainNamespace}`,
+            code: TradeQuoteError.UnsupportedChain,
+          }),
+        )
     }
-    case CHAIN_NAMESPACE.Tron: {
-      const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
-        to: depositAddress,
-        value: sellAmountCryptoBaseUnit,
-        chainSpecific: {
-          from,
-          contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-        },
-      })
+  } catch (error) {
+    // Rates are best effort with no provider fee to degrade to; quotes must price to execute
+    if (type === 'rate') return Ok({ networkFeeCryptoBaseUnit: undefined })
 
-      return { networkFeeCryptoBaseUnit: fast.txFee }
-    }
-    case CHAIN_NAMESPACE.Sui: {
-      if (!from) return { networkFeeCryptoBaseUnit: undefined }
-
-      const { fast } = await deps.assertGetSuiChainAdapter(sellAsset.chainId).getFeeData({
-        to: depositAddress,
-        value: sellAmountCryptoBaseUnit,
-        chainSpecific: {
-          from,
-          tokenId: contractAddressOrUndefined(sellAsset.assetId),
-        },
-        sendMax: false,
-      })
-
-      return { networkFeeCryptoBaseUnit: fast.txFee }
-    }
-    case CHAIN_NAMESPACE.Starknet: {
-      if (!from) return { networkFeeCryptoBaseUnit: undefined }
-
-      const { fast } = await deps.assertGetStarknetChainAdapter(sellAsset.chainId).getFeeData({
-        to: depositAddress,
-        value: sellAmountCryptoBaseUnit,
-        chainSpecific: {
-          from,
-          tokenContractAddress: contractAddressOrUndefined(sellAsset.assetId),
-        },
-        sendMax: false,
-      })
-
-      return { networkFeeCryptoBaseUnit: fast.txFee }
-    }
-    case CHAIN_NAMESPACE.Near: {
-      if (!from) return { networkFeeCryptoBaseUnit: undefined }
-
-      const { fast } = await deps.assertGetNearChainAdapter(sellAsset.chainId).getFeeData({
-        to: depositAddress,
-        value: sellAmountCryptoBaseUnit,
-        chainSpecific: { from },
-      })
-
-      return { networkFeeCryptoBaseUnit: fast.txFee }
-    }
-    case CHAIN_NAMESPACE.Ton: {
-      if (!from) return { networkFeeCryptoBaseUnit: undefined }
-
-      const { fast } = await deps.assertGetTonChainAdapter(sellAsset.chainId).getFeeData({
-        to: depositAddress,
-        value: sellAmountCryptoBaseUnit,
-        chainSpecific: {
-          from,
-          contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-        },
-      })
-
-      return { networkFeeCryptoBaseUnit: fast.txFee }
-    }
-    default:
-      throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
+    return Err(makeNetworkFeeEstimationFailedErr('getNearIntentsStepData', error))
   }
 }

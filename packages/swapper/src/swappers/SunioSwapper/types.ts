@@ -1,6 +1,11 @@
 import type { tronChainId } from '@shapeshiftoss/caip'
 
+import type { GetTronTradeQuoteInput, GetTronTradeRateInput } from '../../types'
+
 export type SunioSupportedChainId = typeof tronChainId
+
+export type SunioTradeQuoteInput = GetTronTradeQuoteInput
+export type SunioTradeRateInput = GetTronTradeRateInput
 
 export type SunioRoute = {
   amountIn: string

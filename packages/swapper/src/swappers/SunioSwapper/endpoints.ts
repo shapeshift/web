@@ -4,16 +4,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
-import type {
-  CommonTradeQuoteInput,
-  GetTradeRateInput,
-  GetTronTradeQuoteInput,
-  GetUnsignedTronTransactionArgs,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuoteResult,
-  TradeRateResult,
-} from '../../types'
+import type { GetUnsignedTronTransactionArgs, SwapperApi } from '../../types'
 import {
   createDefaultStatusResponse,
   getExecutableTradeStep,
@@ -21,6 +12,7 @@ import {
 } from '../../utils'
 import { getSunioTradeQuote } from './getSunioTradeQuote/getSunioTradeQuote'
 import { getSunioTradeRate } from './getSunioTradeRate/getSunioTradeRate'
+import type { SunioTradeQuoteInput, SunioTradeRateInput } from './types'
 import {
   buildSwapExactInputParameters,
   SUNIO_SWAP_EXACT_INPUT_SELECTOR,
@@ -32,18 +24,8 @@ import { getSunioTransactionFees } from './utils/getSunioTransactionFees'
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const sunioApi: SwapperApi = {
-  getTradeQuote: async (
-    input: GetTronTradeQuoteInput | CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<TradeQuoteResult> => {
-    const maybeTradeQuote = await getSunioTradeQuote(input, deps)
-    return maybeTradeQuote.map(quote => [quote])
-  },
-
-  getTradeRate: async (input: GetTradeRateInput, deps: SwapperDeps): Promise<TradeRateResult> => {
-    const maybeTradeRate = await getSunioTradeRate(input, deps)
-    return maybeTradeRate.map(rate => [rate])
-  },
+  getTradeQuote: (input, deps) => getSunioTradeQuote(input as SunioTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getSunioTradeRate(input as SunioTradeRateInput, deps),
 
   getUnsignedTronTransaction: async (
     args: GetUnsignedTronTransactionArgs,

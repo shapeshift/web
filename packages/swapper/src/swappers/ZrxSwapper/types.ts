@@ -1,6 +1,11 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Address, TypedData } from 'viem'
 
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput } from '../../types'
+
+export type ZrxTradeQuoteInput = GetEvmTradeQuoteInputBase
+export type ZrxTradeRateInput = GetEvmTradeRateInput
+
 export const zrxSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.AvalancheMainnet,

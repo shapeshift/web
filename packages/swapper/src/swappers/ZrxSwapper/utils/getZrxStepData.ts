@@ -1,24 +1,42 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 
+import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
+import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import type { StepDataArgs, TxBuildData } from '../../../types'
 import type { ZrxQuoteResponse } from '../types'
 
-// Rates come from the 0x price endpoint which returns no transaction, only its reported fee
-type GetZrxStepDataArgs = StepDataArgs<
+export type GetZrxStepDataArgs = StepDataArgs<
   unknown,
-  { totalNetworkFee: string },
+  { totalNetworkFee: string | null },
   {
     transaction: ZrxQuoteResponse['transaction']
     permit2Eip712: NonNullable<ZrxQuoteResponse['permit2']>['eip712'] | undefined
   }
 >
 
-export const getZrxStepData = async (
+type ZrxRateStepData = { networkFeeCryptoBaseUnit: string }
+type ZrxQuoteStepData = { transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }
+
+export function getZrxStepData(
+  args: Extract<GetZrxStepDataArgs, { type: 'rate' }>,
+): Promise<Result<ZrxRateStepData, SwapErrorRight>>
+export function getZrxStepData(
+  args: Extract<GetZrxStepDataArgs, { type: 'quote' }>,
+): Promise<Result<ZrxQuoteStepData, SwapErrorRight>>
+export async function getZrxStepData(
   args: GetZrxStepDataArgs,
-): Promise<{ transactionData?: TxBuildData; networkFeeCryptoBaseUnit: string }> => {
-  if (args.type === 'rate') return { networkFeeCryptoBaseUnit: args.totalNetworkFee }
+): Promise<Result<ZrxRateStepData | ZrxQuoteStepData, SwapErrorRight>> {
+  if (args.type === 'rate') {
+    const stepData: ZrxRateStepData = {
+      networkFeeCryptoBaseUnit: bnOrZero(args.totalNetworkFee).toFixed(),
+    }
+
+    return Ok(stepData)
+  }
 
   const { sellAsset, transaction, permit2Eip712, from, input, deps } = args
 
@@ -38,12 +56,18 @@ export const getZrxStepData = async (
     }),
   }
 
-  const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-    adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
-    transactionData,
-    from,
-    supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
-  })
+  try {
+    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
+      transactionData,
+      from,
+      supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
+    })
 
-  return { transactionData, networkFeeCryptoBaseUnit }
+    const stepData: ZrxQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+    return Ok(stepData)
+  } catch (error) {
+    return Err(makeNetworkFeeEstimationFailedErr('getZrxStepData', error))
+  }
 }

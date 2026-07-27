@@ -3,14 +3,16 @@ import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId, toAssetId } from '@shape
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, convertPrecision } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getAddress, isAddressEqual } from 'viem'
 
-import { TradeQuoteError } from '../../../../types'
-import { makeSwapErrorRight } from '../../../../utils'
-import type { ZrxFees, ZrxSupportedChainId } from '../../types'
-import { zrxSupportedChainIds } from '../../types'
-import { ZRX_NATIVE_ASSET_ADDRESS } from '../constants'
+import type { SwapErrorRight } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
+import type { ZrxFees, ZrxPriceResponse, ZrxSupportedChainId } from '../types'
+import { zrxSupportedChainIds } from '../types'
+import { ZRX_NATIVE_ASSET_ADDRESS } from './constants'
 
 // converts an asset to zrx token (symbol or contract address)
 export const assetIdToZrxToken = (assetId: AssetId): string => {
@@ -78,6 +80,10 @@ export const zrxTokenToAssetId = (token: string, chainId: ChainId): AssetId => {
 export const isSupportedChainId = (chainId: ChainId): chainId is ZrxSupportedChainId => {
   return zrxSupportedChainIds.includes(chainId as ZrxSupportedChainId)
 }
+
+// A fully wrapped-native sell (e.g. WETH->ETH) needs no Permit2 allowance
+export const isWrappedNativeSell = (route: ZrxPriceResponse['route']): boolean =>
+  route.fills.some(fill => fill.source === 'Wrapped_Native' && fill.proportionBps === '10000')
 
 export const assertValidTrade = ({
   buyAsset,
@@ -153,7 +159,7 @@ export const calculateBuyAmountBeforeFeesCryptoBaseUnit = ({
   fees: ZrxFees
   buyAsset: Asset
   sellAsset: Asset
-}) => {
+}): Result<string, SwapErrorRight> => {
   // The integrator fee is set to the buy asset, but paranoia
   if (
     fees.integratorFee !== null &&
@@ -174,7 +180,7 @@ export const calculateBuyAmountBeforeFeesCryptoBaseUnit = ({
   // We can safely add the integrator fee now we know its the correct asset.
   const integratorFeeCryptoBaseUnit = fees.integratorFee?.amount ?? '0'
 
-  return bn(buyAmount).plus(integratorFeeCryptoBaseUnit).toFixed()
+  return Ok(bn(buyAmount).plus(integratorFeeCryptoBaseUnit).toFixed())
 }
 
 export const getProtocolFees = ({

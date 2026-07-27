@@ -1,8 +1,10 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads'
 import type { Quote } from '@ston-fi/omniston-sdk'
 
-import type { SwapErrorRight } from '../../types'
+import type { GetTonTradeQuoteInput, GetTonTradeRateInput } from '../../types'
+
+export type StonfiTradeQuoteInput = GetTonTradeQuoteInput
+export type StonfiTradeRateInput = GetTonTradeRateInput
 
 export type StonfiSupportedChainId = typeof KnownChainIds.TonMainnet
 
@@ -37,17 +39,6 @@ export type OmnistonAssetAddress = {
   blockchain: number
   address: string
 }
-
-export type TonAssetValidationResult =
-  | {
-      isValid: true
-      bidAssetAddress: OmnistonAssetAddress
-      askAssetAddress: OmnistonAssetAddress
-    }
-  | {
-      isValid: false
-      error: Result<never, SwapErrorRight>
-    }
 
 export type QuoteResult =
   | { type: 'success'; quote: Quote }

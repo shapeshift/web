@@ -1,6 +1,5 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { TradeStatus as OmnistonTradeStatus } from '@ston-fi/omniston-sdk'
 import { Blockchain } from '@ston-fi/omniston-sdk'
 
 import type { SwapperApi, TradeStatus } from '../../types'
@@ -11,44 +10,14 @@ import {
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import type { StonfiTradeQuoteInput, StonfiTradeRateInput } from './types'
+import { STONFI_TRADE_TRACKING_TIMEOUT_MS } from './utils/constants'
+import { waitForFirstTradeStatus } from './utils/helpers'
 import { omnistonManager } from './utils/omnistonManager'
 
-const TRADE_TRACKING_TIMEOUT_MS = 60000
-
-const waitForFirstTradeStatus = (
-  request: {
-    quoteId: string
-    traderWalletAddress: { blockchain: number; address: string }
-    outgoingTxHash: string
-  },
-  timeoutMs: number,
-): Promise<OmnistonTradeStatus | null> => {
-  const omniston = omnistonManager.getInstance()
-
-  return new Promise(resolve => {
-    const timer = setTimeout(() => {
-      subscription.unsubscribe()
-      resolve(null)
-    }, timeoutMs)
-
-    const subscription = omniston.trackTrade(request).subscribe({
-      next: (status: OmnistonTradeStatus) => {
-        clearTimeout(timer)
-        subscription.unsubscribe()
-        resolve(status)
-      },
-      error: err => {
-        console.error('[Stonfi] trackTrade error:', err)
-        clearTimeout(timer)
-        resolve(null)
-      },
-    })
-  })
-}
-
 export const stonfiApi: SwapperApi = {
-  getTradeQuote: (input, _deps) => getTradeQuote(input),
-  getTradeRate: input => getTradeRate(input),
+  getTradeQuote: (input, deps) => getTradeQuote(input as StonfiTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as StonfiTradeRateInput, deps),
 
   getUnsignedTonTransaction: async ({ stepIndex, tradeQuote, from, assertGetTonChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) {
@@ -173,7 +142,7 @@ export const stonfiApi: SwapperApi = {
           },
           outgoingTxHash: sellTxHash,
         },
-        TRADE_TRACKING_TIMEOUT_MS,
+        STONFI_TRADE_TRACKING_TIMEOUT_MS,
       )
 
       if (!tradeStatus?.status) {

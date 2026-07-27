@@ -2,7 +2,7 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { Hex } from 'viem'
 import { getAddress } from 'viem'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { StepDataArgs, TxBuildData } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import type { PortalsTx } from './fetchPortalsTradeOrder'

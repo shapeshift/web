@@ -4,7 +4,7 @@ import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import {
@@ -12,7 +12,7 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
-import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utxo-utils'
+import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 import {
   BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
   BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,

@@ -55,7 +55,7 @@ import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
 import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { StonfiMetadata, StonfiTransactionData } from './swappers/StonfiSwapper/types'
 import type { SunioTransactionData } from './swappers/SunioSwapper/types'
-import type { MayachainMetadata, ThorchainMetadata } from './thorchain-utils/types'
+import type { MayachainMetadata, ThorchainMetadata } from './utils/thorchain/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific

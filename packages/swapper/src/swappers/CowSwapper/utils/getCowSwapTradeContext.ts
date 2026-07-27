@@ -11,12 +11,12 @@ import {
   getAffiliateAppDataFragmentByChainId,
   getCowNetwork,
   getFullAppData,
-} from '../../../cowswap-utils'
+} from '../../../utils/cowswap'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   SUPPORTED_CHAIN_IDS,
-} from '../../../cowswap-utils/constants'
+} from '../../../utils/cowswap/constants'
 import type {
   QuoteFeeData,
   SwapErrorRight,

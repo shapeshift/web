@@ -5,7 +5,7 @@ import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'

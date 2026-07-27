@@ -1,7 +1,7 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { TypedData } from 'eip-712'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { StepDataArgs, TxBuildData } from '../../../types'
 import type { ZrxQuoteResponse } from '../types'
 

@@ -4,18 +4,18 @@ import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Hex } from 'viem'
 import { getAddress } from 'viem'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import {
   ATA_RENT_LAMPORTS,
   getSolanaNetworkFeeCryptoBaseUnit,
   SOLANA_PLACEHOLDER_ADDRESS,
-} from '../../../solana-utils'
+} from '../../../utils/solana'
 import type {
   StepDataArgs,
   TxBuildData,
 } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
-import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utxo-utils'
+import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 type BaseArgs = {

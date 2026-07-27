@@ -1,6 +1,6 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type {
   CheckTradeStatusInput,
   GetEvmTradeQuoteInputBase,

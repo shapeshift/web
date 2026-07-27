@@ -11,11 +11,11 @@ import {
 } from '@solana/web3.js'
 import { fromHex } from 'viem'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import {
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
-} from '../../../solana-utils'
+} from '../../../utils/solana'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import {
@@ -23,7 +23,7 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
-import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utxo-utils'
+import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 import type { BuildTxSuccessItem, ButterSwapTransactionMetadata, RouteSuccessItem } from '../types'
 import { getProviderNetworkFeeCryptoBaseUnit } from './helpers'
 

@@ -1,4 +1,4 @@
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'

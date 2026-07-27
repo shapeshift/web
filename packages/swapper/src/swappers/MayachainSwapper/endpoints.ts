@@ -1,8 +1,8 @@
-import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '../../cosmossdk-utils'
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
-import { checkTradeStatus } from '../../thorchain-utils'
+import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '../../utils/cosmossdk'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import { checkTradeStatus } from '../../utils/thorchain'
 import type { SwapperApi } from '../../types'
-import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './getTradeQuote'
 import { getTradeRate } from './getTradeRate'
 

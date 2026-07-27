@@ -9,8 +9,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
-import type { ThorEvmTradeQuote, ThorTradeQuote } from '../../../thorchain-utils'
-import { getL1RateOrQuote, getThorStepData, TradeType } from '../../../thorchain-utils'
+import type { ThorEvmTradeQuote, ThorTradeQuote } from '../../../utils/thorchain'
+import { getL1RateOrQuote, getThorStepData, TradeType } from '../../../utils/thorchain'
 import type {
   GetTradeQuoteInput,
   MultiHopTradeQuoteSteps,

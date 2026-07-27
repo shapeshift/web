@@ -1,10 +1,10 @@
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
-import type { SolanaComputeBudgetOptions } from '../../solana-utils'
-import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../solana-utils'
-import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
-import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import type { SolanaComputeBudgetOptions } from '../../utils/solana'
+import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
+import { getTronTransactionFees } from '../../utils/tron/getTronTransactionFees'
+import { getUnsignedTronTransaction } from '../../utils/tron/getUnsignedTronTransaction'
 import type {
   GetUnsignedNearTransactionArgs,
   GetUnsignedSuiTransactionArgs,
@@ -18,7 +18,7 @@ import {
   getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
-import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utxo-utils'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers'

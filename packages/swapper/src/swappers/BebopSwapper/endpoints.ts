@@ -1,6 +1,6 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../evm-utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type {
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,

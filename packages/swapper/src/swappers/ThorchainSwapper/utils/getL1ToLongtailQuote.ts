@@ -11,13 +11,13 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { ThorTradeQuote } from '../../../thorchain-utils'
+import type { ThorTradeQuote } from '../../../utils/thorchain'
 import {
   getAffiliate,
   getL1RateOrQuote,
   getThorStepData,
   TradeType,
-} from '../../../thorchain-utils'
+} from '../../../utils/thorchain'
 import type {
   GetTradeQuoteInput,
   MultiHopTradeQuoteSteps,

@@ -11,13 +11,13 @@ import type {
   ThorEvmTradeQuote,
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
-} from '../../../thorchain-utils'
+} from '../../../utils/thorchain'
 import {
   depositWithExpiry,
   getThorRouterAndVault,
   thorService,
   TradeType,
-} from '../../../thorchain-utils'
+} from '../../../utils/thorchain'
 import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
 import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
@@ -34,8 +34,8 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
-vi.mock('../../../thorchain-utils/getThorTxData')
-vi.mock('../../../thorchain-utils/service', () => {
+vi.mock('../../../utils/thorchain/getThorTxData')
+vi.mock('../../../utils/thorchain/service', () => {
   const mockAxios = {
     default: {
       create: vi.fn(() => ({

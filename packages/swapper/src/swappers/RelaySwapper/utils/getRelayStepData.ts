@@ -6,14 +6,14 @@ import { PublicKey } from '@solana/web3.js'
 import type { Hex } from 'viem'
 import { getAddress } from 'viem'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import {
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
-} from '../../../solana-utils'
+} from '../../../utils/solana'
 import type { StepDataArgs, SwapperDeps, TxBuildData } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
-import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utxo-utils'
+import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import type { RelayQuoteItem, RelaySolanaInstruction, RelayTransactionMetadata } from './types'
 import {

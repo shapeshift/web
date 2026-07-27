@@ -1,6 +1,6 @@
 import { SigningScheme } from '@shapeshiftoss/types'
 
-import { assertGetCowNetwork, signCowOrder } from '../../cowswap-utils'
+import { assertGetCowNetwork, signCowOrder } from '../../utils/cowswap'
 import type { Swapper } from '../../types'
 import { cowService } from './utils/cowService'
 

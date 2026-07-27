@@ -1,8 +1,8 @@
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { ThorTradeQuote } from '../../thorchain-utils'
-import { getL1RateOrQuote, getPoolDetails, TradeType } from '../../thorchain-utils'
+import type { ThorTradeQuote } from '../../utils/thorchain'
+import { getL1RateOrQuote, getPoolDetails, TradeType } from '../../utils/thorchain'
 import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
 import { assertValidTrade } from './utils'

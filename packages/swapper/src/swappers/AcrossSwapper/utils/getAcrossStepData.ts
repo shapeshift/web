@@ -9,11 +9,11 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../evm-utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import {
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
-} from '../../../solana-utils'
+} from '../../../utils/solana'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import {

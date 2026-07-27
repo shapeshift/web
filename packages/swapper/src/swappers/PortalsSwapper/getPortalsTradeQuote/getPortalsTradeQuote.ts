@@ -1,285 +1,159 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import {
-  BigNumber,
-  bn,
-  bnOrZero,
-  convertBasisPointsToDecimalPercentage,
-} from '@shapeshiftoss/utils'
+import { BigNumber, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { zeroAddress } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
-import type {
-  GetEvmTradeQuoteInputBase,
-  SingleHopTradeQuoteSteps,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-} from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../../utils/helpers'
-import { chainIdToPortalsNetwork } from '../constants'
+import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import {
+  assertQuoteAddresses,
+  makeSwapErrorRight,
+  makeTradeStepBuildFailedErr,
+} from '../../../utils'
+import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
+import type { PortalsTradeQuoteInput } from '../types'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsStepData } from '../utils/getPortalsStepData'
-import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
+import { getPortalsTradeContext } from '../utils/getPortalsTradeContext'
+import { assertValidTrade, getPortalsPercentages, getPortalsTokens } from '../utils/helpers'
 
-export async function getPortalsTradeQuote(
-  input: GetEvmTradeQuoteInputBase,
+export const getPortalsTradeQuote = async (
+  input: PortalsTradeQuoteInput,
   deps: SwapperDeps,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
+): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
-    sendAddress,
     accountNumber,
     affiliateBps,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
-  const sellAssetChainId = sellAsset.chainId
-  const buyAssetChainId = buyAsset.chainId
+  const assertion = assertValidTrade({ sellAsset, buyAsset })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
+  const { sellChainId } = assertion.unwrap()
 
-  if (!isSupportedChainId(sellAssetChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: sellAsset.chainId },
-      }),
-    )
-  }
+  const addresses = assertQuoteAddresses(input)
+  if (addresses.isErr()) return Err(addresses.unwrapErr())
+  const { sendAddress, receiveAddress } = addresses.unwrap()
 
-  if (!isSupportedChainId(buyAssetChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: buyAsset.chainId },
-      }),
-    )
-  }
+  const maybeTokens = getPortalsTokens({ sellAsset, buyAsset })
+  if (maybeTokens.isErr()) return Err(maybeTokens.unwrapErr())
+  const { inputToken, outputToken } = maybeTokens.unwrap()
 
-  const isCrossChain = sellAssetChainId !== buyAssetChainId
+  const { affiliateBpsPercentage, slippageTolerancePercentage } = getPortalsPercentages({
+    affiliateBps,
+    slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
+  })
 
-  // Not a decimal percentage, just a good ol' percentage e.g 1 for 1%
-  const affiliateBpsPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
-    .times(100)
-    .toNumber()
+  const maybePortalsTradeOrderResponse = await fetchPortalsTradeOrder({
+    sender: sendAddress,
+    inputToken,
+    outputToken,
+    inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    slippageTolerancePercentage,
+    partner: getTreasuryAddressFromChainId(sellChainId),
+    feePercentage: affiliateBpsPercentage,
+    validate: true,
+    swapperConfig: deps.config,
+  })
+    .then(res => Ok(res))
+    .catch(async err => {
+      if (err instanceof PortalsError) {
+        // We assume a PortalsError was thrown because the slippage tolerance was too high during simulation
+        // So we attempt another (failing) call with autoslippage which will give us the actual expected slippage
+        const portalsExpectedSlippage = await fetchPortalsTradeOrder({
+          sender: sendAddress,
+          inputToken,
+          outputToken,
+          inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          autoSlippage: true,
+          partner: getTreasuryAddressFromChainId(sellChainId),
+          feePercentage: affiliateBpsPercentage,
+          validate: true,
+          swapperConfig: deps.config,
+        })
+          // This should never happen but could in very rare cases if original call failed on slippage slightly over 2.5% but this one succeeds on slightly under 2.5%
+          .then(res => res.context.slippageTolerancePercentage)
+          .catch(err => (err as PortalsError).message.match(/Expected slippage is (.*?)%/)?.[1])
 
-  const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
-    ? bnOrZero(input.slippageTolerancePercentageDecimal).times(100).toNumber()
-    : bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
-        .times(100)
-        .toNumber()
-
-  if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
-
-  const sellPortalsNetwork = chainIdToPortalsNetwork[sellAssetChainId as KnownChainIds]
-  const buyPortalsNetwork = chainIdToPortalsNetwork[buyAssetChainId as KnownChainIds]
-
-  if (!sellPortalsNetwork) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported ChainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: sellAssetChainId },
-      }),
-    )
-  }
-
-  if (!buyPortalsNetwork) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported ChainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: buyAssetChainId },
-      }),
-    )
-  }
-
-  const sellAssetAddress = isNativeEvmAsset(sellAsset.assetId)
-    ? zeroAddress
-    : fromAssetId(sellAsset.assetId).assetReference
-  const buyAssetAddress = isNativeEvmAsset(buyAsset.assetId)
-    ? zeroAddress
-    : fromAssetId(buyAsset.assetId).assetReference
-
-  const inputToken = `${sellPortalsNetwork}:${sellAssetAddress}`
-  const outputToken = `${buyPortalsNetwork}:${buyAssetAddress}`
-
-  try {
-    const maybePortalsTradeOrderResponse = await fetchPortalsTradeOrder({
-      sender: sendAddress,
-      inputToken,
-      outputToken,
-      inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
-      partner: getTreasuryAddressFromChainId(sellAsset.chainId),
-      feePercentage: affiliateBpsPercentage,
-      validate: true,
-      swapperConfig: deps.config,
-    })
-      .then(res => Ok(res))
-      .catch(async err => {
-        if (err instanceof PortalsError) {
-          // We assume a PortalsError was thrown because the slippage tolerance was too high during simulation
-          // So we attempt another (failing) call with autoslippage which will give us the actual expected slippage
-          const portalsExpectedSlippage = await fetchPortalsTradeOrder({
-            sender: sendAddress,
-            inputToken,
-            outputToken,
-            inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            autoSlippage: true,
-            partner: getTreasuryAddressFromChainId(sellAsset.chainId),
-            feePercentage: affiliateBpsPercentage,
-            validate: true,
-            swapperConfig: deps.config,
-          })
-            // This should never happen but could in very rare cases if original call failed on slippage slightly over 2.5% but this one succeeds on slightly under 2.5%
-            .then(res => res.context.slippageTolerancePercentage)
-            .catch(err => (err as PortalsError).message.match(/Expected slippage is (.*?)%/)?.[1])
-
-          // This should never happen as we don't have auto-slippage on for `/portal` as of now (2024-12-06, see https://github.com/shapeshift/web/pull/8293)
-          // But as soon as Portals implement auto-slippage for the estimate endpoint, we will most likely re-enable it, assuming it actually works
-          if (err.message.includes('Auto slippage exceeds'))
-            return Err(
-              makeSwapErrorRight({
-                message: err.message,
-                details: {
-                  expectedSlippage: portalsExpectedSlippage
-                    ? bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP)
-                    : undefined,
-                },
-                cause: err,
-                code: TradeQuoteError.FinalQuoteMaxSlippageExceeded,
-              }),
-            )
-          if (err.message.includes('execution reverted'))
-            return Err(
-              makeSwapErrorRight({
-                message: err.message,
-                details: {
-                  expectedSlippage: portalsExpectedSlippage
-                    ? bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP)
-                    : undefined,
-                },
-                cause: err,
-                code: TradeQuoteError.FinalQuoteExecutionReverted,
-              }),
-            )
-        }
-        return Err(
-          makeSwapErrorRight({
-            message: 'failed to get Portals quote',
-            cause: err,
-            code: TradeQuoteError.NetworkFeeEstimationFailed,
-          }),
-        )
-      })
-
-    if (maybePortalsTradeOrderResponse.isErr())
-      return Err(maybePortalsTradeOrderResponse.unwrapErr())
-
-    const portalsTradeOrderResponse = maybePortalsTradeOrderResponse.unwrap()
-
-    const { context, tx } = portalsTradeOrderResponse
-    const { orderId, outputAmount, minOutputAmount, target, feeAmount, feeToken } = context
-
-    const allowanceContract = isCrossChain ? target : getPortalsRouterAddressByChainId(chainId)
-
-    const buyAmountAfterFeesCryptoBaseUnit = isCrossChain ? minOutputAmount : outputAmount
-
-    const protocolFeeAsset = feeToken === inputToken ? sellAsset : buyAsset
-
-    if (!tx) throw new Error('Portals Tx simulation failed upstream')
-
-    const inputOutputRate = getInputOutputRate({
-      sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-      sellAsset,
-      buyAsset,
-    })
-
-    const { transactionData, networkFeeCryptoBaseUnit } = await getPortalsStepData({
-      type: 'quote',
-      input,
-      tx,
-      sellAsset,
-      from: sendAddress,
-      deps,
-    })
-
-    // Don't use Portals' slippageTolerancePercentage field (it's what we requested, not what they applied)
-    // Instead, calculate the actual buffer Portals applied from the amounts
-    const actualBufferDecimal = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
-      .minus(minOutputAmount)
-      .div(buyAmountAfterFeesCryptoBaseUnit)
-      .toString()
-
-    // Reverse the buffer to recover the expected output (minOutput / (1 - buffer) = output)
-    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(minOutputAmount)
-      .div(bn(1).minus(actualBufferDecimal))
-      .toFixed(0)
-
-    const slippageTolerancePercentageDecimal = actualBufferDecimal
-
-    const tradeQuote: TradeQuote = {
-      id: orderId,
-      quoteOrRate: 'quote' as const,
-      receiveAddress: input.receiveAddress,
-      affiliateBps,
-      rate: inputOutputRate,
-      slippageTolerancePercentageDecimal,
-      swapperName: SwapperName.Portals,
-      steps: [
-        {
-          accountNumber,
-          allowanceContract,
-          rate: inputOutputRate,
-          buyAsset,
-          sellAsset,
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeSlippageCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit:
-            input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          feeData: {
-            networkFeeCryptoBaseUnit,
-            protocolFees: {
-              [protocolFeeAsset.assetId]: {
-                amountCryptoBaseUnit: feeAmount,
-                asset: protocolFeeAsset,
-                requiresBalance: false,
+        // This should never happen as we don't have auto-slippage on for `/portal` as of now (2024-12-06, see https://github.com/shapeshift/web/pull/8293)
+        // But as soon as Portals implement auto-slippage for the estimate endpoint, we will most likely re-enable it, assuming it actually works
+        if (err.message.includes('Auto slippage exceeds'))
+          return Err(
+            makeSwapErrorRight({
+              message: err.message,
+              details: {
+                expectedSlippage: portalsExpectedSlippage
+                  ? bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP)
+                  : undefined,
               },
-            },
-          },
-          source: SwapperName.Portals,
-          estimatedExecutionTimeMs: isCrossChain ? 300000 : 0,
-          transactionData,
-          affiliateFee: buildAffiliateFee({
-            strategy: 'buy_asset',
-            affiliateBps,
-            sellAsset,
-            buyAsset,
-            sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-            isEstimate: true,
-          }),
-        },
-      ] as SingleHopTradeQuoteSteps,
-    }
+              cause: err,
+              code: TradeQuoteError.FinalQuoteMaxSlippageExceeded,
+            }),
+          )
+        if (err.message.includes('execution reverted'))
+          return Err(
+            makeSwapErrorRight({
+              message: err.message,
+              details: {
+                expectedSlippage: portalsExpectedSlippage
+                  ? bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP)
+                  : undefined,
+              },
+              cause: err,
+              code: TradeQuoteError.FinalQuoteExecutionReverted,
+            }),
+          )
+      }
+      return Err(
+        makeSwapErrorRight({
+          message: 'failed to get Portals quote',
+          cause: err,
+          code: TradeQuoteError.NetworkFeeEstimationFailed,
+        }),
+      )
+    })
 
-    return Ok(tradeQuote)
-  } catch (err) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'failed to get Portals quote',
-        cause: err,
-        code: TradeQuoteError.NetworkFeeEstimationFailed,
-      }),
-    )
+  if (maybePortalsTradeOrderResponse.isErr()) return Err(maybePortalsTradeOrderResponse.unwrapErr())
+  const { context: orderContext, tx } = maybePortalsTradeOrderResponse.unwrap()
+
+  if (!tx) return Err(makeTradeStepBuildFailedErr('getPortalsTradeQuote'))
+
+  const maybeContext = getPortalsTradeContext({
+    input,
+    deps,
+    sellChainId,
+    inputToken,
+    orderContext,
+    tx,
+  })
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getPortalsStepData({
+    ...stepDataArgs,
+    type: 'quote',
+    input,
+    from: sendAddress,
+  })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
+
+  const tradeQuote: TradeQuote = {
+    ...tradeCommon,
+    quoteOrRate: 'quote' as const,
+    receiveAddress,
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber,
+        transactionData,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
+      },
+    ],
   }
+
+  return Ok([tradeQuote])
 }

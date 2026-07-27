@@ -1,9 +1,12 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { Hex } from 'viem'
 import { getAddress } from 'viem'
 
+import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
+import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import type { StepDataArgs, TxBuildData } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import type { PortalsTx } from './fetchPortalsTradeOrder'
 import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
@@ -12,9 +15,7 @@ type BaseArgs = {
   tx: PortalsTx
 }
 
-// Rates simulate the order tx via Tenderly (falling back to the Portals estimate endpoint) so an
-// unapproved sender still prices
-type GetPortalsStepDataArgs = StepDataArgs<
+export type GetPortalsStepDataArgs = StepDataArgs<
   BaseArgs,
   {
     target: string
@@ -25,54 +26,70 @@ type GetPortalsStepDataArgs = StepDataArgs<
   }
 >
 
-export const getPortalsStepData = async (
+type PortalsRateStepData = { networkFeeCryptoBaseUnit: string }
+type PortalsQuoteStepData = { transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }
+
+export function getPortalsStepData(
+  args: Extract<GetPortalsStepDataArgs, { type: 'rate' }>,
+): Promise<Result<PortalsRateStepData, SwapErrorRight>>
+export function getPortalsStepData(
+  args: Extract<GetPortalsStepDataArgs, { type: 'quote' }>,
+): Promise<Result<PortalsQuoteStepData, SwapErrorRight>>
+export async function getPortalsStepData(
   args: GetPortalsStepDataArgs,
-): Promise<{ transactionData?: TxBuildData; networkFeeCryptoBaseUnit: string }> => {
+): Promise<Result<PortalsRateStepData | PortalsQuoteStepData, SwapErrorRight>> {
   const { tx, sellAsset, input, deps } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
   if (args.type === 'rate') {
-    const gasLimit = await (async () => {
-      const tenderlySimulation = await simulateWithStateOverrides(
-        {
-          chainId: sellAsset.chainId,
-          from: tx.from,
-          to: tx.to,
-          data: tx.data as Hex,
-          value: tx.value,
-          sellAsset,
-          spenderAddress: getAddress(args.target),
-        },
-        {
-          apiKey: deps.config.VITE_TENDERLY_API_KEY,
-          accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-          projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-        },
-      )
+    try {
+      // No placeholder estimation for provider built routes - Tenderly sim (approval state-overridden)
+      // with the Portals estimate endpoint as fallback
+      const gasLimit = await (async () => {
+        const tenderlySimulation = await simulateWithStateOverrides(
+          {
+            chainId: sellAsset.chainId,
+            from: tx.from,
+            to: tx.to,
+            data: tx.data as Hex,
+            value: tx.value,
+            sellAsset,
+            spenderAddress: getAddress(args.target),
+          },
+          {
+            apiKey: deps.config.VITE_TENDERLY_API_KEY,
+            accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
+            projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
+          },
+        )
 
-      if (tenderlySimulation.success) return tenderlySimulation.gasLimit.toString()
+        if (tenderlySimulation.success) return tenderlySimulation.gasLimit.toString()
 
-      // Fallback to estimate endpoint (i.e simulation with overrides failed, but Portals still able to do their magic here)
-      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-        inputToken: args.inputToken,
-        outputToken: args.outputToken,
-        inputAmount: args.inputAmount,
-        slippageTolerancePercentage: args.slippageTolerancePercentage,
-        swapperConfig: deps.config,
+        const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+          inputToken: args.inputToken,
+          outputToken: args.outputToken,
+          inputAmount: args.inputAmount,
+          slippageTolerancePercentage: args.slippageTolerancePercentage,
+          swapperConfig: deps.config,
+        })
+
+        return quoteEstimateResponse.context.gasLimit.toString()
+      })()
+
+      const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+        adapter,
+        supportsEIP1559,
+        gasLimit,
       })
 
-      return quoteEstimateResponse.context.gasLimit.toString()
-    })()
+      const stepData: PortalsRateStepData = { networkFeeCryptoBaseUnit }
 
-    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-      adapter,
-      supportsEIP1559,
-      gasLimit,
-    })
-
-    return { networkFeeCryptoBaseUnit }
+      return Ok(stepData)
+    } catch (error) {
+      return Err(makeNetworkFeeEstimationFailedErr('getPortalsStepData', error))
+    }
   }
 
   const transactionData: TxBuildData = {
@@ -85,12 +102,18 @@ export const getPortalsStepData = async (
     gasLimit: tx.gasLimit,
   }
 
-  const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-    adapter,
-    transactionData,
-    from: args.from,
-    supportsEIP1559,
-  })
+  try {
+    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      adapter,
+      transactionData,
+      from: args.from,
+      supportsEIP1559,
+    })
 
-  return { transactionData, networkFeeCryptoBaseUnit }
+    const stepData: PortalsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+    return Ok(stepData)
+  } catch (error) {
+    return Err(makeNetworkFeeEstimationFailedErr('getPortalsStepData', error))
+  }
 }

@@ -40,7 +40,7 @@ export type PortalsTx = {
   gasLimit: string
 }
 
-type PortalsTradeOrderResponse = {
+export type PortalsTradeOrderResponse = {
   context: {
     orderId: string
     inputToken: string

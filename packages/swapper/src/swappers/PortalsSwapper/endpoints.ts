@@ -1,16 +1,11 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import type {
-  CheckTradeStatusInput,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  SwapperApi,
-  TradeStatus,
-} from '../../types'
+import type { CheckTradeStatusInput, SwapperApi, TradeStatus } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { getPortalsTradeRate } from './getPortalsTradeRate/getPortalsTradeRate'
+import type { PortalsTradeQuoteInput, PortalsTradeRateInput } from './types'
 import {
   fetchAxelarscanBridgeStatus,
   getAxelarscanTrackingLink,
@@ -18,16 +13,8 @@ import {
 import { fetchSquidBridgeStatus, getSquidTrackingLink } from './utils/fetchSquidStatus'
 
 export const portalsApi: SwapperApi = {
-  getTradeQuote: async (input, deps) => {
-    const tradeQuoteResult = await getPortalsTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
-
-    return tradeQuoteResult.map(tradeQuote => [tradeQuote])
-  },
-  getTradeRate: async (input, deps) => {
-    const tradeRateResult = await getPortalsTradeRate(input as GetEvmTradeRateInput, deps)
-
-    return tradeRateResult.map(tradeRate => [tradeRate])
-  },
+  getTradeQuote: (input, deps) => getPortalsTradeQuote(input as PortalsTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getPortalsTradeRate(input as PortalsTradeRateInput, deps),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
   checkTradeStatus: async (input: CheckTradeStatusInput): Promise<TradeStatus> => {

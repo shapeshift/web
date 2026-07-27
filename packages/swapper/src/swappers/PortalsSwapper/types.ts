@@ -1,5 +1,10 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput } from '../../types'
+
+export type PortalsTradeQuoteInput = GetEvmTradeQuoteInputBase
+export type PortalsTradeRateInput = GetEvmTradeRateInput
+
 // https://api.portals.fi/v1/networks
 export const PortalsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,

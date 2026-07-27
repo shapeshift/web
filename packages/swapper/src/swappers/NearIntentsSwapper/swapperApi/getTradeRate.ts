@@ -19,6 +19,7 @@ export const getTradeRate = async (
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const {
+    accountNumber,
     sellAsset,
     buyAsset,
     affiliateBps,
@@ -69,7 +70,7 @@ export const getTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { protocolFees, networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit ?? '0' },
       },
     ],

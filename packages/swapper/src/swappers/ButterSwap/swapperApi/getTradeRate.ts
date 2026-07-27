@@ -12,7 +12,7 @@ export const getTradeRate = async (
   input: ButterSwapTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
     SwapperName.ButterSwap,
@@ -39,7 +39,7 @@ export const getTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

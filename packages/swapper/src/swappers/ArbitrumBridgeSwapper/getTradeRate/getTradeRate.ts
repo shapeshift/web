@@ -9,7 +9,7 @@ export const getTradeRate = async (
   input: GetEvmTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const maybeContext = await getArbitrumBridgeTradeContext({ input, deps })
 
@@ -28,7 +28,7 @@ export const getTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { protocolFees: {}, networkFeeCryptoBaseUnit },
       },
     ],

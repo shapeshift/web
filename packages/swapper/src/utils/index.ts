@@ -413,18 +413,13 @@ export const getInputOutputRate = ({
 export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is TradeQuote =>
   quote.quoteOrRate === 'quote'
 
-export const isExecutableTradeStep = (
-  step: TradeQuoteStep | TradeRateStep,
-): step is ExecutableTradeStep => step.accountNumber !== undefined
-
 export const getExecutableTradeStep = (
   tradeQuote: TradeQuote,
   stepIndex: SupportedTradeQuoteStepIndex,
-) => {
-  const step = getHopByIndex(tradeQuote, stepIndex)
+): ExecutableTradeStep => {
+  // A TradeQuote is executable by construction, so its steps are TradeQuoteStep (accountNumber set)
+  const step = tradeQuote.steps[stepIndex]
   if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
-
-  if (!isExecutableTradeStep(step)) throw Error('Unable to execute a trade rate step')
 
   return step
 }

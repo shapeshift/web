@@ -14,7 +14,7 @@ export const getTradeRate = async (
   input: GetStarknetTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { sellAsset, receiveAddress } = input
+  const { accountNumber, sellAsset, receiveAddress } = input
 
   const maybeContext = await getAvnuTradeContext({ input, takerAddress: undefined })
 
@@ -55,7 +55,7 @@ export const getTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { protocolFees, networkFeeCryptoBaseUnit },
       },
     ],

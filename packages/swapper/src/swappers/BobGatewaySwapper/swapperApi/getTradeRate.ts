@@ -12,7 +12,7 @@ export const getBobGatewayTradeRate = async (
   input: BobGatewayTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { sellAsset, buyAsset, receiveAddress } = input
+  const { accountNumber, sellAsset, buyAsset, receiveAddress } = input
 
   const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
   const sender =
@@ -35,7 +35,7 @@ export const getBobGatewayTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

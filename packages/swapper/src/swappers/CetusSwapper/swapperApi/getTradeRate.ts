@@ -11,7 +11,7 @@ export const getTradeRate = async (
   input: CetusTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const from = receiveAddress ?? CETUS_FEE_ESTIMATE_DUMMY_ADDRESS
 
@@ -32,7 +32,7 @@ export const getTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

@@ -20,6 +20,7 @@ export const getZrxTradeRate = async (
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const {
+    accountNumber,
     sellAsset,
     buyAsset,
     receiveAddress,
@@ -75,7 +76,7 @@ export const getZrxTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ] as SingleHopTradeRateSteps,

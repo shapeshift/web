@@ -11,7 +11,7 @@ export const getCowSwapTradeRate = async (
   input: CowSwapTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const maybeContext = await getCowSwapTradeContext({
     input,
@@ -36,7 +36,7 @@ export const getCowSwapTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

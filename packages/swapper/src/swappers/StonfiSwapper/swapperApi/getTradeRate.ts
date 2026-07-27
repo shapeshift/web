@@ -9,7 +9,7 @@ export const getTradeRate = async (
   input: StonfiTradeRateInput,
   deps: SwapperDeps,
 ): Promise<TradeRateResult> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const maybeContext = await getStonfiTradeContext({ input, deps })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
@@ -26,7 +26,7 @@ export const getTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

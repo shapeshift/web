@@ -260,7 +260,9 @@ export const validateTradeQuote = (
   // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
   // Later we'll need to handle protocol fees payable from the buy side.
   const insufficientBalanceForProtocolFeesErrors =
-    // TODO(gomes): We will need to handle this differently since a rate doesn't contain bip44 data
+    // A rate carries a sell account number only when a wallet is connected; balance validation
+    // against it is a quote-time (executable) concern, so keep it gated to quotes
+    quoteOrRate === 'quote' &&
     sellAssetAccountNumber !== undefined
       ? Object.entries(totalProtocolFeesByAsset)
           .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {

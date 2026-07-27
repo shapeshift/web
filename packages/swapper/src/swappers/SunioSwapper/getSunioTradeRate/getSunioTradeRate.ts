@@ -10,7 +10,7 @@ export const getSunioTradeRate = async (
   input: SunioTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const maybeContext = await getSunioTradeContext({ input, deps })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
@@ -28,7 +28,7 @@ export const getSunioTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

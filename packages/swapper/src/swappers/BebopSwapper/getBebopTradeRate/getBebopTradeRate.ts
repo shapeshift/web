@@ -11,7 +11,7 @@ export const getBebopTradeRate = async (
   input: GetEvmTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const address = getAddress(receiveAddress ?? BEBOP_DUMMY_ADDRESS)
 
@@ -37,7 +37,7 @@ export const getBebopTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { protocolFees: {}, networkFeeCryptoBaseUnit },
       },
     ],

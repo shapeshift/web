@@ -14,7 +14,7 @@ export const getBebopSolanaTradeRate = async (
   input: GetSolanaTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   // Rates are display-only; price against the dummy taker walletless (the quote validates the real taker)
   const address = receiveAddress ?? BEBOP_SOLANA_DUMMY_ADDRESS
@@ -36,7 +36,7 @@ export const getBebopSolanaTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         // Bebop Solana is gasless - Bebop pays the network fees via co-signing
         feeData: { protocolFees: {}, networkFeeCryptoBaseUnit: '0' },
       },

@@ -10,6 +10,8 @@ export const getTradeRate = async (
   input: ChainflipTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  const { accountNumber } = input
+
   const maybeTradeContexts = await getChainflipTradeContexts(input, deps)
 
   if (maybeTradeContexts.isErr()) return Err(maybeTradeContexts.unwrapErr())
@@ -35,7 +37,7 @@ export const getTradeRate = async (
       steps: [
         {
           ...stepCommon,
-          accountNumber: undefined,
+          accountNumber,
           feeData: { networkFeeCryptoBaseUnit, protocolFees },
         },
       ],

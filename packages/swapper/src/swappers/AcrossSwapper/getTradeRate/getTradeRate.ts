@@ -11,7 +11,7 @@ export const getTradeRate = async (
   input: AcrossTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { sellAsset, buyAsset, sendAddress, receiveAddress } = input
+  const { accountNumber, sellAsset, buyAsset, sendAddress, receiveAddress } = input
 
   const depositor = sendAddress ?? getDefaultUserAddress(sellAsset.chainId)
   const recipient = receiveAddress ?? getDefaultUserAddress(buyAsset.chainId)
@@ -33,7 +33,7 @@ export const getTradeRate = async (
     steps: [
       {
         ...stepCommon,
-        accountNumber: undefined,
+        accountNumber,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

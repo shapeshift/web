@@ -204,9 +204,10 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {
-  sendAddress?: undefined
+  // sendAddress and accountNumber are set when a wallet is connected, undefined when it isn't
+  sendAddress?: string
   receiveAddress: string | undefined
-  accountNumber: undefined
+  accountNumber: number | undefined
   quoteOrRate: 'rate'
 }
 
@@ -454,7 +455,8 @@ export type TradeQuoteStep = TradeStepCommon & {
 }
 
 export type TradeRateStep = TradeStepCommon & {
-  accountNumber: undefined
+  // Set when a wallet is connected (e.g. approval-before-quote), undefined when it isn't
+  accountNumber: number | undefined
   // Rates are not executable and never carry transaction data
   transactionData?: undefined
 }

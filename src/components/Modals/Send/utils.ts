@@ -374,7 +374,6 @@ export const handleSendWithMetadata = async ({
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
 
       const solanaAdapter = assertGetSolanaChainAdapter(chainId)
-      const { account } = fromAccountId(sendInput.accountId)
 
       const memoInstruction: SolanaTxInstruction | undefined = memo
         ? { keys: [], programId: SOLANA_MEMO_PROGRAM_ID, data: Buffer.from(memo, 'utf8') }

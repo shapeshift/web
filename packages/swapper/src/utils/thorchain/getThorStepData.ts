@@ -14,14 +14,10 @@ import { TronWeb } from 'tronweb'
 import type { Address } from 'viem'
 import { getAddress, zeroAddress } from 'viem'
 
+import type { StepDataArgs, SwapperName, TxBuildData } from '../../types'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../evm'
-import { getSolanaNetworkFeeCryptoBaseUnit } from '../solana'
 import { isNativeEvmAsset } from '../helpers'
-import type {
-  StepDataArgs,
-  SwapperName,
-  TxBuildData,
-} from '../../types'
+import { getSolanaNetworkFeeCryptoBaseUnit } from '../solana'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../utxo'
 import { getThorRouterAndVault, getThorTxData } from './getThorTxData'
 import { depositWithExpiry, swapIn } from './routerCallData/routerCalldata'

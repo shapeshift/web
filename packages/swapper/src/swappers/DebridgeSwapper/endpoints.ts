@@ -1,8 +1,8 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getSwapMetadata } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { debridgeService } from './utils/debridgeService'

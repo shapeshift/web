@@ -6,6 +6,10 @@ import { omit } from 'lodash'
 import { getAddress } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
+import { SwapperName } from '../../../types'
+import { ETH, FOX_MAINNET } from '../../../utils/test-data/assets'
+import { setupQuote } from '../../../utils/test-data/setupSwapQuote'
 import type {
   InboundAddressResponse,
   ThorEvmTradeQuote,
@@ -18,10 +22,6 @@ import {
   thorService,
   TradeType,
 } from '../../../utils/thorchain'
-import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
-import { SwapperName } from '../../../types'
-import { ETH, FOX_MAINNET } from '../../../utils/test-data/assets'
-import { setupQuote } from '../../../utils/test-data/setupSwapQuote'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
 import { getTradeQuote } from './getTradeQuote'

@@ -11,13 +11,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { ThorTradeQuote } from '../../../utils/thorchain'
-import {
-  getAffiliate,
-  getL1RateOrQuote,
-  getThorStepData,
-  TradeType,
-} from '../../../utils/thorchain'
 import type {
   GetTradeQuoteInput,
   MultiHopTradeQuoteSteps,
@@ -27,6 +20,13 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
+import type { ThorTradeQuote } from '../../../utils/thorchain'
+import {
+  getAffiliate,
+  getL1RateOrQuote,
+  getThorStepData,
+  TradeType,
+} from '../../../utils/thorchain'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo/addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
 import type { AggregatorContract } from './longTailHelpers'

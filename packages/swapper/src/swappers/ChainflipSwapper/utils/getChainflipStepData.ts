@@ -4,17 +4,17 @@ import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
+import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import {
   ATA_RENT_LAMPORTS,
   getSolanaNetworkFeeCryptoBaseUnit,
   SOLANA_PLACEHOLDER_ADDRESS,
 } from '../../../utils/solana'
-import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
-import { TradeQuoteError } from '../../../types'
-import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
-import { isNativeEvmAsset } from '../../../utils/helpers'
 
 const SAFE_GAS_LIMIT = '100000'
 

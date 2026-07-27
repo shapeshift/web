@@ -7,4 +7,5 @@ export const isComputeBudgetInstruction = (instruction: TransactionInstruction):
 // Transaction data carries business instructions only - the execution compute budget is derived fresh
 export const omitComputeBudgetInstructions = (
   instructions: TransactionInstruction[],
-): TransactionInstruction[] => instructions.filter(instruction => !isComputeBudgetInstruction(instruction))
+): TransactionInstruction[] =>
+  instructions.filter(instruction => !isComputeBudgetInstruction(instruction))

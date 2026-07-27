@@ -7,16 +7,6 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import {
-  getAffiliateAppDataFragmentByChainId,
-  getCowNetwork,
-  getFullAppData,
-} from '../../../utils/cowswap'
-import {
-  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  COW_SWAP_VAULT_RELAYER_ADDRESS,
-  SUPPORTED_CHAIN_IDS,
-} from '../../../utils/cowswap/constants'
 import type {
   QuoteFeeData,
   SwapErrorRight,
@@ -31,6 +21,16 @@ import {
   makeSwapErrorRight,
 } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
+import {
+  getAffiliateAppDataFragmentByChainId,
+  getCowNetwork,
+  getFullAppData,
+} from '../../../utils/cowswap'
+import {
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
+  COW_SWAP_VAULT_RELAYER_ADDRESS,
+  SUPPORTED_CHAIN_IDS,
+} from '../../../utils/cowswap/constants'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { CowSwapTradeQuoteInput, CowSwapTradeRateInput } from '../types'
 import { cowService } from '../utils/cowService'

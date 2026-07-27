@@ -9,11 +9,6 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import {
-  getSolanaNetworkFeeCryptoBaseUnit,
-  omitComputeBudgetInstructions,
-} from '../../../utils/solana'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import {
@@ -21,6 +16,11 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getSolanaNetworkFeeCryptoBaseUnit,
+  omitComputeBudgetInstructions,
+} from '../../../utils/solana'
 import type { AcrossSwapTx } from './types'
 
 type BaseArgs = {

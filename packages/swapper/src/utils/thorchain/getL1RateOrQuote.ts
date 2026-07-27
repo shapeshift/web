@@ -14,7 +14,6 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../index'
-import { buildAffiliateFee } from '../affiliateFee'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
@@ -26,6 +25,7 @@ import type {
 } from '../../types'
 import { SwapperName, TradeQuoteError } from '../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../utils'
+import { buildAffiliateFee } from '../affiliateFee'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
 import { getThorStepData } from './getThorStepData'

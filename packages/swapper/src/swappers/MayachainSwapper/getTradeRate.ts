@@ -1,10 +1,10 @@
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { ThorTradeRate } from '../../utils/thorchain'
-import { getL1RateOrQuote, getPoolDetails, TradeType } from '../../utils/thorchain'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
+import type { ThorTradeRate } from '../../utils/thorchain'
+import { getL1RateOrQuote, getPoolDetails, TradeType } from '../../utils/thorchain'
 import { assertValidTrade } from './utils'
 
 export const getTradeRate = async (

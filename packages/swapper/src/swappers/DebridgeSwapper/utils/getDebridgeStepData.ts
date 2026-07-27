@@ -2,9 +2,9 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { DebridgeTx } from './types'
 
 type BaseArgs = {

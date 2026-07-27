@@ -1,12 +1,12 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import { assertGetCowNetwork } from '../../utils/cowswap'
 import type { SwapperApi } from '../../types'
 import {
   checkSafeTransactionStatus,
   getExecutableTradeStep,
   isExecutableTradeQuote,
 } from '../../utils'
+import { assertGetCowNetwork } from '../../utils/cowswap'
 import { CowStatusMessage } from './constants'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'

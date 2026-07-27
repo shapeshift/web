@@ -8,8 +8,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
-import type { ThorTradeRate } from '../../../utils/thorchain'
-import { getL1RateOrQuote, TradeType } from '../../../utils/thorchain'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
@@ -19,6 +17,8 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import type { ThorTradeRate } from '../../../utils/thorchain'
+import { getL1RateOrQuote, TradeType } from '../../../utils/thorchain'
 import { getBestAggregator } from './getBestAggregator'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 

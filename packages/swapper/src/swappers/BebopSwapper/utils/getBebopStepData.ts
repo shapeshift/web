@@ -4,9 +4,9 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { fromHex } from 'viem'
 
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { BebopQuoteResponse } from '../types'
 
 type BaseArgs = {

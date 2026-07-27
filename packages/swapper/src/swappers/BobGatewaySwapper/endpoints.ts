@@ -1,10 +1,10 @@
-import { getTronTransactionFees } from '../../utils/tron'
 import { isGatewayError } from '@gobob/bob-sdk'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import { getTronTransactionFees } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'

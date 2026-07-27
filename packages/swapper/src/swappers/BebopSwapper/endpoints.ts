@@ -1,6 +1,5 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 
-import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type {
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
@@ -15,6 +14,7 @@ import {
   getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getBebopSolanaTradeQuote } from './getBebopSolanaTradeQuote/getBebopSolanaTradeQuote'
 import { getBebopSolanaTradeRate } from './getBebopSolanaTradeRate/getBebopSolanaTradeRate'
 import { getBebopTradeQuote } from './getBebopTradeQuote/getBebopTradeQuote'

@@ -1,7 +1,7 @@
+import type { SwapperApi } from '../../types'
 import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '../../utils/cosmossdk'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { checkTradeStatus } from '../../utils/thorchain'
-import type { SwapperApi } from '../../types'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './getTradeQuote'
 import { getTradeRate } from './getTradeRate'

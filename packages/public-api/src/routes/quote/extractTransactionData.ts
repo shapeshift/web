@@ -12,7 +12,7 @@ import type {
 import { getEvmChainIdNumber } from './utils'
 
 const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | undefined => {
-  if (step.transactionData?.type !== 'evm') return undefined
+  if (step.transactionData?.type !== 'evm') return
 
   const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
   const { to, data, value, gasLimit, signatureRequired } = step.transactionData
@@ -21,7 +21,7 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
 }
 
 const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
-  if (step.transactionData?.type !== 'solana') return undefined
+  if (step.transactionData?.type !== 'solana') return
 
   const { instructions, addressLookupTableAddresses } = step.transactionData
 
@@ -41,7 +41,7 @@ const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionDa
 }
 
 const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData | undefined => {
-  if (step.transactionData?.type !== 'utxo') return undefined
+  if (step.transactionData?.type !== 'utxo') return
 
   const { to, opReturnData, value } = step.transactionData
 
@@ -80,6 +80,4 @@ export const extractTransactionData = (step: TradeQuoteStep): TransactionData | 
   if (chainNamespace === 'cosmos') {
     return extractCosmosSdkTransactionData(step)
   }
-
-  return undefined
 }

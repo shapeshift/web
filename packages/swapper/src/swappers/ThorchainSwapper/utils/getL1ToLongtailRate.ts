@@ -5,8 +5,6 @@ import { isFulfilled, isRejected, isResolvedErr } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { ThorTradeRate } from '../../../utils/thorchain'
-import { getL1RateOrQuote, TradeType } from '../../../utils/thorchain'
 import type {
   GetTradeRateInput,
   MultiHopTradeRateSteps,
@@ -16,6 +14,8 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
+import type { ThorTradeRate } from '../../../utils/thorchain'
+import { getL1RateOrQuote, TradeType } from '../../../utils/thorchain'
 import { getBestAggregator } from './getBestAggregator'
 import type { AggregatorContract } from './longTailHelpers'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'

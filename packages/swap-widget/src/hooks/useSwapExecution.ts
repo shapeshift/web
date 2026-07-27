@@ -5,11 +5,7 @@ import { getAddress } from 'viem'
 import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type {
-  EvmTransactionData,
-  SolanaTransactionData,
-  UtxoTransactionData,
-} from '../types'
+import type { EvmTransactionData, SolanaTransactionData, UtxoTransactionData } from '../types'
 import { getErrorMessage } from '../utils/errors'
 
 type BitcoinSigner = ReturnType<typeof useSwapWallet>['bitcoin']

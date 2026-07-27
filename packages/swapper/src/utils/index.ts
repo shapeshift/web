@@ -562,7 +562,7 @@ export class SolanaLogsError extends Error {
 }
 
 export const buildSwapMetadata = (
-  step: TradeQuoteStep,
+  step: TradeQuoteStep | TradeRateStep,
   common: CommonSwapMetadata,
 ): SwapMetadata => ({
   ...common,

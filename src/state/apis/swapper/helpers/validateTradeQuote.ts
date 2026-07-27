@@ -262,8 +262,7 @@ export const validateTradeQuote = (
   const insufficientBalanceForProtocolFeesErrors =
     // A rate carries a sell account number only when a wallet is connected; balance validation
     // against it is a quote-time (executable) concern, so keep it gated to quotes
-    quoteOrRate === 'quote' &&
-    sellAssetAccountNumber !== undefined
+    quoteOrRate === 'quote' && sellAssetAccountNumber !== undefined
       ? Object.entries(totalProtocolFeesByAsset)
           .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             if (!protocolFee.requiresBalance) return false

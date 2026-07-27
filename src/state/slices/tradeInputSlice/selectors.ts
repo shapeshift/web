@@ -102,7 +102,10 @@ const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined
   )
 
 const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
-  createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[1] : undefined))
+  createDeepEqualOutputSelector(
+    selectActiveQuote,
+    quote => (quote ? quote.steps[1] : undefined) as TradeQuote['steps'][number] | undefined,
+  )
 
 export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =
   createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))

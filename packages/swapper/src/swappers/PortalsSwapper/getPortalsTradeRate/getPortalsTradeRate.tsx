@@ -16,7 +16,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../../utils/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsStepData } from '../utils/getPortalsStepData'

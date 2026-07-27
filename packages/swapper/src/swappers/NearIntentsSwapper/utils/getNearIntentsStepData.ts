@@ -16,7 +16,7 @@ import type {
 } from '../../../types'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 
 type BaseArgs = {
   sellAmountCryptoBaseUnit: string

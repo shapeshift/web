@@ -19,7 +19,7 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import type {
   ButterSwapTradeQuoteInput,
   ButterSwapTradeRateInput,

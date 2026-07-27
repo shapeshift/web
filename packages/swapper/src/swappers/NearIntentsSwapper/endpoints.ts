@@ -1,10 +1,9 @@
+import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../utils/solana'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
-import { getTronTransactionFees } from '../../utils/tron/getTronTransactionFees'
-import { getUnsignedTronTransaction } from '../../utils/tron/getUnsignedTronTransaction'
 import type {
   GetUnsignedNearTransactionArgs,
   GetUnsignedSuiTransactionArgs,

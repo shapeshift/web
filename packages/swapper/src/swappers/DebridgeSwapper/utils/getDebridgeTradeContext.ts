@@ -19,7 +19,7 @@ import type {
 } from '../../../types'
 import { SwapperName } from '../../../types'
 import { getInputOutputRate } from '../../../utils'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
 import { debridgeChainIdToChainId } from '../constant'
 import { fetchDebridgeSingleChainTrade } from './fetchDebridgeSingleChainTrade'
 import { fetchDebridgeTrade } from './fetchDebridgeTrade'

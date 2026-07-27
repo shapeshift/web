@@ -14,7 +14,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../index'
-import { buildAffiliateFee } from '../../swappers/utils/affiliateFee'
+import { buildAffiliateFee } from '../affiliateFee'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,

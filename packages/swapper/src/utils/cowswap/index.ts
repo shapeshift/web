@@ -20,7 +20,7 @@ import type { Address } from 'viem'
 import { keccak256, stringToBytes } from 'viem'
 
 import type { AffiliateAppDataFragment } from '../../swappers/CowSwapper'
-import { getTreasuryAddressFromChainId } from '../../swappers/utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../helpers'
 import {
   CANCELLATIONS_TYPE_FIELDS,
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,

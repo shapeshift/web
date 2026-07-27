@@ -5,7 +5,7 @@ import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetTradeRateInput, SwapperDeps } from '../../../types'
-import { BTC, ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
+import { BTC, ETH, USDC_MAINNET, WETH } from '../../../utils/test-data/assets'
 import ethBtcRoute from '../test-data/eth-btc.json'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import type { RouteResponse } from '../types'

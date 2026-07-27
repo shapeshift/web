@@ -14,7 +14,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from './constants'
 import { estimateSunioNetworkFeeCryptoBaseUnit } from './estimateSunioNetworkFee'
 import { fetchSunioQuote } from './fetchFromSunio'

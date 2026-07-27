@@ -6,7 +6,7 @@ import axios from 'axios'
 import type { Address, Hex } from 'viem'
 import { isAddress, maxUint256, parseEther, toHex } from 'viem'
 
-import { isNativeEvmAsset } from '../../swappers/utils/helpers/helpers'
+import { isNativeEvmAsset } from '../helpers'
 import {
   getAllowanceStorageSlot,
   getBalanceStorageSlot,

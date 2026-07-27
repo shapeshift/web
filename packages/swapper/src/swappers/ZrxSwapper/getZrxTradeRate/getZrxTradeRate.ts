@@ -12,8 +12,8 @@ import type {
   TradeRate,
 } from '../../../types'
 import { SwapperName } from '../../../types'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import { fetchZrxPrice } from '../utils/fetchFromZrx'
 import { getZrxStepData } from '../utils/getZrxStepData'
 import {

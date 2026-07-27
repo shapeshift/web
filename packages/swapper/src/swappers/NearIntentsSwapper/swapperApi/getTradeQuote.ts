@@ -12,7 +12,7 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import {
   BTC_QUOTE_DEADLINE_MS,
   DEFAULT_QUOTE_DEADLINE_MS,

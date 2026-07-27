@@ -16,7 +16,7 @@ import { getAddress, zeroAddress } from 'viem'
 
 import { getEvmNetworkFeeCryptoBaseUnit } from '../evm'
 import { getSolanaNetworkFeeCryptoBaseUnit } from '../solana'
-import { isNativeEvmAsset } from '../../swappers/utils/helpers/helpers'
+import { isNativeEvmAsset } from '../helpers'
 import type {
   StepDataArgs,
   SwapperName,

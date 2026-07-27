@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 
-import type { AffiliateFee } from '../../types'
+import type { AffiliateFee } from '../types'
 
 export type AffiliateFeeStrategy = 'buy_asset' | 'sell_asset' | 'fixed_asset'
 

@@ -12,7 +12,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import type { CetusTradeQuoteInput, CetusTradeRateInput } from '../types'
 import { PYTH_DEPENDENT_PROVIDERS } from '../utils/constants'
 import { assertValidTrade, findBestRoute, getAggregatorClient, getCoinType } from '../utils/helpers'

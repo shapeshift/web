@@ -5,7 +5,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight } from '../../../types'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
 import type { ZrxPriceResponse, ZrxQuoteResponse } from '../types'
 import { assetIdToZrxToken } from './helpers/helpers'
 import { zrxServiceFactory } from './zrxService'

@@ -1,8 +1,8 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../types'
-import { SwapperName } from '../../../types'
+import type { GetTradeQuoteInput, TradeQuote } from '../../types'
+import { SwapperName } from '../../types'
 import { FOX_MAINNET, WETH } from './assets'
 
 export const setupQuote = () => {

@@ -14,7 +14,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import { CHAINFLIP_DCA_QUOTE } from '../constants'
 import type { ChainflipBaasQuoteQuote } from '../models'
 import type { ChainflipTradeQuoteInput, ChainflipTradeRateInput } from '../types'

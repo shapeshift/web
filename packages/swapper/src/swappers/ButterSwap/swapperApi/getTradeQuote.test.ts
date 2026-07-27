@@ -3,7 +3,7 @@ import { Ok } from '@sniptt/monads'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetEvmTradeQuoteInput, SwapperDeps } from '../../../types'
-import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
+import { ETH, USDC_MAINNET, WETH } from '../../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { getTradeQuote } from './getTradeQuote'
 

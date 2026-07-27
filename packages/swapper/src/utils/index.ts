@@ -22,7 +22,6 @@ import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import type { TypedData } from 'eip-712'
 
-import { fetchSafeTransactionInfo } from './safe'
 import type {
   CommonSwapMetadata,
   EvmTransactionExecutionProps,
@@ -44,6 +43,7 @@ import type {
   TronTransactionExecutionProps,
 } from '../types'
 import { TradeQuoteError } from '../types'
+import { fetchSafeTransactionInfo } from './safe'
 
 export const getPermit2Eip712 = (
   step: TradeQuoteStep | TradeRateStep | undefined,

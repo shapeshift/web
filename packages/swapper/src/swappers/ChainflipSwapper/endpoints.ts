@@ -1,10 +1,10 @@
+import { getTronTransactionFees } from '../../utils/tron'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../utils/solana'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
-import { getTronTransactionFees } from '../../utils/tron/getTronTransactionFees'
 import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'

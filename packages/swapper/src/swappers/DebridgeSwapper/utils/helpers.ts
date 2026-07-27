@@ -8,7 +8,7 @@ import { zeroAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import { chainIdToDebridgeChainId, DEFAULT_DEBRIDGE_TOKEN_ADDRESS } from '../constant'
 import { isDebridgeError } from './types'
 

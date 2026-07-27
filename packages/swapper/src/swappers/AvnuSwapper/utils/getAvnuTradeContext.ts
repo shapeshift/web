@@ -16,8 +16,8 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
+import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
 import { assertValidTrade, getTokenAddress } from './helpers'
 
 type AvnuTradeContext = {

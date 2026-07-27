@@ -30,8 +30,8 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { CowSwapTradeQuoteInput, CowSwapTradeRateInput } from '../types'
 import { cowService } from '../utils/cowService'
 import {

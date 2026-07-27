@@ -12,7 +12,7 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'

@@ -13,8 +13,8 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
 import { getZrxStepData } from '../utils/getZrxStepData'
 import {

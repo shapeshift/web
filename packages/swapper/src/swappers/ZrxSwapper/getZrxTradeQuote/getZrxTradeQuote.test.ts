@@ -9,9 +9,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { BTC } from '../../utils/test-data/assets'
-import { gasFeeData } from '../../utils/test-data/fees'
-import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { BTC } from '../../../utils/test-data/assets'
+import { gasFeeData } from '../../../utils/test-data/fees'
+import { setupQuote } from '../../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 

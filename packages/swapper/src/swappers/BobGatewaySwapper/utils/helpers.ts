@@ -32,7 +32,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { QuoteFeeData, SwapErrorRight, SwapperConfig } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
 import type { BobGatewayChainName } from './constants'
 import {
   BOB_GATEWAY_BASE_URL,

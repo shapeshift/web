@@ -14,7 +14,7 @@ import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 
 const SAFE_GAS_LIMIT = '100000'
 

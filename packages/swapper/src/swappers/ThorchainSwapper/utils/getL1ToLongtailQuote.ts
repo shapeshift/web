@@ -190,19 +190,21 @@ export const getL1ToLongtailQuote = async (
 
       // getL1RateOrQuote built the step against the pre-aggregator memo, so rebuild the tx data and
       // fees through the shared step data now that the final memo is known
-      const { data, transactionData, networkFeeCryptoBaseUnit } = await getThorStepData({
-        type: 'quote',
-        input,
-        from,
-        deps,
-        swapperName,
-        tradeType: TradeType.L1ToLongTail,
-        sellAsset,
-        sellAmountCryptoBaseUnit: onlyStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        memo: updatedMemo,
-        expiry: quote.expiry,
-        rawMemo: updatedMemo,
-      })
+      const { data, transactionData, networkFeeCryptoBaseUnit } = (
+        await getThorStepData({
+          type: 'quote',
+          input,
+          from,
+          deps,
+          swapperName,
+          tradeType: TradeType.L1ToLongTail,
+          sellAsset,
+          sellAmountCryptoBaseUnit: onlyStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: updatedMemo,
+          expiry: quote.expiry,
+          rawMemo: updatedMemo,
+        })
+      ).unwrap()
 
       return Ok({
         ...quote,

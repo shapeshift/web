@@ -6,7 +6,6 @@ import {
   bnOrZero,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
-  isFulfilled,
   isRejected,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -24,7 +23,7 @@ import type {
   TxBuildData,
 } from '../../types'
 import { SwapperName, TradeQuoteError } from '../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../utils'
+import { getInputOutputRate, makeSwapErrorRight, makeTradeStepBuildFailedErr } from '../../utils'
 import { buildAffiliateFee } from '../affiliateFee'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
@@ -210,25 +209,28 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     return protocolFees
   }
 
-  const getMemo = (route: ThorTradeRoute) => {
-    if (input.quoteOrRate === 'rate') return ''
+  const getMemoResult = (route: ThorTradeRoute): Result<string, SwapErrorRight> => {
+    if (input.quoteOrRate === 'rate') return Ok('')
 
-    if (!route.quote.memo) throw new Error('no memo provided')
+    if (!route.quote.memo) return Err(makeTradeStepBuildFailedErr('getL1RateOrQuote'))
 
     // always use auto stream quote memo (0 limit = 5bps - 50bps, sometimes up to 100bps)
     // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-    if (route.isStreaming) return assertAndProcessMemo(route.quote.memo, getAffiliate(swapperName))
+    if (route.isStreaming)
+      return Ok(assertAndProcessMemo(route.quote.memo, getAffiliate(swapperName)))
 
     const limitWithManualSlippage = getLimitWithManualSlippage({
       expectedAmountOutThorBaseUnit: route.expectedAmountOutThorBaseUnit,
       slippageBps: route.slippageBps,
     })
 
-    return addLimitToMemo({
-      memo: route.quote.memo,
-      limit: limitWithManualSlippage,
-      affilate: getAffiliate(swapperName),
-    })
+    return Ok(
+      addLimitToMemo({
+        memo: route.quote.memo,
+        limit: limitWithManualSlippage,
+        affilate: getAffiliate(swapperName),
+      }),
+    )
   }
 
   const makeThorTradeRateOrQuote = ({
@@ -327,48 +329,65 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
   }
 
   const maybeRoutes = await Promise.allSettled(
-    perRouteValues.map(async (route): Promise<T> => {
-      const memo = getMemo(route)
+    perRouteValues.map(async (route): Promise<Result<T, SwapErrorRight>> => {
+      const memoResult = getMemoResult(route)
+      if (memoResult.isErr()) return Err(memoResult.unwrapErr())
+      const memo = memoResult.unwrap()
 
-      const { vault, router, data, transactionData, networkFeeCryptoBaseUnit } =
-        await getThorStepData({
-          ...quoteOrRateArgs,
-          deps,
-          swapperName,
-          tradeType,
-          sellAsset,
-          sellAmountCryptoBaseUnit,
-          memo,
-          expiry: route.quote.expiry,
-          rawMemo: route.quote.memo,
-        })
-
-      return makeThorTradeRateOrQuote({
-        route,
+      const stepDataResult = await getThorStepData({
+        ...quoteOrRateArgs,
+        deps,
+        swapperName,
+        tradeType,
+        sellAsset,
+        sellAmountCryptoBaseUnit,
         memo,
-        allowanceContract: router ?? '',
-        data,
-        router,
-        vault,
-        transactionData,
-        feeData: {
-          networkFeeCryptoBaseUnit,
-          protocolFees: getProtocolFees(route.quote),
-        },
+        expiry: route.quote.expiry,
+        rawMemo: route.quote.memo,
       })
+      if (stepDataResult.isErr()) return Err(stepDataResult.unwrapErr())
+      const { vault, router, data, transactionData, networkFeeCryptoBaseUnit } =
+        stepDataResult.unwrap()
+
+      return Ok(
+        makeThorTradeRateOrQuote({
+          route,
+          memo,
+          allowanceContract: router ?? '',
+          data,
+          router,
+          vault,
+          transactionData,
+          feeData: {
+            networkFeeCryptoBaseUnit,
+            protocolFees: getProtocolFees(route.quote),
+          },
+        }),
+      )
     }),
   )
 
-  const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
+  const routes: T[] = []
+  let firstError: SwapErrorRight | undefined
 
-  if (!routes.length)
+  for (const maybeRoute of maybeRoutes) {
+    // An unexpected rejection drops the route (as before); the real cause is surfaced below
+    if (isRejected(maybeRoute)) continue
+    if (maybeRoute.value.isOk()) routes.push(maybeRoute.value.unwrap())
+    else if (!firstError) firstError = maybeRoute.value.unwrapErr()
+  }
+
+  if (!routes.length) {
+    // Surface the first real step-data error (network fee / build) rather than a generic pair error
     return Err(
-      makeSwapErrorRight({
-        message: 'Unable to create any routes',
-        code: TradeQuoteError.UnsupportedTradePair,
-        cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
-      }),
+      firstError ??
+        makeSwapErrorRight({
+          message: 'Unable to create any routes',
+          code: TradeQuoteError.UnsupportedTradePair,
+          cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
+        }),
     )
+  }
 
   return Ok(routes)
 }

@@ -132,20 +132,22 @@ export const getLongtailToL1Quote = async (
       const deadline = BigInt(Math.floor(Date.now() / 1000)) + LONGTAIL_TO_L1_DEADLINE_SECONDS
 
       // Swap the direct deposit built by getL1RateOrQuote for the aggregator swapIn we actually execute
-      const { data, transactionData, networkFeeCryptoBaseUnit } = await getThorStepData({
-        type: 'quote',
-        input,
-        from,
-        deps,
-        swapperName,
-        tradeType: TradeType.LongTailToL1,
-        sellAsset,
-        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        memo: q.memo,
-        expiry: q.expiry,
-        rawMemo: q.memo,
-        longtail: { aggregator: bestAggregator, amountOutMin, deadline },
-      })
+      const { data, transactionData, networkFeeCryptoBaseUnit } = (
+        await getThorStepData({
+          type: 'quote',
+          input,
+          from,
+          deps,
+          swapperName,
+          tradeType: TradeType.LongTailToL1,
+          sellAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: q.memo,
+          expiry: q.expiry,
+          rawMemo: q.memo,
+          longtail: { aggregator: bestAggregator, amountOutMin, deadline },
+        })
+      ).unwrap()
 
       return {
         ...q,

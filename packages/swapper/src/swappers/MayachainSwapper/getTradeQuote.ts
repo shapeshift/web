@@ -1,14 +1,14 @@
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps } from '../../types'
+import type { SwapErrorRight, SwapperDeps } from '../../types'
 import { SwapperName } from '../../types'
-import type { ThorTradeQuote } from '../../utils/thorchain'
-import { getL1RateOrQuote, getPoolDetails, TradeType } from '../../utils/thorchain'
+import type { ThorTradeQuote, ThorTradeQuoteInput } from '../../utils/thorchain'
+import { getPoolDetails, getThorL1TradeQuote, TradeType } from '../../utils/thorchain'
 import { assertValidTrade } from './utils'
 
 export const getTradeQuote = async (
-  input: GetTradeQuoteInput,
+  input: ThorTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const { sellAsset, buyAsset } = input
@@ -26,7 +26,7 @@ export const getTradeQuote = async (
   if (poolDetails.isErr()) return Err(poolDetails.unwrapErr())
   const { streamingInterval } = poolDetails.unwrap()
 
-  return getL1RateOrQuote<ThorTradeQuote>(
+  return getThorL1TradeQuote(
     input,
     deps,
     streamingInterval,

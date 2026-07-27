@@ -1,6 +1,34 @@
 import type BigNumber from 'bignumber.js'
 
-import type { SwapSource, TradeQuote, TradeRate } from '../../types'
+import type {
+  GetCosmosSdkTradeQuoteInput,
+  GetCosmosSdkTradeRateInput,
+  GetEvmTradeQuoteInput,
+  GetEvmTradeRateInput,
+  GetSolanaTradeQuoteInput,
+  GetSolanaTradeRateInput,
+  GetTronTradeQuoteInput,
+  GetTronTradeRateInput,
+  GetUtxoTradeQuoteInput,
+  GetUtxoTradeRateInput,
+  SwapSource,
+  TradeQuote,
+  TradeRate,
+} from '../../types'
+
+export type ThorTradeQuoteInput =
+  | GetEvmTradeQuoteInput
+  | GetUtxoTradeQuoteInput
+  | GetCosmosSdkTradeQuoteInput
+  | GetSolanaTradeQuoteInput
+  | GetTronTradeQuoteInput
+
+export type ThorTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetUtxoTradeRateInput
+  | GetCosmosSdkTradeRateInput
+  | GetSolanaTradeRateInput
+  | GetTronTradeRateInput
 
 export type ThornodePoolStatuses = 'Available' | 'Staged' | 'Suspended'
 
@@ -222,18 +250,14 @@ export type ThorNodeTxResponseSuccess = {
 export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeResponseError
 export type ThornodeTxResponse = ThorNodeTxResponseSuccess | ThornodeResponseError
 
-export type ThorEvmTradeQuote = TradeQuote &
+// vault is always set; router/aggregator/data are evm-only (absent on utxo/cosmos/solana/tron)
+export type ThorTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
-    router: string
     vault: string
+    router?: string
     aggregator?: string
-    data: string
-  } & {
-    receiveAddress: string
+    data?: string
   }
-
-export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
-export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
 export enum ThorchainStatusMessage {
   InboundObserved = 'Inbound transaction accepted by THOR',
@@ -270,17 +294,14 @@ type ThorTradeQuoteSpecificMetadata = {
   }
 }
 
-export type ThorEvmTradeRate = TradeRate &
+// vault is always set; router/aggregator/data are evm-only (absent on utxo/cosmos/solana/tron)
+export type ThorTradeRate = TradeRate &
   ThorTradeQuoteSpecificMetadata & {
-    router: string
     vault: string
+    router?: string
     aggregator?: string
-    data: string
-    tradeType: TradeType
+    data?: string
   }
-
-export type ThorTradeUtxoOrCosmosRate = TradeRate & ThorTradeQuoteSpecificMetadata
-export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate
 
 export type ThorchainMetadata = {
   name: 'thorchain'

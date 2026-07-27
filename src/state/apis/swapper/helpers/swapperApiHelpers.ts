@@ -3,7 +3,7 @@ import type {
   RateResult,
   SwapErrorRight,
   SwapperDeps,
-  ThorEvmTradeQuote,
+  ThorTradeQuote,
   TradeQuote,
   TradeRate,
 } from '@shapeshiftoss/swapper'
@@ -163,7 +163,7 @@ export const createApiQuote = async (
   params: CreateApiQuoteParams,
 ): Promise<ApiQuote> => {
   const { quote, swapperName, inputOutputRatio, error } = quoteData
-  const tradeType = (quote as ThorEvmTradeQuote)?.tradeType
+  const tradeType = (quote as ThorTradeQuote)?.tradeType
 
   const quoteSource = quoteData.quote?.steps[0].source ?? quoteData.swapperName
 

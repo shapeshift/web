@@ -1,14 +1,15 @@
 import type { SwapperApi } from '../../types'
 import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '../../utils/cosmossdk'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import type { ThorTradeQuoteInput, ThorTradeRateInput } from '../../utils/thorchain'
 import { checkTradeStatus } from '../../utils/thorchain'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './getTradeQuote'
 import { getTradeRate } from './getTradeRate'
 
 export const mayachainApi: SwapperApi = {
-  getTradeRate,
-  getTradeQuote,
+  getTradeRate: (input, deps) => getTradeRate(input as ThorTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getTradeQuote(input as ThorTradeQuoteInput, deps),
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
   getUnsignedUtxoTransaction,

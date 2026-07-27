@@ -4,6 +4,7 @@ import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '..
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../utils/solana'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
+import type { ThorTradeQuoteInput, ThorTradeRateInput } from '../../utils/thorchain'
 import { checkTradeStatus, tron } from '../../utils/thorchain'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -16,8 +17,8 @@ const swapperName = SwapperName.Thorchain
 const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.1 }
 
 export const thorchainApi: SwapperApi = {
-  getTradeRate,
-  getTradeQuote,
+  getTradeRate: (input, deps) => getTradeRate(input as ThorTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getTradeQuote(input as ThorTradeQuoteInput, deps),
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
   getUnsignedUtxoTransaction,

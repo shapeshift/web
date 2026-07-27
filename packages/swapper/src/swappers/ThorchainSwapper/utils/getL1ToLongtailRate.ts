@@ -1,27 +1,21 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
 import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
-import { isFulfilled, isRejected, isResolvedErr } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type {
-  GetTradeRateInput,
   MultiHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
   SwapperName,
 } from '../../../types'
-import { TradeQuoteError } from '../../../types'
-import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeRate } from '../../../utils/thorchain'
-import { getL1RateOrQuote, TradeType } from '../../../utils/thorchain'
+import type { ThorTradeRate, ThorTradeRateInput } from '../../../utils/thorchain'
+import { getSuccessfulTrades, getThorL1TradeRate, TradeType } from '../../../utils/thorchain'
+import { assertValidL1ToLongtailTrade } from './assertValidLongtailTrade'
 import { getBestAggregator } from './getBestAggregator'
-import type { AggregatorContract } from './longTailHelpers'
 import { getTokenFromAsset, getWrappedToken } from './longTailHelpers'
 
 export const getL1ToLongtailRate = async (
-  input: GetTradeRateInput,
+  input: ThorTradeRateInput,
   deps: SwapperDeps,
   streamingInterval: number,
   swapperName: SwapperName,
@@ -32,69 +26,18 @@ export const getL1ToLongtailRate = async (
     sellAsset,
   } = input
 
-  const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
-  const longtailTokens: AssetId[] = longtailTokensJson.default
+  const assertion = await assertValidL1ToLongtailTrade({ sellAsset, buyAsset, deps })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
+  const { buyAssetFeeAsset } = assertion.unwrap()
 
-  if (!longtailTokens.includes(buyAsset.assetId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - Unsupported buyAssetId ${buyAsset.assetId}.`,
-        code: TradeQuoteError.UnsupportedTradePair,
-        details: { buyAsset, sellAsset },
-      }),
-    )
-  }
-
-  /*
-    We only support L1 -> ethereum longtail swaps for now.
-  */
-  if (buyAsset.chainId !== ethChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - Unsupported chainId ${buyAsset.chainId}.`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { buyAssetChainId: buyAsset.chainId },
-      }),
-    )
-  }
-
-  const sellAssetChainId = sellAsset.chainId
-  const buyAssetChainId = buyAsset.chainId
-
-  const sellAssetFeeAssetId = deps.assertGetChainAdapter(sellAssetChainId).getFeeAssetId()
-  const sellAssetFeeAsset = sellAssetFeeAssetId ? deps.assetsById[sellAssetFeeAssetId] : undefined
-
-  const buyAssetFeeAssetId = deps.assertGetChainAdapter(buyAssetChainId).getFeeAssetId()
-  const buyAssetFeeAsset = buyAssetFeeAssetId ? deps.assetsById[buyAssetFeeAssetId] : undefined
-
-  if (!buyAssetFeeAsset) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No native buy asset found for ${buyAssetChainId}.`,
-        code: TradeQuoteError.InternalError,
-        details: { buyAssetChainId },
-      }),
-    )
-  }
-
-  if (!sellAssetFeeAsset) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No native buy asset found for ${sellAssetChainId}.`,
-        code: TradeQuoteError.InternalError,
-        details: { sellAssetChainId },
-      }),
-    )
-  }
-
-  const l1Tol1RateInput: GetTradeRateInput = {
+  const l1Tol1RateInput: ThorTradeRateInput = {
     ...input,
     buyAsset: buyAssetFeeAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
 
-  const maybeThorchainRates = await getL1RateOrQuote<ThorTradeRate>(
+  const maybeL1Rates = await getThorL1TradeRate(
     l1Tol1RateInput,
     deps,
     streamingInterval,
@@ -102,48 +45,26 @@ export const getL1ToLongtailRate = async (
     swapperName,
   )
 
-  if (maybeThorchainRates.isErr()) return Err(maybeThorchainRates.unwrapErr())
+  if (maybeL1Rates.isErr()) return Err(maybeL1Rates.unwrapErr())
 
-  const thorchainRates = maybeThorchainRates.unwrap()
-
-  let bestAggregator: AggregatorContract
-  let quotedAmountOut: bigint
-
-  const promises = await Promise.allSettled(
-    thorchainRates.map(async quote => {
-      // A quote always has a first step
-      const onlyStep = getHopByIndex(quote, 0)
-
-      // Or well... it should.
-      if (!onlyStep) {
-        return Err(
-          makeSwapErrorRight({
-            message: `[getL1ToLongtailRate] - First hop not found`,
-            code: TradeQuoteError.InternalError,
-          }),
-        )
-      }
+  const maybeRates = await Promise.allSettled(
+    maybeL1Rates.unwrap().map(async (quote): Promise<Result<ThorTradeRate, SwapErrorRight>> => {
+      const [step] = quote.steps
 
       const maybeBestAggregator = await getBestAggregator(
         buyAssetFeeAsset,
         getWrappedToken(buyAssetFeeAsset),
         getTokenFromAsset(buyAsset),
-        onlyStep.buyAmountAfterFeesCryptoBaseUnit,
+        step.buyAmountAfterFeesCryptoBaseUnit,
       )
 
       if (maybeBestAggregator.isErr()) return Err(maybeBestAggregator.unwrapErr())
-
-      const unwrappedResult = maybeBestAggregator.unwrap()
-
-      bestAggregator = unwrappedResult.bestAggregator
-      quotedAmountOut = unwrappedResult.quotedAmountOut
-
-      // No memo is returned upstream for rates
-      const updatedMemo = ''
+      const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
 
       return Ok({
         ...quote,
-        memo: updatedMemo,
+        // No memo is returned upstream for rates
+        memo: '',
         aggregator: bestAggregator,
         steps: quote.steps.map(s => ({
           ...s,
@@ -152,7 +73,7 @@ export const getL1ToLongtailRate = async (
           // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
           allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
-        })) as MultiHopTradeRateSteps, // assuming multi-hop rate steps here since we're mapping over quote steps,
+        })) as MultiHopTradeRateSteps,
         isLongtail: true,
         longtailData: {
           L1ToLongtailExpectedAmountOut: quotedAmountOut.toString(),
@@ -161,16 +82,5 @@ export const getL1ToLongtailRate = async (
     }),
   )
 
-  if (promises.every(promise => isRejected(promise) || isResolvedErr(promise))) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getThorTradeQuote] - failed to get best aggregator',
-        code: TradeQuoteError.InternalError,
-      }),
-    )
-  }
-
-  const updatedQuotes = promises.filter(isFulfilled).map(element => element.value.unwrap())
-
-  return Ok(updatedQuotes)
+  return getSuccessfulTrades(maybeRates)
 }

@@ -51,17 +51,26 @@ type BaseArgs = {
   }
 }
 
-type GetThorStepDataArgs = StepDataArgs<BaseArgs>
+export type GetThorStepDataArgs = StepDataArgs<BaseArgs>
 
-type GetThorStepDataReturn = {
+type ThorRateStepData = {
   vault: string
   router?: Address
   data?: string
-  transactionData?: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
 }
 
-export const getThorStepData = async ({
+type ThorQuoteStepData = ThorRateStepData & {
+  transactionData?: TxBuildData
+}
+
+export function getThorStepData(
+  args: Extract<GetThorStepDataArgs, { type: 'rate' }>,
+): Promise<Result<ThorRateStepData, SwapErrorRight>>
+export function getThorStepData(
+  args: Extract<GetThorStepDataArgs, { type: 'quote' }>,
+): Promise<Result<ThorQuoteStepData, SwapErrorRight>>
+export async function getThorStepData({
   type,
   input,
   from,
@@ -74,7 +83,7 @@ export const getThorStepData = async ({
   expiry,
   rawMemo,
   longtail,
-}: GetThorStepDataArgs): Promise<Result<GetThorStepDataReturn, SwapErrorRight>> => {
+}: GetThorStepDataArgs): Promise<Result<ThorRateStepData | ThorQuoteStepData, SwapErrorRight>> {
   const { config } = deps
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 

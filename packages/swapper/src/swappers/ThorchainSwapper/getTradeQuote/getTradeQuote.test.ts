@@ -6,15 +6,16 @@ import { omit } from 'lodash'
 import { getAddress } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
+import type { SwapperDeps } from '../../../types'
 import { SwapperName } from '../../../types'
 import { ETH, FOX_MAINNET } from '../../../utils/test-data/assets'
 import { setupQuote } from '../../../utils/test-data/setupSwapQuote'
 import type {
   InboundAddressResponse,
-  ThorEvmTradeQuote,
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
+  ThorTradeQuote,
+  ThorTradeQuoteInput,
 } from '../../../utils/thorchain'
 import {
   depositWithExpiry,
@@ -75,7 +76,7 @@ const expectedDepositData = (memo: string) =>
     expiry: BigInt(EXPIRY),
   })
 
-const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
+const expectedQuoteResponse: Omit<ThorTradeQuote, 'id'>[] = [
   {
     quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -249,14 +250,14 @@ describe('getTradeQuote', () => {
       }
     })
 
-    const input: GetTradeQuoteInput = {
+    const input = {
       ...quoteInput,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
       sendAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
       slippageTolerancePercentageDecimal: '0.04357',
-    }
+    } as ThorTradeQuoteInput
 
     const assertGetEvmChainAdapter = (_chainId: ChainId) => mockEvmChainAdapter
     const assertGetUtxoChainAdapter = (_chainId: ChainId) => {

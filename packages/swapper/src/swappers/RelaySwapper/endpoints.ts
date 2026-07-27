@@ -1,12 +1,12 @@
-import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
+import type { SwapperApi } from '../../types'
+import { checkSafeTransactionStatus, getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getSolanaTransactionFees } from '../../utils/solana/getSolanaTransactionFees'
 import type { SolanaComputeBudgetOptions } from '../../utils/solana/getUnsignedSolanaTransaction'
 import { getUnsignedSolanaTransaction } from '../../utils/solana/getUnsignedSolanaTransaction'
-import type { SwapperApi } from '../../types'
-import { checkSafeTransactionStatus, getSwapMetadata } from '../../utils'
+import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -25,10 +25,12 @@ const txIndexingMap: Map<string, boolean> = new Map()
 const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.4 }
 
 export const relayApi: SwapperApi = {
-  getTradeQuote: (input, deps) =>
-    getTradeQuote(input as RelayTradeQuoteInput, deps, chainIdToRelayChainId),
-  getTradeRate: (input, deps) =>
-    getTradeRate(input as RelayTradeRateInput, deps, chainIdToRelayChainId),
+  getTradeQuote: (input, deps) => {
+    return getTradeQuote(input as RelayTradeQuoteInput, deps, chainIdToRelayChainId)
+  },
+  getTradeRate: (input, deps) => {
+    return getTradeRate(input as RelayTradeRateInput, deps, chainIdToRelayChainId)
+  },
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
   getUnsignedUtxoTransaction,

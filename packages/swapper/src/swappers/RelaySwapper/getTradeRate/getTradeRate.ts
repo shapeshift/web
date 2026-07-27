@@ -1,14 +1,59 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import { getTrade } from '../utils/getTrade'
+import type {
+  MultiHopTradeRateSteps,
+  SingleHopTradeRateSteps,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeRate,
+  TradeRateStep,
+} from '../../../types'
+import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
+import { getRelayStepData } from '../utils/getRelayStepData'
+import { getRelayTradeContext } from '../utils/getRelayTradeContext'
 import type { RelayTradeRateInput } from '../utils/types'
 
-export const getTradeRate = (
+export const getTradeRate = async (
   input: RelayTradeRateInput,
   deps: SwapperDeps,
-  relayChainMap: Record<ChainId, number>,
+  relayChainMap: typeof relayChainMapImplementation,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  return getTrade({ input, deps, relayChainMap })
+  const maybeContext = await getRelayTradeContext({ input, deps, relayChainMap })
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId, orderId } =
+    maybeContext.unwrap()
+
+  const stepResults = await Promise.all(
+    relayStepInputs.map(async ({ data, allowanceContract }) => {
+      const maybeStepData = await getRelayStepData({ ...stepDataArgs, data, type: 'rate', input })
+
+      return maybeStepData.map(
+        ({ networkFeeCryptoBaseUnit }): TradeRateStep => ({
+          ...stepCommon,
+          accountNumber: undefined,
+          allowanceContract,
+          swapperMetadata: { name: 'relay', relayId, orderId, data: undefined },
+          feeData: { networkFeeCryptoBaseUnit, protocolFees },
+        }),
+      )
+    }),
+  )
+
+  for (const stepResult of stepResults) {
+    if (stepResult.isErr()) return Err(stepResult.unwrapErr())
+  }
+
+  const steps = stepResults.map(stepResult => stepResult.unwrap()) as
+    | SingleHopTradeRateSteps
+    | MultiHopTradeRateSteps
+
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
+    quoteOrRate: 'rate' as const,
+    receiveAddress: input.receiveAddress,
+    steps,
+  }
+
+  return Ok([tradeRate])
 }

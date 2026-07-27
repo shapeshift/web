@@ -14,12 +14,11 @@ import axios from 'axios'
 import { zeroAddress } from 'viem'
 
 import type {
+  QuoteFeeData,
   SwapErrorRight,
   SwapperDeps,
-  TradeQuote,
-  TradeQuoteStep,
-  TradeRate,
-  TradeRateStep,
+  TradeCommon,
+  TradeStepCommon,
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
@@ -30,25 +29,23 @@ import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
-import type { RelayTradeQuoteInput, RelayTradeRateInput } from '../utils/types'
-import { isRelayError, isRelayQuoteEvmItemData, isRelayQuoteTronItemData } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
-import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
-import { getRelayStepData } from './getRelayStepData'
+import type { GetRelayStepDataArgs } from './getRelayStepData'
+import { assertValidTrade, getRelayAllowanceContract, resolveRelayAddresses } from './helpers'
+import type { RelayQuoteItem, RelayTradeQuoteInput, RelayTradeRateInput } from './types'
+import { isRelayError } from './types'
 
-export async function getTrade(args: {
-  input: RelayTradeQuoteInput
-  deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
-}): Promise<Result<TradeQuote[], SwapErrorRight>>
+type RelayTradeContext = {
+  tradeCommon: TradeCommon
+  stepCommon: Omit<TradeStepCommon, 'feeData' | 'allowanceContract'>
+  protocolFees: QuoteFeeData['protocolFees']
+  relayStepInputs: { data: RelayQuoteItem['data']; allowanceContract: string }[]
+  stepDataArgs: Omit<GetRelayStepDataArgs, 'type' | 'input' | 'data'>
+  relayId: string
+  orderId: string | undefined
+}
 
-export async function getTrade(args: {
-  input: RelayTradeRateInput
-  deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
-}): Promise<Result<TradeRate[], SwapErrorRight>>
-
-export async function getTrade({
+export const getRelayTradeContext = async ({
   input,
   deps,
   relayChainMap,
@@ -56,15 +53,8 @@ export async function getTrade({
   input: RelayTradeQuoteInput | RelayTradeRateInput
   deps: SwapperDeps
   relayChainMap: typeof relayChainMapImplementation
-}): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
-    accountNumber,
-    affiliateBps,
-  } = input
+}): Promise<Result<RelayTradeContext, SwapErrorRight>> => {
+  const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
 
   const xpub = 'xpub' in input ? input.xpub : undefined
 
@@ -72,87 +62,15 @@ export async function getTrade({
     ? convertDecimalPercentageToBasisPoints(input.slippageTolerancePercentageDecimal).toFixed()
     : undefined
 
-  const sellRelayChainId = relayChainMap[sellAsset.chainId]
-  const buyRelayChainId = relayChainMap[buyAsset.chainId]
+  const assertion = assertValidTrade({ sellAsset, buyAsset, relayChainMap })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
+  const { sellRelayChainId, buyRelayChainId } = assertion.unwrap()
 
-  if (
-    !isEvmChainId(sellAsset.chainId) &&
-    sellAsset.chainId !== btcChainId &&
-    sellAsset.chainId !== solanaChainId &&
-    sellAsset.chainId !== tronChainId
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
-  if (
-    !isEvmChainId(buyAsset.chainId) &&
-    buyAsset.chainId !== btcChainId &&
-    buyAsset.chainId !== solanaChainId &&
-    buyAsset.chainId !== tronChainId
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
-  if (sellRelayChainId === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
-  if (buyRelayChainId === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
-  const sendAddress = (() => {
-    // We absolutely need to use the default user address for BTC swaps
-    // or relay quote endpoint will fail at estimation time because we don't necessarily
-    // send an address with enough funds but use multiple UTXOs to fund the swap
-    if (sellAsset.chainId === btcChainId) return getRelayDefaultUserAddress(sellAsset.chainId)
-
-    if (input.quoteOrRate === 'rate') {
-      return input.sendAddress ?? getRelayDefaultUserAddress(sellAsset.chainId)
-    }
-
-    if (!input.sendAddress) throw new Error('Send address is required for Relay quotes')
-
-    return input.sendAddress
-  })()
-
-  const recipient = (() => {
-    if (input.quoteOrRate === 'rate') {
-      return input.receiveAddress ?? getRelayDefaultUserAddress(buyAsset.chainId)
-    }
-
-    return input.receiveAddress
-  })()
-
-  const refundTo = (() => {
-    if (input.quoteOrRate === 'rate') {
-      return input.sendAddress ?? getRelayDefaultUserAddress(sellAsset.chainId)
-    }
-
-    if (!input.sendAddress) throw new Error('Send address is required for refund')
-
-    return input.sendAddress
-  })()
+  const { sendAddress, recipient, refundTo } = resolveRelayAddresses({
+    input,
+    sellChainId: sellAsset.chainId,
+    buyChainId: buyAsset.chainId,
+  })
 
   const maybeQuote = await fetchRelayTrade(
     {
@@ -184,10 +102,7 @@ export async function getTrade({
 
     if (!axios.isAxiosError(error.cause)) {
       return Err(
-        makeSwapErrorRight({
-          message: 'Unknown error',
-          code: TradeQuoteError.UnknownError,
-        }),
+        makeSwapErrorRight({ message: 'Unknown error', code: TradeQuoteError.UnknownError }),
       )
     }
 
@@ -195,22 +110,14 @@ export async function getTrade({
 
     if (!isRelayError(relayError)) {
       return Err(
-        makeSwapErrorRight({
-          message: 'Unknown error',
-          code: TradeQuoteError.UnknownError,
-        }),
+        makeSwapErrorRight({ message: 'Unknown error', code: TradeQuoteError.UnknownError }),
       )
     }
 
     const tradeQuoteErrorCode = relayErrorCodeToTradeQuoteError[relayError.errorCode]
 
     if (tradeQuoteErrorCode) {
-      return Err(
-        makeSwapErrorRight({
-          message: relayError.message,
-          code: tradeQuoteErrorCode,
-        }),
-      )
+      return Err(makeSwapErrorRight({ message: relayError.message, code: tradeQuoteErrorCode }))
     }
 
     // Fallback for unmapped error codes (shouldn't happen, but prevents crashes)
@@ -276,8 +183,13 @@ export async function getTrade({
     )
   }
 
+  if (swapSteps.some(step => !step.items?.[0])) {
+    return Err(makeSwapErrorRight({ message: 'Relay quote step contains no items' }))
+  }
+
   const slippageTolerancePercentageDecimal = (() => {
     if (input.slippageTolerancePercentageDecimal) return input.slippageTolerancePercentageDecimal
+
     const destinationSlippageTolerancePercentageDecimal = bnOrZero(
       slippageTolerance.destination.percent,
     )
@@ -294,11 +206,7 @@ export async function getTrade({
   const protocolAssetId = relayTokenToAssetId(relayToken)
 
   const maybeProtocolAsset = relayTokenToAsset(relayToken, deps.assetsById)
-
-  if (maybeProtocolAsset.isErr()) {
-    return Err(maybeProtocolAsset.unwrapErr())
-  }
-
+  if (maybeProtocolAsset.isErr()) return Err(maybeProtocolAsset.unwrapErr())
   const protocolAsset = maybeProtocolAsset.unwrap()
 
   const isCrossChain = sellAsset.chainId !== buyAsset.chainId
@@ -327,17 +235,9 @@ export async function getTrade({
       return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
     }
 
-    if (sellAsset.chainId === btcChainId) {
-      return sellAsset.assetId === appFeesAsset.assetId
-    }
-
-    if (sellAsset.chainId === solanaChainId) {
-      return sellAsset.assetId === appFeesAsset.assetId
-    }
-
-    if (sellAsset.chainId === tronChainId) {
-      return sellAsset.assetId === appFeesAsset.assetId
-    }
+    if (sellAsset.chainId === btcChainId) return sellAsset.assetId === appFeesAsset.assetId
+    if (sellAsset.chainId === solanaChainId) return sellAsset.assetId === appFeesAsset.assetId
+    if (sellAsset.chainId === tronChainId) return sellAsset.assetId === appFeesAsset.assetId
 
     return false
   })()
@@ -452,122 +352,68 @@ export async function getTrade({
     return '0'
   })()
 
-  const steps = await Promise.all(
-    swapSteps.map(async (quoteStep): Promise<TradeQuoteStep | TradeRateStep> => {
-      const selectedItem = quoteStep.items?.[0]
-      if (!selectedItem) throw new Error('Relay quote step contains no items')
+  // Add back relayer service and gas fees (relayer is including both) since they are downsides,
+  // and add appFees — these are quote-level and identical across every step
+  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
+    .plus(relayerFeesBuyAssetCryptoBaseUnit)
+    .plus(appFeesBaseUnit)
+    .toFixed()
 
-      // Add back relayer service and gas fees (relayer is including both) since they are downsides
-      // And add appFees
-      const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
-        .plus(relayerFeesBuyAssetCryptoBaseUnit)
-        .plus(appFeesBaseUnit)
-        .toFixed()
+  const relayId = quote.steps[0].requestId
 
-      const stepDataArgs = {
-        data: selectedItem.data,
+  const relayStepInputs = swapSteps.map(step => {
+    const data = step.items?.[0]?.data
+    return { data, allowanceContract: getRelayAllowanceContract(data) }
+  })
+
+  return Ok({
+    tradeCommon: {
+      id: relayId,
+      rate,
+      swapperName: SwapperName.Relay,
+      affiliateBps,
+      slippageTolerancePercentageDecimal,
+    },
+    stepCommon: {
+      rate,
+      buyAmountBeforeFeesCryptoBaseUnit,
+      buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAsset,
+      sellAsset,
+      source: SwapperName.Relay,
+      estimatedExecutionTimeMs: timeEstimate * 1000,
+      affiliateFee: buildAffiliateFee({
+        strategy: 'fixed_asset',
+        affiliateBps,
         sellAsset,
-        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        orderId,
-        from: sendAddress,
-        xpub,
-        fallbackNetworkFeeCryptoBaseUnit: quote.fees.gas.amount,
-        deps,
-      }
-
-      const { transactionData, relayTransactionMetadata, networkFeeCryptoBaseUnit } =
-        input.quoteOrRate === 'quote'
-          ? await getRelayStepData({ ...stepDataArgs, type: 'quote', input })
-          : await getRelayStepData({ ...stepDataArgs, type: 'rate', input })
-
-      // The spender to approve: EVM routes approve the router (data.to); Tron approves the token
-      // contract; UTXO/Solana need no allowance
-      const allowanceContract = (() => {
-        if (isRelayQuoteEvmItemData(selectedItem.data)) return selectedItem.data.to ?? ''
-        if (isRelayQuoteTronItemData(selectedItem.data)) {
-          return selectedItem.data.parameter?.contract_address ?? ''
-        }
-        return ''
-      })()
-
-      return {
-        allowanceContract,
-        rate,
-        buyAmountBeforeFeesCryptoBaseUnit,
-        buyAmountAfterFeesCryptoBaseUnit,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
         buyAsset,
-        sellAsset,
-        accountNumber,
-        feeData: {
-          networkFeeCryptoBaseUnit,
-          protocolFees: {
-            [protocolAssetId]: {
-              amountCryptoBaseUnit: quote.fees.relayer.amount,
-              asset: protocolAsset,
-              requiresBalance: false,
-            },
-            ...appFeesAsProtocolFee,
-          },
-        },
-        source: SwapperName.Relay,
-        estimatedExecutionTimeMs: timeEstimate * 1000,
-        transactionData,
-        relayTransactionMetadata,
-        swapperMetadata: {
-          name: 'relay',
-          relayId: quote.steps[0].requestId,
-          orderId,
-          data: transactionData?.type === 'evm' ? transactionData.data : undefined,
-        },
-        affiliateFee: buildAffiliateFee({
-          strategy: 'fixed_asset',
-          affiliateBps,
-          sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-          fixedAssetId: chainIdToFeeAssetId(baseChainId),
-          fixedAsset: deps.assetsById[chainIdToFeeAssetId(baseChainId)],
-          isEstimate: true,
-        }),
-      }
-    }),
-  )
-
-  const baseQuoteOrRate = {
-    id: quote.steps[0].requestId,
-    rate,
-    swapperName: SwapperName.Relay,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-  }
-
-  if (input.quoteOrRate === 'quote') {
-    // ts is drunk, this is defined as we are under the quote umbrella but extra safety doesn't hurt
-    if (!receiveAddress) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'Receive address is required for quote',
-        }),
-      )
-    }
-
-    const tradeQuote: TradeQuote = {
-      ...baseQuoteOrRate,
-      steps: steps as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
-      receiveAddress,
-      quoteOrRate: 'quote' as const,
-    }
-
-    return Ok([tradeQuote])
-  }
-
-  const tradeRate: TradeRate = {
-    ...baseQuoteOrRate,
-    steps: steps as [TradeRateStep] | [TradeRateStep, TradeRateStep],
-    receiveAddress,
-    quoteOrRate: 'rate' as const,
-  }
-  return Ok([tradeRate])
+        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+        fixedAssetId: chainIdToFeeAssetId(baseChainId),
+        fixedAsset: deps.assetsById[chainIdToFeeAssetId(baseChainId)],
+        isEstimate: true,
+      }),
+    },
+    protocolFees: {
+      [protocolAssetId]: {
+        amountCryptoBaseUnit: quote.fees.relayer.amount,
+        asset: protocolAsset,
+        requiresBalance: false,
+      },
+      ...appFeesAsProtocolFee,
+    },
+    relayStepInputs,
+    stepDataArgs: {
+      sellAsset,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      orderId,
+      from: sendAddress,
+      xpub,
+      fallbackNetworkFeeCryptoBaseUnit: quote.fees.gas.amount,
+      deps,
+    },
+    relayId,
+    orderId,
+  })
 }

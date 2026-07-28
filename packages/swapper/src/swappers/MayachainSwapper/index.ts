@@ -5,3 +5,5 @@ export * from './constants'
 export * from './utils/poolAssetHelpers/poolAssetHelpers'
 
 export const isCacao = (assetId: AssetId) => assetId === mayachainAssetId
+export { mayachainApi } from './endpoints'
+export { mayachainSwapper } from './MayachainSwapper'

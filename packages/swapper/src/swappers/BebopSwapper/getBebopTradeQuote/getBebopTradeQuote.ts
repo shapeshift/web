@@ -3,7 +3,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getAddress } from 'viem'
 
 import type {
-  GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
@@ -13,7 +13,7 @@ import { getBebopStepData } from '../utils/getBebopStepData'
 import { getBebopTradeContext } from '../utils/getBebopTradeContext'
 
 export const getBebopTradeQuote = async (
-  input: GetEvmTradeQuoteInputBase,
+  input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const { accountNumber } = input

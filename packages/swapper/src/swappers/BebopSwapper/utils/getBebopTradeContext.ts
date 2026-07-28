@@ -6,7 +6,7 @@ import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInput,
   GetEvmTradeRateInput,
   SwapErrorRight,
   SwapperDeps,
@@ -33,7 +33,7 @@ export const getBebopTradeContext = async ({
   from,
   receiver,
 }: {
-  input: GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
+  input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
   deps: SwapperDeps
   from: Address
   receiver: Address

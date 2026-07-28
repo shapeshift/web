@@ -1,11 +1,11 @@
 import type {
-  GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInput,
   GetEvmTradeRateInput,
   GetSolanaTradeQuoteInput,
   GetSolanaTradeRateInput,
 } from '../../../types'
 
-export type AcrossTradeQuoteInput = GetEvmTradeQuoteInputBase | GetSolanaTradeQuoteInput
+export type AcrossTradeQuoteInput = GetEvmTradeQuoteInput | GetSolanaTradeQuoteInput
 export type AcrossTradeRateInput = GetEvmTradeRateInput | GetSolanaTradeRateInput
 
 export type AcrossTokenInfo = {

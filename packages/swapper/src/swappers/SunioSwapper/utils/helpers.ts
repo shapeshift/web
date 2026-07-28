@@ -22,10 +22,6 @@ export const assetIdToTronToken = (assetId: AssetId): string => {
   return SUNIO_TRON_NATIVE_ADDRESS
 }
 
-export const isTronChainId = (chainId: string): chainId is typeof tronChainId => {
-  return chainId === tronChainId
-}
-
 export const assertValidTrade = ({
   sellAsset,
   buyAsset,

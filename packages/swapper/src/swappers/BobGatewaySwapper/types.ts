@@ -1,5 +1,5 @@
 import type {
-  GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInput,
   GetEvmTradeRateInput,
   GetUtxoTradeQuoteInput,
   GetUtxoTradeRateInput,
@@ -11,5 +11,5 @@ export type BobGatewayMetadata = {
 }
 
 // Bob Gateway bridges BTC (utxo) and EVM chains; Tron is currently disabled (see chain name map)
-export type BobGatewayTradeQuoteInput = GetEvmTradeQuoteInputBase | GetUtxoTradeQuoteInput
+export type BobGatewayTradeQuoteInput = GetEvmTradeQuoteInput | GetUtxoTradeQuoteInput
 export type BobGatewayTradeRateInput = GetEvmTradeRateInput | GetUtxoTradeRateInput

@@ -2,13 +2,13 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Address, Hex } from 'viem'
 
 import type {
-  GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInput,
   GetEvmTradeRateInput,
   GetSolanaTradeQuoteInput,
   GetSolanaTradeRateInput,
 } from '../../types'
 
-export type BebopTradeQuoteInput = GetEvmTradeQuoteInputBase | GetSolanaTradeQuoteInput
+export type BebopTradeQuoteInput = GetEvmTradeQuoteInput | GetSolanaTradeQuoteInput
 export type BebopTradeRateInput = GetEvmTradeRateInput | GetSolanaTradeRateInput
 
 export const bebopSupportedEvmChainIds = [

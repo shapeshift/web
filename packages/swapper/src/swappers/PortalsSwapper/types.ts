@@ -1,8 +1,8 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput } from '../../types'
+import type { GetEvmTradeQuoteInput, GetEvmTradeRateInput } from '../../types'
 
-export type PortalsTradeQuoteInput = GetEvmTradeQuoteInputBase
+export type PortalsTradeQuoteInput = GetEvmTradeQuoteInput
 export type PortalsTradeRateInput = GetEvmTradeRateInput
 
 // https://api.portals.fi/v1/networks

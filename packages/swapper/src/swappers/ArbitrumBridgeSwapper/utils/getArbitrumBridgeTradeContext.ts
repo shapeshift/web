@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInput,
   GetEvmTradeRateInput,
   SwapErrorRight,
   SwapperDeps,
@@ -30,7 +30,7 @@ export const getArbitrumBridgeTradeContext = async ({
   input,
   deps,
 }: {
-  input: GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
+  input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
   deps: SwapperDeps
 }): Promise<Result<ArbitrumBridgeTradeContext, SwapErrorRight>> => {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input

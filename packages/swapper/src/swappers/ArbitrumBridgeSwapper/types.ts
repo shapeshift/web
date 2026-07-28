@@ -1,6 +1,6 @@
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput } from '../../types'
+import type { GetEvmTradeQuoteInput, GetEvmTradeRateInput } from '../../types'
 
-export type ArbitrumBridgeTradeQuoteInput = GetEvmTradeQuoteInputBase
+export type ArbitrumBridgeTradeQuoteInput = GetEvmTradeQuoteInput
 export type ArbitrumBridgeTradeRateInput = GetEvmTradeRateInput
 
 export enum BRIDGE_TYPE {

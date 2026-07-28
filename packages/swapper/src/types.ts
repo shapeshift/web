@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
@@ -211,9 +211,7 @@ type CommonTradeRateInput = CommonTradeInputBase & {
   quoteOrRate: 'rate'
 }
 
-type CommonTradeInput = CommonTradeQuoteInput
-
-export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
+export type GetEvmTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: EvmChainId
   supportsEIP1559: boolean
 }
@@ -221,16 +219,15 @@ export type GetEvmTradeRateInput = CommonTradeRateInput & {
   chainId: EvmChainId
   supportsEIP1559: false
 }
-export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase
-export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 'supportsEIP1559'> & {
+export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInput, 'supportsEIP1559'> & {
   wallet: HDWallet
 }
 
-export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
+export type GetCosmosSdkTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: CosmosSdkChainId
 }
 
-export type GetTronTradeQuoteInput = CommonTradeInput & {
+export type GetTronTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: TronChainId
 }
 
@@ -242,7 +239,7 @@ export type GetTronTradeRateInput = CommonTradeRateInput & {
   chainId: TronChainId
 }
 
-export type GetNearTradeQuoteInput = CommonTradeInput & {
+export type GetNearTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: NearChainId
 }
 
@@ -250,7 +247,7 @@ export type GetNearTradeRateInput = CommonTradeRateInput & {
   chainId: NearChainId
 }
 
-export type GetTonTradeQuoteInput = CommonTradeInput & {
+export type GetTonTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: TonChainId
 }
 
@@ -258,7 +255,7 @@ export type GetTonTradeRateInput = CommonTradeRateInput & {
   chainId: TonChainId
 }
 
-export type GetSolanaTradeQuoteInput = CommonTradeInput & {
+export type GetSolanaTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: SolanaChainId
 }
 
@@ -266,7 +263,7 @@ export type GetSolanaTradeRateInput = CommonTradeRateInput & {
   chainId: SolanaChainId
 }
 
-export type GetStarknetTradeQuoteInput = CommonTradeInput & {
+export type GetStarknetTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: StarknetChainId
 }
 
@@ -274,7 +271,7 @@ export type GetStarknetTradeRateInput = CommonTradeRateInput & {
   chainId: StarknetChainId
 }
 
-export type GetSuiTradeQuoteInput = CommonTradeInput & {
+export type GetSuiTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: SuiChainId
 }
 
@@ -461,11 +458,6 @@ export type TradeRateStep = TradeStepCommon & {
   transactionData?: undefined
 }
 
-export type ExecutableTradeStep = TradeStepCommon & {
-  accountNumber: number
-  transactionData?: TxBuildData
-}
-
 export type TradeCommon = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
@@ -612,17 +604,6 @@ export type TradeRate = TradeQuoteBase & {
   quoteOrRate: 'rate'
 }
 
-export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
-
-export type GetUnsignedTxArgs = {
-  tradeQuote: TradeQuote
-  chainId: ChainId
-  accountMetadata?: AccountMetadata
-  stepIndex: number
-  supportsEIP1559: boolean
-  slippageTolerancePercentageDecimal: string
-} & FromOrXpub
-
 export type EvmTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SignTx<EvmChainId>) => Promise<string>
 }
@@ -733,19 +714,6 @@ export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionAr
   CosmosSdkAccountMetadata &
   CosmosSdkSwapperDeps
 
-// the client should never need to know anything about this payload, and since it varies from
-// swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
-// data originates from the correct place (assuming no casting).
-export type UnsignedTx = Nominal<Record<string, any>, 'UnsignedTx'>
-
-export type ExecuteTradeArgs = {
-  senderAddress: string
-  receiverAddress: string
-  txToSign: UnsignedTx
-  wallet: HDWallet
-  chainId: ChainId
-}
-
 export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
@@ -783,8 +751,6 @@ export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
-  executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
-
   executeEvmTransaction?: (
     txToSign: SignTx<EvmChainId>,
     callbacks: EvmTransactionExecutionProps,
@@ -838,7 +804,6 @@ export type SwapperApi = {
 
   getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
-  getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (input: GetUnsignedEvmTransactionArgs) => Promise<SignTx<EvmChainId>>
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>

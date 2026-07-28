@@ -1,5 +1,5 @@
 import type {
-  GetEvmTradeQuoteInputBase,
+  GetEvmTradeQuoteInput,
   GetEvmTradeRateInput,
   GetSolanaTradeQuoteInput,
   GetSolanaTradeRateInput,
@@ -10,7 +10,7 @@ import type {
 } from '../../../types'
 
 export type RelayTradeQuoteInput =
-  | GetEvmTradeQuoteInputBase
+  | GetEvmTradeQuoteInput
   | GetUtxoTradeQuoteInput
   | GetSolanaTradeQuoteInput
   | GetTronTradeQuoteInput

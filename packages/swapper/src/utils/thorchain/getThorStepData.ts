@@ -54,7 +54,6 @@ type BaseArgs = {
 export type GetThorStepDataArgs = StepDataArgs<BaseArgs>
 
 type ThorRateStepData = {
-  vault: string
   router?: Address
   data?: string
   networkFeeCryptoBaseUnit: string | undefined
@@ -131,7 +130,7 @@ export async function getThorStepData({
             gasLimit: safeGasLimit,
           })
 
-          return Ok({ vault, router, data, networkFeeCryptoBaseUnit })
+          return Ok({ router, data, networkFeeCryptoBaseUnit })
         }
 
         const transactionData: TxBuildData = {
@@ -162,7 +161,7 @@ export async function getThorStepData({
           }
         })()
 
-        return Ok({ vault, router, data, transactionData, networkFeeCryptoBaseUnit })
+        return Ok({ router, data, transactionData, networkFeeCryptoBaseUnit })
       }
       case CHAIN_NAMESPACE.Utxo: {
         const xpub = 'xpub' in input ? input.xpub : undefined
@@ -185,7 +184,7 @@ export async function getThorStepData({
           return { type: 'utxo', to: vault, opReturnData: memo, value: sellAmountCryptoBaseUnit }
         })()
 
-        return Ok({ vault, transactionData, networkFeeCryptoBaseUnit })
+        return Ok({ transactionData, networkFeeCryptoBaseUnit })
       }
       case CHAIN_NAMESPACE.CosmosSdk: {
         const adapter = deps.assertGetCosmosSdkChainAdapter(sellAsset.chainId)
@@ -194,7 +193,7 @@ export async function getThorStepData({
         const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
         if (type === 'rate') {
-          return Ok({ vault, transactionData: undefined, networkFeeCryptoBaseUnit: fast.txFee })
+          return Ok({ transactionData: undefined, networkFeeCryptoBaseUnit: fast.txFee })
         }
 
         if (vault) {
@@ -223,7 +222,7 @@ export async function getThorStepData({
             memo,
           }
 
-          return Ok({ vault, transactionData, networkFeeCryptoBaseUnit: fast.txFee })
+          return Ok({ transactionData, networkFeeCryptoBaseUnit: fast.txFee })
         }
 
         // Native sells (no vault) are MsgDeposits; the coin must be explicit as the thorchain
@@ -253,7 +252,7 @@ export async function getThorStepData({
           coin,
         }
 
-        return Ok({ vault, transactionData, networkFeeCryptoBaseUnit: fast.txFee })
+        return Ok({ transactionData, networkFeeCryptoBaseUnit: fast.txFee })
       }
       case CHAIN_NAMESPACE.Solana: {
         const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
@@ -283,7 +282,7 @@ export async function getThorStepData({
             instructions: await buildInstructions(address, value),
           })
 
-          return Ok({ vault, networkFeeCryptoBaseUnit })
+          return Ok({ networkFeeCryptoBaseUnit })
         }
 
         const instructions = await buildInstructions(from, sellAmountCryptoBaseUnit)
@@ -300,7 +299,7 @@ export async function getThorStepData({
           addressLookupTableAddresses: [],
         }
 
-        return Ok({ vault, transactionData, networkFeeCryptoBaseUnit })
+        return Ok({ transactionData, networkFeeCryptoBaseUnit })
       }
       case CHAIN_NAMESPACE.Tron: {
         const { vault } = await getThorTxData({ sellAsset, config, swapperName })
@@ -360,7 +359,7 @@ export async function getThorStepData({
           }
         })()
 
-        return Ok({ vault, networkFeeCryptoBaseUnit })
+        return Ok({ networkFeeCryptoBaseUnit })
       }
       default:
         return Err(

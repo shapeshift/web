@@ -1,6 +1,6 @@
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput } from '../../../types'
+import type { GetEvmTradeQuoteInput, GetEvmTradeRateInput } from '../../../types'
 
-export type DebridgeTradeQuoteInput = GetEvmTradeQuoteInputBase
+export type DebridgeTradeQuoteInput = GetEvmTradeQuoteInput
 export type DebridgeTradeRateInput = GetEvmTradeRateInput
 
 export type DebridgeMetadata = {

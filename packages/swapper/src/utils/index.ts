@@ -25,7 +25,7 @@ import type { TypedData } from 'eip-712'
 import type {
   CommonSwapMetadata,
   EvmTransactionExecutionProps,
-  ExecutableTradeStep,
+
   NearTransactionExecutionProps,
   SolanaTransactionExecutionProps,
   StarknetTransactionExecutionProps,
@@ -146,7 +146,7 @@ export const createCache = (
 }
 
 // https://github.com/sniptt-official/monads/issues/111
-export const AsyncResultOf = async <T>(promise: Promise<T>): Promise<Result<T, Error>> => {
+const AsyncResultOf = async <T>(promise: Promise<T>): Promise<Result<T, Error>> => {
   try {
     return Ok(await promise)
   } catch (err) {
@@ -416,7 +416,7 @@ export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is 
 export const getExecutableTradeStep = (
   tradeQuote: TradeQuote,
   stepIndex: SupportedTradeQuoteStepIndex,
-): ExecutableTradeStep => {
+): TradeQuoteStep => {
   // A TradeQuote is executable by construction, so its steps are TradeQuoteStep (accountNumber set)
   const step = tradeQuote.steps[stepIndex]
   if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)

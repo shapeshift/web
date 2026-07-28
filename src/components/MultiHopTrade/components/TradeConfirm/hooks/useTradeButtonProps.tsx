@@ -128,13 +128,7 @@ export const useTradeButtonProps = ({
     dispatch(swapSlice.actions.setActiveSwapId(swap.id))
 
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [
-    dispatch,
-    activeQuote,
-    currentHopIndex,
-    buyAccountId,
-    sellAccountId,
-  ])
+  }, [dispatch, activeQuote, currentHopIndex, buyAccountId, sellAccountId])
 
   const executeTrade = useTradeExecution(currentHopIndex, activeTradeId, onSwapTxBroadcast)
 

@@ -291,11 +291,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         )}
       </Flex>
     )
-  }, [
-    firstHopAllowanceReset.txHash,
-    firstHopSellAccountId,
-    tradeQuoteFirstHop,
-  ])
+  }, [firstHopAllowanceReset.txHash, firstHopSellAccountId, tradeQuoteFirstHop])
 
   const firstHopAllowanceApprovalTitle = useMemo(() => {
     const content = (() => {
@@ -431,11 +427,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         )}
       </Flex>
     )
-  }, [
-    lastHopAllowanceReset.txHash,
-    lastHopSellAccountId,
-    tradeQuoteSecondHop,
-  ])
+  }, [lastHopAllowanceReset.txHash, lastHopSellAccountId, tradeQuoteSecondHop])
 
   const lastHopAllowanceApprovalTitle = useMemo(() => {
     return (

@@ -3,14 +3,13 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type {
-  GetEvmTradeQuoteInputBase,
   GetEvmTradeQuoteInputWithWallet,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
 } from '../../../types'
-import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { assertQuoteAddresses } from '../../../utils'
+import type { ArbitrumBridgeTradeQuoteInput } from '../types'
 import { getArbitrumBridgeStepData } from '../utils/getArbitrumBridgeStepData'
 import { getArbitrumBridgeTradeContext } from '../utils/getArbitrumBridgeTradeContext'
 
@@ -26,28 +25,14 @@ export const getTradeQuoteWithWallet = async (
 }
 
 export const getTradeQuote = async (
-  input: GetEvmTradeQuoteInputBase,
+  input: ArbitrumBridgeTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  const { sendAddress, receiveAddress, accountNumber } = input
+  const { accountNumber } = input
 
-  if (!sendAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getArbitrumBridgeTradeQuote] sendAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getArbitrumBridgeTradeQuote] receiveAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  const maybeAddresses = assertQuoteAddresses(input)
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
   const maybeContext = await getArbitrumBridgeTradeContext({ input, deps })
 

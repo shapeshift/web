@@ -2,16 +2,12 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { validateAndParseAddress } from 'starknet'
 
-import type {
-  GetStarknetTradeRateInput,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeRate,
-} from '../../../types'
+import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import type { AvnuTradeRateInput } from '../types'
 import { getAvnuTradeContext } from '../utils/getAvnuTradeContext'
 
 export const getTradeRate = async (
-  input: GetStarknetTradeRateInput,
+  input: AvnuTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const { accountNumber, sellAsset, receiveAddress } = input

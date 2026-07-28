@@ -2,12 +2,7 @@ import { quoteToCalls } from '@avnu/avnu-sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { CallData, hash, validateAndParseAddress } from 'starknet'
 
-import type {
-  GetStarknetTradeQuoteInput,
-  GetStarknetTradeRateInput,
-  SwapperApi,
-  TradeStatus,
-} from '../../types'
+import type { SwapperApi, TradeStatus } from '../../types'
 import {
   checkStarknetSwapStatus,
   createDefaultStatusResponse,
@@ -17,11 +12,12 @@ import {
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import type { AvnuTradeQuoteInput, AvnuTradeRateInput } from './types'
 import { toHexString } from './utils/helpers'
 
 export const avnuApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input as GetStarknetTradeQuoteInput, deps),
-  getTradeRate: (input, deps) => getTradeRate(input as GetStarknetTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getTradeQuote(input as AvnuTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as AvnuTradeRateInput, deps),
 
   getUnsignedStarknetTransaction: async ({
     stepIndex,

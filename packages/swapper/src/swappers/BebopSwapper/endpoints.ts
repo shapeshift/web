@@ -1,12 +1,6 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 
-import type {
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetSolanaTradeQuoteInput,
-  GetSolanaTradeRateInput,
-  SwapperApi,
-} from '../../types'
+import type { SwapperApi } from '../../types'
 import {
   checkEvmSwapStatus,
   checkSolanaSwapStatus,
@@ -19,21 +13,22 @@ import { getBebopSolanaTradeQuote } from './getBebopSolanaTradeQuote/getBebopSol
 import { getBebopSolanaTradeRate } from './getBebopSolanaTradeRate/getBebopSolanaTradeRate'
 import { getBebopTradeQuote } from './getBebopTradeQuote/getBebopTradeQuote'
 import { getBebopTradeRate } from './getBebopTradeRate/getBebopTradeRate'
+import type { BebopTradeQuoteInput, BebopTradeRateInput } from './types'
 
 export const bebopApi: SwapperApi = {
   getTradeQuote: (input, deps) => {
-    if (input.sellAsset.chainId === solanaChainId) {
-      return getBebopSolanaTradeQuote(input as GetSolanaTradeQuoteInput, deps)
-    }
+    const quoteInput = input as BebopTradeQuoteInput
 
-    return getBebopTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
+    return 'supportsEIP1559' in quoteInput
+      ? getBebopTradeQuote(quoteInput, deps)
+      : getBebopSolanaTradeQuote(quoteInput, deps)
   },
   getTradeRate: (input, deps) => {
-    if (input.sellAsset.chainId === solanaChainId) {
-      return getBebopSolanaTradeRate(input as GetSolanaTradeRateInput, deps)
-    }
+    const rateInput = input as BebopTradeRateInput
 
-    return getBebopTradeRate(input as GetEvmTradeRateInput, deps)
+    return 'supportsEIP1559' in rateInput
+      ? getBebopTradeRate(rateInput, deps)
+      : getBebopSolanaTradeRate(rateInput, deps)
   },
   getUnsignedEvmTransaction,
   getEvmTransactionFees,

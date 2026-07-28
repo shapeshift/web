@@ -8,8 +8,7 @@ import type {
   SwapperDeps,
   TradeQuote,
 } from '../../../types'
-import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { assertQuoteAddresses } from '../../../utils'
 import { getBebopStepData } from '../utils/getBebopStepData'
 import { getBebopTradeContext } from '../utils/getBebopTradeContext'
 
@@ -17,25 +16,11 @@ export const getBebopTradeQuote = async (
   input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  const { sendAddress, receiveAddress, accountNumber } = input
+  const { accountNumber } = input
 
-  if (!sendAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getBebopTradeQuote] sendAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getBebopTradeQuote] receiveAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  const maybeAddresses = assertQuoteAddresses(input)
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
   const maybeContext = await getBebopTradeContext({
     input,

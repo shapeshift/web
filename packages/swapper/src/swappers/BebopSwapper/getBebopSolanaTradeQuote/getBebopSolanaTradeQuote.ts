@@ -8,7 +8,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
 import { getBebopSolanaTradeContext } from '../utils/getBebopSolanaTradeContext'
 import { isBebopSolanaTxSafe } from '../utils/helpers'
 
@@ -16,25 +16,11 @@ export const getBebopSolanaTradeQuote = async (
   input: GetSolanaTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  const { sendAddress, receiveAddress, accountNumber } = input
+  const { accountNumber } = input
 
-  if (!sendAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getBebopSolanaTradeQuote] sendAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getBebopSolanaTradeQuote] receiveAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  const maybeAddresses = assertQuoteAddresses(input)
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
   const maybeContext = await getBebopSolanaTradeContext({
     input,

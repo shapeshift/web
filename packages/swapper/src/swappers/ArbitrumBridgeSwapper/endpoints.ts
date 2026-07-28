@@ -5,16 +5,17 @@ import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
+import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
+import type { ArbitrumBridgeTradeQuoteInput, ArbitrumBridgeTradeRateInput } from './types'
 import { getParentToChildMessageDataFromParentTxHash } from './utils/helpers'
 
 export const arbitrumBridgeApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input as GetEvmTradeQuoteInputBase, deps),
-  getTradeRate: (input, deps) => getTradeRate(input as GetEvmTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getTradeQuote(input as ArbitrumBridgeTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as ArbitrumBridgeTradeRateInput, deps),
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
   checkTradeStatus: async ({

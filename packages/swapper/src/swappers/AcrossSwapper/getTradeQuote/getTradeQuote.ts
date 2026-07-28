@@ -2,8 +2,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
-import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { assertQuoteAddresses } from '../../../utils'
 import { getAcrossStepData } from '../utils/getAcrossStepData'
 import { getAcrossTradeContext } from '../utils/getAcrossTradeContext'
 import type { AcrossTradeQuoteInput } from '../utils/types'
@@ -12,25 +11,11 @@ export const getTradeQuote = async (
   input: AcrossTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  const { sendAddress, receiveAddress, accountNumber } = input
+  const { accountNumber } = input
 
-  if (!sendAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] sendAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] receiveAddress is required',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  const maybeAddresses = assertQuoteAddresses(input)
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
   const maybeContext = await getAcrossTradeContext({
     input,

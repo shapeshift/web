@@ -611,6 +611,7 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     signSerializedTransaction,
+    signAndBroadcastSerializedTransaction,
   }: SolanaMessageExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
@@ -639,7 +640,7 @@ export class TradeExecution {
 
       return await swapper.executeSolanaMessage(
         unsignedMessageResult,
-        { signSerializedTransaction },
+        { signSerializedTransaction, signAndBroadcastSerializedTransaction },
         config,
       )
     }

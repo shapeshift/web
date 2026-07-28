@@ -442,11 +442,34 @@ export const useTradeExecution = (
             })
 
             if (!result?.signatures) {
-              throw new Error('Failed to sign Bebop Solana transaction')
+              throw new Error('Failed to sign serialized Solana transaction')
             }
 
             trackMixpanelEventOnExecute()
             return result.signatures
+          },
+          signAndBroadcastSerializedTransaction: async (serializedTx: string) => {
+            if (!wallet || !supportsSolana(wallet) || !wallet.solanaSignSerializedTx) {
+              throw new Error('Wallet does not support signing serialized Solana transactions')
+            }
+
+            const result = await wallet.solanaSignSerializedTx({
+              addressNList: toAddressNList(accountMetadata.bip44Params),
+              serializedTx,
+            })
+
+            if (!result?.serialized) {
+              throw new Error('Failed to sign serialized Solana transaction')
+            }
+
+            const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
+
+            trackMixpanelEventOnExecute()
+            return adapter.broadcastTransaction({
+              senderAddress: fromAccountId(sellAssetAccountId).account,
+              receiverAddress: tradeQuote.receiveAddress,
+              hex: result.serialized,
+            })
           },
         })
 

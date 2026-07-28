@@ -624,13 +624,25 @@ export type SolanaTransactionExecutionProps = {
   signTransaction?: (txToSign: SolanaSignTx) => Promise<string>
 }
 
-export type SolanaMessageToSign = {
+// Swapper-specific handoff from getUnsignedSolanaMessage to executeSolanaMessage - both ends are
+// implemented by the same swapper
+export type BebopSolanaMessageToSign = {
   serializedTx: string
+  // RFQ order id - bebop broadcasts by submitting the signature to their own api
   quoteId: string
 }
 
+export type AcrossSolanaMessageToSign = {
+  serializedTx: string
+}
+
+export type SolanaMessageToSign = BebopSolanaMessageToSign | AcrossSolanaMessageToSign
+
 export type SolanaMessageExecutionProps = {
+  // Sign only - the swapper submits the signature to its own api (bebop RFQ orders)
   signSerializedTransaction: (serializedTx: string) => Promise<string[]>
+  // Sign and broadcast on chain - for pre-signed provider txs we broadcast ourselves (across)
+  signAndBroadcastSerializedTransaction: (serializedTx: string) => Promise<string>
 }
 
 export type TronTransactionExecutionProps = {

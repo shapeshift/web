@@ -17,17 +17,8 @@ import {
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
-import {
-  getSolanaNetworkFeeCryptoBaseUnit,
-  omitComputeBudgetInstructions,
-  withComputeUnitLimit,
-} from '../../../utils/solana'
+import { getSolanaNetworkFeeCryptoBaseUnit } from '../../../utils/solana'
 import type { AcrossSwapTx } from './types'
-
-// Solana-origin routes are CCTP-only (no swap legs) with constant measured compute
-// consumption, so the margin is safety only
-export const ACROSS_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = { marginMultiplier: 1.1 }
 
 type BaseArgs = {
   swapTx: AcrossSwapTx
@@ -122,10 +113,9 @@ export async function getAcrossStepData(
             }),
         )
 
-        const instructions = omitComputeBudgetInstructions(
-          TransactionMessage.decompile(versionedTransaction.message, { addressLookupTableAccounts })
-            .instructions,
-        )
+        const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+          addressLookupTableAccounts,
+        }).instructions
 
         if (type === 'rate') {
           // No placeholder estimation for provider built routes - best effort with provider fee fallback
@@ -150,24 +140,20 @@ export async function getAcrossStepData(
         }
 
         try {
-          const { networkFeeCryptoBaseUnit, feeData, includeComputeBudget } =
-            await getSolanaNetworkFeeCryptoBaseUnit({
-              adapter,
-              from,
-              instructions,
-              addressLookupTableAddresses,
-              tokenId: contractAddressOrUndefined(sellAsset.assetId),
-            })
-
-          const transactionData: TxBuildData = {
-            type: 'solana_instructions',
-            instructions: withComputeUnitLimit({
-              instructions,
-              computeUnits: feeData.chainSpecific.computeUnits,
-              includeComputeBudget,
-              computeBudget: ACROSS_SOLANA_COMPUTE_BUDGET,
-            }),
+          const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+            adapter,
+            from,
+            instructions,
             addressLookupTableAddresses,
+            tokenId: contractAddressOrUndefined(sellAsset.assetId),
+          })
+
+          // Across pre-signs the CCTP message event account slot and pins the blockhash, so the
+          // tx is sealed - it must be co-signed and broadcast as-is, never decompiled and rebuilt
+          // (the instructions above are estimation-only)
+          const transactionData: TxBuildData = {
+            type: 'solana_serialized_tx',
+            serializedTx: swapTx.data,
           }
 
           const stepData: AcrossQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

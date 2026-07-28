@@ -94,7 +94,11 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
 
             if (hop.transactionData?.type === 'solana_serialized_tx') {
               // Bebop Solana is gasless - Bebop pays the fees
-              return '0'
+              if (swapperName === SwapperName.Bebop) return '0'
+
+              // Other pre-signed serialized txs are sealed (pinned blockhash, no compute budget
+              // mutation possible), so the quote-time fee is the executable fee
+              return hop.feeData.networkFeeCryptoBaseUnit ?? '0'
             }
 
             const { chainNamespace: stepSellAssetChainNamespace } =

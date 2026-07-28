@@ -2,10 +2,8 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { SwapperApi } from '../../types'
-import { checkEvmSwapStatus } from '../../utils'
+import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import { getSolanaTransactionFees } from '../../utils/solana/getSolanaTransactionFees'
-import { getUnsignedSolanaTransaction } from '../../utils/solana/getUnsignedSolanaTransaction'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { acrossService } from './utils/acrossService'
@@ -20,8 +18,18 @@ export const acrossApi: SwapperApi = {
   getTradeRate: (input, deps) => getTradeRate(input as AcrossTradeRateInput, deps),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
-  getUnsignedSolanaTransaction,
-  getSolanaTransactionFees,
+  getUnsignedSolanaMessage: ({ tradeQuote, stepIndex }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('unable to execute a trade rate')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { transactionData } = step
+    if (transactionData?.type !== 'solana_serialized_tx') {
+      throw new Error('invalid solana transaction')
+    }
+
+    return Promise.resolve({ serializedTx: transactionData.serializedTx })
+  },
   checkTradeStatus: async ({
     txHash,
     chainId,

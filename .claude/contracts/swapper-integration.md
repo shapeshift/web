@@ -6,14 +6,14 @@ All integration points required when adding a new DEX aggregator, swapper, or br
 
 Every new swapper must be registered in all of the following locations:
 
-1. **SwapperName enum** - `packages/swapper/src/constants.ts`
+1. **SwapperName enum** - `packages/swapper/src/types.ts`
    - Add enum entry: `[SwapperName] = '[Display Name]'`
 
 2. **Swappers record** - `packages/swapper/src/constants.ts`
-   - Register `{ swapper, swapperApi }` pair under `SwapperName.[SwapperName]`
+   - One barrel import per swapper; register `{ ...[swapperName]Swapper, ...[swapperName]Api }` under `SwapperName.[SwapperName]`
 
 3. **Default slippage** - `packages/swapper/src/constants.ts`
-   - Add entry to `DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE_BY_SWAPPER`
+   - Add a case to `getDefaultSlippageDecimalPercentageForSwapper` if it differs from the default
 
 4. **CSP headers** - `headers/csps/defi/swappers/[SwapperName].ts`
    - All external API domains in `connect-src`
@@ -40,23 +40,25 @@ Every new swapper must be registered in all of the following locations:
 9. **SwapperConfig type** - `packages/swapper/src/types.ts`
    - Add `VITE_[SWAPPER]_API_KEY` (and any other config fields)
 
-10. **Export** - `packages/swapper/src/index.ts`
-    - Export `[swapperName]Api` and `[swapperName]Swapper`
+10. **Barrel + export** - swapper `index.ts` exports `{ [swapperName]Api, [swapperName]Swapper }` at minimum; root `packages/swapper/src/index.ts` re-exports the swapper directory
 
-### If deposit-to-address model (Chainflip, NEAR Intents, etc.):
+11. **Canonical structure** - the swapper follows the context split (`utils/helpers.ts` pure, `utils/get[X]TradeContext.ts` shared core with zero quoteOrRate checks, `utils/get[X]StepData.ts` discriminated + overloaded + no-throw, thin `getTradeQuote`/`getTradeRate` wrappers returning `Trade[]`) with scoped `[X]Trade{Quote,Rate}Input` aliases cast at the endpoint boundary. Rubric: `.claude/skills/swapper-rate-quote-review/SKILL.md`
 
-11. **TradeQuoteStep metadata** - `packages/swapper/src/types.ts`
-    - Add `[swapperName]Specific` field to `TradeQuoteStep` type
-    - Add to `SwapperSpecificMetadata` type
+### If status/execution needs provider tracking data (deposit address, order/swap id):
 
-12. **Metadata wiring** - TWO places, BOTH required:
-    - `src/components/MultiHopTrade/components/TradeConfirm/hooks/useTradeButtonProps.tsx` - Pass metadata from step to swap
-    - `src/lib/tradeExecution.ts` - Pass metadata from step to swap
+12. **SwapperMetadata union** - `packages/swapper/src/types.ts`
+    - Add a `[Swapper]Metadata` member (`{ name: '[swapperName]', ... }`) to the `SwapperMetadata` union; set `step.swapperMetadata` at quote time; read via `getSwapMetadata(...)` in `checkTradeStatus`/execution. NO web-side wiring - `buildSwapMetadata` carries it automatically
+
+### Public API + swap widget (separate, deliberate decisions):
+
+13. **Public api enablement** - add to `ENABLED_SWAPPER_NAMES` (`packages/public-api/src/constants.ts`) only after verifying the quote's `transactionData` variant is serialized by `extractTransactionData.ts` + the zod schemas
+
+14. **Swap widget enablement** - the widget's restricted `SwapperName` enum (`packages/swap-widget/src/types/index.ts`) is its allowlist; add icon/color entries in `constants/swappers.ts` if enabling
 
 ## Testing Checklist
 
 ### Automated Checks (MUST pass)
-- [ ] `pnpm run type-check` - All type checks pass
+- [ ] `npx tsc --noEmit -p packages/swapper/tsconfig.esm.json` passes (the root `-p packages/swapper` solution config checks ZERO files - never trust it)
 - [ ] `pnpm run lint` - All lint checks pass
 - [ ] `pnpm run build:swapper` - Swapper package builds
 - [ ] No `any` types used
@@ -98,7 +100,7 @@ These are the most frequent bugs in swapper integrations. Check each one proacti
 
 5. **Native token marker** - Verify the marker address matches what the API expects (commonly `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`).
 
-6. **Gas estimation** - Take max of API estimate and node estimate, add 15% buffer.
+6. **EVM gasLimit invariant** - every EVM quote's `transactionData.gasLimit` ends up set: route ALL EVM fee math through `getEvmNetworkFeeCryptoBaseUnit` (prices provider gas as-is, or estimates-and-sets the buffered limit in place). Quotes hard-fail on estimation failure; only rates fall back to the provider fee.
 
 7. **Dummy address in executable quotes** - Block executable quotes when taker address is the dummy address used for rates.
 
@@ -106,6 +108,10 @@ These are the most frequent bugs in swapper integrations. Check each one proacti
 
 9. **Type safety** - Use `Address` and `Hex` types from viem, not bare strings.
 
-10. **Error handling** - ALWAYS return `Result<T, SwapErrorRight>`, NEVER throw from quote/rate functions.
+10. **Error handling** - ALWAYS return `Result<T, SwapErrorRight>`, NEVER throw from quote/rate/step-data/context functions. Estimation failures on the quote arm use `makeNetworkFeeEstimationFailedErr`; unbuildable provider payloads use `makeTradeStepBuildFailedErr`.
+
+11. **Rate steps carry the wallet's accountNumber** - propagate `input.accountNumber` (undefined only when walletless); never hardcode `accountNumber: undefined`. Rates never carry `transactionData`.
+
+12. **Quote addresses** - `assertQuoteAddresses(input)` before any provider request; rate-only address defaults must never leak into quotes.
 
 For detailed implementation patterns, see `.claude/skills/swapper-integration/SKILL.md`.

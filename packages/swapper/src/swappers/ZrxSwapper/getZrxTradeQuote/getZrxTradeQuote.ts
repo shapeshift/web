@@ -9,7 +9,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { ZrxTradeQuoteInput } from '../types'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
@@ -25,10 +25,23 @@ export const getZrxTradeQuote = async (
     sellAsset,
     buyAsset,
     accountNumber,
-    receiveAddress,
     affiliateBps,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
+
+  const maybeAddresses = assertQuoteAddresses(input)
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
+
+  // The 0x order binds taker, so a quote for a different receive address is not executable by the sender
+  if (sendAddress !== receiveAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Cross-account trade not supported for ZRX',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
 
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())

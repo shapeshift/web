@@ -5,7 +5,12 @@ import { getAddress } from 'viem'
 import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { EvmTransactionData, SolanaTransactionData, UtxoTransactionData } from '../types'
+import type {
+  EvmTransactionData,
+  SolanaSerializedTxTransactionData,
+  SolanaTransactionData,
+  UtxoTransactionData,
+} from '../types'
 import { getErrorMessage } from '../utils/errors'
 
 type BitcoinSigner = ReturnType<typeof useSwapWallet>['bitcoin']
@@ -125,9 +130,7 @@ const executeSolana = async (
         return value
       }),
     )
-  ).filter(
-    (account): account is InstanceType<typeof AddressLookupTableAccount> => account !== null,
-  )
+  ).filter((account): account is InstanceType<typeof AddressLookupTableAccount> => account !== null)
 
   const { blockhash } = await conn.getLatestBlockhash('confirmed')
 
@@ -138,6 +141,25 @@ const executeSolana = async (
   }).compileToV0Message(lookupTableAccounts)
 
   return solana.sendTransaction({ transaction: new VersionedTransaction(message) })
+}
+
+const executeSolanaSerializedTx = async (
+  txData: SolanaSerializedTxTransactionData,
+  solana: SolanaSigner,
+): Promise<string> => {
+  if (!solana.isConnected || !solana.address || !solana.connection) {
+    throw new Error('Solana wallet not connected')
+  }
+
+  solana.reset()
+
+  const { VersionedTransaction } = await import('@solana/web3.js')
+
+  const transaction = VersionedTransaction.deserialize(
+    new Uint8Array(Buffer.from(txData.serializedTx, 'base64')),
+  )
+
+  return solana.sendTransaction({ transaction })
 }
 
 export const useSwapExecution = () => {
@@ -181,8 +203,10 @@ export const useSwapExecution = () => {
               return executeEvm(txData, walletClient, walletAddress)
             case 'utxo':
               return executeUtxo(txData, bitcoin)
-            case 'solana':
+            case 'solana_instructions':
               return executeSolana(txData, solana)
+            case 'solana_serialized_tx':
+              return executeSolanaSerializedTx(txData, solana)
             case 'cosmossdk_msg_send':
             case 'cosmossdk_msg_deposit':
               throw new Error('This swap is not yet supported — please try a different route')

@@ -180,6 +180,7 @@ export type {
   CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
   Permit2SignatureRequired,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
   UtxoTransactionData,

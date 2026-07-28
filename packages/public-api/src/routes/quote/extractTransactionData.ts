@@ -18,7 +18,19 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
   const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
   const { to, data, value, gasLimit, signatureRequired } = step.transactionData
 
-  return { type: 'evm', chainId, to, data, value, gasLimit, signatureRequired }
+  return {
+    type: 'evm',
+    chainId,
+    to,
+    data,
+    value,
+    gasLimit,
+    // The wire names the convention explicitly - the swapper keeps the generic permit2 shape
+    signatureRequired: signatureRequired && {
+      type: 'zrx_permit2',
+      eip712: signatureRequired.eip712,
+    },
+  }
 }
 
 const extractSolanaTransactionData = (

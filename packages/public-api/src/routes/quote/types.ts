@@ -13,10 +13,14 @@ const EvmTransactionDataSchema = z.object({
   gasLimit: z.string().optional().openapi({ example: '300000' }),
   signatureRequired: z
     .object({
-      type: z.literal('permit2'),
+      type: z.literal('zrx_permit2'),
       eip712: z.record(z.unknown()),
     })
-    .optional(),
+    .optional()
+    .openapi({
+      description:
+        'When present, the transaction requires a permit2 signature before broadcast: sign the eip712 payload with eth_signTypedData_v4, then append a 32-byte big-endian signature-length word followed by the signature to `data` (the 0x settler convention). The supplied gasLimit already accounts for the appended signature.',
+    }),
 })
 
 const SolanaTransactionDataSchema = z.object({

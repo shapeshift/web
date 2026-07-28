@@ -1,5 +1,7 @@
-export type Permit2SignatureRequired = {
-  type: 'permit2'
+// 0x settler convention: sign eip712, then append a 32-byte signature-length word followed by
+// the signature to the transaction data before broadcasting
+export type ZrxPermit2SignatureRequired = {
+  type: 'zrx_permit2'
   eip712: Record<string, unknown>
 }
 
@@ -10,7 +12,7 @@ export type EvmTransactionData = {
   data: string
   value: string
   gasLimit?: string
-  signatureRequired?: Permit2SignatureRequired
+  signatureRequired?: ZrxPermit2SignatureRequired
 }
 
 export type SolanaTransactionData = {

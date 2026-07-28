@@ -2,10 +2,11 @@ import type {
   CosmosSdkMsgDepositTransactionData,
   CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
-  Permit2SignatureRequired,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
   UtxoTransactionData,
+  ZrxPermit2SignatureRequired,
 } from '@shapeshiftoss/types'
 import { z } from 'zod'
 
@@ -16,10 +17,11 @@ export type {
   CosmosSdkMsgDepositTransactionData,
   CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
-  Permit2SignatureRequired,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
   UtxoTransactionData,
+  ZrxPermit2SignatureRequired,
 }
 
 export type AffiliateInfo = {

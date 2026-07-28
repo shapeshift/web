@@ -232,7 +232,7 @@ export async function getButterSwapStepData(
             })
 
           const transactionData: TxBuildData = {
-            type: 'solana',
+            type: 'solana_instructions',
             instructions: withComputeUnitLimit({
               instructions,
               computeUnits: feeData.chainSpecific.computeUnits,

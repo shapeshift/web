@@ -37,14 +37,14 @@ export const bebopApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { bebopSolanaSerializedTx } = step
+    const { transactionData } = step
     const { quoteId } = getSwapMetadata(step.swapperMetadata, 'bebop')
-    if (!bebopSolanaSerializedTx || !quoteId) {
-      throw new Error('Bebop Solana transaction metadata is required')
+    if (transactionData?.type !== 'solana_serialized_tx' || !quoteId) {
+      throw new Error('Bebop Solana transaction data is required')
     }
 
     return Promise.resolve({
-      serializedTx: bebopSolanaSerializedTx,
+      serializedTx: transactionData.serializedTx,
       quoteId,
     })
   },

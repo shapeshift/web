@@ -92,11 +92,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
               return '0'
             }
 
-            if (
-              swapperName === SwapperName.Bebop &&
-              hop.bebopSolanaSerializedTx &&
-              hop.swapperMetadata?.name === 'bebop'
-            ) {
+            if (hop.transactionData?.type === 'solana_serialized_tx') {
               // Bebop Solana is gasless - Bebop pays the fees
               return '0'
             }

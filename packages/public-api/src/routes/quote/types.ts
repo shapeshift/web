@@ -20,7 +20,7 @@ const EvmTransactionDataSchema = z.object({
 })
 
 const SolanaTransactionDataSchema = z.object({
-  type: z.literal('solana').openapi({ example: 'solana' }),
+  type: z.literal('solana_instructions').openapi({ example: 'solana_instructions' }),
   instructions: z.array(
     z.object({
       programId: z.string(),
@@ -35,6 +35,13 @@ const SolanaTransactionDataSchema = z.object({
     }),
   ),
   addressLookupTableAddresses: z.array(z.string()),
+})
+
+// Sealed multi-signer RFQ tx (maker pre-signed, blockhash pinned) - sign the taker slot as-is
+// and broadcast, never rebuild
+const SolanaSerializedTxTransactionDataSchema = z.object({
+  type: z.literal('solana_serialized_tx').openapi({ example: 'solana_serialized_tx' }),
+  serializedTx: z.string(),
 })
 
 const UtxoTransactionDataSchema = z.object({
@@ -65,6 +72,7 @@ const CosmosSdkMsgDepositTransactionDataSchema = z.object({
 const TransactionDataSchema = z.discriminatedUnion('type', [
   EvmTransactionDataSchema,
   SolanaTransactionDataSchema,
+  SolanaSerializedTxTransactionDataSchema,
   UtxoTransactionDataSchema,
   CosmosSdkMsgSendTransactionDataSchema,
   CosmosSdkMsgDepositTransactionDataSchema,

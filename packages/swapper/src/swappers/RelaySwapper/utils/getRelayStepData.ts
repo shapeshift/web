@@ -242,7 +242,7 @@ export async function getRelayStepData({
 
       const stepData: RelayQuoteStepData = {
         transactionData: {
-          type: 'solana',
+          type: 'solana_instructions',
           instructions: withComputeUnitLimit({
             instructions,
             computeUnits: feeData.chainSpecific.computeUnits,

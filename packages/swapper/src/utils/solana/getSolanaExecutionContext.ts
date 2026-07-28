@@ -11,7 +11,7 @@ export const getSolanaExecutionContext = ({
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
   const { transactionData, sellAsset } = step
-  if (transactionData?.type !== 'solana') throw new Error('invalid solana transaction')
+  if (transactionData?.type !== 'solana_instructions') throw new Error('invalid solana transaction')
 
   const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 

@@ -542,7 +542,7 @@ export class TradeExecution {
 
       // Solana caps a single tx at 1232 bytes; oversized swaps must be split into a Jito bundle.
       // Derived here (as any public-api consumer would) rather than carried on transactionData.
-      if (transactionData?.type === 'solana') {
+      if (transactionData?.type === 'solana_instructions') {
         const { instructions, addressLookupTableAddresses } = transactionData
 
         const isOversized = await isSolanaTransactionOversized({

@@ -51,7 +51,7 @@ export const getBebopSolanaTradeQuote = async (
         accountNumber,
         // Bebop Solana is gasless - Bebop pays the network fees via co-signing
         feeData: { protocolFees: {}, networkFeeCryptoBaseUnit: '0' },
-        bebopSolanaSerializedTx: response.solana_tx,
+        transactionData: { type: 'solana_serialized_tx', serializedTx: response.solana_tx },
         swapperMetadata: { name: 'bebop', quoteId: response.quoteId },
       },
     ],

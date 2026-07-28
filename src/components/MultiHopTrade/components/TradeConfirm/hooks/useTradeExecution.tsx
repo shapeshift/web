@@ -425,11 +425,7 @@ export const useTradeExecution = (
         return
       }
 
-      if (
-        swapperName === SwapperName.Bebop &&
-        hop?.bebopSolanaSerializedTx &&
-        hop?.swapperMetadata?.name === 'bebop'
-      ) {
+      if (hop?.transactionData?.type === 'solana_serialized_tx') {
         const output = await execution.execSolanaMessage({
           swapperName,
           tradeQuote,

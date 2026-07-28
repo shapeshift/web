@@ -14,7 +14,7 @@ export type EvmTransactionData = {
 }
 
 export type SolanaTransactionData = {
-  type: 'solana'
+  type: 'solana_instructions'
   instructions: {
     programId: string
     keys: {
@@ -25,6 +25,11 @@ export type SolanaTransactionData = {
     data: string
   }[]
   addressLookupTableAddresses: string[]
+}
+
+export type SolanaSerializedTxTransactionData = {
+  type: 'solana_serialized_tx'
+  serializedTx: string
 }
 
 export type UtxoTransactionData = {
@@ -54,6 +59,7 @@ export type CosmosSdkMsgDepositTransactionData = {
 export type TransactionData =
   | EvmTransactionData
   | SolanaTransactionData
+  | SolanaSerializedTxTransactionData
   | UtxoTransactionData
   | CosmosSdkMsgSendTransactionData
   | CosmosSdkMsgDepositTransactionData

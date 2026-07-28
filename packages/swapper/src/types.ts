@@ -19,7 +19,6 @@ import type {
   SuiSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
-  AccountMetadata,
   Asset,
   AssetsByIdPartial,
   CosmosSdkChainId,
@@ -398,10 +397,11 @@ export type TxBuildData =
     }
   | { type: 'utxo'; to: string; opReturnData?: string; value: string }
   | {
-      type: 'solana'
+      type: 'solana_instructions'
       instructions: TransactionInstruction[]
       addressLookupTableAddresses: string[]
     }
+  | { type: 'solana_serialized_tx'; serializedTx: string }
   | {
       type: 'cosmossdk_msg_send'
       chainId: string
@@ -440,8 +440,6 @@ export type TradeStepCommon = {
   butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
 
   chainflipSpecific?: { depositAddress?: string }
-
-  bebopSolanaSerializedTx?: string
 
   affiliateFee?: AffiliateFee
 }

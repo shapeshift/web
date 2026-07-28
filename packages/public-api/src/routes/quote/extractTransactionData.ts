@@ -5,6 +5,7 @@ import type {
   CosmosSdkMsgDepositTransactionData,
   CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
   UtxoTransactionData,
@@ -20,13 +21,20 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
   return { type: 'evm', chainId, to, data, value, gasLimit, signatureRequired }
 }
 
-const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
-  if (step.transactionData?.type !== 'solana') return
+const extractSolanaTransactionData = (
+  step: TradeQuoteStep,
+): SolanaTransactionData | SolanaSerializedTxTransactionData | undefined => {
+  if (step.transactionData?.type === 'solana_serialized_tx') {
+    const { serializedTx } = step.transactionData
+    return { type: 'solana_serialized_tx', serializedTx }
+  }
+
+  if (step.transactionData?.type !== 'solana_instructions') return
 
   const { instructions, addressLookupTableAddresses } = step.transactionData
 
   return {
-    type: 'solana',
+    type: 'solana_instructions',
     instructions: instructions.map(instruction => ({
       programId: instruction.programId.toBase58(),
       keys: instruction.keys.map(key => ({

@@ -29,7 +29,7 @@ import { getAddress, isAddressEqual } from 'viem'
 import { arbitrum } from 'viem/chains'
 
 import type { SwapErrorRight, TradeQuote, TradeRate } from '../../../types'
-import { TradeQuoteError } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { BRIDGE_TYPE } from '../types'
 import type { ArbitrumBridgeSupportedChainId } from './types'
@@ -37,7 +37,10 @@ import { arbitrumBridgeSupportedChainIds } from './types'
 
 export const isArbitrumBridgeWithdrawal = (quote: TradeQuote | TradeRate | undefined): boolean => {
   // withdrawal = selling from Arbitrum (deposit = selling from Ethereum to Arbitrum)
-  return quote?.steps[0]?.sellAsset.chainId === arbitrumChainId
+  return (
+    quote?.swapperName === SwapperName.ArbitrumBridge &&
+    quote.steps[0]?.sellAsset.chainId === arbitrumChainId
+  )
 }
 
 export const getArbitrumBridgeType = ({

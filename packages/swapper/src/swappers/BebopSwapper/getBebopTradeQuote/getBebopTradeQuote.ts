@@ -2,12 +2,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getAddress } from 'viem'
 
-import type {
-  GetEvmTradeQuoteInput,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-} from '../../../types'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
 import { getBebopStepData } from '../utils/getBebopStepData'
 import { getBebopTradeContext } from '../utils/getBebopTradeContext'

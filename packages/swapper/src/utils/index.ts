@@ -25,7 +25,6 @@ import type { TypedData } from 'eip-712'
 import type {
   CommonSwapMetadata,
   EvmTransactionExecutionProps,
-
   NearTransactionExecutionProps,
   SolanaTransactionExecutionProps,
   StarknetTransactionExecutionProps,

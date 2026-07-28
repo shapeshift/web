@@ -14,9 +14,9 @@ import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
   ATA_RENT_LAMPORTS,
-  withComputeUnitLimit,
   getSolanaNetworkFeeCryptoBaseUnit,
   SOLANA_PLACEHOLDER_ADDRESS,
+  withComputeUnitLimit,
 } from '../../../utils/solana'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'

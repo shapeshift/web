@@ -14,7 +14,6 @@ import type { ChainFlipStatus, ChainflipTradeQuoteInput, ChainflipTradeRateInput
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
 
-
 export const chainflipApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as ChainflipTradeQuoteInput, deps),
   getTradeRate: (input, deps) => getTradeRate(input as ChainflipTradeRateInput, deps),

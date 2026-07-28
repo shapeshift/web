@@ -10,9 +10,9 @@ import { makeNetworkFeeEstimationFailedErr, makeTradeStepBuildFailedErr } from '
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
-  withComputeUnitLimit,
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
+  withComputeUnitLimit,
 } from '../../../utils/solana'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'

@@ -11,7 +11,6 @@ import { getTradeRate } from './getTradeRate/getTradeRate'
 
 const swapperName = SwapperName.Thorchain
 
-
 export const thorchainApi: SwapperApi = {
   getTradeRate: (input, deps) => getTradeRate(input as ThorTradeRateInput, deps),
   getTradeQuote: (input, deps) => getTradeQuote(input as ThorTradeQuoteInput, deps),

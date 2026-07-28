@@ -18,7 +18,6 @@ import type { RelayStatus, RelayTradeQuoteInput, RelayTradeRateInput } from './u
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
 
-
 export const relayApi: SwapperApi = {
   getTradeQuote: (input, deps) => {
     return getTradeQuote(input as RelayTradeQuoteInput, deps, chainIdToRelayChainId)

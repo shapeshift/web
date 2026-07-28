@@ -21,9 +21,9 @@ import {
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
-  withComputeUnitLimit,
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
+  withComputeUnitLimit,
 } from '../../../utils/solana'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 import type { BuildTxSuccessItem, ButterSwapTransactionMetadata, RouteSuccessItem } from '../types'

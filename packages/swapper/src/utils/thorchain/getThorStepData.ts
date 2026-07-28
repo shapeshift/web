@@ -22,7 +22,7 @@ import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../uti
 import { getEvmNetworkFeeCryptoBaseUnit } from '../evm'
 import { isNativeEvmAsset } from '../helpers'
 import type { SolanaComputeBudgetOptions } from '../solana'
-import { withComputeUnitLimit, getSolanaNetworkFeeCryptoBaseUnit } from '../solana'
+import { getSolanaNetworkFeeCryptoBaseUnit, withComputeUnitLimit } from '../solana'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../utxo'
 import { getThorRouterAndVault, getThorTxData } from './getThorTxData'
 import { depositWithExpiry, swapIn } from './routerCallData/routerCalldata'

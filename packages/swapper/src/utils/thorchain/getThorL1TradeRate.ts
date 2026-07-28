@@ -13,7 +13,7 @@ export const getThorL1TradeRate = async (
   tradeType: TradeType,
   swapperName: SwapperName,
 ): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
-  const { receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
   const maybeContexts = await getThorL1TradeContexts(
     input,
@@ -54,7 +54,7 @@ export const getThorL1TradeRate = async (
           steps: [
             {
               ...stepCommon,
-              accountNumber: undefined,
+              accountNumber,
               allowanceContract: router ?? '',
               feeData: { networkFeeCryptoBaseUnit, protocolFees },
             },

@@ -493,9 +493,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     try {
       const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
       const { sendMax, chainSpecific } = input
-      const { instructions } = chainSpecific
+      const { from, tokenId, instructions } = chainSpecific
 
-      const serializedTx = await this.buildEstimationSerializedTx(input)
+      const estimationInstructions =
+        instructions ??
+        (await this.buildEstimationInstructions({
+          from,
+          to: input.to,
+          tokenId,
+          value: input.value,
+        }))
+
+      const serializedTx = await this.buildEstimationSerializedTx(input, estimationInstructions)
       const baseComputeUnits = await this.providers.http.estimateFees({
         estimateFeesBody: { serializedTx },
       })
@@ -504,13 +513,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
         : baseComputeUnits
 
-      // SOL transfers should have 0 instructions if they're askchually *just* a transfer (i.e "pure")
-      // There *are* some complex SOL transfers, e.g Jupiter swaps, that have instructions on top of transfer,
-      // and a lot of them at that
-      // SPL/Jupiter transfers should use actual instruction count from passed instructions
-      const isPureSolTransfer =
-        !chainSpecific.tokenId && (!instructions || instructions.length === 0)
-      const instructionCount = isPureSolTransfer ? 0 : instructions?.length ?? 0
+      // Pure SOL transfers (a bare transfer, no passed instructions) price compute only;
+      // everything else (SPL, Jupiter routes) adds the base fee per resolved instruction
+      const isPureSolTransfer = !tokenId && (!instructions || instructions.length === 0)
+      const instructionCount = isPureSolTransfer ? 0 : estimationInstructions.length
 
       return {
         fast: {
@@ -587,18 +593,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
   private async buildEstimationSerializedTx(
     input: GetFeeDataInput<KnownChainIds.SolanaMainnet>,
+    estimationInstructions: TransactionInstruction[],
   ): Promise<string> {
-    const { to, chainSpecific } = input
-    const { from, tokenId, instructions } = chainSpecific
-
-    const estimationInstructions = instructions
-      ? instructions
-      : await this.buildEstimationInstructions({
-          from,
-          to,
-          tokenId,
-          value: input.value,
-        })
+    const { chainSpecific } = input
 
     const addressLookupTableAccounts = await this.getSolanaAddressLookupTableAccountsInfo(
       chainSpecific.addressLookupTableAccounts ?? [],

@@ -91,6 +91,10 @@ export const relayApi: SwapperApi = {
       txIndexingMap.set(swap.id, true)
     }
 
+    // relay.link tracks the swap by its origin chain transaction
+    const swapperTxId = txHash
+    const swapperTxLink = `https://relay.link/transaction/${txHash}`
+
     const maybeStatusResponse = await relayService.get<RelayStatus>(
       `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${relayMetadata.relayId}`,
     )
@@ -99,6 +103,8 @@ export const relayApi: SwapperApi = {
       return {
         buyTxHash: undefined,
         status: TxStatus.Unknown,
+        swapperTxId,
+        swapperTxLink,
         message: undefined,
       }
     }
@@ -128,6 +134,8 @@ export const relayApi: SwapperApi = {
     return {
       status,
       buyTxHash,
+      swapperTxId,
+      swapperTxLink,
       message: getLatestRelayStatusMessage(statusResponse),
     }
   },

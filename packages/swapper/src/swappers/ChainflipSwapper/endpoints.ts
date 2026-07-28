@@ -79,15 +79,18 @@ export const chainflipApi: SwapperApi = {
     }
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
-    const {
-      status: { swapEgress },
-    } = statusResponse
+
+    const buyTxHash = statusResponse.status.swapEgress?.transactionReference
+    const swapperTxId = statusResponse.status.swapId
+    const swapperTxLink = swapperTxId ? `https://scan.chainflip.io/swaps/${swapperTxId}` : undefined
 
     // Assume no outbound Tx is a pending Tx
-    if (!swapEgress?.transactionReference) {
+    if (!buyTxHash) {
       return {
         buyTxHash: undefined,
         status: TxStatus.Pending,
+        swapperTxId,
+        swapperTxLink,
         message: getLatestChainflipStatusMessage(statusResponse),
       }
     }
@@ -95,8 +98,10 @@ export const chainflipApi: SwapperApi = {
     // Assume as soon as we have an outbound Tx, the swap is complete.
     // Chainflip waits for 3 confirmations to assume complete (vs. 1 for us), which is turbo long.
     return {
-      buyTxHash: swapEgress.transactionReference,
+      buyTxHash,
       status: TxStatus.Confirmed,
+      swapperTxId,
+      swapperTxLink,
       message: undefined,
     }
   },

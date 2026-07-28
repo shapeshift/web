@@ -503,8 +503,8 @@ export enum TransactionExecutionState {
 export type SwapExecutionMetadata = {
   state: TransactionExecutionState
   sellTxHash?: string
-  relayerTxHash?: string
-  relayerExplorerTxLink?: string | undefined
+  swapperTxId?: string
+  swapperTxLink?: string | undefined
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
   message?: string | [string, InterpolationOptions]
@@ -514,8 +514,6 @@ export type SwapExecutionMetadata = {
 export type CommonSwapMetadata = {
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
-  relayerTxHash?: string
-  relayerExplorerTxLink?: string
   streamingSwapMetadata?: StreamingSwapMetadata
 }
 
@@ -550,6 +548,8 @@ export type Swap = {
   source: SwapSource
   sellTxHash?: string
   buyTxHash?: string
+  swapperTxId?: string
+  swapperTxLink?: string
   statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId
   buyAccountId: AccountId | undefined
@@ -766,8 +766,10 @@ export type CheckTradeStatusInput = {
 export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
-  relayerTxHash?: string | undefined
-  relayerExplorerTxLink?: string | undefined
+  // The swapper/protocol's own identifier for the swap (relayer tx hash, native swap id, order uid)
+  swapperTxId?: string | undefined
+  // Fully-formed link to the swapper/protocol's own tracker page for the swap
+  swapperTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
   actualBuyAmountCryptoBaseUnit?: string
 }
@@ -928,7 +930,6 @@ export type TonTransactionExecutionInput = CommonTradeExecutionInput &
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
-  RelayerTxHash = 'relayerTxHash',
   Status = 'status',
   Success = 'success',
   Fail = 'fail',
@@ -939,18 +940,12 @@ export type SellTxHashArgs = {
   stepIndex: SupportedTradeQuoteStepIndex
   sellTxHash: string
 }
-export type RelayerTxDetailsArgs = {
-  stepIndex: SupportedTradeQuoteStepIndex
-  relayerTxHash: string
-  relayerExplorerTxLink: string
-}
 export type StatusArgs = TradeStatus & {
   stepIndex: number
 }
 
 export type TradeExecutionEventMap = {
   [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
-  [TradeExecutionEvent.RelayerTxHash]: (args: RelayerTxDetailsArgs) => void
   [TradeExecutionEvent.Status]: (args: StatusArgs) => void
   [TradeExecutionEvent.Success]: (args: StatusArgs) => void
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void

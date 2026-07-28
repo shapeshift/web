@@ -55,6 +55,10 @@ export const cowApi: SwapperApi = {
 
     const network = assertGetCowNetwork(chainId)
 
+    // txHash is the order uid - the cow explorer order page is the swap's tracker
+    const swapperTxId = txHash
+    const swapperTxLink = `https://explorer.cow.fi/orders/${txHash}`
+
     // with cow we aren't able to get the tx hash until it's already completed, so we must use the
     // order uid to fetch the trades and use their existence as indicating "complete"
     // https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/6.-checking-order-status
@@ -73,6 +77,8 @@ export const cowApi: SwapperApi = {
         return {
           status: TxStatus.Confirmed,
           buyTxHash,
+          swapperTxId,
+          swapperTxLink,
           message: CowStatusMessage.Fulfilled,
         }
       }
@@ -89,12 +95,16 @@ export const cowApi: SwapperApi = {
           return {
             status: TxStatus.Failed,
             buyTxHash: undefined,
+            swapperTxId,
+            swapperTxLink,
             message: CowStatusMessage.Cancelled,
           }
         case 'expired':
           return {
             status: TxStatus.Failed,
             buyTxHash: undefined,
+            swapperTxId,
+            swapperTxLink,
             message: CowStatusMessage.Expired,
           }
         default:
@@ -104,6 +114,8 @@ export const cowApi: SwapperApi = {
     return {
       status: TxStatus.Pending,
       buyTxHash: undefined,
+      swapperTxId,
+      swapperTxLink,
       message: CowStatusMessage.Open,
     }
   },

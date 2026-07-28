@@ -247,22 +247,8 @@ export const useTradeExecution = (
         }
       })
       execution.on(
-        TradeExecutionEvent.RelayerTxHash,
-        ({ relayerTxHash, relayerExplorerTxLink }) => {
-          txHashReceived = true
-          dispatch(
-            tradeQuoteSlice.actions.setSwapRelayerTxDetails({
-              hopIndex,
-              relayerTxHash,
-              relayerExplorerTxLink,
-              id: confirmedTradeId,
-            }),
-          )
-        },
-      )
-      execution.on(
         TradeExecutionEvent.Status,
-        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit }) => {
+        ({ buyTxHash, message, swapperTxId, swapperTxLink, actualBuyAmountCryptoBaseUnit }) => {
           dispatch(
             tradeQuoteSlice.actions.setSwapTxMessage({
               hopIndex,
@@ -270,6 +256,17 @@ export const useTradeExecution = (
               id: confirmedTradeId,
             }),
           )
+          if (swapperTxId || swapperTxLink) {
+            if (swapperTxId) txHashReceived = true
+            dispatch(
+              tradeQuoteSlice.actions.setSwapperTxDetails({
+                hopIndex,
+                swapperTxId,
+                swapperTxLink,
+                id: confirmedTradeId,
+              }),
+            )
+          }
           if (buyTxHash) {
             txHashReceived = true
             dispatch(

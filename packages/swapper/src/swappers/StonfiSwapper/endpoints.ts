@@ -6,6 +6,7 @@ import type { SwapperApi, TradeStatus } from '../../types'
 import {
   createDefaultStatusResponse,
   getExecutableTradeStep,
+  getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
@@ -125,17 +126,12 @@ export const stonfiApi: SwapperApi = {
       }
     }
 
-    const stonfiMetadata =
-      swap.metadata.swapperMetadata?.name === 'stonfi' ? swap.metadata.swapperMetadata : undefined
-
-    if (!stonfiMetadata?.quoteId) {
-      return checkTxStatusViaChainAdapter()
-    }
+    const { quoteId } = getSwapMetadata(swap.metadata.swapperMetadata, 'stonfi')
 
     try {
       const tradeStatus = await waitForFirstTradeStatus(
         {
-          quoteId: stonfiMetadata.quoteId,
+          quoteId,
           traderWalletAddress: {
             blockchain: Blockchain.TON,
             address: swap.sellAccountId.split(':')[2] ?? '',

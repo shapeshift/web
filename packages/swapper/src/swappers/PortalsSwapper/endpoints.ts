@@ -85,7 +85,7 @@ export const portalsApi: SwapperApi = {
         return {
           status: squidTxStatus,
           buyTxHash: squidStatus.destinationTxHash,
-          relayerExplorerTxLink: getSquidTrackingLink(
+          swapperTxLink: getSquidTrackingLink(
             txHash,
             squidStatus,
             swap.sellAsset.explorerTxLink,
@@ -98,7 +98,7 @@ export const portalsApi: SwapperApi = {
       return {
         status: TxStatus.Pending,
         buyTxHash: undefined,
-        relayerExplorerTxLink: getAxelarscanTrackingLink(txHash),
+        swapperTxLink: getAxelarscanTrackingLink(txHash),
         message: 'Bridge status check failed - track manually',
       }
     }
@@ -127,7 +127,7 @@ export const portalsApi: SwapperApi = {
     return {
       status: txStatus,
       buyTxHash: bridgeStatus.destinationTxHash,
-      relayerExplorerTxLink: getAxelarscanTrackingLink(txHash),
+      swapperTxLink: getAxelarscanTrackingLink(txHash),
       message:
         txStatus === TxStatus.Pending
           ? 'Bridge in progress'

@@ -65,7 +65,7 @@ export const useTradeButtonProps = ({
     allowanceApproval,
     allowanceReset,
     state: hopExecutionState,
-    swap: { state: swapTxState, relayerExplorerTxLink, relayerTxHash },
+    swap: { state: swapTxState },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
   const {
@@ -119,8 +119,6 @@ export const useTradeButtonProps = ({
       metadata: buildSwapMetadata(firstStep, {
         stepIndex: currentHopIndex,
         quoteId: activeQuote.id,
-        relayerTxHash,
-        relayerExplorerTxLink,
       }),
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
@@ -136,8 +134,6 @@ export const useTradeButtonProps = ({
     currentHopIndex,
     buyAccountId,
     sellAccountId,
-    relayerExplorerTxLink,
-    relayerTxHash,
   ])
 
   const executeTrade = useTradeExecution(currentHopIndex, activeTradeId, onSwapTxBroadcast)

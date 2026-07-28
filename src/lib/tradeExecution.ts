@@ -6,7 +6,6 @@ import type {
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
   NearTransactionExecutionInput,
-  RelayerTxDetailsArgs,
   SellTxHashArgs,
   SolanaMessageExecutionInput,
   SolanaTransactionExecutionInput,
@@ -85,38 +84,32 @@ export const fetchTradeStatus = async ({
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
-  const {
-    status,
-    message,
-    buyTxHash,
-    relayerTxHash,
-    relayerExplorerTxLink,
-    actualBuyAmountCryptoBaseUnit,
-  } = await swapper.checkTradeStatus({
-    txHash: sellTxHash,
-    chainId: sellAssetChainId,
-    address,
-    swap,
-    stepIndex,
-    config: getConfig(),
-    assertGetEvmChainAdapter,
-    assertGetUtxoChainAdapter,
-    assertGetCosmosSdkChainAdapter,
-    assertGetSolanaChainAdapter,
-    assertGetTonChainAdapter,
-    assertGetTronChainAdapter,
-    assertGetSuiChainAdapter,
-    assertGetNearChainAdapter,
-    assertGetStarknetChainAdapter,
-    fetchIsSmartContractAddressQuery,
-  })
+  const { status, message, buyTxHash, swapperTxId, swapperTxLink, actualBuyAmountCryptoBaseUnit } =
+    await swapper.checkTradeStatus({
+      txHash: sellTxHash,
+      chainId: sellAssetChainId,
+      address,
+      swap,
+      stepIndex,
+      config: getConfig(),
+      assertGetEvmChainAdapter,
+      assertGetUtxoChainAdapter,
+      assertGetCosmosSdkChainAdapter,
+      assertGetSolanaChainAdapter,
+      assertGetTonChainAdapter,
+      assertGetTronChainAdapter,
+      assertGetSuiChainAdapter,
+      assertGetNearChainAdapter,
+      assertGetStarknetChainAdapter,
+      fetchIsSmartContractAddressQuery,
+    })
 
   return {
     status,
     message,
     buyTxHash,
-    relayerTxHash,
-    relayerExplorerTxLink,
+    swapperTxId,
+    swapperTxLink,
     actualBuyAmountCryptoBaseUnit,
   }
 }
@@ -199,8 +192,6 @@ export class TradeExecution {
           ? buildSwapMetadata(firstStep, {
               stepIndex,
               quoteId: swap.metadata.quoteId,
-              relayerTxHash: swap.metadata.relayerTxHash,
-              relayerExplorerTxLink: swap.metadata.relayerExplorerTxLink,
               streamingSwapMetadata: swap.metadata.streamingSwapMetadata,
             })
           : swap.metadata,
@@ -262,8 +253,8 @@ export class TradeExecution {
             status,
             message,
             buyTxHash,
-            relayerTxHash,
-            relayerExplorerTxLink,
+            swapperTxId,
+            swapperTxLink,
             actualBuyAmountCryptoBaseUnit,
           } = await queryClient.fetchQuery({
             queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
@@ -281,27 +272,13 @@ export class TradeExecution {
             gcTime: this.pollInterval,
           })
 
-          // Emit RelayerTxHash event when relayerTxHash becomes available
-          if (
-            relayerTxHash &&
-            relayerExplorerTxLink &&
-            !updatedSwap.metadata.relayerTxHash &&
-            !updatedSwap.metadata.relayerExplorerTxLink
-          ) {
-            const relayerTxDetailsArgs: RelayerTxDetailsArgs = {
-              stepIndex,
-              relayerTxHash,
-              relayerExplorerTxLink,
-            }
-            this.emitter.emit(TradeExecutionEvent.RelayerTxHash, relayerTxDetailsArgs)
-          }
-
           const payload: StatusArgs = {
             stepIndex,
             status,
             message,
             buyTxHash,
-            relayerTxHash,
+            swapperTxId,
+            swapperTxLink,
             actualBuyAmountCryptoBaseUnit,
           }
           this.emitter.emit(TradeExecutionEvent.Status, payload)

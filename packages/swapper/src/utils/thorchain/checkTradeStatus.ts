@@ -1,6 +1,7 @@
 import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/unchained-client'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { mayachain, thorchain } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import type { CheckTradeStatusInput, TradeStatus } from '../../types'
@@ -43,6 +44,11 @@ export const checkTradeStatus = async ({
       txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
+    const swapperTxId = txHash.replace(/^0x/, '')
+    const nativeExplorerTxLink =
+      nativeChain === 'THOR' ? thorchain.explorerTxLink : mayachain.explorerTxLink
+    const swapperTxLink = `${nativeExplorerTxLink}${swapperTxId}`
+
     // check for native chain tx errors
     if (
       (chainId === thorchainChainId && nativeChain === 'THOR') ||
@@ -54,6 +60,8 @@ export const checkTradeStatus = async ({
         return {
           status: TxStatus.Failed,
           buyTxHash: undefined,
+          swapperTxId,
+          swapperTxLink,
           message: tx.events[0].error.message,
         }
       }
@@ -67,7 +75,13 @@ export const checkTradeStatus = async ({
 
     // We care about txStatusData errors because it drives all of the status logic.
     if ('error' in txStatusData) {
-      return { buyTxHash: undefined, status: TxStatus.Unknown, message: undefined }
+      return {
+        buyTxHash: undefined,
+        status: TxStatus.Unknown,
+        swapperTxId,
+        swapperTxLink,
+        message: undefined,
+      }
     }
 
     // We use planned_out_txs to determine the number of out txs because we don't want to derive
@@ -81,19 +95,25 @@ export const checkTradeStatus = async ({
     const hasOutboundNativeTx = lastOutTx !== undefined && lastOutTx.chain === nativeChain
 
     if (txStatusData.planned_out_txs?.some(plannedOutTx => plannedOutTx.refund)) {
-      return { buyTxHash, status: TxStatus.Failed, message: undefined }
+      return { buyTxHash, status: TxStatus.Failed, swapperTxId, swapperTxLink, message: undefined }
     }
 
     // We consider the transaction confirmed as soon as we have a buyTxHash
     // For UTXOs, this means that the swap will be confirmed as soon as Txs hit the mempool
     // Which is actually correct, as we update UTXO balances optimistically
     if (!('error' in txData) && buyTxHash && (hasOutboundL1Tx || hasOutboundNativeTx)) {
-      return { buyTxHash, status: TxStatus.Confirmed, message: undefined }
+      return {
+        buyTxHash,
+        status: TxStatus.Confirmed,
+        swapperTxId,
+        swapperTxLink,
+        message: undefined,
+      }
     }
 
     const message = getLatestThorTxStatusMessage(txStatusData, hasOutboundL1Tx)
 
-    return { buyTxHash, status: TxStatus.Pending, message }
+    return { buyTxHash, status: TxStatus.Pending, swapperTxId, swapperTxLink, message }
   } catch (e) {
     const message = (() => {
       if (axios.isAxiosError(e)) return e.response?.data?.message ?? e.message

@@ -508,7 +508,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
           value: input.value,
         }))
 
-      const serializedTx = await this.buildEstimationSerializedTx(input, estimationInstructions)
+      const { serializedTx, numRequiredSignatures } = await this.buildEstimationSerializedTx(
+        input,
+        estimationInstructions,
+      )
+
       const baseComputeUnits = await this.providers.http.estimateFees({
         estimateFeesBody: { serializedTx },
       })
@@ -517,33 +521,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
         : baseComputeUnits
 
-      // Pure SOL transfers (a bare transfer, no passed instructions) price compute only;
-      // everything else (SPL, Jupiter routes) adds the base fee per resolved instruction
+      // Base fee is charged per signature; the priority fee (price x compute unit limit) only
+      // applies when a compute budget is set - pure SOL transfers broadcast without one
       const isPureSolTransfer = !tokenId && (!instructions || instructions.length === 0)
-      const instructionCount = isPureSolTransfer ? 0 : estimationInstructions.length
+      const baseFeeCryptoBaseUnit = bnOrZero(baseFee).times(numRequiredSignatures)
+
+      const txFee = (priorityFee: string) =>
+        isPureSolTransfer
+          ? baseFeeCryptoBaseUnit.toFixed()
+          : bn(microLamportsToLamports(priorityFee))
+              .times(computeUnits)
+              .plus(baseFeeCryptoBaseUnit)
+              .toFixed()
 
       return {
-        fast: {
-          txFee: bn(microLamportsToLamports(fast))
-            .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionCount))
-            .toFixed(),
-          chainSpecific: { computeUnits, priorityFee: fast },
-        },
-        average: {
-          txFee: bn(microLamportsToLamports(average))
-            .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionCount))
-            .toFixed(),
-          chainSpecific: { computeUnits, priorityFee: average },
-        },
-        slow: {
-          txFee: bn(microLamportsToLamports(slow))
-            .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionCount))
-            .toFixed(),
-          chainSpecific: { computeUnits, priorityFee: slow },
-        },
+        fast: { txFee: txFee(fast), chainSpecific: { computeUnits, priorityFee: fast } },
+        average: { txFee: txFee(average), chainSpecific: { computeUnits, priorityFee: average } },
+        slow: { txFee: txFee(slow), chainSpecific: { computeUnits, priorityFee: slow } },
       }
     } catch (err) {
       return ErrorHandler(err, {
@@ -598,7 +592,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   private async buildEstimationSerializedTx(
     input: GetFeeDataInput<KnownChainIds.SolanaMainnet>,
     estimationInstructions: TransactionInstruction[],
-  ): Promise<string> {
+  ): Promise<{ serializedTx: string; numRequiredSignatures: number }> {
     const { chainSpecific } = input
 
     const addressLookupTableAccounts = await this.getSolanaAddressLookupTableAccountsInfo(
@@ -617,7 +611,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     const transaction = new VersionedTransaction(message)
 
-    return Buffer.from(transaction.serialize()).toString('base64')
+    return {
+      serializedTx: Buffer.from(transaction.serialize()).toString('base64'),
+      numRequiredSignatures: message.header.numRequiredSignatures,
+    }
   }
 
   private async buildTokenTransferInstructions({

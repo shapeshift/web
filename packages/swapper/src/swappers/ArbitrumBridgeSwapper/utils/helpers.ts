@@ -122,14 +122,22 @@ export const assertValidTrade = async ({
 
     // Since our related assets list isn't exhaustive and won't cut it to determine the Parent <-> Child mapping, we double check that the bridge is valid
     // by checking against Arbitrum bridge's own mappings, which uses different sources (Coingecko, Gemini, Uni and its own lists at the time of writing)
-    const arbitrumBridgeErc20ChildAddress = await bridger.getChildErc20Address(
-      erc20ParentAddress,
-      parentProvider,
-    )
-    const arbitrumBridgeErc20ParentAddress = await bridger.getParentErc20Address(
-      erc20ChildAddress,
-      childProvider,
-    )
+    // Tokens that aren't gateway-registered revert these lookups (e.g. native circle USDC has no
+    // l1Address()) - the bridge can't move them, so a lookup failure is an unsupported pair
+    const [arbitrumBridgeErc20ChildAddress, arbitrumBridgeErc20ParentAddress] = await Promise.all([
+      bridger.getChildErc20Address(erc20ParentAddress, parentProvider),
+      bridger.getParentErc20Address(erc20ChildAddress, childProvider),
+    ]).catch(() => [undefined, undefined])
+
+    if (!arbitrumBridgeErc20ChildAddress || !arbitrumBridgeErc20ParentAddress) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[ArbitrumBridge: tradeQuote] - Token is not registered with the arbitrum bridge`,
+          code: TradeQuoteError.UnsupportedTradePair,
+          details: { buyAsset, sellAsset },
+        }),
+      )
+    }
 
     if (
       !isAddressEqual(getAddress(arbitrumBridgeErc20ParentAddress), getAddress(erc20ParentAddress))

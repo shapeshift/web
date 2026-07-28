@@ -21,7 +21,8 @@ import { TradeQuoteError } from '../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../evm'
 import { isNativeEvmAsset } from '../helpers'
-import { getSolanaNetworkFeeCryptoBaseUnit } from '../solana'
+import type { SolanaComputeBudgetOptions } from '../solana'
+import { withComputeUnitLimit, getSolanaNetworkFeeCryptoBaseUnit } from '../solana'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../utxo'
 import { getThorRouterAndVault, getThorTxData } from './getThorTxData'
 import { depositWithExpiry, swapIn } from './routerCallData/routerCalldata'
@@ -29,6 +30,10 @@ import { TradeType } from './types'
 
 // depositWithExpiry() measured at 44k (native) / 74k (erc20) on mainnet
 const SAFE_GAS_LIMIT = '100000'
+
+// The deposit is a fixed transfer (150 CU) + memo (~370 CU/byte, 20k-45k measured on mainnet),
+// so the estimate is exact and the margin is safety only
+export const THOR_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = { marginMultiplier: 1.1 }
 
 // swapIn() bundles a uniswap v3 swap ahead of the deposit, measured at 206k-222k on mainnet across
 // usdc/usdt/link/uni/wbtc and both the 0.05% and 0.3% pools
@@ -287,15 +292,21 @@ export async function getThorStepData({
 
         const instructions = await buildInstructions(from, sellAmountCryptoBaseUnit)
 
-        const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
-          adapter,
-          from,
-          instructions,
-        })
+        const { networkFeeCryptoBaseUnit, feeData, includeComputeBudget } =
+          await getSolanaNetworkFeeCryptoBaseUnit({
+            adapter,
+            from,
+            instructions,
+          })
 
         const transactionData: TxBuildData = {
           type: 'solana',
-          instructions,
+          instructions: withComputeUnitLimit({
+            instructions,
+            computeUnits: feeData.chainSpecific.computeUnits,
+            includeComputeBudget,
+            computeBudget: THOR_SOLANA_COMPUTE_BUDGET,
+          }),
           addressLookupTableAddresses: [],
         }
 

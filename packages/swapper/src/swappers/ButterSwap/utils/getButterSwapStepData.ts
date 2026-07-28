@@ -19,13 +19,21 @@ import {
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
+  withComputeUnitLimit,
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
 } from '../../../utils/solana'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 import type { BuildTxSuccessItem, ButterSwapTransactionMetadata, RouteSuccessItem } from '../types'
 import { getProviderNetworkFeeCryptoBaseUnit } from './helpers'
+
+// Jupiter swap legs can consume more units than simulated when pool state moves between
+// simulation and landing (CLMM tick crossings), 1.4 matches Jupiter's dynamicComputeUnitLimit margin
+export const BUTTERSWAP_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = {
+  marginMultiplier: 1.4,
+}
 
 type BaseArgs = {
   route: RouteSuccessItem
@@ -214,19 +222,25 @@ export async function getButterSwapStepData(
             .instructions,
         )
 
-        const transactionData: TxBuildData = {
-          type: 'solana',
-          instructions,
-          addressLookupTableAddresses,
-        }
-
         try {
-          const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
-            adapter,
-            from,
-            instructions,
+          const { networkFeeCryptoBaseUnit, feeData, includeComputeBudget } =
+            await getSolanaNetworkFeeCryptoBaseUnit({
+              adapter,
+              from,
+              instructions,
+              addressLookupTableAddresses,
+            })
+
+          const transactionData: TxBuildData = {
+            type: 'solana',
+            instructions: withComputeUnitLimit({
+              instructions,
+              computeUnits: feeData.chainSpecific.computeUnits,
+              includeComputeBudget,
+              computeBudget: BUTTERSWAP_SOLANA_COMPUTE_BUDGET,
+            }),
             addressLookupTableAddresses,
-          })
+          }
 
           const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
 

@@ -4,7 +4,6 @@ import type { SwapperApi } from '../../types'
 import { checkSafeTransactionStatus, getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getSolanaTransactionFees } from '../../utils/solana/getSolanaTransactionFees'
-import type { SolanaComputeBudgetOptions } from '../../utils/solana/getUnsignedSolanaTransaction'
 import { getUnsignedSolanaTransaction } from '../../utils/solana/getUnsignedSolanaTransaction'
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
@@ -19,10 +18,6 @@ import type { RelayStatus, RelayTradeQuoteInput, RelayTradeRateInput } from './u
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
 
-// Bridge-out deposits measure constant compute consumption, but same-chain routes swap through
-// Jupiter where pool state moving between simulation and landing (CLMM tick crossings) measured
-// ~4% drift on a live route; 1.4 matches Jupiter's dynamicComputeUnitLimit margin
-const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.4 }
 
 export const relayApi: SwapperApi = {
   getTradeQuote: (input, deps) => {
@@ -35,12 +30,8 @@ export const relayApi: SwapperApi = {
   getUnsignedEvmTransaction,
   getUnsignedUtxoTransaction,
   getUtxoTransactionFees,
-  getSolanaTransactionFees: input => {
-    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
-  },
-  getUnsignedSolanaTransaction: input => {
-    return getUnsignedSolanaTransaction(input, { computeBudget: solanaComputeBudget })
-  },
+  getSolanaTransactionFees,
+  getUnsignedSolanaTransaction,
   getTronTransactionFees,
   getUnsignedTronTransaction,
   checkTradeStatus: async ({

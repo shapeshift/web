@@ -14,7 +14,6 @@ import {
   isExecutableTradeQuote,
 } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import type { SolanaComputeBudgetOptions } from '../../utils/solana'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
@@ -24,14 +23,6 @@ import type { NearIntentsTradeQuoteInput, NearIntentsTradeRateInput } from './ty
 import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers'
 import { initializeOneClickService, OneClickService } from './utils/oneClickService'
 
-// Deposits are plain (token) transfers with constant measured compute consumption (max 15394 CU
-// with ata creation), so the margin is safety only; the floor guarantees the limit covers full
-// ata recreation if the deposit ata is closed between simulation and landing (a no-op create
-// simulates ~3x cheaper than a real one)
-const solanaComputeBudget: SolanaComputeBudgetOptions = {
-  marginMultiplier: 1.1,
-  minComputeUnits: 20_000,
-}
 
 export const nearIntentsApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as NearIntentsTradeQuoteInput, deps),
@@ -40,12 +31,8 @@ export const nearIntentsApi: SwapperApi = {
   getEvmTransactionFees,
   getUnsignedUtxoTransaction,
   getUtxoTransactionFees,
-  getUnsignedSolanaTransaction: input => {
-    return getUnsignedSolanaTransaction(input, { computeBudget: solanaComputeBudget })
-  },
-  getSolanaTransactionFees: input => {
-    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
-  },
+  getUnsignedSolanaTransaction,
+  getSolanaTransactionFees,
 
   getUnsignedTronTransaction,
   getTronTransactionFees,

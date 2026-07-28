@@ -487,6 +487,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
+  getPriorityFees() {
+    return this.providers.http.getPriorityFees()
+  }
+
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.SolanaMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.SolanaMainnet>> {

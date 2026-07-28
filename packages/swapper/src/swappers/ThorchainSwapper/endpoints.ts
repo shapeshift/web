@@ -2,7 +2,6 @@ import type { SwapperApi } from '../../types'
 import { SwapperName } from '../../types'
 import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '../../utils/cosmossdk'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import type { SolanaComputeBudgetOptions } from '../../utils/solana'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
 import type { ThorTradeQuoteInput, ThorTradeRateInput } from '../../utils/thorchain'
 import { checkTradeStatus, tron } from '../../utils/thorchain'
@@ -12,9 +11,6 @@ import { getTradeRate } from './getTradeRate/getTradeRate'
 
 const swapperName = SwapperName.Thorchain
 
-// The deposit is a fixed transfer (150 CU) + memo (~370 CU/byte, 20k-45k measured on mainnet) and
-// execution re-simulates the same instructions, so the estimate is exact and the margin is safety only
-const solanaComputeBudget: SolanaComputeBudgetOptions = { marginMultiplier: 1.1 }
 
 export const thorchainApi: SwapperApi = {
   getTradeRate: (input, deps) => getTradeRate(input as ThorTradeRateInput, deps),
@@ -25,12 +21,8 @@ export const thorchainApi: SwapperApi = {
   getUtxoTransactionFees,
   getUnsignedCosmosSdkTransaction,
   getCosmosSdkTransactionFees,
-  getUnsignedSolanaTransaction: input => {
-    return getUnsignedSolanaTransaction(input, { computeBudget: solanaComputeBudget })
-  },
-  getSolanaTransactionFees: input => {
-    return getSolanaTransactionFees(input, { computeBudget: solanaComputeBudget })
-  },
+  getUnsignedSolanaTransaction,
+  getSolanaTransactionFees,
   getUnsignedTronTransaction: input => tron.getUnsignedTronTransaction(input, swapperName),
   getTronTransactionFees: input => tron.getTronTransactionFees(input, swapperName),
   checkTradeStatus: input => {

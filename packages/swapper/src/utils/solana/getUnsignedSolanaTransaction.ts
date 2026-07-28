@@ -1,34 +1,22 @@
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import { bnOrZero } from '@shapeshiftoss/utils'
-import BigNumber from 'bignumber.js'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../../types'
+import { isComputeBudgetInstruction } from './computeBudgetInstructions'
 import { getSolanaExecutionContext } from './getSolanaExecutionContext'
 
-export type SolanaComputeBudgetOptions = {
-  marginMultiplier?: number
-  minComputeUnits?: number
-}
-
-type SolanaTransactionOptions = {
-  computeBudget?: SolanaComputeBudgetOptions
-}
-
+// Quote instructions carry the static compute unit limit - only the dynamic priority fee is
+// fetched here, mirroring evm's quote-time gas limit + execution-time gas price split
 export const getUnsignedSolanaTransaction = async (
   args: GetUnsignedSolanaTransactionArgs,
-  { computeBudget = {} }: SolanaTransactionOptions = {},
 ): Promise<SolanaSignTx> => {
-  const { step, adapter, feeData, transactionData, instructions, includeComputeBudget } =
-    await getSolanaExecutionContext(args)
+  const { step, adapter, transactionData } = getSolanaExecutionContext(args)
 
   const { accountNumber } = step
-  const { addressLookupTableAddresses } = transactionData
-  const { marginMultiplier, minComputeUnits } = computeBudget
+  const { instructions, addressLookupTableAddresses } = transactionData
 
-  const computeUnitLimit = BigNumber.max(
-    bnOrZero(feeData.chainSpecific.computeUnits),
-    minComputeUnits ?? 0,
-  )
+  // Plain native transfers carry no compute budget and broadcast without one
+  const includeComputeBudget = instructions.some(isComputeBudgetInstruction)
+  const priorityFees = includeComputeBudget ? await adapter.getPriorityFees() : undefined
 
   return adapter.buildSendApiTransaction({
     from: args.from,
@@ -38,10 +26,7 @@ export const getUnsignedSolanaTransaction = async (
     chainSpecific: {
       addressLookupTableAccounts: addressLookupTableAddresses,
       instructions: instructions.map(instruction => adapter.convertInstruction(instruction)),
-      ...(includeComputeBudget && {
-        computeUnitLimit: computeUnitLimit.times(marginMultiplier ?? 1).toFixed(0),
-        computeUnitPrice: feeData.chainSpecific.priorityFee,
-      }),
+      ...(priorityFees && { computeUnitPrice: priorityFees.fast }),
     },
   })
 }

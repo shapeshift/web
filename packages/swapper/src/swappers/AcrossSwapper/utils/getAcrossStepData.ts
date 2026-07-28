@@ -17,11 +17,17 @@ import {
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
+  withComputeUnitLimit,
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
 } from '../../../utils/solana'
 import type { AcrossSwapTx } from './types'
+
+// Solana-origin routes are CCTP-only (no swap legs) with constant measured compute
+// consumption, so the margin is safety only
+export const ACROSS_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = { marginMultiplier: 1.1 }
 
 type BaseArgs = {
   swapTx: AcrossSwapTx
@@ -143,20 +149,26 @@ export async function getAcrossStepData(
           return Ok(stepData)
         }
 
-        const transactionData: TxBuildData = {
-          type: 'solana',
-          instructions,
-          addressLookupTableAddresses,
-        }
-
         try {
-          const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
-            adapter,
-            from,
-            instructions,
+          const { networkFeeCryptoBaseUnit, feeData, includeComputeBudget } =
+            await getSolanaNetworkFeeCryptoBaseUnit({
+              adapter,
+              from,
+              instructions,
+              addressLookupTableAddresses,
+              tokenId: contractAddressOrUndefined(sellAsset.assetId),
+            })
+
+          const transactionData: TxBuildData = {
+            type: 'solana',
+            instructions: withComputeUnitLimit({
+              instructions,
+              computeUnits: feeData.chainSpecific.computeUnits,
+              includeComputeBudget,
+              computeBudget: ACROSS_SOLANA_COMPUTE_BUDGET,
+            }),
             addressLookupTableAddresses,
-            tokenId: contractAddressOrUndefined(sellAsset.assetId),
-          })
+          }
 
           const stepData: AcrossQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
 

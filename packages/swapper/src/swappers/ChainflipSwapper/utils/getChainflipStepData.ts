@@ -9,14 +9,25 @@ import { TradeQuoteError } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import { isNativeEvmAsset } from '../../../utils/helpers'
+import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
   ATA_RENT_LAMPORTS,
+  withComputeUnitLimit,
   getSolanaNetworkFeeCryptoBaseUnit,
   SOLANA_PLACEHOLDER_ADDRESS,
 } from '../../../utils/solana'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 
 const SAFE_GAS_LIMIT = '100000'
+
+// Deposits are plain (token) transfers with constant measured compute consumption (max 15394 CU
+// with ata creation), so the margin is safety only; the floor guarantees the limit covers full
+// ata recreation if the deposit ata is closed between simulation and landing (a no-op create
+// simulates ~3x cheaper than a real one)
+export const CHAINFLIP_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = {
+  marginMultiplier: 1.1,
+  minComputeUnits: 20_000,
+}
 
 type BaseArgs = {
   sellAmountCryptoBaseUnit: string
@@ -168,18 +179,24 @@ export async function getChainflipStepData(
           value: sellAmountCryptoBaseUnit,
         })
 
+        const { networkFeeCryptoBaseUnit, feeData, includeComputeBudget } =
+          await getSolanaNetworkFeeCryptoBaseUnit({
+            adapter,
+            from,
+            instructions,
+            tokenId,
+          })
+
         const transactionData: TxBuildData = {
           type: 'solana',
-          instructions,
+          instructions: withComputeUnitLimit({
+            instructions,
+            computeUnits: feeData.chainSpecific.computeUnits,
+            includeComputeBudget,
+            computeBudget: CHAINFLIP_SOLANA_COMPUTE_BUDGET,
+          }),
           addressLookupTableAddresses: [],
         }
-
-        const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
-          adapter,
-          from,
-          instructions,
-          tokenId,
-        })
 
         const stepData: ChainflipQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
 

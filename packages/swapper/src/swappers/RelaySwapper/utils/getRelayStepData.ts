@@ -8,7 +8,9 @@ import { getAddress } from 'viem'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeTradeStepBuildFailedErr } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
+  withComputeUnitLimit,
   getSolanaNetworkFeeCryptoBaseUnit,
   omitComputeBudgetInstructions,
 } from '../../../utils/solana'
@@ -23,6 +25,11 @@ import {
   isRelayQuoteTronItemData,
   isRelayQuoteUtxoItemData,
 } from './types'
+
+// Bridge-out deposits measure constant compute consumption, but same-chain routes swap through
+// Jupiter where pool state moving between simulation and landing (CLMM tick crossings) measured
+// ~4% drift on a live route; 1.4 matches Jupiter's dynamicComputeUnitLimit margin
+export const RELAY_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = { marginMultiplier: 1.4 }
 
 type BaseArgs = {
   data: RelayQuoteItem['data']
@@ -224,16 +231,26 @@ export async function getRelayStepData({
     }
 
     try {
-      const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
-        adapter,
-        from,
-        instructions,
-        addressLookupTableAddresses,
-        tokenId: contractAddressOrUndefined(sellAsset.assetId),
-      })
+      const { networkFeeCryptoBaseUnit, feeData, includeComputeBudget } =
+        await getSolanaNetworkFeeCryptoBaseUnit({
+          adapter,
+          from,
+          instructions,
+          addressLookupTableAddresses,
+          tokenId: contractAddressOrUndefined(sellAsset.assetId),
+        })
 
       const stepData: RelayQuoteStepData = {
-        transactionData: { type: 'solana', instructions, addressLookupTableAddresses },
+        transactionData: {
+          type: 'solana',
+          instructions: withComputeUnitLimit({
+            instructions,
+            computeUnits: feeData.chainSpecific.computeUnits,
+            includeComputeBudget,
+            computeBudget: RELAY_SOLANA_COMPUTE_BUDGET,
+          }),
+          addressLookupTableAddresses,
+        },
         networkFeeCryptoBaseUnit,
       }
 

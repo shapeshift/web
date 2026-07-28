@@ -1,23 +1,21 @@
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../../types'
-import { calculateAccountCreationCosts } from './calculateAccountCreationCosts'
 import { getSolanaExecutionContext } from './getSolanaExecutionContext'
-import type { SolanaComputeBudgetOptions } from './getUnsignedSolanaTransaction'
-
-type SolanaTransactionFeesOptions = {
-  computeBudget?: SolanaComputeBudgetOptions
-}
+import { getSolanaNetworkFeeCryptoBaseUnit } from './getSolanaNetworkFeeCryptoBaseUnit'
 
 export const getSolanaTransactionFees = async (
   args: GetUnsignedSolanaTransactionArgs,
-  { computeBudget }: SolanaTransactionFeesOptions = {},
 ): Promise<string> => {
-  const { feeData, transactionData } = await getSolanaExecutionContext(args)
+  const { step, adapter, transactionData } = getSolanaExecutionContext(args)
 
-  // Rent for any token account creation in the instructions is part of what the payer spends
-  return bnOrZero(feeData.txFee)
-    .times(computeBudget?.marginMultiplier ?? 1)
-    .plus(calculateAccountCreationCosts(transactionData.instructions))
-    .toFixed(0)
+  const { networkFeeCryptoBaseUnit } = await getSolanaNetworkFeeCryptoBaseUnit({
+    adapter,
+    from: args.from,
+    instructions: transactionData.instructions,
+    addressLookupTableAddresses: transactionData.addressLookupTableAddresses,
+    tokenId: contractAddressOrUndefined(step.sellAsset.assetId),
+  })
+
+  return networkFeeCryptoBaseUnit
 }

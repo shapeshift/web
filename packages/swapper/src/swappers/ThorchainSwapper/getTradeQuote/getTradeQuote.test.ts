@@ -51,14 +51,6 @@ vi.mock('../../../utils/thorchain/service', () => {
   }
 })
 
-vi.mock('@/config', () => {
-  return {
-    getConfig: () => ({
-      VITE_THORCHAIN_NODE_URL: '',
-    }),
-  }
-})
-
 const THOR_VAULT = '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c'
 const SELL_AMOUNT = '713014679420'
 const EXPIRY = 1713710808

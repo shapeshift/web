@@ -80,11 +80,20 @@ describe('getTradeQuote', () => {
 
     expect(result.isOk()).toBe(true)
     const tradeQuote = result.unwrap()
-    // Use the actual returned value for the expected rate
-    expect(tradeQuote[0].rate).toBe('2296.409699')
-    // 1 WETH in base units
-    expect(tradeQuote[0].steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
-      '1000000000000000000',
+
+    // The built swap tx is what distinguishes a quote from a rate - see
+    // getButterSwapStepData.test.ts for the per-namespace build and fee behaviour
+    expect(tradeQuote[0].steps[0].transactionData).toEqual({
+      type: 'evm',
+      chainId: 1,
+      to: '0xContractAddress',
+      data: '0xCalldata',
+      value: '0',
+      gasLimit: '1159118',
+    })
+    // The route contract, since this is not the tron path that spends via the buildTx target
+    expect(tradeQuote[0].steps[0].allowanceContract).toBe(
+      '0xEE030ec6F4307411607E55aCD08e628Ae6655B86',
     )
   })
 })

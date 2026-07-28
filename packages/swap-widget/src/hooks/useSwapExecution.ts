@@ -1,3 +1,4 @@
+import type { AddressLookupTableAccount } from '@solana/web3.js'
 import { useEffect, useRef } from 'react'
 import type { Hex, WalletClient } from 'viem'
 import { getAddress } from 'viem'
@@ -75,7 +76,6 @@ const executeSolana = async (
   solana.reset()
 
   const {
-    AddressLookupTableAccount,
     ComputeBudgetProgram,
     PublicKey,
     TransactionInstruction,
@@ -99,7 +99,7 @@ const executeSolana = async (
     getLatestBlockhash: (commitment: string) => Promise<{ blockhash: string }>
     getAddressLookupTable: (
       key: InstanceType<typeof PublicKey>,
-    ) => Promise<{ value: InstanceType<typeof AddressLookupTableAccount> | null }>
+    ) => Promise<{ value: AddressLookupTableAccount | null }>
     getRecentPrioritizationFees: () => Promise<{ prioritizationFee: number }[]>
   }
 
@@ -130,7 +130,7 @@ const executeSolana = async (
         return value
       }),
     )
-  ).filter((account): account is InstanceType<typeof AddressLookupTableAccount> => account !== null)
+  ).filter((account): account is AddressLookupTableAccount => account !== null)
 
   const { blockhash } = await conn.getLatestBlockhash('confirmed')
 

@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { CowSwapError, OrderQuoteResponse } from '@shapeshiftoss/types'
-import { OrderKind } from '@shapeshiftoss/types'
+import { OrderKind, PriceQuality } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -118,6 +118,9 @@ export const getCowSwapTradeContext = async ({
       from: senderAddress,
       kind: OrderKind.SELL,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      // Pinned so rates and quotes resolve against the same estimator set - left unset, CoW picks
+      // per-request and the fee swings enough to trip the rate-to-quote drop warning
+      priceQuality: PriceQuality.OPTIMAL,
     },
   )
 

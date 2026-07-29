@@ -5,13 +5,13 @@ import fs from 'fs'
 
 import type { AssetId } from '../../index'
 
-const writeFile = async (data: Record<AssetId, string>) => {
+const writeFile = async (data: Record<AssetId, string>): Promise<void> => {
   const path = './src/adapters/coinbase/generated/'
   const file = 'adapter.json'
   await fs.promises.writeFile(`${path}${file}`, JSON.stringify(data, null, 2))
 }
 
-export const writeFiles = async (data: Record<AssetId, string>) => {
+export const writeFiles = async (data: Record<AssetId, string>): Promise<void> => {
   await writeFile(data)
   console.info('Generated Coinbase AssetId adapter data.')
 }

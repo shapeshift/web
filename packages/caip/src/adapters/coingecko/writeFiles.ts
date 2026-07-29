@@ -5,9 +5,9 @@ import fs from 'fs'
 
 import type { AssetMap } from './utils'
 
-export const writeFiles = async (data: AssetMap) => {
+export const writeFiles = async (data: AssetMap): Promise<void> => {
   await Promise.all(
-    Object.entries(data).map(async ([chainId, assets]) => {
+    Object.entries(data).map(async ([chainId, assets]): Promise<void> => {
       const dirPath = `./src/adapters/coingecko/generated/${chainId}`.replace(':', '_')
       await fs.promises.mkdir(dirPath, { recursive: true })
       await fs.promises.writeFile(`${dirPath}/adapter.json`, JSON.stringify(assets))

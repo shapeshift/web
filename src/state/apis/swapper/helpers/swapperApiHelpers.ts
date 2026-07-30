@@ -1,3 +1,5 @@
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type {
   QuoteResult,
   RateResult,
@@ -8,6 +10,7 @@ import type {
   TradeRate,
 } from '@shapeshiftoss/swapper'
 import { getChainIdBySwapper, SwapperName, TradeType } from '@shapeshiftoss/swapper'
+import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import { validateTradeQuote } from './validateTradeQuote'
 
@@ -17,7 +20,7 @@ import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddr
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetEvmChainAdapter, getApproveContractData } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
@@ -26,6 +29,7 @@ import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
 import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { reactQueries } from '@/react-queries'
 import { getInboundAddressesQuery, getMimirQuery } from '@/react-queries/queries/thornode'
 import { selectInboundAddressData, selectIsTradingActive } from '@/react-queries/selectors'
 import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getInputOutputRatioFromQuote'
@@ -152,6 +156,62 @@ type CreateApiQuoteParams = {
   quoteOrRate: 'quote' | 'rate'
 }
 
+const getFirstHopApprovalNetworkFeeCryptoBaseUnit = async (
+  quote: TradeQuote | TradeRate | undefined,
+  sendAddress: string | undefined,
+): Promise<string | undefined> => {
+  try {
+    if (!quote || !sendAddress) return
+
+    const firstHop = quote.steps[0]
+    const { allowanceContract, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = firstHop
+
+    if (!allowanceContract) return
+    if (fromAssetId(sellAsset.assetId).chainNamespace !== CHAIN_NAMESPACE.Evm) return
+
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    if (!contractAddress) return
+
+    const allowanceResult = await queryClient.fetchQuery({
+      ...reactQueries.common.allowanceCryptoBaseUnit(
+        sellAsset.assetId,
+        allowanceContract,
+        sendAddress,
+      ),
+      staleTime: 30_000,
+    })
+
+    if (allowanceResult.isErr()) return
+    if (bnOrZero(allowanceResult.unwrap()).gte(sellAmountIncludingProtocolFeesCryptoBaseUnit))
+      return
+
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
+    const data = getApproveContractData({
+      approvalAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      spender: allowanceContract,
+      to: contractAddress,
+      chainId: sellAsset.chainId,
+    })
+
+    // Legacy pricing - wallet EIP1559 support is unknown here, and the oracle's gasPrice is the
+    // effective base + tip an eip1559 tx pays anyway
+    const { networkFeeCryptoBaseUnit } = await evm.getFees({
+      adapter,
+      to: contractAddress,
+      data,
+      value: '0',
+      from: sendAddress,
+      supportsEIP1559: false,
+    })
+
+    return networkFeeCryptoBaseUnit
+  } catch {
+    // Validation degrades to the network-fee-only check when the allowance read or estimation fails
+    return
+  }
+}
+
 export const createApiQuote = async (
   quoteData: {
     quote: TradeQuote | TradeRate | undefined
@@ -175,6 +235,9 @@ export const createApiQuote = async (
     tradeType,
   )
 
+  const firstHopApprovalNetworkFeeCryptoBaseUnit =
+    await getFirstHopApprovalNetworkFeeCryptoBaseUnit(quote, params.sendAddress)
+
   const { errors, warnings } = validateTradeQuote(state, {
     swapperName,
     quote,
@@ -184,6 +247,7 @@ export const createApiQuote = async (
     sendAddress: params.sendAddress,
     inputSellAmountCryptoBaseUnit: params.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     quoteOrRate: params.quoteOrRate,
+    firstHopApprovalNetworkFeeCryptoBaseUnit,
   })
 
   return {

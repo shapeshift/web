@@ -54,6 +54,7 @@ export const validateTradeQuote = (
     sendAddress,
     inputSellAmountCryptoBaseUnit,
     quoteOrRate,
+    firstHopApprovalNetworkFeeCryptoBaseUnit,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | TradeRate | undefined
@@ -65,6 +66,7 @@ export const validateTradeQuote = (
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
     quoteOrRate: 'quote' | 'rate'
+    firstHopApprovalNetworkFeeCryptoBaseUnit?: string
   },
 ): {
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -215,6 +217,14 @@ export const validateTradeQuote = (
   const firstHopNetworkFeeCryptoPrecision =
     firstHopNetworkFeeCrypto?.toPrecision() ?? bn(0).toFixed()
 
+  const firstHopApprovalNetworkFeeCryptoPrecision =
+    firstHopSellFeeAsset && firstHopApprovalNetworkFeeCryptoBaseUnit
+      ? BigAmount.fromBaseUnit({
+          value: firstHopApprovalNetworkFeeCryptoBaseUnit,
+          precision: firstHopSellFeeAsset.precision,
+        }).toPrecision()
+      : bn(0).toFixed()
+
   const secondHopNetworkFeeCrypto =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
       ? BigAmount.fromBaseUnit({
@@ -235,6 +245,7 @@ export const validateTradeQuote = (
 
   const firstHopHasSufficientBalanceForGas = firstHopFeeAssetBalance
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
+    .minus(firstHopApprovalNetworkFeeCryptoPrecision ?? 0)
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 

@@ -25,6 +25,7 @@ export const getTradeRate = async (
     affiliateBps,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     receiveAddress,
+    sendAddress,
   } = input
 
   initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY)
@@ -39,10 +40,14 @@ export const getTradeRate = async (
     sellAmountCryptoBaseUnit: sellAmount,
     slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
     affiliateBps,
-    refundTo: 'check-price',
+    refundTo: sendAddress ?? 'check-price',
     recipient: receiveAddress ?? 'check-price',
-    refundType: QuoteRequest.refundType.INTENTS,
-    recipientType: QuoteRequest.recipientType.INTENTS,
+    refundType: sendAddress
+      ? QuoteRequest.refundType.ORIGIN_CHAIN
+      : QuoteRequest.refundType.INTENTS,
+    recipientType: sendAddress
+      ? QuoteRequest.recipientType.DESTINATION_CHAIN
+      : QuoteRequest.recipientType.INTENTS,
     deadline: getNearIntentsQuoteDeadline({ sellAsset, buyAsset }),
   })
 
@@ -58,6 +63,7 @@ export const getTradeRate = async (
     ...stepDataArgs,
     type: 'rate',
     input,
+    from: sendAddress,
   })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())

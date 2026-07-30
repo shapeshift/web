@@ -165,7 +165,9 @@ export async function getThorStepData({
             })
           })()
 
-          return Ok({ router, data, networkFeeCryptoBaseUnit })
+          const stepData: ThorRateStepData = { router, data, networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
         }
 
         const transactionData = buildTransactionData(memo)
@@ -178,7 +180,14 @@ export async function getThorStepData({
             supportsEIP1559,
           })
 
-          return Ok({ router, data, transactionData, networkFeeCryptoBaseUnit })
+          const stepData: ThorQuoteStepData = {
+            router,
+            data,
+            transactionData,
+            networkFeeCryptoBaseUnit,
+          }
+
+          return Ok(stepData)
         } catch (error) {
           return Err(makeNetworkFeeEstimationFailedErr('getThorStepData', error))
         }
@@ -199,12 +208,23 @@ export async function getThorStepData({
           opReturnData: type === 'quote' ? memo : rawMemo,
         })
 
-        const transactionData: TxBuildData | undefined = (() => {
-          if (type === 'rate') return
-          return { type: 'utxo', to: vault, opReturnData: memo, value: sellAmountCryptoBaseUnit }
-        })()
+        if (type === 'rate') {
+          const stepData: ThorRateStepData = { networkFeeCryptoBaseUnit }
 
-        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+          return Ok(stepData)
+        }
+
+        const stepData: ThorQuoteStepData = {
+          transactionData: {
+            type: 'utxo',
+            to: vault,
+            opReturnData: memo,
+            value: sellAmountCryptoBaseUnit,
+          },
+          networkFeeCryptoBaseUnit,
+        }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.CosmosSdk: {
         const adapter = deps.assertGetCosmosSdkChainAdapter(sellAsset.chainId)
@@ -213,7 +233,9 @@ export async function getThorStepData({
         const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
         if (type === 'rate') {
-          return Ok({ transactionData: undefined, networkFeeCryptoBaseUnit: fast.txFee })
+          const stepData: ThorRateStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+          return Ok(stepData)
         }
 
         if (vault) {
@@ -233,16 +255,19 @@ export async function getThorStepData({
             )
           }
 
-          const transactionData: TxBuildData = {
-            type: 'cosmossdk_msg_send',
-            chainId: sellAsset.chainId,
-            to: vault,
-            denom,
-            value: sellAmountCryptoBaseUnit,
-            memo,
+          const stepData: ThorQuoteStepData = {
+            transactionData: {
+              type: 'cosmossdk_msg_send',
+              chainId: sellAsset.chainId,
+              to: vault,
+              denom,
+              value: sellAmountCryptoBaseUnit,
+              memo,
+            },
+            networkFeeCryptoBaseUnit: fast.txFee,
           }
 
-          return Ok({ transactionData, networkFeeCryptoBaseUnit: fast.txFee })
+          return Ok(stepData)
         }
 
         // Native sells (no vault) are MsgDeposits; the coin must be explicit as the thorchain
@@ -264,15 +289,18 @@ export async function getThorStepData({
           )
         }
 
-        const transactionData: TxBuildData = {
-          type: 'cosmossdk_msg_deposit',
-          chainId: sellAsset.chainId,
-          value: sellAmountCryptoBaseUnit,
-          memo,
-          coin,
+        const stepData: ThorQuoteStepData = {
+          transactionData: {
+            type: 'cosmossdk_msg_deposit',
+            chainId: sellAsset.chainId,
+            value: sellAmountCryptoBaseUnit,
+            memo,
+            coin,
+          },
+          networkFeeCryptoBaseUnit: fast.txFee,
         }
 
-        return Ok({ transactionData, networkFeeCryptoBaseUnit: fast.txFee })
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Solana: {
         const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
@@ -302,7 +330,9 @@ export async function getThorStepData({
             instructions: await buildInstructions(address, value),
           })
 
-          return Ok({ networkFeeCryptoBaseUnit })
+          const stepData: ThorRateStepData = { networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
         }
 
         const instructions = await buildInstructions(from, sellAmountCryptoBaseUnit)
@@ -314,18 +344,21 @@ export async function getThorStepData({
             instructions,
           })
 
-        const transactionData: TxBuildData = {
-          type: 'solana_instructions',
-          instructions: withComputeUnitLimit({
-            instructions,
-            computeUnits: feeData.chainSpecific.computeUnits,
-            includeComputeBudget,
-            computeBudget: THOR_SOLANA_COMPUTE_BUDGET,
-          }),
-          addressLookupTableAddresses: [],
+        const stepData: ThorQuoteStepData = {
+          transactionData: {
+            type: 'solana_instructions',
+            instructions: withComputeUnitLimit({
+              instructions,
+              computeUnits: feeData.chainSpecific.computeUnits,
+              includeComputeBudget,
+              computeBudget: THOR_SOLANA_COMPUTE_BUDGET,
+            }),
+            addressLookupTableAddresses: [],
+          },
+          networkFeeCryptoBaseUnit,
         }
 
-        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Tron: {
         const { vault } = await getThorTxData({ sellAsset, config, swapperName })
@@ -385,7 +418,16 @@ export async function getThorStepData({
           }
         })()
 
-        return Ok({ networkFeeCryptoBaseUnit })
+        if (type === 'rate') {
+          const stepData: ThorRateStepData = { networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
+        }
+
+        // Un-migrated - exec builds its tx from the inbound address, so no transactionData is carried
+        const stepData: ThorQuoteStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       }
       default:
         return Err(

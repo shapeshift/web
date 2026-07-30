@@ -91,7 +91,11 @@ export async function getNearIntentsStepData(
             },
           )
 
-          if (!simulationResult.success) return Ok({ networkFeeCryptoBaseUnit: '0' })
+          if (!simulationResult.success) {
+            const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: '0' }
+
+            return Ok(stepData)
+          }
 
           const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
             adapter,
@@ -99,7 +103,9 @@ export async function getNearIntentsStepData(
             gasLimit: simulationResult.gasLimit.toString(),
           })
 
-          return Ok({ networkFeeCryptoBaseUnit })
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
         }
 
         const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
@@ -109,9 +115,15 @@ export async function getNearIntentsStepData(
           supportsEIP1559,
         })
 
-        if (type === 'rate') return Ok({ networkFeeCryptoBaseUnit })
+        if (type === 'rate') {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
 
-        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+          return Ok(stepData)
+        }
+
+        const stepData: NearIntentsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Utxo: {
         const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
@@ -123,12 +135,18 @@ export async function getNearIntentsStepData(
           value: sellAmountCryptoBaseUnit,
         })
 
-        if (type === 'rate') return Ok({ networkFeeCryptoBaseUnit })
+        if (type === 'rate') {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
 
-        return Ok({
+          return Ok(stepData)
+        }
+
+        const stepData: NearIntentsQuoteStepData = {
           transactionData: { type: 'utxo', to: depositAddress, value: sellAmountCryptoBaseUnit },
           networkFeeCryptoBaseUnit,
-        })
+        }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Solana: {
         const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
@@ -158,11 +176,13 @@ export async function getNearIntentsStepData(
           // The walletless native shape can't include the deposit token account creation
           const ataCreationRent = !from && tokenId ? ATA_RENT_LAMPORTS : 0
 
-          return Ok({
+          const stepData: NearIntentsRateStepData = {
             networkFeeCryptoBaseUnit: bn(transactionFeeCryptoBaseUnit)
               .plus(ataCreationRent)
               .toString(),
-          })
+          }
+
+          return Ok(stepData)
         }
 
         const instructions = await adapter.buildTransferInstructions({
@@ -191,7 +211,9 @@ export async function getNearIntentsStepData(
           addressLookupTableAddresses: [],
         }
 
-        return Ok({ transactionData, networkFeeCryptoBaseUnit })
+        const stepData: NearIntentsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Tron: {
         const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
@@ -203,10 +225,16 @@ export async function getNearIntentsStepData(
           },
         })
 
-        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+        const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Sui: {
-        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
+        if (!from) {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
+
+          return Ok(stepData)
+        }
 
         const { fast } = await deps.assertGetSuiChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
@@ -218,10 +246,16 @@ export async function getNearIntentsStepData(
           sendMax: false,
         })
 
-        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+        const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Starknet: {
-        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
+        if (!from) {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
+
+          return Ok(stepData)
+        }
 
         const { fast } = await deps.assertGetStarknetChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
@@ -233,10 +267,16 @@ export async function getNearIntentsStepData(
           sendMax: false,
         })
 
-        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+        const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Near: {
-        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
+        if (!from) {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
+
+          return Ok(stepData)
+        }
 
         const { fast } = await deps.assertGetNearChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
@@ -244,10 +284,16 @@ export async function getNearIntentsStepData(
           chainSpecific: { from },
         })
 
-        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+        const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+        return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Ton: {
-        if (!from) return Ok({ networkFeeCryptoBaseUnit: undefined })
+        if (!from) {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
+
+          return Ok(stepData)
+        }
 
         const { fast } = await deps.assertGetTonChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
@@ -258,7 +304,9 @@ export async function getNearIntentsStepData(
           },
         })
 
-        return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
+        const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+        return Ok(stepData)
       }
       default:
         return Err(
@@ -270,7 +318,11 @@ export async function getNearIntentsStepData(
     }
   } catch (error) {
     // Rates are best effort with no provider fee to degrade to; quotes must price to execute
-    if (type === 'rate') return Ok({ networkFeeCryptoBaseUnit: undefined })
+    if (type === 'rate') {
+      const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
+
+      return Ok(stepData)
+    }
 
     return Err(makeNetworkFeeEstimationFailedErr('getNearIntentsStepData', error))
   }

@@ -25,7 +25,7 @@
   "scripts": {
     "clean": "rm -rf dist node_modules",
     "build": "rm -rf dist && tsc && tsup",
-    "prepublishOnly": "test -f dist/index.js && test -f dist/index.css || (echo 'dist is missing or incomplete - run `pnpm build` before publishing' && exit 1)",
+    "prepublishOnly": "test -f dist/index.js && test -f dist/index.css || pnpm build",
     "build:demo": "rm -rf dist && vite build",
     "dev": "vite",
     "preview": "vite preview",
@@ -97,7 +97,7 @@
     "react-dom": "^19.0.0",
     "tsup": "^8.5.1",
     "typescript": "~5.2.2",
-    "viem": "2.43.5",
+    "viem": "2.46.3",
     "vite": "^5.0.0",
     "vite-plugin-node-polyfills": "0.23.0",
     "wagmi": "2.19.5"

@@ -832,6 +832,9 @@ importers:
 
   packages/chain-adapters:
     dependencies:
+      '@aptos-labs/ts-sdk':
+        specifier: 6.3.1
+        version: 6.3.1(got@11.8.6)
       '@mysten/sui':
         specifier: 1.45.2
         version: 1.45.2(typescript@5.8.2)
@@ -2090,6 +2093,9 @@ importers:
 
   packages/swapper:
     dependencies:
+      '@aptos-labs/ts-sdk':
+        specifier: 6.3.1
+        version: 6.3.1(got@11.8.6)
       '@arbitrum/sdk':
         specifier: ^4.0.1
         version: 4.0.4(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -2360,6 +2366,20 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       zod: 3.25.76
+
+  '@aptos-labs/aptos-cli@1.1.1':
+    resolution: {integrity: sha512-sB7CokCM6s76SLJmccysbnFR+MDik6udKfj2+9ZsmTLV0/t73veIeCDKbvWJmbW267ibx4HiGbPI7L+1+yjEbQ==}
+    hasBin: true
+
+  '@aptos-labs/aptos-client@2.2.0':
+    resolution: {integrity: sha512-lYgHI8ehgD+Ykhix0IwzLaTCknHp1KNmExbq2bPZk8IeTwQg79D5BOkD46MjW0jGbJbl+J/RBtVF9vM7Te/hWA==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      got: ^11.8.6
+
+  '@aptos-labs/ts-sdk@6.3.1':
+    resolution: {integrity: sha512-1C13IaHgNIo6MHMTQEcDzeuqTNv++evdY+Ph3IAGLnHlG7Yevdxw50W0nyAJRf4bLzQDI20wfJ66wD2qMg7Rew==}
+    engines: {node: '>=20.0.0'}
 
   '@arbitrum/sdk@4.0.4':
     resolution: {integrity: sha512-GscwlkHYmPzRKs9huDHntbqx1xMRhTraTUvTC9exu+prjndKxHe9ZORuIcqmtEqwLwma/l8nqxI+k+pEEdIO6Q==}
@@ -17104,6 +17124,29 @@ snapshots:
       '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
       zod: 3.25.76
       zod-to-json-schema: 3.25.1(zod@3.25.76)
+
+  '@aptos-labs/aptos-cli@1.1.1':
+    dependencies:
+      commander: 12.1.0
+
+  '@aptos-labs/aptos-client@2.2.0(got@11.8.6)':
+    dependencies:
+      got: 11.8.6
+
+  '@aptos-labs/ts-sdk@6.3.1(got@11.8.6)':
+    dependencies:
+      '@aptos-labs/aptos-cli': 1.1.1
+      '@aptos-labs/aptos-client': 2.2.0(got@11.8.6)
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      eventemitter3: 5.0.4
+      js-base64: 3.7.8
+      jwt-decode: 4.0.0
+      poseidon-lite: 0.2.1
+    transitivePeerDependencies:
+      - got
 
   '@arbitrum/sdk@4.0.4(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:

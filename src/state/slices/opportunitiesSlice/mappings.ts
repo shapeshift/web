@@ -199,6 +199,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.BlastMainnet]: [],
   [KnownChainIds.AbstractMainnet]: [],
   [KnownChainIds.HemiMainnet]: [],
+  [KnownChainIds.AptosMainnet]: [],
 }
 
 // Single opportunity metadata resolvers

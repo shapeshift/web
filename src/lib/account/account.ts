@@ -4,6 +4,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 
+import { deriveAptosAccountIdsAndMetadata } from './aptos'
 import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
 import { deriveEvmAccountIdsAndMetadata } from './evm'
 import { deriveNearAccountIdsAndMetadata } from './near'
@@ -26,6 +27,7 @@ export const deriveAccountIdsAndMetadataForChainNamespace = {
   [CHAIN_NAMESPACE.Near]: deriveNearAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Starknet]: deriveStarknetAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Ton]: deriveTonAccountIdsAndMetadata,
+  [CHAIN_NAMESPACE.Aptos]: deriveAptosAccountIdsAndMetadata,
 } as const
 
 export type DeriveAccountIdsAndMetadataArgs = {
@@ -57,6 +59,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     [CHAIN_NAMESPACE.Near]: [],
     [CHAIN_NAMESPACE.Starknet]: [],
     [CHAIN_NAMESPACE.Ton]: [],
+    [CHAIN_NAMESPACE.Aptos]: [],
   }
   const chainIdsByChainNamespace = chainIds.reduce((acc, chainId) => {
     const { chainNamespace } = fromChainId(chainId)

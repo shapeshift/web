@@ -6,6 +6,8 @@ import type { ChainId } from '../../chainId/chainId'
 import {
   abstractAssetId,
   abstractChainId,
+  aptosAssetId,
+  aptosChainId,
   arbitrumAssetId,
   arbitrumChainId,
   ASSET_NAMESPACE,
@@ -281,6 +283,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.Sui],
           })
           prev[suiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Aptos)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Aptos,
+            chainReference: CHAIN_REFERENCE.AptosMainnet,
+            assetNamespace: ASSET_NAMESPACE.aptosCoin,
+            assetReference: platforms[CoingeckoAssetPlatform.Aptos],
+          })
+          prev[aptosChainId][assetId] = id
         } catch {
           // unable to create assetId, skip token
         }
@@ -706,6 +722,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [suiChainId]: { [suiAssetId]: 'sui' },
       [nearChainId]: { [nearAssetId]: 'near' },
       [tonChainId]: { [tonAssetId]: 'the-open-network' },
+      [aptosChainId]: { [aptosAssetId]: 'aptos' },
     },
   )
 

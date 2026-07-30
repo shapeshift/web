@@ -25,6 +25,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { fetchTradeStatus } from '@/lib/tradeExecution'
 import { assertGetChainAdapter } from '@/lib/utils'
+import { assertGetAptosChainAdapter } from '@/lib/utils/aptos'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
@@ -188,6 +189,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       assertGetSuiChainAdapter,
       assertGetNearChainAdapter,
       assertGetStarknetChainAdapter,
+      assertGetAptosChainAdapter,
       getEthersV5Provider,
       fetchIsSmartContractAddressQuery,
       viemClientByChainId,

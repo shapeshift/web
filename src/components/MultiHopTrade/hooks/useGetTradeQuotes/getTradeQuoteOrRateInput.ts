@@ -293,6 +293,25 @@ export const getTradeQuoteOrRateInput = async ({
         sendAddress,
       } as GetTradeQuoteInput
     }
+    case CHAIN_NAMESPACE.Aptos: {
+      const { assertGetAptosChainAdapter } = await import('@/lib/utils/aptos')
+      const sellAssetChainAdapter = assertGetAptosChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
     default:
       assertUnreachable(chainNamespace)
   }

@@ -5,6 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '../assertUnreachable'
 import {
   abstract,
+  aptos,
   arbitrum,
   atom,
   avax,
@@ -156,6 +157,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return ton
     case KnownChainIds.AbstractMainnet:
       return abstract
+    case KnownChainIds.AptosMainnet:
+      return aptos
     default:
       return assertUnreachable(knownChainId)
   }

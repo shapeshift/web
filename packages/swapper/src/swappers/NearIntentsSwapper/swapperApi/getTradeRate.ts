@@ -381,6 +381,26 @@ export const getTradeRate = async (
           }
         }
 
+        case CHAIN_NAMESPACE.Aptos: {
+          try {
+            const sellAdapter = deps.assertGetAptosChainAdapter(sellAsset.chainId)
+
+            if (!sendAddress) {
+              return '0'
+            }
+
+            const feeData = await sellAdapter.getFeeData({
+              to: depositAddress,
+              value: sellAmount,
+              chainSpecific: { from: sendAddress },
+            })
+
+            return feeData.fast.txFee
+          } catch (error) {
+            return '0'
+          }
+        }
+
         default:
           return undefined
       }

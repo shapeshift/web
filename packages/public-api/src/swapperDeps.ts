@@ -321,5 +321,8 @@ export const getSwapperDeps = (): SwapperDeps => ({
   assertGetNearChainAdapter: () => nearAdapter,
   assertGetStarknetChainAdapter: () => starknetAdapter,
   assertGetTonChainAdapter: () => tonAdapter,
+  assertGetAptosChainAdapter: () => {
+    throw new Error('No Aptos chain adapter registered in public-api')
+  },
   fetchIsSmartContractAddressQuery: () => Promise.resolve(false),
 })

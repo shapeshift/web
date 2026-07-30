@@ -32,6 +32,7 @@ import {
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter } from '@/lib/utils'
+import { assertGetAptosChainAdapter } from '@/lib/utils/aptos'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
@@ -214,6 +215,18 @@ export const estimateFees = async ({
         chainSpecific: {
           from: account,
           contractAddress,
+        },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Aptos: {
+      const adapter = assertGetAptosChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.AptosMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
         },
         sendMax,
       }
@@ -539,6 +552,20 @@ export const handleSendWithMetadata = async ({
           memo,
         },
       } as BuildSendTxInput<KnownChainIds.TonMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Aptos) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetAptosChainAdapter(chainId)
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        sendMax: sendInput.sendMax,
+        chainSpecific: { memo },
+      } as BuildSendTxInput<KnownChainIds.AptosMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

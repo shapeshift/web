@@ -1,0 +1,66 @@
+name: Aptos Chain Integration
+description: Validate Aptos chain integration - account discovery, balance display, native APT visibility, and asset picker integration. Mirrors the chain-integration-template.md test scenario used for Solana.
+route: /trade
+depends_on:
+  - wallet-health.yaml
+steps:
+  - name: Open Manage Accounts modal
+    instruction: >
+      After wallet is unlocked and trade page is loaded, click the wallet button in the
+      top right (shows wallet name e.g. "teest"). Then click the three-dot menu icon
+      and select "Manage Accounts".
+    expected: Manage Accounts modal opened, list of supported chains displayed
+    screenshot: true
+
+  - name: Verify Aptos appears in chain list
+    instruction: >
+      In the Manage Accounts modal, scroll through the supported chains list and
+      verify "Aptos" appears as one of the available chains.
+    expected: Aptos is visible in the supported chains list
+    screenshot: true
+
+  - name: Discover Aptos account
+    instruction: >
+      Click on the Aptos chain row to expand it. If no account is shown, click
+      "Add Account" or the "+" button to derive the first Aptos account
+      (BIP44 path m/44'/637'/0'/0'/0'). Wait for the address to appear.
+    expected: An Aptos account address (0x followed by 64 hex chars) is shown
+    screenshot: true
+
+  - name: Close modal and verify Aptos in portfolio
+    instruction: >
+      Close the Manage Accounts modal. Navigate to the Dashboard (or Portfolio) page.
+      Look for Aptos chain in the asset list, or filter by chain to confirm Aptos
+      assets appear.
+    expected: Aptos chain and its native asset APT are visible in the portfolio
+    screenshot: true
+
+  - name: Open asset picker and search for APT
+    instruction: >
+      Navigate to /trade. Click the sell asset selector button. In the asset picker
+      dialog, type "APT" in the search box. Wait for the results to filter.
+    expected: APT (Aptos Coin) appears in the search results
+    screenshot: true
+
+  - name: Select APT as sell asset
+    instruction: >
+      Click "APT" (Aptos Coin, Aptos chain) from the search results. Wait for the
+      dialog to close and APT to appear as the sell asset.
+    expected: APT is selected as the sell asset, the chain filter shows Aptos
+    screenshot: true
+
+  - name: Verify Aptos chain filter in buy asset picker
+    instruction: >
+      Click the buy/receive asset selector. In the asset picker dialog, find and click
+      the Aptos chain filter chip (if available). Verify that filtering shows multiple
+      Aptos assets (e.g. APT, USDC, USDT, MOD, thAPT).
+    expected: Multiple Aptos-chain assets are listed (>= 5 tokens)
+    screenshot: true
+
+  - name: Verify APT native balance reads correctly
+    instruction: >
+      Close the asset picker. Look at the APT balance shown next to the sell input
+      ("Balance: X APT" or similar). Verify the balance is a numeric value (could be
+      0 if test wallet has no APT, but should not be "N/A" or an error).
+    expected: APT balance is displayed as a numeric value (including 0)
+    screenshot: true

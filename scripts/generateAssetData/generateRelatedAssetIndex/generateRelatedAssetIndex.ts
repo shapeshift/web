@@ -89,9 +89,11 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
     'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
+    'aptos:861fb8e6/coin:0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
   ],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
     'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
+    'aptos:861fb8e6/coin:0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b',
   ],
 }
 

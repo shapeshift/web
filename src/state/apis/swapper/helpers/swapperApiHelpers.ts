@@ -16,6 +16,7 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
+import { assertGetAptosChainAdapter } from '@/lib/utils/aptos'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
@@ -58,6 +59,7 @@ export const createSwapperDeps = (state: ReduxState): SwapperDeps => ({
   assertGetSuiChainAdapter,
   assertGetNearChainAdapter,
   assertGetStarknetChainAdapter,
+  assertGetAptosChainAdapter,
   fetchIsSmartContractAddressQuery,
   config: getConfig(),
   mixPanel: getMixPanel(),

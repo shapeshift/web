@@ -1,5 +1,4 @@
 import axios from 'axios'
-import fs from 'fs'
 import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../index'
@@ -45,15 +44,4 @@ export async function getData(): Promise<CoinbaseCurrency[]> {
     console.error('Get supported coins (coinbase-pay) failed')
     return []
   }
-}
-
-const writeFile = async (data: Record<AssetId, string>) => {
-  const path = './src/adapters/coinbase/generated/'
-  const file = 'adapter.json'
-  await fs.promises.writeFile(`${path}${file}`, JSON.stringify(data, null, 2))
-}
-
-export const writeFiles = async (data: Record<AssetId, string>) => {
-  await writeFile(data)
-  console.info('Generated Coinbase AssetId adapter data.')
 }

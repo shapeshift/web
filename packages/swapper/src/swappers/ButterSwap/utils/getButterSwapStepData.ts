@@ -95,7 +95,6 @@ export async function getButterSwapStepData(
       }
 
       const { buildTx, from } = args
-      const providerGasLimit = bnOrZero(route.gasEstimatedTarget)
 
       const transactionData = {
         type: 'evm' as const,
@@ -103,8 +102,6 @@ export async function getButterSwapStepData(
         to: buildTx.to,
         data: buildTx.data,
         value: fromHex(buildTx.value, 'bigint').toString(),
-        // Leave unset when the provider omits gas so the fee helper estimates and sets one
-        gasLimit: providerGasLimit.gt(0) ? providerGasLimit.toFixed() : undefined,
       }
 
       try {
@@ -113,6 +110,9 @@ export async function getButterSwapStepData(
           supportsEIP1559,
           transactionData,
           from,
+          // Butter's gasEstimatedTarget lands short on chain (observed 24% under actual, causing
+          // in-flight OOG/SWAP_FAIL reverts) - estimate ourselves with a buffer
+          gasLimitBuffer: 1.2,
         })
 
         const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

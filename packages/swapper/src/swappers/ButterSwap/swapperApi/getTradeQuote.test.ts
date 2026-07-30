@@ -39,6 +39,10 @@ const mockEvmChainAdapter = {
         maxPriorityFeePerGas: '1000000000',
       },
     }),
+  getFeeData: () =>
+    Promise.resolve({
+      average: { chainSpecific: { gasLimit: '500000', gasPrice: '1000000000' } },
+    }),
 }
 
 describe('getTradeQuote', () => {
@@ -89,7 +93,7 @@ describe('getTradeQuote', () => {
       to: '0xContractAddress',
       data: '0xCalldata',
       value: '0',
-      gasLimit: '1159118',
+      gasLimit: '600000',
     })
     // The route contract, since this is not the tron path that spends via the buildTx target
     expect(tradeQuote[0].steps[0].allowanceContract).toBe(

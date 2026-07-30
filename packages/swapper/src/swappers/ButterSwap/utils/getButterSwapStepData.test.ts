@@ -85,33 +85,34 @@ describe('getButterSwapStepData', () => {
       })
     })
 
-    it('builds transaction data carrying the provider gas limit for a quote', async () => {
+    it('estimates gas on chain for a quote instead of trusting the provider target', async () => {
       const actual = await getButterSwapStepData({
         type: 'quote',
         input: evmQuoteInput,
         from: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
         buildTx: evmBuildTx,
-        deps: makeDeps({ evm: evmAdapter() }),
+        deps: makeDeps({ evm: evmAdapter({ estimatedGasLimit: '500000' }) }),
         route,
         sellAsset: WETH,
         feeAsset: ETH,
         sellAmountCryptoBaseUnit: '999000000000000000',
       })
 
+      // gasEstimatedTarget 1159118 is ignored - the tx carries the buffered on chain estimate
       expect(actual.unwrap()).toEqual({
-        networkFeeCryptoBaseUnit: '1159118000000000',
+        networkFeeCryptoBaseUnit: '500000000000000',
         transactionData: {
           type: 'evm',
           chainId: 1,
           to: evmBuildTx.to,
           data: evmBuildTx.data,
           value: '100000000000000000',
-          gasLimit: '1159118',
+          gasLimit: '600000',
         },
       })
     })
 
-    it('leaves the gas limit unset for the fee helper to estimate when the provider omits it', async () => {
+    it('estimates gas on chain for a quote when the provider omits a target', async () => {
       const actual = await getButterSwapStepData({
         type: 'quote',
         input: evmQuoteInput,
@@ -126,8 +127,8 @@ describe('getButterSwapStepData', () => {
 
       const { transactionData, networkFeeCryptoBaseUnit } = actual.unwrap()
 
-      // The estimated limit is set on the tx data in place, so the executable tx always carries one
-      expect(transactionData).toMatchObject({ gasLimit: '500000' })
+      // The buffered limit is set on the tx data in place, so the executable tx always carries one
+      expect(transactionData).toMatchObject({ gasLimit: '600000' })
       expect(networkFeeCryptoBaseUnit).toBe('500000000000000')
     })
 

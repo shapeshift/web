@@ -1,4 +1,5 @@
-import { getData, parseData, writeFiles } from './utils'
+import { getData, parseData } from './utils'
+import { writeFiles } from './writeFiles'
 
 const main = async () => {
   const coinbaseCurrencies = await getData()

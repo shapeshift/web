@@ -1,5 +1,6 @@
 import { coingeckoUrl } from './index'
-import { fetchData, parseData, writeFiles } from './utils'
+import { fetchData, parseData } from './utils'
+import { writeFiles } from './writeFiles'
 
 const main = async () => {
   const data = await fetchData(coingeckoUrl)

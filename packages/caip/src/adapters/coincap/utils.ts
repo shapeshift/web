@@ -1,5 +1,4 @@
 import axios from 'axios'
-import fs from 'fs'
 
 import type { AssetNamespace } from '../../assetId/assetId'
 import { toAssetId } from '../../assetId/assetId'
@@ -87,15 +86,6 @@ const COINCAP_CHAIN_MAP: Record<string, { chainId: ChainId; assetNamespace: Asse
     chainId: avalancheChainId,
     assetNamespace: 'erc20',
   },
-}
-
-export const writeFiles = async (data: Record<string, Record<string, string>>) => {
-  const path = './src/adapters/coincap/generated/'
-  const file = '/adapter.json'
-  const writeFile = async ([k, v]: [string, unknown]) =>
-    await fs.promises.writeFile(`${path}${k}${file}`.replace(':', '_'), JSON.stringify(v))
-  await Promise.all(Object.entries(data).map(writeFile))
-  console.info('Generated CoinCap AssetId adapter data.')
 }
 
 export const fetchData = async (URL: string) =>

@@ -2,7 +2,8 @@ import dotenv from 'dotenv'
 import path from 'path'
 
 import { getCoincapAssetUrl } from './index'
-import { fetchData, parseData, writeFiles } from './utils'
+import { fetchData, parseData } from './utils'
+import { writeFiles } from './writeFiles'
 
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') })
 

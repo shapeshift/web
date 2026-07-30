@@ -75,6 +75,10 @@ jobs:
       - name: Build Packages
         run: pnpm run build:packages
 
+      # swap-widget builds with tsup and is not part of the tsc solution build above
+      - name: Build swap-widget
+        run: pnpm --filter @shapeshiftoss/swap-widget build
+
       # `pnpm -r publish` skips packages whose current version is already on the
       # registry, so this is a safe no-op when no bumps have landed.
       # Authentication happens via the OIDC token GHA injects from the id-token:

@@ -18,7 +18,10 @@ import {
 } from '../../../utils/solana'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 
-const SAFE_GAS_LIMIT = '100000'
+// Deposits are plain transfers - 21k intrinsic for natives, tokens measured ~50-65k to a fresh
+// deposit address across the supported set (usdc/usdt/flip)
+const SAFE_NATIVE_TRANSFER_GAS_LIMIT = '21000'
+const SAFE_TOKEN_TRANSFER_GAS_LIMIT = '65000'
 
 // Deposits are plain (token) transfers with constant measured compute consumption (max 15394 CU
 // with ata creation), so the margin is safety only; the floor guarantees the limit covers full
@@ -72,7 +75,9 @@ export async function getChainflipStepData(
           const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
             adapter,
             supportsEIP1559,
-            gasLimit: SAFE_GAS_LIMIT,
+            gasLimit: isNativeEvmAsset(sellAsset.assetId)
+              ? SAFE_NATIVE_TRANSFER_GAS_LIMIT
+              : SAFE_TOKEN_TRANSFER_GAS_LIMIT,
           })
 
           const stepData: ChainflipRateStepData = { networkFeeCryptoBaseUnit }

@@ -13,7 +13,6 @@ export const PortalsSupportedChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.OptimismMainnet,
-  KnownChainIds.GnosisMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.HyperEvmMainnet,
 ]

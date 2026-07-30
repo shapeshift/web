@@ -6,7 +6,6 @@ import {
   binanceChainId,
   ethChainId,
   fromAssetId,
-  gnosisChainId,
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
@@ -146,8 +145,6 @@ export const getPortalsRouterAddressByChainId = (
       return '0x34b6a821d2f26c6b7cdb01cd91895170c6574a0d'
     case baseChainId:
       return '0xb0324286b3ef7dddc93fb2ff7c8b7b8a3524803c'
-    case gnosisChainId:
-      return '0x8e74454b2cf2f6cc2a06083ef122187551cf391c'
     default:
       return undefined
   }

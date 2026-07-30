@@ -18,7 +18,7 @@ import {
   SOLANA_PLACEHOLDER_ADDRESS,
   withComputeUnitLimit,
 } from '../../../utils/solana'
-import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { RATE_SIM_TIMEOUT_MS, simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 
 // Deposits are plain (token) transfers with constant measured compute consumption (max 15394 CU
@@ -83,6 +83,7 @@ export async function getNearIntentsStepData(
               data: transactionData.data as Hex,
               value: transactionData.value,
               sellAsset,
+              timeoutMs: RATE_SIM_TIMEOUT_MS,
             },
             {
               apiKey: deps.config.VITE_TENDERLY_API_KEY,

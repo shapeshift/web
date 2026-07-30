@@ -14,7 +14,7 @@ import {
   omitComputeBudgetInstructions,
   withComputeUnitLimit,
 } from '../../../utils/solana'
-import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { RATE_SIM_TIMEOUT_MS, simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import { convertRelaySolanaInstruction } from './helpers'
@@ -107,6 +107,7 @@ export async function getRelayStepData({
                 transactionData.gasLimit && sellAsset.chainId === monadChainId
                   ? Number(transactionData.gasLimit)
                   : undefined,
+              timeoutMs: RATE_SIM_TIMEOUT_MS,
             },
             {
               apiKey: deps.config.VITE_TENDERLY_API_KEY,

@@ -7,7 +7,7 @@ import { getAddress } from 'viem'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { RATE_SIM_TIMEOUT_MS, simulateWithStateOverrides } from '../../../utils/tenderly'
 import type { PortalsTx } from './fetchPortalsTradeOrder'
 import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 
@@ -57,6 +57,7 @@ export async function getPortalsStepData(
             value: tx.value,
             sellAsset,
             spenderAddress: getAddress(args.target),
+            timeoutMs: RATE_SIM_TIMEOUT_MS,
           },
           {
             apiKey: deps.config.VITE_TENDERLY_API_KEY,

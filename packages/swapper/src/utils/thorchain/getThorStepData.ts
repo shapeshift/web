@@ -29,7 +29,8 @@ import { depositWithExpiry, swapIn } from './routerCallData/routerCalldata'
 import { TradeType } from './types'
 
 // depositWithExpiry() measured at 44k (native) / 74k (erc20) on mainnet
-const SAFE_GAS_LIMIT = '100000'
+const SAFE_NATIVE_DEPOSIT_GAS_LIMIT = '50000'
+const SAFE_TOKEN_DEPOSIT_GAS_LIMIT = '85000'
 
 // The deposit is a fixed transfer (150 CU) + memo (~370 CU/byte, 20k-45k measured on mainnet),
 // so the estimate is exact and the margin is safety only
@@ -101,12 +102,12 @@ export async function getThorStepData({
         const { router, vault } = await getThorRouterAndVault({ sellAsset, config, swapperName })
 
         // LongTailToL1 executes swapIn against an aggregator, every other trade type deposits directly
-        const data = (() => {
+        const buildData = (txMemo: string) => {
           if (longtail) {
             return swapIn({
               tcRouter: THOR_ROUTER_CONTRACT_MAINNET as Address,
               tcVault: vault,
-              tcMemo: memo,
+              tcMemo: txMemo,
               token: getAddress(fromAssetId(sellAsset.assetId).assetReference),
               amount: BigInt(sellAmountCryptoBaseUnit),
               amountOutMin: longtail.amountOutMin,
@@ -120,53 +121,67 @@ export async function getThorStepData({
               ? zeroAddress
               : getAddress(fromAssetId(sellAsset.assetId).assetReference),
             amount: BigInt(sellAmountCryptoBaseUnit),
-            memo,
+            memo: txMemo,
             expiry: BigInt(expiry),
           })
-        })()
-
-        const safeGasLimit =
-          tradeType === TradeType.LongTailToL1 ? SAFE_SWAP_IN_GAS_LIMIT : SAFE_GAS_LIMIT
-
-        if (type === 'rate') {
-          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-            adapter,
-            supportsEIP1559,
-            gasLimit: safeGasLimit,
-          })
-
-          return Ok({ router, data, networkFeeCryptoBaseUnit })
         }
 
-        const transactionData: TxBuildData = {
+        const data = buildData(memo)
+
+        const safeGasLimit = (() => {
+          if (tradeType === TradeType.LongTailToL1) return SAFE_SWAP_IN_GAS_LIMIT
+          return isNativeEvmAsset(sellAsset.assetId)
+            ? SAFE_NATIVE_DEPOSIT_GAS_LIMIT
+            : SAFE_TOKEN_DEPOSIT_GAS_LIMIT
+        })()
+
+        const buildTransactionData = (txMemo: string): Extract<TxBuildData, { type: 'evm' }> => ({
           type: 'evm',
           chainId: Number(fromChainId(sellAsset.chainId).chainReference),
           to: longtail ? longtail.aggregator : router,
-          data,
+          data: buildData(txMemo),
           value: !longtail && isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-        }
+        })
 
-        const networkFeeCryptoBaseUnit = await (async () => {
-          try {
-            // Estimates on chain and sets the estimated gas limit on the tx data
-            return await getEvmNetworkFeeCryptoBaseUnit({
-              adapter,
-              transactionData,
-              from,
-              supportsEIP1559,
-            })
-          } catch {
-            // Token deposits revert estimation before approval - fall back to the safe limit
-            transactionData.gasLimit = safeGasLimit
+        if (type === 'rate') {
+          const networkFeeCryptoBaseUnit = await (async () => {
+            if (input.sendAddress) {
+              try {
+                return await getEvmNetworkFeeCryptoBaseUnit({
+                  adapter,
+                  transactionData: buildTransactionData(rawMemo ?? ''),
+                  from: input.sendAddress,
+                  supportsEIP1559,
+                })
+              } catch {
+                // Token deposit estimations revert before approval - use safe gas limit
+              }
+            }
+
             return getEvmNetworkFeeCryptoBaseUnit({
               adapter,
               supportsEIP1559,
               gasLimit: safeGasLimit,
             })
-          }
-        })()
+          })()
 
-        return Ok({ router, data, transactionData, networkFeeCryptoBaseUnit })
+          return Ok({ router, data, networkFeeCryptoBaseUnit })
+        }
+
+        const transactionData = buildTransactionData(memo)
+
+        try {
+          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+            adapter,
+            transactionData,
+            from,
+            supportsEIP1559,
+          })
+
+          return Ok({ router, data, transactionData, networkFeeCryptoBaseUnit })
+        } catch (error) {
+          return Err(makeNetworkFeeEstimationFailedErr('getThorStepData', error))
+        }
       }
       case CHAIN_NAMESPACE.Utxo: {
         const xpub = 'xpub' in input ? input.xpub : undefined

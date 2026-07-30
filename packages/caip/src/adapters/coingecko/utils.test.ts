@@ -2,7 +2,8 @@ import realFs from 'fs'
 import { describe, expect, it, vi } from 'vitest'
 
 import { bitcoinAssetMap, cosmosAssetMap } from '../../utils'
-import { parseData, writeFiles } from './utils'
+import { parseData } from './utils'
+import { writeFiles } from './writeFiles'
 
 const makeEthMockCoingeckoResponse = () => ({
   id: 'ethereum',

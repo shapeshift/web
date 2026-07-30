@@ -1,5 +1,4 @@
 import axios from 'axios'
-import fs from 'fs'
 
 import type { AssetId } from '../../assetId/assetId'
 import { toAssetId } from '../../assetId/assetId'
@@ -112,7 +111,7 @@ export type CoingeckoCoin = {
   platforms: Record<string, string>
 }
 
-type AssetMap = Record<ChainId, Record<AssetId, string>>
+export type AssetMap = Record<ChainId, Record<AssetId, string>>
 
 export const fetchData = async (URL: string) => (await axios.get<CoingeckoCoin[]>(URL)).data
 
@@ -721,15 +720,4 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [thorchainChainId]: thorchainAssetMap,
     [mayachainChainId]: mayachainAssetMap,
   }
-}
-
-export const writeFiles = async (data: AssetMap) => {
-  await Promise.all(
-    Object.entries(data).map(async ([chainId, assets]) => {
-      const dirPath = `./src/adapters/coingecko/generated/${chainId}`.replace(':', '_')
-      await fs.promises.mkdir(dirPath, { recursive: true })
-      await fs.promises.writeFile(`${dirPath}/adapter.json`, JSON.stringify(assets))
-    }),
-  )
-  console.info('Generated CoinGecko AssetId adapter data.')
 }

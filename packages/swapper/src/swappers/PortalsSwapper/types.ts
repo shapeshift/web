@@ -15,6 +15,8 @@ export const PortalsSupportedChainIds = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.HyperEvmMainnet,
+  KnownChainIds.SonicMainnet,
+  KnownChainIds.PlasmaMainnet,
 ]
 
 export type PortalsSupportedChainId = (typeof PortalsSupportedChainIds)[number]

@@ -6,8 +6,11 @@ import {
   binanceChainId,
   ethChainId,
   fromAssetId,
+  hyperEvmChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
+  sonicChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
@@ -144,7 +147,11 @@ export const getPortalsRouterAddressByChainId = (
     case arbitrumChainId:
       return '0x34b6a821d2f26c6b7cdb01cd91895170c6574a0d'
     case baseChainId:
+    case sonicChainId:
+    case plasmaChainId:
       return '0xb0324286b3ef7dddc93fb2ff7c8b7b8a3524803c'
+    case hyperEvmChainId:
+      return '0x2db3b92918ece265c7d5d9d975c69d89b8b1136c'
     default:
       return undefined
   }

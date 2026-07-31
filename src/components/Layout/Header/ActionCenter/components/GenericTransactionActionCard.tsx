@@ -82,7 +82,7 @@ export const GenericTransactionActionCard = ({
     return getTxLink({
       txId: action.transactionMetadata.txHash,
       chainId: action.transactionMetadata.chainId,
-      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      explorerBaseUrl: feeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })
@@ -94,7 +94,7 @@ export const GenericTransactionActionCard = ({
     return getTxLink({
       txId: action.transactionMetadata.replacedByTxHash,
       chainId: action.transactionMetadata.chainId,
-      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      explorerBaseUrl: feeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })
@@ -106,7 +106,7 @@ export const GenericTransactionActionCard = ({
     return getTxLink({
       txId: action.transactionMetadata.replacesTxHash,
       chainId: action.transactionMetadata.chainId,
-      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      explorerBaseUrl: feeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })

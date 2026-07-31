@@ -1,24 +1,48 @@
 import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import { getTrade } from '../utils/getTrade'
+import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import { DEFAULT_DEBRIDGE_USER_ADDRESS } from '../constant'
+import { getDebridgeStepData } from '../utils/getDebridgeStepData'
+import { getDebridgeTradeContext } from '../utils/getDebridgeTradeContext'
+import type { DebridgeTradeRateInput } from '../utils/types'
 
-export const getTradeRate = (
-  input: GetTradeRateInput,
+export const getTradeRate = async (
+  input: DebridgeTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const args = {
+  const { accountNumber } = input
+
+  const senderAddress = input.sendAddress ?? DEFAULT_DEBRIDGE_USER_ADDRESS
+  const recipientAddress = input.receiveAddress ?? DEFAULT_DEBRIDGE_USER_ADDRESS
+
+  const maybeContext = await getDebridgeTradeContext({
+    input,
+    deps,
+    senderAddress,
+    recipientAddress,
+  })
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getDebridgeStepData({ ...stepDataArgs, type: 'rate', input })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
+
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
     quoteOrRate: 'rate' as const,
-    buyAsset: input.buyAsset,
-    receiveAddress: input.receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit:
-      input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAsset: input.sellAsset,
-    sendAddress: input.sendAddress,
-    accountNumber: input.accountNumber,
-    affiliateBps: input.affiliateBps,
-    slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
+    receiveAddress: recipientAddress,
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
+      },
+    ],
   }
 
-  return getTrade({ input: args, deps })
+  return Ok([tradeRate])
 }

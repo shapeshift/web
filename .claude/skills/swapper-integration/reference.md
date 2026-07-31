@@ -55,12 +55,15 @@ These are combined and registered in `packages/swapper/src/constants.ts`.
 - Account creation fees
 - Compute unit calculations
 
-**Examples**: JupiterSwapper
+**Examples**: the solana arms of AcrossSwapper, ButterSwap, RelaySwapper (instruction routes);
+BebopSwapper solana (sealed RFQ serialized tx)
 
 **Key differences:**
 - Implements `executeSolanaTransaction`
-- Uses `solanaTransactionMetadata`
-- Different fee calculations
+- Quote carries `transactionData: { type: 'solana_instructions', instructions, addressLookupTableAddresses }`
+  with the static compute unit limit set via `withComputeUnitLimit` (or
+  `{ type: 'solana_serialized_tx', serializedTx }` for maker pre-signed RFQ txs - co-sign as-is, never rebuild)
+- Execution fetches only the dynamic priority fee (adapter.getPriorityFees)
 - Account lookup tables (ALTs)
 
 **Use this pattern when**: Your swapper is Solana-specific.
@@ -206,19 +209,23 @@ Every step must include:
   buyAmountAfterFeesCryptoBaseUnit: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   feeData: {
-    protocolFees: Record<string, string>
-    networkFeeCryptoBaseUnit: string
+    protocolFees: QuoteFeeData['protocolFees']
+    networkFeeCryptoBaseUnit: string | undefined
   }
   rate: string
   source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
-  accountNumber: number | undefined
-  allowanceContract: string | undefined
+  accountNumber: number            // quote steps; rate steps: number | undefined (from input)
+  allowanceContract: string        // '' when there is no approval target
   estimatedExecutionTimeMs: number | undefined
 
-  // Swapper-specific metadata (pick one):
-  xyzTransactionMetadata?: { ... }
+  // Executable payload (quote steps only - TradeRateStep bans it):
+  transactionData?: TxBuildData    // evm | utxo | solana_instructions | solana_serialized_tx |
+                                   // cosmossdk_msg_send | cosmossdk_msg_deposit | cowswap | ton | tron
+
+  // Provider tracking data (only if status/exec needs it - a SwapperMetadata union member):
+  swapperMetadata?: SwapperMetadata
 }
 ```
 

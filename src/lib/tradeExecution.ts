@@ -6,7 +6,6 @@ import type {
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
   NearTransactionExecutionInput,
-  RelayerTxDetailsArgs,
   SellTxHashArgs,
   SolanaMessageExecutionInput,
   SolanaTransactionExecutionInput,
@@ -23,9 +22,11 @@ import type {
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
+  buildSwapMetadata,
   getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
+  isSolanaTransactionOversized,
   swappers,
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
@@ -83,41 +84,33 @@ export const fetchTradeStatus = async ({
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
-  const {
-    status,
-    message,
-    buyTxHash,
-    relayerTxHash,
-    relayerExplorerTxLink,
-    actualBuyAmountCryptoBaseUnit,
-    chainflipSwapId,
-  } = await swapper.checkTradeStatus({
-    txHash: sellTxHash,
-    chainId: sellAssetChainId,
-    address,
-    swap,
-    stepIndex,
-    config: getConfig(),
-    assertGetEvmChainAdapter,
-    assertGetUtxoChainAdapter,
-    assertGetCosmosSdkChainAdapter,
-    assertGetSolanaChainAdapter,
-    assertGetTonChainAdapter,
-    assertGetTronChainAdapter,
-    assertGetSuiChainAdapter,
-    assertGetNearChainAdapter,
-    assertGetStarknetChainAdapter,
-    fetchIsSmartContractAddressQuery,
-  })
+  const { status, message, buyTxHash, swapperTxId, swapperTxLink, actualBuyAmountCryptoBaseUnit } =
+    await swapper.checkTradeStatus({
+      txHash: sellTxHash,
+      chainId: sellAssetChainId,
+      address,
+      swap,
+      stepIndex,
+      config: getConfig(),
+      assertGetEvmChainAdapter,
+      assertGetUtxoChainAdapter,
+      assertGetCosmosSdkChainAdapter,
+      assertGetSolanaChainAdapter,
+      assertGetTonChainAdapter,
+      assertGetTronChainAdapter,
+      assertGetSuiChainAdapter,
+      assertGetNearChainAdapter,
+      assertGetStarknetChainAdapter,
+      fetchIsSmartContractAddressQuery,
+    })
 
   return {
     status,
     message,
     buyTxHash,
-    relayerTxHash,
-    relayerExplorerTxLink,
+    swapperTxId,
+    swapperTxLink,
     actualBuyAmountCryptoBaseUnit,
-    chainflipSwapId,
   }
 }
 
@@ -188,20 +181,20 @@ export class TradeExecution {
         throw new Error('Swap not found')
       }
 
+      const firstStep = tradeQuote.steps[0]
+
       const updatedSwap = {
         ...swap,
         sellTxHash,
         receiveAddress: tradeQuote.receiveAddress,
         status: SwapStatus.Pending,
-        metadata: {
-          ...swap.metadata,
-          chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
-          nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
-          bobSpecific: tradeQuote.steps[0]?.bobSpecific,
-          relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
-          quoteId: tradeQuote.steps[0]?.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
-          stepIndex,
-        },
+        metadata: firstStep
+          ? buildSwapMetadata(firstStep, {
+              stepIndex,
+              quoteId: swap.metadata.quoteId,
+              streamingSwapMetadata: swap.metadata.streamingSwapMetadata,
+            })
+          : swap.metadata,
       }
 
       store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
@@ -260,8 +253,8 @@ export class TradeExecution {
             status,
             message,
             buyTxHash,
-            relayerTxHash,
-            relayerExplorerTxLink,
+            swapperTxId,
+            swapperTxLink,
             actualBuyAmountCryptoBaseUnit,
           } = await queryClient.fetchQuery({
             queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
@@ -279,27 +272,13 @@ export class TradeExecution {
             gcTime: this.pollInterval,
           })
 
-          // Emit RelayerTxHash event when relayerTxHash becomes available
-          if (
-            relayerTxHash &&
-            relayerExplorerTxLink &&
-            !updatedSwap.metadata.relayerTxHash &&
-            !updatedSwap.metadata.relayerExplorerTxLink
-          ) {
-            const relayerTxDetailsArgs: RelayerTxDetailsArgs = {
-              stepIndex,
-              relayerTxHash,
-              relayerExplorerTxLink,
-            }
-            this.emitter.emit(TradeExecutionEvent.RelayerTxHash, relayerTxDetailsArgs)
-          }
-
           const payload: StatusArgs = {
             stepIndex,
             status,
             message,
             buyTxHash,
-            relayerTxHash,
+            swapperTxId,
+            swapperTxLink,
             actualBuyAmountCryptoBaseUnit,
           }
           this.emitter.emit(TradeExecutionEvent.Status, payload)
@@ -559,25 +538,37 @@ export class TradeExecution {
       }
 
       const step = getHopByIndex(tradeQuote, stepIndex)
-      const metadata = step?.solanaTransactionMetadata
+      const transactionData = step?.transactionData
 
-      // Jito bundle path for oversized Butter Solana transactions
-      if (metadata?.isOversized) {
-        if (!metadata.instructions?.length || !signTransaction) {
-          throw new Error(
-            'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
-          )
-        }
-        const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
-        const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
-        return await execSolanaJitoBundle({
-          instructions: metadata.instructions,
-          addressLookupTableAddresses: metadata.addressLookupTableAddresses ?? [],
+      // Solana caps a single tx at 1232 bytes; oversized swaps must be split into a Jito bundle.
+      // Derived here (as any public-api consumer would) rather than carried on transactionData.
+      if (transactionData?.type === 'solana_instructions') {
+        const { instructions, addressLookupTableAddresses } = transactionData
+
+        const isOversized = await isSolanaTransactionOversized({
+          adapter: assertGetSolanaChainAdapter(chainId),
           from,
-          accountNumber: executableStep.accountNumber,
-          sellAssetChainId: chainId,
-          signTransaction,
+          instructions,
+          addressLookupTableAddresses,
         })
+
+        if (isOversized) {
+          if (!instructions.length || !signTransaction) {
+            throw new Error(
+              'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
+            )
+          }
+          const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
+          const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
+          return await execSolanaJitoBundle({
+            instructions,
+            addressLookupTableAddresses,
+            from,
+            accountNumber: executableStep.accountNumber,
+            sellAssetChainId: chainId,
+            signTransaction,
+          })
+        }
       }
 
       // Standard single-tx path
@@ -620,6 +611,7 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     signSerializedTransaction,
+    signAndBroadcastSerializedTransaction,
   }: SolanaMessageExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
@@ -648,7 +640,7 @@ export class TradeExecution {
 
       return await swapper.executeSolanaMessage(
         unsignedMessageResult,
-        { signSerializedTransaction },
+        { signSerializedTransaction, signAndBroadcastSerializedTransaction },
         config,
       )
     }

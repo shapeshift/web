@@ -3,41 +3,20 @@ import { Transaction } from '@mysten/sui/transactions'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import type { Result } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
-import type {
-  CommonTradeQuoteInput,
-  GetTradeRateInput,
-  GetUnsignedSuiTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
-  TradeRate,
-  TradeStatus,
-} from '../../types'
+import type { GetUnsignedSuiTransactionArgs, SwapperApi, TradeStatus } from '../../types'
 import { SwapperName } from '../../types'
 import { checkSuiSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import type { CetusTradeQuoteInput, CetusTradeRateInput } from './types'
 import { PYTH_DEPENDENT_PROVIDERS } from './utils/constants'
 import { findBestRoute, getAggregatorClient, getCoinType, getSuiClient } from './utils/helpers'
 
 export const cetusApi: SwapperApi = {
-  getTradeQuote: (
-    input: CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    return getTradeQuote(input, deps)
-  },
-
-  getTradeRate: (
-    input: GetTradeRateInput,
-    deps: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    return getTradeRate(input, deps)
-  },
+  getTradeQuote: (input, deps) => getTradeQuote(input as CetusTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as CetusTradeRateInput, deps),
 
   getUnsignedSuiTransaction: async ({
     stepIndex,

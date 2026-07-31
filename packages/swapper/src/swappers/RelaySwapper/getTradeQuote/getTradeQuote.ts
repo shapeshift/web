@@ -1,52 +1,76 @@
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
 import type {
-  CommonTradeQuoteInput,
-  GetUtxoTradeQuoteInput,
+  MultiHopTradeQuoteSteps,
+  SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeQuoteStep,
 } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { assertQuoteAddresses } from '../../../utils'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
-import { getTrade } from '../utils/getTrade'
+import { getRelayStepData } from '../utils/getRelayStepData'
+import { getRelayTradeContext } from '../utils/getRelayTradeContext'
+import type { RelayTradeQuoteInput } from '../utils/types'
 
 export const getTradeQuote = async (
-  input: CommonTradeQuoteInput,
+  input: RelayTradeQuoteInput,
   deps: SwapperDeps,
   relayChainMap: typeof relayChainMapImplementation,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  if (!input.sendAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'sendAddress is required',
-      }),
-    )
+  const { accountNumber } = input
+
+  const addresses = assertQuoteAddresses(input)
+  if (addresses.isErr()) return Err(addresses.unwrapErr())
+  const { receiveAddress } = addresses.unwrap()
+
+  const maybeContext = await getRelayTradeContext({ input, deps, relayChainMap })
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId } =
+    maybeContext.unwrap()
+
+  const stepResults = await Promise.all(
+    relayStepInputs.map(async ({ data, allowanceContract }) => {
+      const maybeStepData = await getRelayStepData({ ...stepDataArgs, data, type: 'quote', input })
+
+      return maybeStepData.map(
+        ({
+          transactionData,
+          relayTransactionMetadata,
+          networkFeeCryptoBaseUnit,
+        }): TradeQuoteStep => ({
+          ...stepCommon,
+          accountNumber,
+          allowanceContract,
+          transactionData,
+          relayTransactionMetadata,
+          swapperMetadata: {
+            name: 'relay',
+            relayId,
+            data: transactionData?.type === 'evm' ? transactionData.data : undefined,
+          },
+          feeData: { networkFeeCryptoBaseUnit, protocolFees },
+        }),
+      )
+    }),
+  )
+
+  for (const stepResult of stepResults) {
+    if (stepResult.isErr()) return Err(stepResult.unwrapErr())
   }
 
-  if (!input.receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'receiveAddress is required',
-      }),
-    )
-  }
+  const steps = stepResults.map(stepResult => stepResult.unwrap()) as
+    | SingleHopTradeQuoteSteps
+    | MultiHopTradeQuoteSteps
 
-  const args = {
-    buyAsset: input.buyAsset,
-    receiveAddress: input.receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit:
-      input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAsset: input.sellAsset,
-    sendAddress: input.sendAddress,
+  const tradeQuote: TradeQuote = {
+    ...tradeCommon,
     quoteOrRate: 'quote' as const,
-    accountNumber: input.accountNumber,
-    affiliateBps: input.affiliateBps,
-    xpub: 'xpub' in input ? (input as GetUtxoTradeQuoteInput).xpub : undefined,
+    receiveAddress,
+    steps,
   }
 
-  const quotesResult = await getTrade({ input: args, deps, relayChainMap })
-
-  return quotesResult
+  return Ok([tradeQuote])
 }

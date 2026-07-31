@@ -6,7 +6,7 @@ import axios from 'axios'
 import type { Address, Hex } from 'viem'
 import { isAddress, maxUint256, parseEther, toHex } from 'viem'
 
-import { isNativeEvmAsset } from '../../swappers/utils/helpers/helpers'
+import { isNativeEvmAsset } from '../helpers'
 import {
   getAllowanceStorageSlot,
   getBalanceStorageSlot,
@@ -31,6 +31,9 @@ export type SimulationResult = {
   errorMessage?: string
 }
 
+// Rate sims run inside the UI's 10s bulk rate budget - fail fast so the gas fallbacks still fit
+export const RATE_SIM_TIMEOUT_MS = 3_000
+
 export type SimulateTransactionParams = {
   chainId: ChainId
   from: Address
@@ -40,13 +43,24 @@ export type SimulateTransactionParams = {
   sellAsset: Asset
   spenderAddress?: Address
   gas?: number
+  timeoutMs?: number
 }
 
 export const simulateWithStateOverrides = async (
   params: SimulateTransactionParams,
   config: TenderlyConfig,
 ): Promise<SimulationResult> => {
-  const { chainId, from, to, data, value, sellAsset, spenderAddress, gas } = params
+  const {
+    chainId,
+    from,
+    to,
+    data,
+    value,
+    sellAsset,
+    spenderAddress,
+    gas,
+    timeoutMs = 10_000,
+  } = params
 
   try {
     if (!isAddress(from)) throw new Error(`Invalid from address: ${from}`)
@@ -82,7 +96,7 @@ export const simulateWithStateOverrides = async (
           'Content-Type': 'application/json',
           'X-Access-Key': config.apiKey,
         },
-        timeout: 10000,
+        timeout: timeoutMs,
       },
     )
 

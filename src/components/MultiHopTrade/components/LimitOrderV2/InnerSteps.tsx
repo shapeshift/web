@@ -159,8 +159,6 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
             txHash={allowanceReset?.txHash}
             explorerBaseUrl={sellAsset.explorerTxLink}
             accountId={sellAccountId}
-            stepSource={undefined} // no swapper base URL here, this is an allowance Tx
-            quoteSwapperName={SwapperName.CowSwap}
           />
         )}
       </Flex>
@@ -176,8 +174,6 @@ export const InnerSteps = ({ isLoading }: InnerStepsProps) => {
             txHash={allowanceApproval?.txHash}
             explorerBaseUrl={sellAsset.explorerTxLink}
             accountId={sellAccountId}
-            stepSource={undefined} // no swapper base URL here, this is an allowance Tx
-            quoteSwapperName={SwapperName.CowSwap}
           />
         )}
       </Flex>

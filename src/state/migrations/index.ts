@@ -413,10 +413,14 @@ export const clearSnapshotMigrations = {
 export const clearActionMigrations = {
   0: clearAction,
   1: clearAction,
+  // Swaps persisted with the pre-swapperMetadata shape were cleared - drop the orphaned actions too
+  2: clearAction,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearSwapsMigrations = {
   0: clearSwaps,
+  // Swap.metadata moved to the swapperMetadata union - clear swaps persisted with the old shape
+  1: clearSwaps,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAddressBookMigrations = {

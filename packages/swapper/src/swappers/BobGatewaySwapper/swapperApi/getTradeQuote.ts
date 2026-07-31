@@ -1,141 +1,62 @@
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
 
-import type {
-  CommonTradeQuoteInput,
-  GetTradeQuoteInput,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-} from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import {
-  assertValidTrade,
-  createBobGatewayOrderMetadata,
-  getBobGatewayAllowanceContract,
-  getBobGatewayQuote,
-  getBobGatewayQuoteFeeData,
-  parseBobGatewayQuote,
-} from '../utils/helpers'
+import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import { assertQuoteAddresses } from '../../../utils'
+import type { BobGatewayTradeQuoteInput } from '../types'
+import { getBobGatewayStepData } from '../utils/getBobGatewayStepData'
+import { getBobGatewayTradeContext } from '../utils/getBobGatewayTradeContext'
 
 export const getBobGatewayTradeQuote = async (
-  input: CommonTradeQuoteInput,
+  input: BobGatewayTradeQuoteInput,
   deps: SwapperDeps,
-): Promise<Result<TradeQuote, SwapErrorRight>> => {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sendAddress,
-    receiveAddress,
-    accountNumber,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-  } = input
+): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  const { sellAsset, accountNumber } = input
 
-  const { config } = deps
+  const maybeAddresses = assertQuoteAddresses(input)
 
-  if (!sendAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] sendAddress is required for quote',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  if (!receiveAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] receiveAddress is required for quote',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  const assertion = assertValidTrade({ sellAsset, buyAsset })
-  if (assertion.isErr()) return Err(assertion.unwrapErr())
-
-  const { sellChainName, buyChainName } = assertion.unwrap()
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
   // omit the sender for utxo sells so order creation does not enforce a per-address confirmed
   // funds check (deposits are matched via op_return, not the sending address)
   const sender = isEvmChainId(sellAsset.chainId) ? sendAddress : undefined
 
-  const maybeQuote = await getBobGatewayQuote({
-    config,
-    sellAsset,
-    buyAsset,
-    sellChainName,
-    buyChainName,
+  const maybeContext = await getBobGatewayTradeContext({
+    input,
+    deps,
     sender,
     recipient: receiveAddress,
-    amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
   })
 
-  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
-  const quote = maybeQuote.unwrap()
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
 
-  const maybeOrderMetadata = await createBobGatewayOrderMetadata(config, quote)
-  if (maybeOrderMetadata.isErr()) return Err(maybeOrderMetadata.unwrapErr())
-
-  const orderMetadata = maybeOrderMetadata.unwrap()
-
-  const maybeFeeData = await getBobGatewayQuoteFeeData(
-    input as GetTradeQuoteInput,
-    deps,
-    orderMetadata,
-  )
-
-  if (maybeFeeData.isErr()) return Err(maybeFeeData.unwrapErr())
-  const feeData = maybeFeeData.unwrap()
-
-  const {
-    buyAmountBeforeFeesCryptoBaseUnit,
-    buyAmountAfterFeesCryptoBaseUnit,
-    protocolFees,
-    estimatedExecutionTimeMs,
-  } = parseBobGatewayQuote(quote, buyAsset, deps.assetsById)
-
-  const rate = getInputOutputRate({
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-    sellAsset,
-    buyAsset,
+  const maybeStepData = await getBobGatewayStepData({
+    ...stepDataArgs,
+    type: 'quote',
+    input,
+    from: sendAddress,
   })
 
-  const allowanceContract = getBobGatewayAllowanceContract(quote, sellAsset)
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { orderId, transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeQuote: TradeQuote = {
-    id: uuid(),
+    ...tradeCommon,
     quoteOrRate: 'quote',
-    rate,
     receiveAddress,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-    swapperName: SwapperName.BobGateway,
     steps: [
       {
-        buyAmountBeforeFeesCryptoBaseUnit,
-        buyAmountAfterFeesCryptoBaseUnit,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        feeData: { ...feeData, protocolFees },
-        rate,
-        source: SwapperName.BobGateway,
-        buyAsset,
-        sellAsset,
+        ...stepCommon,
         accountNumber,
-        allowanceContract,
-        estimatedExecutionTimeMs,
-        bobSpecific: orderMetadata,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
+        swapperMetadata: { name: 'bob', orderId },
+        transactionData,
       },
     ],
   }
 
-  return Ok(tradeQuote)
+  return Ok([tradeQuote])
 }

@@ -1,49 +1,23 @@
 import { quoteToCalls } from '@avnu/avnu-sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { CallData, hash, num, validateAndParseAddress } from 'starknet'
+import { CallData, hash, validateAndParseAddress } from 'starknet'
 
 import type { SwapperApi, TradeStatus } from '../../types'
 import {
   checkStarknetSwapStatus,
   createDefaultStatusResponse,
   getExecutableTradeStep,
+  getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-
-/**
- * Normalize a value to hex format for Starknet RPC
- * Handles various input types: decimal strings, hex strings (with/without 0x), numbers, BigInts
- */
-const toHexString = (value: unknown): string => {
-  const strValue = String(value)
-
-  // Already a proper hex string with 0x prefix
-  if (strValue.startsWith('0x')) {
-    return strValue
-  }
-
-  // Check if it looks like a hex string without 0x prefix (contains a-f characters)
-  // Starknet addresses and felts often come as hex without 0x prefix
-  if (/^[0-9a-fA-F]+$/.test(strValue) && /[a-fA-F]/.test(strValue)) {
-    return `0x${strValue}`
-  }
-
-  // Otherwise treat as decimal and convert to hex
-  try {
-    return num.toHex(strValue)
-  } catch {
-    // If conversion fails, assume it's already hex and add prefix
-    return `0x${strValue}`
-  }
-}
+import type { AvnuTradeQuoteInput, AvnuTradeRateInput } from './types'
+import { toHexString } from './utils/helpers'
 
 export const avnuApi: SwapperApi = {
-  getTradeQuote,
-  getTradeRate: (input, deps) => {
-    return getTradeRate(input, deps)
-  },
+  getTradeQuote: (input, deps) => getTradeQuote(input as AvnuTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as AvnuTradeRateInput, deps),
 
   getUnsignedStarknetTransaction: async ({
     stepIndex,
@@ -56,9 +30,10 @@ export const avnuApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, avnuSpecific } = step
-    if (!avnuSpecific) throw new Error('avnuSpecific is required')
-    if (!avnuSpecific.quoteId) throw new Error('quoteId is required in avnuSpecific')
+    const { accountNumber, sellAsset } = step
+
+    const { quoteId } = getSwapMetadata(step.swapperMetadata, 'avnu')
+    if (!quoteId) throw new Error('quoteId is required in avnu swapper metadata')
 
     const adapter = assertGetStarknetChainAdapter(sellAsset.chainId)
 
@@ -74,7 +49,7 @@ export const avnuApi: SwapperApi = {
 
     // Get the swap calls from AVNU SDK
     const { calls: avnuCalls } = await quoteToCalls({
-      quoteId: avnuSpecific.quoteId,
+      quoteId,
       slippage,
       takerAddress: normalizedFrom,
     })

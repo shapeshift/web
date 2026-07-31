@@ -2,13 +2,22 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, convertPrecision } from '@shapeshiftoss/utils'
-import { Err } from '@sniptt/monads'
-import type { Omniston, QuoteRequest, QuoteResponseEvent } from '@ston-fi/omniston-sdk'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+import type {
+  Omniston,
+  Quote,
+  QuoteRequest,
+  QuoteResponseEvent,
+  TradeStatus as OmnistonTradeStatus,
+} from '@ston-fi/omniston-sdk'
 import { Blockchain } from '@ston-fi/omniston-sdk'
 
+import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { OmnistonAssetAddress, QuoteResult, TonAssetValidationResult } from '../types'
+import type { OmnistonAssetAddress, QuoteResult, StonfiTransactionData } from '../types'
+import { omnistonManager } from './omnistonManager'
 
 export const isTonAsset = (asset: Asset): boolean => {
   return asset.chainId === KnownChainIds.TonMainnet
@@ -33,51 +42,47 @@ export const assetToOmnistonAddress = (asset: Asset): OmnistonAssetAddress | nul
   return null
 }
 
-export const validateTonAssets = (sellAsset: Asset, buyAsset: Asset): TonAssetValidationResult => {
+export const assertValidTrade = ({
+  sellAsset,
+  buyAsset,
+}: {
+  sellAsset: Asset
+  buyAsset: Asset
+}): Result<
+  { bidAssetAddress: OmnistonAssetAddress; askAssetAddress: OmnistonAssetAddress },
+  SwapErrorRight
+> => {
   if (sellAsset.chainId !== KnownChainIds.TonMainnet) {
-    return {
-      isValid: false,
-      error: Err(
-        makeSwapErrorRight({
-          message: `[Stonfi] Unsupported sell asset chain: ${sellAsset.chainId}`,
-          code: TradeQuoteError.UnsupportedChain,
-        }),
-      ),
-    }
+    return Err(
+      makeSwapErrorRight({
+        message: `[Stonfi] Unsupported sell asset chain: ${sellAsset.chainId}`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
   }
 
   if (buyAsset.chainId !== KnownChainIds.TonMainnet) {
-    return {
-      isValid: false,
-      error: Err(
-        makeSwapErrorRight({
-          message: `[Stonfi] Cross-chain swaps not supported`,
-          code: TradeQuoteError.CrossChainNotSupported,
-        }),
-      ),
-    }
+    return Err(
+      makeSwapErrorRight({
+        message: `[Stonfi] Cross-chain swaps not supported`,
+        code: TradeQuoteError.CrossChainNotSupported,
+      }),
+    )
   }
 
   const bidAssetAddress = assetToOmnistonAddress(sellAsset)
   const askAssetAddress = assetToOmnistonAddress(buyAsset)
 
   if (!bidAssetAddress || !askAssetAddress) {
-    return {
-      isValid: false,
-      error: Err(
-        makeSwapErrorRight({
-          message: `[Stonfi] Unable to convert assets to Omniston addresses`,
-          code: TradeQuoteError.UnsupportedTradePair,
-        }),
-      ),
-    }
+    return Err(
+      makeSwapErrorRight({
+        message: `[Stonfi] Unable to convert assets to Omniston addresses`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
   }
 
-  return {
-    isValid: true,
-    bidAssetAddress,
-    askAssetAddress,
-  }
+  return Ok({ bidAssetAddress, askAssetAddress })
 }
 
 export const calculateRate = (
@@ -127,6 +132,30 @@ export const affiliateBpsToNumber = (affiliateBps: string | undefined): number =
   return parsed
 }
 
+export const buildStonfiSpecific = (
+  quote: Quote,
+  bidAssetAddress: OmnistonAssetAddress,
+  askAssetAddress: OmnistonAssetAddress,
+): StonfiTransactionData => ({
+  quoteId: quote.quoteId,
+  resolverId: quote.resolverId,
+  resolverName: quote.resolverName,
+  tradeStartDeadline: quote.tradeStartDeadline,
+  gasBudget: quote.gasBudget,
+  bidAssetAddress: quote.bidAssetAddress ?? bidAssetAddress,
+  askAssetAddress: quote.askAssetAddress ?? askAssetAddress,
+  bidUnits: quote.bidUnits,
+  askUnits: quote.askUnits,
+  referrerAddress: quote.referrerAddress,
+  referrerFeeAsset: quote.referrerFeeAsset,
+  referrerFeeUnits: quote.referrerFeeUnits,
+  protocolFeeAsset: quote.protocolFeeAsset,
+  protocolFeeUnits: quote.protocolFeeUnits,
+  quoteTimestamp: quote.quoteTimestamp,
+  estimatedGasConsumption: quote.estimatedGasConsumption,
+  params: quote.params,
+})
+
 export const waitForQuote = (
   omniston: Omniston,
   request: QuoteRequest,
@@ -154,6 +183,37 @@ export const waitForQuote = (
         clearTimeout(timer)
         subscription.unsubscribe()
         resolve({ type: 'error', error: err })
+      },
+    })
+  })
+}
+
+export const waitForFirstTradeStatus = (
+  request: {
+    quoteId: string
+    traderWalletAddress: { blockchain: number; address: string }
+    outgoingTxHash: string
+  },
+  timeoutMs: number,
+): Promise<OmnistonTradeStatus | null> => {
+  const omniston = omnistonManager.getInstance()
+
+  return new Promise(resolve => {
+    const timer = setTimeout(() => {
+      subscription.unsubscribe()
+      resolve(null)
+    }, timeoutMs)
+
+    const subscription = omniston.trackTrade(request).subscribe({
+      next: (status: OmnistonTradeStatus) => {
+        clearTimeout(timer)
+        subscription.unsubscribe()
+        resolve(status)
+      },
+      error: err => {
+        console.error('[Stonfi] trackTrade error:', err)
+        clearTimeout(timer)
+        resolve(null)
       },
     })
   })

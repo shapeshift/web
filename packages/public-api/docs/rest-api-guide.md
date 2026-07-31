@@ -41,7 +41,7 @@ X-Partner-Code: your-partner-code
 
 - `swapperName` comes from the rate you chose in step 2.
 - `slippageTolerancePercentageDecimal` is optional; `accountNumber` is optional (defaults to `0`) and is needed for chains that derive addresses per account index (e.g. UTXO/Cosmos).
-- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required and the approval tx to send first), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana`, `utxo_psbt`, `utxo_deposit`, `cosmos`) — describing exactly what to sign for that chain.
+- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required and the approval tx to send first), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`) — describing exactly what to sign for that chain.
 - Quotes expire: honor the `expiresAt` timestamp (≈ 60s after issue). Request a fresh quote rather than submitting an expired one.
 
 ## 4. Execute the swap

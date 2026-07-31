@@ -6,6 +6,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
+  TradeRateStep,
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
@@ -46,7 +47,7 @@ export const getHopTotalNetworkFeeUserCurrency = (
  * like a network fee, not deducted from the trade output) for a single trade step.
  */
 export const getRequiresBalanceProtocolFeeUserCurrency = (
-  step: TradeQuoteStep,
+  step: TradeQuoteStep | TradeRateStep,
   getUserCurrencyRate: (assetId: AssetId) => string | undefined,
 ): BigNumber => {
   if (!step.feeData.protocolFees) return bn(0)
@@ -155,7 +156,7 @@ export const getBuyAmountAfterFeesCryptoPrecision = ({
 
 export const _reduceTotalProtocolFeeByAssetForStep = (
   accumulator: Record<AssetId, ProtocolFee>,
-  step: TradeQuoteStep,
+  step: TradeQuoteStep | TradeRateStep,
 ) => {
   if (step.feeData.protocolFees === undefined) return accumulator
   return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
@@ -178,7 +179,7 @@ export const _reduceTotalProtocolFeeByAssetForStep = (
   )
 }
 
-export const getTotalProtocolFeeByAssetForStep = (step: TradeQuoteStep) =>
+export const getTotalProtocolFeeByAssetForStep = (step: TradeQuoteStep | TradeRateStep) =>
   _reduceTotalProtocolFeeByAssetForStep({}, step)
 
 export const getTotalProtocolFeeByAsset = (

@@ -54,6 +54,7 @@ export const validateTradeQuote = (
     sendAddress,
     inputSellAmountCryptoBaseUnit,
     quoteOrRate,
+    firstHopApprovalNetworkFeeCryptoBaseUnit,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | TradeRate | undefined
@@ -65,6 +66,7 @@ export const validateTradeQuote = (
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
     quoteOrRate: 'quote' | 'rate'
+    firstHopApprovalNetworkFeeCryptoBaseUnit?: string
   },
 ): {
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -215,6 +217,14 @@ export const validateTradeQuote = (
   const firstHopNetworkFeeCryptoPrecision =
     firstHopNetworkFeeCrypto?.toPrecision() ?? bn(0).toFixed()
 
+  const firstHopApprovalNetworkFeeCryptoPrecision =
+    firstHopSellFeeAsset && firstHopApprovalNetworkFeeCryptoBaseUnit
+      ? BigAmount.fromBaseUnit({
+          value: firstHopApprovalNetworkFeeCryptoBaseUnit,
+          precision: firstHopSellFeeAsset.precision,
+        }).toPrecision()
+      : bn(0).toFixed()
+
   const secondHopNetworkFeeCrypto =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
       ? BigAmount.fromBaseUnit({
@@ -235,6 +245,7 @@ export const validateTradeQuote = (
 
   const firstHopHasSufficientBalanceForGas = firstHopFeeAssetBalance
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
+    .minus(firstHopApprovalNetworkFeeCryptoPrecision ?? 0)
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 
@@ -260,8 +271,9 @@ export const validateTradeQuote = (
   // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
   // Later we'll need to handle protocol fees payable from the buy side.
   const insufficientBalanceForProtocolFeesErrors =
-    // TODO(gomes): We will need to handle this differently since a rate doesn't contain bip44 data
-    sellAssetAccountNumber !== undefined
+    // A rate carries a sell account number only when a wallet is connected; balance validation
+    // against it is a quote-time (executable) concern, so keep it gated to quotes
+    quoteOrRate === 'quote' && sellAssetAccountNumber !== undefined
       ? Object.entries(totalProtocolFeesByAsset)
           .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             if (!protocolFee.requiresBalance) return false

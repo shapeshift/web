@@ -247,22 +247,8 @@ export const useTradeExecution = (
         }
       })
       execution.on(
-        TradeExecutionEvent.RelayerTxHash,
-        ({ relayerTxHash, relayerExplorerTxLink }) => {
-          txHashReceived = true
-          dispatch(
-            tradeQuoteSlice.actions.setSwapRelayerTxDetails({
-              hopIndex,
-              relayerTxHash,
-              relayerExplorerTxLink,
-              id: confirmedTradeId,
-            }),
-          )
-        },
-      )
-      execution.on(
         TradeExecutionEvent.Status,
-        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit, chainflipSwapId }) => {
+        ({ buyTxHash, message, swapperTxId, swapperTxLink, actualBuyAmountCryptoBaseUnit }) => {
           dispatch(
             tradeQuoteSlice.actions.setSwapTxMessage({
               hopIndex,
@@ -270,6 +256,17 @@ export const useTradeExecution = (
               id: confirmedTradeId,
             }),
           )
+          if (swapperTxId || swapperTxLink) {
+            if (swapperTxId) txHashReceived = true
+            dispatch(
+              tradeQuoteSlice.actions.setSwapperTxDetails({
+                hopIndex,
+                swapperTxId,
+                swapperTxLink,
+                id: confirmedTradeId,
+              }),
+            )
+          }
           if (buyTxHash) {
             txHashReceived = true
             dispatch(
@@ -281,9 +278,9 @@ export const useTradeExecution = (
             )
           }
 
-          // Update the swap with the actual buy amount and/or real Chainflip swap ID if available
+          // Update the swap with the actual buy amount if available
           // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
-          if (actualBuyAmountCryptoBaseUnit || chainflipSwapId) {
+          if (actualBuyAmountCryptoBaseUnit) {
             const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
             if (freshActiveSwapId) {
               const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
@@ -293,10 +290,7 @@ export const useTradeExecution = (
                 dispatch(
                   swapSlice.actions.upsertSwap({
                     ...currentSwap,
-                    ...(actualBuyAmountCryptoBaseUnit && { actualBuyAmountCryptoBaseUnit }),
-                    ...(chainflipSwapId && {
-                      metadata: { ...currentSwap.metadata, chainflipSwapId },
-                    }),
+                    actualBuyAmountCryptoBaseUnit,
                   }),
                 )
               }
@@ -431,7 +425,7 @@ export const useTradeExecution = (
         return
       }
 
-      if (swapperName === SwapperName.Bebop && hop?.bebopSolanaSerializedTx && hop?.bebopQuoteId) {
+      if (hop?.transactionData?.type === 'solana_serialized_tx') {
         const output = await execution.execSolanaMessage({
           swapperName,
           tradeQuote,
@@ -448,11 +442,34 @@ export const useTradeExecution = (
             })
 
             if (!result?.signatures) {
-              throw new Error('Failed to sign Bebop Solana transaction')
+              throw new Error('Failed to sign serialized Solana transaction')
             }
 
             trackMixpanelEventOnExecute()
             return result.signatures
+          },
+          signAndBroadcastSerializedTransaction: async (serializedTx: string) => {
+            if (!wallet || !supportsSolana(wallet) || !wallet.solanaSignSerializedTx) {
+              throw new Error('Wallet does not support signing serialized Solana transactions')
+            }
+
+            const result = await wallet.solanaSignSerializedTx({
+              addressNList: toAddressNList(accountMetadata.bip44Params),
+              serializedTx,
+            })
+
+            if (!result?.serialized) {
+              throw new Error('Failed to sign serialized Solana transaction')
+            }
+
+            const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
+
+            trackMixpanelEventOnExecute()
+            return adapter.broadcastTransaction({
+              senderAddress: fromAccountId(sellAssetAccountId).account,
+              receiverAddress: tradeQuote.receiveAddress,
+              hex: result.serialized,
+            })
           },
         })
 

@@ -50,7 +50,7 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
     return getTxLink({
       txId: action.transactionMetadata.txHash,
       chainId: action.transactionMetadata.chainId,
-      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      explorerBaseUrl: feeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })

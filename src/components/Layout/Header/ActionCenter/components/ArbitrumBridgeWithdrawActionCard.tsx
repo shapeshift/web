@@ -126,7 +126,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     const withdrawTxLink = getTxLink({
       txId: action.arbitrumBridgeMetadata.withdrawTxHash,
       chainId: sellAsset.chainId,
-      defaultExplorerBaseUrl: sellFeeAsset.explorerTxLink,
+      explorerBaseUrl: sellFeeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })
@@ -135,7 +135,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       ? getTxLink({
           txId: action.arbitrumBridgeMetadata.claimTxHash,
           chainId: buyAsset.chainId,
-          defaultExplorerBaseUrl: destinationFeeAsset.explorerTxLink,
+          explorerBaseUrl: destinationFeeAsset.explorerTxLink,
           address: undefined,
           maybeSafeTx: undefined,
         })

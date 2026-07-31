@@ -1,5 +1,50 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
+import type {
+  GetEvmTradeQuoteInput,
+  GetEvmTradeRateInput,
+  GetNearTradeQuoteInput,
+  GetNearTradeRateInput,
+  GetSolanaTradeQuoteInput,
+  GetSolanaTradeRateInput,
+  GetStarknetTradeQuoteInput,
+  GetStarknetTradeRateInput,
+  GetSuiTradeQuoteInput,
+  GetSuiTradeRateInput,
+  GetTonTradeQuoteInput,
+  GetTonTradeRateInput,
+  GetTronTradeQuoteInput,
+  GetTronTradeRateInput,
+  GetUtxoTradeQuoteInput,
+  GetUtxoTradeRateInput,
+} from '../../types'
+
+export type NearIntentsTradeQuoteInput =
+  | GetEvmTradeQuoteInput
+  | GetUtxoTradeQuoteInput
+  | GetSolanaTradeQuoteInput
+  | GetTronTradeQuoteInput
+  | GetSuiTradeQuoteInput
+  | GetStarknetTradeQuoteInput
+  | GetNearTradeQuoteInput
+  | GetTonTradeQuoteInput
+
+export type NearIntentsTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetUtxoTradeRateInput
+  | GetSolanaTradeRateInput
+  | GetTronTradeRateInput
+  | GetSuiTradeRateInput
+  | GetStarknetTradeRateInput
+  | GetNearTradeRateInput
+  | GetTonTradeRateInput
+
+export type NearIntentsMetadata = {
+  name: 'nearIntents'
+  depositAddress: string
+  depositMemo?: string
+}
+
 export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 export type {
   GetExecutionStatusResponse,

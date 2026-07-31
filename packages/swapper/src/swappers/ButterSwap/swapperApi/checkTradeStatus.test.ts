@@ -149,7 +149,7 @@ describe('checkTradeStatus same-chain short-circuit', () => {
       state: 1, // Confirmed
       toHash: 'dest-tx',
       relayerHash: 'relayer-tx',
-      relayerChain: { scanUrl: 'https://scan.url' },
+      relayerChain: { scanUrl: 'https://scan.url/' },
     }
 
     vi.mocked(xhr.getBridgeInfoBySourceHash).mockResolvedValue(Ok(mockBridgeInfo as any))
@@ -181,8 +181,8 @@ describe('checkTradeStatus same-chain short-circuit', () => {
     expect(result).toEqual({
       status: TxStatus.Confirmed,
       buyTxHash: 'dest-tx',
-      relayerTxHash: 'relayer-tx',
-      relayerExplorerTxLink: 'https://scan.url',
+      swapperTxId: 'relayer-tx',
+      swapperTxLink: 'https://scan.url/tx/relayer-tx',
       message: undefined,
     })
   })

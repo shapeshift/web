@@ -1,5 +1,7 @@
-export type Permit2SignatureRequired = {
-  type: 'permit2'
+// 0x settler convention: sign eip712, then append a 32-byte signature-length word followed by
+// the signature to the transaction data before broadcasting
+export type ZrxPermit2SignatureRequired = {
+  type: 'zrx_permit2'
   eip712: Record<string, unknown>
 }
 
@@ -10,11 +12,11 @@ export type EvmTransactionData = {
   data: string
   value: string
   gasLimit?: string
-  signatureRequired?: Permit2SignatureRequired
+  signatureRequired?: ZrxPermit2SignatureRequired
 }
 
 export type SolanaTransactionData = {
-  type: 'solana'
+  type: 'solana_instructions'
   instructions: {
     programId: string
     keys: {
@@ -27,31 +29,39 @@ export type SolanaTransactionData = {
   addressLookupTableAddresses: string[]
 }
 
-export type UtxoPsbtTransactionData = {
-  type: 'utxo_psbt'
-  psbt: string
-  opReturnData?: string
+export type SolanaSerializedTxTransactionData = {
+  type: 'solana_serialized_tx'
+  serializedTx: string
 }
 
-export type UtxoDepositTransactionData = {
-  type: 'utxo_deposit'
-  depositAddress: string
-  memo: string
+export type UtxoTransactionData = {
+  type: 'utxo'
+  to: string
+  opReturnData?: string
   value: string
 }
 
-export type UtxoTransactionData = UtxoPsbtTransactionData | UtxoDepositTransactionData
-
-export type CosmosTransactionData = {
-  type: 'cosmos'
+export type CosmosSdkMsgSendTransactionData = {
+  type: 'cosmossdk_msg_send'
   chainId: string
   to: string
+  denom: string
   value: string
   memo?: string
+}
+
+export type CosmosSdkMsgDepositTransactionData = {
+  type: 'cosmossdk_msg_deposit'
+  chainId: string
+  value: string
+  memo: string
+  coin: string
 }
 
 export type TransactionData =
   | EvmTransactionData
   | SolanaTransactionData
+  | SolanaSerializedTxTransactionData
   | UtxoTransactionData
-  | CosmosTransactionData
+  | CosmosSdkMsgSendTransactionData
+  | CosmosSdkMsgDepositTransactionData

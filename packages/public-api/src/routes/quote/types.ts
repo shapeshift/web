@@ -13,14 +13,18 @@ const EvmTransactionDataSchema = z.object({
   gasLimit: z.string().optional().openapi({ example: '300000' }),
   signatureRequired: z
     .object({
-      type: z.literal('permit2'),
+      type: z.literal('zrx_permit2'),
       eip712: z.record(z.unknown()),
     })
-    .optional(),
+    .optional()
+    .openapi({
+      description:
+        'When present, the transaction requires a permit2 signature before broadcast: sign the eip712 payload with eth_signTypedData_v4, then append a 32-byte big-endian signature-length word followed by the signature to `data` (the 0x settler convention). The supplied gasLimit already accounts for the appended signature.',
+    }),
 })
 
 const SolanaTransactionDataSchema = z.object({
-  type: z.literal('solana').openapi({ example: 'solana' }),
+  type: z.literal('solana_instructions').openapi({ example: 'solana_instructions' }),
   instructions: z.array(
     z.object({
       programId: z.string(),
@@ -37,35 +41,45 @@ const SolanaTransactionDataSchema = z.object({
   addressLookupTableAddresses: z.array(z.string()),
 })
 
-const UtxoPsbtTransactionDataSchema = z.object({
-  type: z.literal('utxo_psbt').openapi({ example: 'utxo_psbt' }),
-  psbt: z.string(),
-  opReturnData: z.string().optional(),
-  depositAddress: z.string().optional(),
-  value: z.string().optional(),
+// Sealed multi-signer RFQ tx (maker pre-signed, blockhash pinned) - sign the taker slot as-is
+// and broadcast, never rebuild
+const SolanaSerializedTxTransactionDataSchema = z.object({
+  type: z.literal('solana_serialized_tx').openapi({ example: 'solana_serialized_tx' }),
+  serializedTx: z.string(),
 })
 
-const UtxoDepositTransactionDataSchema = z.object({
-  type: z.literal('utxo_deposit').openapi({ example: 'utxo_deposit' }),
-  depositAddress: z.string(),
-  memo: z.string(),
+const UtxoTransactionDataSchema = z.object({
+  type: z.literal('utxo').openapi({ example: 'utxo' }),
+  to: z.string(),
+  opReturnData: z.string().optional(),
   value: z.string(),
 })
 
-const CosmosTransactionDataSchema = z.object({
-  type: z.literal('cosmos').openapi({ example: 'cosmos' }),
+const CosmosSdkMsgSendTransactionDataSchema = z.object({
+  type: z.literal('cosmossdk_msg_send').openapi({ example: 'cosmossdk_msg_send' }),
   chainId: z.string(),
   to: z.string(),
+  denom: z.string().openapi({ example: 'uatom' }),
   value: z.string(),
   memo: z.string().optional(),
+})
+
+// A native MsgDeposit (e.g. THORChain/MAYAChain) rather than a bank send
+const CosmosSdkMsgDepositTransactionDataSchema = z.object({
+  type: z.literal('cosmossdk_msg_deposit').openapi({ example: 'cosmossdk_msg_deposit' }),
+  chainId: z.string(),
+  value: z.string(),
+  memo: z.string(),
+  coin: z.string().openapi({ example: 'THOR.RUNE' }),
 })
 
 const TransactionDataSchema = z.discriminatedUnion('type', [
   EvmTransactionDataSchema,
   SolanaTransactionDataSchema,
-  UtxoPsbtTransactionDataSchema,
-  UtxoDepositTransactionDataSchema,
-  CosmosTransactionDataSchema,
+  SolanaSerializedTxTransactionDataSchema,
+  UtxoTransactionDataSchema,
+  CosmosSdkMsgSendTransactionDataSchema,
+  CosmosSdkMsgDepositTransactionDataSchema,
 ])
 
 export const ApprovalInfoSchema = z.object({
@@ -111,6 +125,12 @@ export const QuoteRequestSchema = z.object({
   swapperName: z.string().min(1).openapi({ example: 'Relay' }),
   slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
   accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),
+  // UTXO sells only: account xpub used to compute an exact network fee from the wallet's utxo set.
+  // Without it the returned network fee is a rough estimate.
+  xpub: z.string().optional().openapi({
+    example:
+      'zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs',
+  }),
 })
 
 export const QuoteResponseSchema = registry.register(

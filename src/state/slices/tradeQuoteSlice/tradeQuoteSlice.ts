@@ -402,21 +402,20 @@ export const tradeQuoteSlice = createSlice({
         state.tradeExecution[action.payload.id][key].swap.sellTxHash = sellTxHash
       },
     ),
-    setSwapRelayerTxDetails: create.reducer(
+    setSwapperTxDetails: create.reducer(
       (
         state,
         action: PayloadAction<{
           hopIndex: number
-          relayerTxHash: string
-          relayerExplorerTxLink: string
+          swapperTxId: string | undefined
+          swapperTxLink: string | undefined
           id: TradeQuote['id']
         }>,
       ) => {
-        const { hopIndex, relayerTxHash, relayerExplorerTxLink } = action.payload
+        const { hopIndex, swapperTxId, swapperTxLink } = action.payload
         const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-        state.tradeExecution[action.payload.id][key].swap.relayerTxHash = relayerTxHash
-        state.tradeExecution[action.payload.id][key].swap.relayerExplorerTxLink =
-          relayerExplorerTxLink
+        state.tradeExecution[action.payload.id][key].swap.swapperTxId = swapperTxId
+        state.tradeExecution[action.payload.id][key].swap.swapperTxLink = swapperTxLink
       },
     ),
     setSwapBuyTxHash: create.reducer(

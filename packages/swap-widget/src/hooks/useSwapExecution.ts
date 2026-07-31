@@ -1,3 +1,4 @@
+import type { AddressLookupTableAccount } from '@solana/web3.js'
 import { useEffect, useRef } from 'react'
 import type { Hex, WalletClient } from 'viem'
 import { getAddress } from 'viem'
@@ -7,8 +8,9 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type {
   EvmTransactionData,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
-  UtxoDepositTransactionData,
+  UtxoTransactionData,
 } from '../types'
 import { getErrorMessage } from '../utils/errors'
 
@@ -51,18 +53,15 @@ const executeEvm = async (
   })
 }
 
-const executeUtxoDeposit = (
-  txData: UtxoDepositTransactionData,
-  bitcoin: BitcoinSigner,
-): Promise<string> => {
+const executeUtxo = (txData: UtxoTransactionData, bitcoin: BitcoinSigner): Promise<string> => {
   if (!bitcoin.isConnected || !bitcoin.address) throw new Error('Bitcoin wallet not connected')
 
   bitcoin.reset()
 
   return bitcoin.sendTransfer({
-    recipientAddress: txData.depositAddress,
+    recipientAddress: txData.to,
     amount: txData.value,
-    memo: txData.memo,
+    memo: txData.opReturnData,
   })
 }
 
@@ -76,7 +75,13 @@ const executeSolana = async (
 
   solana.reset()
 
-  const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
+  const {
+    ComputeBudgetProgram,
+    PublicKey,
+    TransactionInstruction,
+    TransactionMessage,
+    VersionedTransaction,
+  } = await import('@solana/web3.js')
 
   const instructions = txData.instructions.map(ix => {
     return new TransactionInstruction({
@@ -90,16 +95,69 @@ const executeSolana = async (
     })
   })
 
-  const transaction = new Transaction().add(...instructions)
-
   const conn = solana.connection as {
     getLatestBlockhash: (commitment: string) => Promise<{ blockhash: string }>
+    getAddressLookupTable: (
+      key: InstanceType<typeof PublicKey>,
+    ) => Promise<{ value: AddressLookupTableAccount | null }>
+    getRecentPrioritizationFees: () => Promise<{ prioritizationFee: number }[]>
   }
+
+  // Quote instructions carry the static compute unit limit - append only the dynamic priority
+  // fee here; plain native transfers carry no compute budget and broadcast without one
+  const includeComputeBudget = instructions.some(ix =>
+    ix.programId.equals(ComputeBudgetProgram.programId),
+  )
+
+  if (includeComputeBudget) {
+    const recentFees = await conn.getRecentPrioritizationFees()
+    const fees = recentFees
+      .map(fee => fee.prioritizationFee)
+      .filter(fee => fee > 0)
+      .sort((a, b) => a - b)
+    // 75th percentile of recent fees approximates a fast priority fee
+    const priorityFee = fees[Math.floor(fees.length * 0.75)] ?? 0
+
+    if (priorityFee > 0) {
+      instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }))
+    }
+  }
+
+  const lookupTableAccounts = (
+    await Promise.all(
+      txData.addressLookupTableAddresses.map(async address => {
+        const { value } = await conn.getAddressLookupTable(new PublicKey(address))
+        return value
+      }),
+    )
+  ).filter((account): account is AddressLookupTableAccount => account !== null)
 
   const { blockhash } = await conn.getLatestBlockhash('confirmed')
 
-  transaction.recentBlockhash = blockhash
-  transaction.feePayer = new PublicKey(solana.address)
+  const message = new TransactionMessage({
+    payerKey: new PublicKey(solana.address),
+    recentBlockhash: blockhash,
+    instructions,
+  }).compileToV0Message(lookupTableAccounts)
+
+  return solana.sendTransaction({ transaction: new VersionedTransaction(message) })
+}
+
+const executeSolanaSerializedTx = async (
+  txData: SolanaSerializedTxTransactionData,
+  solana: SolanaSigner,
+): Promise<string> => {
+  if (!solana.isConnected || !solana.address || !solana.connection) {
+    throw new Error('Solana wallet not connected')
+  }
+
+  solana.reset()
+
+  const { VersionedTransaction } = await import('@solana/web3.js')
+
+  const transaction = VersionedTransaction.deserialize(
+    new Uint8Array(Buffer.from(txData.serializedTx, 'base64')),
+  )
 
   return solana.sendTransaction({ transaction })
 }
@@ -143,12 +201,14 @@ export const useSwapExecution = () => {
           switch (txData.type) {
             case 'evm':
               return executeEvm(txData, walletClient, walletAddress)
-            case 'utxo_deposit':
-              return executeUtxoDeposit(txData, bitcoin)
-            case 'solana':
+            case 'utxo':
+              return executeUtxo(txData, bitcoin)
+            case 'solana_instructions':
               return executeSolana(txData, solana)
-            case 'utxo_psbt':
-            case 'cosmos':
+            case 'solana_serialized_tx':
+              return executeSolanaSerializedTx(txData, solana)
+            case 'cosmossdk_msg_send':
+            case 'cosmossdk_msg_deposit':
               throw new Error('This swap is not yet supported — please try a different route')
             default: {
               const _exhaustive: never = txData

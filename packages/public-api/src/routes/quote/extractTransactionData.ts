@@ -1,11 +1,11 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
   UtxoTransactionData,
@@ -13,189 +13,73 @@ import type {
 import { getEvmChainIdNumber } from './utils'
 
 const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | undefined => {
+  if (step.transactionData?.type !== 'evm') return
+
   const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
-
-  const txData: EvmTransactionData | undefined = (() => {
-    if (step.zrxTransactionMetadata) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.zrxTransactionMetadata.to,
-        data: step.zrxTransactionMetadata.data,
-        value: step.zrxTransactionMetadata.value,
-        gasLimit: step.zrxTransactionMetadata.gas,
-      }
-    }
-
-    if (step.portalsTransactionMetadata) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.portalsTransactionMetadata.to,
-        data: step.portalsTransactionMetadata.data,
-        value: step.portalsTransactionMetadata.value,
-        gasLimit: step.portalsTransactionMetadata.gasLimit,
-      }
-    }
-
-    if (step.bebopTransactionMetadata) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.bebopTransactionMetadata.to,
-        data: step.bebopTransactionMetadata.data,
-        value: step.bebopTransactionMetadata.value,
-        gasLimit: step.bebopTransactionMetadata.gas,
-      }
-    }
-
-    if (step.butterSwapTransactionMetadata) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.butterSwapTransactionMetadata.to,
-        data: step.butterSwapTransactionMetadata.data,
-        value: step.butterSwapTransactionMetadata.value,
-        gasLimit: step.butterSwapTransactionMetadata.gasLimit,
-      }
-    }
-
-    if (step.relayTransactionMetadata?.to && step.relayTransactionMetadata?.data) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.relayTransactionMetadata.to,
-        data: step.relayTransactionMetadata.data,
-        value: step.relayTransactionMetadata.value ?? '0',
-        gasLimit: step.relayTransactionMetadata.gasLimit,
-      }
-    }
-
-    if (step.chainflipSpecific?.chainflipDepositAddress) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.chainflipSpecific.chainflipDepositAddress,
-        data: '0x',
-        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      }
-    }
-
-    if (step.nearIntentsSpecific?.depositAddress) {
-      const depositAddress = step.nearIntentsSpecific.depositAddress
-      const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-      const contractAddress = contractAddressOrUndefined(step.sellAsset.assetId)
-
-      if (contractAddress) {
-        return {
-          type: 'evm' as const,
-          chainId,
-          to: contractAddress,
-          data: evm.getErc20Data(depositAddress, value, contractAddress),
-          value: '0',
-        }
-      }
-
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: depositAddress,
-        data: '0x',
-        value,
-      }
-    }
-
-    if (step.thorchainTransactionMetadata?.data) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.thorchainTransactionMetadata.to,
-        data: step.thorchainTransactionMetadata.data,
-        value: step.thorchainTransactionMetadata.value ?? '0',
-      }
-    }
-
-    return undefined
-  })()
-
-  if (!txData) return undefined
-
-  if (step.permit2Eip712 && !txData.signatureRequired) {
-    return { ...txData, signatureRequired: { type: 'permit2', eip712: step.permit2Eip712 } }
-  }
-
-  return txData
-}
-
-const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
-  if (!step.solanaTransactionMetadata?.instructions) {
-    return undefined
-  }
-
-  const instructions = step.solanaTransactionMetadata.instructions.map(ix => ({
-    programId: ix.programId.toBase58(),
-    keys: ix.keys.map(key => ({
-      pubkey: key.pubkey.toBase58(),
-      isSigner: key.isSigner,
-      isWritable: key.isWritable,
-    })),
-    data: Buffer.from(ix.data).toString('base64'),
-  }))
+  const { to, data, value, gasLimit, signatureRequired } = step.transactionData
 
   return {
-    type: 'solana',
-    instructions,
-    addressLookupTableAddresses: step.solanaTransactionMetadata.addressLookupTableAddresses,
+    type: 'evm',
+    chainId,
+    to,
+    data,
+    value,
+    gasLimit,
+    // The wire names the convention explicitly - the swapper keeps the generic permit2 shape
+    signatureRequired: signatureRequired && {
+      type: 'zrx_permit2',
+      eip712: signatureRequired.eip712,
+    },
+  }
+}
+
+const extractSolanaTransactionData = (
+  step: TradeQuoteStep,
+): SolanaTransactionData | SolanaSerializedTxTransactionData | undefined => {
+  if (step.transactionData?.type === 'solana_serialized_tx') {
+    const { serializedTx } = step.transactionData
+    return { type: 'solana_serialized_tx', serializedTx }
+  }
+
+  if (step.transactionData?.type !== 'solana_instructions') return
+
+  const { instructions, addressLookupTableAddresses } = step.transactionData
+
+  return {
+    type: 'solana_instructions',
+    instructions: instructions.map(instruction => ({
+      programId: instruction.programId.toBase58(),
+      keys: instruction.keys.map(key => ({
+        pubkey: key.pubkey.toBase58(),
+        isSigner: key.isSigner,
+        isWritable: key.isWritable,
+      })),
+      data: Buffer.from(instruction.data).toString('base64'),
+    })),
+    addressLookupTableAddresses,
   }
 }
 
 const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData | undefined => {
-  if (step.relayTransactionMetadata?.to) {
-    return {
-      type: 'utxo_deposit',
-      depositAddress: step.relayTransactionMetadata.to,
-      memo: step.relayTransactionMetadata.opReturnData ?? '',
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    }
-  }
+  if (step.transactionData?.type !== 'utxo') return
 
-  if (step.chainflipSpecific?.chainflipDepositAddress) {
-    return {
-      type: 'utxo_deposit',
-      depositAddress: step.chainflipSpecific.chainflipDepositAddress,
-      memo: '',
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    }
-  }
+  const { to, opReturnData, value } = step.transactionData
 
-  if (step.thorchainTransactionMetadata?.to) {
-    return {
-      type: 'utxo_deposit',
-      depositAddress: step.thorchainTransactionMetadata.to,
-      memo: step.thorchainTransactionMetadata.memo ?? '',
-      value:
-        step.thorchainTransactionMetadata.value ??
-        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    }
-  }
-
-  return undefined
+  return { type: 'utxo', to, opReturnData, value }
 }
 
-const extractCosmosTransactionData = (step: TradeQuoteStep): CosmosTransactionData | undefined => {
-  if (step.thorchainTransactionMetadata?.to) {
-    return {
-      type: 'cosmos',
-      chainId: step.sellAsset.chainId,
-      to: step.thorchainTransactionMetadata.to,
-      value:
-        step.thorchainTransactionMetadata.value ??
-        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      memo: step.thorchainTransactionMetadata.memo ?? '',
-    }
+const extractCosmosSdkTransactionData = (
+  step: TradeQuoteStep,
+): CosmosSdkMsgSendTransactionData | CosmosSdkMsgDepositTransactionData | undefined => {
+  if (step.transactionData?.type === 'cosmossdk_msg_send') {
+    const { chainId, to, denom, value, memo } = step.transactionData
+    return { type: 'cosmossdk_msg_send', chainId, to, denom, value, memo }
   }
 
-  return undefined
+  if (step.transactionData?.type === 'cosmossdk_msg_deposit') {
+    const { chainId, value, memo, coin } = step.transactionData
+    return { type: 'cosmossdk_msg_deposit', chainId, value, memo, coin }
+  }
 }
 
 export const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
@@ -214,8 +98,6 @@ export const extractTransactionData = (step: TradeQuoteStep): TransactionData | 
   }
 
   if (chainNamespace === 'cosmos') {
-    return extractCosmosTransactionData(step)
+    return extractCosmosSdkTransactionData(step)
   }
-
-  return undefined
 }

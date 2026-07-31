@@ -45,13 +45,15 @@ const mockMimirActive = {
 } as ThorchainMimir
 
 describe('isTradingActive', () => {
-  const isTradingActiveResponse = selectIsTradingActive({
-    assetId: btcAssetId,
-    swapperName: SwapperName.Thorchain,
-    inboundAddressResponse: mockInboundAddressDataActive,
-    mimir: mockMimirActive,
+  it('detects an active pool from a valid response', () => {
+    const isTradingActiveResponse = selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.Thorchain,
+      inboundAddressResponse: mockInboundAddressDataActive,
+      mimir: mockMimirActive,
+    })
+    expect(isTradingActiveResponse).toBe(true)
   })
-  expect(isTradingActiveResponse).toBe(true)
 
   it('detects an halted pool from a valid response', () => {
     const isTradingActiveResponse = selectIsTradingActive({

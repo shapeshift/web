@@ -8,3 +8,5 @@ export * from './utils/longTailHelpers'
 export const isRune = (assetId: AssetId) => assetId === thorchainAssetId
 export const isTcy = (assetId: AssetId) => assetId === tcyAssetId
 export const isRuji = (assetId: AssetId) => assetId === rujiAssetId
+export { thorchainApi } from './endpoints'
+export { thorchainSwapper } from './ThorchainSwapper'

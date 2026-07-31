@@ -1,13 +1,14 @@
 import { isGatewayError } from '@gobob/bob-sdk'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero } from '@shapeshiftoss/utils'
 
-import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
-import type { SwapperApi, UtxoFeeData } from '../../types'
-import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import type { SwapperApi } from '../../types'
+import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import { getTronTransactionFees } from '../../utils/tron'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'
+import type { BobGatewayTradeQuoteInput, BobGatewayTradeRateInput } from './types'
 import {
   getBobGatewayClient,
   mapBobGatewayOrderStatusToTxStatus,
@@ -18,135 +19,25 @@ import {
 const registeredSwapIds = new Set<string>()
 
 export const bobGatewayApi: SwapperApi = {
-  getTradeRate: async (input, deps) => {
-    return (await getBobGatewayTradeRate(input, deps)).map(tradeRate => [tradeRate])
-  },
-  getTradeQuote: async (input, deps) => {
-    return (await getBobGatewayTradeQuote(input, deps)).map(tradeQuote => [tradeQuote])
-  },
-  getUnsignedUtxoTransaction: ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    accountType,
-    assertGetUtxoChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('[BobGateway] unable to execute a trade rate')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { bobSpecific, sellAsset } = step
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    if (!bobSpecific?.utxoTx) throw new Error('[BobGateway] invalid utxo transaction')
-    const { depositAddress, opReturnData } = bobSpecific.utxoTx
-
-    return adapter.buildSendApiTransaction({
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub,
-      to: depositAddress,
-      accountNumber: step.accountNumber,
-      skipToAddressValidation: true,
-      chainSpecific: {
-        accountType,
-        opReturnData,
-        satoshiPerByte: (step.feeData.chainSpecific as UtxoFeeData).satsPerByte,
-      },
-    })
-  },
-  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('[BobGateway] unable to execute a trade rate')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { bobSpecific, sellAsset } = step
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    if (!bobSpecific?.utxoTx) throw new Error('[BobGateway] invalid utxo transaction')
-    const { depositAddress, opReturnData } = bobSpecific.utxoTx
-
-    const { fast } = await adapter.getFeeData({
-      to: depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub, opReturnData },
-      sendMax: false,
-    })
-
-    return fast.txFee
-  },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    assertGetEvmChainAdapter,
-    supportsEIP1559,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('[BobGateway] unable to execute a trade rate')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { accountNumber, bobSpecific, sellAsset } = step
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    if (!bobSpecific?.evmTx) throw new Error('[BobGateway] invalid evm transaction')
-    const { to, data, value } = bobSpecific.evmTx
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    // Pad the gas limit of the tx we actually broadcast to reduce the risk of out-of-gas reverts.
-    const gasLimit = bnOrZero(feeData.gasLimit).times(1.2).toFixed(0)
-
-    return adapter.buildCustomApiTx({
-      accountNumber,
-      from,
-      to,
-      value,
-      data,
-      ...feeData,
-      gasLimit,
-    })
-  },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('[BobGateway] unable to execute a trade rate')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { bobSpecific, sellAsset } = step
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    if (!bobSpecific?.evmTx) throw new Error('[BobGateway] invalid evm transaction')
-    const { to, data, value } = bobSpecific.evmTx
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
-  },
+  getTradeRate: (input, deps) => getBobGatewayTradeRate(input as BobGatewayTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getBobGatewayTradeQuote(input as BobGatewayTradeQuoteInput, deps),
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
   getUnsignedTronTransaction: ({ from, stepIndex, tradeQuote, assertGetTronChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) {
       throw new Error('[BobGateway] unable to execute a trade rate')
     }
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { accountNumber, bobSpecific, sellAsset } = step
+
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'tron') throw new Error('[BobGateway] invalid tron transaction')
 
     const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
-    if (!bobSpecific?.tronTx) throw new Error('[BobGateway] invalid tron transaction')
-    const { to, data, value } = bobSpecific.tronTx
+    const { to, data, value } = transactionData
 
     return adapter.buildCustomApiTx({
       accountNumber,
@@ -160,8 +51,7 @@ export const bobGatewayApi: SwapperApi = {
   checkTradeStatus: async ({ swap, config, txHash }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 
-    const orderId = swap.metadata.bobSpecific?.orderId
-    if (!orderId) throw new Error('[BobGateway] orderId is required for status check')
+    const { orderId } = getSwapMetadata(swap.metadata.swapperMetadata, 'bob')
 
     if (txHash && !registeredSwapIds.has(swap.id)) {
       try {

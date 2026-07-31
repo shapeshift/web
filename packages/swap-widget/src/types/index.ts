@@ -176,13 +176,12 @@ export type RatesResponse = {
 }
 
 export type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
-  Permit2SignatureRequired,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
-  UtxoDepositTransactionData,
-  UtxoPsbtTransactionData,
   UtxoTransactionData,
 } from '@shapeshiftoss/types'
 

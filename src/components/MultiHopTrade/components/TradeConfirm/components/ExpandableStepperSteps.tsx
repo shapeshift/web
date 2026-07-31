@@ -1,7 +1,7 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { getPermit2Eip712, SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -137,7 +137,7 @@ export const ExpandableStepperSteps = ({
     return (
       swapperName === SwapperName.Zrx &&
       isPermit2 &&
-      !activeTradeQuote?.steps[currentHopIndex]?.permit2Eip712 &&
+      !getPermit2Eip712(activeTradeQuote?.steps[currentHopIndex]) &&
       ![TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
         confirmedTradeExecutionState,
       ) &&

@@ -8,7 +8,7 @@ import { makeNetworkFeeEstimationFailedErr, makeTradeStepBuildFailedErr } from '
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { BRIDGE_TYPE } from '../types'
 import { BRIDGE_TYPE_TO_FALLBACK_GAS_LIMIT } from './constants'
-import { buildArbitrumBridgeRequest } from './helpers'
+import { buildArbitrumBridgeRequest, getArbitrumBridgeAllowanceContract } from './helpers'
 
 type BaseArgs = {
   bridgeType: BRIDGE_TYPE
@@ -80,11 +80,18 @@ export async function getArbitrumBridgeStepData(
   }
 
   try {
+    const spenderAddress = await getArbitrumBridgeAllowanceContract({ bridgeType, sellAsset })
+
     const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
       adapter,
       transactionData,
       from: args.from,
       supportsEIP1559,
+      stateOverride: {
+        sellAsset,
+        sellAmountCryptoBaseUnit,
+        spenderAddress: spenderAddress || undefined,
+      },
     })
 
     const stepData: ArbitrumBridgeQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

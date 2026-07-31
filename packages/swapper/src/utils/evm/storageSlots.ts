@@ -100,7 +100,5 @@ export const getTokenAllowanceSlot = (tokenAddress: Address): number => {
 }
 
 // USDC slot 9: bit 255 is blacklist flag, must keep cleared
-export const getMaxBalanceValue = (tokenAddress: Address): Hex => {
-  const slot = getTokenBalanceSlot(tokenAddress)
-  return slot === 9 ? toHex(maxUint256 >> 1n) : toHex(maxUint256)
-}
+export const getMaxBalanceValue = (balanceSlotNumber: number): Hex =>
+  balanceSlotNumber === 9 ? toHex(maxUint256 >> 1n) : toHex(maxUint256)

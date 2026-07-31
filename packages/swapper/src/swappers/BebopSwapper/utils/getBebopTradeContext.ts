@@ -112,6 +112,7 @@ export const getBebopTradeContext = async ({
     },
     stepDataArgs: {
       tx: quote.tx,
+      approvalTarget: quote.approvalTarget,
       sellAsset,
       from,
       deps,

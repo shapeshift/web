@@ -43,6 +43,12 @@ export async function getDebridgeStepData(
     gasLimit,
   }
 
+  const stateOverride = {
+    sellAsset,
+    sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    spenderAddress: tx.to,
+  }
+
   if (type === 'rate') {
     const networkFeeCryptoBaseUnit = await (async () => {
       try {
@@ -52,6 +58,7 @@ export async function getDebridgeStepData(
           from,
           supportsEIP1559,
           gasLimitBuffer: 1.2,
+          stateOverride,
         })
       } catch {
         return fallbackNetworkFeeCryptoBaseUnit
@@ -70,6 +77,7 @@ export async function getDebridgeStepData(
       from,
       supportsEIP1559,
       gasLimitBuffer: 1.2,
+      stateOverride,
     })
 
     const stepData: DebridgeQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

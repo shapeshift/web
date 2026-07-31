@@ -177,6 +177,11 @@ export async function getBobGatewayStepData(
           from,
           supportsEIP1559: input.supportsEIP1559,
           gasLimitBuffer: 1.2,
+          stateOverride: {
+            sellAsset,
+            sellAmountCryptoBaseUnit,
+            spenderAddress: tx.to,
+          },
         })
 
         const stepData: BobGatewayQuoteStepData = {

@@ -1,8 +1,10 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
 import type { TxBuildData } from '../../types'
+import { estimateGasWithStateOverride, getMinimalStateOverride, withTimeout } from './stateOverride'
 
 type GetEvmNetworkFeeCryptoBaseUnitArgs = {
   adapter: EvmChainAdapter
@@ -14,6 +16,14 @@ type GetEvmNetworkFeeCryptoBaseUnitArgs = {
       transactionData: Extract<TxBuildData, { type: 'evm' }>
       from: string
       gasLimitBuffer?: number
+      // Pre-approval token sells (and unfunded rate addresses) revert plain estimation - when
+      // supplied, insufficient allowance/balance is state-overridden at estimation time so the
+      // trade still carries a real gas limit; sufficient state estimates plainly as before
+      stateOverride?: {
+        sellAsset: Asset
+        sellAmountCryptoBaseUnit: string
+        spenderAddress?: string
+      }
     }
 )
 
@@ -39,9 +49,36 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
     return priceProviderGasLimit(providerGasLimit)
   }
 
-  // Executable quote with no provider gas limit: estimate on chain, then set the buffered limit on
-  // the tx data in place so the executable tx always carries a gas limit
   const { to, data, value } = transactionData
+
+  if (args.stateOverride) {
+    const { sellAsset, sellAmountCryptoBaseUnit, spenderAddress } = args.stateOverride
+
+    const overriddenGasLimit = await withTimeout(
+      (async () => {
+        const overrideArgs = {
+          sellAsset,
+          sellAmountCryptoBaseUnit,
+          from,
+          spenderAddress: spenderAddress ?? to,
+          value,
+        }
+
+        const stateOverride = await getMinimalStateOverride(overrideArgs)
+        if (!stateOverride) return undefined
+
+        return estimateGasWithStateOverride({ ...overrideArgs, to, data, stateOverride })
+      })(),
+    )
+
+    if (overriddenGasLimit) {
+      transactionData.gasLimit = bnOrZero(overriddenGasLimit).times(gasLimitBuffer).toFixed(0)
+      return priceProviderGasLimit(overriddenGasLimit)
+    }
+  }
+
+  // Estimate on chain, then set the buffered limit on the tx data in place so the executable tx
+  // always carries a gas limit
   const estimatedFees = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
   transactionData.gasLimit = bnOrZero(estimatedFees.gasLimit).times(gasLimitBuffer).toFixed(0)
 

@@ -147,14 +147,20 @@ export async function getThorStepData({
           const networkFeeCryptoBaseUnit = await (async () => {
             if (input.sendAddress) {
               try {
+                const rateTransactionData = buildTransactionData(rawMemo ?? '')
                 return await getEvmNetworkFeeCryptoBaseUnit({
                   adapter,
-                  transactionData: buildTransactionData(rawMemo ?? ''),
+                  transactionData: rateTransactionData,
                   from: input.sendAddress,
                   supportsEIP1559,
+                  stateOverride: {
+                    sellAsset,
+                    sellAmountCryptoBaseUnit,
+                    spenderAddress: rateTransactionData.to,
+                  },
                 })
               } catch {
-                // Token deposit estimations revert before approval - use safe gas limit
+                // Estimation failed - use safe gas limit
               }
             }
 
@@ -178,6 +184,11 @@ export async function getThorStepData({
             transactionData,
             from,
             supportsEIP1559,
+            stateOverride: {
+              sellAsset,
+              sellAmountCryptoBaseUnit,
+              spenderAddress: transactionData.to,
+            },
           })
 
           const stepData: ThorQuoteStepData = {

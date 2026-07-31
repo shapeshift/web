@@ -1,13 +1,11 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { Hex } from 'viem'
 import { getAddress } from 'viem'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import { RATE_SIM_TIMEOUT_MS, simulateWithStateOverrides } from '../../../utils/tenderly'
+import { estimateGasWithStateOverride, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { PortalsTx } from './fetchPortalsTradeOrder'
 import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 
@@ -45,38 +43,30 @@ export async function getPortalsStepData(
 
   if (args.type === 'rate') {
     try {
-      // No placeholder estimation for provider built routes - Tenderly sim (approval state-overridden)
-      // with the Portals estimate endpoint as fallback
+      // No placeholder estimation for provider built routes - overridden estimation (approval
+      // state need not exist yet) with the Portals estimate endpoint as fallback
       const gasLimit = await (async () => {
-        const tenderlySimulation = await simulateWithStateOverrides(
-          {
-            chainId: sellAsset.chainId,
-            from: tx.from,
-            to: tx.to,
-            data: tx.data as Hex,
-            value: tx.value,
+        try {
+          return await estimateGasWithStateOverride({
             sellAsset,
+            sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            from: tx.from,
             spenderAddress: getAddress(args.target),
-            timeoutMs: RATE_SIM_TIMEOUT_MS,
-          },
-          {
-            apiKey: deps.config.VITE_TENDERLY_API_KEY,
-            accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-            projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-          },
-        )
+            to: tx.to,
+            data: tx.data,
+            value: tx.value,
+          })
+        } catch {
+          const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+            inputToken: args.inputToken,
+            outputToken: args.outputToken,
+            inputAmount: args.inputAmount,
+            slippageTolerancePercentage: args.slippageTolerancePercentage,
+            swapperConfig: deps.config,
+          })
 
-        if (tenderlySimulation.success) return tenderlySimulation.gasLimit.toString()
-
-        const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-          inputToken: args.inputToken,
-          outputToken: args.outputToken,
-          inputAmount: args.inputAmount,
-          slippageTolerancePercentage: args.slippageTolerancePercentage,
-          swapperConfig: deps.config,
-        })
-
-        return quoteEstimateResponse.context.gasLimit.toString()
+          return quoteEstimateResponse.context.gasLimit.toString()
+        }
       })()
 
       const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({

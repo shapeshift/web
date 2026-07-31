@@ -240,6 +240,7 @@ export const getAcrossTradeContext = async ({
       swapTx: quote.swapTx,
       sellAsset,
       from: depositor,
+      spenderAddress: isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : undefined,
       fallbackNetworkFeeCryptoBaseUnit: quote.fees.originGas.amount,
       deps,
     },

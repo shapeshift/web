@@ -22,6 +22,7 @@ import type { AcrossSwapTx } from './types'
 
 type BaseArgs = {
   swapTx: AcrossSwapTx
+  spenderAddress: string | undefined
   fallbackNetworkFeeCryptoBaseUnit: string
 }
 
@@ -39,7 +40,8 @@ export function getAcrossStepData(
 export async function getAcrossStepData(
   args: GetAcrossStepDataArgs,
 ): Promise<Result<AcrossRateStepData | AcrossQuoteStepData, SwapErrorRight>> {
-  const { swapTx, sellAsset, from, type, input, fallbackNetworkFeeCryptoBaseUnit, deps } = args
+  const { swapTx, sellAsset, spenderAddress, from, type, input, fallbackNetworkFeeCryptoBaseUnit, deps } =
+    args
 
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
@@ -56,6 +58,12 @@ export async function getAcrossStepData(
         gasLimit: swapTx.gas,
       }
 
+      const stateOverride = {
+        sellAsset,
+        sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        spenderAddress,
+      }
+
       if (type === 'rate') {
         const networkFeeCryptoBaseUnit = await (async () => {
           try {
@@ -64,6 +72,7 @@ export async function getAcrossStepData(
               transactionData,
               from,
               supportsEIP1559,
+              stateOverride,
             })
           } catch {
             return fallbackNetworkFeeCryptoBaseUnit
@@ -81,6 +90,7 @@ export async function getAcrossStepData(
           transactionData,
           from,
           supportsEIP1559,
+          stateOverride,
         })
 
         const stepData: AcrossQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

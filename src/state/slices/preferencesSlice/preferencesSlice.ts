@@ -64,9 +64,6 @@ export type FeatureFlags = {
   ThorSwap: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
-  SaversVaults: boolean
-  SaversVaultsDeposit: boolean
-  SaversVaultsWithdraw: boolean
   Cowswap: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
@@ -79,9 +76,6 @@ export type FeatureFlags = {
   WalletConnectV2: boolean
   WcDirectConnection: boolean
   CustomSendNonce: boolean
-  ThorchainLending: boolean
-  ThorchainLendingBorrow: boolean
-  ThorchainLendingRepay: boolean
   ThorchainLP: boolean
   ThorchainLpDeposit: boolean
   ThorchainLpWithdraw: boolean
@@ -238,9 +232,6 @@ const initialState: Preferences = {
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS,
-    SaversVaults: getConfig().VITE_FEATURE_SAVERS_VAULTS,
-    SaversVaultsDeposit: getConfig().VITE_FEATURE_SAVERS_VAULTS_DEPOSIT,
-    SaversVaultsWithdraw: getConfig().VITE_FEATURE_SAVERS_VAULTS_WITHDRAW,
     Cowswap: getConfig().VITE_FEATURE_COWSWAP,
     ZrxSwap: getConfig().VITE_FEATURE_ZRX_SWAP,
     Mixpanel: getConfig().VITE_FEATURE_MIXPANEL,
@@ -253,9 +244,6 @@ const initialState: Preferences = {
     WalletConnectV2: getConfig().VITE_FEATURE_WALLET_CONNECT_V2,
     WcDirectConnection: getConfig().VITE_FEATURE_WC_DIRECT_CONNECTION,
     CustomSendNonce: getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE,
-    ThorchainLending: getConfig().VITE_FEATURE_THORCHAIN_LENDING,
-    ThorchainLendingBorrow: getConfig().VITE_FEATURE_THORCHAIN_LENDING_BORROW,
-    ThorchainLendingRepay: getConfig().VITE_FEATURE_THORCHAIN_LENDING_REPAY,
     ThorchainLP: getConfig().VITE_FEATURE_THORCHAIN_LP,
     ThorchainLpDeposit: getConfig().VITE_FEATURE_THORCHAIN_LP_DEPOSIT,
     ThorchainLpWithdraw: getConfig().VITE_FEATURE_THORCHAIN_LP_WITHDRAW,

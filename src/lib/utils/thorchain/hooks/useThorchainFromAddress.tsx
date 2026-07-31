@@ -4,10 +4,9 @@ import type { AccountMetadata } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { getThorchainFromAddress } from '..'
-import type { getThorchainLendingPosition } from '../lending'
+import type { getThorchainSaversPosition } from '../savers'
 
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
-import type { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 type UseThorchainFromAddressArgs = {
   accountId: AccountId | undefined
@@ -15,10 +14,7 @@ type UseThorchainFromAddressArgs = {
   opportunityId: string | undefined
   wallet: HDWallet | null
   accountMetadata: AccountMetadata | undefined
-  getPosition:
-    | typeof getThorchainLendingPosition
-    | typeof getThorchainSaversPosition
-    | typeof getThorchainLpPosition
+  getPosition: typeof getThorchainSaversPosition | typeof getThorchainLpPosition
   select?: (maybeAddress: string) => string | undefined
   enabled?: boolean
 }

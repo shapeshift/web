@@ -1,4 +1,4 @@
-import type { FlexProps, GridProps } from '@chakra-ui/react'
+import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, Skeleton, Spinner, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
@@ -32,11 +32,6 @@ import { reactQueries } from '@/react-queries'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
-  base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  lg: '1fr repeat(2, minmax(200px, max-content))',
-  xl: '1fr repeat(3, minmax(200px, max-content))',
-}
 const mobileDisplay = {
   base: 'none',
   lg: 'flex',

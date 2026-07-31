@@ -7,10 +7,6 @@ const accountPaths = [
   '/accounts/:accountId',
   '/accounts/:accountId/:chainId/:assetSubId/:nftId',
   '/accounts/:accountId/:chainId/:assetSubId',
-  '/lending/poolAccount/:accountId/:chainId/:assetSubId',
-  '/lending/poolAccount/:accountId/:chainNamespace\\::chainReference/:assetSubId',
-  '/lending/poolAccount/:accountId/:assetId',
-  '/lending/poolAccount/:accountId',
 ]
 
 const getRouteAccountId = (pathname: string) => {

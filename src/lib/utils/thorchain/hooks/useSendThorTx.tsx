@@ -16,6 +16,7 @@ import { fromThorBaseUnit, getThorchainMsgDepositCoin, getThorchainTransactionTy
 import type { SendInput } from '@/components/Modals/Send/Form'
 import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
 import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
+import { useGetEstimatedFeesQuery } from '@/hooks/queries/useGetEstimatedFeesQuery'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable } from '@/lib/utils'
@@ -27,13 +28,12 @@ import {
 } from '@/lib/utils/evm'
 import {
   THORCHAIN_AFFILIATE_NAME,
+  THORCHAIN_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
   THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT,
   THORCHAIN_POOL_MODULE_ADDRESS,
 } from '@/lib/utils/thorchain/constants'
-import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { reactQueries } from '@/react-queries'
 import { selectInboundAddressData } from '@/react-queries/selectors'
-import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountNumberByAccountId,
@@ -47,11 +47,7 @@ type Action =
   | 'swap'
   | 'addLiquidity'
   | 'withdrawLiquidity'
-  | 'openLoan'
-  | 'repayLoan'
-  | 'depositSavers'
   | 'depositRunepool'
-  | 'withdrawSavers'
   | 'withdrawRunepool'
   | 'claimTcy'
   | 'stakeTcy'
@@ -69,7 +65,7 @@ type UseSendThorTxProps = {
   dustAmountCryptoBaseUnit?: string
 }
 
-const actionsWithDustAmount: Action[] = ['withdrawLiquidity', 'withdrawSavers', 'claimTcy']
+const actionsWithDustAmount: Action[] = ['withdrawLiquidity', 'claimTcy']
 
 export const useSendThorTx = ({
   accountId,
@@ -106,7 +102,7 @@ export const useSendThorTx = ({
   const dustAmountCryptoBaseUnit = useMemo(() => {
     return _dustAmountCryptoBaseUnit
       ? _dustAmountCryptoBaseUnit
-      : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
+      : THORCHAIN_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
   }, [_dustAmountCryptoBaseUnit, feeAsset?.assetId])
 
   const amountOrDustCryptoBaseUnit = useMemo(() => {

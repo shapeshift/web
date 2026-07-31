@@ -602,36 +602,18 @@
         "claimNow": "今すぐ獲得する",
         "claimYour": "%{opportunity}を獲得しましょう"
       },
-      "saversVaults": {
-        "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
-        "runePoolDescription": "RUNEPool では、他のユーザーと %{asset} をプールすることで、より多くの %{asset} を獲得できます。特定のプールを選択する必要はなく、全員が全体のパフォーマンスを共有します。",
-        "runePoolOverviewDescription": "RUNEPool は、THORChain のすべての POL 対応流動性プールに RUNE を預けることで、RUNE の使用を最適化します。これらのプールに RUNE をプールすることで、参加者は合計 APY を獲得しますが、総変動損失のリスクにさらされます。個々のプールを選択する代わりに、ユーザーは全体的なパフォーマンスの恩恵を受け、RUNE インデックスとすべての THORChain POL 対応資産に効果的に投資します。これにより、流動性の提供が簡素化され、個々のリスクが軽減されます。",
-        "vaultCap": "Vaultキャップ",
-        "vaultCapTooltip": "このVaultの現在の最大容量",
+      "runePool": {
+        "description": "RUNEPool では、他のユーザーと %{asset} をプールすることで、より多くの %{asset} を獲得できます。特定のプールを選択する必要はなく、全員が全体のパフォーマンスを共有します。",
+        "overviewDescription": "RUNEPool は、THORChain のすべての POL 対応流動性プールに RUNE を預けることで、RUNE の使用を最適化します。これらのプールに RUNE をプールすることで、参加者は合計 APY を獲得しますが、総変動損失のリスクにさらされます。個々のプールを選択する代わりに、ユーザーは全体的なパフォーマンスの恩恵を受け、RUNE インデックスとすべての THORChain POL 対応資産に効果的に投資します。これにより、流動性の提供が簡素化され、個々のリスクが軽減されます。",
+        "introducing": "RUNEPoolの説明",
+        "agree": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。",
         "haltedDepositTitle": "一時的に入金を停止しております。",
         "disabledDepositTitle": "デポジットは一時的に無効になります。",
         "disabledWithdrawTitle": "引き出しは一時的に無効になっています。",
         "withdrawLockedTitle": "引き出すには%{timeHuman}待つ必要があります。",
-        "haltedDescription": "上限を増やすには、@THORChain でツイートしてください。",
-        "protocolFee": "プロトコル手数料",
-        "dustAmount": "少額",
-        "dustAmountTooltip": "アドレスを特定するには少額が必要ですが、後で出金したいときに使用するために保存されます。",
-        "sendDustBody": "出金するには、このアドレスに少額を送る必要があります。",
-        "sendDust": "少額を送る",
-        "addressToSendTo": "送信先アドレス",
-        "introducingSaversVaults": "Savers Vaultについて",
-        "introducingRunePool": "RUNEPoolの説明",
-        "risksBody": {
-          "vaults": "参照する <link>この記事</link> Savers Vaultに伴うリスクについて。",
-          "runePool": "参照する <link>この記事</link> RUNEPool に伴うリスクについて。"
-        },
-        "timeToBreakEven": {
-          "title": "損益分岐点の時間",
-          "tooltip": "入金手数料と収益をカバーするまでの推定時間"
-        },
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
         "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
-        "agreeRunePool": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
+        "risksBody": "参照する <link>この記事</link> RUNEPool に伴うリスクについて。"
       }
     },
     "memoNote": {
@@ -717,8 +699,6 @@
     "limitOrder": "指値注文",
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
-    "lending": "貸し出し",
-    "thorchainLending": "THORChainレンディング",
     "chainflipLending": "チェーンフリップ・レンディング",
     "pools": "プール",
     "rFOX": "rFOX",
@@ -2345,102 +2325,8 @@
     "custom": "カスタム"
   },
   "lending": {
-    "lending": "貸し出し",
-    "repaymentAvailable": "返済可能",
-    "repaymentUnavailable": "返済はまだできません",
-    "daysUntilRepayment": "返済まであと %{numDays} 日",
-    "repaymentDays": "%{numDays} 日",
-    "lendingBody": "ゼロ金利およびゼロ清算で借りられるすべてのプールのリスト。",
-    "collateralValue": "担保価値",
-    "collateralValueDescription": "担保として使用される資産の現在価値",
-    "debtValue": "負債額",
-    "loanToValue": "価値へのローン",
-    "availablePools": "利用可能なプール",
-    "pool": "プール",
-    "poolDepth": "プールの深さ",
-    "poolDepthDescription": "プールの状態",
-    "status": "状態",
-    "statusDescription": "プールの状態",
-    "totalDebtBalance": "総負債残高",
-    "totalDebtBalanceDescription": "貸付プールの累積債務残高",
-    "totalCollateral": "担保総額",
-    "totalCollateralDescription": "貸付プールに追加された総担保",
-    "estCollateralizationRatio": "EST 担保比率",
-    "estCollateralizationRatioDescription": "現在、担保比率は 200% に固定されています。将来的には、市場の状況に基づいて、最大 CRと最小 CRの間で動的に比率が調整される予定です。",
-    "collateralizationRatio": "担保比率",
-    "totalBorrowers": "総借入者数",
-    "totalBorrowersDescription": "参加している借り手の数",
-    "myLoanInformation": "ローン情報",
-    "loanInformation": "ローン概要",
-    "poolInformation": "プール情報",
-    "collateralBalance": "担保価値",
-    "collateralBalanceDescription": "現在担保として保有している資産の総額",
-    "debtBalance": "負債残高",
-    "debtBalanceDescription": "このローンに対して負っている負債の総額",
-    "repaymentLock": "返済ロック",
-    "repaymentLockDescription": "ローンを返済できるまでの最低期間",
-    "receiveCollateral": "返金してもらえる担保金額",
-    "borrow": "借りる",
-    "repay": "返済",
-    "repayAmount": "返済額",
-    "unlocked": "ロック解除済み",
-    "unlockedCollateral": "ロック解除された担保",
-    "depositAsset": "入金 %{asset}",
     "switchAssets": "アセットの切り替え",
-    "outstandingDebt": "負債残高",
-    "outstandingDebtDescription": "借りた担保の額",
-    "collateral": "担保",
-    "debt": "借金",
-    "healthy": "深さは最適で、ローンも効率的です。",
-    "confirmAndBorrow": "確認して借りる",
-    "confirmAndRepay": "確認して返済する",
-    "borrowAgain": "もう一度借りる",
-    "repayAgain": "もう一度返済する",
-    "transactionInfo": "取引概要",
-    "repayNoticeTitle": "待つ",
-    "repayNoticeCta": "理解しました",
-    "repayNotice": "担保を取り戻すには借金を100％返済する必要があります。",
-    "feesNotice": "担保に対して発生した手数料は、借金を100%返済した後に返還されます。",
-    "refetchQuote": "見積もりを再取得する",
-    "haltedAlert": "THORChain では、現在 THORFi サービス (Lending、Savers、RUNEPool) が一時停止中です。ご不便をおかけして申し訳ございません。",
-    "faq": {
-      "title": "よくある質問",
-      "lending": {
-        "title": "THORChainレンディングとは何ですか?",
-        "body": "融資により、ユーザーはネイティブ担保を預け、担保比率 (CR) で借金を作成できます。ユーザーが受け取るL1資産に関係なく、負債は常にUSD(別名 TOR) 建てです。"
-      },
-      "borrowing": {
-        "title": "借入はどのように機能しますか?",
-        "body": "THORChainでの借入には、預けた資産を担保として使用してローンを組むことが含まれます。融資は米ドル (TOR) 建てで、さまざまな L1 資産で受け取ることができます。動的な担保比率により、利息や清算の心配なく柔軟に借入できます。"
-      },
-      "repayments": {
-        "title": "返済はどのように行われますか?",
-        "body": "THORChainでの返済は柔軟であり、返済ロックが経過した後はいつでも、任意の資産で返済することができ、その後TORに変換されます。返済額は債務残高から差し引かれ、全額返済後に比例担保が返金されます。"
-      }
-    },
-    "errors": {
-      "repaymentsHalted": "返済は一時停止されます。",
-      "borrowingHalted": "貸出は一時停止となります。",
-      "repaymentsDisabled": "返済は一時的に無効になります。",
-      "borrowingDisabled": "借用は一時的に無効になっています。",
-      "amountTooLowToReturnCollateral": "担保を返還するには金額が低すぎます",
-      "amountTooLowToReturnCollateralTooltip": "返済額が低すぎるため、担保を返却できません。金額を増やして再度お試しいただくか、一部を返済してください (担保は返却されませんが、負債額は減ります)。",
-      "amountTooSmallUnknownMinimumTooltip": "入力した返済額が少なすぎます。金額を増やして再度お試しください。",
-      "repaymentUnavailableTooltip": "まだローンの返済はできません。返済ロックが経過するまでお待ちください。",
-      "repaymentsHaltedTooltip": "返済は一時停止されています。しばらくしてからもう一度お試しください。"
-    },
-    "quote": {
-      "collateral": "ローンに対して担保される資産総額",
-      "debt": "新たなローン金額に基づいて支払うべき負債の合計",
-      "repaymentLock": "ローンを返済できるまでの最低期間",
-      "collateralizationRatio": "融資金額に対する担保価値の比率",
-      "feesPlusSlippage": "L1手数料、スリッページ、THORChain流動性手数料を含む、発生した手数料の合計"
-    },
-    "yourLoans": {
-      "yourLoans": "あなたのローン",
-      "emptyTitle": "ローンゼロ",
-      "emptyBody": "現在、ローンはありません。この時間をお楽しみください！"
-    }
+    "poolInformation": "プール情報"
   },
   "chainflipLending": {
     "awaitingConfirmTitle": "確認待ち",
@@ -2970,7 +2856,8 @@
         "title": "リスクと考慮事項",
         "body": "流動性プールは収益機会を提供しますが、一時的な損失、スマートコントラクトの脆弱性、市場の変動性など、関連するリスクを認識することが重要です。ユーザーは参加する前に十分な調査を行う必要があります。"
       }
-    }
+    },
+    "haltedDepositTitle": "一時的に入金を停止しております。"
   },
   "warningAcknowledgement": {
     "understand": "承知しました",
@@ -3475,8 +3362,7 @@
   "yieldXYZ": {
     "pageTitle": "利回り",
     "pageSubtitle": "複数のチェーンにわたる収益機会の発見と管理",
-    "actions": {
-    },
+    "actions": {},
     "yield": "利回り",
     "apy": "年利",
     "apr": "APR",

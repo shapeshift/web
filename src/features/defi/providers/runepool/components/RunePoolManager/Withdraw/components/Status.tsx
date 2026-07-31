@@ -98,10 +98,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
 
   const handleViewPosition = useCallback(() => {
-    if (!accountId) return
-    // The full-page earn dashboard is mobile-only - the account page shows the position on both layouts
-    navigate(`/accounts/${accountId}`)
-  }, [accountId, navigate])
+    if (!accountId || !assetId) return
+    // The full-page earn dashboard is mobile-only - the asset account page shows the position on both layouts
+    navigate(`/accounts/${accountId}/${assetId}`)
+  }, [accountId, assetId, navigate])
 
   const handleCancel = useCallback(() => {
     navigate(-1)

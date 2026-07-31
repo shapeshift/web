@@ -161,7 +161,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   return (
     <TxStatus
       onClose={handleCancel}
-      onContinue={state.deposit.txStatus === 'success' && accountId ? handleViewPosition : undefined}
+      onContinue={
+        state.deposit.txStatus === 'success' && accountId ? handleViewPosition : undefined
+      }
       loading={!['success', 'failed'].includes(state.deposit.txStatus)}
       statusText={statusText}
       statusIcon={statusIcon}

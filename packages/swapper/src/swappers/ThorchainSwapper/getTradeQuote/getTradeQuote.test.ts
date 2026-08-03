@@ -36,6 +36,14 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('../../../utils/thorchain/getThorTxData')
+
+// The override path reads live chain state - resolve to no override so estimation exercises the
+// mocked adapter
+vi.mock('../../../utils/evm/stateOverride', async importOriginal => ({
+  ...(await importOriginal<object>()),
+  getMinimalStateOverride: vi.fn().mockResolvedValue(undefined),
+}))
+
 vi.mock('../../../utils/thorchain/service', () => {
   const mockAxios = {
     default: {
@@ -114,7 +122,7 @@ const expectedQuoteResponse: Omit<ThorTradeQuote, 'id'>[] = [
           to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
           data: expectedDepositData(REGULAR_MEMO),
           value: '0',
-          gasLimit: '100000',
+          gasLimit: '120000',
         },
       },
     ],
@@ -164,7 +172,7 @@ const expectedQuoteResponse: Omit<ThorTradeQuote, 'id'>[] = [
           to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
           data: expectedDepositData(STREAMING_MEMO),
           value: '0',
-          gasLimit: '100000',
+          gasLimit: '120000',
         },
       },
     ],

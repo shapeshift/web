@@ -39,6 +39,7 @@ type BaseArgs = {
   route: RouteSuccessItem
   feeAsset: Asset
   sellAmountCryptoBaseUnit: string
+  spenderAddress: string
 }
 
 // Swap transactions are only built for quotes - rates price from the route alone
@@ -68,7 +69,7 @@ export function getButterSwapStepData(
 export async function getButterSwapStepData(
   args: GetButterSwapStepDataArgs,
 ): Promise<Result<ButterSwapRateStepData | ButterSwapQuoteStepData, SwapErrorRight>> {
-  const { input, route, sellAsset, feeAsset, sellAmountCryptoBaseUnit, deps } = args
+  const { input, route, sellAsset, feeAsset, sellAmountCryptoBaseUnit, spenderAddress, deps } = args
   const { chainNamespace, chainReference } = fromChainId(sellAsset.chainId)
 
   switch (chainNamespace) {
@@ -111,8 +112,12 @@ export async function getButterSwapStepData(
           transactionData,
           from,
           // Butter's gasEstimatedTarget lands short on chain (observed 24% under actual, causing
-          // in-flight OOG/SWAP_FAIL reverts) - estimate ourselves with a buffer
-          gasLimitBuffer: 1.2,
+          // in-flight OOG/SWAP_FAIL reverts) - estimate ourselves instead
+          stateOverride: {
+            sellAsset,
+            sellAmountCryptoBaseUnit,
+            spenderAddress,
+          },
         })
 
         const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

@@ -40,7 +40,8 @@ type RelayTradeContext = {
   stepCommon: Omit<TradeStepCommon, 'feeData' | 'allowanceContract'>
   protocolFees: QuoteFeeData['protocolFees']
   relayStepInputs: { data: RelayQuoteItem['data']; allowanceContract: string }[]
-  stepDataArgs: Omit<GetRelayStepDataArgs, 'type' | 'input' | 'data'>
+  // data/spenderAddress are per-step - the callers pair them from relayStepInputs
+  stepDataArgs: Omit<GetRelayStepDataArgs, 'type' | 'input' | 'data' | 'spenderAddress'>
   relayId: string
 }
 

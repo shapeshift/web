@@ -38,7 +38,7 @@ export const getPortalsTradeRate = async (
   })
 
   // Walletless rate: full /portal endpoint (validate off) with a realistic stand-in sender so Portals
-  // prices and Tenderly can simulate gas
+  // prices and estimation can simulate gas
   const maybeOrder = await fetchPortalsTradeOrder({
     sender: PORTALS_RATE_DEFAULT_ADDRESS,
     inputToken,
@@ -74,7 +74,6 @@ export const getPortalsTradeRate = async (
     ...stepDataArgs,
     type: 'rate',
     input,
-    target: orderContext.target,
     inputToken,
     outputToken,
     inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,

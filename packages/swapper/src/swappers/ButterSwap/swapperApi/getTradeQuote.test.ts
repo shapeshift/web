@@ -30,6 +30,13 @@ vi.mock('../xhr', () => ({
   isBuildTxSuccess: () => true,
 }))
 
+// The override path reads live chain state - resolve to no override so estimation exercises the
+// mocked adapter
+vi.mock('../../../utils/evm/stateOverride', async importOriginal => ({
+  ...(await importOriginal<object>()),
+  getMinimalStateOverride: vi.fn().mockResolvedValue(undefined),
+}))
+
 const mockEvmChainAdapter = {
   getGasFeeData: () =>
     Promise.resolve({

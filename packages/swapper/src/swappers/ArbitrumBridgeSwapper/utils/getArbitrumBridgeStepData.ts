@@ -14,6 +14,7 @@ type BaseArgs = {
   bridgeType: BRIDGE_TYPE
   sellAmountCryptoBaseUnit: string
   buyAsset: Asset
+  spenderAddress: string
 }
 
 export type GetArbitrumBridgeStepDataArgs = StepDataArgs<
@@ -40,7 +41,8 @@ export function getArbitrumBridgeStepData(
 export async function getArbitrumBridgeStepData(
   args: GetArbitrumBridgeStepDataArgs,
 ): Promise<Result<ArbitrumBridgeRateStepData | ArbitrumBridgeQuoteStepData, SwapErrorRight>> {
-  const { input, deps, bridgeType, sellAmountCryptoBaseUnit, sellAsset, buyAsset } = args
+  const { input, deps, bridgeType, sellAmountCryptoBaseUnit, sellAsset, buyAsset, spenderAddress } =
+    args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
@@ -58,11 +60,13 @@ export async function getArbitrumBridgeStepData(
     return Ok(stepData)
   }
 
+  const { from, receiveAddress } = args
+
   const request = await buildArbitrumBridgeRequest({
     bridgeType,
     sellAmountCryptoBaseUnit,
-    from: args.from,
-    receiveAddress: args.receiveAddress,
+    from,
+    receiveAddress,
     sellAsset,
     buyAsset,
   })
@@ -83,8 +87,13 @@ export async function getArbitrumBridgeStepData(
     const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
       adapter,
       transactionData,
-      from: args.from,
+      from,
       supportsEIP1559,
+      stateOverride: {
+        sellAsset,
+        sellAmountCryptoBaseUnit,
+        spenderAddress,
+      },
     })
 
     const stepData: ArbitrumBridgeQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

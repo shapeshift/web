@@ -100,11 +100,14 @@ export async function getChainflipStepData(
       }
 
       try {
+        // The deposit is a plain (token) transfer with no approval involved, but estimation
+        // still reverts for an unfunded sender - override the missing balance only
         const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
           adapter,
           transactionData,
           from,
           supportsEIP1559,
+          stateOverride: { sellAsset, sellAmountCryptoBaseUnit },
         })
 
         const stepData: ChainflipQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

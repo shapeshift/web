@@ -55,6 +55,8 @@ const rightHStackSpacingSx = { base: 2, lg: 4 }
 // Search box responsive styles
 const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
 const searchBoxMinWSx = { base: 'auto', xl: '300px' }
+const searchBoxDisplay = { base: 'none', '3xl': 'flex' }
+const iconButtonDisplay = { base: 'flex', '3xl': 'none' }
 
 const baseTradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: TbRefresh },
@@ -83,16 +85,6 @@ export const Header = memo(() => {
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
-
-  const searchBoxDisplay = {
-    base: 'none',
-    '3xl': 'flex',
-  }
-
-  const iconButtonDisplay = {
-    base: 'flex',
-    '3xl': 'none',
-  }
 
   useEffect(() => {
     return scrollY.on('change', () => setY(scrollY.get()))

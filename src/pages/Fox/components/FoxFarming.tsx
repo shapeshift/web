@@ -72,7 +72,7 @@ const columnsProps = {
   base: 1,
   md: 2,
 }
-const farmingIcon = <Icon as={TbPlant2} aria-hidden color='blue.500' boxSize={8} me={2} />
+const FARMING_ICON = <Icon as={TbPlant2} aria-hidden color='blue.500' boxSize={8} me={2} />
 
 export const FoxFarming = () => {
   const { assetAccountId } = useFoxPageContext()
@@ -305,7 +305,7 @@ export const FoxFarming = () => {
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb} maxWidth={headerTitleMaxWidth}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
-              {farmingIcon}
+              {FARMING_ICON}
               {translate('foxPage.foxFarming.title')}
               <Skeleton isLoaded={Boolean(!isOpportunityLoading && apy)} ml={2}>
                 <Tag colorScheme='green' verticalAlign='middle'>

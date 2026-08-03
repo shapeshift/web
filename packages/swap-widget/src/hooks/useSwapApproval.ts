@@ -45,6 +45,28 @@ export const useSwapApproval = () => {
           return
         }
 
+        if (!sellAmountBaseUnit || sellAmountBaseUnit === '0') {
+          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No sell amount specified' })
+          return
+        }
+
+        // The API supplies ready-to-sign exact approvals in broadcast order, including a
+        // preceding approve(spender, 0) for tokens that require resetting a non-zero allowance
+        // (e.g. USDT); the local encode covers API versions predating approvalTxs
+        const approvalTxs = quote.approval.approvalTxs?.length
+          ? quote.approval.approvalTxs
+          : [
+              {
+                to: sellAssetAddress,
+                data: encodeFunctionData({
+                  abi: erc20Abi,
+                  functionName: 'approve',
+                  args: [quote.approval.spender as `0x${string}`, BigInt(sellAmountBaseUnit)],
+                }),
+                value: '0',
+              },
+            ]
+
         const requiredChainId = getEvmNetworkId(sellAsset.chainId)
         const client = walletClient as WalletClient
 
@@ -66,31 +88,25 @@ export const useSwapApproval = () => {
           rpcUrls: { default: { http: [] } },
         }
 
-        if (!sellAmountBaseUnit || sellAmountBaseUnit === '0') {
-          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No sell amount specified' })
-          return
-        }
-
-        const approvalData = encodeFunctionData({
-          abi: erc20Abi,
-          functionName: 'approve',
-          args: [quote.approval.spender as `0x${string}`, BigInt(sellAmountBaseUnit)],
-        })
-
-        const approvalHash = await client.sendTransaction({
-          to: sellAssetAddress as `0x${string}`,
-          data: approvalData,
-          value: BigInt(0),
-          chain,
-          account: walletAddress as `0x${string}`,
-        })
-
         const rpcUrl = chain.rpcUrls?.default?.http?.[0]
         const publicClient = createPublicClient({
           chain,
           transport: rpcUrl ? http(rpcUrl) : http(),
         })
-        await publicClient.waitForTransactionReceipt({ hash: approvalHash })
+
+        let approvalHash: `0x${string}` | undefined
+        for (const approvalTx of approvalTxs) {
+          approvalHash = await client.sendTransaction({
+            to: approvalTx.to as `0x${string}`,
+            data: approvalTx.data as `0x${string}`,
+            value: BigInt(approvalTx.value),
+            chain,
+            account: walletAddress as `0x${string}`,
+          })
+          await publicClient.waitForTransactionReceipt({ hash: approvalHash })
+        }
+
+        if (!approvalHash) throw new Error('No approval transactions to broadcast')
 
         actorRef.send({ type: 'APPROVAL_SUCCESS', txHash: approvalHash })
       } catch (error) {

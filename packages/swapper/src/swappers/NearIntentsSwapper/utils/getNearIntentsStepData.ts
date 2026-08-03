@@ -87,7 +87,7 @@ export async function getNearIntentsStepData(
                 stateOverride,
               })
             } catch {
-              return '0'
+              return undefined
             }
           })()
 

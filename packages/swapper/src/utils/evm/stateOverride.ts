@@ -25,6 +25,8 @@ const CANDIDATE_BALANCE_SLOTS = [0, 1, 2, 3, 5, 9, 51]
 const CANDIDATE_ALLOWANCE_SLOTS = [1, 2, 4, 5, 6, 10, 52]
 
 const discoveredSlots = new Map<string, number>()
+const failedSlotDiscoveries = new Map<string, number>()
+const FAILED_DISCOVERY_TTL_MS = 60_000
 
 export const withTimeout = async <T>(promise: Promise<T>): Promise<T> => {
   let timer: ReturnType<typeof setTimeout> | undefined
@@ -122,6 +124,13 @@ const discoverSlot = async (
   const cached = discoveredSlots.get(cacheKey)
   if (cached !== undefined) return cached
 
+  // Failures re-probe only after the ttl - covers unknown layouts and rpcs without stateOverride
+  // support, which would otherwise pay the full candidate sweep on every rate refresh
+  const failedAt = failedSlotDiscoveries.get(cacheKey)
+  if (failedAt !== undefined && Date.now() - failedAt < FAILED_DISCOVERY_TTL_MS) {
+    throw new Error(`Unable to locate ${kind} storage slot for token ${tokenAddress}`)
+  }
+
   const guess =
     kind === 'balance' ? getTokenBalanceSlot(tokenAddress) : getTokenAllowanceSlot(tokenAddress)
 
@@ -141,6 +150,7 @@ const discoverSlot = async (
   const found = candidates.find((_, i) => results[i])
 
   if (found === undefined) {
+    failedSlotDiscoveries.set(cacheKey, Date.now())
     throw new Error(`Unable to locate ${kind} storage slot for token ${tokenAddress}`)
   }
 

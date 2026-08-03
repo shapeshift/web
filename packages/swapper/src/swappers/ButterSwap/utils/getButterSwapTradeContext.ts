@@ -166,6 +166,7 @@ export const getButterSwapTradeContext = async ({
       feeAsset,
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
+      spenderAddress: route.contract ?? '',
       deps,
     },
   })

@@ -10,6 +10,7 @@ import type { DebridgeTx } from './types'
 type BaseArgs = {
   tx: DebridgeTx
   gasLimit: string | undefined
+  spenderAddress: string
   fallbackNetworkFeeCryptoBaseUnit: string | undefined
 }
 
@@ -28,8 +29,17 @@ export function getDebridgeStepData(
 export async function getDebridgeStepData(
   args: GetDebridgeStepDataArgs,
 ): Promise<Result<DebridgeRateStepData | DebridgeQuoteStepData, SwapErrorRight>> {
-  const { tx, gasLimit, fallbackNetworkFeeCryptoBaseUnit, sellAsset, from, type, input, deps } =
-    args
+  const {
+    tx,
+    gasLimit,
+    spenderAddress,
+    fallbackNetworkFeeCryptoBaseUnit,
+    sellAsset,
+    from,
+    type,
+    input,
+    deps,
+  } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
@@ -46,7 +56,7 @@ export async function getDebridgeStepData(
   const stateOverride = {
     sellAsset,
     sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    spenderAddress: tx.to,
+    spenderAddress,
   }
 
   if (type === 'rate') {

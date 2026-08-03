@@ -75,6 +75,7 @@ export const getArbitrumBridgeTradeContext = async ({
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
       sellAsset,
+      spenderAddress: allowanceContract,
       deps,
     },
   })

@@ -74,7 +74,6 @@ export const getPortalsTradeRate = async (
     ...stepDataArgs,
     type: 'rate',
     input,
-    target: orderContext.target,
     inputToken,
     outputToken,
     inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,

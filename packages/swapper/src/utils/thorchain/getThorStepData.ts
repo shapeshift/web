@@ -8,7 +8,10 @@ import {
   tcyAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import { THOR_ROUTER_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
+import {
+  THOR_ROUTER_CONTRACT_MAINNET,
+  TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
+} from '@shapeshiftoss/contracts'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -143,20 +146,24 @@ export async function getThorStepData({
           value: !longtail && isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
         })
 
+        // Longtail swapIn pulls tokens through the transfer proxy, not the aggregator itself
+        const spenderAddress = longtail
+          ? TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET
+          : router
+
         if (type === 'rate') {
           const networkFeeCryptoBaseUnit = await (async () => {
             if (input.sendAddress) {
               try {
-                const rateTransactionData = buildTransactionData(rawMemo ?? '')
                 return await getEvmNetworkFeeCryptoBaseUnit({
                   adapter,
-                  transactionData: rateTransactionData,
+                  transactionData: buildTransactionData(rawMemo ?? ''),
                   from: input.sendAddress,
                   supportsEIP1559,
                   stateOverride: {
                     sellAsset,
                     sellAmountCryptoBaseUnit,
-                    spenderAddress: rateTransactionData.to,
+                    spenderAddress,
                   },
                 })
               } catch {
@@ -187,7 +194,7 @@ export async function getThorStepData({
             stateOverride: {
               sellAsset,
               sellAmountCryptoBaseUnit,
-              spenderAddress: transactionData.to,
+              spenderAddress,
             },
           })
 

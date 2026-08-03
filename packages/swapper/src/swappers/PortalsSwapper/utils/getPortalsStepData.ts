@@ -1,7 +1,6 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getAddress } from 'viem'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
@@ -11,12 +10,12 @@ import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 
 type BaseArgs = {
   tx: PortalsTx
+  spenderAddress: string
 }
 
 export type GetPortalsStepDataArgs = StepDataArgs<
   BaseArgs,
   {
-    target: string
     inputToken: string
     outputToken: string
     inputAmount: string
@@ -36,7 +35,7 @@ export function getPortalsStepData(
 export async function getPortalsStepData(
   args: GetPortalsStepDataArgs,
 ): Promise<Result<PortalsRateStepData | PortalsQuoteStepData, SwapErrorRight>> {
-  const { tx, sellAsset, input, deps } = args
+  const { tx, sellAsset, spenderAddress, input, deps } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
@@ -47,15 +46,17 @@ export async function getPortalsStepData(
       // state need not exist yet) with the Portals estimate endpoint as fallback
       const gasLimit = await (async () => {
         try {
-          return await estimateGasWithStateOverride({
+          const gasLimit = await estimateGasWithStateOverride({
             sellAsset,
             sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
             from: tx.from,
-            spenderAddress: getAddress(args.target),
+            spenderAddress,
             to: tx.to,
             data: tx.data,
             value: tx.value,
           })
+
+          return gasLimit
         } catch {
           const quoteEstimateResponse = await fetchPortalsTradeEstimate({
             inputToken: args.inputToken,
@@ -104,6 +105,7 @@ export async function getPortalsStepData(
       stateOverride: {
         sellAsset,
         sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        spenderAddress,
       },
     })
 

@@ -82,6 +82,8 @@ export const getBebopTradeContext = async ({
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
+  const allowanceContract = isNativeEvmAsset(sellAsset.assetId) ? '' : quote.approvalTarget
+
   return Ok({
     tradeCommon: {
       id: uuid(),
@@ -91,7 +93,7 @@ export const getBebopTradeContext = async ({
       slippageTolerancePercentageDecimal,
     },
     stepCommon: {
-      allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? '' : quote.approvalTarget,
+      allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit,
@@ -112,7 +114,7 @@ export const getBebopTradeContext = async ({
     },
     stepDataArgs: {
       tx: quote.tx,
-      approvalTarget: quote.approvalTarget,
+      spenderAddress: allowanceContract,
       sellAsset,
       from,
       deps,

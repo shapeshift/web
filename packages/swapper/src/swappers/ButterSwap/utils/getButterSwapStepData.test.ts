@@ -9,6 +9,13 @@ import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import type { BuildTxSuccessItem, RouteSuccessItem } from '../types'
 import { getButterSwapStepData } from './getButterSwapStepData'
 
+// The override path reads live chain state - resolve to no override so estimation exercises the
+// mocked adapter
+vi.mock('../../../utils/evm/stateOverride', async importOriginal => ({
+  ...(await importOriginal<object>()),
+  getMinimalStateOverride: vi.fn().mockResolvedValue(undefined),
+}))
+
 const route = (ROUTE_QUOTE.data as RouteSuccessItem[])[0]
 
 // The provider gas fee, in human units, that every fallback path prices off of
@@ -63,6 +70,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: WETH,
         feeAsset: ETH,
         sellAmountCryptoBaseUnit: '999000000000000000',
+        spenderAddress: '',
       })
 
       // gasEstimatedTarget 1159118 * gasPrice 1000000000
@@ -78,6 +86,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: WETH,
         feeAsset: ETH,
         sellAmountCryptoBaseUnit: '999000000000000000',
+        spenderAddress: '',
       })
 
       expect(actual.unwrap()).toEqual({
@@ -96,6 +105,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: WETH,
         feeAsset: ETH,
         sellAmountCryptoBaseUnit: '999000000000000000',
+        spenderAddress: '',
       })
 
       // gasEstimatedTarget 1159118 is ignored - the tx carries the buffered on chain estimate
@@ -123,6 +133,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: WETH,
         feeAsset: ETH,
         sellAmountCryptoBaseUnit: '999000000000000000',
+        spenderAddress: '',
       })
 
       const { transactionData, networkFeeCryptoBaseUnit } = actual.unwrap()
@@ -143,6 +154,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: WETH,
         feeAsset: ETH,
         sellAmountCryptoBaseUnit: '999000000000000000',
+        spenderAddress: '',
       })
 
       expect(actual.isErr()).toBe(true)
@@ -167,6 +179,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: BTC,
         feeAsset: BTC,
         sellAmountCryptoBaseUnit: '100000',
+        spenderAddress: '',
       })
 
       // 10 sats/byte * 200 vbyte default
@@ -184,6 +197,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: BTC,
         feeAsset: BTC,
         sellAmountCryptoBaseUnit: '100000',
+        spenderAddress: '',
       })
 
       expect(actual.unwrap()).toEqual({
@@ -208,6 +222,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: BTC,
         feeAsset: BTC,
         sellAmountCryptoBaseUnit: '100000',
+        spenderAddress: '',
       })
 
       expect(actual.isErr()).toBe(true)
@@ -227,6 +242,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: SOL,
         feeAsset: SOL,
         sellAmountCryptoBaseUnit: '1000000000',
+        spenderAddress: '',
       })
 
       expect(actual.unwrap()).toEqual({
@@ -254,6 +270,7 @@ describe('getButterSwapStepData', () => {
         sellAsset: TRX,
         feeAsset: TRX,
         sellAmountCryptoBaseUnit: '1000000',
+        spenderAddress: '',
       })
 
       expect(actual.unwrap()).toEqual({
@@ -279,6 +296,7 @@ describe('getButterSwapStepData', () => {
       sellAsset: RUNE,
       feeAsset: RUNE,
       sellAmountCryptoBaseUnit: '100000000',
+      spenderAddress: '',
     })
 
     expect(actual.isErr()).toBe(true)

@@ -31,6 +31,7 @@ export const RELAY_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = { marginM
 type BaseArgs = {
   data: RelayQuoteItem['data']
   sellAmountCryptoBaseUnit: string
+  spenderAddress: string
   orderId: string | undefined
   xpub: string | undefined
   fallbackNetworkFeeCryptoBaseUnit: string
@@ -55,6 +56,7 @@ export async function getRelayStepData({
   data,
   sellAsset,
   sellAmountCryptoBaseUnit,
+  spenderAddress,
   orderId,
   from,
   xpub,
@@ -91,7 +93,7 @@ export async function getRelayStepData({
     const stateOverride = {
       sellAsset,
       sellAmountCryptoBaseUnit,
-      spenderAddress: to,
+      spenderAddress,
     }
 
     if (type === 'rate') {

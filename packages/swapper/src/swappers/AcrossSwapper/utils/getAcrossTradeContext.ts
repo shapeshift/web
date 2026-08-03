@@ -191,6 +191,8 @@ export const getAcrossTradeContext = async ({
     return `${bridgeFeeAssetCaipChainId}/${tokenStandard}:${bridgeFeeAsset.address}`
   })()
 
+  const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
+
   const protocolFees: QuoteFeeData['protocolFees'] = bridgeFeeAssetId
     ? {
         [bridgeFeeAssetId]: {
@@ -214,7 +216,7 @@ export const getAcrossTradeContext = async ({
       slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
     },
     stepCommon: {
-      allowanceContract: isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : '',
+      allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit,
@@ -240,7 +242,7 @@ export const getAcrossTradeContext = async ({
       swapTx: quote.swapTx,
       sellAsset,
       from: depositor,
-      spenderAddress: isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : undefined,
+      spenderAddress: allowanceContract,
       fallbackNetworkFeeCryptoBaseUnit: quote.fees.originGas.amount,
       deps,
     },

@@ -22,7 +22,7 @@ import type { AcrossSwapTx } from './types'
 
 type BaseArgs = {
   swapTx: AcrossSwapTx
-  spenderAddress: string | undefined
+  spenderAddress: string
   fallbackNetworkFeeCryptoBaseUnit: string
 }
 
@@ -40,8 +40,16 @@ export function getAcrossStepData(
 export async function getAcrossStepData(
   args: GetAcrossStepDataArgs,
 ): Promise<Result<AcrossRateStepData | AcrossQuoteStepData, SwapErrorRight>> {
-  const { swapTx, sellAsset, spenderAddress, from, type, input, fallbackNetworkFeeCryptoBaseUnit, deps } =
-    args
+  const {
+    swapTx,
+    sellAsset,
+    spenderAddress,
+    from,
+    type,
+    input,
+    fallbackNetworkFeeCryptoBaseUnit,
+    deps,
+  } = args
 
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 

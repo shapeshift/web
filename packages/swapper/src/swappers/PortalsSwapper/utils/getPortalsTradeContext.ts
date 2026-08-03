@@ -25,7 +25,7 @@ type PortalsTradeContext = {
   tradeCommon: TradeCommon
   stepCommon: Omit<TradeStepCommon, 'feeData'>
   protocolFees: QuoteFeeData['protocolFees']
-  stepDataArgs: { deps: SwapperDeps; sellAsset: Asset; tx: PortalsTx }
+  stepDataArgs: { deps: SwapperDeps; sellAsset: Asset; spenderAddress: string; tx: PortalsTx }
 }
 
 export const getPortalsTradeContext = ({
@@ -124,6 +124,6 @@ export const getPortalsTradeContext = ({
       }),
     },
     protocolFees,
-    stepDataArgs: { deps, sellAsset, tx },
+    stepDataArgs: { deps, sellAsset, spenderAddress: allowanceContract, tx },
   })
 }

@@ -27,7 +27,13 @@ export const getTradeRate = async (
 
   const stepResults = await Promise.all(
     relayStepInputs.map(async ({ data, allowanceContract }) => {
-      const maybeStepData = await getRelayStepData({ ...stepDataArgs, data, type: 'rate', input })
+      const maybeStepData = await getRelayStepData({
+        ...stepDataArgs,
+        data,
+        spenderAddress: allowanceContract,
+        type: 'rate',
+        input,
+      })
 
       return maybeStepData.map(
         ({ networkFeeCryptoBaseUnit }): TradeRateStep => ({

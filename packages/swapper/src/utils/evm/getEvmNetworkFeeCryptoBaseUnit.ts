@@ -16,9 +16,8 @@ type GetEvmNetworkFeeCryptoBaseUnitArgs = {
       transactionData: Extract<TxBuildData, { type: 'evm' }>
       from: string
       gasLimitBuffer?: number
-      // Pre-approval token sells (and unfunded rate addresses) revert plain estimation - when
-      // supplied, insufficient allowance/balance is state-overridden at estimation time so the
-      // trade still carries a real gas limit; sufficient state estimates plainly as before
+      // Overrides insufficient allowance/balance at estimation time so pre-approval and unfunded
+      // sells still estimate; spenderAddress is the step's allowanceContract ('' or absent = none)
       stateOverride?: {
         sellAsset: Asset
         sellAmountCryptoBaseUnit: string
@@ -60,7 +59,7 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
           sellAsset,
           sellAmountCryptoBaseUnit,
           from,
-          spenderAddress: spenderAddress ?? to,
+          spenderAddress,
           value,
         }
 

@@ -39,6 +39,7 @@ type BaseArgs = {
   route: RouteSuccessItem
   feeAsset: Asset
   sellAmountCryptoBaseUnit: string
+  spenderAddress: string
 }
 
 // Swap transactions are only built for quotes - rates price from the route alone
@@ -68,7 +69,8 @@ export function getButterSwapStepData(
 export async function getButterSwapStepData(
   args: GetButterSwapStepDataArgs,
 ): Promise<Result<ButterSwapRateStepData | ButterSwapQuoteStepData, SwapErrorRight>> {
-  const { input, route, sellAsset, feeAsset, sellAmountCryptoBaseUnit, deps } = args
+  const { input, route, sellAsset, feeAsset, sellAmountCryptoBaseUnit, spenderAddress, deps } =
+    args
   const { chainNamespace, chainReference } = fromChainId(sellAsset.chainId)
 
   switch (chainNamespace) {
@@ -116,7 +118,7 @@ export async function getButterSwapStepData(
           stateOverride: {
             sellAsset,
             sellAmountCryptoBaseUnit,
-            spenderAddress: route.contract || undefined,
+            spenderAddress,
           },
         })
 

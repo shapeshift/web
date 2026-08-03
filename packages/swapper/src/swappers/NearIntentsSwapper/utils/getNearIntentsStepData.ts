@@ -7,7 +7,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import { EVM_PLACEHOLDER_ADDRESS, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
@@ -75,14 +75,14 @@ export async function getNearIntentsStepData(
         }
 
         // The deposit is a plain (token) transfer with no approval involved - overridden
-        // estimation still prices an unfunded sender, so rates work walletless
+        // estimation still prices an unfunded sender, so rates work walletless via the placeholder
         if (type === 'rate') {
           const networkFeeCryptoBaseUnit = await (async () => {
             try {
               return await getEvmNetworkFeeCryptoBaseUnit({
                 adapter,
                 transactionData,
-                from: from || depositAddress,
+                from: from || EVM_PLACEHOLDER_ADDRESS,
                 supportsEIP1559,
                 stateOverride,
               })

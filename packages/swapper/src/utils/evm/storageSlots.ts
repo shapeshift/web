@@ -1,26 +1,34 @@
 import type { Address, Hex } from 'viem'
-import { concat, keccak256, maxUint256, pad, toHex } from 'viem'
+import { concat, keccak256, pad, toHex } from 'viem'
 
-// keccak256(concat(pad(address), pad(slot)))
-export const getBalanceStorageSlot = (userAddress: Address, balanceSlotNumber: number = 0): Hex => {
-  const paddedAddress = pad(userAddress.toLowerCase() as Address, { size: 32 })
-  const paddedSlot = pad(toHex(balanceSlotNumber), { size: 32 })
-  return keccak256(concat([paddedAddress, paddedSlot]))
+// Solidity stores mapping values at keccak256(key . slot); Vyper (Curve ecosystem) reverses the
+// order to keccak256(slot . key)
+export type StorageLayout = 'solidity' | 'vyper'
+
+const getMappingStorageSlot = (key: Hex, slot: number | Hex, layout: StorageLayout): Hex => {
+  const paddedKey = pad(key.toLowerCase() as Hex, { size: 32 })
+  const paddedSlot = pad(typeof slot === 'number' ? toHex(slot) : slot, { size: 32 })
+  return keccak256(concat(layout === 'vyper' ? [paddedSlot, paddedKey] : [paddedKey, paddedSlot]))
 }
 
-// keccak256(spender, keccak256(owner, slot))
+export const getBalanceStorageSlot = (
+  userAddress: Address,
+  balanceSlotNumber: number,
+  layout: StorageLayout = 'solidity',
+): Hex => getMappingStorageSlot(userAddress, balanceSlotNumber, layout)
+
+// Nested mapping - the outer (spender) hash chains onto the inner (owner) hash
 export const getAllowanceStorageSlot = (
   ownerAddress: Address,
   spenderAddress: Address,
-  allowanceSlotNumber: number = 1,
-): Hex => {
-  const paddedOwner = pad(ownerAddress.toLowerCase() as Address, { size: 32 })
-  const paddedAllowanceSlot = pad(toHex(allowanceSlotNumber), { size: 32 })
-  const innerSlot = keccak256(concat([paddedOwner, paddedAllowanceSlot]))
-
-  const paddedSpender = pad(spenderAddress.toLowerCase() as Address, { size: 32 })
-  return keccak256(concat([paddedSpender, innerSlot]))
-}
+  allowanceSlotNumber: number,
+  layout: StorageLayout = 'solidity',
+): Hex =>
+  getMappingStorageSlot(
+    spenderAddress,
+    getMappingStorageSlot(ownerAddress, allowanceSlotNumber, layout),
+    layout,
+  )
 
 // Most ERC20s: balance at slot 0, allowance at slot 1
 // Slot 51/52 pattern (StandardArbERC20, some L2 implementations)
@@ -98,7 +106,3 @@ export const getTokenAllowanceSlot = (tokenAddress: Address): number => {
   // Standard ERC20: allowance at slot 1
   return 1
 }
-
-// USDC slot 9: bit 255 is blacklist flag, must keep cleared
-export const getMaxBalanceValue = (balanceSlotNumber: number): Hex =>
-  balanceSlotNumber === 9 ? toHex(maxUint256 >> 1n) : toHex(maxUint256)

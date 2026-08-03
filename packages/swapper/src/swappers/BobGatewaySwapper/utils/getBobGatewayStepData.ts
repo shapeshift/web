@@ -22,6 +22,7 @@ import { createBobGatewayOrder, toTronBase58 } from './helpers'
 type BaseArgs = {
   quote: GatewayQuoteV3
   sellAmountCryptoBaseUnit: string
+  spenderAddress: string
 }
 
 export type GetBobGatewayStepDataArgs = StepDataArgs<BaseArgs>
@@ -45,7 +46,7 @@ export function getBobGatewayStepData(
 export async function getBobGatewayStepData(
   args: GetBobGatewayStepDataArgs,
 ): Promise<Result<BobGatewayRateStepData | BobGatewayQuoteStepData, SwapErrorRight>> {
-  const { input, quote, sellAsset, sellAmountCryptoBaseUnit, deps } = args
+  const { input, quote, sellAsset, sellAmountCryptoBaseUnit, spenderAddress, deps } = args
   const { chainNamespace } = fromChainId(sellAsset.chainId)
 
   // Rates estimate off the quote shape; quotes resolve the executable order once up front
@@ -176,7 +177,11 @@ export async function getBobGatewayStepData(
           transactionData,
           from,
           supportsEIP1559: input.supportsEIP1559,
-          gasLimitBuffer: 1.2,
+          stateOverride: {
+            sellAsset,
+            sellAmountCryptoBaseUnit,
+            spenderAddress,
+          },
         })
 
         const stepData: BobGatewayQuoteStepData = {

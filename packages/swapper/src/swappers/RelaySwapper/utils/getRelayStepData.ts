@@ -1,9 +1,7 @@
-import { fromChainId, monadChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import { bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { Hex } from 'viem'
-import { getAddress } from 'viem'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeTradeStepBuildFailedErr } from '../../../utils'
@@ -14,7 +12,6 @@ import {
   omitComputeBudgetInstructions,
   withComputeUnitLimit,
 } from '../../../utils/solana'
-import { RATE_SIM_TIMEOUT_MS, simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import { convertRelaySolanaInstruction } from './helpers'
@@ -34,6 +31,7 @@ export const RELAY_SOLANA_COMPUTE_BUDGET: SolanaComputeBudgetOptions = { marginM
 type BaseArgs = {
   data: RelayQuoteItem['data']
   sellAmountCryptoBaseUnit: string
+  spenderAddress: string
   orderId: string | undefined
   xpub: string | undefined
   fallbackNetworkFeeCryptoBaseUnit: string
@@ -58,6 +56,7 @@ export async function getRelayStepData({
   data,
   sellAsset,
   sellAmountCryptoBaseUnit,
+  spenderAddress,
   orderId,
   from,
   xpub,
@@ -91,37 +90,21 @@ export async function getRelayStepData({
 
     const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
 
+    const stateOverride = {
+      sellAsset,
+      sellAmountCryptoBaseUnit,
+      spenderAddress,
+    }
+
     if (type === 'rate') {
       const networkFeeCryptoBaseUnit = await (async () => {
         try {
-          const simulation = await simulateWithStateOverrides(
-            {
-              chainId: sellAsset.chainId,
-              from: getAddress(from),
-              to: getAddress(transactionData.to),
-              data: transactionData.data as Hex,
-              value: transactionData.value,
-              sellAsset,
-              // Pass Relay's gas limit to Tenderly for Monad as tenderly return crazy gas
-              gas:
-                transactionData.gasLimit && sellAsset.chainId === monadChainId
-                  ? Number(transactionData.gasLimit)
-                  : undefined,
-              timeoutMs: RATE_SIM_TIMEOUT_MS,
-            },
-            {
-              apiKey: deps.config.VITE_TENDERLY_API_KEY,
-              accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-              projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-            },
-          )
-
-          if (!simulation.success) return fallbackNetworkFeeCryptoBaseUnit
-
           return await getEvmNetworkFeeCryptoBaseUnit({
             adapter,
+            transactionData,
+            from,
             supportsEIP1559,
-            gasLimit: simulation.gasLimit.toString(),
+            stateOverride,
           })
         } catch {
           return fallbackNetworkFeeCryptoBaseUnit
@@ -140,6 +123,7 @@ export async function getRelayStepData({
         transactionData,
         from,
         supportsEIP1559,
+        stateOverride,
       })
 
       const stepData: RelayQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

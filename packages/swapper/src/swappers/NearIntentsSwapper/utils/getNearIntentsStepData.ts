@@ -1,15 +1,13 @@
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId, monadChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { Hex } from 'viem'
-import { getAddress } from 'viem'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import { EVM_PLACEHOLDER_ADDRESS, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
@@ -18,7 +16,6 @@ import {
   SOLANA_PLACEHOLDER_ADDRESS,
   withComputeUnitLimit,
 } from '../../../utils/solana'
-import { RATE_SIM_TIMEOUT_MS, simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 
 // Deposits are plain (token) transfers with constant measured compute consumption (max 15394 CU
@@ -72,37 +69,27 @@ export async function getNearIntentsStepData(
           value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
         }
 
-        // Rates simulate the deposit transfer rather than estimate it, so an unapproved or
-        // unfunded sender still prices (Monad has no Tenderly support, so it estimates like quotes)
-        if (type === 'rate' && sellAsset.chainId !== monadChainId) {
-          const simulationResult = await simulateWithStateOverrides(
-            {
-              chainId: sellAsset.chainId,
-              from: getAddress(from || depositAddress),
-              to: getAddress(transactionData.to),
-              data: transactionData.data as Hex,
-              value: transactionData.value,
-              sellAsset,
-              timeoutMs: RATE_SIM_TIMEOUT_MS,
-            },
-            {
-              apiKey: deps.config.VITE_TENDERLY_API_KEY,
-              accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-              projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-            },
-          )
+        const stateOverride = {
+          sellAsset,
+          sellAmountCryptoBaseUnit,
+        }
 
-          if (!simulationResult.success) {
-            const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: '0' }
-
-            return Ok(stepData)
-          }
-
-          const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-            adapter,
-            supportsEIP1559,
-            gasLimit: simulationResult.gasLimit.toString(),
-          })
+        // The deposit is a plain (token) transfer with no approval involved - overridden
+        // estimation still prices an unfunded sender, so rates work walletless via the placeholder
+        if (type === 'rate') {
+          const networkFeeCryptoBaseUnit = await (async () => {
+            try {
+              return await getEvmNetworkFeeCryptoBaseUnit({
+                adapter,
+                transactionData,
+                from: from || EVM_PLACEHOLDER_ADDRESS,
+                supportsEIP1559,
+                stateOverride,
+              })
+            } catch {
+              return undefined
+            }
+          })()
 
           const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -114,13 +101,8 @@ export async function getNearIntentsStepData(
           transactionData,
           from: from || depositAddress,
           supportsEIP1559,
+          stateOverride,
         })
-
-        if (type === 'rate') {
-          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
-
-          return Ok(stepData)
-        }
 
         const stepData: NearIntentsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
 

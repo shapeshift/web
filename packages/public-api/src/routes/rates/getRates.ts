@@ -1,3 +1,4 @@
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import { getTradeRates, swappers, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Request, Response } from 'express'
@@ -84,6 +85,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       accountNumber: undefined,
       quoteOrRate: 'rate' as const,
       chainId: sellAsset.chainId,
+      ...(isEvmChainId(sellAsset.chainId) && { supportsEIP1559: false as const }),
     }
 
     const ratePromises = ENABLED_SWAPPER_NAMES.map(async (swapperName): Promise<ApiRate | null> => {

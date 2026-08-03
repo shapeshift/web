@@ -1,3 +1,4 @@
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -107,6 +108,7 @@ export const getBobGatewayTradeContext = async ({
       quote,
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
+      spenderAddress: isEvmChainId(sellAsset.chainId) ? allowanceContract : '',
       deps,
     },
   })

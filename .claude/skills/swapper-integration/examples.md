@@ -32,7 +32,7 @@ swapper resembles:
 - **SwapperMetadata union member + reads**: `ChainflipMetadata` (status polling by swap id), `NearIntentsMetadata` (deposit address for status + un-migrated exec), read via `getSwapMetadata`
 - **checkTradeStatus with tracker links**: Chainflip (native id -> scan link), Relay (origin-tx link), CowSwapper (order uid link) - return `swapperTxId`/`swapperTxLink` constructed next to the provider response
 - **HTTP service**: any `utils/[x]Service.ts` (`createCache` + `makeSwapperAxiosServiceMonadic`)
-- **Tenderly simulation for rates** (unapproved sender still prices): PortalsSwapper, RelaySwapper, NearIntentsSwapper step data
+- **State-override gas estimation** (unapproved/unfunded sender still estimates): pass `stateOverride: { sellAsset, sellAmountCryptoBaseUnit, spenderAddress }` to `getEvmNetworkFeeCryptoBaseUnit` in the quote arm (`spenderAddress` = the step's `allowanceContract`, `''` when no approval is involved) — see ButterSwap/Portals/Relay step data; `utils/evm/stateOverride.ts` handles slot discovery
 
 ## Registration example (one line per swapper)
 

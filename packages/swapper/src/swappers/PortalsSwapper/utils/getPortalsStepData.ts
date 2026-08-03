@@ -1,24 +1,21 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { Hex } from 'viem'
-import { getAddress } from 'viem'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import { RATE_SIM_TIMEOUT_MS, simulateWithStateOverrides } from '../../../utils/tenderly'
+import { estimateGasWithStateOverride, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { PortalsTx } from './fetchPortalsTradeOrder'
 import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 
 type BaseArgs = {
   tx: PortalsTx
+  spenderAddress: string
 }
 
 export type GetPortalsStepDataArgs = StepDataArgs<
   BaseArgs,
   {
-    target: string
     inputToken: string
     outputToken: string
     inputAmount: string
@@ -38,45 +35,39 @@ export function getPortalsStepData(
 export async function getPortalsStepData(
   args: GetPortalsStepDataArgs,
 ): Promise<Result<PortalsRateStepData | PortalsQuoteStepData, SwapErrorRight>> {
-  const { tx, sellAsset, input, deps } = args
+  const { tx, sellAsset, spenderAddress, input, deps } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
   if (args.type === 'rate') {
     try {
-      // No placeholder estimation for provider built routes - Tenderly sim (approval state-overridden)
-      // with the Portals estimate endpoint as fallback
+      // No placeholder estimation for provider built routes - overridden estimation (approval
+      // state need not exist yet) with the Portals estimate endpoint as fallback
       const gasLimit = await (async () => {
-        const tenderlySimulation = await simulateWithStateOverrides(
-          {
-            chainId: sellAsset.chainId,
-            from: tx.from,
-            to: tx.to,
-            data: tx.data as Hex,
-            value: tx.value,
+        try {
+          const gasLimit = await estimateGasWithStateOverride({
             sellAsset,
-            spenderAddress: getAddress(args.target),
-            timeoutMs: RATE_SIM_TIMEOUT_MS,
-          },
-          {
-            apiKey: deps.config.VITE_TENDERLY_API_KEY,
-            accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-            projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-          },
-        )
+            sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            from: tx.from,
+            spenderAddress,
+            to: tx.to,
+            data: tx.data,
+            value: tx.value,
+          })
 
-        if (tenderlySimulation.success) return tenderlySimulation.gasLimit.toString()
+          return gasLimit
+        } catch {
+          const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+            inputToken: args.inputToken,
+            outputToken: args.outputToken,
+            inputAmount: args.inputAmount,
+            slippageTolerancePercentage: args.slippageTolerancePercentage,
+            swapperConfig: deps.config,
+          })
 
-        const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-          inputToken: args.inputToken,
-          outputToken: args.outputToken,
-          inputAmount: args.inputAmount,
-          slippageTolerancePercentage: args.slippageTolerancePercentage,
-          swapperConfig: deps.config,
-        })
-
-        return quoteEstimateResponse.context.gasLimit.toString()
+          return quoteEstimateResponse.context.gasLimit.toString()
+        }
       })()
 
       const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
@@ -99,7 +90,8 @@ export async function getPortalsStepData(
     to: tx.to,
     data: tx.data,
     value: tx.value,
-    // Portals simulate and pad their gas limit, so no additional buffer
+    // Portals simulate and pad their gas limit when the order was validated, so no additional
+    // buffer - an unvalidated order carries no gas limit and estimates below instead
     gasLimit: tx.gasLimit,
   }
 
@@ -109,6 +101,11 @@ export async function getPortalsStepData(
       transactionData,
       from: args.from,
       supportsEIP1559,
+      stateOverride: {
+        sellAsset,
+        sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        spenderAddress,
+      },
     })
 
     const stepData: PortalsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

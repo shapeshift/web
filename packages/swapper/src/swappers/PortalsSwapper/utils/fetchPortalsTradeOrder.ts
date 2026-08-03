@@ -37,7 +37,8 @@ export type PortalsTx = {
   from: Address
   data: string
   value: string
-  gasLimit: string
+  // Only present when the order was validated - validate:false skips the simulation that derives it
+  gasLimit?: string
 }
 
 export type PortalsTradeOrderResponse = {

@@ -87,9 +87,6 @@ export type SwapperConfig = {
   VITE_RELAY_API_URL: string
   VITE_BEBOP_API_KEY: string
   VITE_NEAR_INTENTS_API_KEY: string
-  VITE_TENDERLY_API_KEY: string
-  VITE_TENDERLY_ACCOUNT_SLUG: string
-  VITE_TENDERLY_PROJECT_SLUG: string
   VITE_SUI_NODE_URL: string
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string

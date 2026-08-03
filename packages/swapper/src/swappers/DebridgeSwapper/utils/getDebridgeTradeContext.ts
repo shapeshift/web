@@ -128,6 +128,8 @@ export const getDebridgeTradeContext = async ({
     buyAsset,
   })
 
+  const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.tx.to : ''
+
   return Ok({
     tradeCommon: {
       id: quote.id,
@@ -137,7 +139,7 @@ export const getDebridgeTradeContext = async ({
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
     },
     stepCommon: {
-      allowanceContract: isEvmChainId(sellAsset.chainId) ? quote.tx.to : '',
+      allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit: quote.buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: quote.buyAmountAfterFeesCryptoBaseUnit,
@@ -157,6 +159,7 @@ export const getDebridgeTradeContext = async ({
       gasLimit: quote.gasLimit,
       fallbackNetworkFeeCryptoBaseUnit: quote.fallbackNetworkFeeCryptoBaseUnit,
       sellAsset,
+      spenderAddress: allowanceContract,
       from: senderAddress,
       deps,
     },

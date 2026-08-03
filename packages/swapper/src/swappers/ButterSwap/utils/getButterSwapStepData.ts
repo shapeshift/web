@@ -69,8 +69,7 @@ export function getButterSwapStepData(
 export async function getButterSwapStepData(
   args: GetButterSwapStepDataArgs,
 ): Promise<Result<ButterSwapRateStepData | ButterSwapQuoteStepData, SwapErrorRight>> {
-  const { input, route, sellAsset, feeAsset, sellAmountCryptoBaseUnit, spenderAddress, deps } =
-    args
+  const { input, route, sellAsset, feeAsset, sellAmountCryptoBaseUnit, spenderAddress, deps } = args
   const { chainNamespace, chainReference } = fromChainId(sellAsset.chainId)
 
   switch (chainNamespace) {

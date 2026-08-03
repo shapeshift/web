@@ -28,14 +28,11 @@ const ApiRateSchema = z.object({
   buyAmountCryptoBaseUnit: z.string(),
   sellAmountCryptoBaseUnit: z.string(),
   steps: z.number(),
-  allowanceContract: z
-    .string()
-    .optional()
-    .openapi({
-      example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff',
-      description:
-        'First-hop approval spender for the sell token. Non-empty means executing this swapper pulls the sell token from an approved allowance - clients wanting to check or set an allowance manually before quoting can use it directly. Empty or absent means no approval is involved.',
-    }),
+  allowanceContract: z.string().optional().openapi({
+    example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff',
+    description:
+      'First-hop approval spender for the sell token. Non-empty means executing this swapper pulls the sell token from an approved allowance - clients wanting to check or set an allowance manually before quoting can use it directly. Empty or absent means no approval is involved.',
+  }),
   estimatedExecutionTimeMs: z.number().optional(),
   priceImpactPercentageDecimal: z.string().optional(),
   ...BpsFields,

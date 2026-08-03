@@ -51,12 +51,20 @@ export const buildApprovalInfo = async (
   }
 
   // USDT-style tokens require resetting a non-zero allowance before changing it - detected by
-  // simulating the approve as the owner, so no token list is needed
+  // simulating the approve as the owner, so no token list is needed. A revert, a false return,
+  // a non-standard (return-less) token, or a transient RPC failure all land on the reset side -
+  // a spurious approve(spender, 0) is a harmless extra transaction, never an unexecutable quote
   const needsReset =
     allowance > 0n &&
     (await client
-      .call({ account: getAddress(owner), to: tokenAddress, data: approveTx.data })
-      .then(() => false)
+      .simulateContract({
+        account: getAddress(owner),
+        address: tokenAddress,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [getAddress(spender), requiredAmount],
+      })
+      .then(({ result }) => result === false)
       .catch(() => true))
 
   const resetTx = {

@@ -1,25 +1,15 @@
-type BobGatewayEvmTxMetadata = {
-  to: string
-  data: string
-  value: string
-  chain: string
+import type {
+  GetEvmTradeQuoteInput,
+  GetEvmTradeRateInput,
+  GetUtxoTradeQuoteInput,
+  GetUtxoTradeRateInput,
+} from '../../types'
+
+export type BobGatewayMetadata = {
+  name: 'bob'
+  orderId: string
 }
 
-type BobGatewayUtxoTxMetadata = {
-  depositAddress: string
-  opReturnData?: string
-}
-
-type BobGatewayTronTxMetadata = {
-  to: string
-  data: string
-  value: string
-  feeLimit: string
-  chain: string
-}
-
-export type BobGatewayMetadata = { orderId: string } & (
-  | { evmTx: BobGatewayEvmTxMetadata; utxoTx?: never; tronTx?: never }
-  | { utxoTx: BobGatewayUtxoTxMetadata; evmTx?: never; tronTx?: never }
-  | { tronTx: BobGatewayTronTxMetadata; evmTx?: never; utxoTx?: never }
-)
+// Bob Gateway bridges BTC (utxo) and EVM chains; Tron is currently disabled (see chain name map)
+export type BobGatewayTradeQuoteInput = GetEvmTradeQuoteInput | GetUtxoTradeQuoteInput
+export type BobGatewayTradeRateInput = GetEvmTradeRateInput | GetUtxoTradeRateInput

@@ -602,36 +602,18 @@
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"
       },
-      "saversVaults": {
-        "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
-        "runePoolDescription": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools, everyone shares in the overall performance.",
-        "runePoolOverviewDescription": "RUNEPool optimizes RUNE usage by depositing it into all POL-enabled liquidity pools in THORChain. By pooling RUNE across these pools, participants earn the combined APY but face exposure to the aggregate impermanent loss. Instead of choosing individual pools, users benefit from the overall performance, effectively investing in a RUNE index and all THORChain POL-enabled assets. This simplifies liquidity provision and reduces individual risk.",
-        "vaultCap": "Vault Cap",
-        "vaultCapTooltip": "Current maximum capacity for this vault",
+      "runePool": {
+        "description": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools, everyone shares in the overall performance.",
+        "overviewDescription": "RUNEPool optimizes RUNE usage by depositing it into all POL-enabled liquidity pools in THORChain. By pooling RUNE across these pools, participants earn the combined APY but face exposure to the aggregate impermanent loss. Instead of choosing individual pools, users benefit from the overall performance, effectively investing in a RUNE index and all THORChain POL-enabled assets. This simplifies liquidity provision and reduces individual risk.",
+        "introducing": "Introducing RUNEPool",
+        "agree": "I understand that RUNEPool has both a 30 day minimum lockup and a heightened risk of impermanent loss.",
         "haltedDepositTitle": "Deposits are temporarily halted.",
         "disabledDepositTitle": "Deposits are temporarily disabled.",
         "disabledWithdrawTitle": "Withdraws are temporarily disabled.",
         "withdrawLockedTitle": "You have to wait %{timeHuman} to withdraw.",
-        "haltedDescription": "Please tweet at @THORChain to raise the caps!",
-        "protocolFee": "Protocol Fee",
-        "dustAmount": "Dust Amount",
-        "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
-        "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
-        "sendDust": "Send Dust",
-        "addressToSendTo": "Address to Send To",
-        "introducingSaversVaults": "Introducing Savers Vaults",
-        "introducingRunePool": "Introducing RUNEPool",
-        "risksBody": {
-          "vaults": "Refer to <link>this article</link> for risks involved with savers vaults.",
-          "runePool": "Refer to <link>this article</link> for risks involved with RUNEPool."
-        },
-        "timeToBreakEven": {
-          "title": "Time to break even",
-          "tooltip": "Estimated time to cover deposit fees and earnings."
-        },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
-        "agreeRunePool": "I understand that RUNEPool has both a 30 day minimum lockup and a heightened risk of impermanent loss."
+        "risksBody": "Refer to <link>this article</link> for risks involved with RUNEPool."
       }
     },
     "memoNote": {
@@ -717,8 +699,6 @@
     "limitOrder": "Limit Orders",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
-    "lending": "Lending",
-    "thorchainLending": "THORChain Lending",
     "chainflipLending": "Chainflip Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
@@ -2346,102 +2326,8 @@
     "custom": "Custom"
   },
   "lending": {
-    "lending": "Lending",
-    "repaymentAvailable": "Repayment available",
-    "repaymentUnavailable": "Repayment not yet available",
-    "daysUntilRepayment": "%{numDays} days until repayment",
-    "repaymentDays": "%{numDays} days",
-    "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
-    "collateralValue": "Collateral Value",
-    "collateralValueDescription": "Current value of your asset used as collateral",
-    "debtValue": "Debt Value",
-    "loanToValue": "Loan to Value",
-    "availablePools": "Available Pools",
-    "pool": "Pool",
-    "poolDepth": "Pool Depth",
-    "poolDepthDescription": "The healthiness of the pool",
-    "status": "Status",
-    "statusDescription": "The status of the pool",
-    "totalDebtBalance": "Total Debt Balance",
-    "totalDebtBalanceDescription": "Cumulative Debt Balance in the lending pool",
-    "totalCollateral": "Total Collateral",
-    "totalCollateralDescription": "Total Collateral added to the lending pool",
-    "estCollateralizationRatio": "Est. Collateralization Ratio",
-    "estCollateralizationRatioDescription": "A flat Collateralization Ratio of 200% is currently in place. In the future, a dynamic ratio will balance between the maximum and minimum CR based on market conditions.",
-    "collateralizationRatio": "Collateralization Ratio",
-    "totalBorrowers": "Total Borrowers",
-    "totalBorrowersDescription": "Number of borrowers participating",
-    "myLoanInformation": "My Loan Information",
-    "loanInformation": "Loan Summary",
-    "poolInformation": "Pool Information",
-    "collateralBalance": "Collateral Balance",
-    "collateralBalanceDescription": "Total amount of your asset currently held as collateral",
-    "debtBalance": "Debt Balance",
-    "debtBalanceDescription": "Total amount of debt you owe for this loan",
-    "repaymentLock": "Repayment Lock",
-    "repaymentLockDescription": "Minimum period before you can repay your loan",
-    "receiveCollateral": "The amount of collateral you will receive back",
-    "borrow": "Borrow",
-    "repay": "Repay",
-    "repayAmount": "Repay Amount",
-    "unlocked": "Unlocked",
-    "unlockedCollateral": "Unlocked Collateral",
-    "depositAsset": "Deposit %{asset}",
     "switchAssets": "Switch Assets",
-    "outstandingDebt": "Outstanding Debt",
-    "outstandingDebtDescription": "The amount of collateral you've borrowed",
-    "collateral": "Collateral",
-    "debt": "Debt",
-    "healthy": "Depth is optimal, loans are efficient.",
-    "confirmAndBorrow": "Confirm and Borrow",
-    "confirmAndRepay": "Confirm and Repay",
-    "borrowAgain": "Borrow Again",
-    "repayAgain": "Repay Again",
-    "transactionInfo": "Transaction Summary",
-    "repayNoticeTitle": "Hold Up!",
-    "repayNoticeCta": "I understand",
-    "repayNotice": "To get back your collateral you will need to repay 100% of your debt.",
-    "feesNotice": "Fees occurred on the collateral you will receive back after repaying 100% of your debt",
-    "refetchQuote": "Refetch Quote",
-    "haltedAlert": "THORFi services (Lending, Savers and RUNEPool) are currently paused on THORChain. We apologize for any inconvenience.",
-    "faq": {
-      "title": "FAQ",
-      "lending": {
-        "title": "What is THORChain Lending?",
-        "body": "Lending allows users to deposit native collateral, and then create a debt at a collateralization ratio (CR). The debt is always denominated in USD (aka TOR), regardless of what L1 asset the user receives"
-      },
-      "borrowing": {
-        "title": "How does borrowing work?",
-        "body": "Borrowing in THORChain involves using your deposited assets as collateral to take out a loan. The loan is denominated in USD (TOR) and can be received in various L1 assets. With a dynamic collateralization ratio, you can borrow flexibly without the worry of interest or liquidation"
-      },
-      "repayments": {
-        "title": "How does repayment work?",
-        "body": "Repayment in THORChain is flexible, allowing you to repay at any time after your repayment lock has elapsed, and in any asset, which is then converted to TOR. The repayment amount is deducted from your debt balance, and proportional collateral is released back to you upon full repayment"
-      }
-    },
-    "errors": {
-      "repaymentsHalted": "Repayments are temporarily halted.",
-      "borrowingHalted": "Borrowing is temporarily halted.",
-      "repaymentsDisabled": "Repayments are temporarily disabled.",
-      "borrowingDisabled": "Borrowing is temporarily disabled.",
-      "amountTooLowToReturnCollateral": "Amount too low to return collateral",
-      "amountTooLowToReturnCollateralTooltip": "The repayment is too low for your collateral to be returned. Please try again with a higher amount, or repay a partial amount (which will not return your collateral, but will decrease your debt).",
-      "amountTooSmallUnknownMinimumTooltip": "The repayment amount you have entered is too small. Please try again with a higher amount.",
-      "repaymentUnavailableTooltip": "It is not possible to repay your loan yet. Please wait until the repayment lock has elapsed.",
-      "repaymentsHaltedTooltip": "Repayments are temporarily halted. Please try again later."
-    },
-    "quote": {
-      "collateral": "Total asset amount which will be secured against your loan",
-      "debt": "Total debt you'll owe based on your new loan amount",
-      "repaymentLock": "Minimum period before you can repay your loan",
-      "collateralizationRatio": "Ratio of your collateral value to the loan amount",
-      "feesPlusSlippage": "Total fees occurred, including L1 fees, slippage, and THORChain liquidity fees"
-    },
-    "yourLoans": {
-      "yourLoans": "Your Loans",
-      "emptyTitle": "The Land of Zero Loans!",
-      "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
-    }
+    "poolInformation": "Pool Information"
   },
   "chainflipLending": {
     "awaitingConfirmTitle": "Awaiting Confirmation",
@@ -2971,7 +2857,8 @@
         "title": "Risks and Considerations",
         "body": "While liquidity pools offer earning opportunities, it's important to be aware of the risks involved, including impermanent loss, smart contract vulnerabilities, and market volatility. Users should conduct thorough research before participating."
       }
-    }
+    },
+    "haltedDepositTitle": "Deposits are temporarily halted."
   },
   "warningAcknowledgement": {
     "understand": "I understand",

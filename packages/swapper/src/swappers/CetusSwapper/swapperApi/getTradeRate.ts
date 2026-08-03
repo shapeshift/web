@@ -1,140 +1,42 @@
-import { Transaction } from '@mysten/sui/transactions'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
+import { Err, Ok } from '@sniptt/monads'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { getAggregatorClient, getSuiClient } from '../utils/helpers'
-import { getCetusTradeData } from './getCetusTradeData'
+import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import type { CetusTradeRateInput } from '../types'
+import { CETUS_FEE_ESTIMATE_DUMMY_ADDRESS } from '../utils/constants'
+import { getCetusStepData } from './getCetusStepData'
+import { getCetusTradeContext } from './getCetusTradeContext'
 
 export const getTradeRate = async (
-  input: GetTradeRateInput,
+  input: CetusTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const {
-    sellAsset,
-    buyAsset,
+  const { accountNumber, receiveAddress } = input
+
+  const from = receiveAddress ?? CETUS_FEE_ESTIMATE_DUMMY_ADDRESS
+
+  const maybeContext = await getCetusTradeContext(input, deps)
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getCetusStepData({ ...stepDataArgs, type: 'rate', input, from })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
+
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
+    quoteOrRate: 'rate' as const,
     receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-  } = input
-
-  const tradeDataResult = await getCetusTradeData(
-    {
-      sellAsset,
-      buyAsset,
-      receiveAddress,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    },
-    deps,
-  )
-
-  if (tradeDataResult.isErr()) return Err(tradeDataResult.unwrapErr())
-
-  const {
-    buyAmountAfterFeesCryptoBaseUnit,
-    rate,
-    addressForFeeEstimate,
-    routerData,
-    protocolFees,
-    rpcUrl,
-  } = tradeDataResult.unwrap()
-
-  try {
-    // Build the actual Cetus swap transaction to get accurate gas estimation
-    const client = getAggregatorClient(rpcUrl)
-    const suiClient = getSuiClient(rpcUrl)
-
-    const slippage = bnOrZero(
-      slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Cetus),
-    ).toNumber()
-
-    const txb = new Transaction()
-    txb.setSender(addressForFeeEstimate)
-
-    await client.fastRouterSwap({
-      router: routerData,
-      slippage,
-      txb,
-      refreshAllCoins: true,
-    })
-
-    const txFee = await (async () => {
-      try {
-        const transactionBytes = await txb.build({ client: suiClient })
-
-        const dryRunResult = await suiClient.dryRunTransactionBlock({
-          transactionBlock: transactionBytes,
-        })
-
-        const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
-        const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
-        const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
-
-        const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
-
-        const estimatedGas = computationCost + netStorageCost
-
-        return estimatedGas.toString()
-      } catch (error) {
-        if (error instanceof Error && error.message.includes('Not enough coins of type')) {
-          return undefined
-        }
-        throw error
-      }
-    })()
-
-    const tradeRate: TradeRate = {
-      id: uuid(),
-      quoteOrRate: 'rate',
-      rate,
-      affiliateBps,
-      receiveAddress,
-      slippageTolerancePercentageDecimal,
-      swapperName: SwapperName.Cetus,
-      steps: [
-        {
-          accountNumber: undefined,
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-          feeData: {
-            protocolFees,
-            networkFeeCryptoBaseUnit: txFee,
-          },
-          rate,
-          source: SwapperName.Cetus,
-          buyAsset,
-          sellAsset,
-          allowanceContract: '0x0',
-          estimatedExecutionTimeMs: undefined,
-          affiliateFee: buildAffiliateFee({
-            strategy: 'buy_asset',
-            affiliateBps,
-            sellAsset,
-            buyAsset,
-            sellAmountCryptoBaseUnit: sellAmount,
-            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-            isEstimate: true,
-          }),
-        },
-      ],
-    }
-
-    return tradeDataResult.map(() => [tradeRate])
-  } catch (error) {
-    return Err(
-      makeSwapErrorRight({
-        message: error instanceof Error ? error.message : 'Unknown error getting Cetus rate',
-        code: TradeQuoteError.QueryFailed,
-      }),
-    )
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
+      },
+    ],
   }
+
+  return Ok([tradeRate])
 }

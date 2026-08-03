@@ -100,7 +100,9 @@ export const useChainflipStreamingProgress = ({
   const swap = useAppSelector(state => selectSwapById(state, swapIdFilter))
 
   const { sellTxHash, metadata } = swap ?? {}
-  const { streamingSwapMetadata, chainflipSwapId } = metadata ?? {}
+  const streamingSwapMetadata = metadata?.streamingSwapMetadata
+  const chainflipSwapId =
+    metadata?.swapperMetadata?.name === 'chainflip' ? metadata.swapperMetadata.swapId : undefined
 
   useQuery({
     queryKey: ['streamingSwapData', chainflipSwapId, SwapperName.Chainflip],

@@ -1,225 +1,28 @@
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
-import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
-import type { SwapperApi, UtxoFeeData } from '../../types'
-import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
+import type { SwapperApi } from '../../types'
+import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
+import { getTronTransactionFees } from '../../utils/tron'
+import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { ChainflipStatusMessage } from './constants'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-import type { ChainFlipStatus } from './types'
+import type { ChainFlipStatus, ChainflipTradeQuoteInput, ChainflipTradeRateInput } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
 
 export const chainflipApi: SwapperApi = {
-  getTradeQuote,
-  getTradeRate,
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    assertGetEvmChainAdapter,
-    supportsEIP1559,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const to = chainflipSpecific.chainflipDepositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-    const data = evm.getErc20Data(to, value, contractAddress)
-
-    const feeData = await evm.getFees({
-      adapter,
-      data: data || '0x',
-      to: contractAddress ?? to,
-      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
-      from,
-      supportsEIP1559,
-    })
-
-    return adapter.buildSendApiTransaction({
-      accountNumber,
-      from,
-      to,
-      value,
-      chainSpecific: { contractAddress, ...feeData },
-    })
-  },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
-    const to = chainflipSpecific.chainflipDepositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-
-    const data = evm.getErc20Data(to, value, contractAddress)
-
-    const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter,
-      data: data || '0x',
-      to: contractAddress ?? to,
-      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
-      from,
-      supportsEIP1559,
-    })
-
-    return networkFeeCryptoBaseUnit
-  },
-  getUnsignedUtxoTransaction: ({
-    stepIndex,
-    tradeQuote,
-    xpub,
-    accountType,
-    assertGetUtxoChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    return adapter.buildSendApiTransaction({
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      xpub,
-      to: chainflipSpecific.chainflipDepositAddress,
-      accountNumber,
-      skipToAddressValidation: true,
-      chainSpecific: {
-        accountType,
-        satoshiPerByte: (step.feeData.chainSpecific as UtxoFeeData).satsPerByte,
-      },
-    })
-  },
-  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
-
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to: chainflipSpecific.chainflipDepositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub },
-      sendMax: false,
-    })
-
-    return fast.txFee
-  },
-  getUnsignedSolanaTransaction: async ({
-    stepIndex,
-    tradeQuote,
-    from,
-    assertGetSolanaChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
-
-    const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
-
-    const to = chainflipSpecific.chainflipDepositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const tokenId = contractAddressOrUndefined(sellAsset.assetId)
-
-    const { fast } = await adapter.getFeeData({
-      to,
-      value,
-      chainSpecific: { from, tokenId },
-    })
-
-    // Chainflip deposit addresses are program-owned accounts that require more compute
-    // than a regular SOL transfer. Apply a safety margin to avoid "Computational budget exceeded".
-    const computeUnits = Math.ceil(Math.max(Number(fast.chainSpecific.computeUnits), 50_000) * 1.6)
-
-    return adapter.buildSendApiTransaction({
-      to,
-      from,
-      value,
-      accountNumber,
-      chainSpecific: {
-        tokenId,
-        computeUnitLimit: String(computeUnits),
-        computeUnitPrice: fast.chainSpecific.priorityFee,
-      },
-    })
-  },
-  getSolanaTransactionFees: async ({
-    stepIndex,
-    tradeQuote,
-    from,
-    assertGetSolanaChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
-
-    const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
-
-    const { fast } = await adapter.getFeeData({
-      to: chainflipSpecific.chainflipDepositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: {
-        from,
-        tokenId: contractAddressOrUndefined(sellAsset.assetId),
-      },
-    })
-
-    // Mirror the same compute budget boost as getUnsignedSolanaTransaction
-    // to avoid underquoting fees for Chainflip deposit addresses
-    const simulatedUnits = Number(fast.chainSpecific.computeUnits)
-    const boostedUnits = Math.ceil(Math.max(simulatedUnits, 50_000) * 1.6)
-    const ratio = simulatedUnits > 0 ? boostedUnits / simulatedUnits : 1
-
-    return String(Math.ceil(Number(fast.txFee) * ratio))
-  },
+  getTradeQuote: (input, deps) => getTradeQuote(input as ChainflipTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as ChainflipTradeRateInput, deps),
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
+  getUnsignedUtxoTransaction,
+  getUtxoTransactionFees,
+  getUnsignedSolanaTransaction,
+  getSolanaTransactionFees,
   getUnsignedTronTransaction: ({ stepIndex, tradeQuote, from, assertGetTronChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -227,13 +30,12 @@ export const chainflipApi: SwapperApi = {
 
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
+    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
 
     const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
     return adapter.buildSendApiTransaction({
-      to: chainflipSpecific.chainflipDepositAddress,
+      to: chainflipSpecific.depositAddress,
       from,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber,
@@ -242,14 +44,15 @@ export const chainflipApi: SwapperApi = {
   },
   getTronTransactionFees,
   checkTradeStatus: async ({ config, swap }) => {
-    const chainflipSwapId = swap?.metadata.chainflipSwapId
-    if (chainflipSwapId == null) throw Error(`chainflipSwapId is required`)
+    if (!swap) throw new Error('Missing swap')
+
+    const { swapId } = getSwapMetadata(swap.metadata.swapperMetadata, 'chainflip')
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL
     const apiKey = config.VITE_CHAINFLIP_API_KEY
 
     const maybeStatusResponse = await chainflipService.get<ChainFlipStatus>(
-      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${chainflipSwapId}`,
+      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,
     )
 
     if (maybeStatusResponse.isErr()) {
@@ -262,27 +65,30 @@ export const chainflipApi: SwapperApi = {
     }
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
-    const {
-      status: { swapEgress, swapId },
-    } = statusResponse
+
+    const buyTxHash = statusResponse.status.swapEgress?.transactionReference
+    const swapperTxId = statusResponse.status.swapId
+    const swapperTxLink = swapperTxId ? `https://scan.chainflip.io/swaps/${swapperTxId}` : undefined
 
     // Assume no outbound Tx is a pending Tx
-    if (!swapEgress?.transactionReference) {
+    if (!buyTxHash) {
       return {
         buyTxHash: undefined,
         status: TxStatus.Pending,
+        swapperTxId,
+        swapperTxLink,
         message: getLatestChainflipStatusMessage(statusResponse),
-        chainflipSwapId: swapId ?? undefined,
       }
     }
 
     // Assume as soon as we have an outbound Tx, the swap is complete.
     // Chainflip waits for 3 confirmations to assume complete (vs. 1 for us), which is turbo long.
     return {
-      buyTxHash: swapEgress.transactionReference,
+      buyTxHash,
       status: TxStatus.Confirmed,
+      swapperTxId,
+      swapperTxLink,
       message: undefined,
-      chainflipSwapId: swapId ?? undefined,
     }
   },
 }

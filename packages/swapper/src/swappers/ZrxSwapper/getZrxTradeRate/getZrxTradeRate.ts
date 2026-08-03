@@ -1,36 +1,28 @@
-import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeRateInput,
   SingleHopTradeRateSteps,
   SwapErrorRight,
+  SwapperDeps,
   TradeRate,
 } from '../../../types'
 import { SwapperName } from '../../../types'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import type { ZrxTradeRateInput } from '../types'
 import { fetchZrxPrice } from '../utils/fetchFromZrx'
-import {
-  assertValidTrade,
-  calculateBuyAmountBeforeFeesCryptoBaseUnit,
-  calculateRate,
-  getProtocolFees,
-} from '../utils/helpers/helpers'
+import { getZrxStepData } from '../utils/getZrxStepData'
+import { getZrxTradeContext } from '../utils/getZrxTradeContext'
+import { assertValidTrade } from '../utils/helpers'
 
-export async function getZrxTradeRate(
-  input: GetEvmTradeRateInput,
-  assetsById: AssetsByIdPartial,
-  zrxBaseUrl: string,
-): Promise<Result<TradeRate, SwapErrorRight>> {
+export const getZrxTradeRate = async (
+  input: ZrxTradeRateInput,
+  deps: SwapperDeps,
+): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const {
+    accountNumber,
     sellAsset,
     buyAsset,
-    accountNumber,
     receiveAddress,
     affiliateBps,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -51,64 +43,44 @@ export async function getZrxTradeRate(
     sellAddress: receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
-    zrxBaseUrl,
+    zrxBaseUrl: deps.config.VITE_ZRX_BASE_URL,
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
-  const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
+  const { buyAmount, sellAmount, fees, totalNetworkFee, route } = maybeZrxPriceResponse.unwrap()
 
-  const { buyAmount, sellAmount, fees, totalNetworkFee, route } = zrxPriceResponse
-
-  const isWrappedNative = route.fills.some(
-    fill => fill.source === 'Wrapped_Native' && fill.proportionBps === '10000',
-  )
-
-  const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
-
-  const buyAmountBeforeFeesCryptoBaseUnit = calculateBuyAmountBeforeFeesCryptoBaseUnit({
-    buyAmount,
-    fees,
-    buyAsset,
-    sellAsset,
+  const maybeContext = getZrxTradeContext({
+    input,
+    deps,
+    slippageTolerancePercentageDecimal,
+    normalizedQuote: { buyAmount, sellAmount, fees, route },
   })
 
-  return Ok({
-    id: uuid(),
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getZrxStepData({
+    ...stepDataArgs,
+    type: 'rate',
+    input,
+    totalNetworkFee,
+  })
+
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
+
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
     quoteOrRate: 'rate' as const,
-    accountNumber: undefined,
     receiveAddress,
-    affiliateBps,
-    // Slippage protection is always enabled for 0x api v2 unlike api v1 which was only supported on specific pairs.
-    slippageTolerancePercentageDecimal,
-    rate,
-    swapperName: SwapperName.Zrx,
     steps: [
       {
-        // Assume instant execution since this is a same-chain AMM Tx which will happen within the same block
-        estimatedExecutionTimeMs: 0,
-        allowanceContract:
-          isNativeEvmAsset(sellAsset.assetId) || isWrappedNative ? undefined : PERMIT2_CONTRACT,
-        buyAsset,
-        sellAsset,
+        ...stepCommon,
         accountNumber,
-        rate,
-        feeData: {
-          protocolFees: getProtocolFees({ fees, sellAsset, assetsById }),
-          networkFeeCryptoBaseUnit: totalNetworkFee,
-        },
-        buyAmountBeforeFeesCryptoBaseUnit,
-        buyAmountAfterFeesCryptoBaseUnit: buyAmount,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        source: SwapperName.Zrx,
-        affiliateFee: buildAffiliateFee({
-          strategy: 'buy_asset',
-          affiliateBps,
-          sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          buyAmountCryptoBaseUnit: buyAmount,
-        }),
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ] as SingleHopTradeRateSteps,
-  })
+  }
+
+  return Ok([tradeRate])
 }

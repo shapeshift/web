@@ -1,6 +1,6 @@
 import { CosmosManager } from '@/features/defi/providers/cosmos/components/CosmosManager/CosmosManager'
 import { FoxFarmingManager } from '@/features/defi/providers/fox-farming/components/FoxFarmingManager/FoxFarmingManager'
-import { ThorchainSaversManager } from '@/features/defi/providers/thorchain-savers/components/ThorchainSaversManager/ThorchainSaversManager'
+import { RunePoolManager } from '@/features/defi/providers/runepool/components/RunePoolManager/RunePoolManager'
 import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export const DefiProviderToDefiModuleResolverByDeFiType = {
@@ -10,8 +10,8 @@ export const DefiProviderToDefiModuleResolverByDeFiType = {
   [`${DefiProvider.rFOX}`]: {
     [`${DefiType.Staking}`]: FoxFarmingManager,
   },
-  [DefiProvider.ThorchainSavers]: {
-    [`${DefiType.Staking}`]: ThorchainSaversManager,
+  [DefiProvider.RunePool]: {
+    [`${DefiType.Staking}`]: RunePoolManager,
   },
   [DefiProvider.CosmosSdk]: CosmosManager,
 }

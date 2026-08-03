@@ -297,7 +297,7 @@ export const assetIdToToken = (assetId: AssetId): string => {
 - Sell native token (ETH → USDC)
 - Sell wrapped token (WETH → USDC)
 
-**Affected Files**: `utils/helpers/helpers.ts`, `types.ts`
+**Affected Files**: `utils/helpers.ts`, `types.ts`
 
 ---
 
@@ -542,7 +542,7 @@ export const assetIdToTronToken = (assetId: AssetId): string => {
 }
 ```
 
-**Affected Files**: `utils/helpers/helpers.ts`
+**Affected Files**: `utils/helpers.ts`
 
 ---
 

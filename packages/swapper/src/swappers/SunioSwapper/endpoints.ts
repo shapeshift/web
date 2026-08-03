@@ -4,16 +4,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
-import type {
-  CommonTradeQuoteInput,
-  GetTradeRateInput,
-  GetTronTradeQuoteInput,
-  GetUnsignedTronTransactionArgs,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuoteResult,
-  TradeRateResult,
-} from '../../types'
+import type { GetUnsignedTronTransactionArgs, SwapperApi } from '../../types'
 import {
   createDefaultStatusResponse,
   getExecutableTradeStep,
@@ -21,6 +12,7 @@ import {
 } from '../../utils'
 import { getSunioTradeQuote } from './getSunioTradeQuote/getSunioTradeQuote'
 import { getSunioTradeRate } from './getSunioTradeRate/getSunioTradeRate'
+import type { SunioTradeQuoteInput, SunioTradeRateInput } from './types'
 import {
   buildSwapExactInputParameters,
   SUNIO_SWAP_EXACT_INPUT_SELECTOR,
@@ -32,18 +24,8 @@ import { getSunioTransactionFees } from './utils/getSunioTransactionFees'
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const sunioApi: SwapperApi = {
-  getTradeQuote: async (
-    input: GetTronTradeQuoteInput | CommonTradeQuoteInput,
-    deps: SwapperDeps,
-  ): Promise<TradeQuoteResult> => {
-    const maybeTradeQuote = await getSunioTradeQuote(input, deps)
-    return maybeTradeQuote.map(quote => [quote])
-  },
-
-  getTradeRate: async (input: GetTradeRateInput, deps: SwapperDeps): Promise<TradeRateResult> => {
-    const maybeTradeRate = await getSunioTradeRate(input, deps)
-    return maybeTradeRate.map(rate => [rate])
-  },
+  getTradeQuote: (input, deps) => getSunioTradeQuote(input as SunioTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getSunioTradeRate(input as SunioTradeRateInput, deps),
 
   getUnsignedTronTransaction: async (
     args: GetUnsignedTronTransactionArgs,
@@ -65,10 +47,8 @@ export const sunioApi: SwapperApi = {
 
     const adapter = assertGetTronChainAdapter(tronChainId)
 
-    const sunioMetadata = step.sunioTransactionMetadata
-    if (!sunioMetadata) {
-      throw new Error('[Sun.io] Missing transaction metadata in quote')
-    }
+    const sunioTransactionData = step.sunioTransactionData
+    if (!sunioTransactionData) throw new Error('[Sun.io] Missing transaction data in quote')
 
     const rpcUrl = adapter.httpProvider.getRpcUrl()
 
@@ -80,7 +60,7 @@ export const sunioApi: SwapperApi = {
     })
 
     const routeParams = buildSwapRouteParameters(
-      sunioMetadata.route,
+      sunioTransactionData.route,
       step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       step.buyAmountAfterFeesCryptoBaseUnit,
       tradeQuote.receiveAddress,

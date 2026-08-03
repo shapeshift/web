@@ -1,7 +1,7 @@
 import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import qs from 'qs'
@@ -198,7 +198,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           case DefiProvider.EthFoxStaking:
             return navigate('/fox-ecosystem')
           case DefiProvider.CosmosSdk:
-          case DefiProvider.ThorchainSavers:
+          case DefiProvider.RunePool:
             return navigate(`/assets/${assetId}`)
           default:
             break
@@ -255,8 +255,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const subText = []
           if (opp.version) subText.push(opp.provider)
           if (opp.opportunityName) subText.push(opp.opportunityName)
-          const isRunePool = opp.assetId === thorchainAssetId
-          const providerName = isRunePool ? 'RUNEPool' : opp.version ?? opp.provider
+          const providerName = opp.version ?? opp.provider
           const iconElement = opp.isYield ? (
             <AssetIcon assetId={opp.assetId} size='sm' />
           ) : (

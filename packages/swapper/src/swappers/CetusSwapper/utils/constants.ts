@@ -10,3 +10,7 @@ export const isSupportedChainId = (
 }
 
 export const PYTH_DEPENDENT_PROVIDERS = ['HAEDALPMM', 'HAEDALHMMV2', 'METASTABLE']
+
+// Placeholder sender for walletless rate fee estimation - dry-run needs a sender, real coins aren't required
+export const CETUS_FEE_ESTIMATE_DUMMY_ADDRESS =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'

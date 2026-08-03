@@ -1,5 +1,5 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
-import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
+import { isArbitrumBridgeWithdrawal } from '@shapeshiftoss/swapper'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
@@ -110,7 +110,7 @@ export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProp
   ])
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
-    return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
+    return isArbitrumBridgeWithdrawal(activeQuote)
   }, [activeQuote])
 
   const body = useMemo(() => {

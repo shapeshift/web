@@ -1,12 +1,12 @@
 import type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
-  Permit2SignatureRequired,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
-  UtxoDepositTransactionData,
-  UtxoPsbtTransactionData,
   UtxoTransactionData,
+  ZrxPermit2SignatureRequired,
 } from '@shapeshiftoss/types'
 import { z } from 'zod'
 
@@ -14,14 +14,14 @@ import { RateLimitErrorCode } from './middleware/rateLimit'
 import { registry } from './registry'
 
 export type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
-  Permit2SignatureRequired,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
-  UtxoDepositTransactionData,
-  UtxoPsbtTransactionData,
   UtxoTransactionData,
+  ZrxPermit2SignatureRequired,
 }
 
 export type AffiliateInfo = {

@@ -15,6 +15,8 @@ type GetEvmNetworkFeeCryptoBaseUnitArgs = {
   | {
       transactionData: Extract<TxBuildData, { type: 'evm' }>
       from: string
+      // Estimated limits carry a safety margin against state moving before execution (an OOG
+      // revert burns the full limit, an oversized one refunds); provider limits are never buffered
       gasLimitBuffer?: number
       // Overrides insufficient allowance/balance at estimation time so pre-approval and unfunded
       // sells still estimate; spenderAddress is the step's allowanceContract ('' or absent = none)
@@ -40,7 +42,7 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
   // Rate network fee: the caller passed a provider gas limit directly
   if (!('transactionData' in args)) return priceProviderGasLimit(args.gasLimit)
 
-  const { transactionData, from, gasLimitBuffer = 1 } = args
+  const { transactionData, from, gasLimitBuffer = 1.2 } = args
 
   // Executable quote: the provider supplied a gas limit on the tx data, price it as-is
   const providerGasLimit = transactionData.gasLimit

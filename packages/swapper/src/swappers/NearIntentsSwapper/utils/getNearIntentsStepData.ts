@@ -69,21 +69,23 @@ export async function getNearIntentsStepData(
           value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
         }
 
+        const stateOverride = {
+          sellAsset,
+          sellAmountCryptoBaseUnit,
+        }
+
         // The deposit is a plain (token) transfer with no approval involved - overridden
         // estimation still prices an unfunded sender, so rates work walletless
-        const estimate = () =>
-          getEvmNetworkFeeCryptoBaseUnit({
-            adapter,
-            transactionData,
-            from: from || depositAddress,
-            supportsEIP1559,
-            stateOverride: { sellAsset, sellAmountCryptoBaseUnit },
-          })
-
         if (type === 'rate') {
           const networkFeeCryptoBaseUnit = await (async () => {
             try {
-              return await estimate()
+              return await getEvmNetworkFeeCryptoBaseUnit({
+                adapter,
+                transactionData,
+                from: from || depositAddress,
+                supportsEIP1559,
+                stateOverride,
+              })
             } catch {
               return '0'
             }
@@ -94,7 +96,13 @@ export async function getNearIntentsStepData(
           return Ok(stepData)
         }
 
-        const networkFeeCryptoBaseUnit = await estimate()
+        const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          transactionData,
+          from: from || depositAddress,
+          supportsEIP1559,
+          stateOverride,
+        })
 
         const stepData: NearIntentsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
 

@@ -101,7 +101,6 @@ export async function getPortalsStepData(
       transactionData,
       from: args.from,
       supportsEIP1559,
-      gasLimitBuffer: 1.2,
       stateOverride: {
         sellAsset,
         sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,

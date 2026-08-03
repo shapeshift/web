@@ -67,7 +67,6 @@ export async function getDebridgeStepData(
           transactionData,
           from,
           supportsEIP1559,
-          gasLimitBuffer: 1.2,
           stateOverride,
         })
       } catch {
@@ -86,7 +85,6 @@ export async function getDebridgeStepData(
       transactionData,
       from,
       supportsEIP1559,
-      gasLimitBuffer: 1.2,
       stateOverride,
     })
 

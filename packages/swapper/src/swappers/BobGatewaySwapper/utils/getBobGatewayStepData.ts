@@ -177,7 +177,6 @@ export async function getBobGatewayStepData(
           transactionData,
           from,
           supportsEIP1559: input.supportsEIP1559,
-          gasLimitBuffer: 1.2,
           stateOverride: {
             sellAsset,
             sellAmountCryptoBaseUnit,

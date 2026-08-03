@@ -112,8 +112,7 @@ export async function getButterSwapStepData(
           transactionData,
           from,
           // Butter's gasEstimatedTarget lands short on chain (observed 24% under actual, causing
-          // in-flight OOG/SWAP_FAIL reverts) - estimate ourselves with a buffer
-          gasLimitBuffer: 1.2,
+          // in-flight OOG/SWAP_FAIL reverts) - estimate ourselves instead
           stateOverride: {
             sellAsset,
             sellAmountCryptoBaseUnit,

@@ -86,13 +86,12 @@ export const Header = memo(() => {
 
   const searchBoxDisplay = {
     base: 'none',
-    '2xl': 'flex',
-    xl: 'none',
+    '3xl': 'flex',
   }
 
   const iconButtonDisplay = {
     base: 'flex',
-    '2xl': 'none',
+    '3xl': 'none',
   }
 
   useEffect(() => {

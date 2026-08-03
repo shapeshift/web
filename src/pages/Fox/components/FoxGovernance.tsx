@@ -6,6 +6,7 @@ import {
   Divider,
   Flex,
   Heading,
+  Icon,
   Link,
   Skeleton,
   Tab,
@@ -13,10 +14,10 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Text as CText,
 } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
+import { TbBuildingBank } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { FoxGovernanceProposal } from './FoxGovernanceProposal'
@@ -52,6 +53,7 @@ const flexPropsMdAuto = { base: 1, md: 'auto' }
 const widthBaseFull = { base: 'full' }
 const widthMdAuto = { base: 'full', md: 'auto' }
 const tabListPaddingLeft = { base: 6, md: 0 }
+const governanceIcon = <Icon as={TbBuildingBank} aria-hidden color='blue.500' boxSize={8} me={2} />
 
 export const FoxGovernance = () => {
   const isConnected = useIsWalletConnected()
@@ -119,9 +121,7 @@ export const FoxGovernance = () => {
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb} maxWidth={headerTitleMaxWidth}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
-              <CText as='span' me={2}>
-                🏛️
-              </CText>
+              {governanceIcon}
               {translate('foxPage.governance.title')}
             </Heading>
             <Flex alignItems='center'>

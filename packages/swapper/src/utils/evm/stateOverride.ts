@@ -31,9 +31,16 @@ const CANDIDATE_SLOTS: Record<StorageLayout, number[]> = {
   vyper: [0, 1, 2, 3, 4, 5, 6],
 }
 
+// Public rpcs on long-tail chains rate limit aggressive fan-out, so sweep probes run in small
+// batches (which also lets a hit in an early batch skip the rest)
+const SWEEP_BATCH_SIZE = 6
+
 type SlotLocator = { slotNumber: number; layout: StorageLayout }
 
 const discoveredSlots = new Map<string, SlotLocator>()
+// Namespaced-storage tokens (ERC-7201 style) have no recoverable slot number - the touched slot
+// itself is cached instead, keyed per owner (and spender) since it embeds them
+const rawDiscoveredSlots = new Map<string, Hex>()
 const failedSlotDiscoveries = new Map<string, number>()
 const FAILED_DISCOVERY_TTL_MS = 60_000
 
@@ -62,22 +69,25 @@ type SlotProbeBaseArgs = {
 
 type SlotKindArgs = { kind: 'balance' } | { kind: 'allowance'; spender: Address }
 
-type ProbeSlotArgs = SlotProbeBaseArgs & SlotKindArgs & SlotLocator
+// The concrete slot for an owner (and spender) at a candidate slot number/layout
+const getStorageSlotFromLocator = (args: SlotKindArgs & SlotLocator & { owner: Address }): Hex => {
+  const { owner, slotNumber, layout } = args
+
+  switch (args.kind) {
+    case 'allowance':
+      return getAllowanceStorageSlot(owner, args.spender, slotNumber, layout)
+    case 'balance':
+      return getBalanceStorageSlot(owner, slotNumber, layout)
+    default:
+      return assertUnreachable(args)
+  }
+}
+
+type ProbeStorageSlotArgs = SlotProbeBaseArgs & SlotKindArgs & { storageSlot: Hex }
 
 // A slot guess only counts if a read through the override reflects the written sentinel
-const probeSlot = async (args: ProbeSlotArgs): Promise<boolean> => {
-  const { client, tokenAddress, owner, slotNumber, layout } = args
-
-  const storageSlot = (() => {
-    switch (args.kind) {
-      case 'allowance':
-        return getAllowanceStorageSlot(owner, args.spender, slotNumber, layout)
-      case 'balance':
-        return getBalanceStorageSlot(owner, slotNumber, layout)
-      default:
-        return assertUnreachable(args)
-    }
-  })()
+const probeStorageSlot = async (args: ProbeStorageSlotArgs): Promise<boolean> => {
+  const { client, tokenAddress, owner, storageSlot } = args
 
   const stateOverride = [
     {
@@ -118,24 +128,26 @@ const probeSlot = async (args: ProbeSlotArgs): Promise<boolean> => {
   }
 }
 
-// Caps request gas so nodes that charge the sender up front still accept an unfunded owner
+// Caps request gas so nodes that charge the sender up front accept the request. The account is
+// omitted entirely - the node's default (zero address) passes funds checks on gas-charging nodes
+// where an unfunded owner wouldn't, and the sender never affects which slots the read touches
 const ACCESS_LIST_GAS = 400_000n
 
 // Mapping slots are recovered by hashing candidate slot numbers against the touched set - 256
 // covers storage-gap layouts (slot 51/52 style) with plenty of headroom
 const MAX_MAPPED_SLOT = 256
 
-// Ask the node which storage slots the read touches (eth_createAccessList), then recover the
-// mapping slot by matching them against locally computed hashes - handles arbitrary slot numbers
-// and both hash orders in a single call on supporting rpcs (23 of our 32 EVM chains)
-const findSlotViaAccessList = async (
-  args: SlotProbeBaseArgs & SlotKindArgs,
-): Promise<SlotLocator | undefined> => {
+// Raw-slot fallback probes are bounded - balanceOf/allowance reads touch a handful of slots at
+// most (implementation pointer, pause flags, the mapping value)
+const MAX_RAW_SLOT_PROBES = 8
+
+// Ask the node which storage slots the read touches (eth_createAccessList) - supported on 23 of
+// our 32 EVM chains, everything else falls through to the candidate sweep
+const findTouchedSlots = async (args: SlotProbeBaseArgs & SlotKindArgs): Promise<Hex[]> => {
   const { client, tokenAddress, owner } = args
 
   try {
     const { accessList } = await client.createAccessList({
-      account: owner,
       to: tokenAddress,
       data: (() => {
         switch (args.kind) {
@@ -155,41 +167,52 @@ const findSlotViaAccessList = async (
     })
 
     // Delegatecall storage reads are attributed to the proxy, so the token's own entry holds them
-    const touchedSlots = new Set(
-      accessList
-        .filter(entry => entry.address.toLowerCase() === tokenAddress.toLowerCase())
-        .flatMap(entry => entry.storageKeys.map(storageKey => storageKey.toLowerCase())),
-    )
-
-    for (const layout of ['solidity', 'vyper'] as const) {
-      for (let slotNumber = 0; slotNumber < MAX_MAPPED_SLOT; slotNumber++) {
-        const storageSlot =
-          args.kind === 'allowance'
-            ? getAllowanceStorageSlot(owner, args.spender, slotNumber, layout)
-            : getBalanceStorageSlot(owner, slotNumber, layout)
-
-        if (touchedSlots.has(storageSlot)) return { slotNumber, layout }
-      }
-    }
+    return accessList
+      .filter(entry => entry.address.toLowerCase() === tokenAddress.toLowerCase())
+      .flatMap(entry => entry.storageKeys.map(storageKey => storageKey.toLowerCase() as Hex))
   } catch {
     // Unsupported method or node quirk - the candidate sweep covers it
+    return []
+  }
+}
+
+// Recover the mapping slot number by matching the touched slots against locally computed hashes -
+// handles arbitrary slot numbers and both hash orders without any further rpc calls
+const matchTouchedSlot = (
+  args: SlotKindArgs & { owner: Address; touchedSlots: Hex[] },
+): SlotLocator | undefined => {
+  const touched = new Set(args.touchedSlots)
+
+  for (const layout of ['solidity', 'vyper'] as const) {
+    for (let slotNumber = 0; slotNumber < MAX_MAPPED_SLOT; slotNumber++) {
+      if (touched.has(getStorageSlotFromLocator({ ...args, slotNumber, layout }))) {
+        return { slotNumber, layout }
+      }
+    }
   }
 
   return undefined
 }
 
-// Find the token's balance/allowance mapping slot: known-table guess first, then access-list
-// assisted discovery, then a candidate sweep across both layouts. Discovered slots are cached
-// per chain+token.
-const discoverSlot = async (
+// Find the concrete storage slot for the owner's balance/allowance: known-table guess first,
+// then access-list assisted discovery (slot-number recovery, raw-slot fallback for namespaced
+// storage), then a batched candidate sweep across both layouts. Results are cached per
+// chain+token (raw slots per owner).
+const discoverStorageSlot = async (
   args: SlotProbeBaseArgs & SlotKindArgs & { chainId: string },
-): Promise<SlotLocator> => {
-  const { chainId, tokenAddress, kind } = args
+): Promise<Hex> => {
+  const { chainId, tokenAddress, owner, kind } = args
 
   const cacheKey = `${chainId}:${tokenAddress.toLowerCase()}:${kind}`
+  const rawCacheKey = `${cacheKey}:${owner.toLowerCase()}${
+    args.kind === 'allowance' ? `:${args.spender.toLowerCase()}` : ''
+  }`
 
   const cached = discoveredSlots.get(cacheKey)
-  if (cached !== undefined) return cached
+  if (cached !== undefined) return getStorageSlotFromLocator({ ...args, ...cached })
+
+  const cachedRaw = rawDiscoveredSlots.get(rawCacheKey)
+  if (cachedRaw !== undefined) return cachedRaw
 
   // Failures re-probe only after the ttl - covers unknown layouts and rpcs without stateOverride
   // support, which would otherwise pay the full candidate sweep on every rate refresh
@@ -198,7 +221,10 @@ const discoverSlot = async (
     throw new Error(`Unable to locate ${kind} storage slot for token ${tokenAddress}`)
   }
 
-  const found = await (async (): Promise<SlotLocator | undefined> => {
+  const probeLocator = (locator: SlotLocator) =>
+    probeStorageSlot({ ...args, storageSlot: getStorageSlotFromLocator({ ...args, ...locator }) })
+
+  const found = await (async (): Promise<SlotLocator | { rawSlot: Hex } | undefined> => {
     const guess: SlotLocator = {
       slotNumber:
         kind === 'balance'
@@ -207,11 +233,16 @@ const discoverSlot = async (
       layout: 'solidity',
     }
 
-    if (await probeSlot({ ...args, ...guess })) return guess
+    if (await probeLocator(guess)) return guess
 
-    const accessListLocator = await findSlotViaAccessList(args)
-    if (accessListLocator && (await probeSlot({ ...args, ...accessListLocator }))) {
-      return accessListLocator
+    const touchedSlots = await findTouchedSlots(args)
+
+    const matched = matchTouchedSlot({ ...args, touchedSlots })
+    if (matched && (await probeLocator(matched))) return matched
+
+    // No recoverable slot number (namespaced storage) - probe the touched slots directly
+    for (const rawSlot of touchedSlots.slice(0, MAX_RAW_SLOT_PROBES)) {
+      if (await probeStorageSlot({ ...args, storageSlot: rawSlot })) return { rawSlot }
     }
 
     const candidates = (['solidity', 'vyper'] as const)
@@ -221,11 +252,15 @@ const discoverSlot = async (
           !(candidate.layout === guess.layout && candidate.slotNumber === guess.slotNumber),
       )
 
-    const results = await Promise.all(
-      candidates.map(candidate => probeSlot({ ...args, ...candidate })),
-    )
+    for (let i = 0; i < candidates.length; i += SWEEP_BATCH_SIZE) {
+      const batch = candidates.slice(i, i + SWEEP_BATCH_SIZE)
+      const results = await Promise.all(batch.map(probeLocator))
 
-    return candidates.find((_, i) => results[i])
+      const hit = batch.find((_, j) => results[j])
+      if (hit) return hit
+    }
+
+    return undefined
   })()
 
   if (found === undefined) {
@@ -233,9 +268,14 @@ const discoverSlot = async (
     throw new Error(`Unable to locate ${kind} storage slot for token ${tokenAddress}`)
   }
 
+  if ('rawSlot' in found) {
+    rawDiscoveredSlots.set(rawCacheKey, found.rawSlot)
+    return found.rawSlot
+  }
+
   discoveredSlots.set(cacheKey, found)
 
-  return found
+  return getStorageSlotFromLocator({ ...args, ...found })
 }
 
 export type GetMinimalStateOverrideArgs = {
@@ -312,29 +352,23 @@ export const getMinimalStateOverride = async ({
   const stateDiff = (
     await Promise.all([
       balance < sellAmount
-        ? discoverSlot({
+        ? discoverStorageSlot({
             client,
             chainId: sellAsset.chainId,
             tokenAddress,
             kind: 'balance',
             owner: from,
-          }).then(({ slotNumber, layout }) => ({
-            slot: getBalanceStorageSlot(from, slotNumber, layout),
-            value: overrideValue,
-          }))
+          }).then(slot => ({ slot, value: overrideValue }))
         : undefined,
       spender && allowance < sellAmount
-        ? discoverSlot({
+        ? discoverStorageSlot({
             client,
             chainId: sellAsset.chainId,
             tokenAddress,
             kind: 'allowance',
             owner: from,
             spender,
-          }).then(({ slotNumber, layout }) => ({
-            slot: getAllowanceStorageSlot(from, spender, slotNumber, layout),
-            value: overrideValue,
-          }))
+          }).then(slot => ({ slot, value: overrideValue }))
         : undefined,
     ])
   ).filter((diff): diff is { slot: Hex; value: Hex } => diff !== undefined)

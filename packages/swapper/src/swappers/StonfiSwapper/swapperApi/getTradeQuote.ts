@@ -33,6 +33,8 @@ export const getTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    // The provider caps when the trade may start
+    deadline: stonfiTransactionData.tradeStartDeadline * 1000,
     receiveAddress,
     steps: [
       {

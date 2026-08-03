@@ -193,7 +193,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerAddress: req.affiliateInfo?.partnerAddress,
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
-      expiresAt: now + QuoteStore.QUOTE_TTL_MS,
+      expiresAt: quote.deadline + QuoteStore.BIND_GRACE_MS,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
     })
@@ -207,7 +207,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(transformQuoteStep),
       approval: await buildApprovalInfo(step, sendAddress),
-      expiresAt: now + 60_000,
+      expiresAt: quote.deadline,
     }
 
     res.json(response)

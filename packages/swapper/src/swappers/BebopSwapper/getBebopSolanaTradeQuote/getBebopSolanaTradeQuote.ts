@@ -44,6 +44,8 @@ export const getBebopSolanaTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote',
+    // The sealed multi-signer tx is blockhash-pinned, so the provider expiry governs
+    deadline: response.expiry * 1000,
     receiveAddress,
     steps: [
       {

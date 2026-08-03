@@ -25,6 +25,8 @@ type BebopTradeContext = {
   tradeCommon: TradeCommon
   stepCommon: Omit<TradeStepCommon, 'feeData'>
   stepDataArgs: Omit<GetBebopStepDataArgs, 'type' | 'input'>
+  // Provider quote expiry (epoch ms), consumed by the quote arm only
+  deadline: number
 }
 
 export const getBebopTradeContext = async ({
@@ -119,5 +121,6 @@ export const getBebopTradeContext = async ({
       from,
       deps,
     },
+    deadline: quote.expiry * 1000,
   })
 }

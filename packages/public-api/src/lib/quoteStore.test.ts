@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { StoredQuote } from './quoteStore'
 import { QuoteStore } from './quoteStore'
 
+// The store treats expiresAt as caller-provided data (swapper deadline + bind grace in prod)
+const QUOTE_TTL_MS = 15 * 60 * 1000
+
 const makeQuote = (overrides: Partial<StoredQuote> = {}): StoredQuote => ({
   quoteId: 'quote-1',
   swapperName: '0x',
@@ -18,7 +21,7 @@ const makeQuote = (overrides: Partial<StoredQuote> = {}): StoredQuote => ({
   sendAddress: '0xsender',
   rate: '1800',
   createdAt: Date.now(),
-  expiresAt: Date.now() + QuoteStore.QUOTE_TTL_MS,
+  expiresAt: Date.now() + QUOTE_TTL_MS,
   metadata: {
     stepIndex: 0,
     quoteId: 'quote-1',
@@ -56,14 +59,14 @@ describe('QuoteStore', () => {
     it('returns quote within QUOTE_TTL_MS', () => {
       const quote = makeQuote()
       store.set(quote.quoteId, quote)
-      vi.advanceTimersByTime(QuoteStore.QUOTE_TTL_MS - 1)
+      vi.advanceTimersByTime(QUOTE_TTL_MS - 1)
       expect(store.get(quote.quoteId)).toBeDefined()
     })
 
     it('expires quote after QUOTE_TTL_MS', () => {
       const quote = makeQuote()
       store.set(quote.quoteId, quote)
-      vi.advanceTimersByTime(QuoteStore.QUOTE_TTL_MS + 1)
+      vi.advanceTimersByTime(QUOTE_TTL_MS + 1)
       expect(store.get(quote.quoteId)).toBeUndefined()
     })
   })
@@ -74,13 +77,13 @@ describe('QuoteStore', () => {
       const quote = makeQuote({
         txHash: '0xabc',
         registeredAt: now,
-        expiresAt: now + QuoteStore.QUOTE_TTL_MS,
+        expiresAt: now + QUOTE_TTL_MS,
         status: 'submitted',
       })
       store.set(quote.quoteId, quote)
 
       // past QUOTE_TTL but within EXECUTION_TTL
-      vi.advanceTimersByTime(QuoteStore.QUOTE_TTL_MS + 1)
+      vi.advanceTimersByTime(QUOTE_TTL_MS + 1)
       expect(store.get(quote.quoteId)).toBeDefined()
     })
 
@@ -158,7 +161,7 @@ describe('QuoteStore', () => {
       store.set(quote.quoteId, quote)
       expect(store.size()).toBe(1)
 
-      vi.advanceTimersByTime(QuoteStore.QUOTE_TTL_MS + QuoteStore.CLEANUP_INTERVAL_MS + 1)
+      vi.advanceTimersByTime(QUOTE_TTL_MS + QuoteStore.CLEANUP_INTERVAL_MS + 1)
 
       expect(store.size()).toBe(0)
     })

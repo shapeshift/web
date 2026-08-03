@@ -71,6 +71,12 @@ export const getTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    // Deposits must be mined before the requested refund deadline to execute as quoted; the
+    // response deadline is the later bound where the deposit address goes inactive entirely
+    deadline: Math.min(
+      Date.parse(quoteRequest.deadline),
+      quote.deadline ? Date.parse(quote.deadline) : Infinity,
+    ),
     receiveAddress,
     steps: [
       {

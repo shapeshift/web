@@ -105,13 +105,30 @@ export const getPortalsTradeQuote = async (
             }),
           )
       }
-      return Err(
-        makeSwapErrorRight({
-          message: 'failed to get Portals quote',
-          cause: err,
-          code: TradeQuoteError.NetworkFeeEstimationFailed,
-        }),
-      )
+
+      // Validation simulates with the sender's live state, so an unapproved sender fails the
+      // order outright - refetch without validation and estimate under state override instead
+      return fetchPortalsTradeOrder({
+        sender: sendAddress,
+        inputToken,
+        outputToken,
+        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        slippageTolerancePercentage,
+        partner: getTreasuryAddressFromChainId(sellChainId),
+        feePercentage: affiliateBpsPercentage,
+        validate: false,
+        swapperConfig: deps.config,
+      })
+        .then(res => Ok(res))
+        .catch(() =>
+          Err(
+            makeSwapErrorRight({
+              message: 'failed to get Portals quote',
+              cause: err,
+              code: TradeQuoteError.NetworkFeeEstimationFailed,
+            }),
+          ),
+        )
     })
 
   if (maybePortalsTradeOrderResponse.isErr()) return Err(maybePortalsTradeOrderResponse.unwrapErr())

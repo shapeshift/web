@@ -89,7 +89,8 @@ export async function getPortalsStepData(
     to: tx.to,
     data: tx.data,
     value: tx.value,
-    // Portals simulate and pad their gas limit, so no additional buffer
+    // Portals simulate and pad their gas limit when the order was validated, so no additional
+    // buffer - an unvalidated order carries no gas limit and estimates below instead
     gasLimit: tx.gasLimit,
   }
 
@@ -99,6 +100,11 @@ export async function getPortalsStepData(
       transactionData,
       from: args.from,
       supportsEIP1559,
+      gasLimitBuffer: 1.2,
+      stateOverride: {
+        sellAsset,
+        sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      },
     })
 
     const stepData: PortalsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

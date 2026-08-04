@@ -15,7 +15,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
 import { getThorfiUtxoFromAddresses } from '@/lib/utils/thorchain'
-import { isSupportedThorchainSaversAssetId } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { isSupportedThorchainSaversAssetId } from '@/lib/utils/thorchain/savers'
 import {
   selectAccountIdsByAccountNumberAndChainId,
   selectAccountNumberByAccountId,

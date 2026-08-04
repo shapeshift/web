@@ -17,10 +17,10 @@ import {
   rFOXStakingUserDataResolver,
 } from './resolvers/rFOX'
 import {
-  thorchainSaversOpportunityIdsResolver,
-  thorchainSaversStakingOpportunitiesMetadataResolver,
-  thorchainSaversStakingOpportunitiesUserDataResolver,
-} from './resolvers/thorchainsavers'
+  runePoolOpportunityIdsResolver,
+  runePoolStakingOpportunitiesMetadataResolver,
+  runePoolStakingOpportunitiesUserDataResolver,
+} from './resolvers/runepool'
 import type {
   DefiProviderToMetadataResolver,
   DefiProviderToOpportunitiesMetadataResolver,
@@ -44,15 +44,15 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType: DefiProvider
     [`${DefiProvider.CosmosSdk}`]: {
       [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
     },
-    [`${DefiProvider.ThorchainSavers}`]: {
-      [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
+    [`${DefiProvider.RunePool}`]: {
+      [`${DefiType.Staking}`]: runePoolStakingOpportunitiesMetadataResolver,
     },
   }
 
 export const DefiProviderToOpportunitiesUserDataResolverByDeFiType: DefiProviderToOpportunitiesUserDataResolver =
   {
-    [`${DefiProvider.ThorchainSavers}`]: {
-      [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
+    [`${DefiProvider.RunePool}`]: {
+      [`${DefiType.Staking}`]: runePoolStakingOpportunitiesUserDataResolver,
     },
     [`${DefiProvider.CosmosSdk}`]: {
       [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesUserDataResolver,
@@ -67,8 +67,8 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOppor
     [`${DefiProvider.rFOX}`]: {
       [`${DefiType.Staking}`]: rFOXStakingOpportunityIdsResolver,
     },
-    [`${DefiProvider.ThorchainSavers}`]: {
-      [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
+    [`${DefiProvider.RunePool}`]: {
+      [`${DefiType.Staking}`]: runePoolOpportunityIdsResolver,
     },
     [`${DefiProvider.CosmosSdk}`]: {
       [`${DefiType.Staking}`]: cosmosSdkOpportunityIdsResolver,
@@ -91,60 +91,22 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
     defiType: DefiType
   }[]
 > = {
-  [KnownChainIds.AvalancheMainnet]: [
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
-      defiType: DefiType.Staking,
-    },
-  ],
-  [KnownChainIds.LitecoinMainnet]: [
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
-      defiType: DefiType.Staking,
-    },
-  ],
-  [KnownChainIds.BitcoinCashMainnet]: [
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
-      defiType: DefiType.Staking,
-    },
-  ],
-  [KnownChainIds.DogecoinMainnet]: [
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
-      defiType: DefiType.Staking,
-    },
-  ],
-  [KnownChainIds.BitcoinMainnet]: [
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
-      defiType: DefiType.Staking,
-    },
-  ],
+  [KnownChainIds.AvalancheMainnet]: [],
+  [KnownChainIds.LitecoinMainnet]: [],
+  [KnownChainIds.BitcoinCashMainnet]: [],
+  [KnownChainIds.DogecoinMainnet]: [],
+  [KnownChainIds.BitcoinMainnet]: [],
   [KnownChainIds.EthereumMainnet]: [
     {
       defiProvider: DefiProvider.EthFoxStaking,
       defiType: DefiType.Staking,
     },
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
-      defiType: DefiType.Staking,
-    },
   ],
-  [KnownChainIds.BnbSmartChainMainnet]: [
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
-      defiType: DefiType.Staking,
-    },
-  ],
+  [KnownChainIds.BnbSmartChainMainnet]: [],
 
   [KnownChainIds.CosmosMainnet]: [
     {
       defiProvider: DefiProvider.CosmosSdk,
-      defiType: DefiType.Staking,
-    },
-    {
-      defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
     },
   ],
@@ -153,7 +115,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.GnosisMainnet]: [],
   [KnownChainIds.ThorchainMainnet]: [
     {
-      defiProvider: DefiProvider.ThorchainSavers,
+      defiProvider: DefiProvider.RunePool,
       defiType: DefiType.Staking,
     },
   ],

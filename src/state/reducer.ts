@@ -164,6 +164,7 @@ const swapPersistConfig = {
   key: 'swap',
   storage,
   version: Math.max(...Object.keys(clearSwapsMigrations).map(Number)),
+  migrate: createMigrate(clearSwapsMigrations, { debug: false }),
   throttle: PERSIST_THROTTLE_MS,
 }
 

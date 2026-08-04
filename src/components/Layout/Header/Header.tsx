@@ -122,12 +122,6 @@ export const Header = memo(() => {
         : []),
       { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
       { label: 'navBar.pools', path: '/pools', icon: TbPool },
-      {
-        label: isChainflipLendingEnabled ? 'navBar.thorchainLending' : 'navBar.lending',
-        path: '/lending',
-        icon: TbBuildingBank,
-        isDeprecated: isChainflipLendingEnabled,
-      },
       ...(isChainflipLendingEnabled
         ? [
             {

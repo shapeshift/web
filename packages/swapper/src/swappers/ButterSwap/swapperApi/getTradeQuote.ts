@@ -1,140 +1,53 @@
-import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import {
-  BigAmount,
-  bnOrZero,
-  chainIdToFeeAssetId,
-  convertDecimalPercentageToBasisPoints,
-} from '@shapeshiftoss/utils'
+import { tronChainId } from '@shapeshiftoss/caip'
+import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import {
-  AddressLookupTableAccount,
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from '@solana/web3.js'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import {
-  createTradeAmountTooSmallErr,
-  getInputOutputRate,
-  makeSwapErrorRight,
-} from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { makeButterSwapAffiliate } from '../utils/constants'
-import {
-  ButterSwapErrorCode,
-  butterSwapErrorToTradeQuoteError,
-  fetchTxData,
-  getButterRoute,
-  isBuildTxSuccess,
-  isRouteSuccess,
-} from '../xhr'
+import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
+import type { ButterSwapTradeQuoteInput } from '../types'
+import { getButterSwapStepData } from '../utils/getButterSwapStepData'
+import { getButterSwapTradeContext } from '../utils/getButterSwapTradeContext'
+import { fetchTxData, isBuildTxSuccess } from '../xhr'
+
+// TODO: Debug why same-chain Tron swaps revert (swapAndCall method works on EVM but 0 successful on Tron)
 
 export const getTradeQuote = async (
-  input: CommonTradeQuoteInput,
-  _deps: SwapperDeps,
+  input: ButterSwapTradeQuoteInput,
+  deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
-    sendAddress,
-    slippageTolerancePercentageDecimal,
-    accountNumber,
-    affiliateBps,
-  } = input
+  const { sellAsset, receiveAddress, accountNumber, slippageTolerancePercentageDecimal } = input
 
-  if (
-    !isEvmChainId(sellAsset.chainId) &&
-    sellAsset.chainId !== btcChainId &&
-    sellAsset.chainId !== solanaChainId &&
-    sellAsset.chainId !== tronChainId
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Unsupported chain`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
+  const maybeAddresses = assertQuoteAddresses(input)
 
-  // TODO: Debug why same-chain Tron swaps revert (swapAndCall method works on EVM but 0 successful on Tron)
-
-  if (!sendAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] sendAddress is required for ButterSwap',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
+  if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
+  const { sendAddress } = maybeAddresses.unwrap()
 
   const slippageDecimal =
     slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ButterSwap)
-  const slippage = convertDecimalPercentageToBasisPoints(slippageDecimal).toString()
 
-  // Call ButterSwap /route API
-  const routeResult = await getButterRoute({
-    sellAsset,
-    buyAsset,
-    sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
-      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      precision: sellAsset.precision,
-    }).toPrecision(),
-    slippage,
-    affiliate: makeButterSwapAffiliate(affiliateBps),
+  const maybeContext = await getButterSwapTradeContext({
+    input,
+    deps,
+    slippageTolerancePercentageDecimal: slippageDecimal,
   })
 
-  if (routeResult.isErr()) return Err(routeResult.unwrapErr())
-  const routeResponse = routeResult.unwrap()
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, route, stepDataArgs } = maybeContext.unwrap()
 
-  if (!isRouteSuccess(routeResponse)) {
-    if (routeResponse.errno === ButterSwapErrorCode.InsufficientAmount) {
-      const minAmountCryptoBaseUnit = BigAmount.fromPrecision({
-        value: (routeResponse as any).minAmount,
-        precision: sellAsset.precision,
-      }).toBaseUnit()
-      return Err(
-        createTradeAmountTooSmallErr({
-          minAmountCryptoBaseUnit,
-          assetId: sellAsset.assetId,
-        }),
-      )
-    }
-    return Err(
-      makeSwapErrorRight({
-        message: `[getTradeQuote] ${routeResponse.message}`,
-        code: butterSwapErrorToTradeQuoteError(routeResponse.errno),
-      }),
-    )
-  }
-
-  const route = routeResponse.data[0]
-  if (!route) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] No route found',
-        code: TradeQuoteError.NoRouteFound,
-      }),
-    )
-  }
-
-  // Call ButterSwap /swap API to get calldata and contract info
   const buildTxResult = await fetchTxData({
     hash: route.hash,
-    slippage,
-    from: sendAddress, // from (source chain address)
-    receiver: receiveAddress, // receiver (destination chain address)
+    slippage: convertDecimalPercentageToBasisPoints(slippageDecimal).toString(),
+    from: sendAddress,
+    receiver: receiveAddress,
   })
 
   if (buildTxResult.isErr()) return Err(buildTxResult.unwrapErr())
   const buildTxResponse = buildTxResult.unwrap()
+
   if (!isBuildTxSuccess(buildTxResponse)) {
     return Err(
       makeSwapErrorRight({
@@ -143,6 +56,7 @@ export const getTradeQuote = async (
       }),
     )
   }
+
   const buildTx = buildTxResponse.data[0]
   if (!buildTx) {
     return Err(
@@ -153,152 +67,34 @@ export const getTradeQuote = async (
     )
   }
 
-  // Fee asset for network fees
-  const feeAsset = _deps.assetsById[chainIdToFeeAssetId(sellAsset.chainId)]
-  if (!feeAsset) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getTradeQuote] Fee asset not found for chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
-
-  // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
-  const networkFeeCryptoBaseUnit = BigAmount.fromPrecision({
-    value: bnOrZero(route.gasFee?.amount),
-    precision: feeAsset.precision,
-  }).toBaseUnit()
-
-  // Use destination receive amount as a priority if present and defined
-  // It won't for same-chain swaps, so we fall back to the source chain receive amount (i.e source chain *is* the destination chain)
-  const outputAmount = route.dstChain?.totalAmountOut ?? route.srcChain.totalAmountOut
-
-  // TODO: affiliate fees not yet here, gut feel is that Butter won't do the swap output - fees logic for us here
-  // Sanity check me when affiliates are implemented, and do the math ourselves if needed
-  const buyAmountAfterFeesCryptoBaseUnit = BigAmount.fromPrecision({
-    value: outputAmount,
-    precision: buyAsset.precision,
-  }).toBaseUnit()
-
-  const rate = getInputOutputRate({
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-    sellAsset,
-    buyAsset,
+  const maybeStepData = await getButterSwapStepData({
+    ...stepDataArgs,
+    type: 'quote',
+    input,
+    buildTx,
+    from: sendAddress,
   })
 
-  // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
-  const maybeSolanaTransactionMetadata = await (async () => {
-    if (sellAsset.chainId !== solanaChainId) return Ok(undefined)
-
-    const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
-    const txBytes = Buffer.from(txData, 'hex')
-    // Solana transactions are limited to 1232 bytes. If Butter returns a larger tx,
-    // we need to split it into a Jito bundle (2 txs with tip in the last one).
-    const SOLANA_TX_SIZE_LIMIT = 1232
-    const isOversized = txBytes.length > SOLANA_TX_SIZE_LIMIT
-    const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
-
-    const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-
-    try {
-      const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
-        lookup => lookup.accountKey.toString(),
-      )
-
-      const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
-        addressLookupTableAccountKeys,
-      )
-
-      const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
-        info =>
-          new AddressLookupTableAccount({
-            key: new PublicKey(info.key),
-            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
-          }),
-      )
-
-      // Decompile VersionedMessage with address lookup tables to get instructions
-      // This is required to properly resolve all account addresses in the transaction
-      // Without lookup tables, the transaction would fail during execution
-      // Reference: https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
-      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
-        addressLookupTableAccounts,
-      }).instructions
-
-      return Ok({
-        instructions,
-        addressLookupTableAddresses: addressLookupTableAccountKeys,
-        isOversized,
-      })
-    } catch (error) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[getTradeQuote] Error decompiling VersionedMessage: ${error}`,
-          code: TradeQuoteError.UnknownError,
-        }),
-      )
-    }
-  })()
-
-  if (sellAsset.chainId === solanaChainId && maybeSolanaTransactionMetadata?.isErr()) {
-    return Err(maybeSolanaTransactionMetadata.unwrapErr())
-  }
-
-  const solanaTransactionMetadata = maybeSolanaTransactionMetadata?.unwrap()
-
-  const step = {
-    buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
-      value: outputAmount,
-      precision: buyAsset.precision,
-    }).toBaseUnit(),
-    buyAmountAfterFeesCryptoBaseUnit,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    feeData: {
-      networkFeeCryptoBaseUnit,
-      protocolFees: undefined,
-    },
-    rate,
-    source: SwapperName.ButterSwap,
-    buyAsset,
-    sellAsset,
-    accountNumber,
-    allowanceContract: sellAsset.chainId === tronChainId ? buildTx.to : route.contract ?? '0x0',
-    estimatedExecutionTimeMs: route.timeEstimated * 1000,
-    butterSwapTransactionMetadata: {
-      to: buildTx.to,
-      data: buildTx.data,
-      value: buildTx.value,
-      gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-      method: buildTx.method,
-      args: buildTx.args,
-      memo: buildTx.memo,
-    },
-    ...(solanaTransactionMetadata && {
-      solanaTransactionMetadata,
-    }),
-    affiliateFee: buildAffiliateFee({
-      strategy: 'buy_asset',
-      affiliateBps,
-      sellAsset,
-      buyAsset,
-      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-      isEstimate: true,
-    }),
-  }
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit, transactionData, butterSwapTransactionMetadata } =
+    maybeStepData.unwrap()
 
   const tradeQuote: TradeQuote = {
-    id: route.hash,
-    rate,
+    ...tradeCommon,
+    quoteOrRate: 'quote' as const,
     receiveAddress,
-    affiliateBps,
-    isStreaming: false,
-    quoteOrRate: 'quote',
-    swapperName: SwapperName.ButterSwap,
-    slippageTolerancePercentageDecimal: slippageDecimal,
-    steps: [step],
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber,
+        // Tron exec still builds from legacy metadata whose spender is the buildTx target
+        allowanceContract:
+          sellAsset.chainId === tronChainId ? buildTx.to : stepCommon.allowanceContract,
+        transactionData,
+        butterSwapTransactionMetadata,
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
+      },
+    ],
   }
 
   return Ok([tradeQuote])

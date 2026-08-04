@@ -1,133 +1,47 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
-import type { Address } from 'viem'
-import { isAddress } from 'viem'
+import { getAddress } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetEvmTradeRateInput,
-  SingleHopTradeRateSteps,
-  SwapErrorRight,
-  TradeRate,
-} from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import type { GetEvmTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { BEBOP_DUMMY_ADDRESS } from '../types'
-import { fetchBebopQuote } from '../utils/fetchFromBebop'
-import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
+import { getBebopStepData } from '../utils/getBebopStepData'
+import { getBebopTradeContext } from '../utils/getBebopTradeContext'
 
-export async function getBebopTradeRate(
+export const getBebopTradeRate = async (
   input: GetEvmTradeRateInput,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  _assetsById: AssetsByIdPartial,
-  apiKey: string,
-): Promise<Result<TradeRate, SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    accountNumber,
-    receiveAddress,
-    affiliateBps,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  } = input
+  deps: SwapperDeps,
+): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  const { accountNumber, receiveAddress } = input
 
-  const assertion = assertValidTrade({ buyAsset, sellAsset })
-  if (assertion.isErr()) return Err(assertion.unwrapErr())
+  const address = getAddress(receiveAddress ?? BEBOP_DUMMY_ADDRESS)
 
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
-
-  const address = (receiveAddress as Address | undefined) ?? BEBOP_DUMMY_ADDRESS
-
-  const maybeBebopQuoteResponse = await fetchBebopQuote({
-    buyAsset,
-    sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    takerAddress: address,
-    receiverAddress: address,
-    slippageTolerancePercentageDecimal,
-    affiliateBps,
-    apiKey,
+  const maybeContext = await getBebopTradeContext({
+    input,
+    deps,
+    from: address,
+    receiver: address,
   })
 
-  if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
-  const quote = maybeBebopQuoteResponse.unwrap()
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, stepDataArgs } = maybeContext.unwrap()
 
-  const sellTokenAddress = Object.keys(quote.sellTokens)[0]
-  const buyTokenAddress = Object.keys(quote.buyTokens)[0]
+  const maybeStepData = await getBebopStepData({ ...stepDataArgs, type: 'rate', input })
 
-  if (!isAddress(sellTokenAddress) || !isAddress(buyTokenAddress)) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Invalid token addresses in response',
-        code: TradeQuoteError.InvalidResponse,
-      }),
-    )
-  }
+  if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
-  const sellAmount = quote.sellTokens[sellTokenAddress].amount
-  const buyAmount = quote.buyTokens[buyTokenAddress].amount
-
-  const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
-
-  const buyTokenData = quote.buyTokens[buyTokenAddress]
-  const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
-  const buyAmountAfterFeesCryptoBaseUnit = buyAmount
-
-  const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-  const { fast } = await adapter.getGasFeeData()
-  const gasLimit = bnOrZero(quote.tx.gas).toString()
-
-  const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-    ...fast,
-    supportsEIP1559: Boolean(input.supportsEIP1559),
-    gasLimit,
-  })
-
-  return Ok({
-    id: uuid(),
-    quoteOrRate: 'rate' as const,
-    accountNumber: undefined,
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
+    quoteOrRate: 'rate',
     receiveAddress,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-    rate,
-    swapperName: SwapperName.Bebop,
     steps: [
       {
-        estimatedExecutionTimeMs: 0,
-        allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : quote.approvalTarget,
-        buyAsset,
-        sellAsset,
+        ...stepCommon,
         accountNumber,
-        rate,
-        feeData: {
-          protocolFees: {}, // Bebop doesn't charge protocol fees
-          networkFeeCryptoBaseUnit,
-        },
-        buyAmountBeforeFeesCryptoBaseUnit,
-        buyAmountAfterFeesCryptoBaseUnit,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        source: SwapperName.Bebop,
-        affiliateFee: buildAffiliateFee({
-          strategy: 'buy_asset',
-          affiliateBps,
-          sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-          isEstimate: true,
-        }),
+        feeData: { protocolFees: {}, networkFeeCryptoBaseUnit },
       },
-    ] as SingleHopTradeRateSteps,
-  })
+    ],
+  }
+
+  return Ok([tradeRate])
 }

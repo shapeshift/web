@@ -98,7 +98,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
     return getTxLink({
       txId: distribution.txId,
       chainId: asset.chainId,
-      defaultExplorerBaseUrl: asset.explorerTxLink,
+      explorerBaseUrl: asset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })

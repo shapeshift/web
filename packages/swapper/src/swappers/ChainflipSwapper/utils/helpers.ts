@@ -1,21 +1,28 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
+import { assertUnreachable, BigAmount, bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import type { SwapErrorRight } from '../../../types'
+import type { ProtocolFee, SwapErrorRight, SwapSource } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import type { ChainflipSupportedChainId } from '../constants'
 import {
+  CHAINFLIP_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_QUOTE,
+  CHAINFLIP_DCA_SWAP_SOURCE,
+  CHAINFLIP_REGULAR_QUOTE,
+  CHAINFLIP_SWAP_SOURCE,
   ChainflipSupportedAssetIdsByChainId,
   ChainflipSupportedChainIds,
   chainIdToChainflipNetwork,
+  usdcAsset,
 } from '../constants'
-import type { ChainflipBaasSwapDepositAddress } from '../models'
+import type { ChainflipBaasQuoteQuote, ChainflipBaasSwapDepositAddress } from '../models'
 import type { ChainflipNetwork } from '../types'
 import { chainflipService } from './chainflipService'
 
@@ -58,6 +65,56 @@ export const isSupportedAssetId = (
   if (!supportedAssetIds) return false
 
   return supportedAssetIds.includes(assetId)
+}
+
+export const assertValidTrade = ({
+  sellAsset,
+  buyAsset,
+}: {
+  sellAsset: Asset
+  buyAsset: Asset
+}): Result<boolean, SwapErrorRight> => {
+  if (!isSupportedChainId(sellAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: buyAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedAssetId(sellAsset.chainId, sellAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: sellAsset.chainId, assetId: sellAsset.assetId },
+      }),
+    )
+  }
+
+  if (!isSupportedAssetId(buyAsset.chainId, buyAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: buyAsset.chainId, assetId: buyAsset.assetId },
+      }),
+    )
+  }
+
+  return Ok(true)
 }
 
 export const calculateChainflipMinPrice = ({
@@ -181,4 +238,100 @@ export const getChainFlipIdFromAssetId = async ({
     )
 
   return Ok(chainflipAsset.id)
+}
+
+export const getChainflipRate = ({
+  sellAmountCryptoBaseUnit,
+  buyAmountCryptoBaseUnit,
+  sellAsset,
+  buyAsset,
+}: {
+  sellAmountCryptoBaseUnit: string | null | undefined
+  buyAmountCryptoBaseUnit: string | null | undefined
+  sellAsset: Asset
+  buyAsset: Asset
+}): string => {
+  if (!sellAmountCryptoBaseUnit || !buyAmountCryptoBaseUnit) return '0'
+
+  return getInputOutputRate({
+    sellAmountCryptoBaseUnit,
+    buyAmountCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  })
+}
+
+export const getSwapSource = (
+  swapType: typeof CHAINFLIP_REGULAR_QUOTE | typeof CHAINFLIP_DCA_QUOTE,
+  isBoosted: boolean,
+): SwapSource => {
+  if (swapType === CHAINFLIP_REGULAR_QUOTE) {
+    return isBoosted ? CHAINFLIP_BOOST_SWAP_SOURCE : CHAINFLIP_SWAP_SOURCE
+  }
+
+  if (swapType === CHAINFLIP_DCA_QUOTE) {
+    return isBoosted ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE : CHAINFLIP_DCA_SWAP_SOURCE
+  }
+
+  return assertUnreachable(swapType)
+}
+
+export const getMaxBoostFee = (assetId: AssetId): number => {
+  const { chainNamespace } = fromAssetId(assetId)
+
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Utxo:
+      return 10
+    case CHAIN_NAMESPACE.Evm:
+    case CHAIN_NAMESPACE.Solana:
+    case CHAIN_NAMESPACE.Tron:
+      return 0
+    default:
+      throw new Error('Unsupported chainNamespace')
+  }
+}
+
+export const getProtocolFees = ({
+  quote,
+  sellAsset,
+  buyAsset,
+  sourceAsset,
+  destinationAsset,
+}: {
+  quote: ChainflipBaasQuoteQuote
+  sellAsset: Asset
+  buyAsset: Asset
+  sourceAsset: string
+  destinationAsset: string
+}): Record<AssetId, ProtocolFee> => {
+  const protocolFees: Record<AssetId, ProtocolFee> = {}
+
+  for (const fee of quote.includedFees ?? []) {
+    if (fee.type === 'broker') continue
+
+    const asset = (() => {
+      if (fee.type === 'ingress' || fee.type === 'boost') return sellAsset
+      if (fee.type === 'egress') return buyAsset
+      if (fee.type === 'liquidity' && fee.asset === sourceAsset) return sellAsset
+      if (fee.type === 'liquidity' && fee.asset === destinationAsset) return buyAsset
+      if (fee.type === 'liquidity' && fee.asset === 'usdc.eth') return usdcAsset
+      if (fee.type === 'network') return usdcAsset
+    })()
+
+    if (!asset) continue
+
+    if (!(asset.assetId in protocolFees)) {
+      protocolFees[asset.assetId] = {
+        amountCryptoBaseUnit: '0',
+        requiresBalance: false,
+        asset,
+      }
+    }
+
+    protocolFees[asset.assetId].amountCryptoBaseUnit = (
+      BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative ?? '0')
+    ).toString()
+  }
+
+  return protocolFees
 }

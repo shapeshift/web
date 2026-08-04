@@ -23,15 +23,15 @@ import type {
   KnownChainIds,
 } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
 
 import { getSupportedEvmChainIds } from '../evm'
 import { assertGetUtxoChainAdapter, isUtxoAccountId, isUtxoChainId } from '../utxo'
-import { THOR_PRECISION } from './constants'
-import { getThorchainLendingPosition } from './lending'
+import { BASE_BPS_POINTS, THOR_PRECISION } from './constants'
+import { getThorchainSaversPosition } from './savers'
 
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -39,7 +39,6 @@ import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
 import { bn } from '@/lib/bignumber/bignumber'
 import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
-import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 export const getThorchainTransactionStatus = async ({
   txHash,
@@ -153,6 +152,26 @@ export const toThorBaseUnit = ({
     .decimalPlaces(0)
 }
 
+export const getWithdrawBps = ({
+  withdrawAmountCryptoBaseUnit,
+  stakedAmountCryptoBaseUnit,
+  rewardsAmountCryptoBaseUnit,
+}: {
+  withdrawAmountCryptoBaseUnit: BigNumber.Value
+  stakedAmountCryptoBaseUnit: BigNumber.Value
+  rewardsAmountCryptoBaseUnit: BigNumber.Value
+}) => {
+  const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
+    rewardsAmountCryptoBaseUnit,
+  )
+
+  const withdrawRatio = bnOrZero(withdrawAmountCryptoBaseUnit).div(
+    stakedAmountCryptoBaseUnitIncludeRewards,
+  )
+
+  return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
+}
+
 export const getThorchainFromAddress = async ({
   accountId,
   assetId,
@@ -164,10 +183,7 @@ export const getThorchainFromAddress = async ({
   accountId: AccountId
   assetId: AssetId
   opportunityId?: string
-  getPosition:
-    | typeof getThorchainLendingPosition
-    | typeof getThorchainSaversPosition
-    | typeof getThorchainLpPosition
+  getPosition: typeof getThorchainSaversPosition | typeof getThorchainLpPosition
   accountMetadata: AccountMetadata
   wallet: HDWallet
 }): Promise<string> => {
@@ -182,8 +198,6 @@ export const getThorchainFromAddress = async ({
     })
     if (!position) throw new Error(`No position found for assetId: ${assetId}`)
     const address: string = (() => {
-      // THORChain lending position
-      if ('owner' in position) return position.owner
       // THORChain savers position
       if ('asset_address' in position) return position.asset_address
       // THORChain LP position. Note we accesss assetAddress, never runeAddress, because of the !isUtxoChainId check above
@@ -233,23 +247,15 @@ export const getThorfiUtxoFromAddresses = async ({
   if (!isUtxoChainId(chainId)) throw new Error(`ChainId ${chainId} is not a UTXO chain`)
 
   try {
-    const [saverPosition, lendingPosition] = await Promise.all([
-      getThorchainSaversPosition({ accountId, assetId }),
-      getThorchainLendingPosition({ accountId, assetId }),
-    ])
+    const saverPosition = await getThorchainSaversPosition({ accountId, assetId })
 
-    if (!saverPosition && !lendingPosition)
+    if (!saverPosition)
       throw new Error(`No position found for assetId: ${assetId}, defaulting to 0 account_index`)
 
-    // Unique addies set, to avoid view-layer dupes since addies are most likely the same over savers and lending
     const addresses = new Set<string>()
 
-    if (saverPosition?.asset_address) {
+    if (saverPosition.asset_address) {
       addresses.add(saverPosition.asset_address)
-    }
-
-    if (lendingPosition?.owner) {
-      addresses.add(lendingPosition.owner)
     }
 
     return Array.from(addresses)

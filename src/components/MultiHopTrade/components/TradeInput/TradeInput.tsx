@@ -4,7 +4,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper'
-import { isArbitrumBridgeTradeQuoteOrRate, SwapperName } from '@shapeshiftoss/swapper'
+import { isArbitrumBridgeWithdrawal, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { BigAmount, positiveOrZero } from '@shapeshiftoss/utils'
@@ -333,7 +333,7 @@ export const TradeInput = ({
   const handleWarningAcknowledgementSubmit = useCallback(() => {
     if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
       return setShouldShowStreamingAcknowledgement(true)
-    if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
+    if (isArbitrumBridgeWithdrawal(activeQuote))
       return setShouldShowArbitrumBridgeAcknowledgement(true)
     handleFormSubmit()
   }, [activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
@@ -348,7 +348,7 @@ export const TradeInput = ({
       if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
       if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
         return setShouldShowStreamingAcknowledgement(true)
-      if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
+      if (isArbitrumBridgeWithdrawal(activeQuote))
         return setShouldShowArbitrumBridgeAcknowledgement(true)
       if (
         isThorchainSwapperVolatilityAckEnabled &&

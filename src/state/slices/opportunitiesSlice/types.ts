@@ -2,7 +2,6 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { PartialRecord } from '@shapeshiftoss/types'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
-import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
@@ -22,7 +21,7 @@ export enum DefiProvider {
   rFOX = 'rFOX',
   EthFoxStaking = 'ETH/FOX Staking',
   CosmosSdk = 'Cosmos SDK',
-  ThorchainSavers = 'THORChain Savers',
+  RunePool = 'RUNEPool',
 }
 
 export type DefiProviderMetadata = {
@@ -80,7 +79,7 @@ export type OpportunityMetadataBase = {
   tags?: string[]
 }
 
-export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
+export type OpportunityMetadata = OpportunityMetadataBase
 
 // User-specific values for this opportunity
 export type UserStakingOpportunityBase = {
@@ -99,13 +98,13 @@ export type UserStakingOpportunityBase = {
   }
 }
 
-export type SaversUserStakingOpportunity = {
+export type RunePoolUserStakingOpportunity = {
   dateUnlocked: number
 } & UserStakingOpportunityBase
 
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
-  | SaversUserStakingOpportunity
+  | RunePoolUserStakingOpportunity
   | CosmosSdkStakingSpecificUserStakingOpportunity
 
 export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata

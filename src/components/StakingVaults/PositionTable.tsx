@@ -64,6 +64,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   }, [basePositions, chainId])
 
   const [processedRows, setProcessedRows] = useState<UnifiedOpportunity[]>([])
+  const [hasProcessedRows, setHasProcessedRows] = useState(false)
   const [, startTransition] = useTransition()
 
   const filterRowsBySearchTerm = useCallback(
@@ -96,6 +97,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         ? filterRowsBySearchTerm(filteredByChain, searchQuery)
         : filteredByChain
       setProcessedRows(targetRows)
+      setHasProcessedRows(true)
     })
   }, [filteredByChain, filterRowsBySearchTerm, isSearching, searchQuery])
 
@@ -192,8 +194,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   }, [searchQuery])
 
   const isInitialProcessing = useMemo(
-    () => !processedRows.length && !isLoading && filteredByChain.length > 0,
-    [filteredByChain.length, isLoading, processedRows.length],
+    () => !hasProcessedRows && !isLoading && filteredByChain.length > 0,
+    [filteredByChain.length, hasProcessedRows, isLoading],
   )
 
   if (isInitialProcessing) {

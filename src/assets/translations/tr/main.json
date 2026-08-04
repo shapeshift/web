@@ -602,36 +602,18 @@
         "claimNow": "Şimdi Talep Et",
         "claimYour": " %{opportunity} Talep Edin"
       },
-      "saversVaults": {
-        "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
-        "runePoolDescription": "RUNEPool, %{asset}'inizi başkalarıyla birleştirerek daha fazla %{asset} kazanmanızı sağlar. Belirli havuzları seçmenize gerek yok, herkes genel performanstan pay alır.",
-        "runePoolOverviewDescription": "RUNEPool, RUNE kullanımını THORChain'deki tüm POL-enabled likidite havuzlarına yatırarak optimize eder. RUNE'yi bu havuzlar arasında bir araya getirerek, katılımcılar birleşik APY'yi kazanır ancak toplam geçici kayba maruz kalır. Kullanıcılar, bireysel havuzları seçmek yerine genel performanstan yararlanır ve etkili bir şekilde bir RUNE endeksine ve tüm THORChain POL-enabled varlıklara yatırım yapar. Bu, likidite sağlamayı basitleştirir ve bireysel riski azaltır.",
-        "vaultCap": "Kasa Üst Limiti",
-        "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
+      "runePool": {
+        "description": "RUNEPool, %{asset}'inizi başkalarıyla birleştirerek daha fazla %{asset} kazanmanızı sağlar. Belirli havuzları seçmenize gerek yok, herkes genel performanstan pay alır.",
+        "overviewDescription": "RUNEPool, RUNE kullanımını THORChain'deki tüm POL-enabled likidite havuzlarına yatırarak optimize eder. RUNE'yi bu havuzlar arasında bir araya getirerek, katılımcılar birleşik APY'yi kazanır ancak toplam geçici kayba maruz kalır. Kullanıcılar, bireysel havuzları seçmek yerine genel performanstan yararlanır ve etkili bir şekilde bir RUNE endeksine ve tüm THORChain POL-enabled varlıklara yatırım yapar. Bu, likidite sağlamayı basitleştirir ve bireysel riski azaltır.",
+        "introducing": "RUNEPool'u Tanıtımı",
+        "agree": "RUNEPool'un hem 30 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu anlıyorum.",
         "haltedDepositTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "disabledDepositTitle": "Para yatırma işlemleri geçici olarak devre dışı bırakıldı.",
         "disabledWithdrawTitle": "Para çekme işlemleri geçici olarak devre dışı bırakıldı.",
         "withdrawLockedTitle": "Para çekmek için %{timeHuman} beklemeniz gerekiyor.",
-        "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
-        "protocolFee": "Protokol Ücreti",
-        "dustAmount": "Toz Bakiye",
-        "dustAmountTooltip": "Adresinizi tanımlamak için küçük bir miktar toz gereklidir ve daha sonra para çekmek istediğinizde kullanılmak üzere saklanacaktır",
-        "sendDustBody": "Para çekebilmek için bu adrese biraz toz göndermeniz gerekiyor.",
-        "sendDust": "Toz Gönder",
-        "addressToSendTo": "Gönderilecek Adres",
-        "introducingSaversVaults": "Saver Vaults Giriş",
-        "introducingRunePool": "RUNEPool'u Tanıtımı",
-        "risksBody": {
-          "vaults": "Saver Vaults ile ilgili riskler için <link>bu makaleye</link> bakın.",
-          "runePool": "Saver Vaults ile ilgili riskler için <link>bu makaleye</link> RUNEPool ile ilgili riskler için."
-        },
-        "timeToBreakEven": {
-          "title": "Eşitiliği bozma",
-          "tooltip": "Para yatırma ücretlerini ve kazançları karşılamak için tahmini süre."
-        },
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
         "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
-        "agreeRunePool": "RUNEPool'un hem 30 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu anlıyorum."
+        "risksBody": "Saver Vaults ile ilgili riskler için <link>bu makaleye</link> RUNEPool ile ilgili riskler için."
       }
     },
     "memoNote": {
@@ -717,8 +699,6 @@
     "limitOrder": "Limit Emirleri",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
-    "lending": "Borç Verme",
-    "thorchainLending": "THORChain Lending",
     "chainflipLending": "Chainflip Lending",
     "pools": "Havuzlar",
     "rFOX": "rFOX",
@@ -2345,102 +2325,8 @@
     "custom": "Özel"
   },
   "lending": {
-    "lending": "Borç Verme",
-    "repaymentAvailable": "Geri ödeme mevcut",
-    "repaymentUnavailable": "Geri ödeme henüz mümkün değil",
-    "daysUntilRepayment": "Geri ödemeye %{numDays} gün kaldı",
-    "repaymentDays": "%{numDays} gün",
-    "lendingBody": "Sıfır faiz ve sıfır tasfiyeyle ödünç alınabilecek tüm havuzların listesi.",
-    "collateralValue": "Teminat Değeri",
-    "collateralValueDescription": "Teminat olarak kullanılan varlığınızın güncel değeri",
-    "debtValue": "Borç Değeri",
-    "loanToValue": "Kredi Değeri",
-    "availablePools": "Mevcut Havuzlar",
-    "pool": "Havuz",
-    "poolDepth": "Havuz Derinliği",
-    "poolDepthDescription": "Havuzun sağlığı",
-    "status": "Durum",
-    "statusDescription": "Havuzun durumu",
-    "totalDebtBalance": "Toplam Borç Bakiyesi",
-    "totalDebtBalanceDescription": "Kredi havuzundaki kümülatif borç bakiyesi",
-    "totalCollateral": "Toplam Teminat",
-    "totalCollateralDescription": "Kredi havuzuna eklenen Toplam Teminat",
-    "estCollateralizationRatio": "Tahmini Teminat Oranı",
-    "estCollateralizationRatioDescription": "Şu anda %200'lük sabit bir Teminat Oranı mevcuttur. Gelecekte, piyasa koşullarına bağlı olarak maksimum ve minimum CR arasında dinamik bir oran dengelenecektir.",
-    "collateralizationRatio": "Teminat Oranı",
-    "totalBorrowers": "Tüm Borçlular",
-    "totalBorrowersDescription": "Katılan borçlu sayısı",
-    "myLoanInformation": "Kredi Bilgilerim",
-    "loanInformation": "Kredi Özeti",
-    "poolInformation": "Havuz Bilgileri",
-    "collateralBalance": "Teminat Bakiyesi",
-    "collateralBalanceDescription": "Halihazırda teminat olarak tutulan varlığınızın toplam tutarı",
-    "debtBalance": "Borç Bakiyesi",
-    "debtBalanceDescription": "Bu kredi için borçlu olduğunuz toplam borç tutarı",
-    "repaymentLock": "Geri Ödeme Kilidi",
-    "repaymentLockDescription": "Kredinizi geri ödeyebilmeniz için gereken minimum süre",
-    "receiveCollateral": "Geri alacağınız teminat miktarı",
-    "borrow": "Borç Al",
-    "repay": "Geri Öde",
-    "repayAmount": "Geri Ödeme Tutarı",
-    "unlocked": "Kilitli değil",
-    "unlockedCollateral": "Kilidi Açılmış Teminat",
-    "depositAsset": "Depozit %{asset}",
     "switchAssets": "Varlıkları Değiştir",
-    "outstandingDebt": "Ödenmemiş Borç",
-    "outstandingDebtDescription": "Ödünç aldığınız teminat miktarı",
-    "collateral": "Teminat",
-    "debt": "Borç",
-    "healthy": "Derinlik optimaldir, krediler etkilidir.",
-    "confirmAndBorrow": "Onayla ve Borç Al",
-    "confirmAndRepay": "Onayla ve Geri Öde",
-    "borrowAgain": "Tekrar Ödünç Al",
-    "repayAgain": "Tekrar Öde",
-    "transactionInfo": "İşlem Özeti",
-    "repayNoticeTitle": "Gecikti!",
-    "repayNoticeCta": "Anladım",
-    "repayNotice": "Teminatınızı geri alabilmeniz için borcunuzun %100'ünü ödemeniz gerekecektir.",
-    "feesNotice": "Borcunuzun %100'ünü ödedikten sonra geri alacağınız teminat üzerinden oluşan ücretler",
-    "refetchQuote": "Teklifi Yeniden Al",
-    "haltedAlert": "THORFi hizmetleri (Lending, Savers ve RUNEPool) şu anda THORChain'de duraklatıldı. Herhangi bir rahatsızlıktan dolayı özür dileriz.",
-    "faq": {
-      "title": "FAQ",
-      "lending": {
-        "title": "THORChain Lending Nedir?",
-        "body": "Borç verme, kullanıcıların yerel teminat yatırmasına ve ardından teminatlandırma oranında (CR) borç oluşturmasına olanak tanır. Kullanıcının hangi L1 varlığını aldığına bakılmaksızın borç her zaman USD (diğer adıyla TOR) cinsinden ifade edilir."
-      },
-      "borrowing": {
-        "title": "Borçlanma nasıl çalışır?",
-        "body": "THORChain'de borç almak, yatırılan varlıklarınızı kredi almak için teminat olarak kullanmayı içerir. Kredi USD (TOR) cinsindendir ve çeşitli L1 varlıklarında alınabilir. Dinamik teminat oranıyla faiz veya tasfiye endişesi olmadan esnek bir şekilde borçlanabilirsiniz"
-      },
-      "repayments": {
-        "title": "Geri ödeme nasıl çalışır?",
-        "body": "THORChain'de geri ödeme esnektir; istediğiniz zaman herhangi bir varlıkta geri ödeme yapmanıza olanak tanır ve bu daha sonra TOR'a dönüştürülür. Geri ödeme tutarı borç bakiyenizden düşülerek, tamamı geri ödendiğinde orantılı teminat tarafınıza iade edilir."
-      }
-    },
-    "errors": {
-      "repaymentsHalted": "Geri ödemeler geçici olarak durduruldu.",
-      "borrowingHalted": "Borçlanma geçici olarak durduruldu.",
-      "repaymentsDisabled": "Geri ödemeler geçici olarak devre dışı bırakıldı.",
-      "borrowingDisabled": "Ödünç alma geçici olarak devre dışı bırakıldı.",
-      "amountTooLowToReturnCollateral": "Teminatın iadesi için tutar çok düşük",
-      "amountTooLowToReturnCollateralTooltip": "Geri ödeme teminatınız iade edilemeyecek kadar düşük. Lütfen daha yüksek bir tutarla tekrar deneyin veya kısmi bir tutar ödeyin (bu, teminatınızı iade etmeyecek ancak borcunuzu azaltacaktır).",
-      "amountTooSmallUnknownMinimumTooltip": "Girdiğiniz geri ödeme tutarı çok küçük. Lütfen daha yüksek bir tutarla tekrar deneyin.",
-      "repaymentUnavailableTooltip": "Kredinizi geri ödemeniz henüz mümkün değil. Lütfen geri ödeme kilidi bitene kadar bekleyin.",
-      "repaymentsHaltedTooltip": "Geri ödemeler geçici olarak durduruldu. Lütfen daha sonra tekrar deneyiniz."
-    },
-    "quote": {
-      "collateral": "Kredinize karşılık teminat altına alınacak toplam varlık tutarı",
-      "debt": "Yeni kredi tutarınıza göre borçlu olacağınız toplam borç tutarı",
-      "repaymentLock": "Kredinizi geri ödeyebilmeniz için gereken minimum süre",
-      "collateralizationRatio": "Teminat değerinizin kredi tutarına oranı",
-      "feesPlusSlippage": "L1 ücretleri, kayma ve THORChain likidite ücretleri dahil olmak üzere oluşan toplam ücretler"
-    },
-    "yourLoans": {
-      "yourLoans": "Kredileriniz",
-      "emptyTitle": "Sıfır Krediler Ülkesi!",
-      "emptyBody": "Şu anda herhangi bir krediniz yok gibi görünüyor. Bu finansal zen mi, yoksa bir sonraki büyük borç verme maceranızdan önce sadece bir mola mı? Her iki durumda da sakinliğin tadını çıkarın!"
-    }
+    "poolInformation": "Havuz Bilgileri"
   },
   "chainflipLending": {
     "awaitingConfirmTitle": "Onay bekleniyor",
@@ -2970,7 +2856,8 @@
         "title": "Riskler ve Hususlar",
         "body": "Likidite havuzları kazanç fırsatları sunarken, kalıcı kayıplar, akıllı sözleşme zayıflıkları ve piyasa dalgalanmaları dahil olmak üzere ilgili risklerin farkında olmak önemlidir. Kullanıcılar katılmadan önce kapsamlı bir araştırma yapmalıdır."
       }
-    }
+    },
+    "haltedDepositTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur."
   },
   "warningAcknowledgement": {
     "understand": "Anladım",
@@ -3475,8 +3362,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

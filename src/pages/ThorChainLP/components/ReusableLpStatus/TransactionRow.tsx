@@ -13,7 +13,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { assetIdToThorPoolAssetId, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { Dex, TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -452,9 +452,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const txIdLink = useMemo(
     () =>
       getTxLink({
-        defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
+        explorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
         txId: txId ?? '',
-        stepSource: SwapperName.Thorchain,
+        dexName: Dex.Thor,
         // THORFi is incompatible with SAFE wallets because msg.sender/tx.origin shenanigans, so this will never be a SAFE Tx
         maybeSafeTx: undefined,
         address: undefined,

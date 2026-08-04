@@ -35,6 +35,8 @@ import type {
   TonFeeData,
   TonSignTx,
   TonToken,
+  TonTrace,
+  TonTracesResponse,
   TonTx,
 } from './types'
 
@@ -70,6 +72,7 @@ const PROXY_TON_CONTRACTS = new Set([
 const TRACE_LT_SEARCH_RANGE = 1_000_000_000n
 // Legs of a trace land within this window of its initiator (~5 minutes of logical time)
 const TRACE_COMPLETION_LT_SPAN = 300_000_000n
+const TRACE_BATCH_SIZE = 20
 const TON_HASH_HEX_LENGTH = 64
 export const isHexHash = (str: string): boolean => {
   return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
@@ -210,7 +213,8 @@ export const buildTraceTransfers = ({
   for (const tx of txs) {
     const parsed = parseTonTx(resolveAddresses(tx, addressBook), pubkey, '', assetId, chainId)
     for (const transfer of parsed.transfers) {
-      const key = `${transfer.assetId}-${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
+      // Scoped to the source tx so identical legs from different txs both survive
+      const key = `${tx.hash}-${transfer.assetId}-${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
       if (seen.has(key)) continue
       seen.add(key)
       native.push(transfer)
@@ -761,63 +765,68 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const pageHashes = new Set(data.transactions.map(tx => tx.hash))
       const pageMaxLt = data.transactions.map(tx => BigInt(tx.lt)).reduce((a, b) => (a > b ? a : b))
 
-      // Rows are emitted complete or not at all: a page can slice through a trace, so groups
-      // initiated by this account are re-fetched over the trace lt window whenever the page
-      // cannot guarantee it contains every leg. Emitted rows overwrite existing ones (pending
-      // rows re-emit until confirmed), so a partial group must never be emitted for an own trace.
-      for (const [traceId, group] of Object.entries(txsByTrace)) {
-        const initiatorInPage = pageHashes.has(traceId)
-
-        const isOwnTrace = await (async () => {
-          if (initiatorInPage) return true
-
-          // Only not-own verdicts are cached: an own verdict must re-inject the initiator tx
+      // Rows are emitted complete or not at all: a page can slice through a trace, and a trace's
+      // initiator (whose account decides whether the trace is ours to merge) may live on another
+      // page. Traces needing resolution are fetched whole in batches - ownership, every leg, and
+      // an is_incomplete flag in one request each - so a partial group is never emitted for an
+      // own trace and never overwrites a complete row.
+      const pendingTraceIds = Object.entries(txsByTrace)
+        .filter(([traceId]) => {
           if (this.traceNotOwnCache.has(`${pubkey}:${traceId}`)) return false
+          if (!pageHashes.has(traceId)) return true
+          const initiator = txsByTrace[traceId].find(t => t.hash === traceId)
+          return Boolean(
+            initiator && BigInt(initiator.lt) + TRACE_COMPLETION_LT_SPAN > pageMaxLt,
+          )
+        })
+        .map(([traceId]) => traceId)
 
-          try {
-            const result = await this.httpApiRequest<TonApiTxResponse>(
-              `/api/v3/transactions?hash=${encodeURIComponent(traceId)}&limit=1`,
-            )
-            const initiator = result.transactions?.[0]
-            const isOwn = Boolean(initiator && addressesMatch(initiator.account, pubkey))
-            if (isOwn && initiator) {
-              group.unshift(initiator)
-              Object.assign(addressBook, result.address_book ?? {})
-            } else {
-              this.traceNotOwnCache.add(`${pubkey}:${traceId}`)
-            }
-            return isOwn
-          } catch {
-            // Degrades to emitting the page legs as-is
-            return false
-          }
-        })()
-
-        if (!isOwnTrace) continue
-
-        const initiator = group.find(t => t.hash === traceId)
-        if (!initiator) continue
-
-        const mayBeSliced =
-          !initiatorInPage || BigInt(initiator.lt) + TRACE_COMPLETION_LT_SPAN > pageMaxLt
-
-        if (!mayBeSliced) continue
+      for (let i = 0; i < pendingTraceIds.length; i += TRACE_BATCH_SIZE) {
+        const batch = pendingTraceIds.slice(i, i + TRACE_BATCH_SIZE)
 
         try {
-          const traceTxs = await this.fetchTraceTxs(pubkey, initiator.lt, traceId)
-          if (traceTxs.txs.length > 0) {
-            txsByTrace[traceId] = traceTxs.txs
-            Object.assign(addressBook, traceTxs.addressBook)
+          const result = await this.fetchTraces(
+            `trace_id=${batch.map(encodeURIComponent).join(',')}&limit=${TRACE_BATCH_SIZE}`,
+          )
+          Object.assign(addressBook, result.address_book ?? {})
+
+          const tracesById = new Map((result.traces ?? []).map(trace => [trace.trace_id, trace]))
+
+          for (const traceId of batch) {
+            const trace = tracesById.get(traceId)
+            // Not indexed (yet) - emit the page legs as-is
+            if (!trace) continue
+
+            const initiator = trace.transactions?.[traceId]
+            if (!initiator || !addressesMatch(initiator.account, pubkey)) {
+              this.traceNotOwnCache.add(`${pubkey}:${traceId}`)
+              continue
+            }
+
+            if (trace.is_incomplete) {
+              delete txsByTrace[traceId]
+              continue
+            }
+
+            txsByTrace[traceId] = this.ownTraceTxs(trace, pubkey)
           }
-        } catch {
-          // Better no row this round than a partial one overwriting a complete row
-          delete txsByTrace[traceId]
+        } catch (error) {
+          console.error('[TON] Failed to resolve traces, dropping affected rows this page', {
+            batch,
+            error,
+          })
+          for (const traceId of batch) delete txsByTrace[traceId]
         }
       }
 
-      const lts = Object.values(txsByTrace)
-        .flat()
-        .map(tx => BigInt(tx.lt))
+      const remainingTxs = Object.values(txsByTrace).flat()
+
+      if (remainingTxs.length === 0) {
+        const emptyCursor = data.transactions.length === pageSize ? String(offset + pageSize) : ''
+        return { cursor: emptyCursor, pubkey, transactions: [], txIds: [] }
+      }
+
+      const lts = remainingTxs.map(tx => BigInt(tx.lt))
       const minLt = lts.reduce((a, b) => (a < b ? a : b)).toString()
       const maxLt = lts.reduce((a, b) => (a > b ? a : b)).toString()
 
@@ -1191,21 +1200,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
-  private async fetchTraceTxs(
-    pubkey: string,
-    fromLt: string,
-    traceId: string,
-  ): Promise<{ txs: TonTx[]; addressBook: Record<string, { user_friendly: string }> }> {
-    const endLt = (BigInt(fromLt) + TRACE_LT_SEARCH_RANGE).toString()
-    const result = await this.httpApiRequest<TonApiTxResponse>(
-      `/api/v3/transactions?account=${encodeURIComponent(
-        pubkey,
-      )}&start_lt=${fromLt}&end_lt=${endLt}&sort=asc&limit=20`,
-    )
-    return {
-      txs: (result.transactions ?? []).filter(t => (t.trace_id ?? t.hash) === traceId),
-      addressBook: result.address_book ?? {},
-    }
+  // Every leg of every requested trace in a single request - no lt-window or page-size
+  // assumptions, and is_incomplete flags traces still executing
+  private async fetchTraces(params: string): Promise<TonTracesResponse> {
+    return this.httpApiRequest<TonTracesResponse>(`/api/v3/traces?${params}`)
+  }
+
+  private ownTraceTxs(trace: TonTrace, pubkey: string): TonTx[] {
+    return Object.values(trace.transactions ?? {})
+      .filter(t => addressesMatch(t.account, pubkey))
+      .sort((a, b) => (BigInt(a.lt) < BigInt(b.lt) ? -1 : 1))
   }
 
   private async fetchJettonTransfers(
@@ -1290,18 +1294,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const traceId = tx.trace_id ?? txHash
       const endLt = (BigInt(tx.lt) + TRACE_LT_SEARCH_RANGE).toString()
 
-      const [traceTxResult, jettonData] = await Promise.all([
-        this.fetchTraceTxs(pubkey, tx.lt, traceId),
+      const [traceResult, jettonData] = await Promise.all([
+        this.fetchTraces(`tx_hash=${encodeURIComponent(tx.hash)}&limit=1`),
         this.fetchJettonTransfers(pubkey, tx.lt, endLt),
       ])
 
       const addressBook = {
         ...(txResult.address_book ?? {}),
-        ...traceTxResult.addressBook,
+        ...(traceResult.address_book ?? {}),
         ...jettonData.address_book,
       }
 
-      const traceTxs = traceTxResult.txs
+      const trace = traceResult.traces?.[0]
+      const traceTxs = trace ? this.ownTraceTxs(trace, pubkey) : []
       const primaryTx = traceTxs[0] ?? tx
 
       const txsToProcess = traceTxs.length > 0 ? traceTxs : [tx]

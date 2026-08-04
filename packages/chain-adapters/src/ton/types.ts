@@ -93,6 +93,17 @@ export type TonApiTxResponse = {
   address_book?: Record<string, { user_friendly: string }>
 }
 
+export type TonTrace = {
+  trace_id: string
+  is_incomplete?: boolean
+  transactions?: Record<string, TonTx>
+}
+
+export type TonTracesResponse = {
+  traces?: TonTrace[]
+  address_book?: Record<string, { user_friendly: string }>
+}
+
 export type Account = TonAccount
 export type FeeData = TonFeeData
 export type GetFeeDataInput = TonGetFeeDataInput

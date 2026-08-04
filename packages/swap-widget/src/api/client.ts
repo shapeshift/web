@@ -1,10 +1,6 @@
 import type { AssetId, AssetsResponse, QuoteResponse, RatesResponse } from '../types'
 
-// `import.meta.env` only exists once a Vite-style bundler substitutes it. Consumers on webpack,
-// Turbopack or Rollup evaluate this module with it still undefined, so reading the property
-// directly throws before the `??` fallback can apply and takes the whole widget down on import.
-const DEFAULT_API_BASE_URL =
-  import.meta.env?.VITE_SWAP_WIDGET_API_URL ?? 'https://api.shapeshift.com'
+const DEFAULT_API_BASE_URL = 'https://api.shapeshift.com'
 
 export type ApiClientConfig = {
   baseUrl?: string

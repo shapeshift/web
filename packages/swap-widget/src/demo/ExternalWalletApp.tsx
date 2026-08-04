@@ -31,6 +31,7 @@ import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 import { WidgetModal } from './WidgetModal'
 
 const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
+const API_BASE_URL = import.meta.env.VITE_SWAP_WIDGET_API_URL
 
 if (!PROJECT_ID) throw new Error('VITE_WALLETCONNECT_PROJECT_ID is not set')
 
@@ -102,6 +103,7 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
   const widget = useMemo(
     () => (
       <SwapWidget
+        apiBaseUrl={API_BASE_URL}
         partnerCode={partnerCode || undefined}
         theme={themeConfig}
         onSwapSuccess={handleSwapSuccess}

@@ -1238,10 +1238,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
-  async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
+  parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
     if (typeof txHashOrTx !== 'string') {
       throw new Error(`[TON] parseTx expects a string tx hash, got ${typeof txHashOrTx}`)
     }
+
     // status poll, history upsert and balance pipeline all parse the same hash within seconds -
     // a short-lived memo collapses them into one network run
     const cacheKey = `${txHashOrTx}:${pubkey}`
@@ -1267,7 +1268,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const txid = isHexHash(inputHash) ? inputHash : base64ToHex(inputHash)
 
       const txResult = await this.httpApiRequest<TonApiTxResponse>(
-        `/api/v3/transactionsByMessage?msg_hash=${encodeURIComponent(apiHash)}&direction=in&limit=1`,
+        `/api/v3/transactionsByMessage?msg_hash=${encodeURIComponent(
+          apiHash,
+        )}&direction=in&limit=1`,
       )
 
       const tx = txResult.transactions?.[0]

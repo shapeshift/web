@@ -47,6 +47,7 @@ export type TonSignTx = {
 }
 
 export type TonTxMessage = {
+  hash?: string
   source?: string
   destination?: string
   value?: string
@@ -89,6 +90,17 @@ export type JettonTransferRecord = {
 
 export type TonApiTxResponse = {
   transactions?: TonTx[]
+  address_book?: Record<string, { user_friendly: string }>
+}
+
+export type TonTrace = {
+  trace_id: string
+  is_incomplete?: boolean
+  transactions?: Record<string, TonTx>
+}
+
+export type TonTracesResponse = {
+  traces?: TonTrace[]
   address_book?: Record<string, { user_friendly: string }>
 }
 

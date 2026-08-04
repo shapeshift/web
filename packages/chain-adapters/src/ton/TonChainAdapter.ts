@@ -35,6 +35,8 @@ import type {
   TonFeeData,
   TonSignTx,
   TonToken,
+  TonTrace,
+  TonTracesResponse,
   TonTx,
 } from './types'
 
@@ -64,7 +66,13 @@ const PROXY_TON_CONTRACTS = new Set([
   'EQBnGWMCf3-FZZq1W4IWcWiGAc3PHuZ0_H-7sad2oY00o83S',
 ])
 
-const TRACE_LT_SEARCH_RANGE = 1000n
+// Logical time advances ~1e6 per second, and downstream trace legs (dex payouts, excesses) land
+// tens of millions of lts after the initiator - this bounds the search only, results are
+// filtered by trace_id
+const TRACE_LT_SEARCH_RANGE = 1_000_000_000n
+// Legs of a trace land within this window of its initiator (~5 minutes of logical time)
+const TRACE_COMPLETION_LT_SPAN = 300_000_000n
+const TRACE_BATCH_SIZE = 20
 const TON_HASH_HEX_LENGTH = 64
 export const isHexHash = (str: string): boolean => {
   return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
@@ -179,6 +187,96 @@ export const buildJettonTransfers = (
   return transfers
 }
 
+// Raw message values misstate native swap legs (gas budgets ride the envelope, refunds ride the
+// payout) - swap rows use the proxy TON jetton amount when present, net native flow otherwise
+export const buildTraceTransfers = ({
+  txs,
+  jettonTransfers,
+  traceId,
+  pubkey,
+  addressBook,
+  assetId,
+  chainId,
+}: {
+  txs: TonTx[]
+  jettonTransfers: JettonTransferRecord[]
+  traceId: string
+  pubkey: string
+  addressBook: Record<string, { user_friendly: string }>
+  assetId: AssetId
+  chainId: ChainId
+}): TxTransfer[] => {
+  const jetton = buildJettonTransfers(jettonTransfers, traceId, pubkey, addressBook, chainId)
+
+  const seen = new Set<string>()
+  const native: TxTransfer[] = []
+  for (const tx of txs) {
+    const parsed = parseTonTx(resolveAddresses(tx, addressBook), pubkey, '', assetId, chainId)
+    for (const transfer of parsed.transfers) {
+      // Scoped to the source tx so identical legs from different txs both survive
+      const key = `${tx.hash}-${transfer.assetId}-${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      native.push(transfer)
+    }
+  }
+
+  // Plain native transfers keep their per-leg values
+  if (jetton.length === 0) return native
+
+  const friendly = (addr: string) => addressBook[addr]?.user_friendly ?? addr
+
+  const proxyAmounts: Partial<Record<TransferType, string>> = {}
+  for (const transfer of jettonTransfers) {
+    if (transfer.trace_id !== traceId) continue
+    if (!transfer.source || !transfer.destination || !transfer.amount || !transfer.jetton_master)
+      continue
+    if (!isProxyTon(friendly(transfer.jetton_master))) continue
+
+    // Summed per direction - split routes move the wrapped amount in multiple legs
+    if (addressesMatch(friendly(transfer.source), pubkey)) {
+      proxyAmounts[TransferType.Send] = (
+        BigInt(proxyAmounts[TransferType.Send] ?? '0') + BigInt(transfer.amount)
+      ).toString()
+    }
+    if (addressesMatch(friendly(transfer.destination), pubkey)) {
+      proxyAmounts[TransferType.Receive] = (
+        BigInt(proxyAmounts[TransferType.Receive] ?? '0') + BigInt(transfer.amount)
+      ).toString()
+    }
+  }
+
+  // Net native flow across the trace, gas envelopes and excess refunds included (fees excluded)
+  let net = 0n
+  for (const tx of txs) {
+    if (tx.in_msg?.value && tx.in_msg.source) net += BigInt(tx.in_msg.value)
+    for (const outMsg of tx.out_msgs ?? []) {
+      if (outMsg.value) net -= BigInt(outMsg.value)
+    }
+  }
+
+  const hasJettonSend = jetton.some(t => t.type === TransferType.Send)
+  const hasJettonReceive = jetton.some(t => t.type === TransferType.Receive)
+  const sends = native.filter(t => t.type === TransferType.Send)
+  const receives = native.filter(t => t.type === TransferType.Receive)
+
+  const nativeLegs: TxTransfer[] = []
+
+  if (proxyAmounts[TransferType.Send] && sends.length === 1) {
+    nativeLegs.push({ ...sends[0], value: proxyAmounts[TransferType.Send] })
+  } else if (net < 0n && hasJettonReceive && !hasJettonSend && sends.length > 0) {
+    nativeLegs.push({ ...sends[0], value: (-net).toString() })
+  }
+
+  if (proxyAmounts[TransferType.Receive] && receives.length === 1) {
+    nativeLegs.push({ ...receives[0], value: proxyAmounts[TransferType.Receive] })
+  } else if (net > 0n && hasJettonSend && !hasJettonReceive && receives.length > 0) {
+    nativeLegs.push({ ...receives[0], value: net.toString() })
+  }
+
+  return [...nativeLegs, ...jetton]
+}
+
 export const parseTonTx = (
   tx: TonTx,
   pubkey: string,
@@ -284,6 +382,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   protected readonly assetId = tonAssetId
   protected readonly rpcUrl: string
   private requestQueue: PQueue
+  private traceNotOwnCache = new Set<string>()
 
   constructor(args: ChainAdapterArgs) {
     this.rpcUrl = args.rpcUrl
@@ -653,9 +752,83 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         }
       }
 
-      const addressBook = data.address_book ?? {}
+      const addressBook = { ...(data.address_book ?? {}) }
 
-      const lts = data.transactions.map(tx => BigInt(tx.lt))
+      // Group by trace so a swap is a single transaction carrying all its legs (jetton send +
+      // native payout), matching parseTx, rather than disconnected send and receive rows
+      const txsByTrace: Record<string, TonTx[]> = {}
+      for (const tx of data.transactions) {
+        const traceId = tx.trace_id ?? tx.hash
+        ;(txsByTrace[traceId] ??= []).push(tx)
+      }
+
+      const pageHashes = new Set(data.transactions.map(tx => tx.hash))
+      const pageMaxLt = data.transactions.map(tx => BigInt(tx.lt)).reduce((a, b) => (a > b ? a : b))
+
+      // Rows are emitted complete or not at all: a page can slice through a trace, and a trace's
+      // initiator (whose account decides whether the trace is ours to merge) may live on another
+      // page. Traces needing resolution are fetched whole in batches - ownership, every leg, and
+      // an is_incomplete flag in one request each - so a partial group is never emitted for an
+      // own trace and never overwrites a complete row.
+      const pendingTraceIds = Object.entries(txsByTrace)
+        .filter(([traceId]) => {
+          if (this.traceNotOwnCache.has(`${pubkey}:${traceId}`)) return false
+          if (!pageHashes.has(traceId)) return true
+          const initiator = txsByTrace[traceId].find(t => t.hash === traceId)
+          return Boolean(initiator && BigInt(initiator.lt) + TRACE_COMPLETION_LT_SPAN > pageMaxLt)
+        })
+        .map(([traceId]) => traceId)
+
+      for (let i = 0; i < pendingTraceIds.length; i += TRACE_BATCH_SIZE) {
+        const batch = pendingTraceIds.slice(i, i + TRACE_BATCH_SIZE)
+
+        try {
+          // Every leg of every requested trace in a single request - no lt-window or page-size
+          // assumptions, and is_incomplete flags traces still executing
+          const result = await this.httpApiRequest<TonTracesResponse>(
+            `/api/v3/traces?trace_id=${batch
+              .map(encodeURIComponent)
+              .join(',')}&limit=${TRACE_BATCH_SIZE}`,
+          )
+          Object.assign(addressBook, result.address_book ?? {})
+
+          const tracesById = new Map((result.traces ?? []).map(trace => [trace.trace_id, trace]))
+
+          for (const traceId of batch) {
+            const trace = tracesById.get(traceId)
+            // Not indexed (yet) - emit the page legs as-is
+            if (!trace) continue
+
+            const initiator = trace.transactions?.[traceId]
+            if (!initiator || !addressesMatch(initiator.account, pubkey)) {
+              this.traceNotOwnCache.add(`${pubkey}:${traceId}`)
+              continue
+            }
+
+            if (trace.is_incomplete) {
+              delete txsByTrace[traceId]
+              continue
+            }
+
+            txsByTrace[traceId] = this.ownTraceTxs(trace, pubkey)
+          }
+        } catch (error) {
+          console.error('[TON] Failed to resolve traces, dropping affected rows this page', {
+            batch,
+            error,
+          })
+          for (const traceId of batch) delete txsByTrace[traceId]
+        }
+      }
+
+      const remainingTxs = Object.values(txsByTrace).flat()
+
+      if (remainingTxs.length === 0) {
+        const emptyCursor = data.transactions.length === pageSize ? String(offset + pageSize) : ''
+        return { cursor: emptyCursor, pubkey, transactions: [], txIds: [] }
+      }
+
+      const lts = remainingTxs.map(tx => BigInt(tx.lt))
       const minLt = lts.reduce((a, b) => (a < b ? a : b)).toString()
       const maxLt = lts.reduce((a, b) => (a > b ? a : b)).toString()
 
@@ -667,50 +840,53 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
       const jettonAddrBook = { ...addressBook, ...jettonData.address_book }
 
-      const jettonOwnerTx: Record<string, string> = {}
-      for (const tx of data.transactions) {
-        const traceId = tx.trace_id ?? tx.hash
-        const isInitiator = tx.hash === traceId
-        if (!jettonOwnerTx[traceId] || isInitiator) {
-          jettonOwnerTx[traceId] = tx.hash
-        }
-      }
-
       const transactions: Transaction[] = []
       const txIds: string[] = []
 
-      for (const tx of data.transactions) {
-        const txid = base64ToHex(tx.hash)
+      for (const [traceId, traceGroup] of Object.entries(txsByTrace)) {
+        const owner = traceGroup.find(t => t.hash === traceId) ?? traceGroup[0]
 
-        if (knownTxIds?.has(txid)) continue
+        // Externally-initiated txs are keyed by their message hash - the same id broadcast
+        // returns and parseTx uses, so rows upserted at swap time overwrite history rows and
+        // vice versa instead of duplicating
+        const isExternalInitiated = !owner.in_msg?.source && Boolean(owner.in_msg?.hash)
+        const txid = base64ToHex(
+          isExternalInitiated && owner.in_msg?.hash ? owner.in_msg.hash : owner.hash,
+        )
+
+        const allTransfers = buildTraceTransfers({
+          txs: traceGroup,
+          jettonTransfers: jettonData.jetton_transfers,
+          traceId,
+          pubkey,
+          addressBook: jettonAddrBook,
+          assetId: this.assetId,
+          chainId: this.chainId,
+        })
+
+        // e.g. a gas-only excess leg of a foreign trace
+        if (allTransfers.length === 0) continue
 
         txIds.push(txid)
 
-        const normalizedTx = resolveAddresses(tx, addressBook)
-        const parsedTx = parseTonTx(normalizedTx, pubkey, txid, this.assetId, this.chainId)
+        if (knownTxIds?.has(txid)) continue
 
-        const traceId = tx.trace_id ?? tx.hash
-        const shouldAttachJettons = jettonOwnerTx[traceId] === tx.hash
-        const jettonTransfers = shouldAttachJettons
-          ? buildJettonTransfers(
-              jettonData.jetton_transfers,
-              traceId,
-              pubkey,
-              jettonAddrBook,
-              this.chainId,
-            )
-          : []
+        const parsedOwner = parseTonTx(
+          resolveAddresses(owner, jettonAddrBook),
+          pubkey,
+          txid,
+          this.assetId,
+          this.chainId,
+        )
 
-        const hasJettonSends = jettonTransfers.some(t => t.type === TransferType.Send)
-        const hasJettonReceives = jettonTransfers.some(t => t.type === TransferType.Receive)
-        const nativeTransfers = parsedTx.transfers.filter(t => {
-          if (hasJettonSends && t.type === TransferType.Send) return false
-          if (hasJettonReceives && t.type === TransferType.Receive) return false
-          return true
-        })
-        const allTransfers = [...nativeTransfers, ...jettonTransfers]
+        const anyAborted = traceGroup.some(t => t.description?.aborted === true)
+        const anyActionFailed = traceGroup.some(t => t.description?.action?.success === false)
+        const status = anyAborted || anyActionFailed ? TxStatus.Failed : TxStatus.Confirmed
+
         transactions.push({
-          ...parsedTx,
+          ...parsedOwner,
+          status,
+          confirmations: status === TxStatus.Confirmed ? 1 : 0,
           transfers: allTransfers,
         })
       }
@@ -1026,6 +1202,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
+  private ownTraceTxs(trace: TonTrace, pubkey: string): TonTx[] {
+    return Object.values(trace.transactions ?? {})
+      .filter(t => addressesMatch(t.account, pubkey))
+      .sort((a, b) => (BigInt(a.lt) < BigInt(b.lt) ? -1 : 1))
+  }
+
   private async fetchJettonTransfers(
     pubkey: string,
     startLt: string,
@@ -1108,56 +1290,35 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const traceId = tx.trace_id ?? txHash
       const endLt = (BigInt(tx.lt) + TRACE_LT_SEARCH_RANGE).toString()
 
-      const [traceTxResult, jettonData] = await Promise.all([
-        this.httpApiRequest<TonApiTxResponse>(
-          `/api/v3/transactions?account=${encodeURIComponent(pubkey)}&start_lt=${
-            tx.lt
-          }&end_lt=${endLt}&sort=asc&limit=20`,
+      const [traceResult, jettonData] = await Promise.all([
+        this.httpApiRequest<TonTracesResponse>(
+          `/api/v3/traces?tx_hash=${encodeURIComponent(tx.hash)}&limit=1`,
         ),
         this.fetchJettonTransfers(pubkey, tx.lt, endLt),
       ])
 
       const addressBook = {
         ...(txResult.address_book ?? {}),
-        ...(traceTxResult.address_book ?? {}),
+        ...(traceResult.address_book ?? {}),
         ...jettonData.address_book,
       }
 
-      const jettonTransfers = buildJettonTransfers(
-        jettonData.jetton_transfers,
-        traceId,
-        pubkey,
-        addressBook,
-        this.chainId,
-      )
-
-      const hasJettonSends = jettonTransfers.some(t => t.type === TransferType.Send)
-      const hasJettonReceives = jettonTransfers.some(t => t.type === TransferType.Receive)
-
-      const nativeTransfers: TxTransfer[] = []
-
-      const traceTxs = (traceTxResult.transactions ?? []).filter(
-        t => (t.trace_id ?? t.hash) === traceId,
-      )
+      const trace = traceResult.traces?.[0]
+      const traceTxs = trace ? this.ownTraceTxs(trace, pubkey) : []
       const primaryTx = traceTxs[0] ?? tx
 
       const txsToProcess = traceTxs.length > 0 ? traceTxs : [tx]
-      const seen = new Set<string>()
 
-      for (const traceTx of txsToProcess) {
-        const normalizedTraceTx = resolveAddresses(traceTx, addressBook)
-        const parsed = parseTonTx(normalizedTraceTx, pubkey, txid, this.assetId, this.chainId)
-        for (const transfer of parsed.transfers) {
-          if (hasJettonSends && transfer.type === TransferType.Send) continue
-          if (hasJettonReceives && transfer.type === TransferType.Receive) continue
-          const key = `${transfer.assetId}-${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
-          if (seen.has(key)) continue
-          seen.add(key)
-          nativeTransfers.push(transfer)
-        }
-      }
+      const allTransfers = buildTraceTransfers({
+        txs: txsToProcess,
+        jettonTransfers: jettonData.jetton_transfers,
+        traceId,
+        pubkey,
+        addressBook,
+        assetId: this.assetId,
+        chainId: this.chainId,
+      })
 
-      const allTransfers = [...nativeTransfers, ...jettonTransfers]
       const anyAborted = txsToProcess.some(t => t.description?.aborted === true)
       const anyActionFailed = txsToProcess.some(t => t.description?.action?.success === false)
       const status = anyAborted || anyActionFailed ? TxStatus.Failed : TxStatus.Confirmed

@@ -1,5 +1,5 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Blockchain } from '@ston-fi/omniston-sdk'
 
 import type { SwapperApi, TradeStatus } from '../../types'
@@ -128,6 +128,24 @@ export const stonfiApi: SwapperApi = {
 
     const { quoteId } = getSwapMetadata(swap.metadata.swapperMetadata, 'stonfi')
 
+    // Settlement precedes toncenter's jetton indexer, and confirmed rows are never re-parsed -
+    // hold confirmation until the receive leg is visible so the confirmed-time parse and upsert
+    // carries both legs of the swap
+    const hasVisibleReceiveLeg = async (): Promise<boolean> => {
+      const adapter = assertGetTonChainAdapter(swap.sellAsset.chainId)
+      const sellAddress = swap.sellAccountId.split(':')[2] ?? ''
+      const addresses = new Set(
+        [sellAddress, swap.receiveAddress].filter((address): address is string => Boolean(address)),
+      )
+
+      for (const address of addresses) {
+        const tx = await adapter.parseTx(sellTxHash, address)
+        if (tx.transfers.some(transfer => transfer.type === TransferType.Receive)) return true
+      }
+
+      return false
+    }
+
     try {
       const tradeStatus = await waitForFirstTradeStatus(
         {
@@ -147,17 +165,15 @@ export const stonfiApi: SwapperApi = {
 
       const statusOneOf = tradeStatus.status
 
+      // While the trade is in flight the wallet tx may already be confirmed, but the payout leg
+      // hasn't landed - confirming here would parse and upsert a trace without the receive, so
+      // completion waits for settlement
       if (
         statusOneOf.awaitingTransfer ||
         statusOneOf.transferring ||
         statusOneOf.swapping ||
         statusOneOf.receivingFunds
       ) {
-        const chainStatus = await checkTxStatusViaChainAdapter()
-        if (chainStatus.status === TxStatus.Confirmed) {
-          return chainStatus
-        }
-
         if (statusOneOf.awaitingTransfer) {
           return {
             status: TxStatus.Pending,
@@ -194,19 +210,32 @@ export const stonfiApi: SwapperApi = {
       if (statusOneOf.tradeSettled) {
         const result = statusOneOf.tradeSettled.result
 
-        if (result === 'TRADE_RESULT_FULLY_FILLED') {
-          return {
+        if (result === 'TRADE_RESULT_FULLY_FILLED' || result === 'TRADE_RESULT_PARTIALLY_FILLED') {
+          const settled: TradeStatus = {
             status: TxStatus.Confirmed,
             buyTxHash: sellTxHash,
-            message: undefined,
+            message:
+              result === 'TRADE_RESULT_PARTIALLY_FILLED'
+                ? 'trade.statuses.partiallyFilled'
+                : undefined,
           }
-        }
 
-        if (result === 'TRADE_RESULT_PARTIALLY_FILLED') {
-          return {
-            status: TxStatus.Confirmed,
-            buyTxHash: sellTxHash,
-            message: 'trade.statuses.partiallyFilled',
+          try {
+            if (await hasVisibleReceiveLeg()) return settled
+
+            return {
+              status: TxStatus.Pending,
+              buyTxHash: undefined,
+              message: 'trade.statuses.receivingFunds',
+            }
+          } catch (error) {
+            // Indexer/API failure must not block completion
+            console.error('[Stonfi] Error verifying settlement receive leg:', {
+              sellTxHash,
+              result,
+              error,
+            })
+            return settled
           }
         }
 

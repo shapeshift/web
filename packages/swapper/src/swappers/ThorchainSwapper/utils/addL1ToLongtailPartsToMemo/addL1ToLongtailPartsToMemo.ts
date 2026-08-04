@@ -12,7 +12,7 @@ import {
   addFinalAssetLimitToMemo,
   assertAndProcessMemo,
   MEMO_PART_DELIMITER,
-} from '../../../../thorchain-utils'
+} from '../../../../utils/thorchain'
 import { getShortenedFinalAssetLimit } from '../getShortenedFinalAssetLimit/getShortenedFinalAssetLimit'
 import { getUniqueAddressSubstring } from '../getUniqueAddressSubstring/getUniqueAddressSubstring'
 import { shortenedNativeAssetNameByNativeAssetName } from '../longTailHelpers'

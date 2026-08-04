@@ -1,7 +1,8 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
-import type { GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import {
+  buildSwapMetadata,
   getDefaultSlippageDecimalPercentageForSwapper,
   getTradeQuotes,
   SwapperName,
@@ -70,6 +71,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       swapperName,
       slippageTolerancePercentageDecimal,
       accountNumber,
+      xpub,
     } = bodyResult.data
 
     const validSwapperName = Object.values(SwapperName).find(v => v === swapperName)
@@ -131,15 +133,15 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       receiveAddress,
       sendAddress,
       accountNumber,
+      xpub,
       quoteOrRate: 'quote' as const,
       chainId: sellAsset.chainId,
+      // Consumers sign themselves - price with legacy gas semantics
+      supportsEIP1559: false,
     }
 
-    const result = await getTradeQuotes(
-      quoteInput as GetTradeQuoteInputWithWallet,
-      validSwapperName,
-      deps,
-    )
+    // utxo accountType/xpub are not first class public api inputs yet, the cast covers that gap
+    const result = await getTradeQuotes(quoteInput as GetTradeQuoteInput, validSwapperName, deps)
 
     if (!result) {
       res.status(404).json({
@@ -192,18 +194,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
       expiresAt: now + QuoteStore.QUOTE_TTL_MS,
-      metadata: {
-        chainflipSwapId: step.chainflipSpecific?.chainflipSwapId,
-        nearIntentsSpecific: step.nearIntentsSpecific,
-        relayTransactionMetadata: step.relayTransactionMetadata,
-        acrossTransactionMetadata: step.acrossTransactionMetadata,
-        debridgeTransactionMetadata: step.debridgeTransactionMetadata,
-        relayerExplorerTxLink: undefined,
-        relayerTxHash: undefined,
-        stepIndex: 0,
-        quoteId,
-        streamingSwapMetadata: undefined,
-      },
+      metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
     })
 

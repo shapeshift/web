@@ -1,7 +1,9 @@
 import type { Swapper } from '../../types'
-import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
+import { executeEvmTransaction } from '../../utils'
 
 export const acrossSwapper: Swapper = {
   executeEvmTransaction,
-  executeSolanaTransaction,
+  executeSolanaMessage: ({ serializedTx }, { signAndBroadcastSerializedTransaction }) => {
+    return signAndBroadcastSerializedTransaction(serializedTx)
+  },
 }

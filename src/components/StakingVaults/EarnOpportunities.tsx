@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { useFetchOpportunities } from './hooks/useFetchOpportunities'
 import { StakingTable } from './StakingTable'
 
 import { Text } from '@/components/Text'
@@ -30,6 +31,9 @@ type EarnOpportunitiesProps = {
 }
 
 export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportunitiesProps) => {
+  // Account/asset pages render this section without the earn dashboard mounted, so fetch here too
+  useFetchOpportunities()
+
   const { navigate } = useBrowserRouter()
   const location = useLocation()
   const {

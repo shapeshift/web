@@ -9,11 +9,11 @@ import { getAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
 import type { BebopQuoteResponse, BebopSolanaQuoteResponse, BebopSupportedChainId } from '../types'
 import { chainIdToBebopChain } from '../types'
 import { bebopServiceFactory } from './bebopService'
-import { assetIdToBebopSolanaToken, assetIdToBebopToken } from './helpers/helpers'
+import { assetIdToBebopSolanaToken, assetIdToBebopToken } from './helpers'
 
 export const fetchBebopQuote = async ({
   buyAsset,

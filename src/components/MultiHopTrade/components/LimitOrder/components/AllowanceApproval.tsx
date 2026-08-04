@@ -112,9 +112,9 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     if (!txHash) return
 
     return getTxLink({
-      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      explorerBaseUrl: feeAsset.explorerTxLink,
       maybeSafeTx,
-      tradeId: txHash,
+      txId: txHash,
       address: fromAccountId(activeQuote.params.accountId).account,
       chainId: fromAccountId(activeQuote.params.accountId).chainId,
     })

@@ -8,7 +8,7 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import type { Address } from 'viem'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import {
   DEFAULT_RELAY_EVM_TOKEN_ADDRESS,
   RELAY_BTC_TOKEN_ADDRESS,

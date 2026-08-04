@@ -1,25 +1,33 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { omit } from 'lodash'
+import { getAddress } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { SwapperDeps } from '../../../types'
+import { SwapperName } from '../../../types'
+import { ETH, FOX_MAINNET } from '../../../utils/test-data/assets'
+import { setupQuote } from '../../../utils/test-data/setupSwapQuote'
 import type {
   InboundAddressResponse,
-  ThorEvmTradeQuote,
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
-} from '../../../thorchain-utils'
-import { evm, thorService, TradeType } from '../../../thorchain-utils'
-import type { GetTradeQuoteInput, SwapperDeps } from '../../../types'
-import { SwapperName } from '../../../types'
-import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
-import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+  ThorTradeQuote,
+  ThorTradeQuoteInput,
+} from '../../../utils/thorchain'
+import {
+  depositWithExpiry,
+  getThorRouterAndVault,
+  thorService,
+  TradeType,
+} from '../../../utils/thorchain'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
 import { getTradeQuote } from './getTradeQuote'
 
-const mockedGetThorTxInfo = vi.mocked(evm.getThorTxData)
+const mockedGetThorRouterAndVault = vi.mocked(getThorRouterAndVault)
 const mockedThorService = vi.mocked(thorService)
 
 const mocks = vi.hoisted(() => ({
@@ -27,8 +35,16 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
-vi.mock('../../../thorchain-utils/evm/getThorTxData')
-vi.mock('../../../thorchain-utils/service', () => {
+vi.mock('../../../utils/thorchain/getThorTxData')
+
+// The override path reads live chain state - resolve to no override so estimation exercises the
+// mocked adapter
+vi.mock('../../../utils/evm/stateOverride', async importOriginal => ({
+  ...(await importOriginal<object>()),
+  getMinimalStateOverride: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('../../../utils/thorchain/service', () => {
   const mockAxios = {
     default: {
       create: vi.fn(() => ({
@@ -43,15 +59,24 @@ vi.mock('../../../thorchain-utils/service', () => {
   }
 })
 
-vi.mock('@/config', () => {
-  return {
-    getConfig: () => ({
-      VITE_THORCHAIN_NODE_URL: '',
-    }),
-  }
-})
+const THOR_VAULT = '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c'
+const SELL_AMOUNT = '713014679420'
+const EXPIRY = 1713710808
 
-const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
+const REGULAR_MEMO = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
+const STREAMING_MEMO = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0'
+
+// The deposit calldata is asserted as the encoding of the memo it sits alongside
+const expectedDepositData = (memo: string) =>
+  depositWithExpiry({
+    vault: THOR_VAULT,
+    asset: getAddress(fromAssetId(FOX_MAINNET.assetId).assetReference),
+    amount: BigInt(SELL_AMOUNT),
+    memo,
+    expiry: BigInt(EXPIRY),
+  })
+
+const expectedQuoteResponse: Omit<ThorTradeQuote, 'id'>[] = [
   {
     quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -59,10 +84,8 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     isStreaming: false,
     recommendedMinimumCryptoBaseUnit: '10000000000',
     rate: '143505.61489594191334131621',
-    data: '0x',
-    router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-    vault: '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c',
-    memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0',
+    data: expectedDepositData(REGULAR_MEMO),
+    memo: REGULAR_MEMO,
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: '0.04357',
     expiry: 1713710808,
@@ -89,13 +112,17 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
         accountNumber: 0,
-        thorchainSpecific: {
+        swapperMetadata: {
+          name: 'thorchain',
           maxStreamingQuantity: undefined,
         },
-        thorchainTransactionMetadata: {
+        transactionData: {
+          type: 'evm',
+          chainId: 1,
           to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-          data: '0x',
+          data: expectedDepositData(REGULAR_MEMO),
           value: '0',
+          gasLimit: '120000',
         },
       },
     ],
@@ -107,10 +134,8 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     isStreaming: true,
     recommendedMinimumCryptoBaseUnit: '10000000000',
     rate: '157530.57158846677816130059',
-    data: '0x',
-    router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-    vault: '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c',
-    memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0',
+    data: expectedDepositData(STREAMING_MEMO),
+    memo: STREAMING_MEMO,
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: undefined,
     expiry: 1713710808,
@@ -137,13 +162,17 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
         accountNumber: 0,
-        thorchainSpecific: {
+        swapperMetadata: {
+          name: 'thorchain',
           maxStreamingQuantity: undefined,
         },
-        thorchainTransactionMetadata: {
+        transactionData: {
+          type: 'evm',
+          chainId: 1,
           to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-          data: '0x',
+          data: expectedDepositData(STREAMING_MEMO),
           value: '0',
+          gasLimit: '120000',
         },
       },
     ],
@@ -151,9 +180,8 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
 ]
 
 describe('getTradeQuote', () => {
-  mockedGetThorTxInfo.mockReturnValue(
+  mockedGetThorRouterAndVault.mockReturnValue(
     Promise.resolve({
-      data: '0x',
       router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
       vault: '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c',
     }),
@@ -218,13 +246,14 @@ describe('getTradeQuote', () => {
       }
     })
 
-    const input: GetTradeQuoteInput = {
+    const input = {
       ...quoteInput,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
+      sendAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
       slippageTolerancePercentageDecimal: '0.04357',
-    }
+    } as ThorTradeQuoteInput
 
     const assertGetEvmChainAdapter = (_chainId: ChainId) => mockEvmChainAdapter
     const assertGetUtxoChainAdapter = (_chainId: ChainId) => {

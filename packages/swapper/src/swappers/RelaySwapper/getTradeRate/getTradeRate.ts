@@ -1,34 +1,66 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
 import type {
-  GetTradeRateInput,
-  GetUtxoTradeRateInput,
+  MultiHopTradeRateSteps,
+  SingleHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
   TradeRate,
+  TradeRateStep,
 } from '../../../types'
-import { getTrade } from '../utils/getTrade'
+import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
+import { getRelayStepData } from '../utils/getRelayStepData'
+import { getRelayTradeContext } from '../utils/getRelayTradeContext'
+import type { RelayTradeRateInput } from '../utils/types'
 
 export const getTradeRate = async (
-  input: GetTradeRateInput,
+  input: RelayTradeRateInput,
   deps: SwapperDeps,
-  relayChainMap: Record<ChainId, number>,
+  relayChainMap: typeof relayChainMapImplementation,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const args = {
-    quoteOrRate: 'rate' as const,
-    buyAsset: input.buyAsset,
-    receiveAddress: input.receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit:
-      input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAsset: input.sellAsset,
-    sendAddress: input.sendAddress,
-    accountNumber: input.accountNumber,
-    affiliateBps: input.affiliateBps,
-    xpub: 'xpub' in input ? (input as GetUtxoTradeRateInput).xpub : undefined,
+  const maybeContext = await getRelayTradeContext({ input, deps, relayChainMap })
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { accountNumber } = input
+  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId } =
+    maybeContext.unwrap()
+
+  const stepResults = await Promise.all(
+    relayStepInputs.map(async ({ data, allowanceContract }) => {
+      const maybeStepData = await getRelayStepData({
+        ...stepDataArgs,
+        data,
+        spenderAddress: allowanceContract,
+        type: 'rate',
+        input,
+      })
+
+      return maybeStepData.map(
+        ({ networkFeeCryptoBaseUnit }): TradeRateStep => ({
+          ...stepCommon,
+          accountNumber,
+          allowanceContract,
+          swapperMetadata: { name: 'relay', relayId, data: undefined },
+          feeData: { networkFeeCryptoBaseUnit, protocolFees },
+        }),
+      )
+    }),
+  )
+
+  for (const stepResult of stepResults) {
+    if (stepResult.isErr()) return Err(stepResult.unwrapErr())
   }
 
-  const ratesResult = await getTrade({ input: args, deps, relayChainMap })
+  const steps = stepResults.map(stepResult => stepResult.unwrap()) as
+    | SingleHopTradeRateSteps
+    | MultiHopTradeRateSteps
 
-  return ratesResult
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
+    quoteOrRate: 'rate' as const,
+    receiveAddress: input.receiveAddress,
+    steps,
+  }
+
+  return Ok([tradeRate])
 }

@@ -602,36 +602,18 @@
         "claimNow": "Réclamer maintenant",
         "claimYour": "Réclamer vos %{opportunity}"
       },
-      "saversVaults": {
-        "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de verrouillage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
-        "runePoolDescription": "RUNEPool vous permet de gagner des %{asset} en plus en poolant vos %{asset} avec d'autres. Vous n'avez pas à choisir de pools spécifiques, tout le monde partage les performances globales.",
-        "runePoolOverviewDescription": "RUNEPool optimise l'utilisation des RUNE en les déposant dans tous les pools de liquidités compatibles POL de THORChain. En regroupant les RUNE dans ces pools, les participants gagnent l'APY combiné mais sont exposés aux pertes impermanentes globales. Au lieu de choisir des pools individuels, les utilisateurs bénéficient de la performance globale, en investissant en réalité dans un indice RUNE et de tous les actifs compatibles POL de THORChain. Cela simplifie la mise à disposition de liquidités et réduit le risque individuel.",
-        "vaultCap": "Plafond du Vault",
-        "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
+      "runePool": {
+        "description": "RUNEPool vous permet de gagner des %{asset} en plus en poolant vos %{asset} avec d'autres. Vous n'avez pas à choisir de pools spécifiques, tout le monde partage les performances globales.",
+        "overviewDescription": "RUNEPool optimise l'utilisation des RUNE en les déposant dans tous les pools de liquidités compatibles POL de THORChain. En regroupant les RUNE dans ces pools, les participants gagnent l'APY combiné mais sont exposés aux pertes impermanentes globales. Au lieu de choisir des pools individuels, les utilisateurs bénéficient de la performance globale, en investissant en réalité dans un indice RUNE et de tous les actifs compatibles POL de THORChain. Cela simplifie la mise à disposition de liquidités et réduit le risque individuel.",
+        "introducing": "Présentation de RUNEPool",
+        "agree": "Je comprends que RUNEPool implique à la fois un verrouillage minimum de 30 jours et un risque accru de pertes impermanentes.",
         "haltedDepositTitle": "Les dépôts sont temporairement suspendus.",
         "disabledDepositTitle": "Les dépôts sont temporairement désactivés.",
         "disabledWithdrawTitle": "Les retraits sont temporairement désactivés.",
         "withdrawLockedTitle": "Vous devez attendre %{timeHuman} pour retirer.",
-        "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
-        "protocolFee": "Frais de protocole",
-        "dustAmount": "Montant de poussière",
-        "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
-        "sendDustBody": "Vous devez envoyer un peu de poussière à cette adresse pour pouvoir effectuer un retrait.",
-        "sendDust": "Envoyer de la poussière",
-        "addressToSendTo": "Adresse à laquelle envoyer",
-        "introducingSaversVaults": "Présentation des Savers Vaults",
-        "introducingRunePool": "Présentation de RUNEPool",
-        "risksBody": {
-          "vaults": "Référez-vous à <link>cet article</link> pour les risques liés aux Savers Vaults.",
-          "runePool": "Référez-vous à <link>cet article</link> pour les risques liés à RUNEPool."
-        },
-        "timeToBreakEven": {
-          "title": "Temps avant le seuil de rentabilité",
-          "tooltip": "Temps estimé pour couvrir les frais de dépôt et les gains."
-        },
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
-        "agreeRunePool": "Je comprends que RUNEPool implique à la fois un verrouillage minimum de 30 jours et un risque accru de pertes impermanentes."
+        "risksBody": "Référez-vous à <link>cet article</link> pour les risques liés à RUNEPool."
       }
     },
     "memoNote": {
@@ -717,8 +699,6 @@
     "limitOrder": "Ordres à cours limité",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
-    "lending": "Prêts",
-    "thorchainLending": "THORChain Lending",
     "chainflipLending": "Chainflip Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
@@ -2345,102 +2325,8 @@
     "custom": "Personnalisé"
   },
   "lending": {
-    "lending": "Prêts",
-    "repaymentAvailable": "Remboursement possible",
-    "repaymentUnavailable": "Remboursement pas encore disponible",
-    "daysUntilRepayment": "%{numDays} jours jusqu'au remboursement",
-    "repaymentDays": "%{numDays} jours",
-    "lendingBody": "Une liste de tous les pools pouvant être empruntés à taux zéro et sans liquidation.",
-    "collateralValue": "Valeur du collatéral",
-    "collateralValueDescription": "Valeur actuelle de votre actif utilisé comme garantie",
-    "debtValue": "Valeur de la dette",
-    "loanToValue": "Rapport prêt-valeur",
-    "availablePools": "Pools disponibles",
-    "pool": "Pool",
-    "poolDepth": "Profondeur du pool",
-    "poolDepthDescription": "Le niveau de santé du pool",
-    "status": "Statut",
-    "statusDescription": "L'état du pool",
-    "totalDebtBalance": "Solde total des dettes",
-    "totalDebtBalanceDescription": "Solde cumulatif de la dette dans le pool de prêts",
-    "totalCollateral": "Totale des collatéraux",
-    "totalCollateralDescription": "Collatéral total ajouté au pool de prêts",
-    "estCollateralizationRatio": "Est. du ratio de collatéralisation",
-    "estCollateralizationRatioDescription": "Un ratio de collatéralisation (CR) forfaitaire de 200 % est actuellement en place. À l'avenir, un ratio dynamique s'équilibrera entre le CR maximum et minimum en fonction des conditions du marché.",
-    "collateralizationRatio": "Ratio de collatéralisation",
-    "totalBorrowers": "Total d'emprunteurs",
-    "totalBorrowersDescription": "Nombre d'emprunteurs participants",
-    "myLoanInformation": "Informations sur mon prêt",
-    "loanInformation": "Résumé du prêt",
-    "poolInformation": "Informations sur le pool",
-    "collateralBalance": "Solde du collatéral",
-    "collateralBalanceDescription": "Montant total de votre actif actuellement retenu en collatéral",
-    "debtBalance": "Solde de la dette",
-    "debtBalanceDescription": "Montant total de la dette que vous devez pour ce prêt",
-    "repaymentLock": "Verrou du remboursement",
-    "repaymentLockDescription": "Délai minimum avant de pouvoir rembourser votre prêt",
-    "receiveCollateral": "Le montant du collatéral que vous recevrez en retour",
-    "borrow": "Emprunter",
-    "repay": "Rembourser",
-    "repayAmount": "Rembourser le montant",
-    "unlocked": "Déverrouillé",
-    "unlockedCollateral": "Collatéral débloqué",
-    "depositAsset": "Déposer des %{asset}",
     "switchAssets": "Inverser les actifs",
-    "outstandingDebt": "Dette en cours",
-    "outstandingDebtDescription": "Le montant du collatéral sur lequel vous avez emprunté",
-    "collateral": "Collatéral",
-    "debt": "Dette",
-    "healthy": "La profondeur est optimale, les prêts sont efficaces.",
-    "confirmAndBorrow": "Confirmer et emprunter",
-    "confirmAndRepay": "Confirmer et rembourser",
-    "borrowAgain": "Emprunter à nouveau",
-    "repayAgain": "Rembourser à nouveau",
-    "transactionInfo": "Résumé de transaction",
-    "repayNoticeTitle": "Attendez !",
-    "repayNoticeCta": "Je comprends",
-    "repayNotice": "Pour récupérer votre collatéral, vous devrez rembourser 100 % de votre dette.",
-    "feesNotice": "Les frais liés au collatéral que vous récupérerez après avoir remboursé 100 % de votre dette",
-    "refetchQuote": "Actualiser le devis",
-    "haltedAlert": "Les services THORFi (Prêts, Savers et RUNEPool) sont actuellement suspendus sur THORChain. Nous nous excusons pour la gêne occasionnée.",
-    "faq": {
-      "title": "FAQ",
-      "lending": {
-        "title": "Qu'est-ce que les prêts THORChain ?",
-        "body": "Les prêts permettent aux utilisateurs de déposer un collatéral natif, puis de créer une dette selon un ratio de garantie (CR). La dette est toujours libellée en USD (alias TOR), quel que soit l'actif L1 reçu par l'utilisateur"
-      },
-      "borrowing": {
-        "title": "Comment fonctionne l'emprunt ?",
-        "body": "Emprunter avec THORChain implique d'utiliser vos actifs déposés en collatéral pour contracter un prêt. Le prêt est libellé en USD (TOR) et peut être reçu dans divers actifs L1. Avec un ratio de collatéralisation dynamique, vous pouvez emprunter de manière flexible sans vous soucier des intérêts ou de la liquidation"
-      },
-      "repayments": {
-        "title": "Comment fonctionne le remboursement ?",
-        "body": "Le remboursement sur THORChain est flexible, vous permettant de rembourser à tout moment après expiration de votre verrou de remboursement, et dans n'importe quel actif qui sera ensuite converti en TOR. Le montant du remboursement est déduit du solde de votre dette et une part proportionnelle du collatéral vous est restituée lors du remboursement intégral"
-      }
-    },
-    "errors": {
-      "repaymentsHalted": "Les remboursements sont temporairement interrompus.",
-      "borrowingHalted": "Les emprunts sont temporairement interrompus.",
-      "repaymentsDisabled": "Les remboursements sont temporairement désactivés.",
-      "borrowingDisabled": "Les emprunts sont temporairement désactivés.",
-      "amountTooLowToReturnCollateral": "Montant trop petit pour restituer le collatéral",
-      "amountTooLowToReturnCollateralTooltip": "Le remboursement est trop petit pour que votre collatéral soit restitué. Veuillez réessayer avec un montant plus élevé ou remboursez un montant partiel (ce qui ne vous rendra pas votre collatéral, mais diminuera votre dette).",
-      "amountTooSmallUnknownMinimumTooltip": "Le montant du remboursement que vous avez saisi est trop petit. Veuillez réessayer avec un montant plus grand.",
-      "repaymentUnavailableTooltip": "Il n'est pas encore possible de rembourser votre prêt. Veuillez attendre que le délai de remboursement soit écoulé.",
-      "repaymentsHaltedTooltip": "Les remboursements sont temporairement interrompus. Veuillez réessayer plus tard."
-    },
-    "quote": {
-      "collateral": "Montant total des actifs qui seront utilisés comme garantie afin de couvrir votre prêt",
-      "debt": "Dette totale que vous devrez en fonction du montant de votre nouveau prêt",
-      "repaymentLock": "Délai minimum avant de pouvoir rembourser votre prêt",
-      "collateralizationRatio": "Rapport entre la valeur de votre collatéral et le montant du prêt",
-      "feesPlusSlippage": "Total des frais perçus, y compris les frais L1, le glissement/slippage et les frais de liquidité de THORChain"
-    },
-    "yourLoans": {
-      "yourLoans": "Vos prêts",
-      "emptyTitle": "Le pays d'Aucun Prêt !",
-      "emptyBody": "Il semble que vous n'ayez aucun prêt pour le moment. Est-ce le zen financier ou juste une pause avant votre prochaine grande aventure d'emprunt ? Quoi qu'il en soit, profitez du calme !"
-    }
+    "poolInformation": "Informations sur le pool"
   },
   "chainflipLending": {
     "awaitingConfirmTitle": "En attente de confirmation",
@@ -2970,7 +2856,8 @@
         "title": "Risques et considérations",
         "body": "Bien que les pools de liquidités offrent des opportunités de gains, il est important d'être conscient des risques impliqués, notamment des pertes impermanentes, des vulnérabilités des contrats intelligents et de la volatilité du marché. Les utilisateurs doivent effectuer des recherches approfondies avant de participer."
       }
-    }
+    },
+    "haltedDepositTitle": "Les dépôts sont temporairement suspendus."
   },
   "warningAcknowledgement": {
     "understand": "Je comprends",
@@ -3475,8 +3362,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

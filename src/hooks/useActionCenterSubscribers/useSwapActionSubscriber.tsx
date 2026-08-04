@@ -213,26 +213,30 @@ export const useSwapActionSubscriber = () => {
       if (!swap.sellTxHash) return
       if (!swap.receiveAddress) return
 
-      const { status, message, buyTxHash, actualBuyAmountCryptoBaseUnit, chainflipSwapId } =
-        await queryClient.fetchQuery({
-          queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
-          queryFn: () =>
-            fetchTradeStatus({
-              swapper,
-              sellTxHash: swap.sellTxHash ?? '',
-              sellAssetChainId: swap.sellAsset.chainId,
-              address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
-              swap,
-              stepIndex: swap.metadata.stepIndex,
-              config: getConfig(),
-            }),
-          staleTime: 10000,
-          gcTime: 10000,
-        })
+      const {
+        status,
+        message,
+        buyTxHash,
+        swapperTxId: maybeSwapperTxId,
+        swapperTxLink: maybeSwapperTxLink,
+        actualBuyAmountCryptoBaseUnit,
+      } = await queryClient.fetchQuery({
+        queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
+        queryFn: () =>
+          fetchTradeStatus({
+            swapper,
+            sellTxHash: swap.sellTxHash ?? '',
+            sellAssetChainId: swap.sellAsset.chainId,
+            address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
+            swap,
+            stepIndex: swap.metadata.stepIndex,
+            config: getConfig(),
+          }),
+        staleTime: 10000,
+        gcTime: 10000,
+      })
 
       const { chainId, account: address } = fromAccountId(swap.sellAccountId)
-
-      const txHash = swap.metadata.relayerTxHash ?? buyTxHash ?? swap.sellTxHash
 
       const maybeSafeTx = await fetchSafeTransactionInfo({
         address,
@@ -241,25 +245,25 @@ export const useSwapActionSubscriber = () => {
         fetchIsSmartContractAddressQuery,
       })
 
-      const defaultExplorerBaseUrl =
+      const explorerBaseUrl =
         buyTxHash && buyTxHash !== swap.sellTxHash
           ? swap.buyAsset.explorerTxLink
           : swap.sellAsset.explorerTxLink
 
-      const txLink = getTxLink({
-        address,
-        chainId,
-        defaultExplorerBaseUrl,
-        maybeSafeTx,
-        stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: chainflipSwapId?.toString(),
-        maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
-        ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
-        ...(swap.metadata.relayerTxHash && {
-          isRelayer: true,
-          relayerExplorerTxLink: swap.metadata.relayerExplorerTxLink,
-        }),
-      })
+      // Keep the last known tracker details - status responses omit them on error branches
+      const swapperTxId = maybeSwapperTxId ?? swap.swapperTxId
+      const swapperTxLink = maybeSwapperTxLink ?? swap.swapperTxLink
+
+      // Prefer the swapper's own tracker page when the protocol has one
+      const txLink =
+        swapperTxLink ??
+        getTxLink({
+          address,
+          chainId,
+          explorerBaseUrl,
+          maybeSafeTx,
+          txId: buyTxHash ?? swap.sellTxHash,
+        })
 
       if (status === TxStatus.Confirmed) {
         vibrate('heavy')
@@ -270,11 +274,10 @@ export const useSwapActionSubscriber = () => {
             status: SwapStatus.Success,
             statusMessage: message,
             buyTxHash,
+            swapperTxId,
+            swapperTxLink,
             txLink,
             actualBuyAmountCryptoBaseUnit,
-            ...(chainflipSwapId && {
-              metadata: { ...swap.metadata, chainflipSwapId },
-            }),
           }),
         )
 
@@ -391,6 +394,8 @@ export const useSwapActionSubscriber = () => {
             status: SwapStatus.Failed,
             statusMessage: message,
             buyTxHash,
+            swapperTxId,
+            swapperTxLink,
             txLink,
           }),
         )
@@ -426,6 +431,8 @@ export const useSwapActionSubscriber = () => {
             ...swap,
             statusMessage: message,
             buyTxHash,
+            swapperTxId,
+            swapperTxLink,
             txLink: txLink === '' ? undefined : txLink,
           }),
         )

@@ -1,4 +1,7 @@
-import type { TradeQuote, TradeRate } from '../../types'
+import type { GetEvmTradeQuoteInput, GetEvmTradeRateInput } from '../../types'
+
+export type ArbitrumBridgeTradeQuoteInput = GetEvmTradeQuoteInput
+export type ArbitrumBridgeTradeRateInput = GetEvmTradeRateInput
 
 export enum BRIDGE_TYPE {
   ETH_DEPOSIT = 'ETH Deposit',
@@ -6,10 +9,3 @@ export enum BRIDGE_TYPE {
   ETH_WITHDRAWAL = 'ETH Withdrawal',
   ERC20_WITHDRAWAL = 'ERC20 Withdrawal',
 }
-
-type ArbitrumBridgeSpecificMetadata = {
-  direction: 'deposit' | 'withdrawal'
-}
-
-export type ArbitrumBridgeTradeQuote = TradeQuote & ArbitrumBridgeSpecificMetadata
-export type ArbitrumBridgeTradeRate = TradeRate & ArbitrumBridgeSpecificMetadata

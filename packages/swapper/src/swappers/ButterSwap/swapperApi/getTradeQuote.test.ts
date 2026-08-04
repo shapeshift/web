@@ -1,8 +1,9 @@
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { CommonTradeQuoteInput, SwapperDeps } from '../../../types'
-import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
+import type { GetEvmTradeQuoteInput, SwapperDeps } from '../../../types'
+import { ETH, USDC_MAINNET, WETH } from '../../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import { getTradeQuote } from './getTradeQuote'
 
@@ -29,12 +30,34 @@ vi.mock('../xhr', () => ({
   isBuildTxSuccess: () => true,
 }))
 
+// The override path reads live chain state - resolve to no override so estimation exercises the
+// mocked adapter
+vi.mock('../../../utils/evm/stateOverride', async importOriginal => ({
+  ...(await importOriginal<object>()),
+  getMinimalStateOverride: vi.fn().mockResolvedValue(undefined),
+}))
+
+const mockEvmChainAdapter = {
+  getGasFeeData: () =>
+    Promise.resolve({
+      average: {
+        gasPrice: '1000000000',
+        maxFeePerGas: '2000000000',
+        maxPriorityFeePerGas: '1000000000',
+      },
+    }),
+  getFeeData: () =>
+    Promise.resolve({
+      average: { chainSpecific: { gasLimit: '500000', gasPrice: '1000000000' } },
+    }),
+}
+
 describe('getTradeQuote', () => {
   it('should return a trade quote', async () => {
     const deps: SwapperDeps = {
       assetsById: { [ETH.assetId]: ETH },
       assertGetChainAdapter: () => vi.fn() as any,
-      assertGetEvmChainAdapter: () => vi.fn() as any,
+      assertGetEvmChainAdapter: () => mockEvmChainAdapter as any,
       assertGetUtxoChainAdapter: () => vi.fn() as any,
       assertGetCosmosSdkChainAdapter: () => vi.fn() as any,
       assertGetSolanaChainAdapter: () => vi.fn() as any,
@@ -50,7 +73,7 @@ describe('getTradeQuote', () => {
       fetchIsSmartContractAddressQuery: vi.fn(),
     }
 
-    const input: CommonTradeQuoteInput = {
+    const input: GetEvmTradeQuoteInput = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
       sellAsset: WETH,
       buyAsset: USDC_MAINNET,
@@ -60,17 +83,28 @@ describe('getTradeQuote', () => {
       affiliateBps: '0',
       allowMultiHop: true,
       quoteOrRate: 'quote',
+      chainId: KnownChainIds.EthereumMainnet,
+      supportsEIP1559: false,
     }
 
     const result = await getTradeQuote(input, deps)
 
     expect(result.isOk()).toBe(true)
     const tradeQuote = result.unwrap()
-    // Use the actual returned value for the expected rate
-    expect(tradeQuote[0].rate).toBe('2296.409699')
-    // 1 WETH in base units
-    expect(tradeQuote[0].steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
-      '1000000000000000000',
+
+    // The built swap tx is what distinguishes a quote from a rate - see
+    // getButterSwapStepData.test.ts for the per-namespace build and fee behaviour
+    expect(tradeQuote[0].steps[0].transactionData).toEqual({
+      type: 'evm',
+      chainId: 1,
+      to: '0xContractAddress',
+      data: '0xCalldata',
+      value: '0',
+      gasLimit: '600000',
+    })
+    // The route contract, since this is not the tron path that spends via the buildTx target
+    expect(tradeQuote[0].steps[0].allowanceContract).toBe(
+      '0xEE030ec6F4307411607E55aCD08e628Ae6655B86',
     )
   })
 })

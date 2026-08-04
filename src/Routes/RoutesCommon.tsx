@@ -118,16 +118,6 @@ const Explore = makeSuspenseful(
   true,
 )
 
-const LendingPage = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Lending/LendingPage').then(({ LendingPage }) => ({
-      default: LendingPage,
-    })),
-  ),
-  {},
-  true,
-)
-
 const PoolsPage = makeSuspenseful(
   lazy(() =>
     import('@/pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
@@ -382,20 +372,6 @@ export const routes: Route[] = [
     priority: 1,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_THORCHAIN_LP,
-  },
-  {
-    path: '/lending/*',
-    label: getConfig().VITE_FEATURE_CHAINFLIP_LENDING
-      ? 'navBar.thorchainLending'
-      : 'navBar.lending',
-    icon: <RiExchangeFundsLine />,
-    main: LendingPage,
-    category: RouteCategory.Thorchain,
-    priority: 2,
-    mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_THORCHAIN_LENDING,
-    isViewOnly: true,
-    isDeprecated: getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
   },
   {
     path: '/chainflip-lending/*',

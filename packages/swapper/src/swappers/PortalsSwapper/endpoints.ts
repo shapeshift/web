@@ -1,17 +1,11 @@
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import BigNumber from 'bignumber.js'
 
-import type {
-  CheckTradeStatusInput,
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  SwapperApi,
-  TradeStatus,
-} from '../../types'
-import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import type { CheckTradeStatusInput, SwapperApi, TradeStatus } from '../../types'
+import { checkEvmSwapStatus } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { getPortalsTradeRate } from './getPortalsTradeRate/getPortalsTradeRate'
+import type { PortalsTradeQuoteInput, PortalsTradeRateInput } from './types'
 import {
   fetchAxelarscanBridgeStatus,
   getAxelarscanTrackingLink,
@@ -19,78 +13,10 @@ import {
 import { fetchSquidBridgeStatus, getSquidTrackingLink } from './utils/fetchSquidStatus'
 
 export const portalsApi: SwapperApi = {
-  getTradeQuote: async (input, { config, assertGetEvmChainAdapter }) => {
-    const tradeQuoteResult = await getPortalsTradeQuote(
-      input as GetEvmTradeQuoteInputBase,
-      assertGetEvmChainAdapter,
-      config,
-    )
-
-    return tradeQuoteResult.map(tradeQuote => [tradeQuote])
-  },
-  getTradeRate: async (input, { config, assertGetEvmChainAdapter }) => {
-    const tradeRateResult = await getPortalsTradeRate(
-      input as GetEvmTradeRateInput,
-      assertGetEvmChainAdapter,
-      config,
-    )
-
-    return tradeRateResult.map(tradeRate => [tradeRate])
-  },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { portalsTransactionMetadata, sellAsset } = step
-    if (!portalsTransactionMetadata) throw new Error('Transaction metadata is required')
-
-    const { value, to, data } = portalsTransactionMetadata
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
-  },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, portalsTransactionMetadata, sellAsset } = step
-    if (!portalsTransactionMetadata) throw new Error('Transaction metadata is required')
-
-    // Portals has a 15% buffer on gas estimations, which may or may not turn out to be more reliable than our "pure" simulations
-    const { value, to, data, gasLimit: estimatedGas } = portalsTransactionMetadata
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return adapter.buildCustomApiTx({
-      accountNumber,
-      data,
-      from,
-      to,
-      value,
-      ...feeData,
-      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
-      gasLimit: BigNumber.max(feeData.gasLimit, estimatedGas).toFixed(),
-    })
-  },
+  getTradeQuote: (input, deps) => getPortalsTradeQuote(input as PortalsTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getPortalsTradeRate(input as PortalsTradeRateInput, deps),
+  getEvmTransactionFees,
+  getUnsignedEvmTransaction,
   checkTradeStatus: async (input: CheckTradeStatusInput): Promise<TradeStatus> => {
     const {
       txHash,
@@ -159,7 +85,7 @@ export const portalsApi: SwapperApi = {
         return {
           status: squidTxStatus,
           buyTxHash: squidStatus.destinationTxHash,
-          relayerExplorerTxLink: getSquidTrackingLink(
+          swapperTxLink: getSquidTrackingLink(
             txHash,
             squidStatus,
             swap.sellAsset.explorerTxLink,
@@ -172,7 +98,7 @@ export const portalsApi: SwapperApi = {
       return {
         status: TxStatus.Pending,
         buyTxHash: undefined,
-        relayerExplorerTxLink: getAxelarscanTrackingLink(txHash),
+        swapperTxLink: getAxelarscanTrackingLink(txHash),
         message: 'Bridge status check failed - track manually',
       }
     }
@@ -201,7 +127,7 @@ export const portalsApi: SwapperApi = {
     return {
       status: txStatus,
       buyTxHash: bridgeStatus.destinationTxHash,
-      relayerExplorerTxLink: getAxelarscanTrackingLink(txHash),
+      swapperTxLink: getAxelarscanTrackingLink(txHash),
       message:
         txStatus === TxStatus.Pending
           ? 'Bridge in progress'

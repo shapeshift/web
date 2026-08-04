@@ -1,168 +1,61 @@
-import { getQuotes } from '@avnu/avnu-sdk'
-import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { validateAndParseAddress } from 'starknet'
-import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
-import { AVNU_SUPPORTED_CHAIN_IDS } from '../utils/constants'
-import { getTokenAddress } from '../utils/helpers'
+import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import type { AvnuTradeRateInput } from '../types'
+import { getAvnuTradeContext } from '../utils/getAvnuTradeContext'
 
 export const getTradeRate = async (
-  input: GetTradeRateInput,
+  input: AvnuTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    slippageTolerancePercentageDecimal,
-    affiliateBps,
-    receiveAddress,
-  } = input
+  const { accountNumber, sellAsset, receiveAddress } = input
 
-  if (!AVNU_SUPPORTED_CHAIN_IDS.includes(sellAsset.chainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Chain ${sellAsset.chainId} is not supported by AVNU`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
+  const maybeContext = await getAvnuTradeContext({ input, takerAddress: undefined })
 
-  if (!AVNU_SUPPORTED_CHAIN_IDS.includes(buyAsset.chainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Chain ${buyAsset.chainId} is not supported by AVNU`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, sellTokenAddress } = maybeContext.unwrap()
 
-  try {
-    const sellTokenAddress = getTokenAddress(sellAsset)
-    const buyTokenAddress = getTokenAddress(buyAsset)
+  // Rates may be walletless - normalize the receive address only when present, and use it as a
+  // stand-in sender for fee estimation
+  const normalizedReceiveAddress = receiveAddress
+    ? validateAndParseAddress(receiveAddress)
+    : undefined
 
-    // Normalize receive address if provided (for fee estimation)
-    // Rate quotes may not have a receive address, so this is optional
-    const normalizedReceiveAddress = receiveAddress ? validateAndParseAddress(receiveAddress) : ''
+  // Rates are best-effort display: without an address, or if estimation fails, degrade to a zero fee
+  const networkFeeCryptoBaseUnit = await (async () => {
+    if (!normalizedReceiveAddress) return '0'
 
-    const quotes = await getQuotes({
-      sellTokenAddress,
-      buyTokenAddress,
-      sellAmount: BigInt(sellAmount),
-      size: 1,
-      integratorFees: affiliateBps ? BigInt(affiliateBps) : undefined,
-      integratorFeeRecipient: getTreasuryAddressFromChainId(sellAsset.chainId),
-    })
-
-    if (!quotes || quotes.length === 0) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'No quotes available for this trade pair',
-          code: TradeQuoteError.NoRouteFound,
-        }),
-      )
-    }
-
-    const bestQuote = quotes[0]
-
-    if (!bestQuote) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'No valid quote returned from AVNU',
-          code: TradeQuoteError.QueryFailed,
-        }),
-      )
-    }
-
-    const buyAmountAfterFeesCryptoBaseUnit = bestQuote.buyAmount.toString()
-
-    const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
-
-    // For rate quotes, use receiveAddress as a dummy from/to for fee estimation
-    const feeData = await sellAdapter.getFeeData({
-      to: normalizedReceiveAddress,
-      value: sellAmount,
-      chainSpecific: {
-        from: normalizedReceiveAddress,
-        tokenContractAddress: sellTokenAddress,
-      },
-      sendMax: false,
-    })
-
-    const rate = getInputOutputRate({
-      sellAmountCryptoBaseUnit: sellAmount,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-      sellAsset,
-      buyAsset,
-    })
-
-    const protocolFees = affiliateBps
-      ? {
-          [buyAsset.assetId]: {
-            amountCryptoBaseUnit: bn(buyAmountAfterFeesCryptoBaseUnit)
-              .times(affiliateBps)
-              .div(10000)
-              .toFixed(0),
-            requiresBalance: false,
-            asset: buyAsset,
-          },
-        }
-      : {}
-
-    const tradeRate: TradeRate = {
-      id: uuid(),
-      receiveAddress: normalizedReceiveAddress || receiveAddress,
-      affiliateBps,
-      rate,
-      slippageTolerancePercentageDecimal:
-        slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Avnu),
-      quoteOrRate: 'rate' as const,
-      swapperName: SwapperName.Avnu,
-      steps: [
-        {
-          accountNumber: undefined,
-          allowanceContract: '0x0',
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          buyAsset,
-          feeData: {
-            protocolFees,
-            networkFeeCryptoBaseUnit: feeData.fast.txFee,
-          },
-          rate,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-          sellAsset,
-          source: SwapperName.Avnu,
-          estimatedExecutionTimeMs: undefined,
-          affiliateFee: buildAffiliateFee({
-            strategy: 'buy_asset',
-            affiliateBps,
-            sellAsset,
-            buyAsset,
-            sellAmountCryptoBaseUnit: sellAmount,
-            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-          }),
+    try {
+      const feeData = await deps.assertGetStarknetChainAdapter(sellAsset.chainId).getFeeData({
+        to: normalizedReceiveAddress,
+        value: stepCommon.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        chainSpecific: {
+          from: normalizedReceiveAddress,
+          tokenContractAddress: sellTokenAddress,
         },
-      ],
-    }
+        sendMax: false,
+      })
 
-    return Ok([tradeRate])
-  } catch (error) {
-    return Err(
-      makeSwapErrorRight({
-        message: error instanceof Error ? error.message : 'Unknown error getting AVNU rate',
-        code: TradeQuoteError.QueryFailed,
-        cause: error,
-      }),
-    )
+      return feeData.fast.txFee
+    } catch {
+      return '0'
+    }
+  })()
+
+  const tradeRate: TradeRate = {
+    ...tradeCommon,
+    receiveAddress: normalizedReceiveAddress,
+    quoteOrRate: 'rate',
+    steps: [
+      {
+        ...stepCommon,
+        accountNumber,
+        feeData: { protocolFees, networkFeeCryptoBaseUnit },
+      },
+    ],
   }
+
+  return Ok([tradeRate])
 }

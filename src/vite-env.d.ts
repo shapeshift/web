@@ -12,9 +12,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_ZCASH: string
   readonly VITE_FEATURE_MIXPANEL: string
   readonly VITE_ENABLE_HYPELAB: string
-  readonly VITE_FEATURE_SAVERS_VAULTS: string
-  readonly VITE_FEATURE_SAVERS_VAULTS_DEPOSIT: string
-  readonly VITE_FEATURE_SAVERS_VAULTS_WITHDRAW: string
   readonly VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: string
   readonly VITE_FEATURE_WALLET_CONNECT_TO_DAPPS: string
   readonly VITE_FEATURE_CHATWOOT: string
@@ -22,9 +19,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_LEDGER_WALLET: string
   readonly VITE_FEATURE_VULTISIG_WALLET: string
   readonly VITE_FEATURE_WALLET_CONNECT_V2: string
-  readonly VITE_FEATURE_THORCHAIN_LENDING: string
-  readonly VITE_FEATURE_THORCHAIN_LENDING_BORROW: string
-  readonly VITE_FEATURE_THORCHAIN_LENDING_REPAY: string
   readonly VITE_FEATURE_THORCHAINSWAP_LONGTAIL: string
   readonly VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: string
   readonly VITE_FEATURE_THORCHAIN_LP: string

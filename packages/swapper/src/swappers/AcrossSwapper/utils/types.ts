@@ -1,28 +1,12 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type {
+  GetEvmTradeQuoteInput,
+  GetEvmTradeRateInput,
+  GetSolanaTradeQuoteInput,
+  GetSolanaTradeRateInput,
+} from '../../../types'
 
-export type AcrossTradeBaseParams = {
-  buyAsset: Asset
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  affiliateBps: string
-}
-
-export type AcrossTradeInputParams<T extends 'rate' | 'quote'> = AcrossTradeBaseParams & {
-  quoteOrRate: T
-  receiveAddress: T extends 'rate' ? string | undefined : string
-  sendAddress: T extends 'rate' ? undefined : string
-  accountNumber: T extends 'rate' ? undefined : number
-  slippageTolerancePercentageDecimal?: string
-}
-
-export type AcrossTransactionMetadata = {
-  to: string
-  data: string
-  value: string
-  gasLimit?: string
-  ecosystem: 'evm' | 'svm'
-  quoteId: string
-}
+export type AcrossTradeQuoteInput = GetEvmTradeQuoteInput | GetSolanaTradeQuoteInput
+export type AcrossTradeRateInput = GetEvmTradeRateInput | GetSolanaTradeRateInput
 
 export type AcrossTokenInfo = {
   address: string

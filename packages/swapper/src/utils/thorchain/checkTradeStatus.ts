@@ -1,0 +1,126 @@
+import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { cosmossdk } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { mayachain, thorchain } from '@shapeshiftoss/utils'
+import axios from 'axios'
+
+import type { CheckTradeStatusInput, TradeStatus } from '../../types'
+import { checkSafeTransactionStatus } from '../../utils'
+import { getLatestThorTxStatusMessage } from './getLatestThorTxStatusMessage'
+import { parseThorBuyTxHash } from './parseBuyTxHash'
+import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
+
+type CheckTradeStatusInputExtended = CheckTradeStatusInput & {
+  nodeUrl: string
+  apiUrl: string
+  nativeChain: 'THOR' | 'MAYA'
+}
+
+export const checkTradeStatus = async ({
+  txHash,
+  chainId,
+  address,
+  fetchIsSmartContractAddressQuery,
+  assertGetEvmChainAdapter,
+  nodeUrl,
+  apiUrl,
+  nativeChain,
+}: CheckTradeStatusInputExtended): Promise<TradeStatus> => {
+  try {
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+      address,
+      fetchIsSmartContractAddressQuery,
+    })
+
+    if (maybeSafeTransactionStatus) {
+      // return any safe transaction status that has not yet executed on chain (no buyTxHash)
+      if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+
+      // The safe buyTxHash is the on chain transaction hash (not the safe transaction hash).
+      // Mutate txHash and continue with regular status check flow.
+      txHash = maybeSafeTransactionStatus.buyTxHash
+    }
+
+    const swapperTxId = txHash.replace(/^0x/, '')
+    const nativeExplorerTxLink =
+      nativeChain === 'THOR' ? thorchain.explorerTxLink : mayachain.explorerTxLink
+    const swapperTxLink = `${nativeExplorerTxLink}${swapperTxId}`
+
+    // check for native chain tx errors
+    if (
+      (chainId === thorchainChainId && nativeChain === 'THOR') ||
+      (chainId === mayachainChainId && nativeChain === 'MAYA')
+    ) {
+      const { data: tx } = await axios.get<cosmossdk.Tx>(`${apiUrl}/tx/${txHash}`)
+
+      if (tx.events['0']?.error) {
+        return {
+          status: TxStatus.Failed,
+          buyTxHash: undefined,
+          swapperTxId,
+          swapperTxLink,
+          message: tx.events[0].error.message,
+        }
+      }
+    }
+
+    // not using monadic axios, this is intentional for simplicity in this non-monadic context
+    const [{ data: txData }, { data: txStatusData }] = await Promise.all([
+      axios.get<ThornodeTxResponse>(`${nodeUrl}/tx/${txHash.replace(/^0x/, '')}`),
+      axios.get<ThornodeStatusResponse>(`${nodeUrl}/tx/status/${txHash.replace(/^0x/, '')}`),
+    ])
+
+    // We care about txStatusData errors because it drives all of the status logic.
+    if ('error' in txStatusData) {
+      return {
+        buyTxHash: undefined,
+        status: TxStatus.Unknown,
+        swapperTxId,
+        swapperTxLink,
+        message: undefined,
+      }
+    }
+
+    // We use planned_out_txs to determine the number of out txs because we don't want to derive
+    // swap completion based on the length of out_txs which is populated as the trade executed
+    const numOutTxs = txStatusData.planned_out_txs?.length ?? 0
+    const lastOutTx = txStatusData.out_txs?.[numOutTxs - 1]
+
+    const buyTxHash = parseThorBuyTxHash(txHash, lastOutTx, nativeChain)
+
+    const hasOutboundL1Tx = lastOutTx !== undefined && lastOutTx.chain !== nativeChain
+    const hasOutboundNativeTx = lastOutTx !== undefined && lastOutTx.chain === nativeChain
+
+    if (txStatusData.planned_out_txs?.some(plannedOutTx => plannedOutTx.refund)) {
+      return { buyTxHash, status: TxStatus.Failed, swapperTxId, swapperTxLink, message: undefined }
+    }
+
+    // We consider the transaction confirmed as soon as we have a buyTxHash
+    // For UTXOs, this means that the swap will be confirmed as soon as Txs hit the mempool
+    // Which is actually correct, as we update UTXO balances optimistically
+    if (!('error' in txData) && buyTxHash && (hasOutboundL1Tx || hasOutboundNativeTx)) {
+      return {
+        buyTxHash,
+        status: TxStatus.Confirmed,
+        swapperTxId,
+        swapperTxLink,
+        message: undefined,
+      }
+    }
+
+    const message = getLatestThorTxStatusMessage(txStatusData, hasOutboundL1Tx)
+
+    return { buyTxHash, status: TxStatus.Pending, swapperTxId, swapperTxLink, message }
+  } catch (e) {
+    const message = (() => {
+      if (axios.isAxiosError(e)) return e.response?.data?.message ?? e.message
+      if (e instanceof Error) return e.message
+      return String(e)
+    })()
+    console.error(`checkTradeStatus(${nativeChain}, ${txHash}): ${message}`)
+    return { buyTxHash: undefined, status: TxStatus.Unknown, message: undefined }
+  }
+}

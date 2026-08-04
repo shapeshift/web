@@ -16,7 +16,7 @@ export const getSunioTransactionFees = async ({
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
   const storedNetworkFeeCryptoBaseUnit = step.feeData.networkFeeCryptoBaseUnit
-  const route = step.sunioTransactionMetadata?.route
+  const route = step.sunioTransactionData?.route
 
   if (!route) {
     if (!storedNetworkFeeCryptoBaseUnit) throw new Error('Missing network fee in quote')

@@ -20,17 +20,11 @@ const getRouteAssetId = (pathname: string) => {
     '/wallet/:chainId/:assetSubId',
     '/accounts/:accountId/:chainId/:assetSubId/:nftId',
     '/accounts/:accountId/:chainId/:assetSubId',
-    '/lending/pool/:chainId/:assetSubId/:nftId',
-    '/lending/pool/:chainId/:assetSubId',
-    '/lending/poolAccount/:accountId/:chainId/:assetSubId',
-    '/lending/poolAccount/:accountId/:chainNamespace\\::chainReference/:assetSubId',
   ]
 
   const accountPaths = [
     '/accounts/:accountId/:assetId',
     '/accounts/:chainNamespace\\::chainReference\\:(.+)',
-    '/lending/poolAccount/:accountId/:assetId',
-    '/lending/poolAccount/:chainNamespace\\::chainReference\\:(.+)',
   ]
 
   // Try to match against asset paths

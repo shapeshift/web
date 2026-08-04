@@ -22,7 +22,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 
 import type { SendInput } from './Form'
 
@@ -115,34 +114,13 @@ export const estimateFees = async ({
     case CHAIN_NAMESPACE.Solana: {
       const adapter = assertGetSolanaChainAdapter(asset.chainId)
 
-      const memoInstruction: TransactionInstruction | undefined = memo
-        ? new TransactionInstruction({
-            keys: [],
-            programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
-            data: Buffer.from(memo, 'utf8'),
-          })
-        : undefined
-
-      // For SPL transfers, build complete instruction set including compute budget
+      // SPL transfer estimation instructions are built by getFeeData from tokenId
       // For SOL transfers with memo (e.g. THORChain LP), include both memo AND transfer for accurate CU estimation
       // For pure SOL transfers, pass no instructions to get 0 count (avoids blind signing)
-      const instructions = contractAddress
-        ? await adapter.buildEstimationInstructions({
-            from: account,
-            to,
-            tokenId: contractAddress,
-            value,
-          })
-        : memoInstruction
-        ? [
-            memoInstruction,
-            SystemProgram.transfer({
-              fromPubkey: new PublicKey(account),
-              toPubkey: new PublicKey(to),
-              lamports: Number(value),
-            }),
-          ]
-        : undefined
+      const instructions =
+        !contractAddress && memo
+          ? await adapter.buildTransferInstructions({ from: account, to, value, memo })
+          : undefined
 
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
         to,
@@ -396,20 +374,13 @@ export const handleSendWithMetadata = async ({
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
 
       const solanaAdapter = assertGetSolanaChainAdapter(chainId)
-      const { account } = fromAccountId(sendInput.accountId)
 
       const memoInstruction: SolanaTxInstruction | undefined = memo
         ? { keys: [], programId: SOLANA_MEMO_PROGRAM_ID, data: Buffer.from(memo, 'utf8') }
         : undefined
 
-      const estimationInstructions = await solanaAdapter.buildEstimationInstructions({
-        from: account,
-        to,
-        tokenId: contractAddress,
-        value,
-      })
-
-      const shouldAddComputeBudget = estimationInstructions.length > 1 || Boolean(memoInstruction)
+      // Token sends and memo sends broadcast with a compute budget; pure native sends don't
+      const shouldAddComputeBudget = Boolean(contractAddress) || Boolean(memoInstruction)
 
       // Each ComputeBudgetProgram instruction (setComputeUnitLimit, setComputeUnitPrice) costs 150 CU.
       // Fee estimation doesn't include these, so we add a fixed buffer to cover them.

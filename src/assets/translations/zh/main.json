@@ -602,36 +602,18 @@
         "claimNow": "立即领取",
         "claimYour": "认领你的 %{opportunity}"
       },
-      "saversVaults": {
-        "description": "通过 THORChain 储户金库 赚取你的 %{asset} 收益。无锁定时间，奖励自动累积。 THORChain 上的收益来兑换费用和区块奖励。单面收益率上限为流动性提供者双面收益率的一半。",
-        "runePoolDescription": "RUNEPool 可让你通过与他人共享 %{asset} 来赚取更多 %{asset}。你不必选择特定的池子，每个人都可以分享整体表现。",
-        "runePoolOverviewDescription": "RUNEPool 通过将 RUNE 存入 THORChain 中所有支持 POL 的流动性池来优化 RUNE 的使用。通过在这些池中汇集 RUNE，参与者可以获得综合 APY，但面临总无常损失的风险。用户无需选择单个池，而是从整体表现中受益，有效地投资于 RUNE 指数和所有支持 THORChain POL 的资产。这简化了流动性提供并降低了个人风险。",
-        "vaultCap": "金库容量",
-        "vaultCapTooltip": "该金库当前的最大容量",
+      "runePool": {
+        "description": "RUNEPool 可让你通过与他人共享 %{asset} 来赚取更多 %{asset}。你不必选择特定的池子，每个人都可以分享整体表现。",
+        "overviewDescription": "RUNEPool 通过将 RUNE 存入 THORChain 中所有支持 POL 的流动性池来优化 RUNE 的使用。通过在这些池中汇集 RUNE，参与者可以获得综合 APY，但面临总无常损失的风险。用户无需选择单个池，而是从整体表现中受益，有效地投资于 RUNE 指数和所有支持 THORChain POL 的资产。这简化了流动性提供并降低了个人风险。",
+        "introducing": "介绍 RUNEPool",
+        "agree": "我知道 RUNEPool 有 30 天的最低锁定期，并且存在较高的无常损失风险。",
         "haltedDepositTitle": "充值暂时停止。",
         "disabledDepositTitle": "暂时禁止存款。",
         "disabledWithdrawTitle": "暂时禁止提款。",
         "withdrawLockedTitle": "您必须等待 %{timeHuman} 才能提款。",
-        "haltedDescription": "请 @THORChain 发推文以提高上限！",
-        "protocolFee": "协议费用",
-        "dustAmount": "Dust 数量",
-        "dustAmountTooltip": "需要少量 DUST 来识别你的地址，并将保留以供以后提款时使用",
-        "sendDustBody": "你需要发送一些 dust 到该地址才能提现。",
-        "sendDust": "发送 Dust",
-        "addressToSendTo": "接收地址",
-        "introducingSaversVaults": "介绍储户金库",
-        "introducingRunePool": "介绍 RUNEPool",
-        "risksBody": {
-          "vaults": "参考 <link>这篇文章</link> 以了解与储户金库相关的风险。",
-          "runePool": "参考 <link>这篇文章</link> 以了解与 RUNEPool 相关的风险。"
-        },
-        "timeToBreakEven": {
-          "title": "收支平衡的时候",
-          "tooltip": "预计收益能支付手续费的时间"
-        },
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
         "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
-        "agreeRunePool": "我知道 RUNEPool 有 30 天的最低锁定期，并且存在较高的无常损失风险。"
+        "risksBody": "参考 <link>这篇文章</link> 以了解与 RUNEPool 相关的风险。"
       }
     },
     "memoNote": {
@@ -717,8 +699,6 @@
     "limitOrder": "限价订单",
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "购买/出售",
-    "lending": "贷款",
-    "thorchainLending": "THORChain Lending",
     "chainflipLending": "Chainflip Lending",
     "pools": "流动性池",
     "rFOX": "rFOX",
@@ -2345,102 +2325,8 @@
     "custom": "自定义"
   },
   "lending": {
-    "lending": "贷款",
-    "repaymentAvailable": "可还款",
-    "repaymentUnavailable": "还款尚未到账",
-    "daysUntilRepayment": "距离还款还有 %{numDays} 天",
-    "repaymentDays": "%{numDays} 天",
-    "lendingBody": "所有可以零利息和零清算借款的资金池的列表。",
-    "collateralValue": "抵押品价值",
-    "collateralValueDescription": "用作抵押品的资产的当前价值",
-    "debtValue": "债务价值",
-    "loanToValue": "贷款价值",
-    "availablePools": "可用池",
-    "pool": "借贷池",
-    "poolDepth": "池深度",
-    "poolDepthDescription": "池的健康状况",
-    "status": "状态",
-    "statusDescription": "池的状态",
-    "totalDebtBalance": "总债务余额",
-    "totalDebtBalanceDescription": "贷款池累计债务余额",
-    "totalCollateral": "抵押品总额",
-    "totalCollateralDescription": "添加到借贷池的总抵押品",
-    "estCollateralizationRatio": "预估抵押比例",
-    "estCollateralizationRatioDescription": "目前抵押率固定为 200%，未来将根据市场情况，动态平衡抵押率的上限和下限。",
-    "collateralizationRatio": "抵押比例",
-    "totalBorrowers": "借款人总数",
-    "totalBorrowersDescription": "参与借款人数量",
-    "myLoanInformation": "我的借贷信息",
-    "loanInformation": "借贷概要",
-    "poolInformation": "池信息",
-    "collateralBalance": "抵押品余额",
-    "collateralBalanceDescription": "你当前作为抵押品持有的资产总额",
-    "debtBalance": "债务余额",
-    "debtBalanceDescription": "你为此贷款所欠的债务总额",
-    "repaymentLock": "还款锁定",
-    "repaymentLockDescription": "你可以偿还贷款的最短期限",
-    "receiveCollateral": "你将收到的抵押品金额",
-    "borrow": "借贷",
-    "repay": "还款",
-    "repayAmount": "还款金额",
-    "unlocked": "解锁",
-    "unlockedCollateral": "解锁抵押品",
-    "depositAsset": "充值 %{asset}",
     "switchAssets": "转换资产",
-    "outstandingDebt": "未尝债务",
-    "outstandingDebtDescription": "你借入的抵押品金额",
-    "collateral": "抵押品",
-    "debt": "债务",
-    "healthy": "深度最佳，贷款高效。",
-    "confirmAndBorrow": "确认并借用",
-    "confirmAndRepay": "确认并偿还",
-    "borrowAgain": "再次借用",
-    "repayAgain": "再次偿还",
-    "transactionInfo": "交易概要",
-    "repayNoticeTitle": "等等！",
-    "repayNoticeCta": "我理解",
-    "repayNotice": "要拿回抵押品，你需要偿还 100% 的债务。",
-    "feesNotice": "偿还 100% 债务后你将收到的抵押品费用",
-    "refetchQuote": "重新获取报价",
-    "haltedAlert": "THORChain 上的 THORFi 服务（借贷、储蓄和 RUNEPool）目前已暂停。我们对造成的任何不便深表歉意。",
-    "faq": {
-      "title": "常见问题",
-      "lending": {
-        "title": "什么是 THORChain 借贷？",
-        "body": "借贷允许用户存入原生抵押品，然后以抵押率（CR）创建债务。无论用户收到什么 L1 资产，债务始终以美元（又名 TOR）计价"
-      },
-      "borrowing": {
-        "title": "借贷如何运作？",
-        "body": "在 THORChain 中借款涉及使用你存入的资产作为抵押品来获取贷款。贷款以美元（TOR）计价，可以多种 L1 资产形式收取。动态抵押比例，灵活借贷，无利息、爆仓之忧"
-      },
-      "repayments": {
-        "title": "还款如何运作？",
-        "body": "THORChain 中的还款非常灵活，允许您在还款锁定到期后随时以任何资产进行还款，然后将其转换为 TOR。还款金额从你的债务余额中扣除，全额还款后按比例返还抵押品"
-      }
-    },
-    "errors": {
-      "repaymentsHalted": "还款暂时停止。",
-      "borrowingHalted": "借款暂时停止。",
-      "repaymentsDisabled": "还款功能暂时禁用。",
-      "borrowingDisabled": "暂时禁止借贷。",
-      "amountTooLowToReturnCollateral": "金额太低，无法退还抵押品",
-      "amountTooLowToReturnCollateralTooltip": "还款金额太低，无法退还你的抵押品。请尝试以更高的金额再试一次，或偿还部分金额（这不会退还你的抵押品，但会减少你的债务）。",
-      "amountTooSmallUnknownMinimumTooltip": "你输入的还款金额太小。请输入更高的金额重试。",
-      "repaymentUnavailableTooltip": "你目前无法偿还贷款。请等到还款锁定期结束。",
-      "repaymentsHaltedTooltip": "还款暂时停止。请稍后重试。"
-    },
-    "quote": {
-      "collateral": "将作为你的贷款担保的总资产金额",
-      "debt": "根据你的新贷款金额，你所欠的债务总额",
-      "repaymentLock": "你可以偿还贷款的最短期限",
-      "collateralizationRatio": "你的抵押品价值与贷款金额的比率",
-      "feesPlusSlippage": "发生的总费用，包括 L1 费用、滑点费用和 THORChain 流动性费用"
-    },
-    "yourLoans": {
-      "yourLoans": "你的贷款",
-      "emptyTitle": "零贷款之地！",
-      "emptyBody": "你目前似乎没有任何贷款。这是金融禅宗还是只是您下一次大型贷款冒险之前的休息？不管怎样，享受平静吧！"
-    }
+    "poolInformation": "池信息"
   },
   "chainflipLending": {
     "awaitingConfirmTitle": "等待确认中",
@@ -2970,7 +2856,8 @@
         "title": "风险和注意事项",
         "body": "虽然流动性池提供了盈利机会，但重要的是要意识到所涉及的风险，包括无常损失、智能合约漏洞和市场波动。用户在参与之前应进行彻底的研究。"
       }
-    }
+    },
+    "haltedDepositTitle": "充值暂时停止。"
   },
   "warningAcknowledgement": {
     "understand": "我理解",
@@ -3475,8 +3362,7 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {
-    },
+    "actions": {},
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

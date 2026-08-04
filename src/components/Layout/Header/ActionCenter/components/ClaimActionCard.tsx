@@ -112,7 +112,7 @@ export const ClaimActionCard = ({
     const txLink = getTxLink({
       txId: txHash,
       chainId: claimAsset.chainId,
-      defaultExplorerBaseUrl: claimFeeAsset.explorerTxLink,
+      explorerBaseUrl: claimFeeAsset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })

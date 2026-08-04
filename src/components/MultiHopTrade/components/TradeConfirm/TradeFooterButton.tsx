@@ -11,7 +11,7 @@ import {
 import { fromAccountId, starknetChainId } from '@shapeshiftoss/caip'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { getPermit2Eip712, SwapperName } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import type { FC, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -347,7 +347,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
       isLoading ||
       (swapperName === SwapperName.Zrx &&
         isPermit2 &&
-        !tradeQuoteStep?.permit2Eip712 &&
+        !getPermit2Eip712(tradeQuoteStep) &&
         ![TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
           confirmedTradeExecutionState,
         ) &&
@@ -362,7 +362,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     isLoading,
     isPermit2,
     activeQuoteError,
-    tradeQuoteStep?.permit2Eip712,
+    tradeQuoteStep,
     swapperName,
   ])
 

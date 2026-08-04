@@ -1,5 +1,6 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { getPermit2Eip712 } from '@shapeshiftoss/swapper'
 import assert from 'assert'
 import { useCallback, useMemo } from 'react'
 
@@ -50,13 +51,14 @@ export const useSignPermit2 = (
     )
 
     try {
-      assert(tradeQuoteStep.permit2Eip712, 'Trade quote is missing permit2 eip712 metadata')
+      const permit2Eip712 = getPermit2Eip712(tradeQuoteStep)
+      assert(permit2Eip712, 'Trade quote is missing permit2 eip712 metadata')
 
       const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
 
       const typedDataToSign = {
         addressNList: toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params)),
-        typedData: tradeQuoteStep?.permit2Eip712,
+        typedData: permit2Eip712,
       }
 
       const permit2Signature = await adapter.signTypedData({ typedDataToSign, wallet })
@@ -84,8 +86,7 @@ export const useSignPermit2 = (
     dispatch,
     hopIndex,
     showErrorToast,
-    tradeQuoteStep.permit2Eip712,
-    tradeQuoteStep.sellAsset.chainId,
+    tradeQuoteStep,
     wallet,
   ])
 

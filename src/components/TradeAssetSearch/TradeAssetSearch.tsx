@@ -212,12 +212,12 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
     let filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
-      asset => assetFilterPredicate?.(asset.assetId) ?? true,
+      (asset: Asset): boolean => assetFilterPredicate?.(asset.assetId) ?? true,
     )
 
     if (hasWallet && !allowWalletUnsupportedAssets) {
       filteredPortfolioAssetsSortedByBalance = filteredPortfolioAssetsSortedByBalance.filter(
-        asset => walletConnectedChainIds.includes(asset.chainId),
+        (asset: Asset): boolean => walletConnectedChainIds.includes(asset.chainId),
       )
     }
 

@@ -289,7 +289,7 @@ export const useSwapActionSubscriber = () => {
         dispatch(
           getAccount.initiate(
             { accountId: swap.sellAccountId, upsertOnFetch: true },
-            { forceRefetch: true },
+            { forceRefetch: true, subscribe: false },
           ),
         )
 
@@ -297,7 +297,7 @@ export const useSwapActionSubscriber = () => {
           dispatch(
             getAccount.initiate(
               { accountId: swap.buyAccountId, upsertOnFetch: true },
-              { forceRefetch: true },
+              { forceRefetch: true, subscribe: false },
             ),
           )
         }

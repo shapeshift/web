@@ -73,8 +73,13 @@ const TRACE_LT_SEARCH_RANGE = 1_000_000_000n
 // Legs of a trace land within this window of its initiator (~5 minutes of logical time)
 const TRACE_COMPLETION_LT_SPAN = 300_000_000n
 const TRACE_BATCH_SIZE = 20
+// Toncenter free tier allows ~1 req/sec; 429s are retried with Retry-After
+const TON_REQUEST_QUEUE_INTERVAL_MS = 1_100
 // Shorter than the 5s status poll interval so each poll still observes fresh chain state
 const PARSE_TX_CACHE_TTL_MS = 4_000
+// TTL starts at resolution - pending parses are reused as-is so a queue backlog can't
+// trigger duplicate network runs for the same hash
+type ParseTxCacheEntry = { resolvedAt?: number; promise: Promise<Transaction> }
 const TON_HASH_HEX_LENGTH = 64
 export const isHexHash = (str: string): boolean => {
   return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
@@ -385,14 +390,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   protected readonly rpcUrl: string
   private requestQueue: PQueue
   private traceNotOwnCache = new Set<string>()
-  private parseTxCache = new Map<string, { at: number; promise: Promise<Transaction> }>()
+  private parseTxCache = new Map<string, ParseTxCacheEntry>()
 
   constructor(args: ChainAdapterArgs) {
     this.rpcUrl = args.rpcUrl
-    // Toncenter free tier allows ~1 req/sec; 429s are retried with Retry-After
     this.requestQueue = new PQueue({
       intervalCap: 1,
-      interval: 1100,
+      interval: TON_REQUEST_QUEUE_INTERVAL_MS,
       concurrency: 1,
     })
   }
@@ -1247,19 +1251,33 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     // a short-lived memo collapses them into one network run
     const cacheKey = `${txHashOrTx}:${pubkey}`
     const cached = this.parseTxCache.get(cacheKey)
-    if (cached && Date.now() - cached.at < PARSE_TX_CACHE_TTL_MS) return cached.promise
+    if (
+      cached &&
+      (cached.resolvedAt === undefined || Date.now() - cached.resolvedAt < PARSE_TX_CACHE_TTL_MS)
+    ) {
+      return cached.promise
+    }
 
-    const promise = this.parseTxImpl(txHashOrTx, pubkey)
-    this.parseTxCache.set(cacheKey, { at: Date.now(), promise })
-    promise.catch(() => this.parseTxCache.delete(cacheKey))
+    const entry: ParseTxCacheEntry = { promise: this.parseTxImpl(txHashOrTx, pubkey) }
+    this.parseTxCache.set(cacheKey, entry)
+    entry.promise.then(
+      () => {
+        entry.resolvedAt = Date.now()
+      },
+      () => {
+        if (this.parseTxCache.get(cacheKey) === entry) this.parseTxCache.delete(cacheKey)
+      },
+    )
 
     if (this.parseTxCache.size > 50) {
-      for (const [key, entry] of this.parseTxCache) {
-        if (Date.now() - entry.at >= PARSE_TX_CACHE_TTL_MS) this.parseTxCache.delete(key)
+      for (const [key, e] of this.parseTxCache) {
+        if (e.resolvedAt !== undefined && Date.now() - e.resolvedAt >= PARSE_TX_CACHE_TTL_MS) {
+          this.parseTxCache.delete(key)
+        }
       }
     }
 
-    return promise
+    return entry.promise
   }
 
   private async parseTxImpl(inputHash: string, pubkey: string): Promise<Transaction> {

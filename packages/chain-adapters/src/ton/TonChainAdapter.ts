@@ -182,6 +182,42 @@ export const buildJettonTransfers = (
   return transfers
 }
 
+// Native TON swapped through ston.fi routes travels wrapped as proxy TON - the wallet message
+// value stacks the forward gas budget on top of the swapped amount (partially refunded later as
+// excess), while the proxy jetton row the transfer builder skips carries the actual value
+export const applyProxyTonAmounts = (
+  nativeTransfers: TxTransfer[],
+  jettonTransfers: JettonTransferRecord[],
+  traceId: string,
+  pubkey: string,
+  addressBook: Record<string, { user_friendly: string }>,
+): TxTransfer[] => {
+  const friendly = (addr: string) => addressBook[addr]?.user_friendly ?? addr
+
+  const amounts: Partial<Record<TransferType, string>> = {}
+  for (const transfer of jettonTransfers) {
+    if (transfer.trace_id !== traceId) continue
+    if (!transfer.source || !transfer.destination || !transfer.amount || !transfer.jetton_master)
+      continue
+    if (!isProxyTon(friendly(transfer.jetton_master))) continue
+
+    if (addressesMatch(friendly(transfer.source), pubkey)) {
+      amounts[TransferType.Send] = transfer.amount
+    }
+    if (addressesMatch(friendly(transfer.destination), pubkey)) {
+      amounts[TransferType.Receive] = transfer.amount
+    }
+  }
+
+  return nativeTransfers.map(transfer => {
+    const amount = amounts[transfer.type]
+    if (!amount) return transfer
+    // Only an unambiguous single leg per direction is overridden
+    if (nativeTransfers.filter(t => t.type === transfer.type).length !== 1) return transfer
+    return { ...transfer, value: amount }
+  })
+}
+
 export const parseTonTx = (
   tx: TonTx,
   pubkey: string,
@@ -744,7 +780,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
           }
         }
 
-        const allTransfers = [...nativeTransfers, ...jettonTransfers]
+        const adjustedNativeTransfers = applyProxyTonAmounts(
+          nativeTransfers,
+          jettonData.jetton_transfers,
+          traceId,
+          pubkey,
+          jettonAddrBook,
+        )
+
+        const allTransfers = [...adjustedNativeTransfers, ...jettonTransfers]
         const anyAborted = traceGroup.some(t => t.description?.aborted === true)
         const anyActionFailed = traceGroup.some(t => t.description?.action?.success === false)
         const status = anyAborted || anyActionFailed ? TxStatus.Failed : TxStatus.Confirmed
@@ -1199,7 +1243,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         }
       }
 
-      const allTransfers = [...nativeTransfers, ...jettonTransfers]
+      const adjustedNativeTransfers = applyProxyTonAmounts(
+        nativeTransfers,
+        jettonData.jetton_transfers,
+        traceId,
+        pubkey,
+        addressBook,
+      )
+
+      const allTransfers = [...adjustedNativeTransfers, ...jettonTransfers]
       const anyAborted = txsToProcess.some(t => t.description?.aborted === true)
       const anyActionFailed = txsToProcess.some(t => t.description?.action?.success === false)
       const status = anyAborted || anyActionFailed ? TxStatus.Failed : TxStatus.Confirmed

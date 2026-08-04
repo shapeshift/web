@@ -228,8 +228,13 @@ export const stonfiApi: SwapperApi = {
               buyTxHash: undefined,
               message: 'trade.statuses.receivingFunds',
             }
-          } catch {
+          } catch (error) {
             // Indexer/API failure must not block completion
+            console.error('[Stonfi] Error verifying settlement receive leg:', {
+              sellTxHash,
+              result,
+              error,
+            })
             return settled
           }
         }

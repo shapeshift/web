@@ -759,9 +759,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       const pageHashes = new Set(data.transactions.map(tx => tx.hash))
-      const pageMaxLt = data.transactions
-        .map(tx => BigInt(tx.lt))
-        .reduce((a, b) => (a > b ? a : b))
+      const pageMaxLt = data.transactions.map(tx => BigInt(tx.lt)).reduce((a, b) => (a > b ? a : b))
 
       // Rows are emitted complete or not at all: a page can slice through a trace, so groups
       // initiated by this account are re-fetched over the trace lt window whenever the page

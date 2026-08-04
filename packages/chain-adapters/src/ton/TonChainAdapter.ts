@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId, tonAssetId, tonChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, tonAssetId, tonChainId } from '@shapeshiftoss/caip'
 import type { HDWallet, TonWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -35,21 +35,32 @@ import {
   TRACE_COMPLETION_LT_SPAN,
   TRACE_LT_SEARCH_RANGE,
 } from './constants'
-import { buildTraceTransfers, parseTonTx } from './parser'
+import { buildTonTokens, buildTraceTransfers, ownTraceTxs, parseTonTx } from './parser'
 import type {
   ChainAdapterArgs,
-  JettonTransferRecord,
   TonAccountInfo,
   TonApiTxResponse,
+  TonConfigParamResult,
   TonFeeData,
+  TonJettonTransfersResponse,
+  TonJettonWalletsResponse,
+  TonMessagesResponse,
   TonRpcResponse,
+  TonRunGetMethodResult,
+  TonSendBocResult,
   TonSignTx,
   TonToken,
-  TonTrace,
   TonTracesResponse,
   TonTx,
 } from './types'
-import { addressesMatch, isHexHash, resolveAddresses } from './utils'
+import {
+  addressesMatch,
+  formatTonError,
+  getTraceOwnerTxid,
+  isHexHash,
+  isRetryableError,
+  resolveAddresses,
+} from './utils'
 
 const supportsTon = (wallet: HDWallet): wallet is TonWallet => {
   return '_supportsTon' in wallet && (wallet as TonWallet)._supportsTon === true
@@ -127,8 +138,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
             const data = (await response.json()) as TonRpcResponse<T>
 
             if (!data.ok && data.error) {
-              lastError = new Error(this.formatTonError(data.error))
-              if (this.isRetryableError(data.error)) {
+              lastError = new Error(formatTonError(data.error))
+              if (isRetryableError(data.error)) {
                 const backoffDelay = 1000 * Math.pow(2, attempt)
                 await new Promise(resolve => setTimeout(resolve, backoffDelay))
                 continue
@@ -157,53 +168,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       },
       { throwOnTimeout: true },
     )
-  }
-
-  private formatTonError(error: string): string {
-    if (error.includes('INVALID_BAG_OF_CELLS')) {
-      return `TON transaction serialization error: ${error}. This may indicate an invalid transaction format.`
-    }
-    if (error.includes('seqno')) {
-      return `TON sequence number error: ${error}. The transaction may be stale or already processed.`
-    }
-    if (error.includes('not enough balance') || error.includes('insufficient')) {
-      return `TON insufficient balance: ${error}`
-    }
-    return `TON RPC error: ${error}`
-  }
-
-  private isRetryableError(error: string): boolean {
-    const lowerError = error.toLowerCase()
-
-    const nonRetryablePatterns = [
-      'insufficient',
-      'not enough balance',
-      'invalid',
-      'malformed',
-      'unauthorized',
-      'forbidden',
-      'not found',
-      'bad request',
-      'seqno',
-    ]
-    if (nonRetryablePatterns.some(pattern => lowerError.includes(pattern))) {
-      return false
-    }
-
-    const retryablePatterns = [
-      'timeout',
-      'etimedout',
-      'econnreset',
-      'econnrefused',
-      'network',
-      'temporarily unavailable',
-      'rate limit',
-      '429',
-      '500',
-      '502',
-      '503',
-    ]
-    return retryablePatterns.some(pattern => lowerError.includes(pattern))
   }
 
   private httpApiRequest<T>(endpoint: string): Promise<T> {
@@ -317,62 +281,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       try {
-        const jettonsResponse = await this.httpApiRequest<{
-          jetton_wallets?: {
-            address: string
-            balance: string
-            jetton: string
-          }[]
-          address_book?: Record<
-            string,
-            {
-              user_friendly: string
-            }
-          >
-          metadata?: Record<
-            string,
-            {
-              token_info?: {
-                name?: string
-                symbol?: string
-                extra?: {
-                  decimals?: string
-                }
-              }[]
-            }
-          >
-        }>(`/api/v3/jetton/wallets?owner_address=${encodeURIComponent(pubkey)}`)
+        const jettonsResponse = await this.httpApiRequest<TonJettonWalletsResponse>(
+          `/api/v3/jetton/wallets?owner_address=${encodeURIComponent(pubkey)}`,
+        )
 
-        if (jettonsResponse.jetton_wallets) {
-          const addressBook = jettonsResponse.address_book ?? {}
-          const metadata = jettonsResponse.metadata ?? {}
-
-          tokens = jettonsResponse.jetton_wallets
-            .filter(jw => jw.balance && jw.balance !== '0')
-            .map(jw => {
-              const jettonRawAddress = jw.jetton
-              const jettonUserFriendly =
-                addressBook[jettonRawAddress]?.user_friendly ?? jettonRawAddress
-              const jettonMeta = metadata[jettonRawAddress]?.token_info?.[0]
-              const precision = jettonMeta?.extra?.decimals
-                ? parseInt(jettonMeta.extra.decimals, 10)
-                : 9
-
-              const assetId = toAssetId({
-                chainId: this.chainId,
-                assetNamespace: 'jetton',
-                assetReference: jettonUserFriendly,
-              })
-
-              return {
-                assetId,
-                balance: jw.balance,
-                symbol: jettonMeta?.symbol ?? '',
-                name: jettonMeta?.name ?? '',
-                precision,
-              }
-            })
-        }
+        tokens = buildTonTokens(jettonsResponse, this.chainId)
       } catch (err) {
         console.error('[TON] Error fetching jetton balances:', err)
         tokens = []
@@ -498,7 +411,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
               continue
             }
 
-            txsByTrace[traceId] = this.ownTraceTxs(trace, pubkey)
+            txsByTrace[traceId] = ownTraceTxs(trace, pubkey)
           }
         } catch (error) {
           console.error('[TON] Failed to resolve traces, dropping affected rows this page', {
@@ -534,13 +447,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       for (const [traceId, traceGroup] of Object.entries(txsByTrace)) {
         const owner = traceGroup.find(t => t.hash === traceId) ?? traceGroup[0]
 
-        // Externally-initiated txs are keyed by their message hash - the same id broadcast
-        // returns and parseTx uses, so rows upserted at swap time overwrite history rows and
-        // vice versa instead of duplicating
-        const isExternalInitiated = !owner.in_msg?.source && Boolean(owner.in_msg?.hash)
-        const txid = base64ToHex(
-          isExternalInitiated && owner.in_msg?.hash ? owner.in_msg.hash : owner.hash,
-        )
+        const txid = getTraceOwnerTxid(owner)
 
         const allTransfers = buildTraceTransfers({
           txs: traceGroup,
@@ -596,10 +503,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
   async getSeqno(address: string): Promise<number> {
     try {
-      const result = await this.rpcRequest<{
-        exit_code: number
-        stack: [string, string][]
-      }>('runGetMethod', {
+      const result = await this.rpcRequest<TonRunGetMethodResult>('runGetMethod', {
         address,
         method: 'seqno',
         stack: [],
@@ -620,10 +524,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   }
 
   async getJettonWalletAddress(jettonMaster: string, ownerAddress: string): Promise<string> {
-    const response = await this.httpApiRequest<{
-      jetton_wallets?: { address: string }[]
-      address_book?: Record<string, { user_friendly: string }>
-    }>(
+    const response = await this.httpApiRequest<TonJettonWalletsResponse>(
       `/api/v3/jetton/wallets?owner_address=${encodeURIComponent(
         ownerAddress,
       )}&jetton_address=${encodeURIComponent(jettonMaster)}&limit=1`,
@@ -747,7 +648,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     try {
       const { hex: signedTx } = input
 
-      const result = await this.rpcRequest<{ hash: string }>('sendBocReturnHash', {
+      const result = await this.rpcRequest<TonSendBocResult>('sendBocReturnHash', {
         boc: signedTx,
       })
 
@@ -771,11 +672,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       let storageFee = '0'
 
       try {
-        const configResult = await this.rpcRequest<{
-          gas_price?: string
-          flat_gas_limit?: string
-          flat_gas_price?: string
-        }>('getConfigParam', { config_id: 20 })
+        const configResult = await this.rpcRequest<TonConfigParamResult>('getConfigParam', {
+          config_id: 20,
+        })
 
         if (configResult.gas_price) {
           const gasPrice = BigInt(configResult.gas_price)
@@ -839,12 +738,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     try {
       const apiHash = isHexHash(msgHash) ? hexToBase64(msgHash) : msgHash
 
-      const result = await this.httpApiRequest<{
-        messages?: {
-          hash: string
-          in_msg_tx_hash?: string
-        }[]
-      }>(`/api/v3/messages?hash=${encodeURIComponent(apiHash)}`)
+      const result = await this.httpApiRequest<TonMessagesResponse>(
+        `/api/v3/messages?hash=${encodeURIComponent(apiHash)}`,
+      )
 
       if (!result.messages || result.messages.length === 0) {
         return TxStatus.Pending
@@ -890,25 +786,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
-  private ownTraceTxs(trace: TonTrace, pubkey: string): TonTx[] {
-    return Object.values(trace.transactions ?? {})
-      .filter(t => addressesMatch(t.account, pubkey))
-      .sort((a, b) => (BigInt(a.lt) < BigInt(b.lt) ? -1 : 1))
-  }
-
   private async fetchJettonTransfers(
     pubkey: string,
     startLt: string,
     endLt: string,
-  ): Promise<{
-    jetton_transfers: JettonTransferRecord[]
-    address_book: Record<string, { user_friendly: string }>
-  }> {
+  ): Promise<Required<TonJettonTransfersResponse>> {
     try {
-      const response = await this.httpApiRequest<{
-        jetton_transfers?: JettonTransferRecord[]
-        address_book?: Record<string, { user_friendly: string }>
-      }>(
+      const response = await this.httpApiRequest<TonJettonTransfersResponse>(
         `/api/v3/jetton/transfers?owner_address=${encodeURIComponent(
           pubkey,
         )}&start_lt=${startLt}&end_lt=${endLt}&limit=100&sort=asc`,
@@ -975,9 +859,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
       if (!tx) {
         // Distinguish a known-but-unprocessed message (pending) from an unknown one
-        const msgResult = await this.httpApiRequest<{
-          messages?: { hash: string; in_msg_tx_hash?: string }[]
-        }>(`/api/v3/messages?hash=${encodeURIComponent(apiHash)}`)
+        const msgResult = await this.httpApiRequest<TonMessagesResponse>(
+          `/api/v3/messages?hash=${encodeURIComponent(apiHash)}`,
+        )
 
         if (!msgResult.messages || msgResult.messages.length === 0) {
           throw new Error('Message not found')
@@ -1013,7 +897,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       const trace = traceResult.traces?.[0]
-      const traceTxs = trace ? this.ownTraceTxs(trace, pubkey) : []
+      const traceTxs = trace ? ownTraceTxs(trace, pubkey) : []
       const primaryTx = traceTxs[0] ?? tx
 
       const txsToProcess = traceTxs.length > 0 ? traceTxs : [tx]

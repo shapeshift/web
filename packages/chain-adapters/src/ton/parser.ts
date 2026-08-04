@@ -3,14 +3,59 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { Transaction, TxTransfer } from '../types'
-import type { JettonTransferRecord, TonTx } from './types'
+import type {
+  JettonTransferRecord,
+  TonAddressBook,
+  TonJettonWalletsResponse,
+  TonToken,
+  TonTrace,
+  TonTx,
+} from './types'
 import { addressesMatch, isProxyTon, resolveAddresses } from './utils'
+
+// The complete set of this account's transactions within a trace, oldest first
+export const ownTraceTxs = (trace: TonTrace, pubkey: string): TonTx[] => {
+  return Object.values(trace.transactions ?? {})
+    .filter(t => addressesMatch(t.account, pubkey))
+    .sort((a, b) => (BigInt(a.lt) < BigInt(b.lt) ? -1 : 1))
+}
+
+export const buildTonTokens = (
+  response: TonJettonWalletsResponse,
+  chainId: ChainId,
+): TonToken[] => {
+  const addressBook = response.address_book ?? {}
+  const metadata = response.metadata ?? {}
+
+  return (response.jetton_wallets ?? [])
+    .filter(jw => jw.balance && jw.balance !== '0')
+    .map(jw => {
+      const jettonRawAddress = jw.jetton
+      const jettonUserFriendly = addressBook[jettonRawAddress]?.user_friendly ?? jettonRawAddress
+      const jettonMeta = metadata[jettonRawAddress]?.token_info?.[0]
+      const precision = jettonMeta?.extra?.decimals ? parseInt(jettonMeta.extra.decimals, 10) : 9
+
+      const assetId = toAssetId({
+        chainId,
+        assetNamespace: 'jetton',
+        assetReference: jettonUserFriendly,
+      })
+
+      return {
+        assetId,
+        balance: jw.balance,
+        symbol: jettonMeta?.symbol ?? '',
+        name: jettonMeta?.name ?? '',
+        precision,
+      }
+    })
+}
 
 export const buildJettonTransfers = (
   jettonTransfers: JettonTransferRecord[],
   traceId: string,
   pubkey: string,
-  addressBook: Record<string, { user_friendly: string }>,
+  addressBook: TonAddressBook,
   chainId: ChainId,
 ): TxTransfer[] => {
   const transfers: TxTransfer[] = []
@@ -174,7 +219,7 @@ export const buildTraceTransfers = ({
   jettonTransfers: JettonTransferRecord[]
   traceId: string
   pubkey: string
-  addressBook: Record<string, { user_friendly: string }>
+  addressBook: TonAddressBook
   assetId: AssetId
   chainId: ChainId
 }): TxTransfer[] => {

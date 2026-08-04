@@ -281,6 +281,27 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
+        const { getAccount } = portfolioApi.endpoints
+
+        // Balance refetches fire before the history parses - they share rate-limited request
+        // queues on second-class chains and balances are what the user is waiting on
+        // See: https://github.com/shapeshift/web/issues/12092 for the buy-side refetch
+        dispatch(
+          getAccount.initiate(
+            { accountId: swap.sellAccountId, upsertOnFetch: true },
+            { forceRefetch: true, subscribe: false },
+          ),
+        )
+
+        if (swap.buyAccountId && swap.buyAccountId !== swap.sellAccountId) {
+          dispatch(
+            getAccount.initiate(
+              { accountId: swap.buyAccountId, upsertOnFetch: true },
+              { forceRefetch: true, subscribe: false },
+            ),
+          )
+        }
+
         // Parse and upsert Txs for second-class chains
         const sellChainId = fromAccountId(swap.sellAccountId).chainId
         const isSellSecondClassChain = SECOND_CLASS_CHAINS.includes(sellChainId as KnownChainIds)
@@ -303,7 +324,11 @@ export const useSwapActionSubscriber = () => {
           }
         }
 
-        if (buyTxHash && swap.buyAccountId) {
+        // Same-chain swaps on the same account already upserted this exact tx above
+        const isBuyTxDistinct =
+          buyTxHash && (buyTxHash !== swap.sellTxHash || swap.buyAccountId !== swap.sellAccountId)
+
+        if (isBuyTxDistinct && swap.buyAccountId) {
           const buyChainId = fromAccountId(swap.buyAccountId).chainId
           const isBuySecondClassChain = SECOND_CLASS_CHAINS.includes(buyChainId as KnownChainIds)
 
@@ -324,29 +349,6 @@ export const useSwapActionSubscriber = () => {
               console.error('Failed to parse and upsert buy Tx:', error)
             }
           }
-        }
-
-        const { getAccount } = portfolioApi.endpoints
-
-        // Always refresh sell account balance after swap completion
-        // This ensures balances are up-to-date even if WebSocket subscriptions miss the update
-        dispatch(
-          getAccount.initiate(
-            { accountId: swap.sellAccountId, upsertOnFetch: true },
-            { forceRefetch: true },
-          ),
-        )
-
-        // Always refresh buy account balance after swap completion (if different from sell)
-        // This fixes cross-chain swaps where the destination chain's balance wasn't updating
-        // See: https://github.com/shapeshift/web/issues/12092
-        if (swap.buyAccountId && swap.buyAccountId !== swap.sellAccountId) {
-          dispatch(
-            getAccount.initiate(
-              { accountId: swap.buyAccountId, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
-          )
         }
 
         if (

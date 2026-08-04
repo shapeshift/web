@@ -73,6 +73,13 @@ const TRACE_LT_SEARCH_RANGE = 1_000_000_000n
 // Legs of a trace land within this window of its initiator (~5 minutes of logical time)
 const TRACE_COMPLETION_LT_SPAN = 300_000_000n
 const TRACE_BATCH_SIZE = 20
+// Toncenter free tier allows ~1 req/sec; 429s are retried with Retry-After
+const TON_REQUEST_QUEUE_INTERVAL_MS = 1_100
+// Shorter than the 5s status poll interval so each poll still observes fresh chain state
+const PARSE_TX_CACHE_TTL_MS = 4_000
+// TTL starts at resolution - pending parses are reused as-is so a queue backlog can't
+// trigger duplicate network runs for the same hash
+type ParseTxCacheEntry = { resolvedAt?: number; promise: Promise<Transaction> }
 const TON_HASH_HEX_LENGTH = 64
 export const isHexHash = (str: string): boolean => {
   return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
@@ -383,13 +390,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   protected readonly rpcUrl: string
   private requestQueue: PQueue
   private traceNotOwnCache = new Set<string>()
+  private parseTxCache = new Map<string, ParseTxCacheEntry>()
 
   constructor(args: ChainAdapterArgs) {
     this.rpcUrl = args.rpcUrl
-    // Toncenter free tier: ~1 req/sec, but we use 2s to be safe
     this.requestQueue = new PQueue({
       intervalCap: 1,
-      interval: 2000,
+      interval: TON_REQUEST_QUEUE_INTERVAL_MS,
       concurrency: 1,
     })
   }
@@ -1235,35 +1242,67 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
-  async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
-    try {
-      if (typeof txHashOrTx !== 'string') {
-        throw new Error(`[TON] parseTx expects a string tx hash, got ${typeof txHashOrTx}`)
-      }
-      const inputHash = txHashOrTx
+  parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
+    if (typeof txHashOrTx !== 'string') {
+      throw new Error(`[TON] parseTx expects a string tx hash, got ${typeof txHashOrTx}`)
+    }
 
+    // status poll, history upsert and balance pipeline all parse the same hash within seconds -
+    // a short-lived memo collapses them into one network run
+    const cacheKey = `${txHashOrTx}:${pubkey}`
+    const cached = this.parseTxCache.get(cacheKey)
+    if (
+      cached &&
+      (cached.resolvedAt === undefined || Date.now() - cached.resolvedAt < PARSE_TX_CACHE_TTL_MS)
+    ) {
+      return cached.promise
+    }
+
+    const entry: ParseTxCacheEntry = { promise: this.parseTxImpl(txHashOrTx, pubkey) }
+    this.parseTxCache.set(cacheKey, entry)
+    entry.promise.then(
+      () => {
+        entry.resolvedAt = Date.now()
+      },
+      () => {
+        if (this.parseTxCache.get(cacheKey) === entry) this.parseTxCache.delete(cacheKey)
+      },
+    )
+
+    if (this.parseTxCache.size > 50) {
+      for (const [key, e] of this.parseTxCache) {
+        if (e.resolvedAt !== undefined && Date.now() - e.resolvedAt >= PARSE_TX_CACHE_TTL_MS) {
+          this.parseTxCache.delete(key)
+        }
+      }
+    }
+
+    return entry.promise
+  }
+
+  private async parseTxImpl(inputHash: string, pubkey: string): Promise<Transaction> {
+    try {
       const apiHash = isHexHash(inputHash) ? hexToBase64(inputHash) : inputHash
       const txid = isHexHash(inputHash) ? inputHash : base64ToHex(inputHash)
 
-      const msgResult = await this.httpApiRequest<{
-        messages?: {
-          hash: string
-          in_msg_tx_hash?: string
-          source?: string
-          destination?: string
-          value?: string
-          created_at?: string
-        }[]
-      }>(`/api/v3/messages?hash=${encodeURIComponent(apiHash)}`)
+      const txResult = await this.httpApiRequest<TonApiTxResponse>(
+        `/api/v3/transactionsByMessage?msg_hash=${encodeURIComponent(
+          apiHash,
+        )}&direction=in&limit=1`,
+      )
 
-      if (!msgResult.messages || msgResult.messages.length === 0) {
-        throw new Error('Message not found')
-      }
+      const tx = txResult.transactions?.[0]
 
-      const msg = msgResult.messages[0]
-      const txHash = msg.in_msg_tx_hash
+      if (!tx) {
+        // Distinguish a known-but-unprocessed message (pending) from an unknown one
+        const msgResult = await this.httpApiRequest<{
+          messages?: { hash: string; in_msg_tx_hash?: string }[]
+        }>(`/api/v3/messages?hash=${encodeURIComponent(apiHash)}`)
 
-      if (!txHash) {
+        if (!msgResult.messages || msgResult.messages.length === 0) {
+          throw new Error('Message not found')
+        }
+
         return {
           txid,
           blockHeight: 0,
@@ -1277,17 +1316,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         }
       }
 
-      const txResult = await this.httpApiRequest<TonApiTxResponse>(
-        `/api/v3/transactions?hash=${encodeURIComponent(txHash)}&limit=1`,
-      )
-
-      const tx = txResult.transactions?.[0]
-
-      if (!tx) {
-        throw new Error(`Transaction not found: ${txHash}`)
-      }
-
-      const traceId = tx.trace_id ?? txHash
+      const traceId = tx.trace_id ?? tx.hash
       const endLt = (BigInt(tx.lt) + TRACE_LT_SEARCH_RANGE).toString()
 
       const [traceResult, jettonData] = await Promise.all([

@@ -775,9 +775,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
           if (this.traceNotOwnCache.has(`${pubkey}:${traceId}`)) return false
           if (!pageHashes.has(traceId)) return true
           const initiator = txsByTrace[traceId].find(t => t.hash === traceId)
-          return Boolean(
-            initiator && BigInt(initiator.lt) + TRACE_COMPLETION_LT_SPAN > pageMaxLt,
-          )
+          return Boolean(initiator && BigInt(initiator.lt) + TRACE_COMPLETION_LT_SPAN > pageMaxLt)
         })
         .map(([traceId]) => traceId)
 

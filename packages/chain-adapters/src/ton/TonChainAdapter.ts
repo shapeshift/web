@@ -182,11 +182,8 @@ export const buildJettonTransfers = (
   return transfers
 }
 
-// Merges all of a trace's transfers on this account into swap-shaped legs. Raw message values
-// misstate swap amounts for native TON: sell-side envelopes stack the forward gas budget on top
-// of the swapped amount, and dex payouts bundle the gas refund into the payout. The actual value
-// comes from the proxy TON jetton row where one exists (ston.fi wraps native TON), and from the
-// net native flow across the trace otherwise.
+// Raw message values misstate native swap legs (gas budgets ride the envelope, refunds ride the
+// payout) - swap rows use the proxy TON jetton amount when present, net native flow otherwise
 export const buildTraceTransfers = ({
   txs,
   jettonTransfers,

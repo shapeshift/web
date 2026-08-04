@@ -19,9 +19,7 @@ export const clearTxHistoryMigrations = {
   5: clearTxHistory,
   6: clearTxHistory,
   7: clearTxHistory,
-  // ton history rows re-keyed to message hashes + trace-merged
   8: clearTxHistory,
-  // ton swap rows upserted before the jetton indexer caught up are frozen send-only
   9: clearTxHistory,
 } as unknown as Omit<MigrationManifest, '_persist'>
 

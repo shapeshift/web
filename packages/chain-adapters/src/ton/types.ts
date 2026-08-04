@@ -88,9 +88,80 @@ export type JettonTransferRecord = {
   trace_id?: string
 }
 
+export type TonAddressBook = Record<string, { user_friendly: string }>
+
 export type TonApiTxResponse = {
   transactions?: TonTx[]
-  address_book?: Record<string, { user_friendly: string }>
+  address_book?: TonAddressBook
+}
+
+export type TonJettonWallet = {
+  address: string
+  balance: string
+  jetton: string
+}
+
+export type TonJettonWalletsResponse = {
+  jetton_wallets?: TonJettonWallet[]
+  address_book?: TonAddressBook
+  metadata?: Record<
+    string,
+    {
+      token_info?: {
+        name?: string
+        symbol?: string
+        extra?: {
+          decimals?: string
+        }
+      }[]
+    }
+  >
+}
+
+export type TonJettonTransfersResponse = {
+  jetton_transfers?: JettonTransferRecord[]
+  address_book?: TonAddressBook
+}
+
+export type TonMessage = {
+  hash: string
+  in_msg_tx_hash?: string
+}
+
+export type TonMessagesResponse = {
+  messages?: TonMessage[]
+}
+
+export type TonRunGetMethodResult = {
+  exit_code: number
+  stack: [string, string][]
+}
+
+export type TonSendBocResult = {
+  hash: string
+}
+
+export type TonConfigParamResult = {
+  gas_price?: string
+  flat_gas_limit?: string
+  flat_gas_price?: string
+}
+
+export type ChainAdapterArgs = {
+  rpcUrl: string
+}
+
+export type TonRpcResponse<T> = {
+  ok: boolean
+  result?: T
+  error?: string
+}
+
+export type TonAccountInfo = {
+  balance: string
+  state: 'active' | 'uninitialized' | 'frozen'
+  code?: string
+  data?: string
 }
 
 export type TonTrace = {
@@ -101,7 +172,7 @@ export type TonTrace = {
 
 export type TonTracesResponse = {
   traces?: TonTrace[]
-  address_book?: Record<string, { user_friendly: string }>
+  address_book?: TonAddressBook
 }
 
 export type Account = TonAccount

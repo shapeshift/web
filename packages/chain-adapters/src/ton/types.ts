@@ -93,6 +93,23 @@ export type TonApiTxResponse = {
   address_book?: Record<string, { user_friendly: string }>
 }
 
+export type ChainAdapterArgs = {
+  rpcUrl: string
+}
+
+export type TonRpcResponse<T> = {
+  ok: boolean
+  result?: T
+  error?: string
+}
+
+export type TonAccountInfo = {
+  balance: string
+  state: 'active' | 'uninitialized' | 'frozen'
+  code?: string
+  data?: string
+}
+
 export type TonTrace = {
   trace_id: string
   is_incomplete?: boolean

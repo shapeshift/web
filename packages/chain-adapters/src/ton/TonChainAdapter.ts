@@ -24,359 +24,40 @@ import type {
   Transaction,
   TxHistoryInput,
   TxHistoryResponse,
-  TxTransfer,
   ValidAddressResult,
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
+import {
+  PARSE_TX_CACHE_TTL_MS,
+  TON_REQUEST_QUEUE_INTERVAL_MS,
+  TRACE_BATCH_SIZE,
+  TRACE_COMPLETION_LT_SPAN,
+  TRACE_LT_SEARCH_RANGE,
+} from './constants'
+import { buildTraceTransfers, parseTonTx } from './parser'
 import type {
+  ChainAdapterArgs,
   JettonTransferRecord,
+  TonAccountInfo,
   TonApiTxResponse,
   TonFeeData,
+  TonRpcResponse,
   TonSignTx,
   TonToken,
   TonTrace,
   TonTracesResponse,
   TonTx,
 } from './types'
+import { addressesMatch, isHexHash, resolveAddresses } from './utils'
 
 const supportsTon = (wallet: HDWallet): wallet is TonWallet => {
   return '_supportsTon' in wallet && (wallet as TonWallet)._supportsTon === true
 }
 
-export type ChainAdapterArgs = {
-  rpcUrl: string
-}
-
-type TonRpcResponse<T> = {
-  ok: boolean
-  result?: T
-  error?: string
-}
-
-type TonAccountInfo = {
-  balance: string
-  state: 'active' | 'uninitialized' | 'frozen'
-  code?: string
-  data?: string
-}
-
-const PROXY_TON_CONTRACTS = new Set([
-  'EQCM3B12QK1e4yZSf8GtBRT0aLMNyEsBc_DhVfRRtOEffLez',
-  'EQBnGWMCf3-FZZq1W4IWcWiGAc3PHuZ0_H-7sad2oY00o83S',
-])
-
-// Logical time advances ~1e6 per second, and downstream trace legs (dex payouts, excesses) land
-// tens of millions of lts after the initiator - this bounds the search only, results are
-// filtered by trace_id
-const TRACE_LT_SEARCH_RANGE = 1_000_000_000n
-// Legs of a trace land within this window of its initiator (~5 minutes of logical time)
-const TRACE_COMPLETION_LT_SPAN = 300_000_000n
-const TRACE_BATCH_SIZE = 20
-// Toncenter free tier allows ~1 req/sec; 429s are retried with Retry-After
-const TON_REQUEST_QUEUE_INTERVAL_MS = 1_100
-// Shorter than the 5s status poll interval so each poll still observes fresh chain state
-const PARSE_TX_CACHE_TTL_MS = 4_000
 // TTL starts at resolution - pending parses are reused as-is so a queue backlog can't
 // trigger duplicate network runs for the same hash
 type ParseTxCacheEntry = { resolvedAt?: number; promise: Promise<Transaction> }
-const TON_HASH_HEX_LENGTH = 64
-export const isHexHash = (str: string): boolean => {
-  return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
-}
-
-export const addressesMatch = (addr1: string, addr2: string): boolean => {
-  if (!addr1 || !addr2) return false
-  if (addr1 === addr2) return true
-  try {
-    return Address.parse(addr1).equals(Address.parse(addr2))
-  } catch {
-    const normalize = (a: string) => a.replace(/^0:/, '').toLowerCase()
-    return normalize(addr1) === normalize(addr2)
-  }
-}
-
-export const isProxyTon = (jettonMaster: string): boolean => {
-  if (PROXY_TON_CONTRACTS.has(jettonMaster)) return true
-  try {
-    const parsed = Address.parse(jettonMaster)
-    for (const known of PROXY_TON_CONTRACTS) {
-      try {
-        if (parsed.equals(Address.parse(known))) return true
-      } catch {
-        continue
-      }
-    }
-  } catch {}
-  return false
-}
-
-export const resolveAddresses = (
-  tx: TonTx,
-  addressBook: Record<string, { user_friendly: string }>,
-): TonTx => {
-  const resolve = (addr: string | undefined): string | undefined =>
-    addr ? addressBook[addr]?.user_friendly ?? addr : addr
-
-  return {
-    ...tx,
-    in_msg: tx.in_msg
-      ? {
-          ...tx.in_msg,
-          source: resolve(tx.in_msg.source),
-          destination: resolve(tx.in_msg.destination),
-        }
-      : tx.in_msg,
-    out_msgs: tx.out_msgs?.map(msg => ({
-      ...msg,
-      source: resolve(msg.source),
-      destination: resolve(msg.destination),
-    })),
-  }
-}
-
-export const buildJettonTransfers = (
-  jettonTransfers: JettonTransferRecord[],
-  traceId: string,
-  pubkey: string,
-  addressBook: Record<string, { user_friendly: string }>,
-  chainId: ChainId,
-): TxTransfer[] => {
-  const transfers: TxTransfer[] = []
-
-  const matching = jettonTransfers.filter(jt => jt.trace_id === traceId)
-  if (matching.length === 0) return transfers
-
-  const friendly = (addr: string) => addressBook[addr]?.user_friendly ?? addr
-
-  for (const transfer of matching) {
-    if (!transfer.source || !transfer.destination || !transfer.amount || !transfer.jetton_master)
-      continue
-
-    const sourceUserFriendly = friendly(transfer.source)
-    const destUserFriendly = friendly(transfer.destination)
-    const jettonUserFriendly = friendly(transfer.jetton_master)
-
-    if (isProxyTon(jettonUserFriendly)) continue
-
-    const isSend = addressesMatch(sourceUserFriendly, pubkey)
-    const isReceive = addressesMatch(destUserFriendly, pubkey)
-
-    if (!isSend && !isReceive) continue
-
-    const assetId = toAssetId({
-      chainId,
-      assetNamespace: 'jetton',
-      assetReference: jettonUserFriendly,
-    })
-
-    if (isSend) {
-      transfers.push({
-        assetId,
-        from: [sourceUserFriendly],
-        to: [destUserFriendly],
-        type: TransferType.Send,
-        value: transfer.amount,
-      })
-    }
-
-    if (isReceive) {
-      transfers.push({
-        assetId,
-        from: [sourceUserFriendly],
-        to: [destUserFriendly],
-        type: TransferType.Receive,
-        value: transfer.amount,
-      })
-    }
-  }
-
-  return transfers
-}
-
-// Raw message values misstate native swap legs (gas budgets ride the envelope, refunds ride the
-// payout) - swap rows use the proxy TON jetton amount when present, net native flow otherwise
-export const buildTraceTransfers = ({
-  txs,
-  jettonTransfers,
-  traceId,
-  pubkey,
-  addressBook,
-  assetId,
-  chainId,
-}: {
-  txs: TonTx[]
-  jettonTransfers: JettonTransferRecord[]
-  traceId: string
-  pubkey: string
-  addressBook: Record<string, { user_friendly: string }>
-  assetId: AssetId
-  chainId: ChainId
-}): TxTransfer[] => {
-  const jetton = buildJettonTransfers(jettonTransfers, traceId, pubkey, addressBook, chainId)
-
-  const seen = new Set<string>()
-  const native: TxTransfer[] = []
-  for (const tx of txs) {
-    const parsed = parseTonTx(resolveAddresses(tx, addressBook), pubkey, '', assetId, chainId)
-    for (const transfer of parsed.transfers) {
-      // Scoped to the source tx so identical legs from different txs both survive
-      const key = `${tx.hash}-${transfer.assetId}-${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
-      if (seen.has(key)) continue
-      seen.add(key)
-      native.push(transfer)
-    }
-  }
-
-  // Plain native transfers keep their per-leg values
-  if (jetton.length === 0) return native
-
-  const friendly = (addr: string) => addressBook[addr]?.user_friendly ?? addr
-
-  const proxyAmounts: Partial<Record<TransferType, string>> = {}
-  for (const transfer of jettonTransfers) {
-    if (transfer.trace_id !== traceId) continue
-    if (!transfer.source || !transfer.destination || !transfer.amount || !transfer.jetton_master)
-      continue
-    if (!isProxyTon(friendly(transfer.jetton_master))) continue
-
-    // Summed per direction - split routes move the wrapped amount in multiple legs
-    if (addressesMatch(friendly(transfer.source), pubkey)) {
-      proxyAmounts[TransferType.Send] = (
-        BigInt(proxyAmounts[TransferType.Send] ?? '0') + BigInt(transfer.amount)
-      ).toString()
-    }
-    if (addressesMatch(friendly(transfer.destination), pubkey)) {
-      proxyAmounts[TransferType.Receive] = (
-        BigInt(proxyAmounts[TransferType.Receive] ?? '0') + BigInt(transfer.amount)
-      ).toString()
-    }
-  }
-
-  // Net native flow across the trace, gas envelopes and excess refunds included (fees excluded)
-  let net = 0n
-  for (const tx of txs) {
-    if (tx.in_msg?.value && tx.in_msg.source) net += BigInt(tx.in_msg.value)
-    for (const outMsg of tx.out_msgs ?? []) {
-      if (outMsg.value) net -= BigInt(outMsg.value)
-    }
-  }
-
-  const hasJettonSend = jetton.some(t => t.type === TransferType.Send)
-  const hasJettonReceive = jetton.some(t => t.type === TransferType.Receive)
-  const sends = native.filter(t => t.type === TransferType.Send)
-  const receives = native.filter(t => t.type === TransferType.Receive)
-
-  const nativeLegs: TxTransfer[] = []
-
-  if (proxyAmounts[TransferType.Send] && sends.length === 1) {
-    nativeLegs.push({ ...sends[0], value: proxyAmounts[TransferType.Send] })
-  } else if (net < 0n && hasJettonReceive && !hasJettonSend && sends.length > 0) {
-    nativeLegs.push({ ...sends[0], value: (-net).toString() })
-  }
-
-  if (proxyAmounts[TransferType.Receive] && receives.length === 1) {
-    nativeLegs.push({ ...receives[0], value: proxyAmounts[TransferType.Receive] })
-  } else if (net > 0n && hasJettonSend && !hasJettonReceive && receives.length > 0) {
-    nativeLegs.push({ ...receives[0], value: net.toString() })
-  }
-
-  return [...nativeLegs, ...jetton]
-}
-
-export const parseTonTx = (
-  tx: TonTx,
-  pubkey: string,
-  txid: string,
-  assetId: AssetId,
-  chainId: ChainId,
-): Transaction => {
-  const isAborted = tx.description?.aborted ?? false
-  const actionSuccess = tx.description?.action?.success ?? true
-  const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed
-
-  const transfers: TxTransfer[] = []
-
-  if (tx.in_msg?.value && tx.in_msg.source && tx.in_msg.destination) {
-    const inMsgDecodedType = tx.in_msg.message_content?.decoded?.['@type']
-    const isExcess = inMsgDecodedType === 'excess'
-    const value = tx.in_msg.value
-    if (BigInt(value) > 0n && !isExcess) {
-      const isReceive = addressesMatch(tx.in_msg.destination, pubkey)
-      const isSend = addressesMatch(tx.in_msg.source, pubkey)
-
-      if (isSend) {
-        transfers.push({
-          assetId,
-          from: [tx.in_msg.source],
-          to: [tx.in_msg.destination],
-          type: TransferType.Send,
-          value,
-        })
-      }
-      if (isReceive) {
-        transfers.push({
-          assetId,
-          from: [tx.in_msg.source],
-          to: [tx.in_msg.destination],
-          type: TransferType.Receive,
-          value,
-        })
-      }
-    }
-  }
-
-  if (tx.out_msgs) {
-    for (const outMsg of tx.out_msgs) {
-      if (outMsg.value && outMsg.source && outMsg.destination) {
-        const decodedType = outMsg.message_content?.decoded?.['@type']
-        const value =
-          decodedType === 'pton_ton_transfer' &&
-          outMsg.message_content?.decoded?.ton_amount?.amount?.value
-            ? outMsg.message_content.decoded.ton_amount.amount.value
-            : outMsg.value
-        if (BigInt(value) > 0n) {
-          const isSend = addressesMatch(outMsg.source, pubkey)
-          const isReceive = addressesMatch(outMsg.destination, pubkey)
-
-          if (isSend) {
-            transfers.push({
-              assetId,
-              from: [outMsg.source],
-              to: [outMsg.destination],
-              type: TransferType.Send,
-              value,
-            })
-          }
-          if (isReceive) {
-            transfers.push({
-              assetId,
-              from: [outMsg.source],
-              to: [outMsg.destination],
-              type: TransferType.Receive,
-              value,
-            })
-          }
-        }
-      }
-    }
-  }
-
-  const isSend = transfers.some(transfer => transfer.type === TransferType.Send)
-
-  return {
-    txid,
-    blockHeight: Number(tx.lt) || 0,
-    blockTime: tx.now || 0,
-    blockHash: undefined,
-    chainId,
-    confirmations: status === TxStatus.Confirmed ? 1 : 0,
-    status,
-    transfers,
-    pubkey,
-    ...(isSend && tx.total_fees && { fee: { assetId, value: tx.total_fees } }),
-  }
-}
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -1246,7 +927,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     if (typeof txHashOrTx !== 'string') {
       throw new Error(`[TON] parseTx expects a string tx hash, got ${typeof txHashOrTx}`)
     }
-
     // status poll, history upsert and balance pipeline all parse the same hash within seconds -
     // a short-lived memo collapses them into one network run
     const cacheKey = `${txHashOrTx}:${pubkey}`

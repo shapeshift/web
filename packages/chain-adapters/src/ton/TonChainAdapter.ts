@@ -64,7 +64,10 @@ const PROXY_TON_CONTRACTS = new Set([
   'EQBnGWMCf3-FZZq1W4IWcWiGAc3PHuZ0_H-7sad2oY00o83S',
 ])
 
-const TRACE_LT_SEARCH_RANGE = 1000n
+// Logical time advances ~1e6 per second, and downstream trace legs (dex payouts, excesses) land
+// tens of millions of lts after the initiator - this bounds the search only, results are
+// filtered by trace_id
+const TRACE_LT_SEARCH_RANGE = 1_000_000_000n
 const TON_HASH_HEX_LENGTH = 64
 export const isHexHash = (str: string): boolean => {
   return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)

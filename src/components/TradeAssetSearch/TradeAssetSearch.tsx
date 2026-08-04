@@ -211,12 +211,24 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
-    const filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
+    let filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
       asset => assetFilterPredicate?.(asset.assetId) ?? true,
     )
 
+    if (hasWallet && !allowWalletUnsupportedAssets) {
+      filteredPortfolioAssetsSortedByBalance = filteredPortfolioAssetsSortedByBalance.filter(
+        asset => walletConnectedChainIds.includes(asset.chainId),
+      )
+    }
+
     return filteredPortfolioAssetsSortedByBalance
-  }, [portfolioAssetsSortedByBalance, assetFilterPredicate])
+  }, [
+    portfolioAssetsSortedByBalance,
+    assetFilterPredicate,
+    hasWallet,
+    allowWalletUnsupportedAssets,
+    walletConnectedChainIds,
+  ])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {

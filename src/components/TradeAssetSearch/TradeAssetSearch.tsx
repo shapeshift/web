@@ -28,6 +28,7 @@ import type { TopItemListProps } from 'react-virtuoso'
 import { Virtuoso } from 'react-virtuoso'
 
 import { FiatMenuButton } from '../AssetSelection/components/FiatMenuButton'
+import { filterAssetsByChain } from './helpers/filterAssetsByChain/filterAssetsByChain'
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
@@ -211,17 +212,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
-    let filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
-      (asset: Asset): boolean => assetFilterPredicate?.(asset.assetId) ?? true,
-    )
-
-    if (hasWallet && !allowWalletUnsupportedAssets) {
-      filteredPortfolioAssetsSortedByBalance = filteredPortfolioAssetsSortedByBalance.filter(
-        (asset: Asset): boolean => walletConnectedChainIds.includes(asset.chainId),
-      )
-    }
-
-    return filteredPortfolioAssetsSortedByBalance
+    return filterAssetsByChain({
+      assets: portfolioAssetsSortedByBalance,
+      hasWallet,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      assetFilterPredicate,
+    })
   }, [
     portfolioAssetsSortedByBalance,
     assetFilterPredicate,

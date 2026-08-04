@@ -785,8 +785,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         const batch = pendingTraceIds.slice(i, i + TRACE_BATCH_SIZE)
 
         try {
-          const result = await this.fetchTraces(
-            `trace_id=${batch.map(encodeURIComponent).join(',')}&limit=${TRACE_BATCH_SIZE}`,
+          // Every leg of every requested trace in a single request - no lt-window or page-size
+          // assumptions, and is_incomplete flags traces still executing
+          const result = await this.httpApiRequest<TonTracesResponse>(
+            `/api/v3/traces?trace_id=${batch
+              .map(encodeURIComponent)
+              .join(',')}&limit=${TRACE_BATCH_SIZE}`,
           )
           Object.assign(addressBook, result.address_book ?? {})
 
@@ -1200,12 +1204,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
-  // Every leg of every requested trace in a single request - no lt-window or page-size
-  // assumptions, and is_incomplete flags traces still executing
-  private async fetchTraces(params: string): Promise<TonTracesResponse> {
-    return this.httpApiRequest<TonTracesResponse>(`/api/v3/traces?${params}`)
-  }
-
   private ownTraceTxs(trace: TonTrace, pubkey: string): TonTx[] {
     return Object.values(trace.transactions ?? {})
       .filter(t => addressesMatch(t.account, pubkey))
@@ -1295,7 +1293,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const endLt = (BigInt(tx.lt) + TRACE_LT_SEARCH_RANGE).toString()
 
       const [traceResult, jettonData] = await Promise.all([
-        this.fetchTraces(`tx_hash=${encodeURIComponent(tx.hash)}&limit=1`),
+        this.httpApiRequest<TonTracesResponse>(
+          `/api/v3/traces?tx_hash=${encodeURIComponent(tx.hash)}&limit=1`,
+        ),
         this.fetchJettonTransfers(pubkey, tx.lt, endLt),
       ])
 

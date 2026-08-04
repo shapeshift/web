@@ -68,6 +68,8 @@ const PROXY_TON_CONTRACTS = new Set([
 // tens of millions of lts after the initiator - this bounds the search only, results are
 // filtered by trace_id
 const TRACE_LT_SEARCH_RANGE = 1_000_000_000n
+// Legs of a trace land within this window of its initiator (~5 minutes of logical time)
+const TRACE_COMPLETION_LT_SPAN = 300_000_000n
 const TON_HASH_HEX_LENGTH = 64
 export const isHexHash = (str: string): boolean => {
   return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
@@ -227,11 +229,16 @@ export const buildTraceTransfers = ({
       continue
     if (!isProxyTon(friendly(transfer.jetton_master))) continue
 
+    // Summed per direction - split routes move the wrapped amount in multiple legs
     if (addressesMatch(friendly(transfer.source), pubkey)) {
-      proxyAmounts[TransferType.Send] = transfer.amount
+      proxyAmounts[TransferType.Send] = (
+        BigInt(proxyAmounts[TransferType.Send] ?? '0') + BigInt(transfer.amount)
+      ).toString()
     }
     if (addressesMatch(friendly(transfer.destination), pubkey)) {
-      proxyAmounts[TransferType.Receive] = transfer.amount
+      proxyAmounts[TransferType.Receive] = (
+        BigInt(proxyAmounts[TransferType.Receive] ?? '0') + BigInt(transfer.amount)
+      ).toString()
     }
   }
 
@@ -371,6 +378,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   protected readonly assetId = tonAssetId
   protected readonly rpcUrl: string
   private requestQueue: PQueue
+  private traceNotOwnCache = new Set<string>()
 
   constructor(args: ChainAdapterArgs) {
     this.rpcUrl = args.rpcUrl
@@ -750,25 +758,62 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         ;(txsByTrace[traceId] ??= []).push(tx)
       }
 
-      // Trace legs whose initiator fell on another page would otherwise emit as disconnected
-      // rows - fetch the initiator so the trace still merges into a single row under its id
       const pageHashes = new Set(data.transactions.map(tx => tx.hash))
-      const orphanTraceIds = Object.entries(txsByTrace)
-        .filter(([traceId, group]) => group.length > 1 && !pageHashes.has(traceId))
-        .map(([traceId]) => traceId)
+      const pageMaxLt = data.transactions
+        .map(tx => BigInt(tx.lt))
+        .reduce((a, b) => (a > b ? a : b))
 
-      for (const traceId of orphanTraceIds) {
+      // Rows are emitted complete or not at all: a page can slice through a trace, so groups
+      // initiated by this account are re-fetched over the trace lt window whenever the page
+      // cannot guarantee it contains every leg. Emitted rows overwrite existing ones (pending
+      // rows re-emit until confirmed), so a partial group must never be emitted for an own trace.
+      for (const [traceId, group] of Object.entries(txsByTrace)) {
+        const initiatorInPage = pageHashes.has(traceId)
+
+        const isOwnTrace = await (async () => {
+          if (initiatorInPage) return true
+
+          // Only not-own verdicts are cached: an own verdict must re-inject the initiator tx
+          if (this.traceNotOwnCache.has(`${pubkey}:${traceId}`)) return false
+
+          try {
+            const result = await this.httpApiRequest<TonApiTxResponse>(
+              `/api/v3/transactions?hash=${encodeURIComponent(traceId)}&limit=1`,
+            )
+            const initiator = result.transactions?.[0]
+            const isOwn = Boolean(initiator && addressesMatch(initiator.account, pubkey))
+            if (isOwn && initiator) {
+              group.unshift(initiator)
+              Object.assign(addressBook, result.address_book ?? {})
+            } else {
+              this.traceNotOwnCache.add(`${pubkey}:${traceId}`)
+            }
+            return isOwn
+          } catch {
+            // Degrades to emitting the page legs as-is
+            return false
+          }
+        })()
+
+        if (!isOwnTrace) continue
+
+        const initiator = group.find(t => t.hash === traceId)
+        if (!initiator) continue
+
+        const mayBeSliced =
+          !initiatorInPage || BigInt(initiator.lt) + TRACE_COMPLETION_LT_SPAN > pageMaxLt
+
+        if (!mayBeSliced) continue
+
         try {
-          const result = await this.httpApiRequest<TonApiTxResponse>(
-            `/api/v3/transactions?hash=${encodeURIComponent(traceId)}&limit=1`,
-          )
-          const initiator = result.transactions?.[0]
-          if (initiator && addressesMatch(initiator.account, pubkey)) {
-            txsByTrace[traceId].unshift(initiator)
-            Object.assign(addressBook, result.address_book ?? {})
+          const traceTxs = await this.fetchTraceTxs(pubkey, initiator.lt, traceId)
+          if (traceTxs.txs.length > 0) {
+            txsByTrace[traceId] = traceTxs.txs
+            Object.assign(addressBook, traceTxs.addressBook)
           }
         } catch {
-          // Degrades to the legs emitting as standalone rows
+          // Better no row this round than a partial one overwriting a complete row
+          delete txsByTrace[traceId]
         }
       }
 
@@ -793,13 +838,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         const owner = traceGroup.find(t => t.hash === traceId) ?? traceGroup[0]
 
         // Externally-initiated txs are keyed by their message hash - the same id broadcast
-        // returns and parseTx uses, so rows upserted at swap time dedupe with history rows
+        // returns and parseTx uses, so rows upserted at swap time overwrite history rows and
+        // vice versa instead of duplicating
         const isExternalInitiated = !owner.in_msg?.source && Boolean(owner.in_msg?.hash)
         const txid = base64ToHex(
           isExternalInitiated && owner.in_msg?.hash ? owner.in_msg.hash : owner.hash,
         )
-
-        if (knownTxIds?.has(txid)) continue
 
         const allTransfers = buildTraceTransfers({
           txs: traceGroup,
@@ -811,10 +855,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
           chainId: this.chainId,
         })
 
-        // e.g. an orphaned excess leg whose initiator lives on another page
+        // e.g. a gas-only excess leg of a foreign trace
         if (allTransfers.length === 0) continue
 
         txIds.push(txid)
+
+        if (knownTxIds?.has(txid)) continue
 
         const parsedOwner = parseTonTx(
           resolveAddresses(owner, jettonAddrBook),
@@ -1147,6 +1193,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
+  private async fetchTraceTxs(
+    pubkey: string,
+    fromLt: string,
+    traceId: string,
+  ): Promise<{ txs: TonTx[]; addressBook: Record<string, { user_friendly: string }> }> {
+    const endLt = (BigInt(fromLt) + TRACE_LT_SEARCH_RANGE).toString()
+    const result = await this.httpApiRequest<TonApiTxResponse>(
+      `/api/v3/transactions?account=${encodeURIComponent(
+        pubkey,
+      )}&start_lt=${fromLt}&end_lt=${endLt}&sort=asc&limit=20`,
+    )
+    return {
+      txs: (result.transactions ?? []).filter(t => (t.trace_id ?? t.hash) === traceId),
+      addressBook: result.address_book ?? {},
+    }
+  }
+
   private async fetchJettonTransfers(
     pubkey: string,
     startLt: string,
@@ -1230,23 +1293,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const endLt = (BigInt(tx.lt) + TRACE_LT_SEARCH_RANGE).toString()
 
       const [traceTxResult, jettonData] = await Promise.all([
-        this.httpApiRequest<TonApiTxResponse>(
-          `/api/v3/transactions?account=${encodeURIComponent(pubkey)}&start_lt=${
-            tx.lt
-          }&end_lt=${endLt}&sort=asc&limit=20`,
-        ),
+        this.fetchTraceTxs(pubkey, tx.lt, traceId),
         this.fetchJettonTransfers(pubkey, tx.lt, endLt),
       ])
 
       const addressBook = {
         ...(txResult.address_book ?? {}),
-        ...(traceTxResult.address_book ?? {}),
+        ...traceTxResult.addressBook,
         ...jettonData.address_book,
       }
 
-      const traceTxs = (traceTxResult.transactions ?? []).filter(
-        t => (t.trace_id ?? t.hash) === traceId,
-      )
+      const traceTxs = traceTxResult.txs
       const primaryTx = traceTxs[0] ?? tx
 
       const txsToProcess = traceTxs.length > 0 ? traceTxs : [tx]

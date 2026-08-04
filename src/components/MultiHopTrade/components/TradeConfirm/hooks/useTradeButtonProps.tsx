@@ -1,5 +1,5 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { buildSwapMetadata, SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -65,7 +65,7 @@ export const useTradeButtonProps = ({
     allowanceApproval,
     allowanceReset,
     state: hopExecutionState,
-    swap: { state: swapTxState, relayerExplorerTxLink, relayerTxHash },
+    swap: { state: swapTxState },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
   const {
@@ -116,23 +116,10 @@ export const useTradeButtonProps = ({
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
       expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
-      metadata: {
-        chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
-        nearIntentsSpecific: firstStep?.nearIntentsSpecific,
-        bobSpecific: firstStep?.bobSpecific,
-        relayerExplorerTxLink,
-        relayerTxHash,
-        relayTransactionMetadata: firstStep?.relayTransactionMetadata,
-        acrossTransactionMetadata: firstStep?.acrossTransactionMetadata,
-        debridgeTransactionMetadata: firstStep?.debridgeTransactionMetadata,
+      metadata: buildSwapMetadata(firstStep, {
         stepIndex: currentHopIndex,
-        quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
-        streamingSwapMetadata: {
-          maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
-          attemptedSwapCount: 0,
-          failedSwaps: [],
-        },
-      },
+        quoteId: activeQuote.id,
+      }),
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
     }
@@ -141,15 +128,7 @@ export const useTradeButtonProps = ({
     dispatch(swapSlice.actions.setActiveSwapId(swap.id))
 
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [
-    dispatch,
-    activeQuote,
-    currentHopIndex,
-    buyAccountId,
-    sellAccountId,
-    relayerExplorerTxLink,
-    relayerTxHash,
-  ])
+  }, [dispatch, activeQuote, currentHopIndex, buyAccountId, sellAccountId])
 
   const executeTrade = useTradeExecution(currentHopIndex, activeTradeId, onSwapTxBroadcast)
 

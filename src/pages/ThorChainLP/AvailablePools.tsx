@@ -1,4 +1,4 @@
-import type { FlexProps, GridProps } from '@chakra-ui/react'
+import type { FlexProps } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -31,11 +31,6 @@ import { RawText, Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
-export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
-  base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  lg: '1fr repeat(2, 1fr)',
-  xl: '1fr repeat(3, minmax(200px, max-content))',
-}
 const mobileDisplay = {
   base: 'none',
   lg: 'flex',

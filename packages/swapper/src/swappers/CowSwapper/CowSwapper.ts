@@ -1,7 +1,7 @@
 import { SigningScheme } from '@shapeshiftoss/types'
 
-import { assertGetCowNetwork, signCowOrder } from '../../cowswap-utils'
 import type { Swapper } from '../../types'
+import { assertGetCowNetwork, signCowOrder } from '../../utils/cowswap'
 import { cowService } from './utils/cowService'
 
 export const cowSwapper: Swapper = {

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { isExecutableTradeStep } from '@shapeshiftoss/swapper'
+import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { bn } from '@shapeshiftoss/utils'
 import type { Selector } from 'react-redux'
 
@@ -102,7 +102,10 @@ const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined
   )
 
 const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
-  createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[1] : undefined))
+  createDeepEqualOutputSelector(
+    selectActiveQuote,
+    quote => (quote ? quote.steps[1] : undefined) as TradeQuote['steps'][number] | undefined,
+  )
 
 export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =
   createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))
@@ -127,10 +130,12 @@ export const selectSecondHopSellAccountId = createSelector(
   selectAccountIdByAccountNumberAndChainId,
   selectIsActiveQuoteMultiHop,
   selectSecondHop,
-  (accountIdsByAccountNumberAndChainId, isMultiHopTrade, secondHop) => {
+  selectActiveQuote,
+  (accountIdsByAccountNumberAndChainId, isMultiHopTrade, secondHop, activeQuote) => {
     // No second hop sellAccountId if there is no second hop
     if (!isMultiHopTrade || !secondHop) return
-    if (!isExecutableTradeStep(secondHop)) return
+    // Only executable (quote) trades carry a usable sell account number on their steps
+    if (!activeQuote || !isExecutableTradeQuote(activeQuote)) return
 
     const secondHopSellAssetAccountNumber = secondHop.accountNumber
     const secondHopSellAssetChainId = secondHop.sellAsset.chainId

@@ -103,8 +103,8 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     color: '#C5B5F2',
     url: 'https://app.shapeshift.com',
   },
-  [DefiProvider.ThorchainSavers]: {
-    provider: DefiProvider.ThorchainSavers,
+  [DefiProvider.RunePool]: {
+    provider: DefiProvider.RunePool,
     icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/thorchain/info/logo.png',
     color: '#0CDBE0',
     url: 'https://x.com/thorchain',

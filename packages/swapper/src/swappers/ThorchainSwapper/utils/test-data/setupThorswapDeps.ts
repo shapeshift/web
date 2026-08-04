@@ -10,6 +10,10 @@ const feeData = {
     chainSpecific: { approvalFeeCryptoBaseUnit: '1', gasLimit: '1', gasPrice: '1' },
     tradeFee: '2',
   },
+  average: {
+    txFee: '400000',
+    chainSpecific: { gasLimit: '100000', gasPrice: '4' },
+  },
 }
 
 export const mockEvmChainAdapter: EvmChainAdapter = {

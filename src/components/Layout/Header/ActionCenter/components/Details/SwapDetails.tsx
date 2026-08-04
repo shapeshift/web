@@ -86,8 +86,6 @@ export const SwapDetails: React.FC<SwapDetailsProps> = ({ txLink, action, swap }
                 txHash={swapMetadata.allowanceApproval.txHash}
                 explorerBaseUrl={sellAsset.explorerTxLink}
                 accountId={sellAccountId}
-                stepSource={undefined} // no swapper base URL here, this is an allowance Tx
-                quoteSwapperName={swapperName}
               />
             ) : (
               <CheckCircleIcon color='green.500' />

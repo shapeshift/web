@@ -14,7 +14,7 @@ export const assertValidTrade = ({
 }: {
   buyAsset: Asset
   sellAsset: Asset
-}): Result<boolean, SwapErrorRight> => {
+}): Result<void, SwapErrorRight> => {
   if (!MAYACHAIN_SUPPORTED_CHAIN_IDS.includes(sellAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
@@ -55,5 +55,5 @@ export const assertValidTrade = ({
     )
   }
 
-  return Ok(true)
+  return Ok(undefined)
 }

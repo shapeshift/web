@@ -7,7 +7,7 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { SunioQuoteResponse } from '../types'
 import { SUNIO_API_BASE_URL, SUNIO_DEX_TYPES } from './constants'
-import { assetIdToTronToken } from './helpers/helpers'
+import { assetIdToTronToken } from './helpers'
 import type { SunioService } from './sunioService'
 
 export type FetchSunioQuoteParams = {

@@ -1,138 +1,52 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import BigNumber from 'bignumber.js'
-import { fromHex } from 'viem'
 
-import type {
-  GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
-  GetSolanaTradeQuoteInput,
-  GetSolanaTradeRateInput,
-  SwapperApi,
-} from '../../types'
+import type { SwapperApi } from '../../types'
 import {
   checkEvmSwapStatus,
   checkSolanaSwapStatus,
   getExecutableTradeStep,
+  getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getBebopSolanaTradeQuote } from './getBebopSolanaTradeQuote/getBebopSolanaTradeQuote'
 import { getBebopSolanaTradeRate } from './getBebopSolanaTradeRate/getBebopSolanaTradeRate'
 import { getBebopTradeQuote } from './getBebopTradeQuote/getBebopTradeQuote'
 import { getBebopTradeRate } from './getBebopTradeRate/getBebopTradeRate'
-import { isSolanaChainId } from './utils/helpers/helpers'
+import type { BebopTradeQuoteInput, BebopTradeRateInput } from './types'
 
 export const bebopApi: SwapperApi = {
-  getTradeQuote: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
-    if (isSolanaChainId(input.sellAsset.chainId)) {
-      const tradeQuoteResult = await getBebopSolanaTradeQuote(
-        input as GetSolanaTradeQuoteInput,
-        assetsById,
-        config.VITE_BEBOP_API_KEY,
-      )
-      return tradeQuoteResult.map(tradeQuote => [tradeQuote])
-    }
+  getTradeQuote: (input, deps) => {
+    const quoteInput = input as BebopTradeQuoteInput
 
-    const tradeQuoteResult = await getBebopTradeQuote(
-      input as GetEvmTradeQuoteInputBase,
-      assertGetEvmChainAdapter,
-      assetsById,
-      config.VITE_BEBOP_API_KEY,
-    )
-
-    return tradeQuoteResult.map(tradeQuote => [tradeQuote])
+    return 'supportsEIP1559' in quoteInput
+      ? getBebopTradeQuote(quoteInput, deps)
+      : getBebopSolanaTradeQuote(quoteInput, deps)
   },
-  getTradeRate: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
-    if (isSolanaChainId(input.sellAsset.chainId)) {
-      const tradeRateResult = await getBebopSolanaTradeRate(
-        input as GetSolanaTradeRateInput,
-        assetsById,
-        config.VITE_BEBOP_API_KEY,
-      )
-      return tradeRateResult.map(tradeRate => [tradeRate])
-    }
+  getTradeRate: (input, deps) => {
+    const rateInput = input as BebopTradeRateInput
 
-    const tradeRateResult = await getBebopTradeRate(
-      input as GetEvmTradeRateInput,
-      assertGetEvmChainAdapter,
-      assetsById,
-      config.VITE_BEBOP_API_KEY,
-    )
-
-    return tradeRateResult.map(tradeRate => [tradeRate])
+    return 'supportsEIP1559' in rateInput
+      ? getBebopTradeRate(rateInput, deps)
+      : getBebopSolanaTradeRate(rateInput, deps)
   },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset, bebopTransactionMetadata } = step
-    if (!bebopTransactionMetadata) throw new Error('Transaction metadata is required')
-
-    const { value: hexValue, to, data, gas } = bebopTransactionMetadata
-    const value = fromHex(hexValue, 'bigint').toString()
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    if (!gas) {
-      throw new Error('Bebop API did not provide gas estimate - cannot execute trade safely')
-    }
-
-    return adapter.buildCustomApiTx({
-      accountNumber,
-      data,
-      from,
-      to,
-      value,
-      ...feeData,
-      gasLimit: BigNumber.max(feeData.gasLimit, gas).toFixed(),
-    })
-  },
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
   getUnsignedSolanaMessage: ({ tradeQuote, stepIndex }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { bebopSolanaSerializedTx, bebopQuoteId } = step
-    if (!bebopSolanaSerializedTx || !bebopQuoteId) {
-      throw new Error('Bebop Solana transaction metadata is required')
+    const { transactionData } = step
+    const { quoteId } = getSwapMetadata(step.swapperMetadata, 'bebop')
+    if (transactionData?.type !== 'solana_serialized_tx' || !quoteId) {
+      throw new Error('Bebop Solana transaction data is required')
     }
 
     return Promise.resolve({
-      serializedTx: bebopSolanaSerializedTx,
-      quoteId: bebopQuoteId,
+      serializedTx: transactionData.serializedTx,
+      quoteId,
     })
-  },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sellAsset, bebopTransactionMetadata } = step
-    if (!bebopTransactionMetadata) throw new Error('Transaction metadata is required')
-
-    const { value: hexValue, to, data } = bebopTransactionMetadata
-    const value = fromHex(hexValue, 'bigint').toString()
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
   },
   checkTradeStatus: input => {
     if (input.chainId === solanaChainId) {

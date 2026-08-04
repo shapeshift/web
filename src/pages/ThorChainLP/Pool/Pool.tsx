@@ -196,7 +196,7 @@ export const Pool = () => {
             <PairRates assetIds={poolAssetIds} />
             <Flex gap={4}>
               <Tooltip
-                label={translate('defi.modals.saversVaults.haltedDepositTitle')}
+                label={translate('pools.haltedDepositTitle')}
                 isDisabled={isTradingActive === undefined || isTradingActive === true}
                 hasArrow
               >

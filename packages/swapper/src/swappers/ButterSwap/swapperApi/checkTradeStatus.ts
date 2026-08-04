@@ -102,7 +102,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     // Use toHash as the destination chain tx hash if present
     const destinationTxHash = bridgeInfo.toHash ?? undefined
     const relayerTxHash = bridgeInfo.relayerHash ?? undefined
-    const relayerExplorerTxLink = bridgeInfo.relayerChain?.scanUrl ?? undefined
+    const relayerScanUrl = bridgeInfo.relayerChain?.scanUrl ?? undefined
 
     // State mapping: 0 = pending, 1 = complete, 6 = refunded/failed
     let status: TxStatus = (() => {
@@ -125,8 +125,9 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     return {
       status,
       buyTxHash: destinationTxHash,
-      relayerTxHash,
-      relayerExplorerTxLink,
+      swapperTxId: relayerTxHash,
+      swapperTxLink:
+        relayerTxHash && relayerScanUrl ? `${relayerScanUrl}tx/${relayerTxHash}` : undefined,
       message: undefined,
     }
   } catch (e) {

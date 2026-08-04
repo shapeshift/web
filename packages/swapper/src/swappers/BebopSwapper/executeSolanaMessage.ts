@@ -18,11 +18,11 @@ export const executeSolanaMessage = async (
   { signSerializedTransaction }: SolanaMessageExecutionProps,
   config: SwapperConfig,
 ): Promise<string> => {
-  const { serializedTx, quoteId } = messageData
-
-  if (!serializedTx || !quoteId) {
+  if (!('quoteId' in messageData) || !messageData.quoteId || !messageData.serializedTx) {
     throw new Error('Missing serializedTx or quoteId in message data')
   }
+
+  const { serializedTx, quoteId } = messageData
 
   const signatures = await signSerializedTransaction(serializedTx)
 

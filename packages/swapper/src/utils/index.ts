@@ -1,0 +1,577 @@
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
+import type {
+  EvmChainAdapter,
+  near,
+  SignTx,
+  solana,
+  starknet,
+  sui,
+  ton,
+} from '@shapeshiftoss/chain-adapters'
+import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
+import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
+import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { Asset, EvmChainId } from '@shapeshiftoss/types'
+import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import Axios from 'axios'
+import { setupCache } from 'axios-cache-interceptor'
+import type { TypedData } from 'eip-712'
+
+import type {
+  CommonSwapMetadata,
+  EvmTransactionExecutionProps,
+  NearTransactionExecutionProps,
+  SolanaTransactionExecutionProps,
+  StarknetTransactionExecutionProps,
+  SuiTransactionExecutionProps,
+  SupportedTradeQuoteStepIndex,
+  SwapErrorRight,
+  SwapMetadata,
+  SwapperMetadata,
+  TonTransactionExecutionProps,
+  TradeQuote,
+  TradeQuoteStep,
+  TradeRate,
+  TradeRateStep,
+  TradeStatus,
+  TronTransactionExecutionProps,
+} from '../types'
+import { TradeQuoteError } from '../types'
+import { fetchSafeTransactionInfo } from './safe'
+
+export const getPermit2Eip712 = (
+  step: TradeQuoteStep | TradeRateStep | undefined,
+): TypedData | undefined => {
+  return step?.transactionData?.type === 'evm'
+    ? step.transactionData.signatureRequired?.eip712
+    : undefined
+}
+
+export const makeSwapErrorRight = ({
+  details,
+  cause,
+  code,
+  message,
+}: {
+  message: string
+  details?: unknown
+  cause?: unknown
+  code?: TradeQuoteError
+}): SwapErrorRight => ({
+  name: 'SwapError',
+  message,
+  details,
+  cause,
+  code,
+})
+
+export const assertQuoteAddresses = ({
+  sendAddress,
+  receiveAddress,
+}: {
+  sendAddress?: string
+  receiveAddress?: string
+}): Result<{ sendAddress: string; receiveAddress: string }, SwapErrorRight> => {
+  if (!sendAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'sendAddress is required',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  if (!receiveAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'receiveAddress is required',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  return Ok({ sendAddress, receiveAddress })
+}
+
+export const createTradeAmountTooSmallErr = (details?: {
+  minAmountCryptoBaseUnit: string
+  assetId: AssetId
+}) =>
+  makeSwapErrorRight({
+    code: TradeQuoteError.SellAmountBelowMinimum,
+    message: 'Sell amount is too small',
+    details,
+  })
+
+export const makeNetworkFeeEstimationFailedErr = (context: string, cause?: unknown) =>
+  makeSwapErrorRight({
+    code: TradeQuoteError.NetworkFeeEstimationFailed,
+    message: `[${context}] Error estimating network fee`,
+    cause,
+  })
+
+export const makeTradeStepBuildFailedErr = (context: string, cause?: unknown) =>
+  makeSwapErrorRight({
+    code: TradeQuoteError.InvalidResponse,
+    message: `[${context}] Error building trade step`,
+    cause,
+  })
+
+const getRequestFilter = (cachedUrls: string[]) => (request: AxiosRequestConfig) =>
+  !cachedUrls.some(url => request.url?.includes(url))
+
+export const createCache = (
+  maxAge: number,
+  cachedUrls: string[],
+  axiosConfig: AxiosRequestConfig,
+): AxiosInstance => {
+  const filter = getRequestFilter(cachedUrls)
+  const axiosInstance = Axios.create(axiosConfig)
+
+  setupCache(axiosInstance, {
+    ttl: maxAge,
+    cachePredicate: cacheResponse => filter(cacheResponse.config),
+    interpretHeader: false,
+    staleIfError: true,
+    cacheTakeover: false,
+  })
+
+  return axiosInstance
+}
+
+// https://github.com/sniptt-official/monads/issues/111
+const AsyncResultOf = async <T>(promise: Promise<T>): Promise<Result<T, Error>> => {
+  try {
+    return Ok(await promise)
+  } catch (err) {
+    return Err(err as Error)
+  }
+}
+
+// https://github.com/microsoft/TypeScript/issues/20846#issuecomment-353412767
+// "new Proxy" is typed as `new <T extends object>(target: T, handler: ProxyHandler<T>): T;`
+// i.e same return type as the target object being trapped, but we're akschually returning a monadic flavor of the target object
+interface ProxyHandler<T extends object, TOut extends object> {
+  get?<K extends keyof TOut>(target: T, p: K, receiver: TOut): TOut[K]
+  set?<K extends keyof TOut>(target: T, p: K, value: TOut[K], receiver: TOut): boolean
+}
+interface ProxyConstructor {
+  new <T extends object, TOut extends object>(target: T, handler: ProxyHandler<T, TOut>): TOut
+}
+declare var Proxy: ProxyConstructor
+
+export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance) =>
+  new Proxy<
+    AxiosInstance,
+    {
+      get: <T = any>(
+        url: string,
+        config?: AxiosRequestConfig<any>,
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
+      post: <T = any>(
+        url: string,
+        data: any,
+        config?: AxiosRequestConfig<any>,
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
+      delete: <T = any>(
+        url: string,
+        data: any,
+        config?: AxiosRequestConfig<any>,
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
+    }
+  >(service, {
+    get: (trappedAxios, method: 'get' | 'post' | 'delete') => {
+      const originalMethodPromise = trappedAxios[method]
+      return async (...args: [url: string, dataOrConfig?: any, dataOrConfig?: any]) => {
+        // getMixPanel()?.track(MixPanelEvent.SwapperApiRequest, {
+        //   swapper: swapperName,
+        //   url: args[0],
+        //   method,
+        // })
+        const result = await AsyncResultOf(originalMethodPromise(...args))
+
+        return result
+          .mapErr(e =>
+            makeSwapErrorRight({
+              message: 'makeSwapperAxiosServiceMonadic',
+              cause: e,
+              code: TradeQuoteError.QueryFailed,
+            }),
+          )
+          .andThen<AxiosResponse>(result => {
+            if (!result.data)
+              return Err(
+                makeSwapErrorRight({
+                  message: 'makeSwapperAxiosServiceMonadic: no data was returned',
+                  cause: result,
+                  code: TradeQuoteError.QueryFailed,
+                }),
+              )
+
+            return Ok(result)
+          })
+      }
+    },
+  })
+
+export const getHopByIndex = (
+  quote: TradeQuote | TradeRate | undefined,
+  index: SupportedTradeQuoteStepIndex,
+) => {
+  if (quote === undefined) return undefined
+  if (index > 1) {
+    throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
+  }
+  const hop = quote.steps[index]
+
+  return hop
+}
+
+export const executeEvmTransaction = (
+  txToSign: SignTx<EvmChainId>,
+  callbacks: EvmTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeSolanaTransaction = (
+  txToSign: SolanaSignTx,
+  callbacks: SolanaTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeTronTransaction = (
+  txToSign: TronSignTx,
+  callbacks: TronTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeSuiTransaction = (
+  txToSign: SuiSignTx,
+  callbacks: SuiTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeNearTransaction = (
+  txToSign: near.NearSignTx,
+  callbacks: NearTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeStarknetTransaction = (
+  txToSign: StarknetSignTx,
+  callbacks: StarknetTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeTonTransaction = (
+  txToSign: ton.TonSignTx,
+  callbacks: TonTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const createDefaultStatusResponse = (buyTxHash?: string) => ({
+  status: TxStatus.Unknown,
+  buyTxHash,
+  message: undefined,
+})
+
+export const checkSafeTransactionStatus = async ({
+  address,
+  txHash,
+  chainId,
+  assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
+}: {
+  address: string | undefined
+  txHash: string
+  chainId: ChainId
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
+}): Promise<TradeStatus | undefined> => {
+  const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
+    address,
+    chainId,
+    fetchIsSmartContractAddressQuery,
+    safeTxHash: txHash,
+  })
+
+  if (!transaction) return
+
+  // SAFE proposal queued, but not executed on-chain yet
+  if (isQueuedSafeTx) {
+    return {
+      status: TxStatus.Pending,
+      message: [
+        'common.safeProposalQueued',
+        {
+          currentConfirmations: transaction.confirmations?.length,
+          confirmationsRequired: transaction.confirmationsRequired,
+        },
+      ],
+      buyTxHash: undefined,
+    }
+  }
+
+  // Transaction executed on-chain
+  if (isExecutedSafeTx) {
+    const adapter = assertGetEvmChainAdapter(chainId)
+    const tx = await adapter.httpProvider.getTransaction({
+      txid: transaction.transactionHash,
+    })
+    const status = evm.getTxStatus(tx)
+
+    return {
+      status,
+      buyTxHash: transaction.transactionHash,
+      message: 'common.safeProposalExecuted',
+    }
+  }
+}
+
+export const checkEvmSwapStatus = async ({
+  txHash,
+  chainId,
+  address,
+  assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
+}: {
+  txHash: string
+  address: string | undefined
+  chainId: ChainId
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
+}): Promise<TradeStatus> => {
+  try {
+    const adapter = assertGetEvmChainAdapter(chainId)
+
+    if (isSecondClassEvmAdapter(adapter)) {
+      const status = await adapter.getTransactionStatus(txHash)
+      return {
+        status,
+        buyTxHash: txHash,
+        message: undefined,
+      }
+    }
+
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      address,
+      txHash,
+      fetchIsSmartContractAddressQuery,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
+    if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
+
+    const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+    const status = evm.getTxStatus(tx)
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+    }
+  } catch {
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const getInputOutputRate = ({
+  sellAmountCryptoBaseUnit,
+  buyAmountCryptoBaseUnit,
+  sellAsset,
+  buyAsset,
+}: {
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+  sellAsset: Asset
+  buyAsset: Asset
+}): string => {
+  const sellAmountCryptoHuman = BigAmount.fromBaseUnit({
+    value: sellAmountCryptoBaseUnit,
+    precision: sellAsset.precision,
+  }).toPrecision()
+  const buyAmountCryptoHuman = BigAmount.fromBaseUnit({
+    value: buyAmountCryptoBaseUnit,
+    precision: buyAsset.precision,
+  }).toPrecision()
+  return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
+}
+
+export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is TradeQuote =>
+  quote.quoteOrRate === 'quote'
+
+export const getExecutableTradeStep = (
+  tradeQuote: TradeQuote,
+  stepIndex: SupportedTradeQuoteStepIndex,
+): TradeQuoteStep => {
+  // A TradeQuote is executable by construction, so its steps are TradeQuoteStep (accountNumber set)
+  const step = tradeQuote.steps[stepIndex]
+  if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
+
+  return step
+}
+
+export const checkSolanaSwapStatus = async ({
+  txHash,
+  address,
+  assertGetSolanaChainAdapter,
+}: {
+  txHash: string
+  address: string | undefined
+  assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    if (!address) throw new Error('Missing address')
+
+    const adapter = assertGetSolanaChainAdapter(solanaChainId)
+    const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+    const status = await adapter.getTxStatus(tx, address)
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const checkSuiSwapStatus = async ({
+  txHash,
+  address,
+  assertGetSuiChainAdapter,
+}: {
+  txHash: string
+  address: string | undefined
+  assertGetSuiChainAdapter: (chainId: ChainId) => sui.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    if (!address) throw new Error('Missing address')
+
+    const adapter = assertGetSuiChainAdapter(suiChainId)
+    const client = adapter.getSuiClient()
+
+    const txResponse = await client.getTransactionBlock({
+      digest: txHash,
+      options: {
+        showEffects: true,
+        showBalanceChanges: true,
+      },
+    })
+
+    const status =
+      txResponse.effects?.status?.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
+
+    // Extract actual buy amount from balance changes
+    let actualBuyAmountCryptoBaseUnit: string | undefined
+
+    if (txResponse.balanceChanges) {
+      // Balance changes show the net effect on the user's balances
+      // Positive amounts are received, negative are sent
+      const receivedChanges = txResponse.balanceChanges.filter(change => {
+        // The owner field is a discriminated union - check for AddressOwner variant
+        // Handle both object and string cases
+        const ownerAddress =
+          change.owner && typeof change.owner === 'object' && 'AddressOwner' in change.owner
+            ? change.owner.AddressOwner
+            : change.owner && typeof change.owner === 'object' && 'ObjectOwner' in change.owner
+            ? change.owner.ObjectOwner
+            : null
+
+        return ownerAddress === address && Number(change.amount) > 0
+      })
+
+      if (receivedChanges.length > 0) {
+        // For swaps, we expect exactly one positive balance change (the buy asset)
+        actualBuyAmountCryptoBaseUnit = receivedChanges[0].amount
+      }
+    }
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+      actualBuyAmountCryptoBaseUnit,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const checkStarknetSwapStatus = async ({
+  txHash,
+  assertGetStarknetChainAdapter,
+}: {
+  txHash: string
+  assertGetStarknetChainAdapter: (chainId: ChainId) => starknet.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    const adapter = assertGetStarknetChainAdapter(starknetChainId)
+    const provider = adapter.getStarknetProvider()
+
+    // Use raw RPC call for better compatibility with various RPC providers
+    const response = await provider.fetch('starknet_getTransactionReceipt', [txHash])
+    const result: { result?: { execution_status?: string }; error?: unknown } =
+      await response.json()
+
+    // If there's an error or no result, transaction might still be pending
+    if (result.error || !result.result) {
+      return createDefaultStatusResponse(txHash)
+    }
+
+    const receipt = result.result
+    const status =
+      receipt.execution_status === 'SUCCEEDED'
+        ? TxStatus.Confirmed
+        : receipt.execution_status === 'REVERTED'
+        ? TxStatus.Failed
+        : TxStatus.Pending
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+    }
+  } catch (e) {
+    // Don't log expected errors during status polling (tx might still be pending)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export class SolanaLogsError extends Error {
+  constructor(name: string) {
+    super(name)
+    this.name = name
+  }
+}
+
+export const buildSwapMetadata = (
+  step: TradeQuoteStep | TradeRateStep,
+  common: CommonSwapMetadata,
+): SwapMetadata => ({
+  ...common,
+  swapperMetadata: step.swapperMetadata,
+})
+
+export const getSwapMetadata = <S extends SwapperMetadata['name']>(
+  metadata: SwapperMetadata | undefined,
+  name: S,
+): Extract<SwapperMetadata, { name: S }> => {
+  if (metadata?.name !== name) throw new Error(`Expected ${name} swap metadata`)
+  return metadata as Extract<SwapperMetadata, { name: S }>
+}

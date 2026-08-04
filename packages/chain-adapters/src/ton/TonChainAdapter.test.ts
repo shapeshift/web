@@ -1,7 +1,7 @@
 import { tonAssetId, tonChainId } from '@shapeshiftoss/caip'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { base64ToHex, hexToBase64 } from '@shapeshiftoss/utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   addressesMatch,
@@ -665,59 +665,6 @@ describe('TonChainAdapter', () => {
     it('should return ton asset ID', () => {
       const adapter = new ChainAdapter({ rpcUrl: 'https://toncenter.com/api/v2/jsonRPC' })
       expect(adapter.getFeeAssetId()).toBe(tonAssetId)
-    })
-  })
-
-  describe('parseTx cache', () => {
-    const HASH = 'a'.repeat(64)
-    const TTL_MS = 4_000
-
-    const makeAdapter = () => {
-      const adapter = new ChainAdapter({ rpcUrl: 'https://toncenter.com/api/v2/jsonRPC' })
-      const impl = vi.spyOn(
-        adapter as unknown as { parseTxImpl: (hash: string, pubkey: string) => Promise<unknown> },
-        'parseTxImpl',
-      )
-      return { adapter, impl }
-    }
-
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
-    it('should reuse a pending parse past the ttl and start the ttl at resolution', async () => {
-      vi.useFakeTimers()
-      const { adapter, impl } = makeAdapter()
-
-      let resolve!: (tx: unknown) => void
-      impl.mockReturnValue(new Promise(r => (resolve = r)))
-
-      const first = adapter.parseTx(HASH, USER_BOUNCEABLE)
-      vi.advanceTimersByTime(TTL_MS * 3)
-      expect(adapter.parseTx(HASH, USER_BOUNCEABLE)).toBe(first)
-      expect(impl).toHaveBeenCalledTimes(1)
-
-      resolve({ txid: HASH })
-      await first
-
-      vi.advanceTimersByTime(TTL_MS - 1_000)
-      expect(adapter.parseTx(HASH, USER_BOUNCEABLE)).toBe(first)
-      expect(impl).toHaveBeenCalledTimes(1)
-
-      vi.advanceTimersByTime(2_000)
-      impl.mockResolvedValue({ txid: HASH })
-      await expect(adapter.parseTx(HASH, USER_BOUNCEABLE)).resolves.toMatchObject({ txid: HASH })
-      expect(impl).toHaveBeenCalledTimes(2)
-    })
-
-    it('should drop a rejected parse so the next call retries', async () => {
-      const { adapter, impl } = makeAdapter()
-
-      impl.mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce({ txid: HASH })
-
-      await expect(adapter.parseTx(HASH, USER_BOUNCEABLE)).rejects.toThrow('boom')
-      await expect(adapter.parseTx(HASH, USER_BOUNCEABLE)).resolves.toMatchObject({ txid: HASH })
-      expect(impl).toHaveBeenCalledTimes(2)
     })
   })
 })

@@ -147,17 +147,15 @@ export const stonfiApi: SwapperApi = {
 
       const statusOneOf = tradeStatus.status
 
+      // While the trade is in flight the wallet tx may already be confirmed, but the payout leg
+      // hasn't landed - confirming here would parse and upsert a trace without the receive, so
+      // completion waits for settlement
       if (
         statusOneOf.awaitingTransfer ||
         statusOneOf.transferring ||
         statusOneOf.swapping ||
         statusOneOf.receivingFunds
       ) {
-        const chainStatus = await checkTxStatusViaChainAdapter()
-        if (chainStatus.status === TxStatus.Confirmed) {
-          return chainStatus
-        }
-
         if (statusOneOf.awaitingTransfer) {
           return {
             status: TxStatus.Pending,

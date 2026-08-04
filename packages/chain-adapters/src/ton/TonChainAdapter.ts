@@ -676,11 +676,29 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         }
       }
 
+      // Group by trace so a swap is a single transaction carrying all its legs (jetton send +
+      // native payout), matching parseTx, rather than disconnected send and receive rows
+      const txsByTrace: Record<string, TonTx[]> = {}
+      for (const tx of data.transactions) {
+        const traceId = tx.trace_id ?? tx.hash
+        ;(txsByTrace[traceId] ??= []).push(tx)
+      }
+
       const transactions: Transaction[] = []
       const txIds: string[] = []
 
       for (const tx of data.transactions) {
-        const txid = base64ToHex(tx.hash)
+        const traceId = tx.trace_id ?? tx.hash
+        const traceGroup = txsByTrace[traceId] ?? [tx]
+        const isTraceOwner = jettonOwnerTx[traceId] === tx.hash
+
+        // Absorbed into the trace owner's row
+        if (!isTraceOwner && traceGroup.length > 1) continue
+
+        // Externally-initiated txs are keyed by their message hash - the same id broadcast
+        // returns and parseTx uses, so rows upserted at swap time dedupe with history rows
+        const isExternalInitiated = !tx.in_msg?.source && Boolean(tx.in_msg?.hash)
+        const txid = base64ToHex(isExternalInitiated && tx.in_msg?.hash ? tx.in_msg.hash : tx.hash)
 
         if (knownTxIds?.has(txid)) continue
 
@@ -689,28 +707,49 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         const normalizedTx = resolveAddresses(tx, addressBook)
         const parsedTx = parseTonTx(normalizedTx, pubkey, txid, this.assetId, this.chainId)
 
-        const traceId = tx.trace_id ?? tx.hash
-        const shouldAttachJettons = jettonOwnerTx[traceId] === tx.hash
-        const jettonTransfers = shouldAttachJettons
-          ? buildJettonTransfers(
-              jettonData.jetton_transfers,
-              traceId,
-              pubkey,
-              jettonAddrBook,
-              this.chainId,
-            )
-          : []
+        const jettonTransfers = buildJettonTransfers(
+          jettonData.jetton_transfers,
+          traceId,
+          pubkey,
+          jettonAddrBook,
+          this.chainId,
+        )
 
         const hasJettonSends = jettonTransfers.some(t => t.type === TransferType.Send)
         const hasJettonReceives = jettonTransfers.some(t => t.type === TransferType.Receive)
-        const nativeTransfers = parsedTx.transfers.filter(t => {
-          if (hasJettonSends && t.type === TransferType.Send) return false
-          if (hasJettonReceives && t.type === TransferType.Receive) return false
-          return true
-        })
+
+        const seen = new Set<string>()
+        const nativeTransfers: TxTransfer[] = []
+        for (const traceTx of traceGroup) {
+          const parsed =
+            traceTx === tx
+              ? parsedTx
+              : parseTonTx(
+                  resolveAddresses(traceTx, addressBook),
+                  pubkey,
+                  txid,
+                  this.assetId,
+                  this.chainId,
+                )
+          for (const transfer of parsed.transfers) {
+            if (hasJettonSends && transfer.type === TransferType.Send) continue
+            if (hasJettonReceives && transfer.type === TransferType.Receive) continue
+            const key = `${transfer.assetId}-${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
+            if (seen.has(key)) continue
+            seen.add(key)
+            nativeTransfers.push(transfer)
+          }
+        }
+
         const allTransfers = [...nativeTransfers, ...jettonTransfers]
+        const anyAborted = traceGroup.some(t => t.description?.aborted === true)
+        const anyActionFailed = traceGroup.some(t => t.description?.action?.success === false)
+        const status = anyAborted || anyActionFailed ? TxStatus.Failed : TxStatus.Confirmed
+
         transactions.push({
           ...parsedTx,
+          status,
+          confirmations: status === TxStatus.Confirmed ? 1 : 0,
           transfers: allTransfers,
         })
       }

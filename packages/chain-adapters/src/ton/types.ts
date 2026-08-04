@@ -47,6 +47,7 @@ export type TonSignTx = {
 }
 
 export type TonTxMessage = {
+  hash?: string
   source?: string
   destination?: string
   value?: string

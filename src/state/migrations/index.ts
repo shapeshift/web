@@ -19,6 +19,8 @@ export const clearTxHistoryMigrations = {
   5: clearTxHistory,
   6: clearTxHistory,
   7: clearTxHistory,
+  // ton history rows re-keyed to message hashes + trace-merged
+  8: clearTxHistory,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearOpportunitiesMigrations = {

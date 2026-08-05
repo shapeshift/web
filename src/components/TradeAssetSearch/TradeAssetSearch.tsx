@@ -171,14 +171,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const popularAssets = useMemo(() => {
-    const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    const filteredPopularAssets = unfilteredPopularAssets.filter(
-      asset => assetFilterPredicate?.(asset.assetId) ?? true,
-    )
-    if (allowWalletUnsupportedAssets || !hasWallet) return filteredPopularAssets
-
-    // TODO: move `allowWalletUnsupportedAssets` into `assetFilterPredicate`
-    return filteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+    return filterAssetsByChain({
+      assets: popularAssetsByChainId?.[activeChainId] ?? [],
+      hasWallet,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      assetFilterPredicate,
+    })
   }, [
     popularAssetsByChainId,
     activeChainId,

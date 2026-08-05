@@ -89,6 +89,26 @@ export const Header = memo(() => {
     return scrollY.on('change', () => setY(scrollY.get()))
   }, [scrollY])
 
+  const isScrolled = y > height
+
+  // masks the area behind and around the header so scrolling content can't show through it - kept
+  // permanently opaque (it matches the body background) so it never lags behind fast scrolls
+  const backdropSx = useMemo(
+    () => ({
+      content: '""',
+      position: 'absolute' as const,
+      top: '-1rem',
+      left: '-1rem',
+      right: '-1rem',
+      bottom: 0,
+      bg: 'background.surface.base',
+      borderBottom: '1px solid',
+      borderBottomColor: isScrolled ? 'border.base' : 'transparent',
+      zIndex: -1,
+    }),
+    [isScrolled],
+  )
+
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
@@ -154,15 +174,9 @@ export const Header = memo(() => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? 'background.surface.base' : 'transparent'}
-        border='1px solid'
-        borderColor={y > height ? 'border.base' : 'transparent'}
-        borderRadius='2xl'
+        _before={backdropSx}
         marginTop={2}
         mx={2}
-        transitionDuration='200ms'
-        transitionProperty='all'
-        transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={2}
         paddingTop={paddingTopProp}
       >

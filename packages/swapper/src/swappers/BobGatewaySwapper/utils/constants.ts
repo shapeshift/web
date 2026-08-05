@@ -53,7 +53,6 @@ export const DUMMY_TRON_ADDRESS = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N'
 
 export const BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT = '350000' // EVM→EVM
 export const BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT = '550000' // EVM→BTC
-export const BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE = '200' // BTC→EVM
 
 // https://docs.gobob.xyz/api-reference/v2/get-a-gateway-quote#parameter-slippage
 export const decimalSlippageToBobBps = (slippageDecimal: string): string => {

@@ -176,13 +176,12 @@ export type RatesResponse = {
 }
 
 export type {
-  CosmosTransactionData,
+  CosmosSdkMsgDepositTransactionData,
+  CosmosSdkMsgSendTransactionData,
   EvmTransactionData,
-  Permit2SignatureRequired,
+  SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
-  UtxoDepositTransactionData,
-  UtxoPsbtTransactionData,
   UtxoTransactionData,
 } from '@shapeshiftoss/types'
 
@@ -200,11 +199,11 @@ export type ApiQuoteStep = {
 export type ApprovalInfo = {
   isRequired: boolean
   spender: string
-  approvalTx?: {
+  approvalTxs: {
     to: string
     data: string
     value: string
-  }
+  }[]
 }
 
 export type QuoteResponse = {

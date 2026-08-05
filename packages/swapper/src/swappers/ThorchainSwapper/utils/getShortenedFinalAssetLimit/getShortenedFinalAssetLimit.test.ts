@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { addFinalAssetLimitToMemo } from '../../../../thorchain-utils'
+import { addFinalAssetLimitToMemo } from '../../../../utils/thorchain'
 import { THORCHAIN_AFFILIATE_NAME } from '../../constants'
 import { getShortenedFinalAssetLimit } from './getShortenedFinalAssetLimit'
 

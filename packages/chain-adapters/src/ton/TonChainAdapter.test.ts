@@ -3,16 +3,10 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { base64ToHex, hexToBase64 } from '@shapeshiftoss/utils'
 import { describe, expect, it } from 'vitest'
 
-import {
-  addressesMatch,
-  buildJettonTransfers,
-  ChainAdapter,
-  isHexHash,
-  isProxyTon,
-  parseTonTx,
-  resolveAddresses,
-} from './TonChainAdapter'
+import { buildJettonTransfers, parseTonTx } from './parser'
+import { ChainAdapter } from './TonChainAdapter'
 import type { TonTx } from './types'
+import { addressesMatch, isHexHash, isProxyTon, resolveAddresses } from './utils'
 
 const USER_BOUNCEABLE = 'EQBcJJt0qGjd4ts1kqFNfLro72PH2PnmXouQ3KIyTacvqAug'
 const USER_NON_BOUNCEABLE = 'UQBcJJt0qGjd4ts1kqFNfLro72PH2PnmXouQ3KIyTacvqFZl'

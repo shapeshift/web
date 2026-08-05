@@ -76,9 +76,6 @@ export type ThorchainMimir = {
   KEYGENRETRYINTERVAL: number
   KILLSWITCHSTART: number
   L1SLIPMINBPS: number
-  'LENDING-THOR-BTC': number
-  'LENDING-THOR-ETH': number
-  LENDINGLEVER: number
   LIQUIDITYLOCKUPBLOCKS: number
   LOANREPAYMENTMATURITY: number
   LOANSTREAMINGSWAPSINTERVAL: number
@@ -203,7 +200,6 @@ export type ThorchainMimir = {
   TXOUTDELAYRATE: number
   VIRTUALMULTSYNTHS: number
   VOTEDOFM: number
-  VOTELENDING: number
   VOTEMAXSYNTHSFORSAVERSYIELD: number
   [key: string]: unknown
 }

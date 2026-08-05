@@ -1,224 +1,23 @@
 import type { ParentToChildMessageReader, ParentToChildMessageReaderClassic } from '@arbitrum/sdk'
-import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/sdk'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { ParentToChildMessageStatus } from '@arbitrum/sdk'
 import { arbitrumChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
-import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { ethers as ethersv5 } from 'ethers5'
 
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
-import {
-  checkEvmSwapStatus,
-  getExecutableTradeStep,
-  getHopByIndex,
-  isExecutableTradeQuote,
-} from '../../utils'
+import type { SwapperApi } from '../../types'
+import { checkEvmSwapStatus } from '../../utils'
+import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
-import { fetchArbitrumBridgeQuote } from './utils/fetchArbitrumBridgeSwap'
-import { assertValidTrade } from './utils/helpers'
-
-const tradeQuoteMetadata: Map<string, { sellAssetId: AssetId; chainId: EvmChainId }> = new Map()
-
-// https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/deposits/helpers.ts#L268
-export const getParentToChildMessageDataFromParentTxHash = async ({
-  depositTxId,
-  parentProvider,
-  childProvider,
-  isClassic, // optional: if we already know if tx is classic (eg. through subgraph) then no need to re-check in this fn
-}: {
-  depositTxId: string
-  parentProvider: ethersv5.providers.JsonRpcProvider
-  childProvider: ethersv5.providers.JsonRpcProvider
-  isClassic?: boolean
-}): Promise<
-  | {
-      isClassic?: boolean
-      parentToChildMsg?: ParentToChildMessageReaderClassic | ParentToChildMessageReader
-    }
-  | undefined
-> => {
-  // fetch Parent transaction receipt
-  const depositTxReceipt = await parentProvider.getTransactionReceipt(depositTxId)
-  if (!depositTxReceipt) return
-
-  const parentTxReceipt = new ParentTransactionReceipt(depositTxReceipt)
-
-  // classic (pre-nitro) handling
-  const getClassicDepositMessage = async () => {
-    const [parentToChildMsg] = await parentTxReceipt.getParentToChildMessagesClassic(childProvider)
-    return {
-      isClassic: true,
-      parentToChildMsg,
-    }
-  }
-
-  // post-nitro handling
-  const getNitroDepositMessage = async () => {
-    const [parentToChildMsg] = await parentTxReceipt.getParentToChildMessages(childProvider)
-    return {
-      isClassic: false,
-      parentToChildMsg,
-    }
-  }
-
-  // if it is unknown whether the transaction isClassic or not, fetch the result
-  const safeIsClassic = isClassic ?? (await parentTxReceipt.isClassic(childProvider))
-
-  if (safeIsClassic) {
-    // classic (pre-nitro) deposit - both eth + token
-    return getClassicDepositMessage()
-  }
-
-  // post-nitro deposit - both eth + token
-  return getNitroDepositMessage()
-}
+import type { ArbitrumBridgeTradeQuoteInput, ArbitrumBridgeTradeRateInput } from './types'
+import { getParentToChildMessageDataFromParentTxHash } from './utils/helpers'
 
 export const arbitrumBridgeApi: SwapperApi = {
-  getTradeQuote: async (input, deps) => {
-    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
-
-    return tradeQuoteResult.map(tradeQuote => {
-      const id = tradeQuote.id
-      const firstHop = getHopByIndex(tradeQuote, 0)
-      if (!firstHop) {
-        console.error('No first hop found in trade quote')
-        return []
-      }
-      tradeQuoteMetadata.set(id, {
-        sellAssetId: firstHop.sellAsset.assetId,
-        chainId: firstHop.sellAsset.chainId as EvmChainId,
-      })
-      return [tradeQuote]
-    })
-  },
-  getTradeRate: async (input, deps) => {
-    const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps)
-
-    return tradeRateResult.map(tradeRate => {
-      const id = tradeRate.id
-      const firstHop = getHopByIndex(tradeRate, 0)
-      if (!firstHop) {
-        console.error('No first hop found in trade rate')
-        return []
-      }
-
-      tradeQuoteMetadata.set(id, {
-        sellAssetId: firstHop.sellAsset.assetId,
-        chainId: firstHop.sellAsset.chainId as EvmChainId,
-      })
-      return [tradeRate]
-    })
-  },
-  getUnsignedEvmTransaction: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const { receiveAddress } = tradeQuote
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
-      step
-
-    const assertion = await assertValidTrade({ buyAsset, sellAsset })
-    if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
-
-    const swap = await fetchArbitrumBridgeQuote({
-      chainId: sellAsset.chainId,
-      supportsEIP1559,
-      buyAsset,
-      receiveAddress,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      sellAsset,
-      sendAddress: from,
-      assertGetEvmChainAdapter,
-    })
-
-    const { request } = swap
-
-    if (!request) throw new Error('No request data found')
-
-    const {
-      txRequest: { data, value, to },
-    } = request
-
-    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-    const feeData = await evm.getFees({
-      adapter,
-      data: data.toString(),
-      to,
-      value: value.toString(),
-      from,
-      supportsEIP1559,
-    })
-
-    return adapter.buildCustomApiTx({
-      accountNumber,
-      data: data.toString(),
-      from,
-      to,
-      value: value.toString(),
-      ...feeData,
-    })
-  },
-  getEvmTransactionFees: async ({
-    from,
-    stepIndex,
-    tradeQuote,
-    supportsEIP1559,
-    assertGetEvmChainAdapter,
-  }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const { receiveAddress } = tradeQuote
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
-
-    const assertion = await assertValidTrade({ buyAsset, sellAsset })
-    if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
-
-    const swap = await fetchArbitrumBridgeQuote({
-      chainId: sellAsset.chainId,
-      supportsEIP1559,
-      buyAsset,
-      receiveAddress,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      sellAsset,
-      sendAddress: from,
-      assertGetEvmChainAdapter,
-    })
-
-    const { request } = swap
-
-    if (!request) throw new Error('No request data found')
-
-    const {
-      txRequest: { data, value, to },
-    } = request
-
-    const { networkFeeCryptoBaseUnit } = await evm.getFees({
-      adapter: assertGetEvmChainAdapter(sellAsset.chainId),
-      data: data.toString(),
-      to,
-      value: value.toString(),
-      from,
-      supportsEIP1559,
-    })
-
-    return networkFeeCryptoBaseUnit
-  },
+  getTradeQuote: (input, deps) => getTradeQuote(input as ArbitrumBridgeTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as ArbitrumBridgeTradeRateInput, deps),
+  getUnsignedEvmTransaction,
+  getEvmTransactionFees,
   checkTradeStatus: async ({
     txHash,
     chainId,

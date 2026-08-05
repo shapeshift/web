@@ -1,54 +1,24 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { TradeStatus as OmnistonTradeStatus } from '@ston-fi/omniston-sdk'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Blockchain } from '@ston-fi/omniston-sdk'
 
 import type { SwapperApi, TradeStatus } from '../../types'
 import {
   createDefaultStatusResponse,
   getExecutableTradeStep,
+  getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import type { StonfiTradeQuoteInput, StonfiTradeRateInput } from './types'
+import { STONFI_TRADE_TRACKING_TIMEOUT_MS } from './utils/constants'
+import { waitForFirstTradeStatus } from './utils/helpers'
 import { omnistonManager } from './utils/omnistonManager'
 
-const TRADE_TRACKING_TIMEOUT_MS = 60000
-
-const waitForFirstTradeStatus = (
-  request: {
-    quoteId: string
-    traderWalletAddress: { blockchain: number; address: string }
-    outgoingTxHash: string
-  },
-  timeoutMs: number,
-): Promise<OmnistonTradeStatus | null> => {
-  const omniston = omnistonManager.getInstance()
-
-  return new Promise(resolve => {
-    const timer = setTimeout(() => {
-      subscription.unsubscribe()
-      resolve(null)
-    }, timeoutMs)
-
-    const subscription = omniston.trackTrade(request).subscribe({
-      next: (status: OmnistonTradeStatus) => {
-        clearTimeout(timer)
-        subscription.unsubscribe()
-        resolve(status)
-      },
-      error: err => {
-        console.error('[Stonfi] trackTrade error:', err)
-        clearTimeout(timer)
-        resolve(null)
-      },
-    })
-  })
-}
-
 export const stonfiApi: SwapperApi = {
-  getTradeQuote: (input, _deps) => getTradeQuote(input),
-  getTradeRate: input => getTradeRate(input),
+  getTradeQuote: (input, deps) => getTradeQuote(input as StonfiTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as StonfiTradeRateInput, deps),
 
   getUnsignedTonTransaction: async ({ stepIndex, tradeQuote, from, assertGetTonChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote)) {
@@ -56,33 +26,11 @@ export const stonfiApi: SwapperApi = {
     }
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const { accountNumber, sellAsset, stonfiSpecific } = step
+    const { accountNumber, sellAsset, stonfiTransactionData } = step
 
-    if (!stonfiSpecific) {
-      throw new Error('stonfiSpecific is required')
-    }
+    if (!stonfiTransactionData) throw new Error('[Stonfi] invalid ton transaction')
 
     const adapter = assertGetTonChainAdapter(sellAsset.chainId)
-
-    const storedQuote = {
-      quoteId: stonfiSpecific.quoteId,
-      resolverId: stonfiSpecific.resolverId,
-      resolverName: stonfiSpecific.resolverName,
-      bidAssetAddress: stonfiSpecific.bidAssetAddress,
-      askAssetAddress: stonfiSpecific.askAssetAddress,
-      bidUnits: stonfiSpecific.bidUnits,
-      askUnits: stonfiSpecific.askUnits,
-      referrerAddress: stonfiSpecific.referrerAddress,
-      referrerFeeAsset: stonfiSpecific.referrerFeeAsset,
-      referrerFeeUnits: stonfiSpecific.referrerFeeUnits,
-      protocolFeeAsset: stonfiSpecific.protocolFeeAsset,
-      protocolFeeUnits: stonfiSpecific.protocolFeeUnits,
-      quoteTimestamp: stonfiSpecific.quoteTimestamp,
-      tradeStartDeadline: stonfiSpecific.tradeStartDeadline,
-      gasBudget: stonfiSpecific.gasBudget,
-      estimatedGasConsumption: stonfiSpecific.estimatedGasConsumption,
-      params: stonfiSpecific.params,
-    }
 
     const omniston = omnistonManager.getInstance()
 
@@ -97,7 +45,7 @@ export const stonfiApi: SwapperApi = {
             blockchain: Blockchain.TON,
             address: tradeQuote.receiveAddress,
           },
-          quote: storedQuote as Parameters<typeof omniston.buildTransfer>[0]['quote'],
+          quote: stonfiTransactionData as Parameters<typeof omniston.buildTransfer>[0]['quote'],
           useRecommendedSlippage: true,
         })
 
@@ -178,23 +126,37 @@ export const stonfiApi: SwapperApi = {
       }
     }
 
-    const { metadata } = swap
+    const { quoteId } = getSwapMetadata(swap.metadata.swapperMetadata, 'stonfi')
 
-    if (!metadata?.quoteId) {
-      return checkTxStatusViaChainAdapter()
+    // Settlement precedes toncenter's jetton indexer, and confirmed rows are never re-parsed -
+    // hold confirmation until the receive leg is visible so the confirmed-time parse and upsert
+    // carries both legs of the swap
+    const hasVisibleReceiveLeg = async (): Promise<boolean> => {
+      const adapter = assertGetTonChainAdapter(swap.sellAsset.chainId)
+      const sellAddress = swap.sellAccountId.split(':')[2] ?? ''
+      const addresses = new Set(
+        [sellAddress, swap.receiveAddress].filter((address): address is string => Boolean(address)),
+      )
+
+      for (const address of addresses) {
+        const tx = await adapter.parseTx(sellTxHash, address)
+        if (tx.transfers.some(transfer => transfer.type === TransferType.Receive)) return true
+      }
+
+      return false
     }
 
     try {
       const tradeStatus = await waitForFirstTradeStatus(
         {
-          quoteId: metadata.quoteId,
+          quoteId,
           traderWalletAddress: {
             blockchain: Blockchain.TON,
             address: swap.sellAccountId.split(':')[2] ?? '',
           },
           outgoingTxHash: sellTxHash,
         },
-        TRADE_TRACKING_TIMEOUT_MS,
+        STONFI_TRADE_TRACKING_TIMEOUT_MS,
       )
 
       if (!tradeStatus?.status) {
@@ -203,17 +165,15 @@ export const stonfiApi: SwapperApi = {
 
       const statusOneOf = tradeStatus.status
 
+      // While the trade is in flight the wallet tx may already be confirmed, but the payout leg
+      // hasn't landed - confirming here would parse and upsert a trace without the receive, so
+      // completion waits for settlement
       if (
         statusOneOf.awaitingTransfer ||
         statusOneOf.transferring ||
         statusOneOf.swapping ||
         statusOneOf.receivingFunds
       ) {
-        const chainStatus = await checkTxStatusViaChainAdapter()
-        if (chainStatus.status === TxStatus.Confirmed) {
-          return chainStatus
-        }
-
         if (statusOneOf.awaitingTransfer) {
           return {
             status: TxStatus.Pending,
@@ -250,19 +210,32 @@ export const stonfiApi: SwapperApi = {
       if (statusOneOf.tradeSettled) {
         const result = statusOneOf.tradeSettled.result
 
-        if (result === 'TRADE_RESULT_FULLY_FILLED') {
-          return {
+        if (result === 'TRADE_RESULT_FULLY_FILLED' || result === 'TRADE_RESULT_PARTIALLY_FILLED') {
+          const settled: TradeStatus = {
             status: TxStatus.Confirmed,
             buyTxHash: sellTxHash,
-            message: undefined,
+            message:
+              result === 'TRADE_RESULT_PARTIALLY_FILLED'
+                ? 'trade.statuses.partiallyFilled'
+                : undefined,
           }
-        }
 
-        if (result === 'TRADE_RESULT_PARTIALLY_FILLED') {
-          return {
-            status: TxStatus.Confirmed,
-            buyTxHash: sellTxHash,
-            message: 'trade.statuses.partiallyFilled',
+          try {
+            if (await hasVisibleReceiveLeg()) return settled
+
+            return {
+              status: TxStatus.Pending,
+              buyTxHash: undefined,
+              message: 'trade.statuses.receivingFunds',
+            }
+          } catch (error) {
+            // Indexer/API failure must not block completion
+            console.error('[Stonfi] Error verifying settlement receive leg:', {
+              sellTxHash,
+              result,
+              error,
+            })
+            return settled
           }
         }
 

@@ -602,36 +602,18 @@
         "claimNow": "Reclama ahora",
         "claimYour": "Reclame su %{opportunity}"
       },
-      "saversVaults": {
-        "description": "Obtenga rendimiento de su %{asset} a través de las bóvedas de ahorro de THORChain. No hay tiempo de bloqueo y las recompensas se acumulan automáticamente. El rendimiento en THORChain proviene de las tarifas de intercambio y las recompensas en bloque. El rendimiento unilateral tiene un tope de la mitad del rendimiento bilateral de los proveedores de liquidez.",
-        "runePoolDescription": "RUNEPool permite ganar más %{asset} si agrupas tus %{asset} con otros. No tienes que elegir grupos específicos, todos comparten el rendimiento general.",
-        "runePoolOverviewDescription": "RUNEPool optimiza el uso de RUNE depositándolos en todos los pools de liquidez habilitados para POL en THORChain. Al agrupar RUNE, participantes obtienen APY combinado, pero enfrentan exposición agregada a pérdida impermanente. En lugar de elegir pools individuales, usuarios se benefician del rendimiento general, invirtiendo efectivamente en un índice RUNE y todos los activos habilitados para POL THORChain. Simplifica la provisión de liquidez y reduce  riesgo individual.",
-        "vaultCap": "Límite de bóveda",
-        "vaultCapTooltip": "Capacidad máxima actual para esta bóveda",
+      "runePool": {
+        "description": "RUNEPool permite ganar más %{asset} si agrupas tus %{asset} con otros. No tienes que elegir grupos específicos, todos comparten el rendimiento general.",
+        "overviewDescription": "RUNEPool optimiza el uso de RUNE depositándolos en todos los pools de liquidez habilitados para POL en THORChain. Al agrupar RUNE, participantes obtienen APY combinado, pero enfrentan exposición agregada a pérdida impermanente. En lugar de elegir pools individuales, usuarios se benefician del rendimiento general, invirtiendo efectivamente en un índice RUNE y todos los activos habilitados para POL THORChain. Simplifica la provisión de liquidez y reduce  riesgo individual.",
+        "introducing": "Presentamos RUNEPool",
+        "agree": "Entiendo que RUNEPool tiene un bloqueo mínimo de 30 días y un mayor riesgo de pérdida impermanente.",
         "haltedDepositTitle": "Los depositos estan temporalmente detenidos.",
         "disabledDepositTitle": "Depósitos temporalmente deshabilitados.",
         "disabledWithdrawTitle": "Retiros temporalmente deshabilitados.",
         "withdrawLockedTitle": "Tienes que esperar %{timeHuman} para retirar.",
-        "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
-        "protocolFee": "Tarifa de Protocolo",
-        "dustAmount": "Cantidad de polvo",
-        "dustAmountTooltip": "Se requiere una pequeña cantidad de polvo para identificar su dirección, y se reservará para su uso posterior, cuando desee realizar un retiro",
-        "sendDustBody": "Necesitas enviar algo de polvo a esta dirección para poder retirar.",
-        "sendDust": "Send Dust",
-        "addressToSendTo": "Dirección de envío",
-        "introducingSaversVaults": "Presentamos Bóvedas Savers",
-        "introducingRunePool": "Presentamos RUNEPool",
-        "risksBody": {
-          "vaults": "Refiere a <link>Este artículo</link> por los riesgos de las Bovedas Savers.",
-          "runePool": "Refiere a <link>Este artículo</link> por los riesgos involucrados con RUNEPool."
-        },
-        "timeToBreakEven": {
-          "title": "Tiempo para evitar pérdidas",
-          "tooltip": "Tiempo estimado para cubrir tarifas de depósito y ganancias."
-        },
         "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
         "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes",
-        "agreeRunePool": "Entiendo que RUNEPool tiene un bloqueo mínimo de 30 días y un mayor riesgo de pérdida impermanente."
+        "risksBody": "Refiere a <link>Este artículo</link> por los riesgos involucrados con RUNEPool."
       }
     },
     "memoNote": {
@@ -717,8 +699,6 @@
     "limitOrder": "Órdenes limitadas",
     "buyCrypto": "Comprar/Vender Cripto",
     "buyCryptoShort": "Comprar/Vender",
-    "lending": "Préstamo",
-    "thorchainLending": "Préstamos THORChain",
     "chainflipLending": "Préstamos Chainflip",
     "pools": "Pools",
     "rFOX": "rFOX",
@@ -2345,102 +2325,8 @@
     "custom": "Personalizar"
   },
   "lending": {
-    "lending": "Préstamo",
-    "repaymentAvailable": "Pago disponible",
-    "repaymentUnavailable": "Pago aún no disponible",
-    "daysUntilRepayment": "%{numDays} días hasta el pago",
-    "repaymentDays": "%{numDays} días",
-    "lendingBody": "Una lista de todas las piscinas donde puedes pedir préstamos sin intereses ni liquidaciones.",
-    "collateralValue": "Valor colateral",
-    "collateralValueDescription": "Valor actual de su activo utilizado como garantía",
-    "debtValue": "Valor de la deuda",
-    "loanToValue": "Préstamo a valor",
-    "availablePools": "Piscinas disponibles",
-    "pool": "Piscina",
-    "poolDepth": "Profundidad de la piscina",
-    "poolDepthDescription": "La salud de su pool",
-    "status": "Estado",
-    "statusDescription": "El estado del pool",
-    "totalDebtBalance": "Saldo total de la deuda",
-    "totalDebtBalanceDescription": "Saldo de Deuda Acumulada en  conjunto de préstamos",
-    "totalCollateral": "Total de garantía colateral",
-    "totalCollateralDescription": "Garantía total agregada al conjunto de préstamos",
-    "estCollateralizationRatio": "Est. Ratio de colateral",
-    "estCollateralizationRatioDescription": "Actualmente existe índice de garantía fijo del 200%. En el futuro, un ratio dinámico equilibrará el CR máximo y mínimo en función de las condiciones del mercado.",
-    "collateralizationRatio": "Ratio de garantía colateral",
-    "totalBorrowers": "Prestatarios totales",
-    "totalBorrowersDescription": "Número de prestatarios participantes",
-    "myLoanInformation": "Mi información de préstamo",
-    "loanInformation": "Resumen del préstamo",
-    "poolInformation": "Información de la piscina",
-    "collateralBalance": "Saldo de garantía colateral",
-    "collateralBalanceDescription": "Monto total del activo mantenido como garantía",
-    "debtBalance": "Saldo de la deuda",
-    "debtBalanceDescription": "Monto total de la deuda que debe por el préstamo",
-    "repaymentLock": "Bloqueo de repago",
-    "repaymentLockDescription": "Período mínimo antes de poder pagar su préstamo",
-    "receiveCollateral": "La cantidad de garantía que recibirá",
-    "borrow": "Pedir prestado",
-    "repay": "Repago",
-    "repayAmount": "Monto a Pagar",
-    "unlocked": "Desbloqueado",
-    "unlockedCollateral": "Colateral Desbloqueado",
-    "depositAsset": "Depositar %{asset}",
     "switchAssets": "Cambiar Activos",
-    "outstandingDebt": "Deuda pendiente",
-    "outstandingDebtDescription": "La cantidad de garantía que ha tomado prestada",
-    "collateral": "Colateral",
-    "debt": "Deuda",
-    "healthy": "La profundidad es óptima, los préstamos son eficientes.",
-    "confirmAndBorrow": "Confirmar y pedir prestado",
-    "confirmAndRepay": "Confirmar y repagar",
-    "borrowAgain": "Pedir Prestado de nuevo",
-    "repayAgain": "Pagar de nuevo",
-    "transactionInfo": "Resumen de Transacciones",
-    "repayNoticeTitle": "¡Espera!",
-    "repayNoticeCta": "Entiendo",
-    "repayNotice": "Para recuperar su garantía colateral deberá pagar el 100% de su deuda.",
-    "feesNotice": "Se produjeron tarifas sobre la garantía que recibirá después de pagar 100% de su deuda.",
-    "refetchQuote": "Recuperar Cotización",
-    "haltedAlert": "Los servicios THORFi (préstamos, Savers y RUNEPool) están actualmente suspendidos en THORChain. Pedimos disculpas por inconvenientes.",
-    "faq": {
-      "title": "Preguntas más frecuentes",
-      "lending": {
-        "title": "¿Qué son los préstamos THORChain?",
-        "body": "Los préstamos permiten depositar garantías nativas y luego crear una deuda con un índice de garantía (CR). La deuda está denominada en USD (TOR), independiente del activo L1 que reciba."
-      },
-      "borrowing": {
-        "title": "¿Cómo funciona la toma de préstamos?",
-        "body": "Prestar en THORChain implica utilizar sus activos depositados como garantía. El préstamo está denominado en USD (TOR) y puede recibirse en varios activos L1. Con un índice de garantía dinámico, puede prestar de manera flexible sin preocuparse por intereses o liquidación."
-      },
-      "repayments": {
-        "title": "¿Cómo funciona el reembolso o repago?",
-        "body": "El pago en THORChain es flexible, permite pagar en cualquier momento después de que haya transcurrido su bloqueo, y en cualquier activo, que luego se convierte a TOR. El monto de reembolso se deduce del saldo de su deuda y se devuelve la garantía proporcional al realizar el pago total."
-      }
-    },
-    "errors": {
-      "repaymentsHalted": "Pagos suspendidos temporalmente.",
-      "borrowingHalted": "Préstamos suspendidos temporalmente.",
-      "repaymentsDisabled": "Pagos temporalmente inhabilitados.",
-      "borrowingDisabled": "Préstamo temporalmente deshabilitado.",
-      "amountTooLowToReturnCollateral": "Monto demasiado bajo para devolver la garantía",
-      "amountTooLowToReturnCollateralTooltip": "El pago es demasiado bajo para que se devuelva la garantía. Inténtelo nuevamente con un monto mayor o pague un monto parcial (lo que no devolverá su garantía, pero disminuirá su deuda).",
-      "amountTooSmallUnknownMinimumTooltip": "El importe de pago que ha introducido es demasiado pequeño. Inténtelo de nuevo con una cantidad mayor.",
-      "repaymentUnavailableTooltip": "Aún no es posible pagar su préstamo. Espere hasta que haya transcurrido el bloqueo de pago.",
-      "repaymentsHaltedTooltip": "Pagos suspendidos temporalmente. Por favor, inténte más tarde."
-    },
-    "quote": {
-      "collateral": "Monto total del activo garantizado contra su préstamo",
-      "debt": "Deuda total que deberás según el monto de tu nuevo préstamo",
-      "repaymentLock": "Período mínimo antes de poder pagar su préstamo",
-      "collateralizationRatio": "Relación entre valor de su garantía y monto del préstamo",
-      "feesPlusSlippage": "Tarifas totales, incluidas tarifas L1, deslizamiento y tarifas de liquidez THORChain"
-    },
-    "yourLoans": {
-      "yourLoans": "Tus préstamos",
-      "emptyTitle": "¡La Tierra de Cero Préstamos!",
-      "emptyBody": "No tienes préstamo en este momento. ¿Es esto un zen financiero o un descanso antes de su próxima aventura crediticia? De cualquier manera, ¡disfruta de la calma!"
-    }
+    "poolInformation": "Información de la piscina"
   },
   "chainflipLending": {
     "awaitingConfirmTitle": "Pendiente Confirmación",
@@ -2970,7 +2856,8 @@
         "title": "Riesgos y Consideraciones",
         "body": "Si bien los fondos de liquidez ofrecen oportunidades de ganancias, es importante ser consciente de riesgos, como pérdidas no permanentes, vulnerabilidad de contratos inteligentes y volatilidad de mercado. Debe realizar una investigación exhaustiva antes."
       }
-    }
+    },
+    "haltedDepositTitle": "Los depositos estan temporalmente detenidos."
   },
   "warningAcknowledgement": {
     "understand": "Entiendo",
@@ -3475,8 +3362,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

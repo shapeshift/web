@@ -18,7 +18,7 @@ import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: (TradeQuote | TradeRate)['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber => {
   const feeAsset = selectFeeAssetById(state, tradeQuoteStep?.sellAsset.assetId)

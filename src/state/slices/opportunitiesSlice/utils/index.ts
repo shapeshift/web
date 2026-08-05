@@ -11,7 +11,7 @@ import type {
 import type {
   OpportunityId,
   OpportunityMetadataBase,
-  SaversUserStakingOpportunity,
+  RunePoolUserStakingOpportunity,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -50,7 +50,7 @@ export const filterUserStakingIdByStakingIdCompareFn = (
 }
 
 // An OpportunityId as an AssetId, i.e any chain where the opportunity is an Asset
-// That may be a L1 AssetId (THOR savers), or a smart contract account, which for all intent and purposes is an ERC20 i.e an asset
+// That may be a L1 AssetId (RUNEPool), or a smart contract account, which for all intent and purposes is an ERC20 i.e an asset
 export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
   toAssetId(args) as OpportunityId
 
@@ -199,8 +199,8 @@ export const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type 
   return 'underlyingAssetIds'
 }
 
-export const isSaversUserStakingOpportunity = (
+export const isRunePoolUserStakingOpportunity = (
   opportunity: StakingEarnOpportunityType | undefined,
-): opportunity is StakingEarnOpportunityType & SaversUserStakingOpportunity => {
-  return Boolean(opportunity && opportunity.provider === DefiProvider.ThorchainSavers)
+): opportunity is StakingEarnOpportunityType & RunePoolUserStakingOpportunity => {
+  return Boolean(opportunity && opportunity.provider === DefiProvider.RunePool)
 }

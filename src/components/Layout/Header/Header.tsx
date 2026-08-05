@@ -1,6 +1,6 @@
 import { Box, Divider, Flex, HStack, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   TbArrowRight,
   TbBuildingBank,
@@ -53,8 +53,9 @@ const navHStackDisplaySx = { base: 'none', md: 'flex' }
 const rightHStackSpacingSx = { base: 2, lg: 4 }
 
 // Search box responsive styles
-const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
-const searchBoxMinWSx = { base: 'auto', xl: '300px' }
+const fullSearchMediaQuery = '@media screen and (min-width: 1540px)'
+const searchBoxSx = { display: 'none', [fullSearchMediaQuery]: { display: 'flex' } }
+const iconButtonSx = { display: 'flex', [fullSearchMediaQuery]: { display: 'none' } }
 
 const baseTradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: TbRefresh },
@@ -79,25 +80,32 @@ export const Header = memo(() => {
   const {
     state: { isConnected, walletInfo },
   } = useWallet()
-  const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
-  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
-
-  const searchBoxDisplay = {
-    base: 'none',
-    '2xl': 'flex',
-    xl: 'none',
-  }
-
-  const iconButtonDisplay = {
-    base: 'flex',
-    '2xl': 'none',
-  }
 
   useEffect(() => {
     return scrollY.on('change', () => setY(scrollY.get()))
   }, [scrollY])
+
+  const isScrolled = y > 0
+
+  // masks the area behind and around the header so scrolling content can't show through it - kept
+  // permanently opaque (it matches the body background) so it never lags behind fast scrolls
+  const backdropSx = useMemo(
+    () => ({
+      content: '""',
+      position: 'absolute' as const,
+      top: '-1rem',
+      left: '-1rem',
+      right: '-1rem',
+      bottom: 0,
+      bg: 'background.surface.base',
+      borderBottom: '1px solid',
+      borderBottomColor: isScrolled ? 'border.base' : 'transparent',
+      zIndex: -1,
+    }),
+    [isScrolled],
+  )
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
@@ -122,12 +130,6 @@ export const Header = memo(() => {
         : []),
       { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
       { label: 'navBar.pools', path: '/pools', icon: TbPool },
-      {
-        label: isChainflipLendingEnabled ? 'navBar.thorchainLending' : 'navBar.lending',
-        path: '/lending',
-        icon: TbBuildingBank,
-        isDeprecated: isChainflipLendingEnabled,
-      },
       ...(isChainflipLendingEnabled
         ? [
             {
@@ -169,16 +171,9 @@ export const Header = memo(() => {
         direction='column'
         position='sticky'
         zIndex='banner'
-        ref={ref}
-        bg={y > height ? 'background.surface.base' : 'transparent'}
-        border='1px solid'
-        borderColor={y > height ? 'border.base' : 'transparent'}
-        borderRadius='2xl'
+        _before={backdropSx}
         marginTop={2}
         mx={2}
-        transitionDuration='200ms'
-        transitionProperty='all'
-        transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={2}
         paddingTop={paddingTopProp}
       >
@@ -215,13 +210,13 @@ export const Header = memo(() => {
           </HStack>
 
           {/* Middle section - search box */}
-          <Box maxW={searchBoxMaxWSx} minW={searchBoxMinWSx} mx={4} display={searchBoxDisplay}>
+          <Box width='300px' mx={4} sx={searchBoxSx}>
             <GlobalSearchButton />
           </Box>
 
           {/* Right section - equal width to left */}
           <HStack spacing={rightHStackSpacingSx} flex='1' justifyContent='flex-end' minW={0}>
-            <Box display={iconButtonDisplay}>
+            <Box sx={iconButtonSx}>
               <GlobalSearchButton isIconButton />
             </Box>
             {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (

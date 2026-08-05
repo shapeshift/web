@@ -19,6 +19,7 @@ export const clearTxHistoryMigrations = {
   5: clearTxHistory,
   6: clearTxHistory,
   7: clearTxHistory,
+  8: clearTxHistory,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearOpportunitiesMigrations = {
@@ -29,6 +30,7 @@ export const clearOpportunitiesMigrations = {
   4: clearOpportunities,
   5: clearOpportunities,
   6: clearOpportunities,
+  7: clearOpportunities,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearPortfolioMigrations = {
@@ -398,6 +400,8 @@ export const clearAssetsMigrations = {
   349: clearAssets,
   350: clearAssets,
   351: clearAssets,
+  352: clearAssets,
+  353: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {
@@ -412,10 +416,14 @@ export const clearSnapshotMigrations = {
 export const clearActionMigrations = {
   0: clearAction,
   1: clearAction,
+  // Swaps persisted with the pre-swapperMetadata shape were cleared - drop the orphaned actions too
+  2: clearAction,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearSwapsMigrations = {
   0: clearSwaps,
+  // Swap.metadata moved to the swapperMetadata union - clear swaps persisted with the old shape
+  1: clearSwaps,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAddressBookMigrations = {

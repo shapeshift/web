@@ -20,6 +20,8 @@ X-Partner-Code: your-partner-code
 
 Optional `slippageTolerancePercentageDecimal` (e.g. `0.01` for 1%). The response returns a `rates` array (one entry per swapper, each with its own `swapperName`, amounts, fees, and an optional per-swapper `error`) plus `timestamp` and `expiresAt`. **Rates are indicative**, expire quickly (`expiresAt` ≈ 30s after issue), and are for display/comparison — request a quote to execute.
 
+A non-empty `allowanceContract` on a rate means executing that swapper pulls the sell token from an ERC-20 allowance. Clients that want to handle approvals themselves — checking the current allowance, or setting an unlimited approval ahead of time — can use it directly at this stage; otherwise the quote supplies ready-to-sign approval transactions.
+
 ## 3. Get an executable quote
 
 ```
@@ -41,14 +43,14 @@ X-Partner-Code: your-partner-code
 
 - `swapperName` comes from the rate you chose in step 2.
 - `slippageTolerancePercentageDecimal` is optional; `accountNumber` is optional (defaults to `0`) and is needed for chains that derive addresses per account index (e.g. UTXO/Cosmos).
-- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required and the approval tx to send first), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana`, `utxo_psbt`, `utxo_deposit`, `cosmos`) — describing exactly what to sign for that chain.
+- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required, the spender, and ready-to-sign `approvalTxs` when it is), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`) — describing exactly what to sign for that chain.
 - Quotes expire: honor the `expiresAt` timestamp (≈ 60s after issue). Request a fresh quote rather than submitting an expired one.
 
 ## 4. Execute the swap
 
 The API does **not** broadcast transactions — your application signs and broadcasts with the user's wallet:
 
-1. If `approval.isRequired` is true and `approval.approvalTx` is present, send the approval transaction first and wait for it to confirm.
+1. If `approval.isRequired` is true, sign and broadcast each transaction in `approval.approvalTxs` in order, waiting for each to confirm. These are **exact approvals** — sized to the step's `sellAmountCryptoBaseUnit` and consumed by the swap's execution, so a later swap needs its own approval unless a sufficient allowance is already in place (`approvalTxs` is empty in that case, with `isRequired: false`). Usually it is a single approve; tokens that require resetting a non-zero allowance before changing it (e.g. USDT) get a preceding `approve(spender, 0)`. Clients preferring an unlimited approval can build their own `approve(approval.spender, amount)` instead. Quotes are issued before approval exists — network fees are estimated as if the approval were already in place.
 2. For each step with `transactionData`, build, sign, and broadcast the transaction according to its `type` (EVM tx, Solana instructions, UTXO PSBT/deposit, or Cosmos message).
 3. Capture the resulting transaction hash for status tracking.
 

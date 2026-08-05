@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
@@ -19,16 +19,17 @@ import type {
   SuiSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
-  AccountMetadata,
   Asset,
   AssetsByIdPartial,
   CosmosSdkChainId,
   EvmChainId,
   KnownChainIds,
   NearChainId,
-  OrderQuoteResponse,
+  OrderCreation,
   PartialRecord,
   SolanaChainId,
+  StarknetChainId,
+  SuiChainId,
   TonChainId,
   TronChainId,
   UtxoAccountType,
@@ -41,14 +42,20 @@ import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { Address, Hex } from 'viem'
 
-import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
+import type { AvnuMetadata } from './swappers/AvnuSwapper/types'
+import type { BebopMetadata } from './swappers/BebopSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
+import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
+import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
-import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
-import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
+import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
+import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { StonfiMetadata, StonfiTransactionData } from './swappers/StonfiSwapper/types'
+import type { SunioTransactionData } from './swappers/SunioSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
+import type { MayachainMetadata, ThorchainMetadata } from './utils/thorchain/types'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
@@ -80,12 +87,10 @@ export type SwapperConfig = {
   VITE_RELAY_API_URL: string
   VITE_BEBOP_API_KEY: string
   VITE_NEAR_INTENTS_API_KEY: string
-  VITE_TENDERLY_API_KEY: string
-  VITE_TENDERLY_ACCOUNT_SLUG: string
-  VITE_TENDERLY_PROJECT_SLUG: string
   VITE_SUI_NODE_URL: string
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
+  VITE_ACROSS_API_KEY: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
 }
@@ -161,24 +166,6 @@ export enum TradeQuoteError {
   InsufficientFundsUnconfirmed = 'InsufficientFundsUnconfirmed',
 }
 
-export type UtxoFeeData = {
-  satsPerByte: string
-}
-
-export type CosmosSdkFeeData = {
-  estimatedGasCryptoBaseUnit: string
-}
-
-export type SolanaFeeData = {
-  computeUnits: string
-  priorityFee: string
-}
-
-export type SuiFeeData = {
-  gasBudget: string
-  gasPrice: string
-}
-
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -189,7 +176,6 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData | SuiFeeData
 }
 
 export type BuyAssetBySellIdInput = {
@@ -215,15 +201,14 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {
-  sendAddress?: undefined
+  // sendAddress and accountNumber are set when a wallet is connected, undefined when it isn't
+  sendAddress?: string
   receiveAddress: string | undefined
-  accountNumber: undefined
+  accountNumber: number | undefined
   quoteOrRate: 'rate'
 }
 
-type CommonTradeInput = CommonTradeQuoteInput
-
-export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
+export type GetEvmTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: EvmChainId
   supportsEIP1559: boolean
 }
@@ -231,24 +216,15 @@ export type GetEvmTradeRateInput = CommonTradeRateInput & {
   chainId: EvmChainId
   supportsEIP1559: false
 }
-export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase
-export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 'supportsEIP1559'> & {
+export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInput, 'supportsEIP1559'> & {
   wallet: HDWallet
 }
 
-export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
+export type GetCosmosSdkTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: CosmosSdkChainId
 }
 
-export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
-  chainId: CosmosSdkChainId
-}
-
-export type GetTronTradeQuoteInputBase = CommonTradeInput & {
-  chainId: TronChainId
-}
-
-export type GetTronTradeQuoteInput = CommonTradeInput & {
+export type GetTronTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: TronChainId
 }
 
@@ -260,11 +236,7 @@ export type GetTronTradeRateInput = CommonTradeRateInput & {
   chainId: TronChainId
 }
 
-export type GetNearTradeQuoteInputBase = CommonTradeInput & {
-  chainId: NearChainId
-}
-
-export type GetNearTradeQuoteInput = CommonTradeInput & {
+export type GetNearTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: NearChainId
 }
 
@@ -272,11 +244,7 @@ export type GetNearTradeRateInput = CommonTradeRateInput & {
   chainId: NearChainId
 }
 
-export type GetTonTradeQuoteInputBase = CommonTradeInput & {
-  chainId: TonChainId
-}
-
-export type GetTonTradeQuoteInput = CommonTradeInput & {
+export type GetTonTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: TonChainId
 }
 
@@ -284,16 +252,28 @@ export type GetTonTradeRateInput = CommonTradeRateInput & {
   chainId: TonChainId
 }
 
-export type GetSolanaTradeQuoteInputBase = CommonTradeInput & {
-  chainId: SolanaChainId
-}
-
-export type GetSolanaTradeQuoteInput = CommonTradeInput & {
+export type GetSolanaTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: SolanaChainId
 }
 
 export type GetSolanaTradeRateInput = CommonTradeRateInput & {
   chainId: SolanaChainId
+}
+
+export type GetStarknetTradeQuoteInput = CommonTradeQuoteInput & {
+  chainId: StarknetChainId
+}
+
+export type GetStarknetTradeRateInput = CommonTradeRateInput & {
+  chainId: StarknetChainId
+}
+
+export type GetSuiTradeQuoteInput = CommonTradeQuoteInput & {
+  chainId: SuiChainId
+}
+
+export type GetSuiTradeRateInput = CommonTradeRateInput & {
+  chainId: SuiChainId
 }
 
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
@@ -322,6 +302,8 @@ export type GetTradeQuoteInput =
   | GetNearTradeQuoteInput
   | GetTonTradeQuoteInput
   | GetSolanaTradeQuoteInput
+  | GetStarknetTradeQuoteInput
+  | GetSuiTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -331,15 +313,17 @@ export type GetTradeRateInput =
   | GetNearTradeRateInput
   | GetTonTradeRateInput
   | GetSolanaTradeRateInput
+  | GetStarknetTradeRateInput
+  | GetSuiTradeRateInput
 
-export type GetTradeQuoteInputWithWallet =
-  | GetUtxoTradeQuoteWithWallet
-  | GetEvmTradeQuoteInputBase
-  | GetCosmosSdkTradeQuoteInputBase
-  | GetTronTradeQuoteInputBase
-  | GetNearTradeQuoteInputBase
-  | GetTonTradeQuoteInputBase
-  | GetSolanaTradeQuoteInputBase
+type StepDataBaseArgs = {
+  deps: SwapperDeps
+  sellAsset: Asset
+}
+
+export type StepDataArgs<Base, Rate = unknown, Quote = unknown> =
+  | (StepDataBaseArgs & Base & { type: 'rate'; input: GetTradeRateInput; from?: string } & Rate)
+  | (StepDataBaseArgs & Base & { type: 'quote'; input: GetTradeQuoteInput; from: string } & Quote)
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -399,7 +383,38 @@ export type AffiliateFee = {
   isEstimate?: boolean
 }
 
-export type TradeQuoteStep = {
+export type TxBuildData =
+  | {
+      type: 'evm'
+      chainId: number
+      to: string
+      data: string
+      value: string
+      gasLimit?: string
+      signatureRequired?: { type: 'permit2'; eip712: TypedData }
+    }
+  | { type: 'utxo'; to: string; opReturnData?: string; value: string }
+  | {
+      type: 'solana_instructions'
+      instructions: TransactionInstruction[]
+      addressLookupTableAddresses: string[]
+    }
+  | { type: 'solana_serialized_tx'; serializedTx: string }
+  | {
+      type: 'cosmossdk_msg_send'
+      chainId: string
+      to: string
+      denom: string
+      value: string
+      memo?: string
+    }
+  | { type: 'cosmossdk_msg_deposit'; chainId: string; value: string; memo: string; coin: string }
+  | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
+  | { type: 'tron'; to: string; data: string; value: string }
+  // CowSwap signs an off-chain EIP-712 order and posts it to the CoW API - there is nothing to broadcast
+  | { type: 'cowswap'; chainId: ChainId; orderToSign: Omit<OrderCreation, 'signature'> }
+
+export type TradeStepCommon = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
@@ -408,143 +423,51 @@ export type TradeQuoteStep = {
   source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
-  // Undefined in case this is a trade rate - this means we *cannot* execute this guy
-  accountNumber: number | undefined
   // describes intermediary asset and amount the user may end up with in the event of a trade
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
-  permit2Eip712?: TypedData
-  zrxTransactionMetadata?: {
-    to: Address
-    data: Address
-    gasPrice: string | undefined
-    gas: string | undefined
-    value: string
-  }
-  portalsTransactionMetadata?: {
-    to: Address
-    from: Address
-    data: string
-    value: string
-    gasLimit: string
-    isCrossChain?: boolean
-    buyAssetChainId?: ChainId
-    expiry?: number
-    steps?: string[]
-    route?: string[]
-  }
-  bebopTransactionMetadata?: {
-    to: Address
-    data: Hex
-    value: Hex
-    gas?: string
-  }
-  bebopSolanaSerializedTx?: string
-  bebopQuoteId?: string
-  solanaTransactionMetadata?: {
-    addressLookupTableAddresses: string[]
-    instructions?: TransactionInstruction[]
-    /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
-    isOversized?: boolean
-  }
-  cowswapQuoteResponse?: OrderQuoteResponse
-  chainflipSpecific?: {
-    chainflipSwapId?: number | string
-    chainflipDepositAddress?: string
-    chainflipNumberOfChunks?: number
-    chainflipChunkIntervalBlocks?: number
-    chainflipMaxBoostFee?: number
-  }
-  nearIntentsSpecific?: {
-    depositAddress: string
-    depositMemo?: string
-    timeEstimate: number
-    deadline: string
-  }
-  thorchainSpecific?: {
-    maxStreamingQuantity?: number
-  }
-  thorchainTransactionMetadata?: {
-    to: string
-    data?: string
-    value?: string
-    memo?: string
-  }
+  swapperMetadata?: SwapperMetadata
+
+  // To be collapsed into transactionData and swapperMetadata
+  stonfiTransactionData?: StonfiTransactionData
+  sunioTransactionData?: SunioTransactionData
+
   relayTransactionMetadata?: RelayTransactionMetadata
-  butterSwapTransactionMetadata?: {
-    to: string
-    data: string
-    value: Hex
-    gasLimit: string
-    method?: string
-    args?: { type: string; value: unknown }[]
-    memo?: string
-    serializedSolanaTransaction?: string
-  }
-  sunioTransactionMetadata?: {
-    route: {
-      amountIn: string
-      amountOut: string
-      inUsd: string
-      outUsd: string
-      impact: string
-      fee: string
-      tokens: string[]
-      symbols: string[]
-      poolFees: string[]
-      poolVersions: string[]
-      stepAmountsOut: string[]
-    }
-  }
-  avnuSpecific?: {
-    quoteId: string
-    routes: any[]
-  }
-  stonfiSpecific?: {
-    quoteId: string
-    resolverId: string
-    resolverName: string
-    tradeStartDeadline: number
-    gasBudget: string
-    bidAssetAddress: { blockchain: number; address: string }
-    askAssetAddress: { blockchain: number; address: string }
-    bidUnits: string
-    askUnits: string
-    referrerAddress?: { blockchain: number; address: string }
-    referrerFeeAsset?: { blockchain: number; address: string }
-    referrerFeeUnits: string
-    protocolFeeAsset?: { blockchain: number; address: string }
-    protocolFeeUnits: string
-    quoteTimestamp: number
-    estimatedGasConsumption: string
-    params?: unknown
-  }
-  acrossTransactionMetadata?: AcrossTransactionMetadata
-  debridgeTransactionMetadata?: DebridgeTransactionMetadata
-  bobSpecific?: BobGatewayMetadata
+  butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
+
+  chainflipSpecific?: { depositAddress?: string }
+
   affiliateFee?: AffiliateFee
 }
 
-export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
-  accountNumber: undefined
-}
-export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & {
+export type TradeQuoteStep = TradeStepCommon & {
   accountNumber: number
+  transactionData?: TxBuildData
 }
 
-type TradeQuoteBase = {
+export type TradeRateStep = TradeStepCommon & {
+  // Set when a wallet is connected (e.g. approval-before-quote), undefined when it isn't
+  accountNumber: number | undefined
+  // Rates are not executable and never carry transaction data
+  transactionData?: undefined
+}
+
+export type TradeCommon = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   priceImpactPercentageDecimal?: string
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
-  quoteOrRate: 'quote' | 'rate'
   swapperName: SwapperName // The swapper that generated this quote/rate
+}
+
+type TradeQuoteBase = TradeCommon & {
+  receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
+  quoteOrRate: 'quote' | 'rate'
 }
 
 export type StreamingSwapFailedSwap = {
@@ -568,32 +491,33 @@ export enum TransactionExecutionState {
 export type SwapExecutionMetadata = {
   state: TransactionExecutionState
   sellTxHash?: string
-  relayerTxHash?: string
-  relayerExplorerTxLink?: string | undefined
+  swapperTxId?: string
+  swapperTxLink?: string | undefined
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
   message?: string | [string, InterpolationOptions]
   inboundAddress?: string
 }
 
-export type SwapperSpecificMetadata = {
-  chainflipSwapId: number | string | undefined
-  nearIntentsSpecific?: {
-    depositAddress: string
-    depositMemo?: string
-    timeEstimate: number
-    deadline: string
-  }
-  relayTransactionMetadata: RelayTransactionMetadata | undefined
-  acrossTransactionMetadata: AcrossTransactionMetadata | undefined
-  debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
-  bobSpecific?: BobGatewayMetadata
-  relayerExplorerTxLink: string | undefined
-  relayerTxHash: string | undefined
+export type CommonSwapMetadata = {
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
-  streamingSwapMetadata: StreamingSwapMetadata | undefined
+  streamingSwapMetadata?: StreamingSwapMetadata
 }
+
+export type SwapperMetadata =
+  | RelayMetadata
+  | DebridgeMetadata
+  | BobGatewayMetadata
+  | ChainflipMetadata
+  | NearIntentsMetadata
+  | AvnuMetadata
+  | BebopMetadata
+  | ThorchainMetadata
+  | MayachainMetadata
+  | StonfiMetadata
+
+export type SwapMetadata = CommonSwapMetadata & { swapperMetadata?: SwapperMetadata }
 
 export enum SwapStatus {
   Idle = 'idle',
@@ -612,6 +536,8 @@ export type Swap = {
   source: SwapSource
   sellTxHash?: string
   buyTxHash?: string
+  swapperTxId?: string
+  swapperTxLink?: string
   statusMessage?: string | [string, Polyglot.InterpolationOptions] | undefined
   sellAccountId: AccountId
   buyAccountId: AccountId | undefined
@@ -623,7 +549,7 @@ export type Swap = {
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
   txLink?: string
-  metadata: SwapperSpecificMetadata
+  metadata: SwapMetadata
   isStreaming?: boolean
 }
 
@@ -674,17 +600,6 @@ export type TradeRate = TradeQuoteBase & {
   quoteOrRate: 'rate'
 }
 
-export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
-
-export type GetUnsignedTxArgs = {
-  tradeQuote: TradeQuote
-  chainId: ChainId
-  accountMetadata?: AccountMetadata
-  stepIndex: number
-  supportsEIP1559: boolean
-  slippageTolerancePercentageDecimal: string
-} & FromOrXpub
-
 export type EvmTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SignTx<EvmChainId>) => Promise<string>
 }
@@ -707,13 +622,25 @@ export type SolanaTransactionExecutionProps = {
   signTransaction?: (txToSign: SolanaSignTx) => Promise<string>
 }
 
-export type SolanaMessageToSign = {
+// Swapper-specific handoff from getUnsignedSolanaMessage to executeSolanaMessage - both ends are
+// implemented by the same swapper
+export type BebopSolanaMessageToSign = {
   serializedTx: string
+  // RFQ order id - bebop broadcasts by submitting the signature to their own api
   quoteId: string
 }
 
+export type AcrossSolanaMessageToSign = {
+  serializedTx: string
+}
+
+export type SolanaMessageToSign = BebopSolanaMessageToSign | AcrossSolanaMessageToSign
+
 export type SolanaMessageExecutionProps = {
+  // Sign only - the swapper submits the signature to its own api (bebop RFQ orders)
   signSerializedTransaction: (serializedTx: string) => Promise<string[]>
+  // Sign and broadcast on chain - for pre-signed provider txs we broadcast ourselves (across)
+  signAndBroadcastSerializedTransaction: (serializedTx: string) => Promise<string>
 }
 
 export type TronTransactionExecutionProps = {
@@ -795,19 +722,6 @@ export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionAr
   CosmosSdkAccountMetadata &
   CosmosSdkSwapperDeps
 
-// the client should never need to know anything about this payload, and since it varies from
-// swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
-// data originates from the correct place (assuming no casting).
-export type UnsignedTx = Nominal<Record<string, any>, 'UnsignedTx'>
-
-export type ExecuteTradeArgs = {
-  senderAddress: string
-  receiverAddress: string
-  txToSign: UnsignedTx
-  wallet: HDWallet
-  chainId: ChainId
-}
-
 export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
@@ -828,11 +742,12 @@ export type CheckTradeStatusInput = {
 export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
-  relayerTxHash?: string | undefined
-  relayerExplorerTxLink?: string | undefined
+  // The swapper/protocol's own identifier for the swap (relayer tx hash, native swap id, order uid)
+  swapperTxId?: string | undefined
+  // Fully-formed link to the swapper/protocol's own tracker page for the swap
+  swapperTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
   actualBuyAmountCryptoBaseUnit?: string
-  chainflipSwapId?: number | string
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where
@@ -844,8 +759,6 @@ export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
-  executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
-
   executeEvmTransaction?: (
     txToSign: SignTx<EvmChainId>,
     callbacks: EvmTransactionExecutionProps,
@@ -897,9 +810,8 @@ export type Swapper = {
 export type SwapperApi = {
   checkTradeStatus: (input: CheckTradeStatusInput) => Promise<TradeStatus>
 
-  getTradeQuote: (input: CommonTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
-  getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (input: GetUnsignedEvmTransactionArgs) => Promise<SignTx<EvmChainId>>
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>
@@ -991,7 +903,6 @@ export type TonTransactionExecutionInput = CommonTradeExecutionInput &
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
-  RelayerTxHash = 'relayerTxHash',
   Status = 'status',
   Success = 'success',
   Fail = 'fail',
@@ -1002,18 +913,12 @@ export type SellTxHashArgs = {
   stepIndex: SupportedTradeQuoteStepIndex
   sellTxHash: string
 }
-export type RelayerTxDetailsArgs = {
-  stepIndex: SupportedTradeQuoteStepIndex
-  relayerTxHash: string
-  relayerExplorerTxLink: string
-}
 export type StatusArgs = TradeStatus & {
   stepIndex: number
 }
 
 export type TradeExecutionEventMap = {
   [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
-  [TradeExecutionEvent.RelayerTxHash]: (args: RelayerTxDetailsArgs) => void
   [TradeExecutionEvent.Status]: (args: StatusArgs) => void
   [TradeExecutionEvent.Success]: (args: StatusArgs) => void
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void

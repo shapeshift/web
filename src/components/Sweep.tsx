@@ -11,10 +11,10 @@ import { AssetIcon } from './AssetIcon'
 import { handleSend } from './Modals/Send/utils'
 
 import { Row } from '@/components/Row/Row'
+import { useGetEstimatedFeesQuery } from '@/hooks/queries/useGetEstimatedFeesQuery'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { sleep } from '@/lib/poll/poll'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
-import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 

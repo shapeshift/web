@@ -44,6 +44,13 @@ const getThorchainStreamingSwap = async (
   return streamingSwapData
 }
 
+// The expected number of sub-swaps comes from the quote, carried on the swapper metadata
+const getMaxStreamingQuantity = (swap: Swap): number | undefined =>
+  swap.metadata?.swapperMetadata?.name === 'thorchain' ||
+  swap.metadata?.swapperMetadata?.name === 'mayachain'
+    ? swap.metadata.swapperMetadata.maxStreamingQuantity
+    : undefined
+
 const getStreamingSwapMetadata = (
   data: ThornodeStreamingSwapResponseSuccess,
   swap: Swap,
@@ -57,7 +64,7 @@ const getStreamingSwapMetadata = (
     ) ?? []
 
   return {
-    maxSwapCount: data.quantity ?? swap.metadata?.streamingSwapMetadata?.maxSwapCount ?? 0,
+    maxSwapCount: data.quantity ?? getMaxStreamingQuantity(swap) ?? 0,
     attemptedSwapCount: data.count ?? 0,
     failedSwaps,
   }
@@ -155,11 +162,15 @@ export const useThorStreamingProgress = ({
     refetchInterval: POLL_INTERVAL_MILLISECONDS,
   })
 
+  const maxStreamingQuantity = swap ? getMaxStreamingQuantity(swap) : undefined
+
   const result = useMemo(() => {
+    const base = streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA
     return {
-      ...(streamingSwapMetadata ?? DEFAULT_STREAMING_SWAP_METADATA),
+      ...base,
+      maxSwapCount: base.maxSwapCount || maxStreamingQuantity || 0,
     }
-  }, [streamingSwapMetadata])
+  }, [streamingSwapMetadata, maxStreamingQuantity])
 
   return result
 }

@@ -7,6 +7,7 @@ import {
   Divider,
   Flex,
   Heading,
+  Icon,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -20,6 +21,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
+import { TbPlant2 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -70,6 +72,7 @@ const columnsProps = {
   base: 1,
   md: 2,
 }
+const farmingIcon = <Icon as={TbPlant2} aria-hidden color='blue.500' boxSize={8} me={2} />
 
 export const FoxFarming = () => {
   const { assetAccountId } = useFoxPageContext()
@@ -302,9 +305,7 @@ export const FoxFarming = () => {
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb} maxWidth={headerTitleMaxWidth}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
-              <CText as='span' me={2}>
-                🧑‍🌾
-              </CText>
+              {farmingIcon}
               {translate('foxPage.foxFarming.title')}
               <Skeleton isLoaded={Boolean(!isOpportunityLoading && apy)} ml={2}>
                 <Tag colorScheme='green' verticalAlign='middle'>

@@ -78,6 +78,7 @@ const envSchema = z.object({
 
   // Swapper API keys
   ACROSS_INTEGRATOR_ID: z.string().default(''),
+  ACROSS_API_KEY: z.string().default(''),
   BEBOP_API_KEY: z.string().min(1),
   BOB_GATEWAY_API_KEY: z.string().default(''),
   CHAINFLIP_API_KEY: z.string().min(1),

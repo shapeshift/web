@@ -40,8 +40,7 @@ export const FALLBACK_QUOTE_DEADLINE_MS = 60_000
 
 // For provider timestamps of undocumented resolution - unix seconds land ~2e9, ms ~2e12, so the
 // boundary is unambiguous for any realistic date
-export const normalizeEpochToMs = (value: number): number =>
-  value < 1e12 ? value * 1000 : value
+export const normalizeEpochToMs = (value: number): number => (value < 1e12 ? value * 1000 : value)
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
   const { chainId } = fromAssetId(assetId)

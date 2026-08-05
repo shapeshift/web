@@ -1,10 +1,12 @@
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 
+const testQuoteDeadline = Date.now() + 60 * 60 * 1000
+
 export const thorQuote: TradeQuote = {
   id: 'f4636745-bf07-4799-9efb-c056691b652f',
   quoteOrRate: 'quote',
-  deadline: 1800000000000,
+  deadline: testQuoteDeadline,
   rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
@@ -90,7 +92,7 @@ export const thorQuote: TradeQuote = {
 export const cowQuote: TradeQuote = {
   id: '220858750',
   quoteOrRate: 'quote',
-  deadline: 1800000000000,
+  deadline: testQuoteDeadline,
   rate: '51.86127422365727736757',
   affiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
@@ -160,7 +162,7 @@ export const cowQuote: TradeQuote = {
 export const zrxQuote: TradeQuote = {
   id: 'dfb5f2e6-9cb9-4865-9ef5-6b54d203affa',
   quoteOrRate: 'quote',
-  deadline: 1800000000000,
+  deadline: testQuoteDeadline,
   rate: '51.603817692372651273',
   affiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',

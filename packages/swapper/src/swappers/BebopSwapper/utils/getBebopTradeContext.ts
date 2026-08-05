@@ -16,7 +16,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../../utils/helpers'
+import { isNativeEvmAsset, normalizeEpochToMs } from '../../../utils/helpers'
 import { fetchBebopQuote } from './fetchFromBebop'
 import type { GetBebopStepDataArgs } from './getBebopStepData'
 import { assertValidTrade, calculateRate } from './helpers'
@@ -121,6 +121,6 @@ export const getBebopTradeContext = async ({
       from,
       deps,
     },
-    deadline: quote.expiry * 1000,
+    deadline: normalizeEpochToMs(quote.expiry),
   })
 }

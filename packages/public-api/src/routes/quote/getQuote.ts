@@ -184,6 +184,13 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       rate: quote.rate,
     }
 
+    if (!Number.isFinite(quote.deadline) || quote.deadline <= now) {
+      res.status(502).json({
+        error: 'Swapper quote expired before it could be returned; request a new quote',
+      } satisfies ErrorResponse)
+      return
+    }
+
     quoteStore.set(quoteId, {
       ...baseQuote,
       sellAssetId: sellAsset.assetId,

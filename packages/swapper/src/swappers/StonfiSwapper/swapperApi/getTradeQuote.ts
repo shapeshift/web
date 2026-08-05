@@ -2,6 +2,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapperDeps, TradeQuote, TradeQuoteResult } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
+import { normalizeEpochToMs } from '../../../utils/helpers'
 import type { StonfiTradeQuoteInput } from '../types'
 import { getStonfiStepData } from '../utils/getStonfiStepData'
 import { getStonfiTradeContext } from '../utils/getStonfiTradeContext'
@@ -34,7 +35,7 @@ export const getTradeQuote = async (
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
     // The provider caps when the trade may start
-    deadline: stonfiTransactionData.tradeStartDeadline * 1000,
+    deadline: normalizeEpochToMs(stonfiTransactionData.tradeStartDeadline),
     receiveAddress,
     steps: [
       {

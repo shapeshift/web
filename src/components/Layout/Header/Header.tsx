@@ -53,10 +53,9 @@ const navHStackDisplaySx = { base: 'none', md: 'flex' }
 const rightHStackSpacingSx = { base: 2, lg: 4 }
 
 // Search box responsive styles
-const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
-const searchBoxMinWSx = { base: 'auto', xl: '300px' }
-const searchBoxDisplay = { base: 'none', '3xl': 'flex' }
-const iconButtonDisplay = { base: 'flex', '3xl': 'none' }
+const fullSearchMediaQuery = '@media screen and (min-width: 1540px)'
+const searchBoxSx = { display: 'none', [fullSearchMediaQuery]: { display: 'flex' } }
+const iconButtonSx = { display: 'flex', [fullSearchMediaQuery]: { display: 'none' } }
 
 const baseTradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: TbRefresh },
@@ -200,13 +199,13 @@ export const Header = memo(() => {
           </HStack>
 
           {/* Middle section - search box */}
-          <Box maxW={searchBoxMaxWSx} minW={searchBoxMinWSx} mx={4} display={searchBoxDisplay}>
+          <Box width='300px' mx={4} sx={searchBoxSx}>
             <GlobalSearchButton />
           </Box>
 
           {/* Right section - equal width to left */}
           <HStack spacing={rightHStackSpacingSx} flex='1' justifyContent='flex-end' minW={0}>
-            <Box display={iconButtonDisplay}>
+            <Box sx={iconButtonSx}>
               <GlobalSearchButton isIconButton />
             </Box>
             {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (

@@ -191,10 +191,12 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // No swapper legitimately quotes past 6h (chainflip) - anything further is a units bug
     if (quote.deadline > now + MAX_QUOTE_DEADLINE_MS) {
+      console.error(
+        `[getQuote] ${validSwapperName} deadline ${quote.deadline} exceeds MAX_QUOTE_DEADLINE_MS sanity ceiling - provider bug, or raise the ceiling if this swapper legitimately quotes longer`,
+      )
       res.status(502).json({
-        error: 'Swapper returned an implausible quote deadline',
+        error: `Swapper quote deadline exceeds the MAX_QUOTE_DEADLINE_MS sanity ceiling`,
       } satisfies ErrorResponse)
       return
     }

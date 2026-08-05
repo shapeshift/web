@@ -48,6 +48,7 @@ registry.registerPath({
     404: { description: 'No quote available' },
     429: rateLimitResponse,
     500: { description: 'Internal server error' },
+    502: { description: 'Swapper returned an expired or implausible quote deadline' },
   },
 })
 

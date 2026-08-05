@@ -28,10 +28,10 @@ import type { TopItemListProps } from 'react-virtuoso'
 import { Virtuoso } from 'react-virtuoso'
 
 import { FiatMenuButton } from '../AssetSelection/components/FiatMenuButton'
-import { filterAssetsByChain } from './helpers/filterAssetsByChain/filterAssetsByChain'
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
+import { filterAssetsByChain } from './helpers/filterAssetsByChain/filterAssetsByChain'
 import { useAssetSearchWorker } from './hooks/useAssetSearchWorker'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 

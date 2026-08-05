@@ -57,7 +57,7 @@ describe('filterAssetsByChain', () => {
       hasWallet: false,
       allowWalletUnsupportedAssets: true,
       walletConnectedChainIds: [],
-      assetFilterPredicate: (assetId) => assetId === ethAssetId,
+      assetFilterPredicate: assetId => assetId === ethAssetId,
     })
 
     expect(result).toEqual([supportedAsset])

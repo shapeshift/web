@@ -233,7 +233,11 @@ export const nearIntentsApi: SwapperApi = {
 
       // Extract buyTxHash from destination chain transactions
       const buyTxHash = statusResponse.swapDetails?.destinationChainTxHashes?.[0]?.hash
-      const actualBuyAmountCryptoBaseUnit = statusResponse.swapDetails?.amountOut
+
+      // amountOut is only meaningful destination-denominated on terminal success - in-flight and
+      // refund states may carry settlement-internal or refund values
+      const actualBuyAmountCryptoBaseUnit =
+        statusResponse.status === 'SUCCESS' ? statusResponse.swapDetails?.amountOut : undefined
 
       return {
         status: txStatus,

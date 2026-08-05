@@ -6,7 +6,7 @@ import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } fr
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
-import { acrossService } from './utils/acrossService'
+import { acrossService, getAcrossRequestConfig } from './utils/acrossService'
 import type {
   AcrossDepositStatus,
   AcrossTradeQuoteInput,
@@ -54,6 +54,7 @@ export const acrossApi: SwapperApi = {
 
     const maybeStatusResponse = await acrossService.get<AcrossDepositStatus>(
       `${config.VITE_ACROSS_API_URL}/deposit/status?depositTxnRef=${txHash}`,
+      getAcrossRequestConfig(config),
     )
 
     if (maybeStatusResponse.isErr()) {

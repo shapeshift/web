@@ -10,6 +10,6 @@ export const csp: Csp = {
     env.VITE_SUI_NODE_URL,
     'https://mainnet.suiet.app/',
     'https://api-sui.cetus.zone',
-    'https://fullnode.mainnet.sui.io/',
+    'https://sui-rpc.publicnode.com/',
   ],
 }

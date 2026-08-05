@@ -85,13 +85,18 @@ const TransactionDataSchema = z.discriminatedUnion('type', [
 export const ApprovalInfoSchema = z.object({
   isRequired: z.boolean().openapi({ example: true }),
   spender: z.string().openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
-  approvalTx: z
-    .object({
-      to: z.string().openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
-      data: z.string().openapi({ example: '0x' }),
-      value: z.string().openapi({ example: '0' }),
-    })
-    .optional(),
+  approvalTxs: z
+    .array(
+      z.object({
+        to: z.string().openapi({ example: '0xdac17f958d2ee523a2206206994597c13d831ec7' }),
+        data: z.string().openapi({ example: '0x095ea7b3...' }),
+        value: z.string().openapi({ example: '0' }),
+      }),
+    )
+    .openapi({
+      description:
+        "Ready-to-sign approval transactions in broadcast order, empty when the current allowance already covers the amount. Approvals are exact - sized to the step's sellAmountCryptoBaseUnit and consumed by the swap's execution. Usually a single approve; tokens that require resetting a non-zero allowance before changing it (e.g. USDT) get a preceding approve(spender, 0). Sign and broadcast sequentially, waiting for each to confirm. Clients preferring an unlimited approval can build their own approve to `spender` instead.",
+    }),
 })
 
 export const QuoteStepSchema = registry.register(

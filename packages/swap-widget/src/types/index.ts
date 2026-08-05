@@ -199,11 +199,11 @@ export type ApiQuoteStep = {
 export type ApprovalInfo = {
   isRequired: boolean
   spender: string
-  approvalTx?: {
+  approvalTxs: {
     to: string
     data: string
     value: string
-  }
+  }[]
 }
 
 export type QuoteResponse = {

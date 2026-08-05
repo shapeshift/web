@@ -87,8 +87,7 @@ export const getThorL1TradeQuote = async (
         const quote: ThorTradeQuote = {
           ...tradeCommon,
           quoteOrRate: 'quote',
-          // The daemon quote expiry scopes the inbound address - sending funds after it risks a
-          // rotated vault
+          // The daemon quote expiry scopes the inbound address - sending later risks a rotated vault
           deadline: normalizeEpochToMs(tradeCommon.expiry),
           memo,
           receiveAddress,

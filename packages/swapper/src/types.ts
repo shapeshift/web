@@ -584,9 +584,7 @@ export type TradeQuote = TradeQuoteBase & {
 } & {
   quoteOrRate: 'quote'
   receiveAddress: string
-  // Epoch ms after which the quote is no longer safe to execute - the provider's own expiry
-  // where supplied (e.g. thornode quote expiry scoping the inbound address), a conservative
-  // default otherwise
+  // Epoch ms after which the quote is no longer safe to execute (provider expiry or fallback)
   deadline: number
 }
 

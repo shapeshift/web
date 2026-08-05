@@ -25,8 +25,7 @@ import { ChainflipNetwork } from './types'
 export const CHAINFLIP_REGULAR_QUOTE = 'regular' as const
 export const CHAINFLIP_DCA_QUOTE = 'dca' as const
 
-// Deposit channels stay open ~24h from issuance (sourceExpiryBlock is a source-chain height we
-// can't cheaply convert to time) - 6h keeps a 4x margin against depositing to an expired channel
+// Deposit channels stay open ~24h - 6h keeps a 4x margin against depositing to an expired channel
 export const CHAINFLIP_CHANNEL_DEADLINE_MS = 6 * 60 * 60 * 1000
 
 export const ChainflipSupportedChainIds = [

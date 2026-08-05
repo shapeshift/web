@@ -26,7 +26,7 @@ export type StoredQuote = {
 /**
  * In-memory quote store with dual TTL:
  * - unsubmitted: swapper deadline + bind grace (a slow first confirmation must still bind)
- * - 60 minutes after txHash is bound (execution tracking window)
+ * - submitted: txHash bind time + execution TTL (destination-chain settlement tracking)
  *
  * Automatic sweep of expired entries every 60 seconds.
  * Migration path: swap to Redis with zero code changes (same get/set/delete interface).

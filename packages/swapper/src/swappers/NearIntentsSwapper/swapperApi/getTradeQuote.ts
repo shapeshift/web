@@ -68,17 +68,17 @@ export const getTradeQuote = async (
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
-  // The deposit address goes inactive at the response deadline, ignored when absent or unparsable
-  const responseDeadlineMs = quote.deadline ? Date.parse(quote.deadline) : NaN
+  const requestDeadlineMs = Date.parse(quoteRequest.deadline)
+  const responseDeadlineMs = Date.parse(quote.deadline ?? '')
 
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
-    // Deposits must be mined before the requested refund deadline to execute as quoted
-    deadline: Math.min(
-      Date.parse(quoteRequest.deadline),
-      Number.isFinite(responseDeadlineMs) ? responseDeadlineMs : Infinity,
-    ),
+    // Deposits mined after our requested refund deadline refund instead of executing as quoted;
+    // the response deadline (when the deposit address goes inactive, ~72h) only binds if tighter
+    deadline: Number.isFinite(responseDeadlineMs)
+      ? Math.min(requestDeadlineMs, responseDeadlineMs)
+      : requestDeadlineMs,
     receiveAddress,
     steps: [
       {

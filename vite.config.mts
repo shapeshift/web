@@ -247,6 +247,12 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       allowedHosts: true,
       proxy: {
+        '/fynd-api': {
+          target: env.FYND_ETHEREUM_BASE_URL || 'http://localhost:3001/v1',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/fynd-api/, ''),
+          ...(env.FYND_API_KEY && { headers: { Authorization: env.FYND_API_KEY } }),
+        },
         '/user-api': {
           target: env.USER_API_URL || 'http://localhost:3002',
           changeOrigin: true,

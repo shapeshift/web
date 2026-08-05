@@ -26,7 +26,6 @@ type AvnuTradeContext = {
   protocolFees: QuoteFeeData['protocolFees']
   quoteId: string
   sellTokenAddress: string
-  // Provider quote expiry (epoch ms) when supplied, consumed by the quote arm only
   deadline: number | undefined
 }
 

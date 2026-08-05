@@ -25,7 +25,6 @@ type BebopTradeContext = {
   tradeCommon: TradeCommon
   stepCommon: Omit<TradeStepCommon, 'feeData'>
   stepDataArgs: Omit<GetBebopStepDataArgs, 'type' | 'input'>
-  // Provider quote expiry (epoch ms), consumed by the quote arm only
   deadline: number
 }
 

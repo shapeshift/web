@@ -35,7 +35,6 @@ type AcrossTradeContext = {
   stepCommon: Omit<TradeStepCommon, 'feeData'>
   protocolFees: QuoteFeeData['protocolFees']
   stepDataArgs: Omit<GetAcrossStepDataArgs, 'type' | 'input'>
-  // Provider quote expiry (epoch ms), consumed by the quote arm only
   deadline: number
 }
 

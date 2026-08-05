@@ -12,7 +12,7 @@ import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getAsset } from '../../assets'
-import { ENABLED_SWAPPER_NAMES } from '../../constants'
+import { ENABLED_SWAPPER_NAMES, MAX_QUOTE_DEADLINE_MS } from '../../constants'
 import { env } from '../../env'
 import { QuoteStore, quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -187,6 +187,14 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     if (!Number.isFinite(quote.deadline) || quote.deadline <= now) {
       res.status(502).json({
         error: 'Swapper quote expired before it could be returned; request a new quote',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    // No swapper legitimately quotes past 6h (chainflip) - anything further is a units bug
+    if (quote.deadline > now + MAX_QUOTE_DEADLINE_MS) {
+      res.status(502).json({
+        error: 'Swapper returned an implausible quote deadline',
       } satisfies ErrorResponse)
       return
     }

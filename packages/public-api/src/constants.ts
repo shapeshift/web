@@ -54,3 +54,6 @@ export const ENABLED_SWAPPER_NAMES: readonly SwapperName[] = [
   SwapperName.Thorchain,
   SwapperName.Zrx,
 ]
+
+// Ceiling for plausible swapper deadlines - catches provider unit bugs (e.g. µs epochs) upstream
+export const MAX_QUOTE_DEADLINE_MS = 7 * 24 * 60 * 60 * 1000

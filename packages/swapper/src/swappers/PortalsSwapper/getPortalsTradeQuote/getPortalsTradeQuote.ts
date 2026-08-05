@@ -162,7 +162,7 @@ export const getPortalsTradeQuote = async (
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
-  // Validated orders carry an expiry; the validate:false fallback does not
+  // Nullable in practice (live validated orders return null) - numeric or ISO when supplied
   const expiryMs = (() => {
     if (!orderContext.expiry) return undefined
     const numeric = Number(orderContext.expiry)

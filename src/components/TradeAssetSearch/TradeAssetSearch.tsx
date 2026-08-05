@@ -31,7 +31,7 @@ import { FiatMenuButton } from '../AssetSelection/components/FiatMenuButton'
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
-import { filterAssetsByChain } from './helpers/filterAssetsByChain/filterAssetsByChain'
+import { filterAssetsForWallet } from './helpers/filterAssetsForWallet'
 import { useAssetSearchWorker } from './hooks/useAssetSearchWorker'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 
@@ -171,7 +171,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const popularAssets = useMemo(() => {
-    return filterAssetsByChain({
+    return filterAssetsForWallet({
       assets: popularAssetsByChainId?.[activeChainId] ?? [],
       hasWallet,
       allowWalletUnsupportedAssets,
@@ -211,7 +211,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
-    return filterAssetsByChain({
+    return filterAssetsForWallet({
       assets: portfolioAssetsSortedByBalance,
       hasWallet,
       allowWalletUnsupportedAssets,

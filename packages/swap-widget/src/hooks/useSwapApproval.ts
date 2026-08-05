@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { WalletClient } from 'viem'
-import { createPublicClient, encodeFunctionData, erc20Abi, http } from 'viem'
+import { createPublicClient, http } from 'viem'
 
 import { getBaseAsset } from '../constants/chains'
 import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
@@ -50,22 +50,12 @@ export const useSwapApproval = () => {
           return
         }
 
-        // The API supplies ready-to-sign exact approvals in broadcast order, including a
-        // preceding approve(spender, 0) for tokens that require resetting a non-zero allowance
-        // (e.g. USDT); the local encode covers API versions predating approvalTxs
-        const approvalTxs = quote.approval.approvalTxs?.length
-          ? quote.approval.approvalTxs
-          : [
-              {
-                to: sellAssetAddress,
-                data: encodeFunctionData({
-                  abi: erc20Abi,
-                  functionName: 'approve',
-                  args: [quote.approval.spender as `0x${string}`, BigInt(sellAmountBaseUnit)],
-                }),
-                value: '0',
-              },
-            ]
+        // api-supplied approvals are exact and in broadcast order (reset-then-approve for USDT-likes)
+        const approvalTxs = quote.approval.approvalTxs
+        if (!approvalTxs?.length) {
+          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No approval transactions in quote' })
+          return
+        }
 
         const requiredChainId = getEvmNetworkId(sellAsset.chainId)
         const client = walletClient as WalletClient
@@ -103,7 +93,8 @@ export const useSwapApproval = () => {
             chain,
             account: walletAddress as `0x${string}`,
           })
-          await publicClient.waitForTransactionReceipt({ hash: approvalHash })
+          const receipt = await publicClient.waitForTransactionReceipt({ hash: approvalHash })
+          if (receipt.status !== 'success') throw new Error('Approval transaction reverted')
         }
 
         if (!approvalHash) throw new Error('No approval transactions to broadcast')

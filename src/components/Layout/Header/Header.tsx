@@ -1,6 +1,6 @@
 import { Box, Divider, Flex, HStack, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   TbArrowRight,
   TbBuildingBank,
@@ -80,16 +80,14 @@ export const Header = memo(() => {
   const {
     state: { isConnected, walletInfo },
   } = useWallet()
-  const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
-  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
 
   useEffect(() => {
     return scrollY.on('change', () => setY(scrollY.get()))
   }, [scrollY])
 
-  const isScrolled = y > height
+  const isScrolled = y > 0
 
   // masks the area behind and around the header so scrolling content can't show through it - kept
   // permanently opaque (it matches the body background) so it never lags behind fast scrolls
@@ -173,7 +171,6 @@ export const Header = memo(() => {
         direction='column'
         position='sticky'
         zIndex='banner'
-        ref={ref}
         _before={backdropSx}
         marginTop={2}
         mx={2}

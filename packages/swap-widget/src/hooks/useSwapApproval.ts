@@ -97,7 +97,7 @@ export const useSwapApproval = () => {
           if (receipt.status !== 'success') throw new Error('Approval transaction reverted')
         }
 
-        if (!approvalHash) throw new Error('No approval transactions to broadcast')
+        if (!approvalHash) throw new Error('Expected at least one approval transaction')
 
         actorRef.send({ type: 'APPROVAL_SUCCESS', txHash: approvalHash })
       } catch (error) {

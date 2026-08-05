@@ -29,6 +29,16 @@ describe('filterAssetsForWallet', () => {
     expect(result).toEqual([supportedAsset])
   })
 
+  it('excludes unsupported chains when wallet is connected and allowWalletUnsupportedAssets is omitted, as in send/receive', () => {
+    const result = filterAssetsForWallet({
+      assets,
+      hasWallet: true,
+      walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
+    })
+
+    expect(result).toEqual([supportedAsset])
+  })
+
   it('retains unsupported chains when wallet is connected and allowWalletUnsupportedAssets is true', () => {
     const result = filterAssetsForWallet({
       assets,

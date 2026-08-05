@@ -53,7 +53,16 @@ const flexPropsMdAuto = { base: 1, md: 'auto' }
 const widthBaseFull = { base: 'full' }
 const widthMdAuto = { base: 'full', md: 'auto' }
 const tabListPaddingLeft = { base: 6, md: 0 }
-const GOVERNANCE_ICON = <Icon as={TbBuildingBank} aria-hidden color='blue.500' boxSize={8} me={2} />
+const governanceIcon = (
+  <Icon
+    as={TbBuildingBank}
+    aria-hidden
+    color='blue.500'
+    boxSize={8}
+    me={2}
+    transform='translateY(-2px)'
+  />
+)
 
 export const FoxGovernance = () => {
   const isConnected = useIsWalletConnected()
@@ -121,7 +130,7 @@ export const FoxGovernance = () => {
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb} maxWidth={headerTitleMaxWidth}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
-              {GOVERNANCE_ICON}
+              {governanceIcon}
               {translate('foxPage.governance.title')}
             </Heading>
             <Flex alignItems='center'>

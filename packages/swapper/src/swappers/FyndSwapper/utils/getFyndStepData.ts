@@ -1,5 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -27,10 +27,16 @@ export async function getFyndStepData(
   args: GetFyndStepDataArgs,
 ): Promise<Result<FyndRateStepData | FyndQuoteStepData, SwapErrorRight>> {
   if (args.type === 'rate') {
+    if (args.gasPrice === null) {
+      return Err(
+        makeNetworkFeeEstimationFailedErr(
+          'getFyndStepData',
+          new Error('Fynd returned a null gas price'),
+        ),
+      )
+    }
     return Ok({
-      networkFeeCryptoBaseUnit: bnOrZero(args.gasEstimate)
-        .times(args.gasPrice ?? '0')
-        .toFixed(),
+      networkFeeCryptoBaseUnit: bn(args.gasEstimate).times(args.gasPrice).toFixed(),
     })
   }
 

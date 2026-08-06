@@ -42,7 +42,7 @@ export const getTradeQuote = async (
   })
   if (maybeFynd.isErr()) return Err(maybeFynd.unwrapErr())
   const { quote, routerAddress } = maybeFynd.unwrap()
-  if (!quote.transaction || !quote.fee_breakdown) {
+  if (!quote.transaction) {
     return Err(
       makeSwapErrorRight({
         message: 'Fynd returned an unencoded quote',

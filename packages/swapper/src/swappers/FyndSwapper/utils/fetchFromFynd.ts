@@ -6,8 +6,9 @@ import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { FyndInfoResponse, FyndOrderQuote, FyndQuoteResponse } from '../types'
-import { fyndServiceFactory } from './fyndService'
-import { assetIdToFyndToken } from './helpers'
+import { createFyndService } from './fyndService'
+import { convertAssetIdToFyndToken } from './helpers'
+import { validateFyndInfoResponse, validateFyndQuoteResponse } from './validation'
 
 type FetchFyndInput = {
   sellAsset: Asset
@@ -20,7 +21,7 @@ type FetchFyndInput = {
   quoteOrRate: 'quote' | 'rate'
 }
 
-const quoteStatusToError = (status: FyndOrderQuote['status']) => {
+const quoteStatusToError = (status: FyndOrderQuote['status']): SwapErrorRight => {
   const code =
     status === 'no_route_found' || status === 'insufficient_liquidity'
       ? TradeQuoteError.NoRouteFound
@@ -40,25 +41,19 @@ export const fetchFromFynd = async ({
 }: FetchFyndInput): Promise<
   Result<{ quote: FyndOrderQuote; routerAddress: string }, SwapErrorRight>
 > => {
-  const service = fyndServiceFactory({ baseUrl })
+  const service = createFyndService({ baseUrl })
   const maybeInfo = await service.get<FyndInfoResponse>('/info')
   if (maybeInfo.isErr()) return Err(maybeInfo.unwrapErr())
 
-  const { router_address: routerAddress } = maybeInfo.unwrap().data
-  if (!routerAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Fynd router is unavailable for this chain',
-        code: TradeQuoteError.InvalidResponse,
-      }),
-    )
-  }
+  const maybeValidInfo = validateFyndInfoResponse(maybeInfo.unwrap().data)
+  if (maybeValidInfo.isErr()) return Err(maybeValidInfo.unwrapErr())
+  const { router_address: routerAddress } = maybeValidInfo.unwrap()
 
   const maybeResponse = await service.post<FyndQuoteResponse>('/quote', {
     orders: [
       {
-        token_in: assetIdToFyndToken(sellAsset.assetId),
-        token_out: assetIdToFyndToken(buyAsset.assetId),
+        token_in: convertAssetIdToFyndToken(sellAsset.assetId),
+        token_out: convertAssetIdToFyndToken(buyAsset.assetId),
         amount: sellAmountCryptoBaseUnit,
         side: 'sell',
         sender,
@@ -78,15 +73,9 @@ export const fetchFromFynd = async ({
   })
 
   if (maybeResponse.isErr()) return Err(maybeResponse.unwrapErr())
-  const quote = maybeResponse.unwrap().data.orders[0]
-  if (!quote) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Fynd returned no order quote',
-        code: TradeQuoteError.InvalidResponse,
-      }),
-    )
-  }
+  const maybeValidResponse = validateFyndQuoteResponse(maybeResponse.unwrap().data, quoteOrRate)
+  if (maybeValidResponse.isErr()) return Err(maybeValidResponse.unwrapErr())
+  const quote = maybeValidResponse.unwrap().orders[0]
   if (quote.status !== 'success') return Err(quoteStatusToError(quote.status))
 
   return Ok({ quote, routerAddress })

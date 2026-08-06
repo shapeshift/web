@@ -57,6 +57,7 @@ export const getTradeRate = async (
     gasPrice: quote.gas_price,
   })
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
+  const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeRate: TradeRate = {
     ...tradeCommon,
@@ -66,10 +67,7 @@ export const getTradeRate = async (
       {
         ...stepCommon,
         accountNumber: input.accountNumber,
-        feeData: {
-          networkFeeCryptoBaseUnit: maybeStepData.unwrap().networkFeeCryptoBaseUnit,
-          protocolFees,
-        },
+        feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ] as SingleHopTradeRateSteps,
   }

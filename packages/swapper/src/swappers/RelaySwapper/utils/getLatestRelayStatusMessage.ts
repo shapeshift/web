@@ -10,10 +10,12 @@ export const getLatestRelayStatusMessage = (status: RelayStatus): string => {
     case statusValue === 'delayed':
       return RelayStatusMessage.Retrying
     case statusValue === 'pending':
+    case statusValue === 'depositing':
+    case statusValue === 'submitted':
       return RelayStatusMessage.DepositDetected
     case statusValue === 'success':
       return RelayStatusMessage.SwapComplete
-    case statusValue === 'failed':
+    case statusValue === 'failure':
       return RelayStatusMessage.SwapFailed
     default:
       return 'Unknown status'

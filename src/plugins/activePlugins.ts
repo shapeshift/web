@@ -33,6 +33,7 @@ import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
 import plume from '@/plugins/plume'
 import polygon from '@/plugins/polygon'
+import robinhood from '@/plugins/robinhood'
 import scroll from '@/plugins/scroll'
 import sei from '@/plugins/sei'
 import solana from '@/plugins/solana'
@@ -102,4 +103,5 @@ export const activePlugins = [
   zcash,
   zksyncera,
   abstract,
+  robinhood,
 ]

@@ -82,6 +82,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return PUBLIC_RPC_URLS.sei[0]
       case KnownChainIds.AbstractMainnet:
         return PUBLIC_RPC_URLS.abstract[0]
+      case KnownChainIds.RobinhoodMainnet:
+        return PUBLIC_RPC_URLS.robinhood[0]
       default:
         return assertUnreachable(chainId)
     }

@@ -277,6 +277,10 @@ export function supportsSoneium(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsSoneium
 }
 
+export function supportsRobinhood(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsRobinhood
+}
+
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo
 }

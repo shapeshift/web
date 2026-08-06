@@ -6,7 +6,12 @@ import { isAddress, isHex } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { FyndInfoResponse, FyndOrderQuote, FyndQuoteResponse } from '../types'
+import type {
+  FyndFeeBreakdown,
+  FyndInfoResponse,
+  FyndOrderQuote,
+  FyndQuoteResponse,
+} from '../types'
 
 const FYND_ETHEREUM_CHAIN_ID = 1
 const FYND_QUOTE_STATUSES = new Set<FyndOrderQuote['status']>([
@@ -21,8 +26,10 @@ const FYND_QUOTE_STATUSES = new Set<FyndOrderQuote['status']>([
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
+const isUnknownArray = (value: unknown): value is unknown[] => Array.isArray(value)
+
 const isNonNegativeNumericString = (value: unknown): value is string =>
-  typeof value === 'string' && value.length > 0 && bn(value).isFinite() && bn(value).gte(0)
+  typeof value === 'string' && /^\d+$/.test(value) && bn(value).isFinite() && bn(value).gte(0)
 
 const makeInvalidResponseError = (message: string): SwapErrorRight =>
   makeSwapErrorRight({ message, code: TradeQuoteError.InvalidResponse })
@@ -39,7 +46,7 @@ const isValidTransaction = (value: unknown): boolean =>
       Number.isInteger(value.client_fee_signature_offset) &&
       value.client_fee_signature_offset >= 0))
 
-const isValidFeeBreakdown = (value: unknown): boolean =>
+const isValidFeeBreakdown = (value: unknown): value is FyndFeeBreakdown =>
   isRecord(value) &&
   isNonNegativeNumericString(value.router_fee) &&
   isNonNegativeNumericString(value.client_fee) &&
@@ -50,12 +57,13 @@ const isValidFeeBreakdown = (value: unknown): boolean =>
 const isValidRoute = (value: unknown): boolean =>
   value === null ||
   (isRecord(value) &&
-    Array.isArray(value.swaps) &&
+    isUnknownArray(value.swaps) &&
     value.swaps.every(
-      swap => isRecord(swap) && typeof swap.protocol === 'string' && swap.protocol.length > 0,
+      (swap: unknown) =>
+        isRecord(swap) && typeof swap.protocol === 'string' && swap.protocol.length > 0,
     ))
 
-const isValidOrder = (value: unknown, quoteOrRate: 'quote' | 'rate'): boolean => {
+const isValidOrder = (value: unknown, quoteOrRate: 'quote' | 'rate'): value is FyndOrderQuote => {
   if (!isRecord(value)) return false
   if (
     typeof value.status !== 'string' ||
@@ -83,7 +91,12 @@ const isValidOrder = (value: unknown, quoteOrRate: 'quote' | 'rate'): boolean =>
     return false
   }
   if (quoteOrRate === 'quote' && value.status === 'success') {
-    return isValidTransaction(value.transaction) && isValidFeeBreakdown(value.fee_breakdown)
+    if (!isValidTransaction(value.transaction) || !isValidFeeBreakdown(value.fee_breakdown)) {
+      return false
+    }
+
+    const totalFees = bn(value.fee_breakdown.router_fee).plus(value.fee_breakdown.client_fee)
+    return totalFees.lte(value.amount_out)
   }
   return true
 }
@@ -114,9 +127,9 @@ export const validateFyndQuoteResponse = (
 > => {
   if (
     !isRecord(value) ||
-    !Array.isArray(value.orders) ||
+    !isUnknownArray(value.orders) ||
     value.orders.length === 0 ||
-    !value.orders.every(order => isValidOrder(order, quoteOrRate)) ||
+    !value.orders.every((order: unknown) => isValidOrder(order, quoteOrRate)) ||
     typeof value.solve_time_ms !== 'number' ||
     !Number.isFinite(value.solve_time_ms) ||
     value.solve_time_ms < 0 ||

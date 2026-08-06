@@ -5,7 +5,11 @@ import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
 
 const axiosConfig: AxiosRequestConfig = { timeout: 10_000 }
 
-export const createFyndService = ({ baseUrl }: { baseUrl: string }): MonadicSwapperAxiosService => {
+type FyndServiceConfig = {
+  baseUrl: string
+}
+
+export const createFyndService = ({ baseUrl }: FyndServiceConfig): MonadicSwapperAxiosService => {
   const cache = createCache(5_000, ['/quote', '/info'], {
     ...axiosConfig,
     baseURL: baseUrl,

@@ -23,12 +23,14 @@ import {
   linea,
   mainnet,
   mantle,
+  megaeth,
   mode,
   monad,
   optimism,
   plasma,
   plumeMainnet,
   polygon,
+  robinhood,
   scroll,
   sei,
   soneium,
@@ -40,29 +42,6 @@ import {
 } from 'viem/chains'
 
 import { PUBLIC_RPC_URLS } from './publicRpcUrls'
-
-const megaeth = defineChain({
-  id: 4326,
-  name: 'MegaETH',
-  nativeCurrency: {
-    name: 'Ether',
-    symbol: 'ETH',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://mainnet.megaeth.com/rpc'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'MegaETH Explorer',
-      url: 'https://megaeth.blockscout.com',
-    },
-  },
-})
-
-export const flowEvmChain = flowMainnet
 
 // Builds a viem fallback transport. `privateUrl` is the preferred source (e.g. ShapeShift proxy)
 // and is tried first; `publicUrls` are public endpoints used as backups. Pass `undefined` for
@@ -257,6 +236,11 @@ export const viemSoneiumClient = createPublicClient({
   transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.soneium),
 }) as PublicClient
 
+export const viemRobinhoodClient = createPublicClient({
+  chain: robinhood,
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.robinhood),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -293,6 +277,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
   [KnownChainIds.AbstractMainnet]: viemAbstractClient,
+  [KnownChainIds.RobinhoodMainnet]: viemRobinhoodClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -331,6 +316,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
   [KnownChainIds.AbstractMainnet]: abstract.id,
+  [KnownChainIds.RobinhoodMainnet]: robinhood.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -369,6 +355,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
   [abstract.id]: viemAbstractClient,
+  [robinhood.id]: viemRobinhoodClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

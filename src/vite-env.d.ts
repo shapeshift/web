@@ -216,6 +216,8 @@ interface ImportMetaEnv {
   readonly VITE_SEI_NODE_URL: string
   readonly VITE_FEATURE_SEI: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
+  readonly VITE_ROBINHOOD_NODE_URL: string
+  readonly VITE_FEATURE_ROBINHOOD: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

@@ -39,7 +39,7 @@
     "bs58": "^5.0.0",
     "ethers": "6.11.1",
     "isomorphic-ws": "^4.0.1",
-    "viem": "2.43.5",
+    "viem": "2.55.11",
     "ws": "^8.17.1"
   },
   "devDependencies": {

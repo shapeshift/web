@@ -67,6 +67,8 @@ import {
   plumeChainId,
   polygonAssetId,
   polygonChainId,
+  robinhoodAssetId,
+  robinhoodChainId,
   scrollAssetId,
   scrollChainId,
   solanaChainId,
@@ -664,6 +666,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Robinhood)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.RobinhoodMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Robinhood],
+          })
+          prev[robinhoodChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -706,6 +722,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [suiChainId]: { [suiAssetId]: 'sui' },
       [nearChainId]: { [nearAssetId]: 'near' },
       [tonChainId]: { [tonAssetId]: 'the-open-network' },
+      [robinhoodChainId]: { [robinhoodAssetId]: 'ethereum' },
     },
   )
 

@@ -55,6 +55,7 @@ import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as plume from './plume'
 import * as polygon from './polygon'
+import * as robinhood from './robinhood'
 import * as scroll from './scroll'
 import * as sei from './sei'
 import * as solana from './solana'
@@ -123,6 +124,7 @@ const generateAssetData = async () => {
   const suiAssets = await sui.getAssets()
   const tonAssets = await tonModule.getAssets()
   const nearAssets = await near.getAssets()
+  const robinhoodAssets = await robinhood.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -178,6 +180,7 @@ const generateAssetData = async () => {
     ...suiAssets,
     ...tonAssets,
     ...nearAssets,
+    ...robinhoodAssets,
   ]
 
   // remove blacklisted assets

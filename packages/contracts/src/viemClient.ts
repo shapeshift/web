@@ -23,12 +23,14 @@ import {
   linea,
   mainnet,
   mantle,
+  megaeth,
   mode,
   monad,
   optimism,
   plasma,
   plumeMainnet,
   polygon,
+  robinhood,
   scroll,
   sei,
   soneium,
@@ -40,29 +42,6 @@ import {
 } from 'viem/chains'
 
 import { PUBLIC_RPC_URLS } from './publicRpcUrls'
-
-const megaeth = defineChain({
-  id: 4326,
-  name: 'MegaETH',
-  nativeCurrency: {
-    name: 'Ether',
-    symbol: 'ETH',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://mainnet.megaeth.com/rpc'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'MegaETH Explorer',
-      url: 'https://megaeth.blockscout.com',
-    },
-  },
-})
-
-export const flowEvmChain = flowMainnet
 
 // Builds a viem fallback transport. `privateUrl` is the preferred source (e.g. ShapeShift proxy)
 // and is tried first; `publicUrls` are public endpoints used as backups. Pass `undefined` for
@@ -256,19 +235,6 @@ export const viemSoneiumClient = createPublicClient({
   chain: soneium,
   transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.soneium),
 }) as PublicClient
-
-export const robinhood = defineChain({
-  id: 4663,
-  name: 'Robinhood Chain',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.mainnet.chain.robinhood.com'] } },
-  blockExplorers: {
-    default: { name: 'Robinhood Chain Explorer', url: 'https://robinhoodchain.blockscout.com' },
-  },
-  contracts: {
-    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
-  },
-})
 
 export const viemRobinhoodClient = createPublicClient({
   chain: robinhood,

@@ -32,11 +32,13 @@ import {
   ink,
   linea,
   mainnet as ethereum,
+  megaeth,
   mode,
   monad,
   optimism,
   plasma,
   polygon,
+  robinhood,
   scroll,
   soneium,
   unichain,
@@ -68,8 +70,8 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   // Across uses a custom Solana chain ID
   [solanaChainId]: 34268394551451,
   [scrollChainId]: scroll.id,
-  [megaethChainId]: 4326,
-  [robinhoodChainId]: 4663,
+  [megaethChainId]: megaeth.id,
+  [robinhoodChainId]: robinhood.id,
 }
 
 export const acrossChainIdToChainId = invert(chainIdToAcrossChainId)

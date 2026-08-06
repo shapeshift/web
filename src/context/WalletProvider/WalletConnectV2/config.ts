@@ -1,5 +1,4 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { flowEvmChain, robinhood } from '@shapeshiftoss/contracts'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
 import {
@@ -8,11 +7,13 @@ import {
   avalanche,
   base,
   bsc,
+  flowMainnet,
   gnosis,
   ink,
   mainnet,
   optimism,
   polygon,
+  robinhood,
   sei,
 } from 'viem/chains'
 
@@ -62,7 +63,7 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     arbitrum,
     base,
     ink,
-    flowEvmChain,
+    flowMainnet,
     sei,
     abstract,
     robinhood,

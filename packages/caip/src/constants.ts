@@ -213,7 +213,7 @@ export const CHAIN_REFERENCE = {
   StarknetMainnet: 'SN_MAIN', // https://namespaces.chainagnostic.org/starknet/caip2
   TonMainnet: 'mainnet', // TON Mainnet
   AbstractMainnet: '2741', // https://abscan.org
-  RobinhoodMainnet: '4663', // https://robinhoodchain.blockscout.com
+  RobinhoodMainnet: '4663', // https://chainlist.org/chain/4663
 } as const
 
 export const ASSET_NAMESPACE = {

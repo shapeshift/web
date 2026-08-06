@@ -239,7 +239,7 @@ export class PhantomHDWallet
   readonly _supportsUnichain = false
   readonly _supportsSoneium = false
   readonly _supportsBSC = false
-  readonly _supportsRobinhood = false
+  readonly _supportsRobinhood = true
   readonly _supportsSolana = true
   readonly _supportsSui = true
   readonly _isPhantom = true

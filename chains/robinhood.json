@@ -15,7 +15,7 @@
   "explorerAddressLink": "https://robinhoodchain.blockscout.com/address/",
   "explorerTxLink": "https://robinhoodchain.blockscout.com/tx/",
   "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
-  "publicRpcUrls": ["https://robinhood-chain.gateway.tenderly.co"],
+  "publicRpcUrls": ["https://rpc.mainnet.chain.robinhood.com", "https://robinhood-rpc.publicnode.com"],
   "coingeckoPlatform": "robinhood",
   "wrappedNativeAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
   "relatedAssetKey": "eip155:1/slip44:60",

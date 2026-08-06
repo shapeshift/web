@@ -172,7 +172,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const lastStep = quote.steps[quote.steps.length - 1]
 
     const quoteId = uuidv4()
-    const now = Date.now()
 
     const baseQuote = {
       quoteId,
@@ -184,6 +183,11 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       affiliateBps: quote.affiliateBps,
       rate: quote.rate,
     }
+
+    const approval = await buildApprovalInfo(step, sendAddress)
+
+    // taken after the allowance rpc reads so a slow check can't sneak an expired quote through
+    const now = Date.now()
 
     if (!Number.isFinite(quote.deadline) || quote.deadline <= now) {
       res.status(502).json({
@@ -224,7 +228,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(transformQuoteStep),
-      approval: await buildApprovalInfo(step, sendAddress),
+      approval,
       expiresAt: quote.deadline,
     }
 

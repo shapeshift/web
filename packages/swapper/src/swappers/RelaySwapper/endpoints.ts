@@ -106,6 +106,8 @@ export const relayApi: SwapperApi = {
       switch (statusResponse.status) {
         case 'success':
           return TxStatus.Confirmed
+        case 'waiting':
+        case 'delayed':
         case 'pending':
         case 'depositing':
         case 'submitted':

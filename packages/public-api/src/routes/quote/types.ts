@@ -154,7 +154,11 @@ export const QuoteResponseSchema = registry.register(
     networkFeeCryptoBaseUnit: z.string().optional().openapi({ example: '23000' }),
     approval: ApprovalInfoSchema,
     steps: z.array(QuoteStepSchema),
-    expiresAt: z.number(),
+    expiresAt: z.number().openapi({
+      example: 1754265600000,
+      description:
+        "Epoch ms after which the quote must not be executed - the swapper's own deadline (inbound address rotation, deposit channel expiry, order validity). Broadcasting after it risks failed swaps or, for deposit-style swappers, lost funds. Request a fresh quote instead.",
+    }),
   }),
 )
 

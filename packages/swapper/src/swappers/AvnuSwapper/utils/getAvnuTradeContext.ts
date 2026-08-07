@@ -17,7 +17,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
+import { getTreasuryAddressFromChainId, normalizeEpochToMs } from '../../../utils/helpers'
 import { assertValidTrade, getTokenAddress } from './helpers'
 
 type AvnuTradeContext = {
@@ -26,6 +26,7 @@ type AvnuTradeContext = {
   protocolFees: QuoteFeeData['protocolFees']
   quoteId: string
   sellTokenAddress: string
+  deadline: number | undefined
 }
 
 export const getAvnuTradeContext = async ({
@@ -135,6 +136,7 @@ export const getAvnuTradeContext = async ({
       protocolFees,
       quoteId: bestQuote.quoteId,
       sellTokenAddress,
+      deadline: bestQuote.expiry ? normalizeEpochToMs(bestQuote.expiry) : undefined,
     })
   } catch (error) {
     return Err(

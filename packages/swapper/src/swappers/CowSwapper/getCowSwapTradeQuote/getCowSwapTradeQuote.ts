@@ -41,6 +41,7 @@ export const getCowSwapTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    deadline: stepDataArgs.cowswapQuoteResponse.quote.validTo * 1000,
     receiveAddress,
     steps: [
       {

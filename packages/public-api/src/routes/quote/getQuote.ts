@@ -12,7 +12,7 @@ import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getAsset } from '../../assets'
-import { ENABLED_SWAPPER_NAMES } from '../../constants'
+import { ENABLED_SWAPPER_NAMES, MAX_QUOTE_DEADLINE_MS } from '../../constants'
 import { env } from '../../env'
 import { QuoteStore, quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -48,6 +48,7 @@ registry.registerPath({
     404: { description: 'No quote available' },
     429: rateLimitResponse,
     500: { description: 'Internal server error' },
+    502: { description: 'Swapper returned an expired or implausible quote deadline' },
   },
 })
 
@@ -171,7 +172,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const lastStep = quote.steps[quote.steps.length - 1]
 
     const quoteId = uuidv4()
-    const now = Date.now()
 
     const baseQuote = {
       quoteId,
@@ -184,6 +184,28 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       rate: quote.rate,
     }
 
+    const approval = await buildApprovalInfo(step, sendAddress)
+
+    // taken after the allowance rpc reads so a slow check can't sneak an expired quote through
+    const now = Date.now()
+
+    if (!Number.isFinite(quote.deadline) || quote.deadline <= now) {
+      res.status(502).json({
+        error: 'Swapper quote expired before it could be returned; request a new quote',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    if (quote.deadline > now + MAX_QUOTE_DEADLINE_MS) {
+      console.error(
+        `[getQuote] ${validSwapperName} deadline ${quote.deadline} exceeds MAX_QUOTE_DEADLINE_MS sanity ceiling - provider bug, or raise the ceiling if this swapper legitimately quotes longer`,
+      )
+      res.status(502).json({
+        error: `Swapper quote deadline exceeds the MAX_QUOTE_DEADLINE_MS sanity ceiling`,
+      } satisfies ErrorResponse)
+      return
+    }
+
     quoteStore.set(quoteId, {
       ...baseQuote,
       sellAssetId: sellAsset.assetId,
@@ -193,7 +215,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerAddress: req.affiliateInfo?.partnerAddress,
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
-      expiresAt: now + QuoteStore.QUOTE_TTL_MS,
+      expiresAt: quote.deadline + QuoteStore.BIND_GRACE_MS,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
     })
@@ -206,8 +228,8 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(transformQuoteStep),
-      approval: await buildApprovalInfo(step, sendAddress),
-      expiresAt: now + 60_000,
+      approval,
+      expiresAt: quote.deadline,
     }
 
     res.json(response)

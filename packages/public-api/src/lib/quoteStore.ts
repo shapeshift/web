@@ -25,8 +25,8 @@ export type StoredQuote = {
 
 /**
  * In-memory quote store with dual TTL:
- * - 15 minutes for unsubmitted quotes (quote validity window)
- * - 60 minutes after txHash is bound (execution tracking window)
+ * - unsubmitted: swapper deadline + bind grace (a slow first confirmation must still bind)
+ * - submitted: txHash bind time + execution TTL (destination-chain settlement tracking)
  *
  * Automatic sweep of expired entries every 60 seconds.
  * Migration path: swap to Redis with zero code changes (same get/set/delete interface).
@@ -36,7 +36,7 @@ export class QuoteStore {
   private txHashIndex = new Map<string, string>()
   private cleanupInterval: ReturnType<typeof setInterval>
 
-  static readonly QUOTE_TTL_MS = 15 * 60 * 1000
+  static readonly BIND_GRACE_MS = 60 * 60 * 1000
   static readonly EXECUTION_TTL_MS = 60 * 60 * 1000
   static readonly CLEANUP_INTERVAL_MS = 60 * 1000
   static readonly MAX_QUOTES = 10000

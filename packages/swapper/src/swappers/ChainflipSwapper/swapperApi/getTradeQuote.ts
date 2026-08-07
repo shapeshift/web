@@ -5,6 +5,7 @@ import type { AxiosError } from 'axios'
 import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
+import { CHAINFLIP_CHANNEL_DEADLINE_MS } from '../constants'
 import type { ChainflipMetadata, ChainflipTradeQuoteInput } from '../types'
 import { getChainflipStepData } from '../utils/getChainflipStepData'
 import { getChainflipTradeContexts } from '../utils/getChainflipTradeContexts'
@@ -97,6 +98,7 @@ export const getTradeQuote = async (
     tradeQuotes.push({
       ...tradeCommon,
       quoteOrRate: 'quote' as const,
+      deadline: Date.now() + CHAINFLIP_CHANNEL_DEADLINE_MS,
       receiveAddress,
       steps: [
         {

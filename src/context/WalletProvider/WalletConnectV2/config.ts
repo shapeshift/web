@@ -97,7 +97,10 @@ const {
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
   projectId: VITE_WALLET_CONNECT_WALLET_PROJECT_ID,
   chains: walletConnectV2RequiredChainIds,
-  optionalChains: walletConnectV2OptionalChainIds,
+  // Some wallets resolve their selected network against optionalNamespaces only, and reject the
+  // session outright when it isn't listed there — even though it is a required chain. Advertising
+  // the required chain in both keeps those wallets connectable.
+  optionalChains: [...walletConnectV2RequiredChainIds, ...walletConnectV2OptionalChainIds],
   optionalMethods: [
     'eth_signTypedData',
     'eth_signTypedData_v4',

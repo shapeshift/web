@@ -12,7 +12,7 @@ import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
-import { relayService } from './utils/relayService'
+import { getRelayRequestConfig, relayService } from './utils/relayService'
 import type { RelayStatus, RelayTradeQuoteInput, RelayTradeRateInput } from './utils/types'
 
 // Keep track of the trades we already notified the relay indexer about
@@ -86,7 +86,8 @@ export const relayApi: SwapperApi = {
     const swapperTxLink = `https://relay.link/transaction/${txHash}`
 
     const maybeStatusResponse = await relayService.get<RelayStatus>(
-      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${relayMetadata.relayId}`,
+      `${config.VITE_RELAY_API_URL}/intents/status/v3?requestId=${relayMetadata.relayId}`,
+      getRelayRequestConfig(config),
     )
 
     if (maybeStatusResponse.isErr()) {
@@ -105,9 +106,13 @@ export const relayApi: SwapperApi = {
       switch (statusResponse.status) {
         case 'success':
           return TxStatus.Confirmed
+        case 'waiting':
+        case 'delayed':
         case 'pending':
+        case 'depositing':
+        case 'submitted':
           return TxStatus.Pending
-        case 'failed':
+        case 'failure':
         case 'refund':
           return TxStatus.Failed
         default:

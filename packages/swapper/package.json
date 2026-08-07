@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "18.1.1",
+  "version": "19.0.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",

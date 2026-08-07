@@ -584,6 +584,8 @@ export type TradeQuote = TradeQuoteBase & {
 } & {
   quoteOrRate: 'quote'
   receiveAddress: string
+  // Epoch ms after which the quote is no longer safe to execute (provider expiry or fallback)
+  deadline: number
 }
 
 export type MultiHopTradeQuote = TradeQuote & {

@@ -10,6 +10,7 @@ import type {
   TradeQuoteStep,
 } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
+import { FALLBACK_QUOTE_DEADLINE_MS } from '../../../utils/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { getRelayStepData } from '../utils/getRelayStepData'
 import { getRelayTradeContext } from '../utils/getRelayTradeContext'
@@ -74,6 +75,7 @@ export const getTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    deadline: Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
     receiveAddress,
     steps,
   }

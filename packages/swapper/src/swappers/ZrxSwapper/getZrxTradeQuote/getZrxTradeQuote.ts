@@ -10,7 +10,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../../utils/helpers'
+import { FALLBACK_QUOTE_DEADLINE_MS, isNativeEvmAsset } from '../../../utils/helpers'
 import type { ZrxTradeQuoteInput } from '../types'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
 import { getZrxStepData } from '../utils/getZrxStepData'
@@ -112,6 +112,7 @@ export const getZrxTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    deadline: Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
     receiveAddress,
     steps: [
       {

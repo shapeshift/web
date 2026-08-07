@@ -3,6 +3,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperDeps, SwapperName } from '../../types'
 import { assertQuoteAddresses, makeTradeStepBuildFailedErr } from '../../utils'
+import { normalizeEpochToMs } from '../helpers'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getSuccessfulTrades, getThorL1TradeContexts } from './getThorL1TradeContexts'
 import { getThorStepData } from './getThorStepData'
@@ -86,6 +87,8 @@ export const getThorL1TradeQuote = async (
         const quote: ThorTradeQuote = {
           ...tradeCommon,
           quoteOrRate: 'quote',
+          // The daemon quote expiry scopes the inbound address - sending later risks a rotated vault
+          deadline: normalizeEpochToMs(tradeCommon.expiry),
           memo,
           receiveAddress,
           data,

@@ -34,6 +34,17 @@ import {
   isTreasuryChainId,
 } from '@shapeshiftoss/utils'
 
+// Deadline for providers without their own expiry - short enough to keep priced amounts honest
+export const FALLBACK_QUOTE_DEADLINE_MS = 60_000
+
+// Bands are unambiguous for any realistic date: unix s land ~2e9, ms ~2e12, µs ~2e15, ns ~2e18
+export const normalizeEpochToMs = (value: number): number => {
+  if (value < 1e12) return value * 1000
+  if (value < 1e15) return value
+  if (value < 1e18) return Math.floor(value / 1000)
+  return Math.floor(value / 1e6)
+}
+
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
   const { chainId } = fromAssetId(assetId)
   switch (chainId) {

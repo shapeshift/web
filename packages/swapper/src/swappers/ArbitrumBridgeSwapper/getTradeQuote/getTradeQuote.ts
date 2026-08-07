@@ -9,6 +9,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
+import { FALLBACK_QUOTE_DEADLINE_MS } from '../../../utils/helpers'
 import type { ArbitrumBridgeTradeQuoteInput } from '../types'
 import { getArbitrumBridgeStepData } from '../utils/getArbitrumBridgeStepData'
 import { getArbitrumBridgeTradeContext } from '../utils/getArbitrumBridgeTradeContext'
@@ -53,6 +54,7 @@ export const getTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote',
+    deadline: Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
     receiveAddress,
     steps: [
       {

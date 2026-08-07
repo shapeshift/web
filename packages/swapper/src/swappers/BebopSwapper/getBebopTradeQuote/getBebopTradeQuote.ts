@@ -25,7 +25,7 @@ export const getBebopTradeQuote = async (
   })
 
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
-  const { tradeCommon, stepCommon, stepDataArgs } = maybeContext.unwrap()
+  const { tradeCommon, stepCommon, stepDataArgs, deadline } = maybeContext.unwrap()
 
   const maybeStepData = await getBebopStepData({ ...stepDataArgs, type: 'quote', input })
 
@@ -35,6 +35,7 @@ export const getBebopTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote',
+    deadline,
     receiveAddress,
     steps: [
       {

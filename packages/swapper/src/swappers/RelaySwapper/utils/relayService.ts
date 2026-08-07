@@ -19,6 +19,4 @@ const relayServiceBase = createCache(maxAgeMillis, cachedUrls, axiosConfig)
 export const relayService = makeSwapperAxiosServiceMonadic(relayServiceBase)
 
 export const getRelayRequestConfig = (config: SwapperConfig): AxiosRequestConfig | undefined =>
-  config.VITE_RELAY_API_KEY
-    ? { headers: { 'x-api-key': config.VITE_RELAY_API_KEY } }
-    : undefined
+  config.VITE_RELAY_API_KEY ? { headers: { 'x-api-key': config.VITE_RELAY_API_KEY } } : undefined

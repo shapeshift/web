@@ -83,6 +83,7 @@ const envSchema = z.object({
   BOB_GATEWAY_API_KEY: z.string().default(''),
   CHAINFLIP_API_KEY: z.string().min(1),
   NEAR_INTENTS_API_KEY: z.string().min(1),
+  RELAY_API_KEY: z.string().default(''),
   TRON_GRID_API_KEY: z.string().default(''),
 
   // Feature flags

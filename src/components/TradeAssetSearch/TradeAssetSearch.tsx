@@ -31,6 +31,7 @@ import { FiatMenuButton } from '../AssetSelection/components/FiatMenuButton'
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
+import { filterAssetsForWallet } from './helpers/filterAssetsForWallet'
 import { useAssetSearchWorker } from './hooks/useAssetSearchWorker'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 
@@ -170,14 +171,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   )
 
   const popularAssets = useMemo(() => {
-    const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    const filteredPopularAssets = unfilteredPopularAssets.filter(
-      asset => assetFilterPredicate?.(asset.assetId) ?? true,
-    )
-    if (allowWalletUnsupportedAssets || !hasWallet) return filteredPopularAssets
-
-    // TODO: move `allowWalletUnsupportedAssets` into `assetFilterPredicate`
-    return filteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+    return filterAssetsForWallet({
+      assets: popularAssetsByChainId?.[activeChainId] ?? [],
+      hasWallet,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      assetFilterPredicate,
+    })
   }, [
     popularAssetsByChainId,
     activeChainId,
@@ -211,12 +211,20 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
-    const filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
-      asset => assetFilterPredicate?.(asset.assetId) ?? true,
-    )
-
-    return filteredPortfolioAssetsSortedByBalance
-  }, [portfolioAssetsSortedByBalance, assetFilterPredicate])
+    return filterAssetsForWallet({
+      assets: portfolioAssetsSortedByBalance,
+      hasWallet,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      assetFilterPredicate,
+    })
+  }, [
+    portfolioAssetsSortedByBalance,
+    assetFilterPredicate,
+    hasWallet,
+    allowWalletUnsupportedAssets,
+    walletConnectedChainIds,
+  ])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {

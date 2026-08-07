@@ -119,6 +119,7 @@ interface ImportMetaEnv {
   readonly VITE_BERACHAIN_NODE_URL: string
   readonly VITE_FEATURE_BERACHAIN: string
   readonly VITE_RELAY_API_URL: string
+  readonly VITE_RELAY_API_KEY: string
   readonly VITE_TENDERLY_ACCOUNT_SLUG: string
   readonly VITE_TENDERLY_PROJECT_SLUG: string
   readonly VITE_TENDERLY_API_KEY: string
@@ -216,6 +217,8 @@ interface ImportMetaEnv {
   readonly VITE_SEI_NODE_URL: string
   readonly VITE_FEATURE_SEI: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
+  readonly VITE_ROBINHOOD_NODE_URL: string
+  readonly VITE_FEATURE_ROBINHOOD: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

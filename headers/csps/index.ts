@@ -37,6 +37,7 @@ import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
 import { csp as plume } from './chains/plume'
 import { csp as polygon } from './chains/polygon'
+import { csp as robinhood } from './chains/robinhood'
 import { csp as scroll } from './chains/scroll'
 import { csp as sei } from './chains/sei'
 import { csp as solana } from './chains/solana'
@@ -208,4 +209,5 @@ export const csps = [
   railway,
   discord,
   yieldxyz,
+  robinhood,
 ]

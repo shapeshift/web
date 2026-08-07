@@ -11,9 +11,6 @@ interface GlobalSearchButtonProps {
   isIconButton?: boolean
 }
 
-const widthProp = { base: 'auto', lg: 'full' }
-const displayProp1 = { base: 'flex', lg: 'none' }
-const displayProp2 = { base: 'none', lg: 'flex' }
 const sxProp1 = { svg: { width: '18px', height: '18px' } }
 
 const searchIcon = <SearchIcon />
@@ -50,14 +47,7 @@ export const GlobalSearchButton = memo(({ isIconButton = false }: GlobalSearchBu
           data-testid='global-search-button'
         />
       ) : (
-        <Box width={widthProp}>
-          <IconButton
-            display={displayProp1}
-            icon={searchIcon}
-            aria-label={translate('common.search')}
-            onClick={onOpen}
-            data-testid='global-search-button'
-          />
+        <Box width='full'>
           <Button
             width='full'
             leftIcon={searchIcon}
@@ -66,7 +56,7 @@ export const GlobalSearchButton = memo(({ isIconButton = false }: GlobalSearchBu
             fontSize='sm'
             alignItems='center'
             color='text.subtle'
-            display={displayProp2}
+            display='flex'
             sx={sxProp1}
             bg='background.input.base'
             border='1px solid'

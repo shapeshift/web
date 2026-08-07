@@ -1,0 +1,30 @@
+{
+  "camelName": "robinhood",
+  "pascalName": "Robinhood",
+  "upperName": "ROBINHOOD",
+  "chainId": 4663,
+  "viemChainName": "robinhood",
+  "nativeSymbol": "ETH",
+  "nativeName": "Ethereum",
+  "nativePrecision": 18,
+  "isNativeEth": true,
+  "color": "#00C805",
+  "networkIconUrl": "https://assets.relay.link/icons/4663/light.png",
+  "nativeIconUrl": "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+  "explorerUrl": "https://robinhoodchain.blockscout.com",
+  "explorerAddressLink": "https://robinhoodchain.blockscout.com/address/",
+  "explorerTxLink": "https://robinhoodchain.blockscout.com/tx/",
+  "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
+  "publicRpcUrls": ["https://rpc.mainnet.chain.robinhood.com", "https://robinhood-rpc.publicnode.com"],
+  "coingeckoPlatform": "robinhood",
+  "wrappedNativeAddress": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+  "relatedAssetKey": "eip155:1/slip44:60",
+  "shortName": "RH",
+  "swappers": {
+    "relay": { "supported": true, "relayChainId": 4663 },
+    "across": { "supported": true },
+    "portals": { "supported": false },
+    "zerion": { "supported": false },
+    "yieldxyz": { "supported": false }
+  }
+}

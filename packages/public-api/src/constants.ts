@@ -54,3 +54,7 @@ export const ENABLED_SWAPPER_NAMES: readonly SwapperName[] = [
   SwapperName.Thorchain,
   SwapperName.Zrx,
 ]
+
+// Sanity ceiling catching provider deadline bugs (unit inflation, sentinel far-future dates).
+// Widest legitimate deadline today is chainflip's 6h - raise this if a swapper ever quotes longer.
+export const MAX_QUOTE_DEADLINE_MS = 7 * 24 * 60 * 60 * 1000

@@ -96,6 +96,7 @@ type NearFullTxResult = {
   receipts_outcome: {
     id: string
     outcome: {
+      executor_id?: string
       tokens_burnt: string
       logs: string[]
     }
@@ -760,25 +761,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       value: string
     }[] = []
 
-    let tokenContractId = result.transaction.receiver_id
-    for (const action of result.transaction.actions) {
-      if ('FunctionCall' in action) {
-        const method = action.FunctionCall.method_name
-        if (method === 'ft_transfer' || method === 'ft_transfer_call') {
-          break
-        }
-      }
-      if ('Delegate' in action) {
-        const delegateAction = action.Delegate as {
-          delegate_action?: { receiver_id?: string; actions?: unknown[] }
-        }
-        if (delegateAction.delegate_action?.receiver_id) {
-          tokenContractId = delegateAction.delegate_action.receiver_id
-        }
-      }
-    }
-
     for (const receipt of result.receipts_outcome) {
+      // The nep141 event is emitted by the token contract executing the receipt, so the
+      // executor is the authoritative contract for every event in it - the transaction's
+      // receiver is whatever contract was called first (e.g. intents.near for swap settlements)
+      const tokenContractId = receipt.outcome.executor_id
+      if (!tokenContractId) continue
+
       for (const log of receipt.outcome.logs) {
         if (!log.startsWith('EVENT_JSON:')) continue
 

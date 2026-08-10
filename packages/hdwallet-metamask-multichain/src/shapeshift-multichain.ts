@@ -316,6 +316,7 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsEos = false
   readonly _supportsThorchainInfo = true
   readonly _supportsThorchain = true
+  readonly _supportsRobinhood = true
 
   info: MetaMaskMultiChainHDWalletInfo & core.HDWalletInfo
   bitcoinAddress?: string | null

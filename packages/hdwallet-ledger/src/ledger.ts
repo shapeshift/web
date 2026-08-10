@@ -460,6 +460,7 @@ export class LedgerHDWallet
   readonly _supportsSui = true
   readonly _supportsTron = true
   readonly _supportsNear = true
+  readonly _supportsRobinhood = true
 
   _isLedger = true
 

@@ -18,6 +18,7 @@ import {
   megaethAssetId,
   modeAssetId,
   optimismAssetId,
+  robinhoodAssetId,
   scrollAssetId,
   soneiumAssetId,
   sonicAssetId,
@@ -78,6 +79,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     worldChainAssetId,
     blastAssetId,
     zkSyncEraAssetId,
+    robinhoodAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

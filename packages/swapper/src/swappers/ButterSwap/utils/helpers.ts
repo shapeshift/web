@@ -6,6 +6,17 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  mainnet as ethereum,
+  optimism,
+  polygon,
+  robinhood,
+  tron,
+} from 'viem/chains'
 
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
@@ -14,16 +25,17 @@ import type { RouteSuccessItem } from '../types'
 
 // https://docs.butternetwork.io/butter-swap-integration/butter-api-for-routing/get-supportedchainlist#butter-chain-id-explanation
 const BUTTERSWAP_CHAIN_ID_TO_CHAIN_ID: Record<number, KnownChainIds> = {
-  1: KnownChainIds.EthereumMainnet,
-  137: KnownChainIds.PolygonMainnet,
-  56: KnownChainIds.BnbSmartChainMainnet,
-  42161: KnownChainIds.ArbitrumMainnet,
-  10: KnownChainIds.OptimismMainnet,
-  8453: KnownChainIds.BaseMainnet,
-  43114: KnownChainIds.AvalancheMainnet,
+  [ethereum.id]: KnownChainIds.EthereumMainnet,
+  [polygon.id]: KnownChainIds.PolygonMainnet,
+  [bsc.id]: KnownChainIds.BnbSmartChainMainnet,
+  [arbitrum.id]: KnownChainIds.ArbitrumMainnet,
+  [optimism.id]: KnownChainIds.OptimismMainnet,
+  [base.id]: KnownChainIds.BaseMainnet,
+  [avalanche.id]: KnownChainIds.AvalancheMainnet,
+  [robinhood.id]: KnownChainIds.RobinhoodMainnet,
   1360108768460801: KnownChainIds.SolanaMainnet,
   1360095883558913: KnownChainIds.BitcoinMainnet,
-  728126428: KnownChainIds.TronMainnet,
+  [tron.id]: KnownChainIds.TronMainnet,
 }
 
 const CHAIN_ID_TO_BUTTERSWAP_CHAIN_ID: Record<KnownChainIds, number> = Object.entries(

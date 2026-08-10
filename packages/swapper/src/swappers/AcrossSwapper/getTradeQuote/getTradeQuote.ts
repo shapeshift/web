@@ -25,7 +25,7 @@ export const getTradeQuote = async (
   })
 
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
-  const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
+  const { tradeCommon, stepCommon, protocolFees, stepDataArgs, deadline } = maybeContext.unwrap()
 
   const maybeStepData = await getAcrossStepData({ ...stepDataArgs, type: 'quote', input })
 
@@ -35,6 +35,7 @@ export const getTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    deadline,
     receiveAddress,
     steps: [
       {

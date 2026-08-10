@@ -9,6 +9,7 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
+import { normalizeEpochToMs } from '../../../utils/helpers'
 import { getBebopSolanaTradeContext } from '../utils/getBebopSolanaTradeContext'
 import { isBebopSolanaTxSafe } from '../utils/helpers'
 
@@ -44,6 +45,8 @@ export const getBebopSolanaTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote',
+    // The sealed multi-signer tx is blockhash-pinned, so the provider expiry governs
+    deadline: normalizeEpochToMs(response.expiry),
     receiveAddress,
     steps: [
       {

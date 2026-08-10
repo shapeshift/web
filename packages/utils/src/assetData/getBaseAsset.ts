@@ -38,6 +38,7 @@ import {
   plasma,
   plume,
   polygon,
+  robinhood,
   scroll,
   sei,
   solana,
@@ -156,6 +157,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return ton
     case KnownChainIds.AbstractMainnet:
       return abstract
+    case KnownChainIds.RobinhoodMainnet:
+      return robinhood
     default:
       return assertUnreachable(knownChainId)
   }

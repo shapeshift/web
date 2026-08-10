@@ -12,6 +12,7 @@ import {
   mantleChainId,
   modeChainId,
   plumeChainId,
+  robinhoodChainId,
   seiChainId,
   soneiumChainId,
   sonicChainId,
@@ -75,6 +76,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [storyChainId]: '0x1514000000000000000000000000000000000000',
   [plumeChainId]: '0xea237441c92cae6fc17caaf9a7acb3f953be4bd1',
   [seiChainId]: '0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7',
+  [robinhoodChainId]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
 }
 const BATCH_SIZE = 500
 

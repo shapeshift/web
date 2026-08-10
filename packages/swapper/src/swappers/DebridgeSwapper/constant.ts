@@ -17,35 +17,48 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  robinhoodChainId,
   seiChainId,
   sonicChainId,
   storyChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  linea,
+  mainnet as ethereum,
+  optimism,
+  polygon,
+  robinhood,
+} from 'viem/chains'
 
 export const chainIdToDebridgeChainId: Record<string, number> = {
-  [ethChainId]: 1,
-  [optimismChainId]: 10,
-  [bscChainId]: 56,
+  [ethChainId]: ethereum.id,
+  [optimismChainId]: optimism.id,
+  [bscChainId]: bsc.id,
   [gnosisChainId]: 100000002,
-  [polygonChainId]: 137,
+  [polygonChainId]: polygon.id,
   [monadChainId]: 100000030,
   [hyperEvmChainId]: 100000022,
   [seiChainId]: 100000027,
-  [baseChainId]: 8453,
+  [baseChainId]: base.id,
   [plasmaChainId]: 100000028,
-  [arbitrumChainId]: 42161,
-  [avalancheChainId]: 43114,
+  [arbitrumChainId]: arbitrum.id,
+  [avalancheChainId]: avalanche.id,
   [mantleChainId]: 100000023,
   [cronosChainId]: 100000019,
   [berachainChainId]: 100000020,
-  [lineaChainId]: 59144,
+  [lineaChainId]: linea.id,
   [bobChainId]: 100000021,
   [sonicChainId]: 100000014,
   [storyChainId]: 100000013,
   [flowEvmChainId]: 100000009,
   [megaethChainId]: 100000031,
+  [robinhoodChainId]: robinhood.id,
 }
 
 export const debridgeChainIdToChainId = invert(chainIdToDebridgeChainId)

@@ -85,11 +85,13 @@ export type SwapperConfig = {
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
   VITE_RELAY_API_URL: string
+  VITE_RELAY_API_KEY: string
   VITE_BEBOP_API_KEY: string
   VITE_NEAR_INTENTS_API_KEY: string
   VITE_SUI_NODE_URL: string
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
+  VITE_ACROSS_API_KEY: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
 }
@@ -583,6 +585,8 @@ export type TradeQuote = TradeQuoteBase & {
 } & {
   quoteOrRate: 'quote'
   receiveAddress: string
+  // Epoch ms after which the quote is no longer safe to execute (provider expiry or fallback)
+  deadline: number
 }
 
 export type MultiHopTradeQuote = TradeQuote & {

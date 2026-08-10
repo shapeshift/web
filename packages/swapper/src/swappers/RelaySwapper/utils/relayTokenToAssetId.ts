@@ -256,7 +256,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Abstract,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
-
+      case CHAIN_REFERENCE.RobinhoodMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Robinhood,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${relayToken.chainId}' not supported`)
     }

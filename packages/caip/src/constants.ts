@@ -8,6 +8,7 @@ export const ltcAssetId: AssetId = 'bip122:12a765e31ffd4059bada1e25190f6e98/slip
 export const zecAssetId: AssetId = 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133'
 
 export const ethAssetId: AssetId = 'eip155:1/slip44:60'
+export const robinhoodAssetId: AssetId = 'eip155:4663/slip44:60'
 export const abstractAssetId: AssetId = 'eip155:2741/slip44:60'
 export const avalancheAssetId: AssetId = 'eip155:43114/slip44:60'
 export const optimismAssetId: AssetId = 'eip155:10/slip44:60'
@@ -97,6 +98,7 @@ export const ltcChainId: ChainId = 'bip122:12a765e31ffd4059bada1e25190f6e98'
 export const zecChainId: ChainId = 'bip122:00040fe8ec8471911baa1db1266ea15d'
 
 export const ethChainId: ChainId = 'eip155:1'
+export const robinhoodChainId: ChainId = 'eip155:4663'
 export const abstractChainId: ChainId = 'eip155:2741'
 export const avalancheChainId: ChainId = 'eip155:43114'
 export const optimismChainId: ChainId = 'eip155:10'
@@ -211,6 +213,7 @@ export const CHAIN_REFERENCE = {
   StarknetMainnet: 'SN_MAIN', // https://namespaces.chainagnostic.org/starknet/caip2
   TonMainnet: 'mainnet', // TON Mainnet
   AbstractMainnet: '2741', // https://abscan.org
+  RobinhoodMainnet: '4663', // https://chainlist.org/chain/4663
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -278,6 +281,7 @@ export const ASSET_REFERENCE = {
   Starknet: '9004',
   Ton: '607',
   Abstract: '60', // evm chain which uses ethereum derivation path as common practice
+  Robinhood: '60', // evm chain which uses ethereum derivation path as common practice
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -324,6 +328,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.SeiMainnet,
     CHAIN_REFERENCE.CeloMainnet,
     CHAIN_REFERENCE.AbstractMainnet,
+    CHAIN_REFERENCE.RobinhoodMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

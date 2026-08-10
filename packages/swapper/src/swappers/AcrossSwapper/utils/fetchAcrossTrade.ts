@@ -2,7 +2,7 @@ import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
 import type { SwapErrorRight, SwapperConfig } from '../../../types'
-import { acrossService } from './acrossService'
+import { acrossService, getAcrossRequestConfig } from './acrossService'
 import type { AcrossSwapApprovalResponse } from './types'
 
 export type AcrossFetchQuoteParams = {
@@ -44,5 +44,5 @@ export const fetchAcrossTrade = (
 
   const url = `${config.VITE_ACROSS_API_URL}/swap/approval?${searchParams.toString()}`
 
-  return acrossService.get<AcrossSwapApprovalResponse>(url)
+  return acrossService.get<AcrossSwapApprovalResponse>(url, getAcrossRequestConfig(config))
 }

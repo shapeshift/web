@@ -304,6 +304,7 @@ export class MetaMaskNativeMultiChainHDWallet
   readonly _supportsCronos = true
   readonly _supportsUnichain = true
   readonly _supportsSoneium = true
+  readonly _supportsRobinhood = true
   readonly _supportsOsmosisInfo = false
   readonly _supportsOsmosis = false
   readonly _supportsBinanceInfo = false

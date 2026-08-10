@@ -28,6 +28,7 @@ import {
   optimismChainId,
   plumeChainId,
   polygonChainId,
+  robinhoodChainId,
   seiChainId,
   solanaChainId,
   soneiumChainId,
@@ -254,5 +255,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
     ...(getConfig().VITE_FEATURE_FLOWEVM ? [flowEvmChainId] : []),
     ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
+    ...(getConfig().VITE_FEATURE_ROBINHOOD ? [robinhoodChainId] : []),
   ]
 }

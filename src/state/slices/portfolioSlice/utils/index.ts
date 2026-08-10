@@ -39,6 +39,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  robinhoodChainId,
   scrollChainId,
   seiChainId,
   solanaChainId,
@@ -92,6 +93,7 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsRobinhood,
   supportsScroll,
   supportsSei,
   supportsSolana,
@@ -168,6 +170,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case celoChainId:
     case monadChainId:
     case plasmaChainId:
+    case robinhoodChainId:
     case thorchainChainId:
     case mayachainChainId:
     case cosmosChainId:
@@ -625,6 +628,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsNear(wallet)
     case tonChainId:
       return supportsTon(wallet)
+    case robinhoodChainId:
+      return supportsRobinhood(wallet)
     default:
       return false
   }

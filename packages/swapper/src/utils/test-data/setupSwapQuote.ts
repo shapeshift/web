@@ -12,6 +12,7 @@ export const setupQuote = () => {
   const tradeQuote: TradeQuote = {
     quoteOrRate: 'quote',
     id: 'foobar',
+    deadline: Date.now() + 60_000,
     receiveAddress: '0x1234',
     affiliateBps: '0',
     slippageTolerancePercentageDecimal: '0',

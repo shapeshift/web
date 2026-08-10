@@ -28,6 +28,7 @@ import {
   plasmaChainId,
   plumeChainId,
   polygonChainId,
+  robinhoodChainId,
   scrollChainId,
   seiChainId,
   soneiumChainId,
@@ -68,6 +69,7 @@ import {
   supportsPlasma,
   supportsPlume,
   supportsPolygon,
+  supportsRobinhood,
   supportsScroll,
   supportsSei,
   supportsSoneium,
@@ -193,6 +195,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === bobChainId && !supportsBob(wallet)) continue
     if (chainId === modeChainId && !supportsMode(wallet)) continue
     if (chainId === soneiumChainId && !supportsSoneium(wallet)) continue
+    if (chainId === robinhoodChainId && !supportsRobinhood(wallet)) continue
     if (
       isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

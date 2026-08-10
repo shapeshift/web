@@ -2,7 +2,7 @@ import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
 import type { SwapErrorRight, SwapperConfig } from '../../../types'
-import { relayService } from './relayService'
+import { getRelayRequestConfig, relayService } from './relayService'
 import type { RelayQuote } from './types'
 
 type NotifyTransactionIndexingParams = {
@@ -18,5 +18,6 @@ export const notifyTransactionIndexing = async (
   return await relayService.post<RelayQuote>(
     `${config.VITE_RELAY_API_URL}/transactions/single`,
     params,
+    getRelayRequestConfig(config),
   )
 }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/chain-adapters",
-  "version": "11.5.0",
+  "version": "11.5.1",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -54,7 +54,7 @@
     "multicoin-address-validator": "^0.5.12",
     "node-polyglot": "^2.4.0",
     "p-queue": "^8.0.1",
-    "viem": "2.43.5"
+    "viem": "2.55.11"
   },
   "devDependencies": {
     "@types/bs58check": "^2.1.0",

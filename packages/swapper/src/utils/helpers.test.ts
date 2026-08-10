@@ -4,7 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { treasuryChainIds } from '@shapeshiftoss/utils'
 import { describe, expect, it } from 'vitest'
 
-import { getTreasuryAddressFromChainId } from './helpers'
+import { getTreasuryAddressFromChainId, normalizeEpochToMs } from './helpers'
 
 describe('getTreasuryAddressFromChainId', () => {
   // Affiliate and fee recipient addresses for every swapper flow through here, so pin the values
@@ -37,5 +37,27 @@ describe('getTreasuryAddressFromChainId', () => {
     expect(() => getTreasuryAddressFromChainId(thorchainChainId as EvmChainId)).toThrow(
       '[getTreasuryAddressFromChainId] - Unsupported chainId',
     )
+  })
+})
+
+describe('normalizeEpochToMs', () => {
+  // 2026-08-05T00:00:00Z expressed in each unit
+  const epochS = 1785888000
+  const epochMs = epochS * 1000
+
+  it('converts unix seconds to ms', () => {
+    expect(normalizeEpochToMs(epochS)).toBe(epochMs)
+  })
+
+  it('passes milliseconds through', () => {
+    expect(normalizeEpochToMs(epochMs)).toBe(epochMs)
+  })
+
+  it('converts microseconds to ms', () => {
+    expect(normalizeEpochToMs(epochMs * 1000)).toBe(epochMs)
+  })
+
+  it('converts nanoseconds to ms', () => {
+    expect(normalizeEpochToMs(epochMs * 1e6)).toBe(epochMs)
   })
 })

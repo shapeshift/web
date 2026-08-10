@@ -36,11 +36,19 @@ export type RelayMetadata = {
 }
 
 export type RelayStatus = {
-  status: 'success' | 'failed' | 'pending' | 'refund' | 'delayed' | 'waiting'
+  status:
+    | 'success'
+    | 'failure'
+    | 'pending'
+    | 'submitted'
+    | 'depositing'
+    | 'refund'
+    | 'delayed'
+    | 'waiting'
   details?: string
   inTxHashes: string[]
   txHashes: string[]
-  time: number
+  updatedAt: number
   originChainId: number
   destinationChainId: number
 }

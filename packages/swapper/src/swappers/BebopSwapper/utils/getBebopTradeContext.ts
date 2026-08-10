@@ -16,7 +16,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../../utils/helpers'
+import { isNativeEvmAsset, normalizeEpochToMs } from '../../../utils/helpers'
 import { fetchBebopQuote } from './fetchFromBebop'
 import type { GetBebopStepDataArgs } from './getBebopStepData'
 import { assertValidTrade, calculateRate } from './helpers'
@@ -25,6 +25,7 @@ type BebopTradeContext = {
   tradeCommon: TradeCommon
   stepCommon: Omit<TradeStepCommon, 'feeData'>
   stepDataArgs: Omit<GetBebopStepDataArgs, 'type' | 'input'>
+  deadline: number
 }
 
 export const getBebopTradeContext = async ({
@@ -119,5 +120,6 @@ export const getBebopTradeContext = async ({
       from,
       deps,
     },
+    deadline: normalizeEpochToMs(quote.expiry),
   })
 }

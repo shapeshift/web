@@ -9,7 +9,11 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
-import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
+import {
+  FALLBACK_QUOTE_DEADLINE_MS,
+  getTreasuryAddressFromChainId,
+  normalizeEpochToMs,
+} from '../../../utils/helpers'
 import type { PortalsTradeQuoteInput } from '../types'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsStepData } from '../utils/getPortalsStepData'
@@ -158,9 +162,19 @@ export const getPortalsTradeQuote = async (
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
+  // Nullable in practice (live validated orders return null) - numeric or ISO when supplied
+  const expiryMs = (() => {
+    if (!orderContext.expiry) return undefined
+    const numeric = Number(orderContext.expiry)
+    if (Number.isFinite(numeric)) return normalizeEpochToMs(numeric)
+    const parsed = Date.parse(orderContext.expiry)
+    return Number.isNaN(parsed) ? undefined : parsed
+  })()
+
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    deadline: expiryMs ?? Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
     receiveAddress,
     steps: [
       {

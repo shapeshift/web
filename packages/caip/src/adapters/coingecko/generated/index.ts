@@ -35,6 +35,7 @@ import soneium from "./eip155_1868/adapter.json";
 import flowevm from "./eip155_747/adapter.json";
 import celo from "./eip155_42220/adapter.json";
 import sei from "./eip155_1329/adapter.json";
+import ethereal from "./eip155_5064014/adapter.json";
 import abstract from "./eip155_2741/adapter.json";
 import robinhood from "./eip155_4663/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
@@ -86,6 +87,7 @@ export {
   flowevm,
   celo,
   sei,
+  ethereal,
   abstract,
   robinhood,
   cosmos,

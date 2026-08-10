@@ -630,6 +630,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           tokens: [],
         },
         pubkey,
+        // The node only gives us the native balance - token balances are missing entirely
+        isDegraded: true,
       } as Account<T>
     } catch (err) {
       return ErrorHandler(err, {

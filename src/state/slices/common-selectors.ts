@@ -630,7 +630,13 @@ export const selectAssetsBySearchQuery = createCachedSelector(
           return marketCap.isZero() || marketCap.gte(MINIMUM_MARKET_CAP_THRESHOLD)
         })
 
-    const matchedAssets = searchAssets(searchQuery, filteredAssets)
+    // allAssets is ordered by balance before market cap, so scoring can't infer standing from
+    // position in it - a wallet's dust would otherwise outrank every established coin
+    const marketCapRankByAssetId = new Map(
+      primaryAssets.map((asset, index) => [asset.assetId, index]),
+    )
+
+    const matchedAssets = searchAssets(searchQuery, filteredAssets, marketCapRankByAssetId)
     const deduplicated = deduplicateAssets(matchedAssets, searchQuery)
 
     // Held assets outrank relevance so an owned token is never buried under same-symbol impostors.

@@ -81,7 +81,7 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
   })
 }
 
-const scoreAsset = (asset: SearchableAsset, search: string, originalIndex: number): number => {
+const scoreAsset = (asset: SearchableAsset, search: string, marketCapRank: number): number => {
   const sym = asset.symbol.toLowerCase()
   const name = asset.name.toLowerCase()
 
@@ -91,8 +91,8 @@ const scoreAsset = (asset: SearchableAsset, search: string, originalIndex: numbe
     let bestScore = SCORE.NO_MATCH as number
     if (name === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_EXACT)
     if (name.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_PREFIX)
-    const isHighMarketCap = originalIndex < MAX_HIGH_MARKET_CAP_INDEX
-    const isTopMarketCap = originalIndex < TOP_MARKET_CAP_INDEX
+    const isHighMarketCap = marketCapRank < MAX_HIGH_MARKET_CAP_INDEX
+    const isTopMarketCap = marketCapRank < TOP_MARKET_CAP_INDEX
     if (sym.length <= 5 && isHighMarketCap) {
       if (sym === search)
         bestScore = Math.min(
@@ -121,7 +121,16 @@ const scoreAsset = (asset: SearchableAsset, search: string, originalIndex: numbe
   return SCORE.NO_MATCH
 }
 
-export const searchAssets = <T extends SearchableAsset>(searchTerm: string, assets: T[]): T[] => {
+export const searchAssets = <T extends SearchableAsset>(
+  searchTerm: string,
+  assets: T[],
+  /**
+   * Market cap position per assetId. Callers whose list is ordered by anything else - balance
+   * first, say - must supply this, or every held asset reads as a top coin. Assets missing from it
+   * are treated as having no standing rather than inheriting a neighbour's.
+   */
+  marketCapRankByAssetId?: Map<AssetId, number>,
+): T[] => {
   if (!assets?.length) return []
   if (!searchTerm) return assets
 
@@ -134,7 +143,13 @@ export const searchAssets = <T extends SearchableAsset>(searchTerm: string, asse
   const scored = assets
     .map((asset, originalIndex) => ({
       asset,
-      score: scoreAsset(asset, search, originalIndex),
+      score: scoreAsset(
+        asset,
+        search,
+        marketCapRankByAssetId
+          ? marketCapRankByAssetId.get(asset.assetId) ?? Infinity
+          : originalIndex,
+      ),
       originalIndex,
     }))
     .filter(x => x.score < SCORE.NO_MATCH)

@@ -95,11 +95,23 @@ const matchAsset = (asset: SearchableAsset, search: string): number => {
   if (sym.includes(search)) return MATCH.SYMBOL_CONTAINS
   if (name.includes(search)) return MATCH.NAME_CONTAINS
 
-  if (search.length >= MIN_ASSET_ID_SEARCH_LENGTH && asset.assetId.toLowerCase().includes(search))
+  // Only the reference, never the whole assetId - chain names live in the CAIP prefix, so matching
+  // the lot means "starknet" hits every asset on Starknet rather than STRK
+  if (
+    search.length >= MIN_ASSET_ID_SEARCH_LENGTH &&
+    asset.assetId.slice(asset.assetId.lastIndexOf(':') + 1).toLowerCase().includes(search)
+  )
     return MATCH.ASSET_ID_CONTAINS
 
   return MATCH.NONE
 }
+
+/**
+ * Whether the query hit the symbol or the head of the name, rather than turning up somewhere inside
+ * them. "fox" matches ViFoxCoin, but not in a way that should outrank FOX.
+ */
+export const isStrongMatch = (asset: SearchableAsset, searchTerm: string): boolean =>
+  matchAsset(asset, searchTerm.toLowerCase()) <= MATCH.NAME_PREFIX
 
 export const searchAssets = <T extends SearchableAsset>(searchTerm: string, assets: T[]): T[] => {
   if (!assets?.length) return []

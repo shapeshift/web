@@ -26,6 +26,7 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 
 import {
   deduplicateAssets,
+  isStrongMatch,
   MINIMUM_MARKET_CAP_THRESHOLD,
   searchAssets,
   shouldSearchAllAssets as shouldSearchAllAssetsUtil,
@@ -636,7 +637,19 @@ export const selectAssetsBySearchQuery = createCachedSelector(
         const byBalance = balanceOf(b).comparedTo(balanceOf(a)) ?? 0
         return byBalance !== 0 ? byBalance : marketCapRank(a) - marketCapRank(b)
       })
-      unheld.sort((a, b) => marketCapRank(a) - marketCapRank(b))
+
+      // An incidental substring hit sits below the assets the query actually names, so "fox" leads
+      // with FOX rather than the larger ViFoxCoin
+      const strong = new Map(
+        candidates.map(asset => [asset.assetId, isStrongMatch(asset, searchQuery ?? '')]),
+      )
+      unheld.sort((a, b) => {
+        const aStrong = strong.get(a.assetId) ?? true
+        const bStrong = strong.get(b.assetId) ?? true
+        if (aStrong !== bStrong) return aStrong ? -1 : 1
+
+        return marketCapRank(a) - marketCapRank(b)
+      })
 
       if (!limit) return held.concat(unheld)
 

@@ -94,7 +94,7 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
   )
 
   // Only families the wallet holds on more than one chain have anything to expand into
-  const expandableAssetIds = useMemo(
+  const expandableAssetIds = useMemo<Set<AssetId>>(
     () =>
       new Set(
         rowData

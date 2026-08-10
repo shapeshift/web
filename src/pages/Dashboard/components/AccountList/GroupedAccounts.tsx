@@ -96,7 +96,7 @@ export const GroupedAccounts = memo<GroupedAccountsProps>(({ row, onRowClick, on
   )
 
   // The selector pads families out with unheld variants for search and markets; the portfolio can't
-  const heldRelatedAssets = useMemo(
+  const heldRelatedAssets = useMemo<AccountRowData[]>(
     () =>
       groupedAssetsWithBalances?.relatedAssets.filter(asset =>
         bnOrZero(asset.cryptoAmount).gt(0),

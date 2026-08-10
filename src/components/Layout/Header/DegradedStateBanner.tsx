@@ -49,7 +49,7 @@ export const DegradedStateBanner = memo(() => {
   const failedAccountIds = useSelector(selectPortfolioErroredAccountIds)
   const degradedAccountIds = useSelector(selectPortfolioDegradedAccountIds)
   // Degraded accounts read to the user the same way failed ones do, and are equally worth retrying
-  const erroredAccountIds = useMemo(
+  const erroredAccountIds = useMemo<AccountId[]>(
     () => uniq([...failedAccountIds, ...degradedAccountIds]),
     [failedAccountIds, degradedAccountIds],
   )

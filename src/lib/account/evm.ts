@@ -224,7 +224,14 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
   for (const accountId of Object.keys(result)) {
     const { chainId, account } = fromAccountId(accountId)
-    if (await fetchIsSmartContractAddressQuery(account, chainId)) {
+    // An unreachable node must not cost us the account. This probe rejecting would otherwise reject
+    // the whole derivation, which discovery treats as "no accounts on this chain" - the chain then
+    // vanishes silently, with nothing left to mark it degraded
+    const isSmartContractAccount = await fetchIsSmartContractAddressQuery(account, chainId).catch(
+      () => false,
+    )
+
+    if (isSmartContractAccount) {
       maybeWalletConnectV2SmartContractAccountId = accountId
       break
     }

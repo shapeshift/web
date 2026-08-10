@@ -163,12 +163,11 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
 }
 
 /** An amount someone holds, which reads in the currency's minor units */
-const Fiat = (props: FiatAmountProps): React.ReactElement => <FiatBase {...props} defaultToMinorUnits />
+const Fiat = (props: FiatAmountProps): React.ReactElement => (
+  <FiatBase {...props} defaultToMinorUnits />
+)
 
-/**
- * A quoted price rather than an amount someone holds - cheap assets are routinely worth a fraction
- * of a cent, so these scale their digits to the magnitude of the price instead of rounding to cents.
- */
+/** A quoted price, which scales its digits to the magnitude rather than rounding to minor units */
 const Price = (props: FiatAmountProps): React.ReactElement => <FiatBase {...props} />
 
 Amount.Crypto = Crypto

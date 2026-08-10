@@ -99,7 +99,10 @@ const matchAsset = (asset: SearchableAsset, search: string): number => {
   // the lot means "starknet" hits every asset on Starknet rather than STRK
   if (
     search.length >= MIN_ASSET_ID_SEARCH_LENGTH &&
-    asset.assetId.slice(asset.assetId.lastIndexOf(':') + 1).toLowerCase().includes(search)
+    asset.assetId
+      .slice(asset.assetId.lastIndexOf(':') + 1)
+      .toLowerCase()
+      .includes(search)
   )
     return MATCH.ASSET_ID_CONTAINS
 

@@ -15,7 +15,15 @@ export const MINIMUM_MARKET_CAP_THRESHOLD = 1000
  */
 const MAX_HIGH_MARKET_CAP_INDEX = 2000
 
+/**
+ * Where a coin is dominant enough that a partial symbol match on it beats an exact one further
+ * down - "dog" should find Dogecoin rather than the Dog rune, "b" should find Bitcoin.
+ */
+const TOP_MARKET_CAP_INDEX = 100
+
 const SCORE = {
+  TOP_SYMBOL_EXACT: -13,
+  TOP_SYMBOL_PREFIX: -12,
   PRIMARY_SYMBOL_EXACT: -11,
   PRIMARY_NAME_EXACT: -10,
   PRIMARY_NAME_PREFIX: -6,
@@ -84,9 +92,18 @@ const scoreAsset = (asset: SearchableAsset, search: string, originalIndex: numbe
     if (name === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_EXACT)
     if (name.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_PREFIX)
     const isHighMarketCap = originalIndex < MAX_HIGH_MARKET_CAP_INDEX
+    const isTopMarketCap = originalIndex < TOP_MARKET_CAP_INDEX
     if (sym.length <= 5 && isHighMarketCap) {
-      if (sym === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_EXACT)
-      if (sym.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_PREFIX)
+      if (sym === search)
+        bestScore = Math.min(
+          bestScore,
+          isTopMarketCap ? SCORE.TOP_SYMBOL_EXACT : SCORE.PRIMARY_SYMBOL_EXACT,
+        )
+      if (sym.startsWith(search))
+        bestScore = Math.min(
+          bestScore,
+          isTopMarketCap ? SCORE.TOP_SYMBOL_PREFIX : SCORE.PRIMARY_SYMBOL_PREFIX,
+        )
     }
     if (bestScore < SCORE.NO_MATCH) return bestScore
   }

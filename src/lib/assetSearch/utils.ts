@@ -141,17 +141,18 @@ export const searchAssets = <T extends SearchableAsset>(
   const search = searchTerm.toLowerCase()
 
   const scored = assets
-    .map((asset, originalIndex) => ({
-      asset,
-      score: scoreAsset(
+    .map((asset, originalIndex) => {
+      const marketCapRank = marketCapRankByAssetId
+        ? marketCapRankByAssetId.get(asset.assetId) ?? Infinity
+        : originalIndex
+
+      return {
         asset,
-        search,
-        marketCapRankByAssetId
-          ? marketCapRankByAssetId.get(asset.assetId) ?? Infinity
-          : originalIndex,
-      ),
-      originalIndex,
-    }))
+        score: scoreAsset(asset, search, marketCapRank),
+        marketCapRank,
+        originalIndex,
+      }
+    })
     .filter(x => x.score < SCORE.NO_MATCH)
 
   scored.sort((a, b) => {
@@ -168,7 +169,10 @@ export const searchAssets = <T extends SearchableAsset>(
       if (!aHasRelated && bHasRelated) return 1
     }
 
-    // Tertiary sort: preserve original order (which should be by market cap)
+    // Tertiary sort: by market cap, so an equally relevant asset the caller happened to list first
+    // - a held dust token, in a balance-ordered list - can't edge out an established one
+    if (a.marketCapRank !== b.marketCapRank) return a.marketCapRank - b.marketCapRank
+
     return a.originalIndex - b.originalIndex
   })
 

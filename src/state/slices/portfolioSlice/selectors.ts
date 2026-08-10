@@ -317,7 +317,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         (acc, [assetId, balance]) => {
           const asset = assetsById[assetId]
           if (!asset) return acc
-          const price = marketData[assetId]?.price
+          const price = getUserCurrencyPrice(assetId, assetsById, marketData).toFixed()
           const assetUserCurrencyBalance = balance.times(price)
           if (assetUserCurrencyBalance.lt(balanceThresholdUserCurrency)) return acc
           acc[assetId] = balance.toBaseUnit()
@@ -425,7 +425,7 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
           if (!asset) return acc
           if (spamMarkedAssetIds.includes(assetId)) return acc
 
-          const price = marketData[assetId]?.price ?? 0
+          const price = getUserCurrencyPrice(assetId, assets, marketData).toFixed()
           const calculatedValue: [AssetId, BigAmount] = [assetId, balance.times(price)]
 
           acc.push(calculatedValue)
@@ -923,7 +923,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
             fiatAmount: '0',
             cryptoAmount: '0',
             allocation: 0,
-            price: marketData[assetId]?.price ?? '0',
+            price: getUserCurrencyPrice(assetId, assetsById, marketData).toFixed(),
             priceChange: marketData[assetId]?.changePercent24Hr ?? 0,
             relatedAssetKey: asset?.relatedAssetKey ?? null,
             isChainSpecific: asset?.isChainSpecific ?? false,

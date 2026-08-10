@@ -60,7 +60,7 @@ export const CardWithSparkline: React.FC<{
               <WatchAssetButton assetId={assetId} alignSelf='flex-start' />
             </Flex>
             <Box textAlign='right'>
-              <Amount.Fiat value={marketData?.price} fontWeight='bold' fontSize='2xl' mb={1} />
+              <Amount.Price value={marketData?.price} fontWeight='bold' fontSize='2xl' mb={1} />
               <Amount.Percent
                 autoColor
                 value={bnOrZero(changePercent24Hr).times(0.01).toString()}

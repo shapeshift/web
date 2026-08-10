@@ -50,6 +50,13 @@ export type NumberFormatter = {
   }
 }
 
+/**
+ * Ceiling on fiat fraction digits, matching the 6 we pass for crypto amounts in compact views.
+ * Doubles as the "<$0.000001" floor, so the smallest amount we can render and the precision we
+ * render it at stay in step. Views tighter than this pass their own maximumFractionDigits.
+ */
+const MAX_FIAT_FRACTION_DIGITS = 6
+
 const toNumber = (number: string | number): number => Number(number) || 0
 const toDate = (date: DateValue): Date | null => {
   if (!date) return null
@@ -97,7 +104,9 @@ const getParts = (locale: string, fiatType = 'USD') => {
     result.postfix = getCurrencyParts(parts, true)
     result.decimal = (parts.find(d => d.type === 'decimal')?.value ?? '.') as DecimalSeparator
     result.group = (parts.find(d => d.type === 'group')?.value ?? ',') as GroupSeparator
-    result.fraction = parts.find(d => d.type === 'fraction')?.value?.length ?? 2
+    // From resolvedOptions rather than the formatted parts - a zero-decimal currency like JPY emits
+    // no fraction part at all, which is indistinguishable from failing to find one
+    result.fraction = groupFormatter.resolvedOptions().maximumFractionDigits ?? 2
     result.groupSize = groups.pop()?.value.length ?? 3
     result.secondaryGroupSize = groups.pop()?.value.length ?? 3
   } catch (e) {
@@ -156,14 +165,22 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       const bounds = { min: 10000, max: 1000000 }
       const longCompactDisplayLowerBound = 1_000_000_000
       const noDecimals = bounds.min <= number && number < bounds.max
-      const minDisplayValue = 0.000001
-      const lessThanMin = 0 < number && minDisplayValue > number
+      // The currency's own minor units - JPY has none, KWD has three - rather than assuming cents
+      const minimumFractionDigits = noDecimals ? 0 : localeParts.fraction
+      // getFiatNumberFractionDigits returns 0 both for whole amounts and for amounts too small to
+      // bucket, so the latter are pinned to the ceiling rather than collapsing to cents
+      const graduatedFractionDigits =
+        0 < number && number < Math.pow(10, -MAX_FIAT_FRACTION_DIGITS)
+          ? MAX_FIAT_FRACTION_DIGITS
+          : getFiatNumberFractionDigits(number)
+      const maximumFractionDigits =
+        options?.maximumFractionDigits ??
+        Math.min(MAX_FIAT_FRACTION_DIGITS, Math.max(minimumFractionDigits, graduatedFractionDigits))
+      // Smallest amount the chosen precision can express - anything positive below it is shown as
+      // "<" that amount, so a value we bothered to display never reads as a flat zero
+      const minDisplayValue = Math.pow(10, -maximumFractionDigits)
+      const lessThanMin = 0 < number && number < minDisplayValue
       const formatNumber = lessThanMin ? minDisplayValue : number
-      const minimumFractionDigits = noDecimals ? 0 : 2
-      const maximumFractionDigits = Math.max(
-        minimumFractionDigits,
-        lessThanMin ? 6 : getFiatNumberFractionDigits(number),
-      )
       // Filter out undefined options caused by optional component props so they do not override the defaults
       const filteredOptions = options
         ? Object.fromEntries(Object.entries(options).filter(([_, value]) => value !== undefined))
@@ -185,7 +202,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         lessThanMin ? '<' : '',
       )
     },
-    [deviceLocale],
+    [deviceLocale, localeParts.fraction],
   )
 
   /** Format a number as a crypto display value */

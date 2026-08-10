@@ -8,9 +8,16 @@ import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 /** Minimum market cap threshold in USD to include in search results (filters spam tokens) */
 export const MINIMUM_MARKET_CAP_THRESHOLD = 1000
 
+/**
+ * How far into the caller's market-cap-ordered list a primary can sit and still earn the symbol
+ * bonus. Not a market cap rank - the list interleaves every chain variant of a coin, so a top-100
+ * coin routinely sits several hundred entries deep.
+ */
+const MAX_HIGH_MARKET_CAP_INDEX = 2000
+
 const SCORE = {
+  PRIMARY_SYMBOL_EXACT: -11,
   PRIMARY_NAME_EXACT: -10,
-  PRIMARY_SYMBOL_EXACT: -9,
   PRIMARY_NAME_PREFIX: -6,
   PRIMARY_SYMBOL_PREFIX: -6,
   SYMBOL_EXACT: 0,
@@ -70,14 +77,13 @@ const scoreAsset = (asset: SearchableAsset, search: string, originalIndex: numbe
   const sym = asset.symbol.toLowerCase()
   const name = asset.name.toLowerCase()
 
-  // For primary assets, find the BEST score among all matches
-  // PRIMARY_SYMBOL bonus requires: short symbol (≤5 chars) AND high market cap (top 500)
-  // This filters spam tokens that copy popular symbols like BTC, ETH
+  // Best score among all matches. The symbol bonus needs a short symbol and a high market cap, so
+  // spam copying tickers like BTC can't earn it, and outranks a name-exact hit on any primary.
   if (asset.isPrimary) {
     let bestScore = SCORE.NO_MATCH as number
     if (name === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_EXACT)
     if (name.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_PREFIX)
-    const isHighMarketCap = originalIndex < 500
+    const isHighMarketCap = originalIndex < MAX_HIGH_MARKET_CAP_INDEX
     if (sym.length <= 5 && isHighMarketCap) {
       if (sym === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_EXACT)
       if (sym.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_PREFIX)

@@ -4,6 +4,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import orderBy from 'lodash/orderBy'
+import partition from 'lodash/partition'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
@@ -29,6 +30,7 @@ import {
   searchAssets,
   shouldSearchAllAssets as shouldSearchAllAssetsUtil,
 } from '@/lib/assetSearch'
+import type { BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
@@ -42,6 +44,7 @@ import {
   selectSearchQueryFromFilter,
 } from '@/state/selectors'
 import type { RelatedAssetIdsById } from '@/state/slices/assetsSlice/types'
+import type { MarketDataById } from '@/state/slices/marketDataSlice/types'
 
 export const selectWalletId = portfolio.selectors.selectWalletId
 export const selectWalletName = portfolio.selectors.selectWalletName
@@ -223,6 +226,21 @@ export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
     `bigAmount-${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`,
 )
 
+/**
+ * The price to value an asset at. Market data is keyed on a family's primary, so a variant with no
+ * listing of its own is valued at its primary's price rather than dropping to zero. Every portfolio
+ * valuation goes through here so the same asset can't be priced differently by two selectors.
+ */
+export const getUserCurrencyPrice = (
+  assetId: AssetId,
+  assetsById: PartialRecord<AssetId, Asset>,
+  marketData: MarketDataById<AssetId>,
+): BN => {
+  const ownPrice = bnOrZero(marketData[assetId]?.price)
+  if (ownPrice.gt(0)) return ownPrice
+  return bnOrZero(marketData[assetsById[assetId]?.relatedAssetKey ?? '']?.price)
+}
+
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
@@ -238,11 +256,11 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
         if (spamAssetIdsSet.has(assetId)) return acc
         const precision = asset.precision
         if (precision === undefined) return acc
-        const price = marketData[assetId]?.price
+        const price = getUserCurrencyPrice(assetId, assetsById, marketData)
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
-        const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
+        const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(price)
         if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
-        acc[assetId] = assetUserCurrencyBalance.toFixed(2)
+        acc[assetId] = assetUserCurrencyBalance.toFixed()
         return acc
       },
       {},
@@ -279,14 +297,14 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
       if (acc[assetId]) return acc
       const precision = asset.precision
       if (precision === undefined) return acc
-      const price = marketData[assetId]?.price
+      const price = getUserCurrencyPrice(assetId, assetsById, marketData)
 
       const assetUserCurrencyBalance = bnOrZero(fromBaseUnit(balances[assetId], precision)).times(
-        bnOrZero(price),
+        price,
       )
 
       if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
-      acc[assetId] = assetUserCurrencyBalance.toFixed(2)
+      acc[assetId] = assetUserCurrencyBalance.toFixed()
       return acc
     }, {}),
 )
@@ -326,7 +344,7 @@ export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
 
         if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
 
-        acc[primaryAssetId] = assetUserCurrencyBalance.toFixed(2)
+        acc[primaryAssetId] = assetUserCurrencyBalance.toFixed()
 
         return acc
       }, {}),
@@ -345,10 +363,9 @@ export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOut
           const asset = assetsById[assetId]
           if (!asset) return balanceByAssetId
           const precision = asset.precision
-          const price = marketData[assetId]?.price ?? 0
+          const price = getUserCurrencyPrice(assetId, assetsById, marketData)
           const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
-          const userCurrencyBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-          balanceByAssetId[assetId] = userCurrencyBalance
+          balanceByAssetId[assetId] = bnOrZero(bn(cryptoValue).times(price)).toFixed()
 
           return balanceByAssetId
         },
@@ -577,9 +594,19 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   selectPrimaryAssetsSortedByMarketCapNoSpam,
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   marketData.selectors.selectMarketDataUsd,
+  selectPortfolioUserCurrencyBalances,
+  selectRelatedAssetIdsByAssetIdInclusive,
   selectSearchQueryFromFilter,
   selectLimitParamFromFilter,
-  (primaryAssets, allAssets, marketDataUsd, searchQuery, limit): Asset[] => {
+  (
+    primaryAssets,
+    allAssets,
+    marketDataUsd,
+    portfolioUserCurrencyBalances,
+    relatedAssetIdsById,
+    searchQuery,
+    limit,
+  ): Asset[] => {
     if (!searchQuery) return primaryAssets.slice(0, limit)
 
     const isContractAddressSearch = isContractAddress(searchQuery)
@@ -606,7 +633,25 @@ export const selectAssetsBySearchQuery = createCachedSelector(
     const matchedAssets = searchAssets(searchQuery, filteredAssets)
     const deduplicated = deduplicateAssets(matchedAssets, searchQuery)
 
-    return limit ? deduplicated.slice(0, limit) : deduplicated
+    // Held assets outrank relevance so an owned token is never buried under same-symbol impostors.
+    // Summed across the family, since dedup collapses variants onto a primary the balance may not
+    // sit on, and a non-zero user currency balance excludes both spam and unpriced dust.
+    const hasBalance = (asset: Asset) =>
+      (relatedAssetIdsById[asset.assetId] ?? [asset.assetId]).some(relatedAssetId =>
+        bnOrZero(portfolioUserCurrencyBalances[relatedAssetId]).gt(0),
+      )
+
+    const [heldAssets, unheldAssets] = partition(deduplicated, hasBalance)
+
+    if (!limit) return heldAssets.concat(unheldAssets)
+
+    // Capped at half the window so held partial matches can't push the exact hit out of the results
+    const promoted = heldAssets.slice(0, Math.ceil(limit / 2))
+    const promotedAssetIds = new Set(promoted.map(asset => asset.assetId))
+
+    return promoted
+      .concat(deduplicated.filter(asset => !promotedAssetIds.has(asset.assetId)))
+      .slice(0, limit)
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 

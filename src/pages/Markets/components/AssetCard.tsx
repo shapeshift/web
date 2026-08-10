@@ -28,7 +28,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, showMarketCap, on
     onClick(assetId)
   }, [assetId, onClick])
 
-  const priceValue = useMemo(() => <Amount.Fiat value={marketData?.price} />, [marketData?.price])
+  const priceValue = useMemo(() => <Amount.Price value={marketData?.price} />, [marketData?.price])
 
   const priceChange = useMemo(() => {
     return <Amount.Percent autoColor value={bnOrZero(changePercent24Hr).times(0.01).toString()} />

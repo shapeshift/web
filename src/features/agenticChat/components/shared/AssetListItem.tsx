@@ -79,7 +79,7 @@ export const AssetListItem = ({
         alignItems='flex-end'
         minWidth={hasPrice || hasChange ? '120px' : undefined}
       >
-        {hasPrice && <Amount.Fiat value={price} fontWeight='medium' fontSize='sm' />}
+        {hasPrice && <Amount.Price value={price} fontWeight='medium' fontSize='sm' />}
         {hasChange && (
           <Flex alignItems='center' gap={1} fontSize='xs' color={variantColor}>
             <ChangeIcon size='12px' />

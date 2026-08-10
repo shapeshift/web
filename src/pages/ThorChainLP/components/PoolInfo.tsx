@@ -115,7 +115,7 @@ export const PoolInfo = ({
           <Card borderRadius='full'>
             <Flex gap={2} pl={2} pr={3} py={2} alignItems='center'>
               <AssetIcon size='xs' assetId={assetIds[0]} />
-              <Amount.Fiat
+              <Amount.Price
                 value={asset0MarketData?.price}
                 prefix={`1 ${asset0.symbol} =`}
                 fontSize='xs'
@@ -126,7 +126,7 @@ export const PoolInfo = ({
           <Card borderRadius='full'>
             <Flex gap={2} pl={2} pr={3} py={2} alignItems='center'>
               <AssetIcon size='xs' assetId={assetIds[1]} />
-              <Amount.Fiat
+              <Amount.Price
                 value={asset1MarketData?.price}
                 prefix={`1 ${asset1.symbol} =`}
                 fontSize='xs'

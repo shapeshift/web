@@ -9,6 +9,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import range from 'lodash/range'
 import truncate from 'lodash/truncate'
@@ -32,11 +33,14 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import type { AccountRowData, AccountRowProps } from '@/state/slices/selectors'
 import {
   selectAssets,
   selectIsPortfolioLoading,
+  selectPortfolioAssetBalances,
   selectPrimaryPortfolioAccountRowsSortedByBalance,
+  selectRelatedAssetIdsByAssetIdInclusive,
 } from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
 
@@ -57,6 +61,9 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
     isConnected ? selectPrimaryPortfolioAccountRowsSortedByBalance(state) : [],
   )
   const assets = useSelector(selectAssets)
+  const assetBalances = useSelector(selectPortfolioAssetBalances)
+  const relatedAssetIdsById = useSelector(selectRelatedAssetIdsByAssetIdInclusive)
+  const spamMarkedAssetIds = useSelector(preferences.selectors.selectSpamMarkedAssetIds)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
   const walletDrawer = useModal('walletDrawer')
@@ -77,6 +84,28 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
   const buttonWidth = isCompactCols ? 'full' : 'auto'
 
   const { navigate } = useBrowserRouter()
+
+  const spamMarkedAssetIdsSet = useMemo(() => new Set(spamMarkedAssetIds), [spamMarkedAssetIds])
+
+  const heldAssetFilterPredicate = useCallback(
+    (assetId: AssetId) =>
+      !spamMarkedAssetIdsSet.has(assetId) && bnOrZero(assetBalances[assetId]?.toPrecision()).gt(0),
+    [assetBalances, spamMarkedAssetIdsSet],
+  )
+
+  // Only families the wallet holds on more than one chain have anything to expand into
+  const expandableAssetIds = useMemo(
+    () =>
+      new Set(
+        rowData
+          .filter(
+            row =>
+              (relatedAssetIdsById[row.assetId] ?? []).filter(heldAssetFilterPredicate).length > 1,
+          )
+          .map(row => row.assetId),
+      ),
+    [rowData, relatedAssetIdsById, heldAssetFilterPredicate],
+  )
 
   const columns: Column<AccountRowData>[] = useMemo(
     () => [
@@ -125,7 +154,7 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
         isNumeric: true,
         display: isCompactCols ? 'none' : 'table-cell',
         Cell: ({ value }: { value: string }) => (
-          <Amount.Fiat color={textColor} value={value} lineHeight='tall' />
+          <Amount.Price color={textColor} value={value} lineHeight='tall' />
         ),
       },
       {
@@ -164,13 +193,13 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
         id: 'toggle',
         width: 50,
         Cell: ({ row }: { row: AccountRowProps }) => {
-          if (row.original.isChainSpecific) return null
+          if (!expandableAssetIds.has(row.original.assetId)) return null
 
           return row.isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
         },
       },
     ],
-    [isCompactCols, stackTextAlign, textColor],
+    [isCompactCols, stackTextAlign, textColor, expandableAssetIds],
   )
   const loadingRows = useMemo(() => {
     return (
@@ -222,14 +251,12 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
 
   const handlePrimaryRowClick = useCallback(
     (row: Row<AccountRowData>) => {
-      if (row.original.relatedAssetKey === row.original.assetId) {
-        // InfiniteTable handles expansion automatically
-        return
-      }
+      // InfiniteTable handles expansion for rows that have one
+      if (expandableAssetIds.has(row.original.assetId)) return
 
       handleRowClick(row)
     },
-    [handleRowClick],
+    [handleRowClick, expandableAssetIds],
   )
 
   const handleAssetClick = useCallback(
@@ -269,13 +296,23 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
   )
 
   const accountsAssets = useMemo(() => {
-    return rowData.map(row => assets[row.assetId]).filter(isSome)
-  }, [rowData, assets])
+    return rowData
+      .map(row => {
+        const heldAssetIds = (relatedAssetIdsById[row.assetId] ?? [row.assetId]).filter(
+          heldAssetFilterPredicate,
+        )
+
+        // A single-holding family renders as that holding, not its primary, which may be unheld
+        return assets[heldAssetIds.length === 1 ? heldAssetIds[0] : row.assetId]
+      })
+      .filter(isSome)
+  }, [rowData, assets, relatedAssetIdsById, heldAssetFilterPredicate])
 
   if (!isLargerThanMd || forceCompactView) {
     return (
       <AssetList
         assets={accountsAssets}
+        assetFilterPredicate={heldAssetFilterPredicate}
         handleClick={handleAssetClick}
         handleLongPress={handleAssetLongPress}
         height={

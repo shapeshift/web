@@ -84,7 +84,7 @@ export const FoxTokenHeader = () => {
             mb={1}
           />
           <Skeleton isLoaded={true}>
-            <Amount.Fiat fontSize='2xl' value={marketData?.price ?? '0'} />
+            <Amount.Price fontSize='2xl' value={marketData?.price ?? '0'} />
           </Skeleton>
         </Stack>
 

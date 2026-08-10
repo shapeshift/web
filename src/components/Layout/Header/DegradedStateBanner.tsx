@@ -30,7 +30,11 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets, selectPortfolioErroredAccountIds } from '@/state/slices/selectors'
+import {
+  selectAssets,
+  selectPortfolioDegradedAccountIds,
+  selectPortfolioErroredAccountIds,
+} from '@/state/slices/selectors'
 import { useAppDispatch } from '@/state/store'
 
 const warningIcon = <WarningIcon />
@@ -42,7 +46,13 @@ export const DegradedStateBanner = memo(() => {
   const footerBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const buttonBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const assets = useSelector(selectAssets)
-  const erroredAccountIds = useSelector(selectPortfolioErroredAccountIds)
+  const failedAccountIds = useSelector(selectPortfolioErroredAccountIds)
+  const degradedAccountIds = useSelector(selectPortfolioDegradedAccountIds)
+  // Degraded accounts read to the user the same way failed ones do, and are equally worth retrying
+  const erroredAccountIds = useMemo(
+    () => uniq([...failedAccountIds, ...degradedAccountIds]),
+    [failedAccountIds, degradedAccountIds],
+  )
   const { degradedChainIds, isFetching: isDiscoverAccountsFetching } = useDiscoverAccounts()
   const { isSnapInstalled } = useIsSnapInstalled()
   const { deviceId } = useWallet().state

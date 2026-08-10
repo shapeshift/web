@@ -219,9 +219,7 @@ export const Header = memo(() => {
             <Box sx={iconButtonSx}>
               <GlobalSearchButton isIconButton />
             </Box>
-            {isLargerThanMd && (isDegradedState || degradedChainIds.length > 0) && (
-              <DegradedStateBanner />
-            )}
+            {(isDegradedState || degradedChainIds.length > 0) && <DegradedStateBanner />}
             {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
               <Suspense>
                 <WalletConnectToDappsHeaderButton />

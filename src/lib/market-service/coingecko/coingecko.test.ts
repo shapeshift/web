@@ -169,7 +169,7 @@ describe('CoinGecko market service', () => {
     it('can flatten multiple responses', async () => {
       mocks.get.mockResolvedValueOnce({ data: [eth] }).mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(19)
+      expect(Object.keys(result).length).toEqual(20)
     })
 
     it('can sort by market cap', async () => {
@@ -193,7 +193,7 @@ describe('CoinGecko market service', () => {
     it('can return some results if partially rate limited', async () => {
       mocks.get.mockResolvedValueOnce({ status: 429 }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(18)
+      expect(Object.keys(result).length).toEqual(19)
     })
 
     it('can use default args', async () => {
@@ -221,48 +221,11 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')
       const ethAssetId = adapters.coingeckoToAssetIds('ethereum')
-      const [
-        btcKey,
-        ethKey,
-        ethOptimismKey,
-        ethOnArbitrumKey,
-        ethOnBaseKey,
-        ethOnBobKey,
-        ethOnBlastKey,
-        ethOnAbstractKey,
-        ethOnRobinhoodKey,
-        ethOnWorldChainKey,
-        ethOnHemiKey,
-        ethOnLineaKey,
-        ethOnModeKey,
-        ethOnMegaEthKey,
-        ethOnInkKey,
-        ethOnScrollKey,
-        ethOnUnichainKey,
-        ethOnSoneiumKey,
-        ethOnZkSyncEraKey,
-      ] = Object.keys(result)
+      // Every eth key, in adapter order, rather than one name per chain - the list grows with each
+      // new EVM chain we support
+      const [btcKey, ...ethKeys] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
-      expect(ethAssetId).toEqual([
-        ethKey,
-        ethOptimismKey,
-        ethOnArbitrumKey,
-        ethOnBaseKey,
-        ethOnBobKey,
-        ethOnBlastKey,
-        ethOnAbstractKey,
-        ethOnRobinhoodKey,
-        ethOnWorldChainKey,
-        ethOnHemiKey,
-        ethOnLineaKey,
-        ethOnModeKey,
-        ethOnMegaEthKey,
-        ethOnInkKey,
-        ethOnScrollKey,
-        ethOnUnichainKey,
-        ethOnSoneiumKey,
-        ethOnZkSyncEraKey,
-      ])
+      expect(ethAssetId).toEqual(ethKeys)
     })
 
     it('can map CoinGecko id to multiple assetIds', async () => {

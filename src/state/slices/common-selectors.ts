@@ -46,6 +46,9 @@ import {
 import type { RelatedAssetIdsById } from '@/state/slices/assetsSlice/types'
 import type { MarketDataById } from '@/state/slices/marketDataSlice/types'
 
+/** Result slots held back for assets the wallet doesn't hold, so search always reaches past it */
+const UNHELD_RESULT_SLOTS = 5
+
 export const selectWalletId = portfolio.selectors.selectWalletId
 export const selectWalletName = portfolio.selectors.selectWalletName
 
@@ -607,7 +610,45 @@ export const selectAssetsBySearchQuery = createCachedSelector(
     searchQuery,
     limit,
   ): Asset[] => {
-    if (!searchQuery) return primaryAssets.slice(0, limit)
+    const marketCapRankByAssetId = new Map(
+      primaryAssets.map((asset, index) => [asset.assetId, index]),
+    )
+    const marketCapRank = (asset: Asset) =>
+      marketCapRankByAssetId.get(asset.assetId) ?? Number.POSITIVE_INFINITY
+
+    // Balance summed across the family, since dedup collapses variants onto a primary the balance
+    // may not sit on - a wallet holding Sushi anywhere but Arbitrum still reads as holding Sushi
+    const familyBalance = (asset: Asset) =>
+      (relatedAssetIdsById[asset.assetId] ?? [asset.assetId]).reduce(
+        (sum, relatedAssetId) => sum.plus(bnOrZero(portfolioUserCurrencyBalances[relatedAssetId])),
+        bn(0),
+      )
+
+    // What you hold, largest first, then everything else by market cap. Relevance decides what
+    // matches, not what ranks - so "b" still finds Bitcoin, as the biggest thing matching "b"
+    const orderResults = (candidates: Asset[]): Asset[] => {
+      const balances = new Map(candidates.map(asset => [asset.assetId, familyBalance(asset)]))
+      const balanceOf = (asset: Asset) => balances.get(asset.assetId) ?? bn(0)
+
+      const [held, unheld] = partition(candidates, asset => balanceOf(asset).gt(0))
+
+      held.sort((a, b) => {
+        const byBalance = balanceOf(b).comparedTo(balanceOf(a)) ?? 0
+        return byBalance !== 0 ? byBalance : marketCapRank(a) - marketCapRank(b)
+      })
+      unheld.sort((a, b) => marketCapRank(a) - marketCapRank(b))
+
+      if (!limit) return held.concat(unheld)
+
+      // The tail of the window is reserved for unheld assets, so a large portfolio can never crowd
+      // out what the user was actually searching for
+      return held
+        .slice(0, Math.max(0, limit - UNHELD_RESULT_SLOTS))
+        .concat(unheld)
+        .slice(0, limit)
+    }
+
+    if (!searchQuery) return orderResults(primaryAssets)
 
     const isContractAddressSearch = isContractAddress(searchQuery)
     const primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
@@ -630,34 +671,9 @@ export const selectAssetsBySearchQuery = createCachedSelector(
           return marketCap.isZero() || marketCap.gte(MINIMUM_MARKET_CAP_THRESHOLD)
         })
 
-    // allAssets is ordered by balance before market cap, so scoring can't infer standing from
-    // position in it - a wallet's dust would otherwise outrank every established coin
-    const marketCapRankByAssetId = new Map(
-      primaryAssets.map((asset, index) => [asset.assetId, index]),
-    )
+    const matchedAssets = searchAssets(searchQuery, filteredAssets)
 
-    const matchedAssets = searchAssets(searchQuery, filteredAssets, marketCapRankByAssetId)
-    const deduplicated = deduplicateAssets(matchedAssets, searchQuery)
-
-    // Held assets outrank relevance so an owned token is never buried under same-symbol impostors.
-    // Summed across the family, since dedup collapses variants onto a primary the balance may not
-    // sit on, and a non-zero user currency balance excludes both spam and unpriced dust.
-    const hasBalance = (asset: Asset) =>
-      (relatedAssetIdsById[asset.assetId] ?? [asset.assetId]).some(relatedAssetId =>
-        bnOrZero(portfolioUserCurrencyBalances[relatedAssetId]).gt(0),
-      )
-
-    const [heldAssets, unheldAssets] = partition(deduplicated, hasBalance)
-
-    if (!limit) return heldAssets.concat(unheldAssets)
-
-    // Capped at half the window so held partial matches can't push the exact hit out of the results
-    const promoted = heldAssets.slice(0, Math.ceil(limit / 2))
-    const promotedAssetIds = new Set(promoted.map(asset => asset.assetId))
-
-    return promoted
-      .concat(deduplicated.filter(asset => !promotedAssetIds.has(asset.assetId)))
-      .slice(0, limit)
+    return orderResults(deduplicateAssets(matchedAssets, searchQuery))
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 

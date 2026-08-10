@@ -166,7 +166,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       const longCompactDisplayLowerBound = 1_000_000_000
       const noDecimals = bounds.min <= number && number < bounds.max
       // The currency's own minor units - JPY has none, KWD has three - rather than assuming cents
-      const minimumFractionDigits = noDecimals ? 0 : localeParts.fraction
+      const currencyFractionDigits = noDecimals ? 0 : localeParts.fraction
       // getFiatNumberFractionDigits returns 0 both for whole amounts and for amounts too small to
       // bucket, so the latter are pinned to the ceiling rather than collapsing to cents
       const graduatedFractionDigits =
@@ -175,7 +175,13 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
           : getFiatNumberFractionDigits(number)
       const maximumFractionDigits =
         options?.maximumFractionDigits ??
-        Math.min(MAX_FIAT_FRACTION_DIGITS, Math.max(minimumFractionDigits, graduatedFractionDigits))
+        Math.min(
+          MAX_FIAT_FRACTION_DIGITS,
+          Math.max(currencyFractionDigits, graduatedFractionDigits),
+        )
+      // Intl throws when the minimum exceeds the maximum, which a caller asking for fewer digits
+      // than the currency's minor units would otherwise do - two digits against KWD's three
+      const minimumFractionDigits = Math.min(currencyFractionDigits, maximumFractionDigits)
       // Smallest amount the chosen precision can express - anything positive below it is shown as
       // "<" that amount, so a value we bothered to display never reads as a flat zero
       const minDisplayValue = Math.pow(10, -maximumFractionDigits)

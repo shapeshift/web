@@ -88,7 +88,7 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
   const spamMarkedAssetIdsSet = useMemo(() => new Set(spamMarkedAssetIds), [spamMarkedAssetIds])
 
   const heldAssetFilterPredicate = useCallback(
-    (assetId: AssetId) =>
+    (assetId: AssetId): boolean =>
       !spamMarkedAssetIdsSet.has(assetId) && bnOrZero(assetBalances[assetId]?.toPrecision()).gt(0),
     [assetBalances, spamMarkedAssetIdsSet],
   )

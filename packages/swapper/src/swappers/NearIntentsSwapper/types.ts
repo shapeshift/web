@@ -17,6 +17,7 @@ import type {
   GetTronTradeRateInput,
   GetUtxoTradeQuoteInput,
   GetUtxoTradeRateInput,
+  WithExactBuyAmount,
 } from '../../types'
 
 export type NearIntentsTradeQuoteInput =
@@ -38,6 +39,9 @@ export type NearIntentsTradeRateInput =
   | GetStarknetTradeRateInput
   | GetNearTradeRateInput
   | GetTonTradeRateInput
+
+export type NearIntentsExactOutputTradeQuoteInput = WithExactBuyAmount<NearIntentsTradeQuoteInput>
+export type NearIntentsExactOutputTradeRateInput = WithExactBuyAmount<NearIntentsTradeRateInput>
 
 export type NearIntentsMetadata = {
   name: 'nearIntents'

@@ -34,8 +34,20 @@ import {
   isTreasuryChainId,
 } from '@shapeshiftoss/utils'
 
+import type { TradeAmount } from '../types'
+
 // Deadline for providers without their own expiry - short enough to keep priced amounts honest
 export const FALLBACK_QUOTE_DEADLINE_MS = 60_000
+
+// Only an exact-output input carries a buy amount, and it carries no sell amount to confuse it with
+export const getTradeAmount = (
+  input:
+    | { sellAmountIncludingProtocolFeesCryptoBaseUnit: string }
+    | { buyAmountCryptoBaseUnit: string },
+): TradeAmount =>
+  'buyAmountCryptoBaseUnit' in input
+    ? { direction: 'exactOut', cryptoBaseUnit: input.buyAmountCryptoBaseUnit }
+    : { direction: 'exactIn', cryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit }
 
 // Bands are unambiguous for any realistic date: unix s land ~2e9, ms ~2e12, µs ~2e15, ns ~2e18
 export const normalizeEpochToMs = (value: number): number => {

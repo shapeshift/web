@@ -1,7 +1,10 @@
 import { bnOrZero, timeoutMonadic, timeoutMonadicWithOriginal } from '@shapeshiftoss/utils'
+import { Err } from '@sniptt/monads'
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type {
+  GetExactOutputTradeQuoteInput,
+  GetExactOutputTradeRateInput,
   GetTradeQuoteInput,
   GetTradeRateInput,
   QuoteResult,
@@ -15,21 +18,35 @@ import type {
 import { TradeQuoteError } from './types'
 import { makeSwapErrorRight } from './utils'
 
+const EXACT_OUTPUT_NOT_SUPPORTED_ERROR = makeSwapErrorRight({
+  code: TradeQuoteError.ExactOutputNotSupported,
+  message: 'This swapper cannot derive a sell amount from an exact buy amount',
+})
+
 export const getTradeQuotes = async (
-  getTradeQuoteInput: GetTradeQuoteInput,
+  getTradeQuoteInput: GetTradeQuoteInput | GetExactOutputTradeQuoteInput,
   swapperName: SwapperName,
   deps: SwapperDeps,
 ): Promise<QuoteResult | undefined> => {
   if (bnOrZero(getTradeQuoteInput.affiliateBps).lt(0)) return
-  if (getTradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return
 
   const swapper = swappers[swapperName]
-
   if (swapper === undefined) return
+
+  if ('buyAmountCryptoBaseUnit' in getTradeQuoteInput) {
+    if (getTradeQuoteInput.buyAmountCryptoBaseUnit === '0') return
+  } else if (getTradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return
+
+  const quotePromise =
+    'buyAmountCryptoBaseUnit' in getTradeQuoteInput
+      ? swapper.getExactOutputTradeQuote?.(getTradeQuoteInput, deps)
+      : swapper.getTradeQuote(getTradeQuoteInput, deps)
+
+  if (!quotePromise) return { ...Err(EXACT_OUTPUT_NOT_SUPPORTED_ERROR), swapperName }
 
   try {
     const quote = await timeoutMonadic<TradeQuote[], SwapErrorRight>(
-      swapper.getTradeQuote(getTradeQuoteInput, deps),
+      quotePromise,
       QUOTE_TIMEOUT_MS,
       QUOTE_TIMEOUT_ERROR,
     )
@@ -46,21 +63,30 @@ export const getTradeQuotes = async (
 }
 
 export const getTradeRates = async (
-  getTradeRateInput: GetTradeRateInput,
+  getTradeRateInput: GetTradeRateInput | GetExactOutputTradeRateInput,
   swapperName: SwapperName,
   deps: SwapperDeps,
   quoteTimeoutMs: number = QUOTE_TIMEOUT_MS,
 ): Promise<RateResult | undefined> => {
   if (bnOrZero(getTradeRateInput.affiliateBps).lt(0)) return
-  if (getTradeRateInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return
 
   const swapper = swappers[swapperName]
-
   if (swapper === undefined) return
+
+  if ('buyAmountCryptoBaseUnit' in getTradeRateInput) {
+    if (getTradeRateInput.buyAmountCryptoBaseUnit === '0') return
+  } else if (getTradeRateInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return
+
+  const ratePromise =
+    'buyAmountCryptoBaseUnit' in getTradeRateInput
+      ? swapper.getExactOutputTradeRate?.(getTradeRateInput, deps)
+      : swapper.getTradeRate(getTradeRateInput, deps)
+
+  if (!ratePromise) return { ...Err(EXACT_OUTPUT_NOT_SUPPORTED_ERROR), swapperName }
 
   try {
     const { timed, original } = timeoutMonadicWithOriginal<TradeRate[], SwapErrorRight>(
-      swapper.getTradeRate(getTradeRateInput, deps),
+      ratePromise,
       quoteTimeoutMs,
       makeSwapErrorRight({
         code: TradeQuoteError.Timeout,

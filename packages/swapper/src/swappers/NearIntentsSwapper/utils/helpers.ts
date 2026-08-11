@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
-import type { SwapErrorRight } from '../../../types'
+import type { SwapErrorRight, TradeAmount } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import {
@@ -197,7 +197,7 @@ export const getNearIntentsQuoteDeadline = ({
 export const buildNearIntentsQuoteRequest = ({
   originAsset,
   destinationAsset,
-  sellAmountCryptoBaseUnit,
+  amount,
   slippageTolerancePercentageDecimal,
   affiliateBps,
   refundTo,
@@ -208,7 +208,7 @@ export const buildNearIntentsQuoteRequest = ({
 }: {
   originAsset: string
   destinationAsset: string
-  sellAmountCryptoBaseUnit: string
+  amount: TradeAmount
   slippageTolerancePercentageDecimal: string | undefined
   affiliateBps: string
   refundTo: string
@@ -216,29 +216,34 @@ export const buildNearIntentsQuoteRequest = ({
   refundType: QuoteRequest.refundType
   recipientType: QuoteRequest.recipientType
   deadline: string
-}): QuoteRequest => ({
-  dry: false,
-  swapType: QuoteRequest.swapType.EXACT_INPUT,
-  slippageTolerance: slippageTolerancePercentageDecimal
-    ? bnOrZero(slippageTolerancePercentageDecimal).times(10000).toNumber()
-    : DEFAULT_SLIPPAGE_BPS,
-  originAsset,
-  destinationAsset,
-  amount: sellAmountCryptoBaseUnit,
-  depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
-  refundTo,
-  refundType,
-  recipient,
-  recipientType,
-  deadline,
-  referral: 'shapeshift',
-  appFees: [
-    {
-      recipient: DAO_TREASURY_NEAR,
-      fee: Number(affiliateBps),
-    },
-  ],
-})
+}): QuoteRequest => {
+  return {
+    dry: false,
+    swapType:
+      amount.direction === 'exactOut'
+        ? QuoteRequest.swapType.EXACT_OUTPUT
+        : QuoteRequest.swapType.EXACT_INPUT,
+    slippageTolerance: slippageTolerancePercentageDecimal
+      ? bnOrZero(slippageTolerancePercentageDecimal).times(10000).toNumber()
+      : DEFAULT_SLIPPAGE_BPS,
+    originAsset,
+    destinationAsset,
+    amount: amount.cryptoBaseUnit,
+    depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
+    refundTo,
+    refundType,
+    recipient,
+    recipientType,
+    deadline,
+    referral: 'shapeshift',
+    appFees: [
+      {
+        recipient: DAO_TREASURY_NEAR,
+        fee: Number(affiliateBps),
+      },
+    ],
+  }
+}
 
 // One retry loop for the SDK's flaky WebSocket transport; maps provider errors to swap errors
 export const fetchNearIntentsQuote = async ({

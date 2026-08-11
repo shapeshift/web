@@ -79,6 +79,7 @@ export const validateTradeQuote = (
       switch (errorCode) {
         case SwapperTradeQuoteError.UnsupportedChain:
         case SwapperTradeQuoteError.CrossChainNotSupported:
+        case SwapperTradeQuoteError.ExactOutputNotSupported:
         case SwapperTradeQuoteError.NetworkFeeEstimationFailed:
         case SwapperTradeQuoteError.QueryFailed:
         case SwapperTradeQuoteError.InternalError:

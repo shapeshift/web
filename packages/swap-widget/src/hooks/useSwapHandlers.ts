@@ -87,8 +87,7 @@ export const useSwapHandlers = ({
         return
       }
 
-      // Nothing to seed when the buy side drives - the sell figure comes from the route, and sending
-      // an amount here would clear the buy amount out from under it
+      // Seeding a sell amount here would clear the buy amount that's driving the trade
       if (buyAmountBaseUnit) {
         actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
         return

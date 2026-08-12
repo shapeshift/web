@@ -65,6 +65,10 @@ describe('rateDisplay', () => {
       expect(getRateDiffPercent('100000', '100050', true)).toBe('0.05')
     })
 
+    it('shows the smallest gap two decimals can hold', () => {
+      expect(getRateDiffPercent('100000', '100010', true)).toBe('0.01')
+    })
+
     it('ignores gaps too small to render', () => {
       expect(getRateDiffPercent('100000', '100005', true)).toBeNull()
     })

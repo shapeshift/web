@@ -32,5 +32,5 @@ export const getRateDiffPercent = (
     : best.minus(current).div(best).times(100)
 
   // Matches the two decimals below, so anything the format can express gets shown
-  return diff.gt(0.01) ? diff.toFixed(2) : null
+  return diff.gte('0.01') ? diff.toFixed(2) : null
 }

@@ -4,7 +4,7 @@ import type { TradeAmount } from '../../../types'
 import { QuoteRequest } from '../types'
 import { buildNearIntentsQuoteRequest } from './helpers'
 
-const baseArgs = {
+const BASE_ARGS = {
   originAsset: 'nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near',
   destinationAsset: 'nep141:btc.omft.near',
   amount: { direction: 'exactIn', cryptoBaseUnit: '65000000' } satisfies TradeAmount,
@@ -17,7 +17,7 @@ const baseArgs = {
   deadline: '2026-08-10T23:59:00.000Z',
 }
 
-const exactOutputAmount = {
+const EXACT_OUTPUT_AMOUNT = {
   direction: 'exactOut',
   cryptoBaseUnit: '100000',
 } satisfies TradeAmount
@@ -25,7 +25,7 @@ const exactOutputAmount = {
 describe('buildNearIntentsQuoteRequest', () => {
   describe('exact input', () => {
     it('requests EXACT_INPUT with the sell amount', () => {
-      const request = buildNearIntentsQuoteRequest(baseArgs)
+      const request = buildNearIntentsQuoteRequest(BASE_ARGS)
 
       expect(request.swapType).toEqual(QuoteRequest.swapType.EXACT_INPUT)
       expect(request.amount).toEqual('65000000')
@@ -33,7 +33,7 @@ describe('buildNearIntentsQuoteRequest', () => {
 
     it('passes the requested slippage through untouched', () => {
       const request = buildNearIntentsQuoteRequest({
-        ...baseArgs,
+        ...BASE_ARGS,
         slippageTolerancePercentageDecimal: '0',
       })
 
@@ -43,7 +43,7 @@ describe('buildNearIntentsQuoteRequest', () => {
 
   describe('exact output', () => {
     it('requests EXACT_OUTPUT with the buy amount', () => {
-      const request = buildNearIntentsQuoteRequest({ ...baseArgs, amount: exactOutputAmount })
+      const request = buildNearIntentsQuoteRequest({ ...BASE_ARGS, amount: EXACT_OUTPUT_AMOUNT })
 
       expect(request.swapType).toEqual(QuoteRequest.swapType.EXACT_OUTPUT)
       expect(request.amount).toEqual('100000')
@@ -52,8 +52,8 @@ describe('buildNearIntentsQuoteRequest', () => {
     // A tighter band is the user's call - the failure mode is a refund, not a loss
     it('passes a requested zero slippage through untouched, as exact input does', () => {
       const request = buildNearIntentsQuoteRequest({
-        ...baseArgs,
-        amount: exactOutputAmount,
+        ...BASE_ARGS,
+        amount: EXACT_OUTPUT_AMOUNT,
         slippageTolerancePercentageDecimal: '0',
       })
 
@@ -62,8 +62,8 @@ describe('buildNearIntentsQuoteRequest', () => {
 
     it('honours a requested slippage', () => {
       const request = buildNearIntentsQuoteRequest({
-        ...baseArgs,
-        amount: exactOutputAmount,
+        ...BASE_ARGS,
+        amount: EXACT_OUTPUT_AMOUNT,
         slippageTolerancePercentageDecimal: '0.05',
       })
 

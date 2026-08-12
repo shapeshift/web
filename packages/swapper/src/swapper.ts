@@ -33,9 +33,13 @@ export const getTradeQuotes = async (
   const swapper = swappers[swapperName]
   if (swapper === undefined) return
 
-  if ('buyAmountCryptoBaseUnit' in getTradeQuoteInput) {
-    if (getTradeQuoteInput.buyAmountCryptoBaseUnit === '0') return
-  } else if (getTradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return
+  // Compared numerically so a padded zero can't slip through as an amount
+  const drivingAmount =
+    'buyAmountCryptoBaseUnit' in getTradeQuoteInput
+      ? getTradeQuoteInput.buyAmountCryptoBaseUnit
+      : getTradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit
+
+  if (bnOrZero(drivingAmount).isZero()) return
 
   const quotePromise =
     'buyAmountCryptoBaseUnit' in getTradeQuoteInput
@@ -73,9 +77,13 @@ export const getTradeRates = async (
   const swapper = swappers[swapperName]
   if (swapper === undefined) return
 
-  if ('buyAmountCryptoBaseUnit' in getTradeRateInput) {
-    if (getTradeRateInput.buyAmountCryptoBaseUnit === '0') return
-  } else if (getTradeRateInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return
+  // Compared numerically so a padded zero can't slip through as an amount
+  const drivingAmount =
+    'buyAmountCryptoBaseUnit' in getTradeRateInput
+      ? getTradeRateInput.buyAmountCryptoBaseUnit
+      : getTradeRateInput.sellAmountIncludingProtocolFeesCryptoBaseUnit
+
+  if (bnOrZero(drivingAmount).isZero()) return
 
   const ratePromise =
     'buyAmountCryptoBaseUnit' in getTradeRateInput

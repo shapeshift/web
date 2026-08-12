@@ -319,7 +319,9 @@ export type GetTradeRateInput =
   | GetStarknetTradeRateInput
   | GetSuiTradeRateInput
 
-export type WithExactBuyAmount<T> = T extends unknown
+export type WithExactBuyAmount<
+  T extends { sellAmountIncludingProtocolFeesCryptoBaseUnit: string },
+> = T extends unknown
   ? Omit<T, 'sellAmountIncludingProtocolFeesCryptoBaseUnit'> & { buyAmountCryptoBaseUnit: string }
   : never
 

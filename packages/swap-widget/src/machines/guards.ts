@@ -5,9 +5,11 @@ export const isExactOutput = (context: SwapMachineContext): boolean => !!context
 export const hasValidInput = (context: SwapMachineContext): boolean => {
   if (!context.sellAsset || !context.buyAsset) return false
 
-  const amount = isExactOutput(context) ? context.buyAmountBaseUnit : context.sellAmountBaseUnit
+  const amountBaseUnit = isExactOutput(context)
+    ? context.buyAmountBaseUnit
+    : context.sellAmountBaseUnit
 
-  return !!amount && amount !== '0'
+  return !!amountBaseUnit && amountBaseUnit !== '0'
 }
 
 export const hasQuote = (context: SwapMachineContext): boolean => context.quote !== null

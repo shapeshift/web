@@ -12,7 +12,6 @@ export type UseSwapRatesParams = {
   sellAssetId: AssetId | undefined
   buyAssetId: AssetId | undefined
   sellAmountCryptoBaseUnit: string | undefined
-  // Set instead of the sell amount to quote every route against an exact buy amount
   buyAmountCryptoBaseUnit?: string | undefined
   enabled?: boolean
   allowedSwapperNames?: SwapperName[]
@@ -34,27 +33,27 @@ export const useSwapRates = (
   } = params
 
   const isExactOutput = buyAmountCryptoBaseUnit !== undefined
-  const drivingAmount = isExactOutput ? buyAmountCryptoBaseUnit : sellAmountCryptoBaseUnit
+  const amountCryptoBaseUnit = isExactOutput ? buyAmountCryptoBaseUnit : sellAmountCryptoBaseUnit
 
   return useQuery({
     queryKey: [
       'swapRates',
       sellAssetId,
       buyAssetId,
-      drivingAmount,
+      amountCryptoBaseUnit,
       isExactOutput,
       allowedSwapperNames,
     ],
     queryFn: async (): Promise<TradeRate[]> => {
-      if (!sellAssetId || !buyAssetId || !drivingAmount) {
+      if (!sellAssetId || !buyAssetId || !amountCryptoBaseUnit) {
         return []
       }
       const response = await apiClient.getRates({
         sellAssetId,
         buyAssetId,
         ...(isExactOutput
-          ? { buyAmountCryptoBaseUnit: drivingAmount }
-          : { sellAmountCryptoBaseUnit: drivingAmount }),
+          ? { buyAmountCryptoBaseUnit: amountCryptoBaseUnit }
+          : { sellAmountCryptoBaseUnit: amountCryptoBaseUnit }),
       })
 
       let filteredRates = response.rates.filter(
@@ -76,7 +75,7 @@ export const useSwapRates = (
         isExactOutput,
       )
     },
-    enabled: enabled && !!sellAssetId && !!buyAssetId && !!drivingAmount,
+    enabled: enabled && !!sellAssetId && !!buyAssetId && !!amountCryptoBaseUnit,
     staleTime: 10_000,
     refetchInterval,
   })

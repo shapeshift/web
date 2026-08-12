@@ -61,8 +61,12 @@ describe('rateDisplay', () => {
       expect(getRatePenaltyPercent('100000', '90000', false)).toBe('10.00')
     })
 
-    it('ignores gaps within noise', () => {
-      expect(getRatePenaltyPercent('100000', '100050', true)).toBeNull()
+    it('shows a gap the format can express', () => {
+      expect(getRatePenaltyPercent('100000', '100050', true)).toBe('0.05')
+    })
+
+    it('ignores gaps too small to render', () => {
+      expect(getRatePenaltyPercent('100000', '100005', true)).toBeNull()
     })
 
     it('returns null when there is no best amount to compare against', () => {

@@ -32,5 +32,6 @@ export const getRatePenaltyPercent = (
     ? current.minus(best).div(best).times(100)
     : best.minus(current).div(best).times(100)
 
-  return diff.gt(0.1) ? diff.toFixed(2) : null
+  // Matches the two decimals below, so anything the format can express gets shown
+  return diff.gt(0.01) ? diff.toFixed(2) : null
 }

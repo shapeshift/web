@@ -241,6 +241,23 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
+    // A rate priced against the other side of the trade can't describe this one
+    it('SET_SELL_AMOUNT drops a rate selected for the buy amount', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+      actor.send({ type: 'SELECT_RATE', rate: TEST_RATE })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1.5',
+        amountBaseUnit: '1500000000000000000',
+        fiatValue: '',
+      })
+
+      expect(actor.getSnapshot().context.selectedRate).toBeNull()
+      actor.stop()
+    })
+
     // The sell field is editable during exact output but shows a crypto amount, so a stale fiat mode
     // would have the next thing the user types read as dollars
     it('SET_BUY_AMOUNT leaves fiat entry mode', () => {

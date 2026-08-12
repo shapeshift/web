@@ -125,6 +125,8 @@ export const swapMachine = setup({
         sellAmountFiat: fiatValue,
         buyAmount: '',
         buyAmountBaseUnit: undefined,
+        selectedRate: null,
+        quote: null,
       }
     }),
     assignSellFiatMode: assign(({ event }) => {

@@ -1,12 +1,16 @@
 import type { SwapMachineContext } from './types'
 
+// The mode is the amount that's set rather than a flag, so the two can never disagree
+export const isExactOutput = (context: SwapMachineContext): boolean => !!context.buyAmountBaseUnit
+
 export const hasValidInput = (context: SwapMachineContext): boolean => {
-  return (
-    !!context.sellAsset &&
-    !!context.buyAsset &&
-    !!context.sellAmountBaseUnit &&
-    context.sellAmountBaseUnit !== '0'
-  )
+  if (!context.sellAsset || !context.buyAsset) return false
+
+  const drivingAmount = isExactOutput(context)
+    ? context.buyAmountBaseUnit
+    : context.sellAmountBaseUnit
+
+  return !!drivingAmount && drivingAmount !== '0'
 }
 
 export const hasQuote = (context: SwapMachineContext): boolean => context.quote !== null

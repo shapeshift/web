@@ -35,6 +35,9 @@ export type SwapDisplayValues = {
   buyChainInfo: ChainInfo | undefined
   displayRate: TradeRate | undefined
   buyAmount: string | undefined
+  isExactOutput: boolean
+  // The sell amount to show and spend: entered by the user, or derived from the route on exact output
+  effectiveSellAmountBaseUnit: string | undefined
   sellChainNativeAsset: ShapeshiftAsset | undefined
   networkFeeDisplay: string | undefined
   sellUsdValue: string
@@ -53,6 +56,7 @@ export const useSwapDisplayValues = ({
   const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
   const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
   const sellAmountBaseUnit = SwapMachineCtx.useSelector(s => s.context.sellAmountBaseUnit)
+  const buyAmountBaseUnit = SwapMachineCtx.useSelector(s => s.context.buyAmountBaseUnit)
   const isSellAssetEvm = SwapMachineCtx.useSelector(s => s.context.isSellAssetEvm)
   const isSellAssetUtxo = SwapMachineCtx.useSelector(s => s.context.isSellAssetUtxo)
   const isSellAssetSolana = SwapMachineCtx.useSelector(s => s.context.isSellAssetSolana)
@@ -65,6 +69,9 @@ export const useSwapDisplayValues = ({
 
   const buyChainType = getChainType(buyAsset.chainId)
 
+  const isExactOutput = !!buyAmountBaseUnit
+  const drivingAmount = isExactOutput ? buyAmountBaseUnit : sellAmountBaseUnit
+
   const {
     data: rates,
     isLoading: isLoadingRates,
@@ -73,11 +80,12 @@ export const useSwapDisplayValues = ({
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+    buyAmountCryptoBaseUnit: buyAmountBaseUnit,
     allowedSwapperNames,
     refetchInterval: ratesRefetchInterval,
     enabled:
-      !!sellAmountBaseUnit &&
-      sellAmountBaseUnit !== '0' &&
+      !!drivingAmount &&
+      drivingAmount !== '0' &&
       (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
   })
 
@@ -118,6 +126,11 @@ export const useSwapDisplayValues = ({
   const displayRate = useMemo(() => selectedRate ?? rates?.[0], [selectedRate, rates])
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit
 
+  // Exact output has no user-entered sell amount - it only exists once a route has priced it
+  const effectiveSellAmountBaseUnit = isExactOutput
+    ? displayRate?.sellAmountCryptoBaseUnit
+    : sellAmountBaseUnit
+
   const sellChainNativeAsset = useMemo(() => getBaseAsset(sellAsset.chainId), [sellAsset.chainId])
 
   const assetIdsForPrices = useMemo(() => {
@@ -154,9 +167,9 @@ export const useSwapDisplayValues = ({
   }, [displayRate?.networkFeeCryptoBaseUnit, sellChainNativeAsset, nativeAssetUsdPrice])
 
   const sellUsdValue = useMemo(() => {
-    if (!sellAmountBaseUnit || !sellAssetUsdPrice) return '$0.00'
-    return formatUsdValue(sellAmountBaseUnit, sellAsset.precision, sellAssetUsdPrice)
-  }, [sellAmountBaseUnit, sellAsset.precision, sellAssetUsdPrice])
+    if (!effectiveSellAmountBaseUnit || !sellAssetUsdPrice) return '$0.00'
+    return formatUsdValue(effectiveSellAmountBaseUnit, sellAsset.precision, sellAssetUsdPrice)
+  }, [effectiveSellAmountBaseUnit, sellAsset.precision, sellAssetUsdPrice])
 
   const buyUsdValue = useMemo(() => {
     if (!buyAmount || !buyAssetUsdPrice) return '$0.00'
@@ -188,6 +201,8 @@ export const useSwapDisplayValues = ({
       buyChainInfo,
       displayRate,
       buyAmount,
+      isExactOutput,
+      effectiveSellAmountBaseUnit,
       sellChainNativeAsset,
       networkFeeDisplay,
       sellUsdValue,
@@ -211,6 +226,8 @@ export const useSwapDisplayValues = ({
       buyChainInfo,
       displayRate,
       buyAmount,
+      isExactOutput,
+      effectiveSellAmountBaseUnit,
       sellChainNativeAsset,
       networkFeeDisplay,
       sellUsdValue,

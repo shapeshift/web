@@ -34,9 +34,17 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
 
     const fetchQuote = async () => {
       try {
-        if (sellAssetBalance?.balance && context.sellAmountBaseUnit) {
+        const isExactOutput = !!context.buyAmountBaseUnit
+        const rateToUse = context.selectedRate ?? rates?.[0]
+
+        // In exact-output mode the amount we'll actually spend is only known from the rate
+        const sellAmountToSpend = isExactOutput
+          ? rateToUse?.sellAmountCryptoBaseUnit
+          : context.sellAmountBaseUnit
+
+        if (sellAssetBalance?.balance && sellAmountToSpend) {
           const balanceBigInt = BigInt(sellAssetBalance.balance)
-          const amountBigInt = BigInt(context.sellAmountBaseUnit)
+          const amountBigInt = BigInt(sellAmountToSpend)
           if (amountBigInt > balanceBigInt) {
             actorRef.send({ type: 'QUOTE_ERROR', error: 'Insufficient balance' })
             return
@@ -49,8 +57,8 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           return
         }
         const slippageDecimal = (parsedSlippage / 100).toString()
-        const rateToUse = context.selectedRate ?? rates?.[0]
-        if (!rateToUse || !context.sellAmountBaseUnit) {
+        const drivingAmount = isExactOutput ? context.buyAmountBaseUnit : context.sellAmountBaseUnit
+        if (!rateToUse || !drivingAmount) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No rate or amount available' })
           return
         }
@@ -70,7 +78,9 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
         const response = await apiClient.getQuote({
           sellAssetId: context.sellAsset.assetId,
           buyAssetId: context.buyAsset.assetId,
-          sellAmountCryptoBaseUnit: context.sellAmountBaseUnit,
+          ...(isExactOutput
+            ? { buyAmountCryptoBaseUnit: drivingAmount }
+            : { sellAmountCryptoBaseUnit: drivingAmount }),
           sendAddress,
           receiveAddress: resolvedReceiveAddress,
           swapperName: rateToUse.swapperName,

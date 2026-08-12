@@ -1,12 +1,12 @@
 import './QuotesModal.css'
 
-import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
 import { formatUsdValue } from '../hooks/useMarketData'
 import type { Asset, TradeRate } from '../types'
 import { formatAmount } from '../types'
+import { getRateAmountBaseUnit, getRatePenaltyPercent, sortRatesByValue } from '../utils/rateDisplay'
 
 const useLockBodyScroll = (isLocked: boolean) => {
   useEffect(() => {
@@ -28,15 +28,10 @@ type QuotesModalProps = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountBaseUnit: string
+  buyAmountBaseUnit: string
+  isExactOutput: boolean
+  sellAssetUsdPrice?: string
   buyAssetUsdPrice?: string
-}
-
-const calculateSavingsPercent = (bestAmount: string, currentAmount: string): string | null => {
-  const best = bnOrZero(bestAmount)
-  const current = bnOrZero(currentAmount)
-  if (best.isZero()) return null
-  const diff = best.minus(current).div(best).times(100)
-  return diff.gt(0.1) ? diff.toFixed(2) : null
 }
 
 export const QuotesModal = ({
@@ -48,6 +43,9 @@ export const QuotesModal = ({
   buyAsset,
   sellAsset,
   sellAmountBaseUnit,
+  buyAmountBaseUnit,
+  isExactOutput,
+  sellAssetUsdPrice,
   buyAssetUsdPrice,
 }: QuotesModalProps) => {
   useLockBodyScroll(isOpen)
@@ -69,18 +67,17 @@ export const QuotesModal = ({
     [onSelectRate, onClose],
   )
 
-  const sortedRates = useMemo(() => {
-    return [...rates]
-      .filter(r => !r.error && r.buyAmountCryptoBaseUnit !== '0')
-      .sort((a, b) => {
-        const aAmount = bnOrZero(a.buyAmountCryptoBaseUnit)
-        const bAmount = bnOrZero(b.buyAmountCryptoBaseUnit)
-        return bAmount.minus(aAmount).toNumber()
-      })
-  }, [rates])
+  const sortedRates = useMemo(
+    () => sortRatesByValue(rates, isExactOutput),
+    [rates, isExactOutput],
+  )
 
   const bestRate = useMemo(() => sortedRates[0], [sortedRates])
-  const bestBuyAmount = bestRate?.buyAmountCryptoBaseUnit ?? '0'
+  const bestAmountBaseUnit = bestRate ? getRateAmountBaseUnit(bestRate, isExactOutput) : '0'
+
+  // The side that varies is the one worth showing per route
+  const varyingAsset = isExactOutput ? sellAsset : buyAsset
+  const varyingUsdPrice = isExactOutput ? sellAssetUsdPrice : buyAssetUsdPrice
 
   if (!isOpen) return null
 
@@ -101,8 +98,17 @@ export const QuotesModal = ({
               Select Route
             </h2>
             <span className='ssw-quotes-modal-subtitle'>
-              {formatAmount(sellAmountBaseUnit, sellAsset.precision)} {sellAsset.symbol} →{' '}
-              {buyAsset.symbol}
+              {isExactOutput ? (
+                <>
+                  {sellAsset.symbol} → {formatAmount(buyAmountBaseUnit, buyAsset.precision)}{' '}
+                  {buyAsset.symbol}
+                </>
+              ) : (
+                <>
+                  {formatAmount(sellAmountBaseUnit, sellAsset.precision)} {sellAsset.symbol} →{' '}
+                  {buyAsset.symbol}
+                </>
+              )}
             </span>
           </div>
           <button className='ssw-quotes-modal-close' onClick={onClose} type='button'>
@@ -121,15 +127,17 @@ export const QuotesModal = ({
 
         <div className='ssw-quotes-modal-list'>
           {sortedRates.map((rate, index) => {
-            const buyAmount = rate.buyAmountCryptoBaseUnit ?? '0'
+            const amountBaseUnit = getRateAmountBaseUnit(rate, isExactOutput)
             const estimatedTime = rate.estimatedExecutionTimeMs
             const isBest = index === 0
             const isSelected = selectedRate?.id === rate.id
             const swapperIcon = getSwapperIcon(rate.swapperName)
             const swapperColor = getSwapperColor(rate.swapperName)
-            const formattedBuyAmount = formatAmount(buyAmount, buyAsset.precision)
-            const usdValue = formatUsdValue(buyAmount, buyAsset.precision, buyAssetUsdPrice)
-            const savingsPercent = isBest ? null : calculateSavingsPercent(bestBuyAmount, buyAmount)
+            const formattedAmount = formatAmount(amountBaseUnit, varyingAsset.precision)
+            const usdValue = formatUsdValue(amountBaseUnit, varyingAsset.precision, varyingUsdPrice)
+            const penaltyPercent = isBest
+              ? null
+              : getRatePenaltyPercent(bestAmountBaseUnit, amountBaseUnit, isExactOutput)
             const estimatedSeconds = estimatedTime ? Math.round(estimatedTime / 1000) : 0
             const hasTime = estimatedSeconds > 0
 
@@ -157,8 +165,11 @@ export const QuotesModal = ({
                     <div className='ssw-quote-row-name-row'>
                       <span className='ssw-quote-row-name'>{rate.swapperName}</span>
                       {isBest && <span className='ssw-quote-row-best'>Best</span>}
-                      {savingsPercent && (
-                        <span className='ssw-quote-row-diff'>-{savingsPercent}%</span>
+                      {penaltyPercent && (
+                        <span className='ssw-quote-row-diff'>
+                          {isExactOutput ? '+' : '-'}
+                          {penaltyPercent}%
+                        </span>
                       )}
                     </div>
                     {hasTime && <span className='ssw-quote-row-time'>~{estimatedSeconds}s</span>}
@@ -167,8 +178,8 @@ export const QuotesModal = ({
 
                 <div className='ssw-quote-row-right'>
                   <span className='ssw-quote-row-amount'>
-                    {formattedBuyAmount}{' '}
-                    <span className='ssw-quote-row-symbol'>{buyAsset.symbol}</span>
+                    {formattedAmount}{' '}
+                    <span className='ssw-quote-row-symbol'>{varyingAsset.symbol}</span>
                   </span>
                   <span className='ssw-quote-row-usd'>{usdValue}</span>
                 </div>

@@ -5,6 +5,7 @@ import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 import { formatAmount } from '../types'
+import { cryptoToFiat } from '../utils/fiatConversion'
 import { QuoteSelector } from './QuoteSelector'
 import { ReceiveAddressRow } from './ReceiveAddressRow'
 
@@ -12,11 +13,14 @@ type InputStepProps = {
   displayValues: SwapDisplayValues
   onOpenTokenModal: (type: 'sell' | 'buy') => void
   onSellAmountChange: (value: string, sellAssetUsdPrice?: string) => void
+  onBuyAmountChange: (value: string) => void
   onToggleSellFiat: (sellAssetUsdPrice?: string) => void
   onSwapTokens: () => void
   onSelectRate: (rate: TradeRate) => void
   onButtonClick: () => void
   isBuyAssetLocked: boolean
+  isBuyAmountLocked: boolean
+  isReceiveAddressLocked: boolean
   allowShapeshiftRedirect: boolean
 }
 
@@ -24,11 +28,14 @@ export const InputStep = ({
   displayValues,
   onOpenTokenModal,
   onSellAmountChange,
+  onBuyAmountChange,
   onToggleSellFiat,
   onSwapTokens,
   onSelectRate,
   onButtonClick,
   isBuyAssetLocked,
+  isBuyAmountLocked,
+  isReceiveAddressLocked,
   allowShapeshiftRedirect,
 }: InputStepProps) => {
   const context = SwapMachineCtx.useSelector(s => s.context)
@@ -52,6 +59,8 @@ export const InputStep = ({
     networkFeeDisplay,
     sellBalanceFiatValue,
     buyBalanceFiatValue,
+    isExactOutput,
+    effectiveSellAmountBaseUnit,
   } = displayValues
 
   const {
@@ -75,6 +84,8 @@ export const InputStep = ({
     isSellAssetEvm,
     isSellAssetUtxo,
     isSellAssetSolana,
+    buyAmount: buyAmountInput,
+    buyAmountBaseUnit,
   } = context
 
   const buyChainId = buyAsset.chainId
@@ -82,6 +93,30 @@ export const InputStep = ({
   const hasActiveWallet = !!receiveAddress || hasAnyWalletAddress || isReceiveAddressResolving
 
   const isUnsupportedChain = !isSellAssetEvm && !isSellAssetUtxo && !isSellAssetSolana
+
+  const drivingAmountBaseUnit = isExactOutput ? buyAmountBaseUnit : sellAmountBaseUnit
+
+  // A locked buy amount is the only thing that takes the sell side out of the user's hands
+  const isSellAmountReadOnly = isExactOutput && isBuyAmountLocked
+
+  // Whichever side is derived has nothing to show until a route prices it
+  const isSellAmountPending = isExactOutput && isLoadingRates
+  const isBuyAmountPending = !isExactOutput && isLoadingRates
+
+  // The sell side reads the same either way - the user's entry, or the route's input once the buy
+  // side is driving. The fiat toggle picks the unit for both
+  const sellAmountCrypto = effectiveSellAmountBaseUnit
+    ? formatAmount(effectiveSellAmountBaseUnit, sellAsset.precision, 6)
+    : ''
+
+  const sellAmountValue = (() => {
+    if (!isExactOutput) return isSellAmountFiat ? sellAmountFiat : sellAmount
+    if (!isSellAmountFiat) return sellAmountCrypto
+
+    return sellAssetUsdPrice
+      ? cryptoToFiat(effectiveSellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
+      : ''
+  })()
 
   const { text: buttonText, disabled: isButtonDisabled } = useMemo((): {
     text: string
@@ -94,7 +129,8 @@ export const InputStep = ({
 
     if (!sendAddress) return { text: 'Connect Wallet', disabled: false }
     if (!receiveAddress) return { text: 'Enter receive address', disabled: true }
-    if (!sellAmount) return { text: 'Enter an amount', disabled: true }
+    const drivingAmount = isExactOutput ? buyAmountBaseUnit : sellAmount
+    if (!drivingAmount || drivingAmount === '0') return { text: 'Enter an amount', disabled: true }
     if (isLoadingRates) return { text: 'Finding rates...', disabled: true }
     if (ratesError) return { text: 'No routes available', disabled: true }
     if (!rates?.length) return { text: 'No routes found', disabled: true }
@@ -105,6 +141,8 @@ export const InputStep = ({
     sendAddress,
     receiveAddress,
     sellAmount,
+    isExactOutput,
+    buyAmountBaseUnit,
     isLoadingRates,
     ratesError,
     rates,
@@ -122,9 +160,14 @@ export const InputStep = ({
             {isSellAmountFiat && <span className='ssw-fiat-prefix'>$</span>}
             <input
               type='text'
-              className='ssw-amount-input'
-              placeholder='0'
-              value={isSellAmountFiat ? sellAmountFiat : sellAmount}
+              className={`ssw-amount-input${isSellAmountReadOnly ? ' ssw-amount-input-locked' : ''}${
+                isSellAmountPending ? ' ssw-amount-input-pending' : ''
+              }`}
+              placeholder={isSellAmountPending ? '...' : '0'}
+              // Shows the route's input until the user types, which hands the trade back to this side
+              value={sellAmountValue}
+              // Typing would clear the locked buy amount, so the derived figure is all there is
+              readOnly={isSellAmountReadOnly}
               onChange={e => {
                 const raw = e.target.value.replace(/[^0-9.]/g, '')
                 const parts = raw.split('.')
@@ -162,7 +205,9 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-section-footer'>
-            {sellAssetUsdPrice ? (
+            {!sellAssetUsdPrice ? (
+              <span className='ssw-usd-value' />
+            ) : (
               <button
                 type='button'
                 className='ssw-usd-value ssw-usd-value-toggle'
@@ -170,11 +215,7 @@ export const InputStep = ({
               >
                 <span>
                   {isSellAmountFiat
-                    ? `≈ ${
-                        sellAmountBaseUnit
-                          ? formatAmount(sellAmountBaseUnit, sellAsset.precision, 6)
-                          : '0'
-                      } ${sellAsset.symbol}`
+                    ? `≈ ${sellAmountCrypto || '0'} ${sellAsset.symbol}`
                     : sellUsdValue}
                 </span>
                 <svg
@@ -189,8 +230,6 @@ export const InputStep = ({
                   <path d='M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4' />
                 </svg>
               </button>
-            ) : (
-              <span className='ssw-usd-value' />
             )}
             {hasAnyWalletAddress &&
               (isSellBalanceLoading ? (
@@ -234,10 +273,24 @@ export const InputStep = ({
           <div className='ssw-input-row'>
             <input
               type='text'
-              className='ssw-amount-input'
-              placeholder='0'
-              value={buyAmount ? formatAmount(buyAmount, buyAsset.precision) : ''}
-              readOnly
+              className={`ssw-amount-input${isBuyAmountLocked ? ' ssw-amount-input-locked' : ''}${
+                isBuyAmountPending ? ' ssw-amount-input-pending' : ''
+              }`}
+              placeholder={isBuyAmountPending ? '...' : '0'}
+              // Falls back to the route's output whenever the user isn't driving the buy side
+              value={
+                isExactOutput
+                  ? buyAmountInput
+                  : buyAmount
+                    ? formatAmount(buyAmount, buyAsset.precision)
+                    : ''
+              }
+              readOnly={isBuyAmountLocked}
+              onChange={e => {
+                const raw = e.target.value.replace(/[^0-9.]/g, '')
+                const parts = raw.split('.')
+                onBuyAmountChange(parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw)
+              }}
             />
             <button
               className={`ssw-token-btn${isBuyAssetLocked ? ' ssw-token-btn-locked' : ''}`}
@@ -292,25 +345,31 @@ export const InputStep = ({
             receiveAddress={receiveAddress}
             isResolving={isReceiveAddressResolving}
             buyChainId={buyChainId}
+            isLocked={isReceiveAddressLocked}
             onSetCustomReceiveAddress={setCustomReceiveAddress}
           />
         )}
       </div>
 
-      {sellAmountBaseUnit && sellAmountBaseUnit !== '0' && (rates?.length || isLoadingRates) && (
-        <div className='ssw-quotes'>
-          <QuoteSelector
-            rates={rates ?? []}
-            selectedRate={selectedRate}
-            onSelectRate={onSelectRate}
-            buyAsset={buyAsset}
-            sellAsset={sellAsset}
-            sellAmountBaseUnit={sellAmountBaseUnit}
-            isLoading={isLoadingRates}
-            buyAssetUsdPrice={buyAssetUsdPrice}
-          />
-        </div>
-      )}
+      {drivingAmountBaseUnit &&
+        drivingAmountBaseUnit !== '0' &&
+        (rates?.length || isLoadingRates) && (
+          <div className='ssw-quotes'>
+            <QuoteSelector
+              rates={rates ?? []}
+              selectedRate={selectedRate}
+              onSelectRate={onSelectRate}
+              buyAsset={buyAsset}
+              sellAsset={sellAsset}
+              sellAmountBaseUnit={effectiveSellAmountBaseUnit ?? '0'}
+              buyAmountBaseUnit={buyAmountBaseUnit ?? '0'}
+              isExactOutput={isExactOutput}
+              isLoading={isLoadingRates}
+              sellAssetUsdPrice={sellAssetUsdPrice}
+              buyAssetUsdPrice={buyAssetUsdPrice}
+            />
+          </div>
+        )}
 
       {networkFeeDisplay && (
         <div className='ssw-network-fee'>

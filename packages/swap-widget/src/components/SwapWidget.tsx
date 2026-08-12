@@ -19,7 +19,7 @@ import { useSwapHandlers } from '../hooks/useSwapHandlers'
 import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
-import { getChainType } from '../types'
+import { formatAmount, getChainType } from '../types'
 import { validateAddress } from '../utils/addressValidation'
 import { ApprovalStep } from './ApprovalStep'
 import { ExecutionStep } from './ExecutionStep'
@@ -35,8 +35,11 @@ type SwapWidgetContentProps = {
   showPoweredBy: boolean
   showConnectButton: boolean
   isBuyAssetLocked: boolean
+  isBuyAmountLocked: boolean
+  isReceiveAddressLocked: boolean
+  isPayment: boolean
   partnerCode?: string
-  allowShapeshiftRedirect: boolean
+  canRedirectToShapeshift: boolean
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   sellFilters: SwapWidgetFilters
@@ -51,8 +54,11 @@ const SwapWidgetContent = ({
   showPoweredBy,
   showConnectButton,
   isBuyAssetLocked,
+  isBuyAmountLocked,
+  isReceiveAddressLocked,
+  isPayment,
   partnerCode,
-  allowShapeshiftRedirect,
+  canRedirectToShapeshift,
   onSwapSuccess,
   onSwapError,
   sellFilters,
@@ -80,16 +86,18 @@ const SwapWidgetContent = ({
     handleSellAssetSelect,
     handleBuyAssetSelect,
     handleSellAmountChange,
+    handleBuyAmountChange,
     handleToggleSellFiat,
     handleSelectRate,
     handleSlippageChange,
     handleButtonClick,
-  } = useSwapHandlers({ partnerCode, allowShapeshiftRedirect })
+  } = useSwapHandlers({ partnerCode, allowShapeshiftRedirect: canRedirectToShapeshift })
 
   useSwapQuoting({ apiClient, rates, sellAssetBalance })
   useSwapApproval()
   useSwapExecution()
   useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
+
   useSellFiatSync(displayValues.sellAssetUsdPrice)
 
   const widgetStyle = useMemo(() => {
@@ -178,12 +186,15 @@ const SwapWidgetContent = ({
             displayValues={displayValues}
             onOpenTokenModal={setTokenModalType}
             onSellAmountChange={handleSellAmountChange}
+            onBuyAmountChange={handleBuyAmountChange}
             onToggleSellFiat={handleToggleSellFiat}
             onSwapTokens={handleSwapTokens}
             onSelectRate={handleSelectRate}
             onButtonClick={handleButtonClick}
             isBuyAssetLocked={isBuyAssetLocked}
-            allowShapeshiftRedirect={allowShapeshiftRedirect}
+            isBuyAmountLocked={isBuyAmountLocked}
+            isReceiveAddressLocked={isReceiveAddressLocked}
+            allowShapeshiftRedirect={canRedirectToShapeshift}
           />
         )}
 
@@ -193,7 +204,7 @@ const SwapWidgetContent = ({
 
         {(state.matches('polling_status') ||
           state.matches('complete') ||
-          state.matches('error')) && <StatusStep />}
+          state.matches('error')) && <StatusStep isPayment={isPayment} />}
       </div>
 
       {showPoweredBy && (
@@ -225,7 +236,7 @@ const SwapWidgetContent = ({
         }
         allowedChainIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedChainIds}
         allowedAssetIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedAssetIds}
-        allowShapeshiftRedirect={allowShapeshiftRedirect}
+        allowShapeshiftRedirect={canRedirectToShapeshift}
       />
 
       <SettingsModal
@@ -246,6 +257,10 @@ type SwapWidgetCoreProps = {
   showPoweredBy: boolean
   showConnectButton: boolean
   isBuyAssetLocked: boolean
+  defaultReceiveAddress?: string
+  isReceiveAddressLocked: boolean
+  defaultBuyAmountCryptoBaseUnit?: string
+  isBuyAmountLocked: boolean
   partnerCode?: string
   allowShapeshiftRedirect: boolean
   onSwapSuccess?: (txHash: string) => void
@@ -265,6 +280,10 @@ const SwapWidgetCore = ({
   showPoweredBy,
   showConnectButton,
   isBuyAssetLocked,
+  defaultReceiveAddress,
+  isReceiveAddressLocked,
+  defaultBuyAmountCryptoBaseUnit,
+  isBuyAmountLocked,
   partnerCode,
   allowShapeshiftRedirect,
   onSwapSuccess,
@@ -326,10 +345,33 @@ const SwapWidgetCore = ({
     [customReceiveAddress, buyChainId],
   )
 
-  const receiveAddress = useMemo(
-    () => (isCustomReceiveAddressValid ? customReceiveAddress : walletReceiveAddress),
-    [isCustomReceiveAddressValid, customReceiveAddress, walletReceiveAddress],
-  )
+  // A locked address outranks both the user's entry and the wallet's own - the funds are destined
+  // somewhere specific, so resolving to the wallet would send them to the wrong place
+  const receiveAddress = useMemo(() => {
+    if (isReceiveAddressLocked && defaultReceiveAddress) return defaultReceiveAddress
+    return isCustomReceiveAddressValid ? customReceiveAddress : walletReceiveAddress
+  }, [
+    isReceiveAddressLocked,
+    defaultReceiveAddress,
+    isCustomReceiveAddressValid,
+    customReceiveAddress,
+    walletReceiveAddress,
+  ])
+
+  // A locked amount belongs to the integrator rather than the user, so unlike the defaults around it
+  // it tracks the prop instead of seeding once. Deps are primitives, so a re-render can't clear the
+  // quote on its own
+  useEffect(() => {
+    if (!isBuyAmountLocked) return
+
+    actorRef.send({
+      type: 'SET_BUY_AMOUNT',
+      amount: defaultBuyAmountCryptoBaseUnit
+        ? formatAmount(defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision)
+        : '',
+      amountBaseUnit: defaultBuyAmountCryptoBaseUnit,
+    })
+  }, [isBuyAmountLocked, defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision, actorRef])
 
   const initialSyncRef = useRef(false)
   useEffect(() => {
@@ -338,6 +380,13 @@ const SwapWidgetCore = ({
     actorRef.send({ type: 'SET_SELL_ASSET', asset: defaultSellAsset })
     actorRef.send({ type: 'SET_BUY_ASSET', asset: defaultBuyAsset })
     actorRef.send({ type: 'SET_SLIPPAGE', slippage: defaultSlippage })
+    actorRef.send({
+      type: 'SET_BUY_AMOUNT',
+      amount: defaultBuyAmountCryptoBaseUnit
+        ? formatAmount(defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision)
+        : '',
+      amountBaseUnit: defaultBuyAmountCryptoBaseUnit,
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
   }, [actorRef])
 
@@ -376,6 +425,17 @@ const SwapWidgetCore = ({
     ],
   )
 
+  // A locked buy amount sent to an address we were given is a payment, and repeating one is the
+  // host's call rather than ours. Locking only one of the two stays repeatable - a set amount to the
+  // user's own wallet, or topping up a locked address again
+  const hasLockedBuyAmount = isBuyAmountLocked && !!defaultBuyAmountCryptoBaseUnit
+
+  const isPayment = hasLockedBuyAmount && isReceiveAddressLocked && !!defaultReceiveAddress
+
+  // The redirect carries neither the address nor the buy amount, so locking either rules it out
+  const canRedirectToShapeshift =
+    allowShapeshiftRedirect && !hasLockedBuyAmount && !isReceiveAddressLocked
+
   return (
     <SwapWalletProvider value={walletValue}>
       <SwapWidgetContent
@@ -383,9 +443,12 @@ const SwapWidgetCore = ({
         theme={theme}
         showPoweredBy={showPoweredBy}
         showConnectButton={showConnectButton}
-        isBuyAssetLocked={isBuyAssetLocked}
+        isBuyAssetLocked={isBuyAssetLocked || hasLockedBuyAmount}
+        isBuyAmountLocked={isBuyAmountLocked}
+        isReceiveAddressLocked={isReceiveAddressLocked}
+        isPayment={isPayment}
         partnerCode={partnerCode}
-        allowShapeshiftRedirect={allowShapeshiftRedirect}
+        canRedirectToShapeshift={canRedirectToShapeshift}
         onSwapSuccess={onSwapSuccess}
         onSwapError={onSwapError}
         sellFilters={sellFilters}
@@ -419,6 +482,10 @@ export const SwapWidget = (props: SwapWidgetProps) => {
           showPoweredBy={props.showPoweredBy ?? true}
           showConnectButton={props.showConnectButton ?? true}
           isBuyAssetLocked={props.isBuyAssetLocked ?? false}
+          defaultReceiveAddress={props.defaultReceiveAddress}
+          isReceiveAddressLocked={props.isReceiveAddressLocked ?? false}
+          defaultBuyAmountCryptoBaseUnit={props.defaultBuyAmountCryptoBaseUnit}
+          isBuyAmountLocked={props.isBuyAmountLocked ?? false}
           partnerCode={props.partnerCode}
           allowShapeshiftRedirect={props.allowShapeshiftRedirect ?? true}
           onSwapSuccess={props.onSwapSuccess}

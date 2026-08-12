@@ -18,7 +18,12 @@ const ExplorerLink = ({ url }: { url: string }) => (
   </a>
 )
 
-export const StatusStep = () => {
+type StatusStepProps = {
+  // A locked buy amount sent to a locked address - repeating it isn't ours to offer
+  isPayment: boolean
+}
+
+export const StatusStep = ({ isPayment }: StatusStepProps) => {
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isPolling = SwapMachineCtx.useSelector(s => s.matches('polling_status'))
   const isComplete = SwapMachineCtx.useSelector(s => s.matches('complete'))
@@ -82,15 +87,17 @@ export const StatusStep = () => {
             Swapped {sellAsset.symbol} for {buyAsset.symbol}
           </div>
           {explorerUrl && <ExplorerLink url={explorerUrl} />}
-          <div className='ssw-step-actions'>
-            <button
-              className='ssw-action-btn'
-              onClick={() => send({ type: 'RESET' })}
-              type='button'
-            >
-              New Swap
-            </button>
-          </div>
+          {!isPayment && (
+            <div className='ssw-step-actions'>
+              <button
+                className='ssw-action-btn'
+                onClick={() => send({ type: 'RESET' })}
+                type='button'
+              >
+                New Swap
+              </button>
+            </div>
+          )}
         </>
       )}
 

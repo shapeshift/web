@@ -64,15 +64,33 @@ export const useSwapHandlers = ({
     [actorRef],
   )
 
+  const handleBuyAmountChange = useCallback(
+    (value: string) => {
+      const { buyAsset } = actorRef.getSnapshot().context
+      const amountBaseUnit = value ? parseAmount(value, buyAsset.precision) : undefined
+
+      actorRef.send({ type: 'SET_BUY_AMOUNT', amount: value, amountBaseUnit })
+    },
+    [actorRef],
+  )
+
   const handleToggleSellFiat = useCallback(
     (sellAssetUsdPrice?: string) => {
       if (!sellAssetUsdPrice) return
 
       const snap = actorRef.getSnapshot()
-      const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
+      const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat, buyAmountBaseUnit } =
+        snap.context
 
       if (isSellAmountFiat) {
         actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: false })
+        return
+      }
+
+      // Nothing to seed when the buy side drives - the sell figure comes from the route, and sending
+      // an amount here would clear the buy amount out from under it
+      if (buyAmountBaseUnit) {
+        actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
         return
       }
 
@@ -167,6 +185,7 @@ export const useSwapHandlers = ({
     handleSellAssetSelect,
     handleBuyAssetSelect,
     handleSellAmountChange,
+    handleBuyAmountChange,
     handleToggleSellFiat,
     handleSelectRate,
     handleSlippageChange,

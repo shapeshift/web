@@ -16,6 +16,8 @@ export const createInitialContext = (input?: {
   sellAsset?: Asset
   buyAsset?: Asset
   slippage?: string
+  buyAmount?: string
+  buyAmountBaseUnit?: string
 }): SwapMachineContext => {
   const sellAsset = input?.sellAsset ?? DEFAULT_SELL_ASSET
   const buyAsset = input?.buyAsset ?? DEFAULT_BUY_ASSET
@@ -27,6 +29,8 @@ export const createInitialContext = (input?: {
     buyAsset,
     sellAmount: '',
     sellAmountBaseUnit: undefined,
+    buyAmount: input?.buyAmount ?? '',
+    buyAmountBaseUnit: input?.buyAmountBaseUnit,
     isSellAmountFiat: false,
     sellAmountFiat: '',
     selectedRate: null,
@@ -100,6 +104,9 @@ export const swapMachine = setup({
       return {
         buyAsset: asset,
         isBuyAssetEvm: buyChainType === 'evm',
+        // Precision moves with the asset, so a buy amount can't carry across
+        buyAmount: '',
+        buyAmountBaseUnit: undefined,
         selectedRate: null,
         quote: null,
       }
@@ -115,6 +122,8 @@ export const swapMachine = setup({
         sellAmount: amount,
         sellAmountBaseUnit: amountBaseUnit,
         sellAmountFiat: fiatValue,
+        buyAmount: '',
+        buyAmountBaseUnit: undefined,
       }
     }),
     assignSellFiatMode: assign(({ event }) => {
@@ -159,6 +168,25 @@ export const swapMachine = setup({
       receiveAddress: (event as { type: 'SET_RECEIVE_ADDRESS'; address: string | undefined })
         .address,
     })),
+    assignBuyAmount: assign(({ event }) => {
+      const { amount, amountBaseUnit } = event as {
+        type: 'SET_BUY_AMOUNT'
+        amount: string
+        amountBaseUnit: string | undefined
+      }
+      // Only one side drives the trade, so taking the buy side retires whatever was on the sell side,
+      // fiat entry mode included - the sell field reads as crypto once it's showing a derived amount
+      return {
+        buyAmount: amount,
+        buyAmountBaseUnit: amountBaseUnit,
+        sellAmount: '',
+        sellAmountBaseUnit: undefined,
+        sellAmountFiat: '',
+        isSellAmountFiat: false,
+        selectedRate: null,
+        quote: null,
+      }
+    }),
     assignChainInfo: assign(({ event }) => {
       const e = event as Extract<SwapMachineEvent, { type: 'UPDATE_CHAIN_INFO' }>
       return {
@@ -186,6 +214,8 @@ export const swapMachine = setup({
       buyAsset: context.buyAsset,
       sellAmount: context.sellAmount,
       sellAmountBaseUnit: context.sellAmountBaseUnit,
+      buyAmount: context.buyAmount,
+      buyAmountBaseUnit: context.buyAmountBaseUnit,
       slippage: context.slippage,
       sendAddress: context.sendAddress,
       receiveAddress: context.receiveAddress,
@@ -204,6 +234,7 @@ export const swapMachine = setup({
         SET_SELL_ASSET: { actions: 'assignSellAsset' },
         SET_BUY_ASSET: { actions: 'assignBuyAsset' },
         SET_SELL_AMOUNT: { actions: 'assignSellAmount' },
+        SET_BUY_AMOUNT: { actions: 'assignBuyAmount' },
         SET_SELL_FIAT_MODE: { actions: 'assignSellFiatMode' },
         SET_SLIPPAGE: { actions: 'assignSlippage' },
         SELECT_RATE: { actions: 'assignSelectedRate' },

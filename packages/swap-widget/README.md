@@ -11,6 +11,7 @@ An embeddable React widget that enables multi-chain token swaps using ShapeShift
 - [Wallet Connection](#wallet-connection)
 - [Props Reference](#props-reference)
 - [Filtering Chains and Assets](#filtering-chains-and-assets)
+- [Exact Output and Locked Destinations](#exact-output-and-locked-destinations)
 - [Theming](#theming)
 - [Examples](#examples)
 - [Exported Types](#exported-types)
@@ -139,6 +140,10 @@ when `allowShapeshiftRedirect` is enabled.
 | `allowedSwapperNames`    | `SwapperName[]`                                 | all enabled        | Limit quotes to specific swappers. See [Supported Swappers](#supported-swappers).                        |
 | `allowShapeshiftRedirect`| `boolean`                                       | `true`             | When a swap isn't executable in-widget, redirect to app.shapeshift.com instead of hiding it.             |
 | `isBuyAssetLocked`       | `boolean`                                       | `false`            | Prevent the user from changing the buy asset.                                                            |
+| `defaultBuyAmountCryptoBaseUnit` | `string`                                | –                  | Drive the trade from the buy side: the user receives exactly this amount and the sell amount is derived. Restricts routing to exact-output swappers. See [Exact Output and Locked Destinations](#exact-output-and-locked-destinations). |
+| `isBuyAmountLocked`      | `boolean`                                       | `false`            | Prevent the user from changing the buy amount. When an amount is supplied it also locks the buy asset, since a base-unit amount is meaningless without the asset it counts. |
+| `defaultReceiveAddress`  | `string`                                        | connected wallet   | Prefill the destination address.                                                                          |
+| `isReceiveAddressLocked` | `boolean`                                       | `false`            | Prevent the user from changing the destination address.                                                   |
 | `theme`                  | `ThemeMode \| ThemeConfig`                      | `"dark"`           | Theme mode (`"light"` or `"dark"`) or a full theme configuration object. See [Theming](#theming).        |
 | `defaultSlippage`        | `string`                                        | `"0.5"`            | Default slippage tolerance, as a percentage string.                                                      |
 | `showPoweredBy`          | `boolean`                                       | `true`             | Show the "Powered by ShapeShift" footer.                                                                  |
@@ -182,6 +187,133 @@ function App() {
   )
 }
 ```
+
+## Exact Output and Locked Destinations
+
+By default the user enters what they want to spend. These props invert that, and fix where the funds
+land — letting you configure the widget for one specific swap.
+
+### Fixed receive amount
+
+`defaultBuyAmountCryptoBaseUnit` drives the trade from the buy side. The user still chooses what to
+sell, but the sell amount comes back derived from whichever route they pick.
+
+```tsx
+<SwapWidget
+  walletConnectProjectId="..."
+  defaultBuyAsset={usdcOnBase}
+  defaultBuyAmountCryptoBaseUnit="500000" // 0.5 USDC, in base units
+  isBuyAmountLocked
+/>
+```
+
+On its own the amount is a **prefill**: both amount fields stay editable, and whichever one the user
+types into becomes the side that drives the trade — the other is then derived from the selected
+route. Add `isBuyAmountLocked` to fix the buy amount, which also makes the sell field read-only,
+since typing there would clear the amount you locked.
+
+Because a base-unit amount only means something alongside the asset it counts, `isBuyAmountLocked`
+locks the buy asset too, and changing the buy asset clears an unlocked buy amount.
+
+Only swappers that can honour an exact output are routed to — currently **NEAR Intents** and
+**Relay**. The rest report `ExactOutputNotSupported` and are left out of the rate list, so expect
+fewer routes than a normal swap, and none at all for pairs those two don't cover.
+
+Slippage applies to the **sell** side. The amount received is fixed; what varies is what it costs.
+
+### Fixed destination
+
+`defaultReceiveAddress` prefills the destination. Add `isReceiveAddressLocked` to stop the user
+changing it — the locked address then outranks both a user entry and the connected wallet's own
+address.
+
+| Props                          | Behaviour                                                 |
+| ------------------------------ | --------------------------------------------------------- |
+| `defaultReceiveAddress` only   | Prefilled, user can still edit it                          |
+| `isReceiveAddressLocked` only  | Locked to the connected wallet's address, no custom entry  |
+| Both                           | Locked to the address you supplied                         |
+
+### Payment mode
+
+Locking **both** the buy amount and the address — `defaultBuyAmountCryptoBaseUnit` with
+`isBuyAmountLocked`, plus `defaultReceiveAddress` with `isReceiveAddressLocked` — puts the widget in
+**payment mode**: a set amount, sent to an address you supplied.
+
+```tsx
+<SwapWidget
+  walletConnectProjectId="..."
+  defaultBuyAsset={usdcOnBase}
+  defaultBuyAmountCryptoBaseUnit="500000"
+  isBuyAmountLocked
+  defaultReceiveAddress="0x…"
+  isReceiveAddressLocked
+  onSwapSuccess={txHash => recordPayment(txHash)}
+/>
+```
+
+The success screen is then terminal — no "New Swap" button. Repeating a payment means paying twice,
+so whether there's another swap is your call rather than the widget's; use `onSwapSuccess` to decide
+what happens next.
+
+Locking only **one** of the two stays repeatable, and keeps the button: a set amount sent to the
+user's own wallet, or topping up a locked address again, are both things a user may reasonably do
+twice.
+`isBuyAssetLocked` never affects this — restricting swaps to a given token is just a configuration.
+
+### Redirects are disabled by either lock
+
+The app.shapeshift.com redirect carries neither the destination nor the buy amount, so following it
+would drop whichever constraint you set. Locking the buy amount **or** the receive address
+therefore disables it outright: `allowShapeshiftRedirect` has no effect, and
+sell assets on non-executable chains are filtered out of the picker rather than dead-ending.
+
+Note this is a wider condition than payment mode — locking either one is enough, because a single
+dropped constraint can send funds somewhere you didn't intend.
+
+### Configuration is read once
+
+Every `default*` prop is applied a single time, when the widget mounts — the same semantics as
+`defaultValue` on an `<input>`. After that the value belongs to the user, so changing the prop on an
+already mounted widget has no effect, and neither does resolving it asynchronously: if you fetch
+`Asset` objects, hold off rendering until you have them.
+
+**Locked values are the exception.** A locked value is yours rather than the user's, so it tracks its
+prop rather than seeding once — change `defaultBuyAmountCryptoBaseUnit` alongside `isBuyAmountLocked`,
+or `defaultReceiveAddress` alongside `isReceiveAddressLocked`, and the widget follows without a
+remount. A locked receive address tracks at any point in the flow; a locked buy amount tracks while
+the user is still on the input step, since changing it mid-quote would invalidate the quote. Change
+it before the user starts, or remount. `defaultBuyAsset` seeds once even when `isBuyAssetLocked`.
+
+To change anything else, or to start a fresh swap after a payment completes, **remount**.
+If the widget lives in a modal that unmounts its children while closed, that happens for free:
+
+```tsx
+{isOpen && <SwapWidget onSwapSuccess={() => setIsOpen(false)} {...config} />}
+```
+
+Inline — or in a modal that keeps its children mounted — bump a `key` instead:
+
+```tsx
+const [swapSession, setSwapSession] = useState(0)
+
+<SwapWidget
+  key={swapSession}
+  onSwapSuccess={txHash => {
+    recordSwap(txHash)
+    setSwapSession(n => n + 1)
+  }}
+  {...config}
+/>
+```
+
+Remounting is cheap: the wallet connection and the cached asset and balance data live above the
+widget's own state, so the user stays connected and nothing refetches.
+
+### Refunds
+
+If a swap can't be completed, the provider returns the funds to the **sending** address — the wallet
+the user swapped from — not to the receive address. A locked destination does not affect where a
+refund goes.
 
 ## Theming
 
@@ -522,5 +654,11 @@ revenue attribution works.
 - **Balances and USD prices.** When a wallet is connected, the widget shows balances and USD prices
   for the selected assets.
 - **Redirects.** Assets on non-executable chains (Cosmos, Zcash, Tron, Sui, TON, NEAR, Starknet)
-  send the user to app.shapeshift.com to finish the swap, unless `allowShapeshiftRedirect={false}`.
+  send the user to app.shapeshift.com to finish the swap, unless `allowShapeshiftRedirect={false}`
+  or the buy amount or receive address is locked (see
+  [Redirects are disabled by either lock](#redirects-are-disabled-by-either-lock)).
+- **Configuration is applied at mount.** Defaults and locked values are read once — remount the
+  widget to change them. See [Configuration is read once](#configuration-is-read-once).
+- **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction the user
+  signed on the sell chain. On cross-chain routes the destination transfer may still be in flight.
 - **Mobile responsive.** The widget is designed to work on mobile as well as desktop.

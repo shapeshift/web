@@ -7,6 +7,9 @@ export type SwapMachineContext = {
   buyAsset: Asset
   sellAmount: string
   sellAmountBaseUnit: string | undefined
+  // Set only in exact-output mode, where it drives quoting and the sell amount comes back derived
+  buyAmount: string
+  buyAmountBaseUnit: string | undefined
   isSellAmountFiat: boolean
   sellAmountFiat: string
   selectedRate: TradeRate | null
@@ -35,6 +38,7 @@ export type SwapMachineEvent =
       amountBaseUnit: string | undefined
       fiatValue: string
     }
+  | { type: 'SET_BUY_AMOUNT'; amount: string; amountBaseUnit: string | undefined }
   | { type: 'SET_SELL_FIAT_MODE'; isFiat: boolean }
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }

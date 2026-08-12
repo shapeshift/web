@@ -178,6 +178,27 @@
   color: var(--ssw-text-muted);
 }
 
+/* The derived side has nothing to show until a route prices it, so its placeholder breathes */
+.ssw-amount-input-pending::placeholder {
+  animation: ssw-placeholder-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ssw-placeholder-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ssw-amount-input-pending::placeholder {
+    animation: none;
+  }
+}
+
 .ssw-token-btn {
   display: flex;
   align-items: center;

@@ -169,6 +169,11 @@ export type SwapWidgetProps = {
   walletConnectProjectId?: string
   ratesRefetchInterval?: number
   isBuyAssetLocked?: boolean
+  // Drives the trade from the buy side, restricting routing to exact-output capable swappers
+  defaultBuyAmountCryptoBaseUnit?: string
+  isBuyAmountLocked?: boolean
+  defaultReceiveAddress?: string
+  isReceiveAddressLocked?: boolean
 }
 
 export type RatesResponse = {

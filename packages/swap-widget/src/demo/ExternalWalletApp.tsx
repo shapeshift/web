@@ -28,6 +28,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SwapWidget } from '../components/SwapWidget'
 import { truncateAddress } from '../types'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
+import { useIntegratorParams } from './useIntegratorParams'
 import { WidgetModal } from './WidgetModal'
 
 const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
@@ -92,6 +93,8 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
   const themeState = useDemoTheme(theme)
   const { themeConfig, partnerCode, demoStyle, displayMode } = themeState
 
+  const { isReady: areIntegratorAssetsReady, props: integratorProps } = useIntegratorParams()
+
   const handleSwapSuccess = useCallback((txHash: string) => {
     console.log('Swap successful:', txHash)
   }, [])
@@ -110,9 +113,10 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
         onSwapError={handleSwapError}
         showPoweredBy={true}
         showConnectButton={false}
+        {...integratorProps}
       />
     ),
-    [partnerCode, themeConfig, handleSwapSuccess, handleSwapError],
+    [partnerCode, themeConfig, handleSwapSuccess, handleSwapError, integratorProps],
   )
 
   return (
@@ -184,7 +188,11 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
                 displayMode === 'modal' ? ' demo-widget-container-modal' : ''
               }`}
             >
-              {displayMode === 'modal' ? <WidgetModal>{widget}</WidgetModal> : widget}
+              {!areIntegratorAssetsReady ? null : displayMode === 'modal' ? (
+                <WidgetModal>{widget}</WidgetModal>
+              ) : (
+                widget
+              )}
             </div>
           </div>
         </div>

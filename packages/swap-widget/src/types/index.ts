@@ -151,13 +151,11 @@ export type SwapWidgetFilters = {
   disabledAssetIds?: AssetId[]
 }
 
-// Locking a value only means something when there is one to lock, so the pairs travel together
 export type ReceiveAddressProps =
   | { defaultReceiveAddress: string; isReceiveAddressLocked?: boolean }
   | { defaultReceiveAddress?: never; isReceiveAddressLocked?: false }
 
 export type BuyAmountProps =
-  // Drives the trade from the buy side, restricting routing to exact-output capable swappers
   | { defaultBuyAmountCryptoBaseUnit: string; isBuyAmountLocked?: boolean }
   | { defaultBuyAmountCryptoBaseUnit?: never; isBuyAmountLocked?: false }
 

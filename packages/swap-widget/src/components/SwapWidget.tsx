@@ -344,8 +344,6 @@ const SwapWidgetCore = ({
     [customReceiveAddress, buyChainId],
   )
 
-  // A locked address outranks both the user's entry and the wallet's own - the funds are destined
-  // somewhere specific, so resolving to the wallet would send them to the wrong place
   const receiveAddress = useMemo(() => {
     if (isReceiveAddressLocked && defaultReceiveAddress) return defaultReceiveAddress
     return isCustomReceiveAddressValid ? customReceiveAddress : walletReceiveAddress
@@ -357,9 +355,6 @@ const SwapWidgetCore = ({
     walletReceiveAddress,
   ])
 
-  // A locked amount belongs to the integrator rather than the user, so unlike the defaults around it
-  // it tracks the prop instead of seeding once. Deps are primitives, so a re-render can't clear the
-  // quote on its own
   useEffect(() => {
     if (!isBuyAmountLocked) return
 
@@ -424,11 +419,7 @@ const SwapWidgetCore = ({
     ],
   )
 
-  // A locked buy amount sent to an address we were given is a payment, and repeating one is the
-  // host's call rather than ours. Locking only one of the two stays repeatable - a set amount to the
-  // user's own wallet, or topping up a locked address again
   const hasLockedBuyAmount = isBuyAmountLocked && !!defaultBuyAmountCryptoBaseUnit
-
   const isPayment = hasLockedBuyAmount && isReceiveAddressLocked && !!defaultReceiveAddress
 
   // The redirect carries neither the address nor the buy amount, so locking either rules it out

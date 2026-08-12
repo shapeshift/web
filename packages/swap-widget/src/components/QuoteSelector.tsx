@@ -77,7 +77,6 @@ export const QuoteSelector = ({
   const swapperIcon = getSwapperIcon(displayRate.swapperName)
   const swapperColor = getSwapperColor(displayRate.swapperName)
 
-  // Exact output makes every route buy the same amount, so the sell side is what distinguishes them
   const varyingAsset = isExactOutput ? sellAsset : buyAsset
   const amountBaseUnit = getRateAmountBaseUnit(displayRate, isExactOutput)
   const formattedAmount = formatAmount(amountBaseUnit, varyingAsset.precision)

@@ -2,8 +2,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 
 import type { TradeRate } from '../types'
 
-// Exact output fixes what the user receives, so routes differ only in what they cost. The amount a
-// route is judged on - and sorted and compared by - moves to the sell side with it
+// Every exact-output route buys the same amount, so the sell side is what tells them apart
 export const getRateAmountBaseUnit = (rate: TradeRate, isExactOutput: boolean): string =>
   (isExactOutput ? rate.sellAmountCryptoBaseUnit : rate.buyAmountCryptoBaseUnit) ?? '0'
 

@@ -62,7 +62,7 @@ export const InputStep = ({
     ? context.buyAmountBaseUnit
     : context.sellAmountBaseUnit
 
-  const isSellAmountLocked = displayValues.isExactOutput && isBuyAmountLocked
+  const isSellAmountReadOnly = displayValues.isExactOutput && isBuyAmountLocked
   const isSellAmountPending = displayValues.isExactOutput && displayValues.isLoadingRates
   const isBuyAmountPending = !displayValues.isExactOutput && displayValues.isLoadingRates
 
@@ -71,17 +71,17 @@ export const InputStep = ({
     : ''
 
   const sellAmountValue = (() => {
-    if (!displayValues.isExactOutput)
+    if (!displayValues.isExactOutput) {
       return context.isSellAmountFiat ? context.sellAmountFiat : context.sellAmount
+    }
+
     if (!context.isSellAmountFiat) return sellAmountCrypto
 
-    return displayValues.sellAssetUsdPrice
-      ? cryptoToFiat(
-          displayValues.sellAmountBaseUnit,
-          displayValues.sellAssetUsdPrice,
-          context.sellAsset.precision,
-        )
-      : ''
+    return cryptoToFiat(
+      displayValues.sellAmountBaseUnit,
+      displayValues.sellAssetUsdPrice ?? '',
+      context.sellAsset.precision,
+    )
   })()
 
   const { text: buttonText, disabled: isButtonDisabled } = useMemo((): {
@@ -95,13 +95,16 @@ export const InputStep = ({
 
     if (!sendAddress) return { text: 'Connect Wallet', disabled: false }
     if (!receiveAddress) return { text: 'Enter receive address', disabled: true }
+
     const drivingAmount = displayValues.isExactOutput
       ? context.buyAmountBaseUnit
       : context.sellAmount
+
     if (!drivingAmount || drivingAmount === '0') return { text: 'Enter an amount', disabled: true }
     if (displayValues.isLoadingRates) return { text: 'Finding rates...', disabled: true }
     if (displayValues.ratesError) return { text: 'No routes available', disabled: true }
     if (!displayValues.rates?.length) return { text: 'No routes found', disabled: true }
+
     return { text: 'Swap', disabled: false }
   }, [
     isUnsupportedChain,
@@ -128,14 +131,12 @@ export const InputStep = ({
             {context.isSellAmountFiat && <span className='ssw-fiat-prefix'>$</span>}
             <input
               type='text'
-              className={`ssw-amount-input${isSellAmountLocked ? ' ssw-amount-input-locked' : ''}${
-                isSellAmountPending ? ' ssw-amount-input-pending' : ''
-              }`}
+              className={`ssw-amount-input${
+                isSellAmountReadOnly ? ' ssw-amount-input-locked' : ''
+              }${isSellAmountPending ? ' ssw-amount-input-pending' : ''}`}
               placeholder={isSellAmountPending ? '...' : '0'}
-              // Shows the route's input until the user types, which hands the trade back to this side
               value={sellAmountValue}
-              // Typing would clear the locked buy amount, so the derived figure is all there is
-              readOnly={isSellAmountLocked}
+              readOnly={isSellAmountReadOnly}
               onChange={e => {
                 const raw = e.target.value.replace(/[^0-9.]/g, '')
                 const parts = raw.split('.')

@@ -355,6 +355,7 @@ const SwapWidgetCore = ({
     walletReceiveAddress,
   ])
 
+  // Unlike the initial sync below, a locked amount keeps tracking its prop
   useEffect(() => {
     if (!isBuyAmountLocked) return
 

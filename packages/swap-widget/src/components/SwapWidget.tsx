@@ -298,7 +298,10 @@ const SwapWidgetCore = ({
   const bitcoin = useBitcoinSigning()
   const solana = useSolanaSigning()
 
-  const [customReceiveAddress, setCustomReceiveAddress] = useState<string>('')
+  // Seeded so an unlocked default prefills the field the user can then edit
+  const [customReceiveAddress, setCustomReceiveAddress] = useState<string>(
+    defaultReceiveAddress ?? '',
+  )
 
   const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)
   const buyChainId = SwapMachineCtx.useSelector(s => s.context.buyAsset.chainId)

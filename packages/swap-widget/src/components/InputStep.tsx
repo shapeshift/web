@@ -70,6 +70,13 @@ export const InputStep = ({
     ? formatAmount(displayValues.sellAmountBaseUnit, context.sellAsset.precision, 6)
     : ''
 
+  const buyAmountValue = (() => {
+    if (displayValues.isExactOutput) return context.buyAmount
+    if (!displayValues.buyAmount) return ''
+
+    return formatAmount(displayValues.buyAmount, context.buyAsset.precision)
+  })()
+
   const sellAmountValue = (() => {
     if (!displayValues.isExactOutput) {
       return context.isSellAmountFiat ? context.sellAmountFiat : context.sellAmount
@@ -257,14 +264,7 @@ export const InputStep = ({
                 isBuyAmountPending ? ' ssw-amount-input-pending' : ''
               }`}
               placeholder={isBuyAmountPending ? '...' : '0'}
-              // Falls back to the route's output whenever the user isn't driving the buy side
-              value={
-                displayValues.isExactOutput
-                  ? context.buyAmount
-                  : displayValues.buyAmount
-                  ? formatAmount(displayValues.buyAmount, context.buyAsset.precision)
-                  : ''
-              }
+              value={buyAmountValue}
               readOnly={isBuyAmountLocked}
               onChange={e => {
                 const raw = e.target.value.replace(/[^0-9.]/g, '')

@@ -66,18 +66,27 @@ export const InputStep = ({
   const isSellAmountPending = displayValues.isExactOutput && displayValues.isLoadingRates
   const isBuyAmountPending = !displayValues.isExactOutput && displayValues.isLoadingRates
 
-  const sellAmountCrypto = displayValues.sellAmountBaseUnit
-    ? formatAmount(displayValues.sellAmountBaseUnit, context.sellAsset.precision, 6)
-    : ''
+  const sellAmountCrypto = useMemo(
+    () =>
+      displayValues.sellAmountBaseUnit
+        ? formatAmount(displayValues.sellAmountBaseUnit, context.sellAsset.precision, 6)
+        : '',
+    [displayValues.sellAmountBaseUnit, context.sellAsset.precision],
+  )
 
-  const buyAmountValue = (() => {
+  const buyAmountValue = useMemo(() => {
     if (displayValues.isExactOutput) return context.buyAmount
     if (!displayValues.buyAmount) return ''
 
     return formatAmount(displayValues.buyAmount, context.buyAsset.precision)
-  })()
+  }, [
+    displayValues.isExactOutput,
+    displayValues.buyAmount,
+    context.buyAmount,
+    context.buyAsset.precision,
+  ])
 
-  const sellAmountValue = (() => {
+  const sellAmountValue = useMemo(() => {
     if (!displayValues.isExactOutput) {
       return context.isSellAmountFiat ? context.sellAmountFiat : context.sellAmount
     }
@@ -89,7 +98,16 @@ export const InputStep = ({
       displayValues.sellAssetUsdPrice ?? '',
       context.sellAsset.precision,
     )
-  })()
+  }, [
+    displayValues.isExactOutput,
+    displayValues.sellAmountBaseUnit,
+    displayValues.sellAssetUsdPrice,
+    context.isSellAmountFiat,
+    context.sellAmountFiat,
+    context.sellAmount,
+    context.sellAsset.precision,
+    sellAmountCrypto,
+  ])
 
   const { text: buttonText, disabled: isButtonDisabled } = useMemo((): {
     text: string

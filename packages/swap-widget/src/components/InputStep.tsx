@@ -60,7 +60,7 @@ export const InputStep = ({
     sellBalanceFiatValue,
     buyBalanceFiatValue,
     isExactOutput,
-    effectiveSellAmountBaseUnit,
+    sellAmountBaseUnit,
   } = displayValues
 
   const {
@@ -78,7 +78,7 @@ export const InputStep = ({
     buyAsset,
     selectedRate,
     sellAmount,
-    sellAmountBaseUnit,
+    sellAmountBaseUnit: enteredSellAmountBaseUnit,
     isSellAmountFiat,
     sellAmountFiat,
     isSellAssetEvm,
@@ -94,7 +94,7 @@ export const InputStep = ({
 
   const isUnsupportedChain = !isSellAssetEvm && !isSellAssetUtxo && !isSellAssetSolana
 
-  const drivingAmountBaseUnit = isExactOutput ? buyAmountBaseUnit : sellAmountBaseUnit
+  const drivingAmountBaseUnit = isExactOutput ? buyAmountBaseUnit : enteredSellAmountBaseUnit
 
   // A locked buy amount is the only thing that takes the sell side out of the user's hands
   const isSellAmountReadOnly = isExactOutput && isBuyAmountLocked
@@ -105,8 +105,8 @@ export const InputStep = ({
 
   // The sell side reads the same either way - the user's entry, or the route's input once the buy
   // side is driving. The fiat toggle picks the unit for both
-  const sellAmountCrypto = effectiveSellAmountBaseUnit
-    ? formatAmount(effectiveSellAmountBaseUnit, sellAsset.precision, 6)
+  const sellAmountCrypto = sellAmountBaseUnit
+    ? formatAmount(sellAmountBaseUnit, sellAsset.precision, 6)
     : ''
 
   const sellAmountValue = (() => {
@@ -114,7 +114,7 @@ export const InputStep = ({
     if (!isSellAmountFiat) return sellAmountCrypto
 
     return sellAssetUsdPrice
-      ? cryptoToFiat(effectiveSellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
+      ? cryptoToFiat(sellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
       : ''
   })()
 
@@ -361,7 +361,7 @@ export const InputStep = ({
               onSelectRate={onSelectRate}
               buyAsset={buyAsset}
               sellAsset={sellAsset}
-              sellAmountBaseUnit={effectiveSellAmountBaseUnit ?? '0'}
+              sellAmountBaseUnit={sellAmountBaseUnit ?? '0'}
               buyAmountBaseUnit={buyAmountBaseUnit ?? '0'}
               isExactOutput={isExactOutput}
               isLoading={isLoadingRates}

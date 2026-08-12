@@ -322,8 +322,9 @@ const [swapSession, setSwapSession] = useState(0)
 />
 ```
 
-Remounting is cheap: the wallet connection and the cached asset and balance data live above the
-widget's own state, so the user stays connected and nothing refetches.
+Remounting is cheap. The AppKit instance and the React Query cache are module-level singletons
+rather than widget state, so the user stays connected and asset and balance data isn't refetched —
+only the swap itself resets.
 
 ### Refunds
 
@@ -673,8 +674,9 @@ revenue attribution works.
   send the user to app.shapeshift.com to finish the swap, unless `allowShapeshiftRedirect={false}`
   or the buy amount or receive address is locked (see
   [Redirects are disabled by either lock](#redirects-are-disabled-by-either-lock)).
-- **Configuration is applied at mount.** Defaults and locked values are read once — remount the
-  widget to change them. See [Configuration is read once](#configuration-is-read-once).
+- **Configuration is applied at mount.** `default*` props are read once; locked values keep
+  tracking their prop. Remount to change anything else, or to start a fresh swap. See
+  [Configuration is read once](#configuration-is-read-once).
 - **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction the user
   signed on the sell chain. On cross-chain routes the destination transfer may still be in flight.
 - **Mobile responsive.** The widget is designed to work on mobile as well as desktop.

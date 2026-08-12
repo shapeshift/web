@@ -207,9 +207,9 @@ sell, but the sell amount comes back derived from whichever route they pick.
 />
 ```
 
-On its own the amount is a **prefill**: both amount fields stay editable, and whichever one the user
-types into becomes the side that drives the trade — the other is then derived from the selected
-route. Add `isBuyAmountLocked` to fix the buy amount, which also makes the sell field read-only,
+Without `isBuyAmountLocked` the amount is only a **prefill**: both fields stay editable, and
+whichever one the user types into becomes the side that drives the trade — the other is then derived
+from the selected route. Adding the lock fixes the buy amount, and makes the sell field read-only,
 since typing there would clear the amount you locked.
 
 Because a base-unit amount only means something alongside the asset it counts, `isBuyAmountLocked`
@@ -280,13 +280,16 @@ twice.
 
 The app.shapeshift.com redirect carries neither the destination nor the buy amount, so following it
 would drop whichever constraint you set. Locking the buy amount **or** the receive address
-therefore disables it outright: `allowShapeshiftRedirect` has no effect, and
-sell assets on non-executable chains are filtered out of the picker rather than dead-ending.
+therefore disables it outright: `allowShapeshiftRedirect` has no effect, and assets on
+non-executable chains drop out of the asset pickers rather than dead-ending. The pickers share that
+filter, so Cosmos-SDK assets go from the **buy** side too, even though a swap into them works — only
+the sell side needs a signature. The remaining redirect-only chains lose nothing: the widget has no
+address validator for them, so they were never usable as a destination.
 
 Note this is a wider condition than payment mode — locking either one is enough, because a single
 dropped constraint can send funds somewhere you didn't intend.
 
-### Configuration is read once
+### Configuration is applied at mount
 
 Every `default*` prop is applied a single time, when the widget mounts — the same semantics as
 `defaultValue` on an `<input>`. After that the value belongs to the user, so changing the prop on an
@@ -296,9 +299,9 @@ already mounted widget has no effect, and neither does resolving it asynchronous
 **Locked values are the exception.** A locked value is yours rather than the user's, so it tracks its
 prop rather than seeding once — change `defaultBuyAmountCryptoBaseUnit` alongside `isBuyAmountLocked`,
 or `defaultReceiveAddress` alongside `isReceiveAddressLocked`, and the widget follows without a
-remount. A locked receive address tracks at any point in the flow; a locked buy amount tracks while
-the user is still on the input step, since changing it mid-quote would invalidate the quote. Change
-it before the user starts, or remount. `defaultBuyAsset` seeds once even when `isBuyAssetLocked`.
+remount. Both apply while the user is on the input step. Once they've asked for a quote a change may
+not land at all — that quote carries the amount and address it was built with — so change them
+before the user starts, or remount. `defaultBuyAsset` seeds once even when `isBuyAssetLocked`.
 
 To change anything else, or to start a fresh swap after a payment completes, **remount**.
 If the widget lives in a modal that unmounts its children while closed, that happens for free:
@@ -452,8 +455,10 @@ end in a specific token.
 import type {
   Asset,
   AssetId,
+  BuyAmountProps,
   Chain,
   ChainId,
+  ReceiveAddressProps,
   SwapWidgetFilters,
   SwapWidgetProps,
   ThemeConfig,
@@ -676,7 +681,7 @@ revenue attribution works.
   [Redirects are disabled by either lock](#redirects-are-disabled-by-either-lock)).
 - **Configuration is applied at mount.** `default*` props are read once; locked values keep
   tracking their prop. Remount to change anything else, or to start a fresh swap. See
-  [Configuration is read once](#configuration-is-read-once).
+  [Configuration is applied at mount](#configuration-is-applied-at-mount).
 - **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction the user
   signed on the sell chain. On cross-chain routes the destination transfer may still be in flight.
 - **Mobile responsive.** The widget is designed to work on mobile as well as desktop.

@@ -19,7 +19,7 @@ import { useSwapHandlers } from '../hooks/useSwapHandlers'
 import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
-import { formatAmount, getChainType } from '../types'
+import { formatAmountForInput, getChainType } from '../types'
 import { validateAddress } from '../utils/addressValidation'
 import { ApprovalStep } from './ApprovalStep'
 import { ExecutionStep } from './ExecutionStep'
@@ -365,7 +365,7 @@ const SwapWidgetCore = ({
     actorRef.send({
       type: 'SET_BUY_AMOUNT',
       amount: defaultBuyAmountCryptoBaseUnit
-        ? formatAmount(defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision)
+        ? formatAmountForInput(defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision)
         : '',
       amountBaseUnit: defaultBuyAmountCryptoBaseUnit,
     })
@@ -381,7 +381,7 @@ const SwapWidgetCore = ({
     actorRef.send({
       type: 'SET_BUY_AMOUNT',
       amount: defaultBuyAmountCryptoBaseUnit
-        ? formatAmount(defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision)
+        ? formatAmountForInput(defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision)
         : '',
       amountBaseUnit: defaultBuyAmountCryptoBaseUnit,
     })

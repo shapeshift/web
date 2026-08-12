@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createActor } from 'xstate'
 
 import type { Asset, QuoteResponse, TradeRate } from '../../types'
+import { formatAmountForInput } from '../../types'
 import { createInitialContext, swapMachine } from '../swapMachine'
 
 const TEST_ETH: Asset = {
@@ -278,6 +279,22 @@ describe('swapMachine', () => {
       expect(ctx.buyAmount).toBe('0.5')
       // 0.5 at BTC's 8 decimals, not USDC's 6
       expect(ctx.buyAmountBaseUnit).toBe('50000000')
+      actor.stop()
+    })
+
+    // A seeded amount is re-parsed on a buy asset change, so a display-formatted one would zero out
+    it('SET_BUY_ASSET recalculates a seeded amount large enough to carry separators', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_BUY_AMOUNT',
+        amount: formatAmountForInput('1234500000', 6),
+        amountBaseUnit: '1234500000',
+      })
+      actor.send({ type: 'SET_BUY_ASSET', asset: TEST_BTC })
+
+      // 1234.5 at BTC's 8 decimals
+      expect(actor.getSnapshot().context.buyAmountBaseUnit).toBe('123450000000')
       actor.stop()
     })
 

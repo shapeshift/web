@@ -354,6 +354,10 @@ export const formatAmount = (amount: string, decimals: number, maxDecimals?: num
   })
 }
 
+// Ungrouped and unrounded, unlike formatAmount - an input's value is parsed back into base units
+export const formatAmountForInput = (amount: string, decimals: number): string =>
+  BigAmount.fromBaseUnit({ value: amount, precision: decimals }).toPrecision()
+
 export const parseAmount = (amount: string, decimals: number): string => {
   return BigAmount.fromPrecision({ value: amount, precision: decimals }).toBaseUnit()
 }

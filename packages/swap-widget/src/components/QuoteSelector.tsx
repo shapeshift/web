@@ -77,12 +77,12 @@ export const QuoteSelector = ({
   const swapperIcon = getSwapperIcon(displayRate.swapperName)
   const swapperColor = getSwapperColor(displayRate.swapperName)
 
-  const varyingAsset = isExactOutput ? sellAsset : buyAsset
+  const asset = isExactOutput ? sellAsset : buyAsset
   const amountBaseUnit = getRateAmountBaseUnit(displayRate, isExactOutput)
-  const formattedAmount = formatAmount(amountBaseUnit, varyingAsset.precision)
+  const formattedAmount = formatAmount(amountBaseUnit, asset.precision)
   const usdValue = formatUsdValue(
     amountBaseUnit,
-    varyingAsset.precision,
+    asset.precision,
     isExactOutput ? sellAssetUsdPrice : buyAssetUsdPrice,
   )
 
@@ -114,7 +114,7 @@ export const QuoteSelector = ({
         <div className='ssw-quote-right'>
           <div className='ssw-quote-amount-row'>
             <span className='ssw-quote-amount'>{formattedAmount}</span>
-            <span className='ssw-quote-symbol'>{varyingAsset.symbol}</span>
+            <span className='ssw-quote-symbol'>{asset.symbol}</span>
           </div>
           {alternativeRatesCount > 0 && (
             <span className='ssw-quote-more'>

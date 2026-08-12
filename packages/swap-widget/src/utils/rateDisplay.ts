@@ -17,8 +17,8 @@ export const sortRatesByValue = (rates: TradeRate[], isExactOutput: boolean): Tr
       return isExactOutput ? aAmount.minus(bAmount).toNumber() : bAmount.minus(aAmount).toNumber()
     })
 
-// How much worse than the best route this one is, or null when the gap is within noise
-export const getRatePenaltyPercent = (
+// How much worse than the best route this one is - costing more, or delivering less
+export const getRateDiffPercent = (
   bestAmountBaseUnit: string,
   amountBaseUnit: string,
   isExactOutput: boolean,
@@ -27,7 +27,6 @@ export const getRatePenaltyPercent = (
   const current = bnOrZero(amountBaseUnit)
   if (best.isZero()) return null
 
-  // Paying more is the penalty on exact output, receiving less is the penalty otherwise
   const diff = isExactOutput
     ? current.minus(best).div(best).times(100)
     : best.minus(current).div(best).times(100)

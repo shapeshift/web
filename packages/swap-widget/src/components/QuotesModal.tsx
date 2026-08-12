@@ -6,7 +6,7 @@ import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
 import { formatUsdValue } from '../hooks/useMarketData'
 import type { Asset, TradeRate } from '../types'
 import { formatAmount } from '../types'
-import { getRateAmountBaseUnit, getRatePenaltyPercent, sortRatesByValue } from '../utils/rateDisplay'
+import { getRateAmountBaseUnit, getRateDiffPercent, sortRatesByValue } from '../utils/rateDisplay'
 
 const useLockBodyScroll = (isLocked: boolean) => {
   useEffect(() => {
@@ -67,17 +67,13 @@ export const QuotesModal = ({
     [onSelectRate, onClose],
   )
 
-  const sortedRates = useMemo(
-    () => sortRatesByValue(rates, isExactOutput),
-    [rates, isExactOutput],
-  )
+  const sortedRates = useMemo(() => sortRatesByValue(rates, isExactOutput), [rates, isExactOutput])
 
   const bestRate = useMemo(() => sortedRates[0], [sortedRates])
   const bestAmountBaseUnit = bestRate ? getRateAmountBaseUnit(bestRate, isExactOutput) : '0'
 
-  // The side that varies is the one worth showing per route
-  const varyingAsset = isExactOutput ? sellAsset : buyAsset
-  const varyingUsdPrice = isExactOutput ? sellAssetUsdPrice : buyAssetUsdPrice
+  const asset = isExactOutput ? sellAsset : buyAsset
+  const usdPrice = isExactOutput ? sellAssetUsdPrice : buyAssetUsdPrice
 
   if (!isOpen) return null
 
@@ -133,11 +129,11 @@ export const QuotesModal = ({
             const isSelected = selectedRate?.id === rate.id
             const swapperIcon = getSwapperIcon(rate.swapperName)
             const swapperColor = getSwapperColor(rate.swapperName)
-            const formattedAmount = formatAmount(amountBaseUnit, varyingAsset.precision)
-            const usdValue = formatUsdValue(amountBaseUnit, varyingAsset.precision, varyingUsdPrice)
-            const penaltyPercent = isBest
+            const formattedAmount = formatAmount(amountBaseUnit, asset.precision)
+            const usdValue = formatUsdValue(amountBaseUnit, asset.precision, usdPrice)
+            const diffPercent = isBest
               ? null
-              : getRatePenaltyPercent(bestAmountBaseUnit, amountBaseUnit, isExactOutput)
+              : getRateDiffPercent(bestAmountBaseUnit, amountBaseUnit, isExactOutput)
             const estimatedSeconds = estimatedTime ? Math.round(estimatedTime / 1000) : 0
             const hasTime = estimatedSeconds > 0
 
@@ -165,10 +161,10 @@ export const QuotesModal = ({
                     <div className='ssw-quote-row-name-row'>
                       <span className='ssw-quote-row-name'>{rate.swapperName}</span>
                       {isBest && <span className='ssw-quote-row-best'>Best</span>}
-                      {penaltyPercent && (
+                      {diffPercent && (
                         <span className='ssw-quote-row-diff'>
                           {isExactOutput ? '+' : '-'}
-                          {penaltyPercent}%
+                          {diffPercent}%
                         </span>
                       )}
                     </div>
@@ -178,8 +174,7 @@ export const QuotesModal = ({
 
                 <div className='ssw-quote-row-right'>
                   <span className='ssw-quote-row-amount'>
-                    {formattedAmount}{' '}
-                    <span className='ssw-quote-row-symbol'>{varyingAsset.symbol}</span>
+                    {formattedAmount} <span className='ssw-quote-row-symbol'>{asset.symbol}</span>
                   </span>
                   <span className='ssw-quote-row-usd'>{usdValue}</span>
                 </div>

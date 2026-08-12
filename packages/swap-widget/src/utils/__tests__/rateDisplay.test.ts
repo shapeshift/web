@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { TradeRate } from '../../types'
 import { SwapperName } from '../../types'
-import { getRateAmountBaseUnit, getRatePenaltyPercent, sortRatesByValue } from '../rateDisplay'
+import { getRateAmountBaseUnit, getRateDiffPercent, sortRatesByValue } from '../rateDisplay'
 
 const makeRate = (overrides: Partial<TradeRate>): TradeRate => ({
   swapperName: SwapperName.NearIntents,
@@ -51,26 +51,26 @@ describe('rateDisplay', () => {
     })
   })
 
-  describe('getRatePenaltyPercent', () => {
-    // Paying 0.23% more for the same output is the exact-output penalty the old buy-side maths missed
+  describe('getRateDiffPercent', () => {
+    // The 0.23% the old buy-side maths could never surface, since every route buys the same
     it('measures how much more a route costs on exact output', () => {
-      expect(getRatePenaltyPercent('64265399', '64412212', true)).toBe('0.23')
+      expect(getRateDiffPercent('64265399', '64412212', true)).toBe('0.23')
     })
 
     it('measures how much less a route delivers otherwise', () => {
-      expect(getRatePenaltyPercent('100000', '90000', false)).toBe('10.00')
+      expect(getRateDiffPercent('100000', '90000', false)).toBe('10.00')
     })
 
     it('shows a gap the format can express', () => {
-      expect(getRatePenaltyPercent('100000', '100050', true)).toBe('0.05')
+      expect(getRateDiffPercent('100000', '100050', true)).toBe('0.05')
     })
 
     it('ignores gaps too small to render', () => {
-      expect(getRatePenaltyPercent('100000', '100005', true)).toBeNull()
+      expect(getRateDiffPercent('100000', '100005', true)).toBeNull()
     })
 
     it('returns null when there is no best amount to compare against', () => {
-      expect(getRatePenaltyPercent('0', '100000', true)).toBeNull()
+      expect(getRateDiffPercent('0', '100000', true)).toBeNull()
     })
   })
 })

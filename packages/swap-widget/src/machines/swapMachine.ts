@@ -98,15 +98,16 @@ export const swapMachine = setup({
         quote: null,
       }
     }),
-    assignBuyAsset: assign(({ event }) => {
+    assignBuyAsset: assign(({ context, event }) => {
       const { asset } = event as { type: 'SET_BUY_ASSET'; asset: Asset }
       const buyChainType = getChainType(asset.chainId)
       return {
         buyAsset: asset,
         isBuyAssetEvm: buyChainType === 'evm',
-        // Precision moves with the asset, so a buy amount can't carry across
-        buyAmount: '',
-        buyAmountBaseUnit: undefined,
+        buyAmount: context.buyAmount,
+        buyAmountBaseUnit: context.buyAmount
+          ? parseAmount(context.buyAmount, asset.precision)
+          : undefined,
         selectedRate: null,
         quote: null,
       }
@@ -174,8 +175,6 @@ export const swapMachine = setup({
         amount: string
         amountBaseUnit: string | undefined
       }
-      // Only one side drives the trade, so taking the buy side retires whatever was on the sell side,
-      // fiat entry mode included - the sell field reads as crypto once it's showing a derived amount
       return {
         buyAmount: amount,
         buyAmountBaseUnit: amountBaseUnit,

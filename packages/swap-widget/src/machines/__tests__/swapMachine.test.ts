@@ -266,8 +266,8 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
-    // Base units mean nothing without the precision they were counted in
-    it('SET_BUY_ASSET clears the buy amount', () => {
+    // Base units mean nothing without the precision they were counted in, but the entered amount does
+    it('SET_BUY_ASSET keeps the buy amount and recalculates its base units', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
@@ -275,8 +275,9 @@ describe('swapMachine', () => {
 
       const ctx = actor.getSnapshot().context
       expect(ctx.buyAsset.symbol).toBe('BTC')
-      expect(ctx.buyAmount).toBe('')
-      expect(ctx.buyAmountBaseUnit).toBeUndefined()
+      expect(ctx.buyAmount).toBe('0.5')
+      // 0.5 at BTC's 8 decimals, not USDC's 6
+      expect(ctx.buyAmountBaseUnit).toBe('50000000')
       actor.stop()
     })
 

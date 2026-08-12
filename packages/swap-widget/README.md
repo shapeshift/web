@@ -213,7 +213,8 @@ route. Add `isBuyAmountLocked` to fix the buy amount, which also makes the sell 
 since typing there would clear the amount you locked.
 
 Because a base-unit amount only means something alongside the asset it counts, `isBuyAmountLocked`
-locks the buy asset too, and changing the buy asset clears an unlocked buy amount.
+locks the buy asset too. Changing an unlocked buy asset keeps the entered amount and recalculates its
+base units at the new precision, matching how the sell side already behaves.
 
 Only swappers that can honour an exact output are routed to — currently **NEAR Intents** and
 **Relay**. The rest report `ExactOutputNotSupported` and are left out of the rate list, so expect

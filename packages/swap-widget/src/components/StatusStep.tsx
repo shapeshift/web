@@ -19,7 +19,6 @@ const ExplorerLink = ({ url }: { url: string }) => (
 )
 
 type StatusStepProps = {
-  // A locked buy amount sent to a locked address - repeating it isn't ours to offer
   isPayment: boolean
 }
 

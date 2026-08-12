@@ -42,28 +42,6 @@ export const InputStep = ({
   const isQuoting = SwapMachineCtx.useSelector(s => s.matches('quoting'))
 
   const {
-    rates,
-    isLoadingRates,
-    ratesError,
-    sellAssetBalance,
-    buyAssetBalance,
-    isSellBalanceLoading,
-    isBuyBalanceLoading,
-    sellUsdValue,
-    sellAssetUsdPrice,
-    buyUsdValue,
-    sellChainInfo,
-    buyChainInfo,
-    buyAmount,
-    buyAssetUsdPrice,
-    networkFeeDisplay,
-    sellBalanceFiatValue,
-    buyBalanceFiatValue,
-    isExactOutput,
-    sellAmountBaseUnit,
-  } = displayValues
-
-  const {
     sendAddress,
     receiveAddress,
     isReceiveAddressResolving,
@@ -73,47 +51,36 @@ export const InputStep = ({
     solana,
   } = useSwapWallet()
 
-  const {
-    sellAsset,
-    buyAsset,
-    selectedRate,
-    sellAmount,
-    isSellAmountFiat,
-    sellAmountFiat,
-    isSellAssetEvm,
-    isSellAssetUtxo,
-    isSellAssetSolana,
-    buyAmount: buyAmountInput,
-    buyAmountBaseUnit,
-  } = context
-
-  const buyChainId = buyAsset.chainId
+  const buyChainId = context.buyAsset.chainId
   const hasAnyWalletAddress = !!evm.address || !!bitcoin.address || !!solana.address
   const hasActiveWallet = !!receiveAddress || hasAnyWalletAddress || isReceiveAddressResolving
 
-  const isUnsupportedChain = !isSellAssetEvm && !isSellAssetUtxo && !isSellAssetSolana
+  const isUnsupportedChain =
+    !context.isSellAssetEvm && !context.isSellAssetUtxo && !context.isSellAssetSolana
 
-  const drivingAmountBaseUnit = isExactOutput ? buyAmountBaseUnit : context.sellAmountBaseUnit
+  const amountBaseUnit = displayValues.isExactOutput
+    ? context.buyAmountBaseUnit
+    : context.sellAmountBaseUnit
 
-  // A locked buy amount is the only thing that takes the sell side out of the user's hands
-  const isSellAmountReadOnly = isExactOutput && isBuyAmountLocked
+  const isSellAmountLocked = displayValues.isExactOutput && isBuyAmountLocked
+  const isSellAmountPending = displayValues.isExactOutput && displayValues.isLoadingRates
+  const isBuyAmountPending = !displayValues.isExactOutput && displayValues.isLoadingRates
 
-  // Whichever side is derived has nothing to show until a route prices it
-  const isSellAmountPending = isExactOutput && isLoadingRates
-  const isBuyAmountPending = !isExactOutput && isLoadingRates
-
-  // The sell side reads the same either way - the user's entry, or the route's input once the buy
-  // side is driving. The fiat toggle picks the unit for both
-  const sellAmountCrypto = sellAmountBaseUnit
-    ? formatAmount(sellAmountBaseUnit, sellAsset.precision, 6)
+  const sellAmountCrypto = displayValues.sellAmountBaseUnit
+    ? formatAmount(displayValues.sellAmountBaseUnit, context.sellAsset.precision, 6)
     : ''
 
   const sellAmountValue = (() => {
-    if (!isExactOutput) return isSellAmountFiat ? sellAmountFiat : sellAmount
-    if (!isSellAmountFiat) return sellAmountCrypto
+    if (!displayValues.isExactOutput)
+      return context.isSellAmountFiat ? context.sellAmountFiat : context.sellAmount
+    if (!context.isSellAmountFiat) return sellAmountCrypto
 
-    return sellAssetUsdPrice
-      ? cryptoToFiat(sellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
+    return displayValues.sellAssetUsdPrice
+      ? cryptoToFiat(
+          displayValues.sellAmountBaseUnit,
+          displayValues.sellAssetUsdPrice,
+          context.sellAsset.precision,
+        )
       : ''
   })()
 
@@ -128,23 +95,25 @@ export const InputStep = ({
 
     if (!sendAddress) return { text: 'Connect Wallet', disabled: false }
     if (!receiveAddress) return { text: 'Enter receive address', disabled: true }
-    const drivingAmount = isExactOutput ? buyAmountBaseUnit : sellAmount
+    const drivingAmount = displayValues.isExactOutput
+      ? context.buyAmountBaseUnit
+      : context.sellAmount
     if (!drivingAmount || drivingAmount === '0') return { text: 'Enter an amount', disabled: true }
-    if (isLoadingRates) return { text: 'Finding rates...', disabled: true }
-    if (ratesError) return { text: 'No routes available', disabled: true }
-    if (!rates?.length) return { text: 'No routes found', disabled: true }
+    if (displayValues.isLoadingRates) return { text: 'Finding rates...', disabled: true }
+    if (displayValues.ratesError) return { text: 'No routes available', disabled: true }
+    if (!displayValues.rates?.length) return { text: 'No routes found', disabled: true }
     return { text: 'Swap', disabled: false }
   }, [
     isUnsupportedChain,
     allowShapeshiftRedirect,
     sendAddress,
     receiveAddress,
-    sellAmount,
-    isExactOutput,
-    buyAmountBaseUnit,
-    isLoadingRates,
-    ratesError,
-    rates,
+    context.sellAmount,
+    displayValues.isExactOutput,
+    context.buyAmountBaseUnit,
+    displayValues.isLoadingRates,
+    displayValues.ratesError,
+    displayValues.rates,
   ])
 
   return (
@@ -156,22 +125,22 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-input-row'>
-            {isSellAmountFiat && <span className='ssw-fiat-prefix'>$</span>}
+            {context.isSellAmountFiat && <span className='ssw-fiat-prefix'>$</span>}
             <input
               type='text'
-              className={`ssw-amount-input${isSellAmountReadOnly ? ' ssw-amount-input-locked' : ''}${
+              className={`ssw-amount-input${isSellAmountLocked ? ' ssw-amount-input-locked' : ''}${
                 isSellAmountPending ? ' ssw-amount-input-pending' : ''
               }`}
               placeholder={isSellAmountPending ? '...' : '0'}
               // Shows the route's input until the user types, which hands the trade back to this side
               value={sellAmountValue}
               // Typing would clear the locked buy amount, so the derived figure is all there is
-              readOnly={isSellAmountReadOnly}
+              readOnly={isSellAmountLocked}
               onChange={e => {
                 const raw = e.target.value.replace(/[^0-9.]/g, '')
                 const parts = raw.split('.')
                 const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw
-                onSellAmountChange(sanitized, sellAssetUsdPrice)
+                onSellAmountChange(sanitized, displayValues.sellAssetUsdPrice)
               }}
             />
             <button
@@ -179,15 +148,23 @@ export const InputStep = ({
               onClick={() => onOpenTokenModal('sell')}
               type='button'
             >
-              {sellAsset.icon ? (
-                <img src={sellAsset.icon} alt={sellAsset.symbol} className='ssw-token-icon' />
+              {context.sellAsset.icon ? (
+                <img
+                  src={context.sellAsset.icon}
+                  alt={context.sellAsset.symbol}
+                  className='ssw-token-icon'
+                />
               ) : (
-                <div className='ssw-token-icon-placeholder'>{sellAsset.symbol.charAt(0)}</div>
+                <div className='ssw-token-icon-placeholder'>
+                  {context.sellAsset.symbol.charAt(0)}
+                </div>
               )}
               <div className='ssw-token-info'>
-                <span className='ssw-token-symbol'>{sellAsset.symbol}</span>
+                <span className='ssw-token-symbol'>{context.sellAsset.symbol}</span>
                 <span className='ssw-token-chain'>
-                  {sellChainInfo?.name ?? sellAsset.networkName ?? sellAsset.name}
+                  {displayValues.sellChainInfo?.name ??
+                    context.sellAsset.networkName ??
+                    context.sellAsset.name}
                 </span>
               </div>
               <svg
@@ -204,18 +181,18 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-section-footer'>
-            {!sellAssetUsdPrice ? (
+            {!displayValues.sellAssetUsdPrice ? (
               <span className='ssw-usd-value' />
             ) : (
               <button
                 type='button'
                 className='ssw-usd-value ssw-usd-value-toggle'
-                onClick={() => onToggleSellFiat(sellAssetUsdPrice)}
+                onClick={() => onToggleSellFiat(displayValues.sellAssetUsdPrice)}
               >
                 <span>
-                  {isSellAmountFiat
-                    ? `≈ ${sellAmountCrypto || '0'} ${sellAsset.symbol}`
-                    : sellUsdValue}
+                  {context.isSellAmountFiat
+                    ? `≈ ${sellAmountCrypto || '0'} ${context.sellAsset.symbol}`
+                    : displayValues.sellUsdValue}
                 </span>
                 <svg
                   width='12'
@@ -231,13 +208,16 @@ export const InputStep = ({
               </button>
             )}
             {hasAnyWalletAddress &&
-              (isSellBalanceLoading ? (
+              (displayValues.isSellBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
-              ) : sellAssetBalance ? (
+              ) : displayValues.sellAssetBalance ? (
                 <span className='ssw-balance'>
-                  Balance: {sellAssetBalance.balanceFormatted}
-                  {sellBalanceFiatValue && (
-                    <span className='ssw-balance-fiat'> ({sellBalanceFiatValue})</span>
+                  Balance: {displayValues.sellAssetBalance.balanceFormatted}
+                  {displayValues.sellBalanceFiatValue && (
+                    <span className='ssw-balance-fiat'>
+                      {' '}
+                      ({displayValues.sellBalanceFiatValue})
+                    </span>
                   )}
                 </span>
               ) : null)}
@@ -278,11 +258,11 @@ export const InputStep = ({
               placeholder={isBuyAmountPending ? '...' : '0'}
               // Falls back to the route's output whenever the user isn't driving the buy side
               value={
-                isExactOutput
-                  ? buyAmountInput
-                  : buyAmount
-                    ? formatAmount(buyAmount, buyAsset.precision)
-                    : ''
+                displayValues.isExactOutput
+                  ? context.buyAmount
+                  : displayValues.buyAmount
+                  ? formatAmount(displayValues.buyAmount, context.buyAsset.precision)
+                  : ''
               }
               readOnly={isBuyAmountLocked}
               onChange={e => {
@@ -297,15 +277,23 @@ export const InputStep = ({
               disabled={isBuyAssetLocked}
               type='button'
             >
-              {buyAsset.icon ? (
-                <img src={buyAsset.icon} alt={buyAsset.symbol} className='ssw-token-icon' />
+              {context.buyAsset.icon ? (
+                <img
+                  src={context.buyAsset.icon}
+                  alt={context.buyAsset.symbol}
+                  className='ssw-token-icon'
+                />
               ) : (
-                <div className='ssw-token-icon-placeholder'>{buyAsset.symbol.charAt(0)}</div>
+                <div className='ssw-token-icon-placeholder'>
+                  {context.buyAsset.symbol.charAt(0)}
+                </div>
               )}
               <div className='ssw-token-info'>
-                <span className='ssw-token-symbol'>{buyAsset.symbol}</span>
+                <span className='ssw-token-symbol'>{context.buyAsset.symbol}</span>
                 <span className='ssw-token-chain'>
-                  {buyChainInfo?.name ?? buyAsset.networkName ?? buyAsset.name}
+                  {displayValues.buyChainInfo?.name ??
+                    context.buyAsset.networkName ??
+                    context.buyAsset.name}
                 </span>
               </div>
               {!isBuyAssetLocked && (
@@ -324,15 +312,15 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-section-footer'>
-            <span className='ssw-usd-value'>{buyUsdValue}</span>
+            <span className='ssw-usd-value'>{displayValues.buyUsdValue}</span>
             {hasAnyWalletAddress &&
-              (isBuyBalanceLoading ? (
+              (displayValues.isBuyBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
-              ) : buyAssetBalance ? (
+              ) : displayValues.buyAssetBalance ? (
                 <span className='ssw-balance'>
-                  Balance: {buyAssetBalance.balanceFormatted}
-                  {buyBalanceFiatValue && (
-                    <span className='ssw-balance-fiat'> ({buyBalanceFiatValue})</span>
+                  Balance: {displayValues.buyAssetBalance.balanceFormatted}
+                  {displayValues.buyBalanceFiatValue && (
+                    <span className='ssw-balance-fiat'> ({displayValues.buyBalanceFiatValue})</span>
                   )}
                 </span>
               ) : null)}
@@ -350,30 +338,30 @@ export const InputStep = ({
         )}
       </div>
 
-      {drivingAmountBaseUnit &&
-        drivingAmountBaseUnit !== '0' &&
-        (rates?.length || isLoadingRates) && (
+      {amountBaseUnit &&
+        amountBaseUnit !== '0' &&
+        (displayValues.rates?.length || displayValues.isLoadingRates) && (
           <div className='ssw-quotes'>
             <QuoteSelector
-              rates={rates ?? []}
-              selectedRate={selectedRate}
+              rates={displayValues.rates ?? []}
+              selectedRate={context.selectedRate}
               onSelectRate={onSelectRate}
-              buyAsset={buyAsset}
-              sellAsset={sellAsset}
-              sellAmountBaseUnit={sellAmountBaseUnit ?? '0'}
-              buyAmountBaseUnit={buyAmountBaseUnit ?? '0'}
-              isExactOutput={isExactOutput}
-              isLoading={isLoadingRates}
-              sellAssetUsdPrice={sellAssetUsdPrice}
-              buyAssetUsdPrice={buyAssetUsdPrice}
+              buyAsset={context.buyAsset}
+              sellAsset={context.sellAsset}
+              sellAmountBaseUnit={displayValues.sellAmountBaseUnit ?? '0'}
+              buyAmountBaseUnit={context.buyAmountBaseUnit ?? '0'}
+              isExactOutput={displayValues.isExactOutput}
+              isLoading={displayValues.isLoadingRates}
+              sellAssetUsdPrice={displayValues.sellAssetUsdPrice}
+              buyAssetUsdPrice={displayValues.buyAssetUsdPrice}
             />
           </div>
         )}
 
-      {networkFeeDisplay && (
+      {displayValues.networkFeeDisplay && (
         <div className='ssw-network-fee'>
           <span className='ssw-network-fee-label'>Est. network fee</span>
-          <span className='ssw-network-fee-value'>{networkFeeDisplay}</span>
+          <span className='ssw-network-fee-value'>{displayValues.networkFeeDisplay}</span>
         </div>
       )}
 

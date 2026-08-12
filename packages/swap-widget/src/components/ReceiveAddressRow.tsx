@@ -25,7 +25,6 @@ export const ReceiveAddressRow = ({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const needsAddress = !receiveAddress
-  // A locked address is the whole point of the integration, so it never offers an entry affordance
   const showInput = !isLocked && ((needsAddress && !isResolving) || isEditing)
   const showAttention = needsAddress && !isResolving
 

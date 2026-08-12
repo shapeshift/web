@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import type { Asset, AssetId } from '../types'
+import type { Asset, AssetId, BuyAmountProps, ReceiveAddressProps } from '../types'
 
 const ASSET_DATA_URL = 'https://app.shapeshift.com/generated/generatedAssetData.json'
 
@@ -39,6 +39,23 @@ export const useIntegratorParams = () => {
   return useMemo(() => {
     const defaultSellAsset = sellAssetId ? assetsById[sellAssetId] : undefined
     const defaultBuyAsset = buyAssetId ? assetsById[buyAssetId] : undefined
+    const receiveAddress = params.get('receiveAddress')
+    const buyAmount = params.get('buyAmount')
+
+    // Each lock only exists alongside the value it locks, so the pairs are built together
+    const receiveAddressProps: ReceiveAddressProps = receiveAddress
+      ? {
+          defaultReceiveAddress: receiveAddress,
+          isReceiveAddressLocked: params.get('lockReceiveAddress') === 'true',
+        }
+      : {}
+
+    const buyAmountProps: BuyAmountProps = buyAmount
+      ? {
+          defaultBuyAmountCryptoBaseUnit: buyAmount,
+          isBuyAmountLocked: params.get('lockBuyAmount') === 'true',
+        }
+      : {}
 
     return {
       // The widget syncs its defaults once on mount, so requested assets have to be in hand before
@@ -47,11 +64,9 @@ export const useIntegratorParams = () => {
       props: {
         defaultSellAsset,
         defaultBuyAsset,
-        defaultBuyAmountCryptoBaseUnit: params.get('buyAmount') ?? undefined,
-        isBuyAmountLocked: params.get('lockBuyAmount') === 'true',
-        defaultReceiveAddress: params.get('receiveAddress') ?? undefined,
-        isReceiveAddressLocked: params.get('lockReceiveAddress') === 'true',
         isBuyAssetLocked: params.get('lockBuyAsset') === 'true',
+        ...receiveAddressProps,
+        ...buyAmountProps,
       },
     }
   }, [params, assetsById, sellAssetId, buyAssetId])

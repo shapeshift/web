@@ -97,7 +97,6 @@ const SwapWidgetContent = ({
   useSwapApproval()
   useSwapExecution()
   useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
-
   useSellFiatSync(displayValues.sellAssetUsdPrice)
 
   const widgetStyle = useMemo(() => {

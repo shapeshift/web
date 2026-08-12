@@ -23,7 +23,7 @@ describe('SwapMachine Types', () => {
       sellAmount: '1.0',
       sellAmountBaseUnit: '1000000000000000000',
       buyAmount: '',
-  buyAmountBaseUnit: undefined,
+      buyAmountBaseUnit: undefined,
       isSellAmountFiat: false,
       sellAmountFiat: '',
       selectedRate: null,

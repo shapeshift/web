@@ -151,30 +151,36 @@ export type SwapWidgetFilters = {
   disabledAssetIds?: AssetId[]
 }
 
-export type SwapWidgetProps = {
-  partnerCode?: string
-  apiBaseUrl?: string
-  allowShapeshiftRedirect?: boolean
-  defaultSellAsset?: Asset
-  defaultBuyAsset?: Asset
-  sellFilters?: SwapWidgetFilters
-  buyFilters?: SwapWidgetFilters
-  allowedSwapperNames?: SwapperName[]
-  onSwapSuccess?: (txHash: string) => void
-  onSwapError?: (error: Error) => void
-  theme?: ThemeMode | ThemeConfig
-  defaultSlippage?: string
-  showPoweredBy?: boolean
-  showConnectButton?: boolean
-  walletConnectProjectId?: string
-  ratesRefetchInterval?: number
-  isBuyAssetLocked?: boolean
+// Locking a value only means something when there is one to lock, so the pairs travel together
+export type ReceiveAddressProps =
+  | { defaultReceiveAddress: string; isReceiveAddressLocked?: boolean }
+  | { defaultReceiveAddress?: never; isReceiveAddressLocked?: false }
+
+export type BuyAmountProps =
   // Drives the trade from the buy side, restricting routing to exact-output capable swappers
-  defaultBuyAmountCryptoBaseUnit?: string
-  isBuyAmountLocked?: boolean
-  defaultReceiveAddress?: string
-  isReceiveAddressLocked?: boolean
-}
+  | { defaultBuyAmountCryptoBaseUnit: string; isBuyAmountLocked?: boolean }
+  | { defaultBuyAmountCryptoBaseUnit?: never; isBuyAmountLocked?: false }
+
+export type SwapWidgetProps = ReceiveAddressProps &
+  BuyAmountProps & {
+    partnerCode?: string
+    apiBaseUrl?: string
+    allowShapeshiftRedirect?: boolean
+    defaultSellAsset?: Asset
+    defaultBuyAsset?: Asset
+    sellFilters?: SwapWidgetFilters
+    buyFilters?: SwapWidgetFilters
+    allowedSwapperNames?: SwapperName[]
+    onSwapSuccess?: (txHash: string) => void
+    onSwapError?: (error: Error) => void
+    theme?: ThemeMode | ThemeConfig
+    defaultSlippage?: string
+    showPoweredBy?: boolean
+    showConnectButton?: boolean
+    walletConnectProjectId?: string
+    ratesRefetchInterval?: number
+    isBuyAssetLocked?: boolean
+  }
 
 export type RatesResponse = {
   rates: TradeRate[]

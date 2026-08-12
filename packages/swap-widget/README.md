@@ -228,11 +228,26 @@ Slippage applies to the **sell** side. The amount received is fixed; what varies
 changing it — the locked address then outranks both a user entry and the connected wallet's own
 address.
 
-| Props                          | Behaviour                                                 |
-| ------------------------------ | --------------------------------------------------------- |
-| `defaultReceiveAddress` only   | Prefilled, user can still edit it                          |
-| `isReceiveAddressLocked` only  | Locked to the connected wallet's address, no custom entry  |
-| Both                           | Locked to the address you supplied                         |
+| Props                        | Behaviour                          |
+| ---------------------------- | ---------------------------------- |
+| `defaultReceiveAddress` only | Prefilled, user can still edit it   |
+| Both                         | Locked to the address you supplied  |
+
+A lock is only accepted alongside the value it locks — `isReceiveAddressLocked` on its own is a type
+error, as is `isBuyAmountLocked` without `defaultBuyAmountCryptoBaseUnit`. Locking with nothing to
+lock would fall back to the connected wallet's address, which is undefined whenever the wallet
+doesn't cover the buy asset's chain, leaving no address and no way to enter one.
+
+If you build props dynamically, import `ReceiveAddressProps` and `BuyAmountProps` and construct each
+pair together:
+
+```tsx
+const receiveAddressProps: ReceiveAddressProps = address
+  ? { defaultReceiveAddress: address, isReceiveAddressLocked: true }
+  : {}
+
+<SwapWidget {...receiveAddressProps} />
+```
 
 ### Payment mode
 

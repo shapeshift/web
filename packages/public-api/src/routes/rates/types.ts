@@ -20,7 +20,7 @@ export const RatesRequestSchema = z
       }),
     buyAmountCryptoBaseUnit: z
       .string()
-      .regex(/^\d+$/, 'buyAmountCryptoBaseUnit must be a positive integer')
+      .regex(/^(?!0+$)\d+$/, 'buyAmountCryptoBaseUnit must be a positive integer')
       .optional()
       .openapi({
         example: '100000',

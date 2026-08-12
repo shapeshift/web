@@ -78,7 +78,6 @@ export const InputStep = ({
     buyAsset,
     selectedRate,
     sellAmount,
-    sellAmountBaseUnit: enteredSellAmountBaseUnit,
     isSellAmountFiat,
     sellAmountFiat,
     isSellAssetEvm,
@@ -94,7 +93,7 @@ export const InputStep = ({
 
   const isUnsupportedChain = !isSellAssetEvm && !isSellAssetUtxo && !isSellAssetSolana
 
-  const drivingAmountBaseUnit = isExactOutput ? buyAmountBaseUnit : enteredSellAmountBaseUnit
+  const drivingAmountBaseUnit = isExactOutput ? buyAmountBaseUnit : context.sellAmountBaseUnit
 
   // A locked buy amount is the only thing that takes the sell side out of the user's hands
   const isSellAmountReadOnly = isExactOutput && isBuyAmountLocked

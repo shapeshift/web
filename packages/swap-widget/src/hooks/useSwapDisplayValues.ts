@@ -52,14 +52,16 @@ export const useSwapDisplayValues = ({
   allowedSwapperNames,
   ratesRefetchInterval,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
-  const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
-  const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
-  const enteredSellAmountBaseUnit = SwapMachineCtx.useSelector(s => s.context.sellAmountBaseUnit)
-  const buyAmountBaseUnit = SwapMachineCtx.useSelector(s => s.context.buyAmountBaseUnit)
-  const isSellAssetEvm = SwapMachineCtx.useSelector(s => s.context.isSellAssetEvm)
-  const isSellAssetUtxo = SwapMachineCtx.useSelector(s => s.context.isSellAssetUtxo)
-  const isSellAssetSolana = SwapMachineCtx.useSelector(s => s.context.isSellAssetSolana)
-  const selectedRate = SwapMachineCtx.useSelector(s => s.context.selectedRate)
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const {
+    sellAsset,
+    buyAsset,
+    buyAmountBaseUnit,
+    isSellAssetEvm,
+    isSellAssetUtxo,
+    isSellAssetSolana,
+    selectedRate,
+  } = context
 
   const { receiveAddress, evm, bitcoin, solana } = useSwapWallet()
   const evmAddress = evm.address
@@ -69,7 +71,7 @@ export const useSwapDisplayValues = ({
   const buyChainType = getChainType(buyAsset.chainId)
 
   const isExactOutput = !!buyAmountBaseUnit
-  const amountBaseUnit = isExactOutput ? buyAmountBaseUnit : enteredSellAmountBaseUnit
+  const amountBaseUnit = isExactOutput ? buyAmountBaseUnit : context.sellAmountBaseUnit
 
   const {
     data: rates,
@@ -78,7 +80,7 @@ export const useSwapDisplayValues = ({
   } = useSwapRates(apiClient, {
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
-    sellAmountCryptoBaseUnit: enteredSellAmountBaseUnit,
+    sellAmountCryptoBaseUnit: context.sellAmountBaseUnit,
     buyAmountCryptoBaseUnit: buyAmountBaseUnit,
     allowedSwapperNames,
     refetchInterval: ratesRefetchInterval,
@@ -128,7 +130,7 @@ export const useSwapDisplayValues = ({
   // Exact output has no user-entered sell amount - it only exists once a route has priced it
   const sellAmountBaseUnit = isExactOutput
     ? displayRate?.sellAmountCryptoBaseUnit
-    : enteredSellAmountBaseUnit
+    : context.sellAmountBaseUnit
 
   const sellChainNativeAsset = useMemo(() => getBaseAsset(sellAsset.chainId), [sellAsset.chainId])
 

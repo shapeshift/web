@@ -2,7 +2,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
-import type { NearIntentsTradeRateInput } from '../types'
+import { getTradeAmount } from '../../../utils/helpers'
+import type { NearIntentsExactOutputTradeRateInput, NearIntentsTradeRateInput } from '../types'
 import { QuoteRequest } from '../types'
 import { getNearIntentsStepData } from '../utils/getNearIntentsStepData'
 import { getNearIntentsTradeContext } from '../utils/getNearIntentsTradeContext'
@@ -14,21 +15,15 @@ import {
 } from '../utils/helpers'
 import { initializeOneClickService } from '../utils/oneClickService'
 
-export const getTradeRate = async (
-  input: NearIntentsTradeRateInput,
+const getRate = async (
+  input: NearIntentsTradeRateInput | NearIntentsExactOutputTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const {
-    accountNumber,
-    sellAsset,
-    buyAsset,
-    affiliateBps,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    receiveAddress,
-    sendAddress,
-  } = input
+  const { accountNumber, sellAsset, buyAsset, affiliateBps, receiveAddress, sendAddress } = input
 
   initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY)
+
+  const amount = getTradeAmount(input)
 
   const maybeAssets = await resolveNearIntentsAssets({ sellAsset, buyAsset })
   if (maybeAssets.isErr()) return Err(maybeAssets.unwrapErr())
@@ -37,7 +32,7 @@ export const getTradeRate = async (
   const quoteRequest = buildNearIntentsQuoteRequest({
     originAsset,
     destinationAsset,
-    sellAmountCryptoBaseUnit: sellAmount,
+    amount,
     slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
     affiliateBps,
     refundTo: sendAddress ?? 'check-price',
@@ -84,3 +79,13 @@ export const getTradeRate = async (
 
   return Ok([tradeRate])
 }
+
+export const getTradeRate = (
+  input: NearIntentsTradeRateInput,
+  deps: SwapperDeps,
+): Promise<Result<TradeRate[], SwapErrorRight>> => getRate(input, deps)
+
+export const getExactOutputTradeRate = (
+  input: NearIntentsExactOutputTradeRateInput,
+  deps: SwapperDeps,
+): Promise<Result<TradeRate[], SwapErrorRight>> => getRate(input, deps)

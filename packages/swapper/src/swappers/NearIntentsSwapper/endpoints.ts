@@ -17,15 +17,24 @@ import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/ev
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
-import { getTradeQuote } from './swapperApi/getTradeQuote'
-import { getTradeRate } from './swapperApi/getTradeRate'
-import type { NearIntentsTradeQuoteInput, NearIntentsTradeRateInput } from './types'
+import { getExactOutputTradeQuote, getTradeQuote } from './swapperApi/getTradeQuote'
+import { getExactOutputTradeRate, getTradeRate } from './swapperApi/getTradeRate'
+import type {
+  NearIntentsExactOutputTradeQuoteInput,
+  NearIntentsExactOutputTradeRateInput,
+  NearIntentsTradeQuoteInput,
+  NearIntentsTradeRateInput,
+} from './types'
 import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers'
 import { initializeOneClickService, OneClickService } from './utils/oneClickService'
 
 export const nearIntentsApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as NearIntentsTradeQuoteInput, deps),
   getTradeRate: (input, deps) => getTradeRate(input as NearIntentsTradeRateInput, deps),
+  getExactOutputTradeQuote: (input, deps) =>
+    getExactOutputTradeQuote(input as NearIntentsExactOutputTradeQuoteInput, deps),
+  getExactOutputTradeRate: (input, deps) =>
+    getExactOutputTradeRate(input as NearIntentsExactOutputTradeRateInput, deps),
   getUnsignedEvmTransaction,
   getEvmTransactionFees,
   getUnsignedUtxoTransaction,

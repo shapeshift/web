@@ -22,6 +22,7 @@ import type { AcrossSwapTx } from './types'
 
 type BaseArgs = {
   swapTx: AcrossSwapTx
+  sellAmountCryptoBaseUnit: string
   spenderAddress: string
   fallbackNetworkFeeCryptoBaseUnit: string
 }
@@ -43,6 +44,7 @@ export async function getAcrossStepData(
   const {
     swapTx,
     sellAsset,
+    sellAmountCryptoBaseUnit,
     spenderAddress,
     from,
     type,
@@ -68,7 +70,7 @@ export async function getAcrossStepData(
 
       const stateOverride = {
         sellAsset,
-        sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAmountCryptoBaseUnit,
         spenderAddress,
       }
 

@@ -1,5 +1,5 @@
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
+import type { GetExactOutputTradeRateInput, GetTradeRateInput } from '@shapeshiftoss/swapper'
 import { getTradeRates, swappers, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Request, Response } from 'express'
 
@@ -56,6 +56,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       sellAssetId,
       buyAssetId,
       sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
       slippageTolerancePercentageDecimal,
     } = queryResult.data
 
@@ -76,7 +77,9 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     const rateInput = {
       sellAsset,
       buyAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+      ...(buyAmountCryptoBaseUnit
+        ? { buyAmountCryptoBaseUnit }
+        : { sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit }),
       affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal,
@@ -94,7 +97,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
         if (!swapper) return null
 
         const result = await getTradeRates(
-          rateInput as GetTradeRateInput,
+          rateInput as GetTradeRateInput | GetExactOutputTradeRateInput,
           swapperName,
           deps,
           RATE_TIMEOUT_MS,
@@ -108,7 +111,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             swapperName,
             rate: '0',
             buyAmountCryptoBaseUnit: '0',
-            sellAmountCryptoBaseUnit,
+            sellAmountCryptoBaseUnit: sellAmountCryptoBaseUnit ?? '0',
             steps: 0,
             allowanceContract: undefined,
             estimatedExecutionTimeMs: undefined,

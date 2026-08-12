@@ -12,10 +12,10 @@ import type {
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { getRelayStepData } from '../utils/getRelayStepData'
 import { getRelayTradeContext } from '../utils/getRelayTradeContext'
-import type { RelayTradeRateInput } from '../utils/types'
+import type { RelayExactOutputTradeRateInput, RelayTradeRateInput } from '../utils/types'
 
-export const getTradeRate = async (
-  input: RelayTradeRateInput,
+const getRate = async (
+  input: RelayTradeRateInput | RelayExactOutputTradeRateInput,
   deps: SwapperDeps,
   relayChainMap: typeof relayChainMapImplementation,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
@@ -64,3 +64,15 @@ export const getTradeRate = async (
 
   return Ok([tradeRate])
 }
+
+export const getTradeRate = (
+  input: RelayTradeRateInput,
+  deps: SwapperDeps,
+  relayChainMap: typeof relayChainMapImplementation,
+): Promise<Result<TradeRate[], SwapErrorRight>> => getRate(input, deps, relayChainMap)
+
+export const getExactOutputTradeRate = (
+  input: RelayExactOutputTradeRateInput,
+  deps: SwapperDeps,
+  relayChainMap: typeof relayChainMapImplementation,
+): Promise<Result<TradeRate[], SwapErrorRight>> => getRate(input, deps, relayChainMap)

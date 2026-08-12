@@ -1012,6 +1012,7 @@
       "quoteExpired": "Quote expired, try again.",
       "quoteUnsupportedChain": "Chain not supported",
       "quoteCrossChainNotSupported": "Cross chain not supported",
+      "quoteExactOutputNotSupported": "Exact receive amount not supported",
       "crossAccountNotSupported": "Cross-account not supported",
       "networkFeeEstimateFailed": "Failed to estimate network fee",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} not supported by wallet",

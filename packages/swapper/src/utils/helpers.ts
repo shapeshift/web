@@ -39,7 +39,6 @@ import type { TradeAmount } from '../types'
 // Deadline for providers without their own expiry - short enough to keep priced amounts honest
 export const FALLBACK_QUOTE_DEADLINE_MS = 60_000
 
-// Only an exact-output input carries a buy amount, and it carries no sell amount to confuse it with
 export const getTradeAmount = (
   input:
     | { sellAmountIncludingProtocolFeesCryptoBaseUnit: string }

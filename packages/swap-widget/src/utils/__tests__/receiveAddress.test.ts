@@ -26,8 +26,7 @@ describe('resolveReceiveAddress', () => {
       )
     })
 
-    // The wallet is the user's own - paying it instead of the address the integrator set would send
-    // the funds somewhere nobody asked for
+    // Falling back would pay the user's own wallet instead of the address the integrator set
     it('blocks rather than falling back when the address is for another chain', () => {
       expect(
         resolveReceiveAddress({

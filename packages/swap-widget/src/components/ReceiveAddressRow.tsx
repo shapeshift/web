@@ -93,8 +93,7 @@ export const ReceiveAddressRow = ({
           {isResolving ? (
             <span className='ssw-balance-skeleton' />
           ) : showAttention ? (
-            // Only reachable while locked, since an unlocked row without an address takes the input
-            // branch - so the address came from the integrator and the user can't correct it
+            // Locked only - an unlocked row with no address shows the input instead
             <span className='ssw-receive-error'>Not valid for {chainName}</span>
           ) : (
             <>

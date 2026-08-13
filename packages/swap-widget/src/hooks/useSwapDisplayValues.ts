@@ -84,8 +84,7 @@ export const useSwapDisplayValues = ({
     buyAmountCryptoBaseUnit: buyAmountBaseUnit,
     allowedSwapperNames,
     refetchInterval: ratesRefetchInterval,
-    // Rates carry no destination, so a missing address is no reason not to price a route - but a
-    // locked one the buy chain rejects is, since nothing can be quoted until it changes
+    // Rates need no destination, but a locked one the buy chain rejects can never be quoted
     enabled:
       !!amountBaseUnit &&
       amountBaseUnit !== '0' &&

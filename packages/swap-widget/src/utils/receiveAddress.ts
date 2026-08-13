@@ -19,8 +19,7 @@ export const resolveReceiveAddress = ({
   const isValidForBuyChain = (address: string | undefined): boolean =>
     !!address && validateAddress(address, buyChainId).valid
 
-  // A locked address is the only one allowed, so an unusable one leaves the swap without an address
-  // rather than quietly sending the funds to the user's own wallet
+  // An unusable locked address blocks rather than quietly paying the user's own wallet
   if (isLocked) return isValidForBuyChain(defaultAddress) ? defaultAddress : undefined
 
   return isValidForBuyChain(customAddress) ? customAddress : walletAddress

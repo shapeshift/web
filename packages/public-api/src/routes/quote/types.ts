@@ -143,11 +143,14 @@ export const QuoteRequestSchema = z
       .string()
       .min(1)
       .openapi({ example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' }),
-    // For UTXO chains, use the account's receive address at index 0/0 (e.g. m/84'/0'/0'/0/0).
     sendAddress: z
       .string()
       .min(1)
-      .openapi({ example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' }),
+      .openapi({
+        example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+        description:
+          "The sell-chain address the swap is funded from, and the address a failed, expired or partial swap is refunded to. On a quote that returns a depositAddress nothing is ever sent from it - the deposit may arrive from any wallet, and neither provider checks the sender - so there it serves only as the refund destination and must be an address the user controls. For UTXO chains, use the account's receive address at index 0/0 (e.g. m/84'/0'/0'/0/0).",
+      }),
     swapperName: z.string().min(1).openapi({ example: 'Relay' }),
     slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
     accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),
@@ -185,7 +188,7 @@ export const QuoteResponseSchema = registry.register(
     depositAddress: z.string().optional().openapi({
       example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
       description:
-        'Present only when this quote is payable by a plain transfer from any wallet - send exactly sellAmountCryptoBaseUnit of the sell asset to it before expiresAt. Absent means the swap must be signed by the wallet at sendAddress. Deposits requiring a memo never get an address here, since a memo-less send would be unrecoverable.',
+        'Present only when this quote can be paid by a plain transfer from any wallet: send exactly sellAmountCryptoBaseUnit of the sell asset here before expiresAt, then poll /v1/swap/status with quoteId alone - no txHash is needed, since the provider reports the deposit. A deposit that lands after expiresAt is refunded to sendAddress rather than swapped. Absent means the swap must be signed by the wallet at sendAddress; routes requiring a deposit memo are always absent, since a memo-less send would be unrecoverable.',
     }),
     expiresAt: z.number().openapi({
       example: 1754265600000,

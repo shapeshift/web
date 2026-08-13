@@ -165,7 +165,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       }
 
       if (swapServiceStatus.buyTxHash) response.buyTxHash = swapServiceStatus.buyTxHash
-      if (swapServiceStatus.isAffiliateVerified !== undefined) {
+      if (swapServiceStatus.isAffiliateVerified !== null) {
         response.isAffiliateVerified = swapServiceStatus.isAffiliateVerified
       }
 

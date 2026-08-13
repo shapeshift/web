@@ -182,6 +182,11 @@ export const QuoteResponseSchema = registry.register(
     networkFeeCryptoBaseUnit: z.string().optional().openapi({ example: '23000' }),
     approval: ApprovalInfoSchema,
     steps: z.array(QuoteStepSchema),
+    depositAddress: z.string().optional().openapi({
+      example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+      description:
+        'Present only when this quote is payable by a plain transfer from any wallet - send exactly sellAmountCryptoBaseUnit of the sell asset to it before expiresAt. Absent means the swap must be signed by the wallet at sendAddress. Deposits requiring a memo never get an address here, since a memo-less send would be unrecoverable.',
+    }),
     expiresAt: z.number().openapi({
       example: 1754265600000,
       description:

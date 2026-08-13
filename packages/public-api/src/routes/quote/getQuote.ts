@@ -5,6 +5,7 @@ import type { GetExactOutputTradeQuoteInput, GetTradeQuoteInput } from '@shapesh
 import {
   buildSwapMetadata,
   getDefaultSlippageDecimalPercentageForSwapper,
+  getDepositAddress,
   getTradeQuotes,
   SwapperName,
   swappers,
@@ -268,6 +269,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       steps: quote.steps.map(transformQuoteStep),
       approval,
       expiresAt: quote.deadline,
+      depositAddress: getDepositAddress(step, validSwapperName),
     }
 
     res.json(response)

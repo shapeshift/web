@@ -817,3 +817,124 @@ describe('swapMachine', () => {
     })
   })
 })
+
+const TEST_DEPOSIT_QUOTE = {
+  quoteId: 'quote-1',
+  depositAddress: 'bc1qdeposit',
+  expiresAt: 9_999_999_999_999,
+  sellAsset: TEST_BTC,
+  buyAsset: TEST_ETH,
+  approval: { isRequired: false, spender: '', approvalTxs: [] },
+} as unknown as QuoteResponse
+
+const startInDepositQuoting = () => {
+  const actor = createActor(swapMachine)
+  actor.start()
+  actor.send({ type: 'SET_SELL_ASSET', asset: TEST_BTC })
+  actor.send({ type: 'SET_BUY_ASSET', asset: TEST_ETH })
+  actor.send({
+    type: 'SET_SELL_AMOUNT',
+    amount: '0.1',
+    amountBaseUnit: '10000000',
+    fiatValue: '',
+  })
+  actor.send({ type: 'SET_SEND_ADDRESS', address: 'bc1qrefund' })
+  actor.send({ type: 'FETCH_QUOTE', isDepositFlow: true })
+  return actor
+}
+
+describe('deposit flow', () => {
+  it('enters awaiting_deposit when the quote carries a deposit address', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    expect(actor.getSnapshot().value).toBe('awaiting_deposit')
+    expect(actor.getSnapshot().context.quote?.depositAddress).toBe('bc1qdeposit')
+    actor.stop()
+  })
+
+  it('errors instead of executing when a deposit quote has no deposit address', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
+    const snapshot = actor.getSnapshot()
+    expect(snapshot.value).toBe('error')
+    expect(snapshot.context.errorSource).toBe('QUOTE_ERROR')
+    actor.stop()
+  })
+
+  it('still executes with a wallet when the flow is not a deposit flow', () => {
+    const actor = createActor(swapMachine)
+    actor.start()
+    actor.send({
+      type: 'SET_SELL_AMOUNT',
+      amount: '1',
+      amountBaseUnit: '1000000000000000000',
+      fiatValue: '',
+    })
+    actor.send({ type: 'FETCH_QUOTE' })
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    expect(actor.getSnapshot().value).toBe('executing')
+    actor.stop()
+  })
+
+  it('moves to polling_status with the deposit hash on DEPOSIT_DETECTED', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    actor.send({ type: 'DEPOSIT_DETECTED', txHash: '0xdeposit' })
+    expect(actor.getSnapshot().value).toBe('polling_status')
+    expect(actor.getSnapshot().context.txHash).toBe('0xdeposit')
+    actor.stop()
+  })
+
+  it('moves to deposit_expired when the window closes', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    actor.send({ type: 'DEPOSIT_EXPIRED' })
+    expect(actor.getSnapshot().value).toBe('deposit_expired')
+    actor.stop()
+  })
+
+  it('re-quotes for a fresh address from deposit_expired', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    actor.send({ type: 'DEPOSIT_EXPIRED' })
+    actor.send({ type: 'RETRY' })
+    expect(actor.getSnapshot().value).toBe('quoting')
+    expect(actor.getSnapshot().context.isDepositFlow).toBe(true)
+    actor.stop()
+  })
+
+  it('resets out of awaiting_deposit and clears the deposit flow', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    actor.send({ type: 'RESET' })
+    const snapshot = actor.getSnapshot()
+    expect(snapshot.value).toBe('input')
+    expect(snapshot.context.isDepositFlow).toBe(false)
+    expect(snapshot.context.quote).toBeNull()
+    actor.stop()
+  })
+
+  it('keeps the send address across a reset', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    actor.send({ type: 'RESET' })
+    expect(actor.getSnapshot().context.sendAddress).toBe('bc1qrefund')
+    actor.stop()
+  })
+
+  it('restores a persisted deposit straight into awaiting_deposit', () => {
+    const actor = createActor(swapMachine)
+    actor.start()
+    actor.send({
+      type: 'RESTORE_DEPOSIT',
+      quote: TEST_DEPOSIT_QUOTE,
+      sendAddress: 'bc1qrefund',
+    })
+    const snapshot = actor.getSnapshot()
+    expect(snapshot.value).toBe('awaiting_deposit')
+    expect(snapshot.context.isDepositFlow).toBe(true)
+    expect(snapshot.context.sendAddress).toBe('bc1qrefund')
+    expect(snapshot.context.sellAsset.symbol).toBe('BTC')
+    actor.stop()
+  })
+})

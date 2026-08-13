@@ -12,7 +12,11 @@ import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getAsset } from '../../assets'
-import { ENABLED_SWAPPER_NAMES, MAX_QUOTE_DEADLINE_MS } from '../../constants'
+import {
+  ENABLED_SWAPPER_NAMES,
+  isExecutableSellChainId,
+  MAX_QUOTE_DEADLINE_MS,
+} from '../../constants'
 import { env } from '../../env'
 import { QuoteStore, quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -93,6 +97,13 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const sellAsset = getAsset(sellAssetId)
     if (!sellAsset) {
       res.status(400).json({ error: `Unknown sell asset: ${sellAssetId}` } satisfies ErrorResponse)
+      return
+    }
+
+    if (!isExecutableSellChainId(sellAsset.chainId)) {
+      res.status(400).json({
+        error: `Unsupported sell chain: ${sellAsset.chainId}`,
+      } satisfies ErrorResponse)
       return
     }
 

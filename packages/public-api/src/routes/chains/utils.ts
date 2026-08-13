@@ -2,7 +2,7 @@ import type { ChainNamespace } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { getBaseAsset } from '@shapeshiftoss/utils'
 
-import { SUPPORTED_CHAIN_IDS } from '../../constants'
+import { isExecutableSellChainId, SUPPORTED_CHAIN_IDS } from '../../constants'
 import type { Chain, ChainType } from './types'
 
 const chainNamespaceToType: Record<ChainNamespace, ChainType> = {
@@ -40,6 +40,7 @@ const buildChainList = (): Chain[] => {
         explorerAddressLink: baseAsset.explorerAddressLink,
         explorerTxLink: baseAsset.explorerTxLink,
         nativeAssetId: baseAsset.assetId,
+        isSellSupported: isExecutableSellChainId(chainId),
       })
     } catch (error) {
       console.warn(`Failed to get base asset for chainId: ${chainId}`, error)

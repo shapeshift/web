@@ -38,11 +38,6 @@ const ADDRESS = {
   zec: 't1Tcr8tigNAFvjm7tZ2Hq4bkFmsQzhuhUfd',
   maya: 'maya1g98cy3n9mmjrpn0sxmn63lztelera37nu75fmz',
   sol: 'GThUX1Atko4tqhN2NaiTazWSeFWMuiUvfFnyJyUghFMJ',
-  tron: 'TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE',
-  sui: '0x0000000000000000000000000000000000000000000000000000000000000001',
-  ton: 'EQDrjaLahLkMB-hMCmkzOyBuHJ139ZUYmPHu6RRBKnbdLIYI',
-  near: 'kevin.near',
-  starknet: '0x0000000000000000000000000000000000000000000000000000000000000001',
 } as const
 
 const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: string }[] = [
@@ -106,32 +101,37 @@ const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: s
     buyAssetId: ASSET_IDS.BTC,
     amount: '1000000000',
   },
+]
+
+// Destination-only chains - no transactionData can be serialized for them, so they are rejected as
+// a sell asset but remain valid as a buy asset
+const NON_SELLABLE: { label: string; sellAssetId: string; buyAssetId: string; amount: string }[] = [
   {
-    label: 'Tron Chain',
+    label: 'Tron',
     sellAssetId: ASSET_IDS.TRX,
     buyAssetId: ASSET_IDS.USDC_ETH,
     amount: '1000000000',
   },
   {
-    label: 'Sui Chain',
+    label: 'Sui',
     sellAssetId: ASSET_IDS.SUI,
     buyAssetId: ASSET_IDS.USDC_ETH,
     amount: '5000000000',
   },
   {
-    label: 'TON Chain',
+    label: 'TON',
     sellAssetId: ASSET_IDS.TON,
     buyAssetId: ASSET_IDS.USDC_ETH,
     amount: '5000000000',
   },
   {
-    label: 'NEAR Chain',
+    label: 'NEAR',
     sellAssetId: ASSET_IDS.NEAR,
     buyAssetId: ASSET_IDS.USDC_ETH,
     amount: '5000000000000000000000000',
   },
   {
-    label: 'Starknet Chain',
+    label: 'Starknet',
     sellAssetId: ASSET_IDS.STRK,
     buyAssetId: ASSET_IDS.USDC_ETH,
     amount: '50000000000000000000',
@@ -183,51 +183,6 @@ const QUOTES: {
     receiveAddress: ADDRESS.btc,
     amount: '1000000000',
   },
-  {
-    label: 'Tron Adapter',
-    sellAssetId: ASSET_IDS.TRX,
-    buyAssetId: ASSET_IDS.USDC_ETH,
-    swapperName: 'NEAR Intents',
-    sendAddress: ADDRESS.tron,
-    receiveAddress: ADDRESS.evm,
-    amount: '1000000000',
-  },
-  {
-    label: 'Sui Adapter',
-    sellAssetId: ASSET_IDS.SUI,
-    buyAssetId: ASSET_IDS.USDC_ETH,
-    swapperName: 'NEAR Intents',
-    sendAddress: ADDRESS.sui,
-    receiveAddress: ADDRESS.evm,
-    amount: '5000000000',
-  },
-  {
-    label: 'TON Adapter',
-    sellAssetId: ASSET_IDS.TON,
-    buyAssetId: ASSET_IDS.USDC_ETH,
-    swapperName: 'NEAR Intents',
-    sendAddress: ADDRESS.ton,
-    receiveAddress: ADDRESS.evm,
-    amount: '5000000000',
-  },
-  {
-    label: 'NEAR Adapter',
-    sellAssetId: ASSET_IDS.NEAR,
-    buyAssetId: ASSET_IDS.USDC_ETH,
-    swapperName: 'NEAR Intents',
-    sendAddress: ADDRESS.near,
-    receiveAddress: ADDRESS.evm,
-    amount: '5000000000000000000000000',
-  },
-  {
-    label: 'Starknet Adapter',
-    sellAssetId: ASSET_IDS.STRK,
-    buyAssetId: ASSET_IDS.USDC_ETH,
-    swapperName: 'NEAR Intents',
-    sendAddress: ADDRESS.starknet,
-    receiveAddress: ADDRESS.evm,
-    amount: '50000000000000000000',
-  },
 ]
 
 const TEST_PAIRS = {
@@ -261,6 +216,19 @@ describe('/v1/chains', () => {
     expect(data.chains.length).toBeGreaterThan(0)
     const [first] = data.chains
     expect(first).toMatchObject({ chainId: expect.any(String), name: expect.any(String) })
+  })
+
+  it('flags destination-only chains as not sell supported', async () => {
+    const res = await fetch(`${API_URL}/v1/chains`)
+    expect(res.ok).toBe(true)
+    const data = (await res.json()) as ChainsListResponse
+    const byChainId = new Map(data.chains.map(chain => [chain.chainId, chain]))
+
+    expect(byChainId.get('eip155:1')?.isSellSupported).toBe(true)
+    for (const { sellAssetId } of NON_SELLABLE) {
+      const [chainId] = sellAssetId.split('/')
+      expect(byChainId.get(chainId)?.isSellSupported).toBe(false)
+    }
   })
 })
 
@@ -365,6 +333,37 @@ describe('/v1/swap/rates', () => {
       expect(validRates.length).toBeGreaterThan(0)
     },
   )
+
+  it.each(NON_SELLABLE)('rejects $label as a sell asset', async ({ sellAssetId, buyAssetId }) => {
+    const params = new URLSearchParams({
+      sellAssetId,
+      buyAssetId,
+      sellAmountCryptoBaseUnit: '1000000',
+    })
+    const res = await fetch(`${API_URL}/v1/swap/rates?${params}`)
+    expect(res.status).toBe(400)
+    const data = (await res.json()) as { error: string }
+    expect(data.error).toMatch(/Unsupported sell chain/)
+  })
+
+  it.each(NON_SELLABLE)(
+    'returns a rate buying into $label',
+    { timeout: 30_000, retry: 2 },
+    async ({ sellAssetId: buyAssetId }) => {
+      const params = new URLSearchParams({
+        sellAssetId: ASSET_IDS.USDC_ETH,
+        buyAssetId,
+        sellAmountCryptoBaseUnit: '100000000',
+      })
+      const res = await fetch(`${API_URL}/v1/swap/rates?${params}`)
+      expect(res.ok).toBe(true)
+      const data = (await res.json()) as RateResponse
+      const validRates = data.rates.filter(
+        r => !r.error && r.buyAmountCryptoBaseUnit && r.buyAmountCryptoBaseUnit !== '0',
+      )
+      expect(validRates.length).toBeGreaterThan(0)
+    },
+  )
 })
 
 describe('/v1/swap/quote', () => {
@@ -409,4 +408,22 @@ describe('/v1/swap/quote', () => {
       expect(parsed.success ? [] : parsed.error.issues).toEqual([])
     },
   )
+
+  it.each(NON_SELLABLE)('rejects $label as a sell asset', async ({ sellAssetId, buyAssetId }) => {
+    const res = await fetch(`${API_URL}/v1/swap/quote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sellAssetId,
+        buyAssetId,
+        sellAmountCryptoBaseUnit: '1000000',
+        sendAddress: ADDRESS.evm,
+        receiveAddress: ADDRESS.evm,
+        swapperName: 'NEAR Intents',
+      }),
+    })
+    expect(res.status).toBe(400)
+    const data = (await res.json()) as { error: string }
+    expect(data.error).toMatch(/Unsupported sell chain/)
+  })
 })

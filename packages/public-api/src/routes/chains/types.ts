@@ -36,6 +36,11 @@ export const ChainSchema = registry.register(
     explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
     explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),
     nativeAssetId: z.string().openapi({ example: 'eip155:1/slip44:60' }),
+    isSellSupported: z.boolean().openapi({
+      example: true,
+      description:
+        'Whether assets on this chain can be sold. Chains without it are destination-only - rates and quotes reject them as a sell asset.',
+    }),
   }),
 )
 

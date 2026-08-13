@@ -3,6 +3,7 @@ import { assign, setup } from 'xstate'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { Asset, QuoteResponse, TradeRate } from '../types'
 import {
+  formatAmountForInput,
   getChainType,
   isWidgetExecutableEvmChainId,
   isWidgetExecutableSolanaChainId,
@@ -177,10 +178,8 @@ export const swapMachine = setup({
       errorSource: 'QUOTE_ERROR' as const,
     })),
     assignRestoredDeposit: assign(({ event }) => {
-      const { quote, sendAddress, receiveAddress } = event as Extract<
-        SwapMachineEvent,
-        { type: 'RESTORE_DEPOSIT' }
-      >
+      const { quote, sendAddress, receiveAddress, sellAmountBaseUnit, buyAmountBaseUnit } =
+        event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>
       const { sellAsset, buyAsset } = quote
       return {
         quote,
@@ -189,6 +188,15 @@ export const swapMachine = setup({
         isDepositFlow: true,
         sellAsset,
         buyAsset,
+        // Seeded so re-quoting after expiry asks for the same amount, on the same side
+        sellAmountBaseUnit,
+        sellAmount: sellAmountBaseUnit
+          ? formatAmountForInput(sellAmountBaseUnit, sellAsset.precision)
+          : '',
+        buyAmountBaseUnit,
+        buyAmount: buyAmountBaseUnit
+          ? formatAmountForInput(buyAmountBaseUnit, buyAsset.precision)
+          : '',
         // Chain flags describe the restored assets, not the defaults they replaced
         chainType: getChainType(sellAsset.chainId),
         isSellAssetEvm: isWidgetExecutableEvmChainId(sellAsset.chainId),

@@ -5,11 +5,12 @@ import type { UseEvmSigningResult } from '../hooks/useEvmSigning'
 import type { UseSolanaSigningResult } from '../hooks/useSolanaSigning'
 
 export type SwapWalletContextValue = {
+  // What the api's sendAddress field gets: a connected wallet's address, else the typed refund one
   sendAddress: string | undefined
-  // The sell-chain wallet address, absent on a deposit flow where sendAddress is typed by the user
+  // Connection state - absent on a deposit flow, where nothing is signed
   walletSendAddress: string | undefined
-  customSendAddress: string
-  setCustomSendAddress: (address: string) => void
+  customRefundAddress: string
+  setCustomRefundAddress: (address: string) => void
   receiveAddress: string | undefined
   isReceiveAddressResolving: boolean
   // A locked address the buy chain rejects - nothing can be quoted until the integrator fixes it

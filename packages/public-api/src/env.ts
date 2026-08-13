@@ -8,6 +8,10 @@ const envSchema = z.object({
   PORT: z.string().regex(/^\d+$/, 'PORT must be numeric').default('3005'),
   NODE_ENV: z.string().default('development'),
 
+  // Local testing only: shortens every quote deadline so expiry and re-quoting can be exercised
+  // without waiting out a real one. Ignored when NODE_ENV is production.
+  QUOTE_DEADLINE_OVERRIDE_MS: z.coerce.number().int().positive().optional(),
+
   // Swap service
   SWAP_SERVICE_BASE_URL: url,
   SWAP_SERVICE_API_KEY: z.string().min(1),

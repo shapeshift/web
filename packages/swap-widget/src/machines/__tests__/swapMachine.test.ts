@@ -942,6 +942,8 @@ describe('deposit flow', () => {
       quote: TEST_DEPOSIT_QUOTE,
       sendAddress: 'bc1qrefund',
       receiveAddress: '0xreceive',
+      sellAmountBaseUnit: '10000000',
+      buyAmountBaseUnit: undefined,
     })
     return actor
   }
@@ -969,6 +971,15 @@ describe('deposit flow', () => {
     expect(context.isSellAssetUtxo).toBe(true)
     expect(context.isSellAssetEvm).toBe(false)
     expect(context.isBuyAssetEvm).toBe(true)
+    actor.stop()
+  })
+
+  it('seeds the amount that drove the quote, so a re-quote has something to ask for', () => {
+    const actor = restoreDeposit()
+    const { context } = actor.getSnapshot()
+
+    expect(context.sellAmountBaseUnit).toBe('10000000')
+    expect(context.sellAmount).toBe('0.1')
     actor.stop()
   })
 

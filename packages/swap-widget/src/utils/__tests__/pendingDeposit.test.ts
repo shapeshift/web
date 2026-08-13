@@ -11,6 +11,8 @@ const makeDeposit = (expiresAt: number) => ({
   } as unknown as QuoteResponse,
   sendAddress: 'bc1qrefund',
   receiveAddress: '0xreceive',
+  sellAmountBaseUnit: '10000000',
+  buyAmountBaseUnit: undefined,
 })
 
 describe('pendingDeposit', () => {
@@ -22,6 +24,7 @@ describe('pendingDeposit', () => {
     expect(loadPendingDeposit(5_000)?.quote.depositAddress).toBe('bc1qdeposit')
     expect(loadPendingDeposit(5_000)?.sendAddress).toBe('bc1qrefund')
     expect(loadPendingDeposit(5_000)?.receiveAddress).toBe('0xreceive')
+    expect(loadPendingDeposit(5_000)?.sellAmountBaseUnit).toBe('10000000')
   })
 
   it('drops an expired deposit', () => {
@@ -42,6 +45,8 @@ describe('pendingDeposit', () => {
       quote: { quoteId: 'quote-1', expiresAt: 10_000 } as unknown as QuoteResponse,
       sendAddress: 'bc1qrefund',
       receiveAddress: '0xreceive',
+      sellAmountBaseUnit: '10000000',
+      buyAmountBaseUnit: undefined,
     })
 
     expect(loadPendingDeposit(5_000)).toBeUndefined()

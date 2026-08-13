@@ -242,6 +242,8 @@ export const nearIntentsApi: SwapperApi = {
 
       // Extract buyTxHash from destination chain transactions
       const buyTxHash = statusResponse.swapDetails?.destinationChainTxHashes?.[0]?.hash
+      // The deposit came from whatever wallet the user paid with, so this may be our only sight of it
+      const sellTxHash = statusResponse.swapDetails?.originChainTxHashes?.[0]?.hash
 
       // amountOut is only meaningful destination-denominated on terminal success - in-flight and
       // refund states may carry settlement-internal or refund values
@@ -251,6 +253,7 @@ export const nearIntentsApi: SwapperApi = {
       return {
         status: txStatus,
         buyTxHash,
+        sellTxHash,
         swapperTxLink: `https://explorer.near-intents.org/transactions/${depositAddress}`,
         message,
         actualBuyAmountCryptoBaseUnit,

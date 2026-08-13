@@ -378,8 +378,10 @@ identical to a wallet swap.
 ### Expiry and recovery
 
 A deposit window is finite (Chainflip channels run hours, NEAR deposit addresses longer). When the
-countdown reaches zero the screen warns not to send and offers a fresh address. A late deposit is
-still refunded by the protocol.
+countdown reaches zero the screen warns not to send and offers a fresh quote. Treat expiry as a hard
+cutoff: what happens to a late deposit is protocol-specific — NEAR Intents refunds it to the refund
+address, while an expired Chainflip channel stops being watched altogether and recovering funds sent
+to it is not guaranteed.
 
 While funds are still owed, the deposit address is persisted to `localStorage` and restored if the
 page reloads, since it's the one thing the user can't recreate and still needs in hand. It is

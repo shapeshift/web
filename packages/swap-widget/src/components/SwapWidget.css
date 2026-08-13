@@ -801,13 +801,6 @@
   color: var(--ssw-error);
 }
 
-/* Caution rather than failure - an expired window costs nothing unless funds are sent to it */
-.ssw-step-icon-circle.ssw-ic-warning {
-  background: rgba(255, 193, 7, 0.1);
-  border-color: var(--ssw-warning);
-  color: var(--ssw-warning);
-}
-
 .ssw-step-title {
   font-size: 20px;
   font-weight: 600;

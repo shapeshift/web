@@ -1,6 +1,7 @@
 import { buildPaymentUri } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useState } from 'react'
 
+import { getChainIcon } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { formatAmount, formatAmountForInput, truncateAddress } from '../types'
 import { formatCountdown } from '../utils/countdown'
@@ -141,7 +142,7 @@ export const DepositStep = () => {
     <div className='ssw-deposit'>
       <span className='ssw-deposit-title'>Awaiting Deposit</span>
 
-      <QrCode value={paymentUri} />
+      <QrCode value={paymentUri} logo={getChainIcon(quote.sellAsset.chainId)} />
 
       <CopyField
         label='Send exactly'

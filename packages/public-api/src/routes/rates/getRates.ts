@@ -69,6 +69,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     if (!isExecutableSellChainId(sellAsset.chainId)) {
       res.status(400).json({
         error: `Unsupported sell chain: ${sellAsset.chainId}`,
+        code: 'UNSUPPORTED_SELL_CHAIN',
       } satisfies ErrorResponse)
       return
     }

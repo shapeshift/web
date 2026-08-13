@@ -342,8 +342,8 @@ describe('/v1/swap/rates', () => {
     })
     const res = await fetch(`${API_URL}/v1/swap/rates?${params}`)
     expect(res.status).toBe(400)
-    const data = (await res.json()) as { error: string }
-    expect(data.error).toMatch(/Unsupported sell chain/)
+    const data = (await res.json()) as { error: string; code: string }
+    expect(data.code).toBe('UNSUPPORTED_SELL_CHAIN')
   })
 
   it.each(NON_SELLABLE)(
@@ -423,7 +423,29 @@ describe('/v1/swap/quote', () => {
       }),
     })
     expect(res.status).toBe(400)
-    const data = (await res.json()) as { error: string }
-    expect(data.error).toMatch(/Unsupported sell chain/)
+    const data = (await res.json()) as { error: string; code: string }
+    expect(data.code).toBe('UNSUPPORTED_SELL_CHAIN')
   })
+
+  it.each(QUOTES)(
+    'returns transactionData for $label',
+    { timeout: 30_000, retry: 2 },
+    async ({ sellAssetId, buyAssetId, swapperName, sendAddress, receiveAddress, amount }) => {
+      const res = await fetch(`${API_URL}/v1/swap/quote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sellAssetId,
+          buyAssetId,
+          sellAmountCryptoBaseUnit: amount,
+          sendAddress,
+          receiveAddress,
+          swapperName,
+        }),
+      })
+      expect(res.ok).toBe(true)
+      const data = (await res.json()) as QuoteResponse
+      expect(data.steps[0].transactionData).toBeDefined()
+    },
+  )
 })

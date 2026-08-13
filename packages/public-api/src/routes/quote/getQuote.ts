@@ -103,6 +103,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     if (!isExecutableSellChainId(sellAsset.chainId)) {
       res.status(400).json({
         error: `Unsupported sell chain: ${sellAsset.chainId}`,
+        code: 'UNSUPPORTED_SELL_CHAIN',
       } satisfies ErrorResponse)
       return
     }
@@ -188,6 +189,18 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const quote = quotes[0]
     const step = quote.steps[0]
     const lastStep = quote.steps[quote.steps.length - 1]
+
+    // The sell-chain gate only proves the namespace is serializable - this proves this swapper
+    // actually produced something to sign, rather than returning a 200 the client can't act on
+    if (!step.transactionData) {
+      console.error(
+        `[getQuote] ${validSwapperName} returned a ${sellAsset.chainId} step with no transactionData - it is enabled in ENABLED_SWAPPER_NAMES but not producing an executable quote`,
+      )
+      res.status(502).json({
+        error: 'Swapper returned a quote with no transaction to sign',
+      } satisfies ErrorResponse)
+      return
+    }
 
     const quoteId = uuidv4()
 

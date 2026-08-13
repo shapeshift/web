@@ -233,6 +233,11 @@ address.
 | `defaultReceiveAddress` only | Prefilled, user can still edit it   |
 | Both                         | Locked to the address you supplied  |
 
+A locked address is checked against the buy asset's chain, and if it doesn't validate there the
+widget blocks the swap rather than falling back to the connected wallet — paying the user's own
+address is never what a locked destination meant. This is reachable whenever the buy asset is left
+unlocked, since the user can switch to a chain the address doesn't belong to.
+
 A lock is only accepted alongside the value it locks — `isReceiveAddressLocked` on its own is a type
 error, as is `isBuyAmountLocked` without `defaultBuyAmountCryptoBaseUnit`. Locking with nothing to
 lock would fall back to the connected wallet's address, which is undefined whenever the wallet

@@ -21,6 +21,7 @@ import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
 import { formatAmountForInput, getChainType } from '../types'
 import { validateAddress } from '../utils/addressValidation'
+import { resolveReceiveAddress } from '../utils/receiveAddress'
 import { ApprovalStep } from './ApprovalStep'
 import { ExecutionStep } from './ExecutionStep'
 import { InputStep } from './InputStep'
@@ -342,21 +343,23 @@ const SwapWidgetCore = ({
     [addressForChain, buyChainType],
   )
 
-  const isCustomReceiveAddressValid = useMemo(
-    () => !!customReceiveAddress && validateAddress(customReceiveAddress, buyChainId).valid,
-    [customReceiveAddress, buyChainId],
+  const receiveAddress = useMemo(
+    () =>
+      resolveReceiveAddress({
+        isLocked: isReceiveAddressLocked,
+        defaultAddress: defaultReceiveAddress,
+        customAddress: customReceiveAddress,
+        walletAddress: walletReceiveAddress,
+        buyChainId,
+      }),
+    [
+      isReceiveAddressLocked,
+      defaultReceiveAddress,
+      customReceiveAddress,
+      walletReceiveAddress,
+      buyChainId,
+    ],
   )
-
-  const receiveAddress = useMemo(() => {
-    if (isReceiveAddressLocked && defaultReceiveAddress) return defaultReceiveAddress
-    return isCustomReceiveAddressValid ? customReceiveAddress : walletReceiveAddress
-  }, [
-    isReceiveAddressLocked,
-    defaultReceiveAddress,
-    isCustomReceiveAddressValid,
-    customReceiveAddress,
-    walletReceiveAddress,
-  ])
 
   // Unlike the initial sync below, a locked amount keeps tracking its prop
   useEffect(() => {

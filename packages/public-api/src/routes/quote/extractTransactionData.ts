@@ -82,8 +82,6 @@ const extractCosmosSdkTransactionData = (
   }
 }
 
-// The namespaces handled here are the source of truth for EXECUTABLE_SELL_CHAIN_IDS - widening one
-// without the other either advertises a sell chain we can't serialize, or silently drops tx data
 export const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 

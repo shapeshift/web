@@ -190,8 +190,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const step = quote.steps[0]
     const lastStep = quote.steps[quote.steps.length - 1]
 
-    // The sell-chain gate only proves the namespace is serializable - this proves this swapper
-    // actually produced something to sign, rather than returning a 200 the client can't act on
     if (!step.transactionData) {
       console.error(
         `[getQuote] ${validSwapperName} returned a ${sellAsset.chainId} step with no transactionData - it is enabled in ENABLED_SWAPPER_NAMES but not producing an executable quote`,

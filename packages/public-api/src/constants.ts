@@ -43,8 +43,7 @@ export const SUPPORTED_CHAIN_IDS: readonly KnownChainIds[] = [
 
 export const SUPPORTED_CHAIN_IDS_SET: ReadonlySet<string> = new Set(SUPPORTED_CHAIN_IDS)
 
-// Namespaces extractTransactionData can serialize. Selling requires something to sign, so a chain
-// outside these is buy-side only - reachable as a destination, rejected as a sell asset.
+// Namespaces extractTransactionData can serialize - a chain outside these is buy-side only
 const EXECUTABLE_CHAIN_NAMESPACES: ReadonlySet<string> = new Set([
   CHAIN_NAMESPACE.Evm,
   CHAIN_NAMESPACE.Utxo,
@@ -61,8 +60,6 @@ const EXECUTABLE_SELL_CHAIN_IDS_SET: ReadonlySet<string> = new Set(EXECUTABLE_SE
 export const isExecutableSellChainId = (chainId: string): boolean =>
   EXECUTABLE_SELL_CHAIN_IDS_SET.has(chainId)
 
-// CoW Swap is deliberately absent - it signs an off-chain EIP-712 order rather than a transaction,
-// which the wire has no shape for yet, so its quotes would carry no transactionData at all.
 export const ENABLED_SWAPPER_NAMES: readonly SwapperName[] = [
   SwapperName.Bebop,
   SwapperName.ButterSwap,

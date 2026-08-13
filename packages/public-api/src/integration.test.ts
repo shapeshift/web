@@ -103,8 +103,7 @@ const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: s
   },
 ]
 
-// Destination-only chains - no transactionData can be serialized for them, so they are rejected as
-// a sell asset but remain valid as a buy asset
+// Destination-only chains - rejected as a sell asset, still valid as a buy asset
 const NON_SELLABLE: { label: string; sellAssetId: string; buyAssetId: string; amount: string }[] = [
   {
     label: 'Tron',

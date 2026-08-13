@@ -881,3 +881,80 @@
   color: var(--ssw-text-primary);
   background: var(--ssw-bg-hover);
 }
+
+.ssw-deposit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.ssw-deposit-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ssw-text-primary);
+  text-align: center;
+}
+
+.ssw-qr {
+  border-radius: var(--ssw-radius-md);
+  padding: 8px;
+  background: #ffffff;
+}
+
+.ssw-deposit-address {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--ssw-border);
+  border-radius: var(--ssw-radius-md);
+  background: var(--ssw-bg-input);
+  color: var(--ssw-text-primary);
+  font-family: monospace;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ssw-deposit-address:hover {
+  border-color: var(--ssw-border-hover);
+}
+
+.ssw-deposit-copy {
+  color: var(--ssw-accent);
+  font-family: var(--ssw-font-family);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ssw-deposit-countdown {
+  font-size: 13px;
+  color: var(--ssw-text-muted);
+}
+
+.ssw-deposit-expired {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ssw-error);
+  text-align: center;
+}
+
+.ssw-deposit-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding-top: 12px;
+  border-top: 1px solid var(--ssw-border);
+}
+
+.ssw-deposit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ssw-text-secondary);
+}

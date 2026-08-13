@@ -8,6 +8,8 @@ export type SwapWalletContextValue = {
   sendAddress: string | undefined
   receiveAddress: string | undefined
   isReceiveAddressResolving: boolean
+  // A locked address the buy chain rejects - nothing can be quoted until the integrator fixes it
+  isReceiveAddressBlocked: boolean
   customReceiveAddress: string
   setCustomReceiveAddress: (address: string) => void
   evm: UseEvmSigningResult

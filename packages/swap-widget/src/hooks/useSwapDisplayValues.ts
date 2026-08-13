@@ -63,7 +63,7 @@ export const useSwapDisplayValues = ({
     selectedRate,
   } = context
 
-  const { receiveAddress, evm, bitcoin, solana } = useSwapWallet()
+  const { receiveAddress, isReceiveAddressBlocked, evm, bitcoin, solana } = useSwapWallet()
   const evmAddress = evm.address
   const bitcoinAddress = bitcoin.address
   const solanaAddress = solana.address
@@ -84,9 +84,12 @@ export const useSwapDisplayValues = ({
     buyAmountCryptoBaseUnit: buyAmountBaseUnit,
     allowedSwapperNames,
     refetchInterval: ratesRefetchInterval,
+    // Rates carry no destination, so a missing address is no reason not to price a route - but a
+    // locked one the buy chain rejects is, since nothing can be quoted until it changes
     enabled:
       !!amountBaseUnit &&
       amountBaseUnit !== '0' &&
+      !isReceiveAddressBlocked &&
       (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
   })
 

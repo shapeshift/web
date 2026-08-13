@@ -347,26 +347,6 @@ describe('/v1/swap/rates', () => {
   })
 
   it.each(NON_SELLABLE)(
-    'returns a rate for $label as a sell asset under allowNonExecutableSellChain',
-    { timeout: 30_000, retry: 2 },
-    async ({ sellAssetId, buyAssetId, amount }) => {
-      const params = new URLSearchParams({
-        sellAssetId,
-        buyAssetId,
-        sellAmountCryptoBaseUnit: amount,
-        allowNonExecutableSellChain: 'true',
-      })
-      const res = await fetch(`${API_URL}/v1/swap/rates?${params}`)
-      expect(res.ok).toBe(true)
-      const data = (await res.json()) as RateResponse
-      const validRates = data.rates.filter(
-        r => !r.error && r.buyAmountCryptoBaseUnit && r.buyAmountCryptoBaseUnit !== '0',
-      )
-      expect(validRates.length).toBeGreaterThan(0)
-    },
-  )
-
-  it.each(NON_SELLABLE)(
     'returns a rate buying into $label',
     { timeout: 30_000, retry: 2 },
     async ({ sellAssetId: buyAssetId }) => {

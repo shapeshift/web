@@ -35,15 +35,6 @@ export const RatesRequestSchema = z
       )
       .optional()
       .openapi({ example: '0.01' }),
-    allowNonExecutableSellChain: z
-      .enum(['true', 'false'])
-      .optional()
-      .transform(v => v === 'true')
-      .openapi({
-        example: 'false',
-        description:
-          'Return rates even when the sell chain has no executable quote, for clients that fulfil the swap elsewhere. Rates are informational either way; /v1/swap/quote rejects these sell chains regardless.',
-      }),
   })
   .refine(
     ({ sellAmountCryptoBaseUnit, buyAmountCryptoBaseUnit }) =>

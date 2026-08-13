@@ -1,18 +1,28 @@
 import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 
 import type { Asset } from '../types'
-import { formatAmountForInput, getChainType, getEvmNetworkId, UTXO_CHAIN_IDS } from '../types'
+import {
+  COSMOS_CHAIN_IDS,
+  formatAmountForInput,
+  getChainType,
+  getEvmNetworkId,
+  UTXO_CHAIN_IDS,
+} from '../types'
 
-const UTXO_URI_SCHEMES: Record<string, string> = {
+// Mirrors the web app's CHAIN_ID_TO_URN_SCHEME, which is what parses these back
+const BIP21_URI_SCHEMES: Record<string, string> = {
   [UTXO_CHAIN_IDS.bitcoin]: 'bitcoin',
   [UTXO_CHAIN_IDS.bitcoinCash]: 'bitcoincash',
   [UTXO_CHAIN_IDS.dogecoin]: 'dogecoin',
   [UTXO_CHAIN_IDS.litecoin]: 'litecoin',
+  [COSMOS_CHAIN_IDS.cosmos]: 'cosmos',
+  [COSMOS_CHAIN_IDS.thorchain]: 'thorchain',
+  [COSMOS_CHAIN_IDS.mayachain]: 'mayachain',
 }
 
 // BIP-21 takes decimal coin units
-const buildUtxoUri = (address: string, asset: Asset, amountCryptoBaseUnit: string): string => {
-  const scheme = UTXO_URI_SCHEMES[asset.chainId]
+const buildBip21Uri = (address: string, asset: Asset, amountCryptoBaseUnit: string): string => {
+  const scheme = BIP21_URI_SCHEMES[asset.chainId]
   if (!scheme) return address
 
   // CashAddr already carries its scheme
@@ -47,8 +57,8 @@ const buildSolanaUri = (address: string, asset: Asset, amountCryptoBaseUnit: str
 
 /**
  * A payment URI carrying both the deposit address and the exact amount, so a scanning wallet
- * prefills what the user would otherwise retype. Chains with no adopted scheme - the cosmos sdk
- * ones - fall back to the bare address, which every wallet reads.
+ * prefills what the user would otherwise retype. Chains with no scheme fall back to the bare
+ * address, which every wallet reads.
  */
 export const buildPaymentUri = (
   address: string,
@@ -57,7 +67,8 @@ export const buildPaymentUri = (
 ): string => {
   switch (getChainType(asset.chainId)) {
     case 'utxo':
-      return buildUtxoUri(address, asset, amountCryptoBaseUnit)
+    case 'cosmos':
+      return buildBip21Uri(address, asset, amountCryptoBaseUnit)
     case 'evm':
       return buildEvmUri(address, asset, amountCryptoBaseUnit)
     case 'solana':

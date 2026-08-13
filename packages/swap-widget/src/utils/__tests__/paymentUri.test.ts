@@ -62,8 +62,15 @@ describe('buildPaymentUri', () => {
     )
   })
 
-  it('falls back to the bare address where no scheme is adopted', () => {
-    const address = 'cosmos1zqf0dq3nl3fhr8xk3pd2yq2sxwv0h2gd8qzptc'
-    expect(buildPaymentUri(address, ATOM, '1000000')).toBe(address)
+  it('uses the cosmos sdk scheme the web app parses back', () => {
+    expect(buildPaymentUri('cosmos1zqf0dq3nl3fhr8xk3pd2yq2sxwv0h2gd8qzptc', ATOM, '1000000')).toBe(
+      'cosmos:cosmos1zqf0dq3nl3fhr8xk3pd2yq2sxwv0h2gd8qzptc?amount=1',
+    )
+  })
+
+  it('falls back to the bare address on a chain with no scheme', () => {
+    const address = '0x04a1b2c3'
+    const starknet = asset('starknet:SN_MAIN/slip44:9004', 'starknet:SN_MAIN', 18)
+    expect(buildPaymentUri(address, starknet, '1000000')).toBe(address)
   })
 })

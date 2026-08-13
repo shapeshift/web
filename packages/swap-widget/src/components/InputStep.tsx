@@ -5,6 +5,7 @@ import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 import { formatAmount } from '../types'
+import { cryptoToFiat } from '../utils/fiatConversion'
 import { QuoteSelector } from './QuoteSelector'
 import { ReceiveAddressRow } from './ReceiveAddressRow'
 
@@ -12,11 +13,14 @@ type InputStepProps = {
   displayValues: SwapDisplayValues
   onOpenTokenModal: (type: 'sell' | 'buy') => void
   onSellAmountChange: (value: string, sellAssetUsdPrice?: string) => void
+  onBuyAmountChange: (value: string) => void
   onToggleSellFiat: (sellAssetUsdPrice?: string) => void
   onSwapTokens: () => void
   onSelectRate: (rate: TradeRate) => void
   onButtonClick: () => void
   isBuyAssetLocked: boolean
+  isBuyAmountLocked: boolean
+  isReceiveAddressLocked: boolean
   allowShapeshiftRedirect: boolean
 }
 
@@ -24,35 +28,18 @@ export const InputStep = ({
   displayValues,
   onOpenTokenModal,
   onSellAmountChange,
+  onBuyAmountChange,
   onToggleSellFiat,
   onSwapTokens,
   onSelectRate,
   onButtonClick,
   isBuyAssetLocked,
+  isBuyAmountLocked,
+  isReceiveAddressLocked,
   allowShapeshiftRedirect,
 }: InputStepProps) => {
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isQuoting = SwapMachineCtx.useSelector(s => s.matches('quoting'))
-
-  const {
-    rates,
-    isLoadingRates,
-    ratesError,
-    sellAssetBalance,
-    buyAssetBalance,
-    isSellBalanceLoading,
-    isBuyBalanceLoading,
-    sellUsdValue,
-    sellAssetUsdPrice,
-    buyUsdValue,
-    sellChainInfo,
-    buyChainInfo,
-    buyAmount,
-    buyAssetUsdPrice,
-    networkFeeDisplay,
-    sellBalanceFiatValue,
-    buyBalanceFiatValue,
-  } = displayValues
 
   const {
     sendAddress,
@@ -64,24 +51,63 @@ export const InputStep = ({
     solana,
   } = useSwapWallet()
 
-  const {
-    sellAsset,
-    buyAsset,
-    selectedRate,
-    sellAmount,
-    sellAmountBaseUnit,
-    isSellAmountFiat,
-    sellAmountFiat,
-    isSellAssetEvm,
-    isSellAssetUtxo,
-    isSellAssetSolana,
-  } = context
-
-  const buyChainId = buyAsset.chainId
+  const buyChainId = context.buyAsset.chainId
   const hasAnyWalletAddress = !!evm.address || !!bitcoin.address || !!solana.address
   const hasActiveWallet = !!receiveAddress || hasAnyWalletAddress || isReceiveAddressResolving
 
-  const isUnsupportedChain = !isSellAssetEvm && !isSellAssetUtxo && !isSellAssetSolana
+  const isUnsupportedChain =
+    !context.isSellAssetEvm && !context.isSellAssetUtxo && !context.isSellAssetSolana
+
+  const amountBaseUnit = displayValues.isExactOutput
+    ? context.buyAmountBaseUnit
+    : context.sellAmountBaseUnit
+
+  const isSellAmountReadOnly = displayValues.isExactOutput && isBuyAmountLocked
+  const isSellAmountPending = displayValues.isExactOutput && displayValues.isLoadingRates
+  const isBuyAmountPending = !displayValues.isExactOutput && displayValues.isLoadingRates
+
+  const sellAmountCrypto = useMemo(
+    () =>
+      displayValues.sellAmountBaseUnit
+        ? formatAmount(displayValues.sellAmountBaseUnit, context.sellAsset.precision, 6)
+        : '',
+    [displayValues.sellAmountBaseUnit, context.sellAsset.precision],
+  )
+
+  const buyAmountValue = useMemo(() => {
+    if (displayValues.isExactOutput) return context.buyAmount
+    if (!displayValues.buyAmount) return ''
+
+    return formatAmount(displayValues.buyAmount, context.buyAsset.precision)
+  }, [
+    displayValues.isExactOutput,
+    displayValues.buyAmount,
+    context.buyAmount,
+    context.buyAsset.precision,
+  ])
+
+  const sellAmountValue = useMemo(() => {
+    if (!displayValues.isExactOutput) {
+      return context.isSellAmountFiat ? context.sellAmountFiat : context.sellAmount
+    }
+
+    if (!context.isSellAmountFiat) return sellAmountCrypto
+
+    return cryptoToFiat(
+      displayValues.sellAmountBaseUnit,
+      displayValues.sellAssetUsdPrice ?? '',
+      context.sellAsset.precision,
+    )
+  }, [
+    displayValues.isExactOutput,
+    displayValues.sellAmountBaseUnit,
+    displayValues.sellAssetUsdPrice,
+    context.isSellAmountFiat,
+    context.sellAmountFiat,
+    context.sellAmount,
+    context.sellAsset.precision,
+    sellAmountCrypto,
+  ])
 
   const { text: buttonText, disabled: isButtonDisabled } = useMemo((): {
     text: string
@@ -94,20 +120,28 @@ export const InputStep = ({
 
     if (!sendAddress) return { text: 'Connect Wallet', disabled: false }
     if (!receiveAddress) return { text: 'Enter receive address', disabled: true }
-    if (!sellAmount) return { text: 'Enter an amount', disabled: true }
-    if (isLoadingRates) return { text: 'Finding rates...', disabled: true }
-    if (ratesError) return { text: 'No routes available', disabled: true }
-    if (!rates?.length) return { text: 'No routes found', disabled: true }
+
+    const drivingAmount = displayValues.isExactOutput
+      ? context.buyAmountBaseUnit
+      : context.sellAmount
+
+    if (!drivingAmount || drivingAmount === '0') return { text: 'Enter an amount', disabled: true }
+    if (displayValues.isLoadingRates) return { text: 'Finding rates...', disabled: true }
+    if (displayValues.ratesError) return { text: 'No routes available', disabled: true }
+    if (!displayValues.rates?.length) return { text: 'No routes found', disabled: true }
+
     return { text: 'Swap', disabled: false }
   }, [
     isUnsupportedChain,
     allowShapeshiftRedirect,
     sendAddress,
     receiveAddress,
-    sellAmount,
-    isLoadingRates,
-    ratesError,
-    rates,
+    context.sellAmount,
+    displayValues.isExactOutput,
+    context.buyAmountBaseUnit,
+    displayValues.isLoadingRates,
+    displayValues.ratesError,
+    displayValues.rates,
   ])
 
   return (
@@ -119,17 +153,20 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-input-row'>
-            {isSellAmountFiat && <span className='ssw-fiat-prefix'>$</span>}
+            {context.isSellAmountFiat && <span className='ssw-fiat-prefix'>$</span>}
             <input
               type='text'
-              className='ssw-amount-input'
-              placeholder='0'
-              value={isSellAmountFiat ? sellAmountFiat : sellAmount}
+              className={`ssw-amount-input${
+                isSellAmountReadOnly ? ' ssw-amount-input-locked' : ''
+              }${isSellAmountPending ? ' ssw-amount-input-pending' : ''}`}
+              placeholder={isSellAmountPending ? '...' : '0'}
+              value={sellAmountValue}
+              readOnly={isSellAmountReadOnly}
               onChange={e => {
                 const raw = e.target.value.replace(/[^0-9.]/g, '')
                 const parts = raw.split('.')
                 const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw
-                onSellAmountChange(sanitized, sellAssetUsdPrice)
+                onSellAmountChange(sanitized, displayValues.sellAssetUsdPrice)
               }}
             />
             <button
@@ -137,15 +174,23 @@ export const InputStep = ({
               onClick={() => onOpenTokenModal('sell')}
               type='button'
             >
-              {sellAsset.icon ? (
-                <img src={sellAsset.icon} alt={sellAsset.symbol} className='ssw-token-icon' />
+              {context.sellAsset.icon ? (
+                <img
+                  src={context.sellAsset.icon}
+                  alt={context.sellAsset.symbol}
+                  className='ssw-token-icon'
+                />
               ) : (
-                <div className='ssw-token-icon-placeholder'>{sellAsset.symbol.charAt(0)}</div>
+                <div className='ssw-token-icon-placeholder'>
+                  {context.sellAsset.symbol.charAt(0)}
+                </div>
               )}
               <div className='ssw-token-info'>
-                <span className='ssw-token-symbol'>{sellAsset.symbol}</span>
+                <span className='ssw-token-symbol'>{context.sellAsset.symbol}</span>
                 <span className='ssw-token-chain'>
-                  {sellChainInfo?.name ?? sellAsset.networkName ?? sellAsset.name}
+                  {displayValues.sellChainInfo?.name ??
+                    context.sellAsset.networkName ??
+                    context.sellAsset.name}
                 </span>
               </div>
               <svg
@@ -162,20 +207,18 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-section-footer'>
-            {sellAssetUsdPrice ? (
+            {!displayValues.sellAssetUsdPrice ? (
+              <span className='ssw-usd-value' />
+            ) : (
               <button
                 type='button'
                 className='ssw-usd-value ssw-usd-value-toggle'
-                onClick={() => onToggleSellFiat(sellAssetUsdPrice)}
+                onClick={() => onToggleSellFiat(displayValues.sellAssetUsdPrice)}
               >
                 <span>
-                  {isSellAmountFiat
-                    ? `≈ ${
-                        sellAmountBaseUnit
-                          ? formatAmount(sellAmountBaseUnit, sellAsset.precision, 6)
-                          : '0'
-                      } ${sellAsset.symbol}`
-                    : sellUsdValue}
+                  {context.isSellAmountFiat
+                    ? `≈ ${sellAmountCrypto || '0'} ${context.sellAsset.symbol}`
+                    : displayValues.sellUsdValue}
                 </span>
                 <svg
                   width='12'
@@ -189,17 +232,18 @@ export const InputStep = ({
                   <path d='M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4' />
                 </svg>
               </button>
-            ) : (
-              <span className='ssw-usd-value' />
             )}
             {hasAnyWalletAddress &&
-              (isSellBalanceLoading ? (
+              (displayValues.isSellBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
-              ) : sellAssetBalance ? (
+              ) : displayValues.sellAssetBalance ? (
                 <span className='ssw-balance'>
-                  Balance: {sellAssetBalance.balanceFormatted}
-                  {sellBalanceFiatValue && (
-                    <span className='ssw-balance-fiat'> ({sellBalanceFiatValue})</span>
+                  Balance: {displayValues.sellAssetBalance.balanceFormatted}
+                  {displayValues.sellBalanceFiatValue && (
+                    <span className='ssw-balance-fiat'>
+                      {' '}
+                      ({displayValues.sellBalanceFiatValue})
+                    </span>
                   )}
                 </span>
               ) : null)}
@@ -234,10 +278,17 @@ export const InputStep = ({
           <div className='ssw-input-row'>
             <input
               type='text'
-              className='ssw-amount-input'
-              placeholder='0'
-              value={buyAmount ? formatAmount(buyAmount, buyAsset.precision) : ''}
-              readOnly
+              className={`ssw-amount-input${isBuyAmountLocked ? ' ssw-amount-input-locked' : ''}${
+                isBuyAmountPending ? ' ssw-amount-input-pending' : ''
+              }`}
+              placeholder={isBuyAmountPending ? '...' : '0'}
+              value={buyAmountValue}
+              readOnly={isBuyAmountLocked}
+              onChange={e => {
+                const raw = e.target.value.replace(/[^0-9.]/g, '')
+                const parts = raw.split('.')
+                onBuyAmountChange(parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw)
+              }}
             />
             <button
               className={`ssw-token-btn${isBuyAssetLocked ? ' ssw-token-btn-locked' : ''}`}
@@ -245,15 +296,23 @@ export const InputStep = ({
               disabled={isBuyAssetLocked}
               type='button'
             >
-              {buyAsset.icon ? (
-                <img src={buyAsset.icon} alt={buyAsset.symbol} className='ssw-token-icon' />
+              {context.buyAsset.icon ? (
+                <img
+                  src={context.buyAsset.icon}
+                  alt={context.buyAsset.symbol}
+                  className='ssw-token-icon'
+                />
               ) : (
-                <div className='ssw-token-icon-placeholder'>{buyAsset.symbol.charAt(0)}</div>
+                <div className='ssw-token-icon-placeholder'>
+                  {context.buyAsset.symbol.charAt(0)}
+                </div>
               )}
               <div className='ssw-token-info'>
-                <span className='ssw-token-symbol'>{buyAsset.symbol}</span>
+                <span className='ssw-token-symbol'>{context.buyAsset.symbol}</span>
                 <span className='ssw-token-chain'>
-                  {buyChainInfo?.name ?? buyAsset.networkName ?? buyAsset.name}
+                  {displayValues.buyChainInfo?.name ??
+                    context.buyAsset.networkName ??
+                    context.buyAsset.name}
                 </span>
               </div>
               {!isBuyAssetLocked && (
@@ -272,15 +331,15 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-section-footer'>
-            <span className='ssw-usd-value'>{buyUsdValue}</span>
+            <span className='ssw-usd-value'>{displayValues.buyUsdValue}</span>
             {hasAnyWalletAddress &&
-              (isBuyBalanceLoading ? (
+              (displayValues.isBuyBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
-              ) : buyAssetBalance ? (
+              ) : displayValues.buyAssetBalance ? (
                 <span className='ssw-balance'>
-                  Balance: {buyAssetBalance.balanceFormatted}
-                  {buyBalanceFiatValue && (
-                    <span className='ssw-balance-fiat'> ({buyBalanceFiatValue})</span>
+                  Balance: {displayValues.buyAssetBalance.balanceFormatted}
+                  {displayValues.buyBalanceFiatValue && (
+                    <span className='ssw-balance-fiat'> ({displayValues.buyBalanceFiatValue})</span>
                   )}
                 </span>
               ) : null)}
@@ -292,30 +351,36 @@ export const InputStep = ({
             receiveAddress={receiveAddress}
             isResolving={isReceiveAddressResolving}
             buyChainId={buyChainId}
+            isLocked={isReceiveAddressLocked}
             onSetCustomReceiveAddress={setCustomReceiveAddress}
           />
         )}
       </div>
 
-      {sellAmountBaseUnit && sellAmountBaseUnit !== '0' && (rates?.length || isLoadingRates) && (
-        <div className='ssw-quotes'>
-          <QuoteSelector
-            rates={rates ?? []}
-            selectedRate={selectedRate}
-            onSelectRate={onSelectRate}
-            buyAsset={buyAsset}
-            sellAsset={sellAsset}
-            sellAmountBaseUnit={sellAmountBaseUnit}
-            isLoading={isLoadingRates}
-            buyAssetUsdPrice={buyAssetUsdPrice}
-          />
-        </div>
-      )}
+      {amountBaseUnit &&
+        amountBaseUnit !== '0' &&
+        (displayValues.rates?.length || displayValues.isLoadingRates) && (
+          <div className='ssw-quotes'>
+            <QuoteSelector
+              rates={displayValues.rates ?? []}
+              selectedRate={context.selectedRate}
+              onSelectRate={onSelectRate}
+              buyAsset={context.buyAsset}
+              sellAsset={context.sellAsset}
+              sellAmountBaseUnit={displayValues.sellAmountBaseUnit ?? '0'}
+              buyAmountBaseUnit={context.buyAmountBaseUnit ?? '0'}
+              isExactOutput={displayValues.isExactOutput}
+              isLoading={displayValues.isLoadingRates}
+              sellAssetUsdPrice={displayValues.sellAssetUsdPrice}
+              buyAssetUsdPrice={displayValues.buyAssetUsdPrice}
+            />
+          </div>
+        )}
 
-      {networkFeeDisplay && (
+      {displayValues.networkFeeDisplay && (
         <div className='ssw-network-fee'>
           <span className='ssw-network-fee-label'>Est. network fee</span>
-          <span className='ssw-network-fee-value'>{networkFeeDisplay}</span>
+          <span className='ssw-network-fee-value'>{displayValues.networkFeeDisplay}</span>
         </div>
       )}
 

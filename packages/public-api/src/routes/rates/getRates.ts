@@ -58,6 +58,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       sellAmountCryptoBaseUnit,
       buyAmountCryptoBaseUnit,
       slippageTolerancePercentageDecimal,
+      allowNonExecutableSellChain,
     } = queryResult.data
 
     const sellAsset = getAsset(sellAssetId)
@@ -66,7 +67,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    if (!isExecutableSellChainId(sellAsset.chainId)) {
+    if (!allowNonExecutableSellChain && !isExecutableSellChainId(sellAsset.chainId)) {
       res.status(400).json({
         error: `Unsupported sell chain: ${sellAsset.chainId}`,
       } satisfies ErrorResponse)

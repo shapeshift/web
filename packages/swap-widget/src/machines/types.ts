@@ -20,6 +20,8 @@ export type SwapMachineContext = {
   errorSource: ErrorSource | null
   retryCount: number
   chainType: 'evm' | 'utxo' | 'solana' | 'cosmos' | 'other'
+  // Set when the swap is paid by transferring to a deposit address rather than signed in-widget
+  isDepositFlow: boolean
   slippage: string
   sendAddress: string | undefined
   receiveAddress: string | undefined
@@ -42,7 +44,10 @@ export type SwapMachineEvent =
   | { type: 'SET_SELL_FIAT_MODE'; isFiat: boolean }
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }
-  | { type: 'FETCH_QUOTE' }
+  | { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }
+  | { type: 'DEPOSIT_DETECTED'; txHash: string }
+  | { type: 'DEPOSIT_EXPIRED' }
+  | { type: 'RESTORE_DEPOSIT'; quote: QuoteResponse; sendAddress: string }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }
   | { type: 'APPROVE' }

@@ -214,12 +214,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Shortening it locally is the only practical way to exercise expiry and re-quoting
-    const deadline =
-      env.QUOTE_DEADLINE_OVERRIDE_MS && env.NODE_ENV !== 'production'
-        ? Math.min(quote.deadline, now + env.QUOTE_DEADLINE_OVERRIDE_MS)
-        : quote.deadline
-
     quoteStore.set(quoteId, {
       ...baseQuote,
       sellAssetId: sellAsset.assetId,
@@ -229,7 +223,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerAddress: req.affiliateInfo?.partnerAddress,
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
-      expiresAt: deadline + QuoteStore.BIND_GRACE_MS,
+      expiresAt: quote.deadline + QuoteStore.BIND_GRACE_MS,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
     })
@@ -243,7 +237,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(transformQuoteStep),
       approval,
-      expiresAt: deadline,
+      expiresAt: quote.deadline,
       depositAddress: getDepositAddress(step, validSwapperName),
     }
 

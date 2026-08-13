@@ -59,7 +59,7 @@ const ApiRateSchema = z.object({
   supportsDepositAddress: z.boolean().openapi({
     example: true,
     description:
-      'True when this swapper executes by transferring the sell asset to a provider-issued deposit address, so the swap can be paid from any wallet rather than signed by the quoting client. The quote response carries the address itself.',
+      'True when this swapper is paid by sending the sell asset to a provider-issued deposit address, so any wallet can fund the swap instead of the requesting client signing a transaction. Advisory only - the quote is authoritative: take the address from its depositAddress field, and treat its absence (memo-bound routes) as this route needing a connected wallet after all.',
   }),
   priceImpactPercentageDecimal: z.string().optional(),
   ...BpsFields,

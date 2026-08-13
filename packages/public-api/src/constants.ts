@@ -72,6 +72,16 @@ export const ENABLED_SWAPPER_NAMES: readonly SwapperName[] = [
   SwapperName.Zrx,
 ]
 
+// Bebop settles solana RFQ orders off-chain via its own api - broadcasting the tx never settles it
+const EXCLUDED_SWAPPER_NAMESPACES: Partial<Record<SwapperName, ReadonlySet<string>>> = {
+  [SwapperName.Bebop]: new Set([CHAIN_NAMESPACE.Solana]),
+}
+
+export const isSwapperExecutableOnSellChain = (
+  swapperName: SwapperName,
+  chainId: string,
+): boolean => !EXCLUDED_SWAPPER_NAMESPACES[swapperName]?.has(fromChainId(chainId).chainNamespace)
+
 // Sanity ceiling catching provider deadline bugs (unit inflation, sentinel far-future dates).
 // Widest legitimate deadline today is chainflip's 6h - raise this if a swapper ever quotes longer.
 export const MAX_QUOTE_DEADLINE_MS = 7 * 24 * 60 * 60 * 1000

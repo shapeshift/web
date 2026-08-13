@@ -4,7 +4,11 @@ import { getTradeRates, swappers, TradeQuoteError } from '@shapeshiftoss/swapper
 import type { Request, Response } from 'express'
 
 import { getAsset } from '../../assets'
-import { ENABLED_SWAPPER_NAMES, isExecutableSellChainId } from '../../constants'
+import {
+  ENABLED_SWAPPER_NAMES,
+  isExecutableSellChainId,
+  isSwapperExecutableOnSellChain,
+} from '../../constants'
 import { env } from '../../env'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
@@ -103,6 +107,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       try {
         const swapper = swappers[swapperName]
         if (!swapper) return null
+        if (!isSwapperExecutableOnSellChain(swapperName, sellAsset.chainId)) return null
 
         const result = await getTradeRates(
           rateInput as GetTradeRateInput | GetExactOutputTradeRateInput,

@@ -5,9 +5,13 @@ import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 import { formatAmount } from '../types'
+import { isDepositCapableRate } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
+import type { InputCtaAction } from '../utils/inputCta'
+import { getInputCta } from '../utils/inputCta'
 import { QuoteSelector } from './QuoteSelector'
 import { ReceiveAddressRow } from './ReceiveAddressRow'
+import { RefundAddressRow } from './RefundAddressRow'
 
 type InputStepProps = {
   displayValues: SwapDisplayValues
@@ -17,7 +21,7 @@ type InputStepProps = {
   onToggleSellFiat: (sellAssetUsdPrice?: string) => void
   onSwapTokens: () => void
   onSelectRate: (rate: TradeRate) => void
-  onButtonClick: () => void
+  onButtonClick: (action: InputCtaAction) => void
   isBuyAssetLocked: boolean
   isBuyAmountLocked: boolean
   isReceiveAddressLocked: boolean
@@ -43,6 +47,8 @@ export const InputStep = ({
 
   const {
     sendAddress,
+    walletSendAddress,
+    setCustomSendAddress,
     receiveAddress,
     isReceiveAddressResolving,
     setCustomReceiveAddress,
@@ -109,33 +115,38 @@ export const InputStep = ({
     sellAmountCrypto,
   ])
 
-  const { text: buttonText, disabled: isButtonDisabled } = useMemo((): {
-    text: string
-    disabled: boolean
-  } => {
-    if (isUnsupportedChain) {
-      if (!allowShapeshiftRedirect) return { text: 'Route not supported', disabled: true }
-      return { text: 'Proceed on ShapeShift', disabled: false }
-    }
+  const selectedRate = context.selectedRate ?? displayValues.rates?.[0]
+  const isDepositCapable = !!selectedRate && isDepositCapableRate(selectedRate)
+  const isDepositFlowAvailable = isDepositCapable && !walletSendAddress
 
-    if (!sendAddress) return { text: 'Connect Wallet', disabled: false }
-    if (!receiveAddress) return { text: 'Enter receive address', disabled: true }
-
+  const {
+    text: buttonText,
+    disabled: isButtonDisabled,
+    action: buttonAction,
+  } = useMemo(() => {
     const drivingAmount = displayValues.isExactOutput
       ? context.buyAmountBaseUnit
       : context.sellAmount
 
-    if (!drivingAmount || drivingAmount === '0') return { text: 'Enter an amount', disabled: true }
-    if (displayValues.isLoadingRates) return { text: 'Finding rates...', disabled: true }
-    if (displayValues.ratesError) return { text: 'No routes available', disabled: true }
-    if (!displayValues.rates?.length) return { text: 'No routes found', disabled: true }
-
-    return { text: 'Swap', disabled: false }
+    return getInputCta({
+      isDepositCapable,
+      hasWalletForSellChain: !!walletSendAddress,
+      isUnsupportedChain,
+      allowShapeshiftRedirect,
+      hasReceiveAddress: !!receiveAddress,
+      hasSendAddress: !!sendAddress,
+      hasAmount: !!drivingAmount && drivingAmount !== '0',
+      isLoadingRates: displayValues.isLoadingRates,
+      hasRates: !!displayValues.rates?.length,
+      hasRatesError: !!displayValues.ratesError,
+    })
   }, [
+    isDepositCapable,
+    walletSendAddress,
     isUnsupportedChain,
     allowShapeshiftRedirect,
-    sendAddress,
     receiveAddress,
+    sendAddress,
     context.sellAmount,
     displayValues.isExactOutput,
     context.buyAmountBaseUnit,
@@ -346,13 +357,21 @@ export const InputStep = ({
           </div>
         </div>
 
-        {!isUnsupportedChain && hasActiveWallet && (
+        {((!isUnsupportedChain && hasActiveWallet) || isDepositFlowAvailable) && (
           <ReceiveAddressRow
             receiveAddress={receiveAddress}
             isResolving={isReceiveAddressResolving}
             buyChainId={buyChainId}
             isLocked={isReceiveAddressLocked}
             onSetCustomReceiveAddress={setCustomReceiveAddress}
+          />
+        )}
+
+        {isDepositFlowAvailable && (
+          <RefundAddressRow
+            sendAddress={sendAddress}
+            sellChainId={context.sellAsset.chainId}
+            onSetCustomSendAddress={setCustomSendAddress}
           />
         )}
       </div>
@@ -387,7 +406,7 @@ export const InputStep = ({
       <button
         className={`ssw-action-btn ${isUnsupportedChain ? 'ssw-secondary' : ''}`}
         disabled={isButtonDisabled || isQuoting}
-        onClick={onButtonClick}
+        onClick={() => onButtonClick(buttonAction)}
         type='button'
         style={isQuoting ? { opacity: 0.7 } : undefined}
       >

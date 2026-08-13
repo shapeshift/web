@@ -34,6 +34,7 @@ describe('SwapMachine Types', () => {
       errorSource: null,
       retryCount: 0,
       chainType: 'evm',
+      isDepositFlow: false,
       slippage: '0.5',
       sendAddress: undefined,
       receiveAddress: '0x1234567890abcdef1234567890abcdef12345678',

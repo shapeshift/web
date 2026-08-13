@@ -6,6 +6,7 @@ import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
 import { parseAmount } from '../types'
 import { cryptoToFiat, fiatToCrypto } from '../utils/fiatConversion'
+import type { InputCtaAction } from '../utils/inputCta'
 import { buildShapeShiftTradeUrl } from '../utils/redirect'
 
 type UseSwapHandlersParams = {
@@ -136,48 +137,49 @@ export const useSwapHandlers = ({
     window.open(url, '_blank', 'noopener,noreferrer')
   }, [actorRef, partnerCode])
 
-  const handleButtonClick = useCallback(() => {
-    const snap = actorRef.getSnapshot()
-    if (snap.context.isSellAssetUtxo && !bitcoin.isConnected) {
-      openAppKit({ namespace: 'bip122' })
-      return
-    }
-    if (snap.context.isSellAssetSolana && !solana.isConnected) {
-      openAppKit({ namespace: 'solana' })
-      return
-    }
-    if (snap.context.isSellAssetEvm && !evm.isConnected) {
-      openAppKit({ namespace: 'eip155' })
-      return
-    }
-    if (
-      !snap.context.isSellAssetEvm &&
-      !snap.context.isSellAssetUtxo &&
-      !snap.context.isSellAssetSolana
-    ) {
-      if (!allowShapeshiftRedirect) return
-      const sellAmountBaseUnit = snap.context.sellAmount
-        ? parseAmount(snap.context.sellAmount, snap.context.sellAsset.precision)
-        : undefined
-      const url = buildShapeShiftTradeUrl({
-        sellAssetId: snap.context.sellAsset.assetId,
-        buyAssetId: snap.context.buyAsset.assetId,
-        sellAmountBaseUnit,
-        partnerCode,
-      })
-      window.open(url, '_blank', 'noopener,noreferrer')
-      return
-    }
-    actorRef.send({ type: 'FETCH_QUOTE' })
-  }, [
-    actorRef,
-    bitcoin.isConnected,
-    solana.isConnected,
-    evm.isConnected,
-    openAppKit,
-    partnerCode,
-    allowShapeshiftRedirect,
-  ])
+  const handleButtonClick = useCallback(
+    (action: InputCtaAction) => {
+      if (action === 'deposit') {
+        actorRef.send({ type: 'FETCH_QUOTE', isDepositFlow: true })
+        return
+      }
+
+      if (action === 'quote') {
+        actorRef.send({ type: 'FETCH_QUOTE' })
+        return
+      }
+
+      if (action === 'redirect') {
+        if (!allowShapeshiftRedirect) return
+        redirectToShapeShift()
+        return
+      }
+
+      if (action !== 'connect') return
+
+      const snap = actorRef.getSnapshot()
+      if (snap.context.isSellAssetUtxo && !bitcoin.isConnected) {
+        openAppKit({ namespace: 'bip122' })
+        return
+      }
+      if (snap.context.isSellAssetSolana && !solana.isConnected) {
+        openAppKit({ namespace: 'solana' })
+        return
+      }
+      if (snap.context.isSellAssetEvm && !evm.isConnected) {
+        openAppKit({ namespace: 'eip155' })
+      }
+    },
+    [
+      actorRef,
+      bitcoin.isConnected,
+      solana.isConnected,
+      evm.isConnected,
+      openAppKit,
+      allowShapeshiftRedirect,
+      redirectToShapeShift,
+    ],
+  )
 
   return {
     handleSwapTokens,

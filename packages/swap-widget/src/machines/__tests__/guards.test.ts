@@ -44,6 +44,7 @@ const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachine
   errorSource: null,
   retryCount: 0,
   chainType: 'evm',
+  isDepositFlow: false,
   slippage: '0.5',
   sendAddress: '0x1234567890abcdef1234567890abcdef12345678',
   receiveAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',

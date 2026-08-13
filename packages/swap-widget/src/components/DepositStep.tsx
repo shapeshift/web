@@ -31,12 +31,16 @@ export const DepositStep = () => {
     return () => clearInterval(interval)
   }, [quote, isExpired, actorRef])
 
+  // Absent on insecure origins, where the address stays selectable rather than copyable
   const handleCopy = useCallback(() => {
-    if (!quote?.depositAddress) return
-    navigator.clipboard.writeText(quote.depositAddress).then(() => {
-      setHasCopied(true)
-      setTimeout(() => setHasCopied(false), 2000)
-    })
+    if (!quote?.depositAddress || !navigator.clipboard) return
+    navigator.clipboard
+      .writeText(quote.depositAddress)
+      .then(() => {
+        setHasCopied(true)
+        setTimeout(() => setHasCopied(false), 2000)
+      })
+      .catch(() => {})
   }, [quote?.depositAddress])
 
   const handleNewSwap = useCallback(() => actorRef.send({ type: 'RESET' }), [actorRef])

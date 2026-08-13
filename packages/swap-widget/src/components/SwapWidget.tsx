@@ -113,10 +113,16 @@ const SwapWidgetContent = ({
   // Only while funds are still owed - once they land it settles or refunds without us
   useEffect(() => {
     const snap = actorRef.getSnapshot()
-    const { quote, sendAddress, isDepositFlow } = snap.context
+    const { quote, sendAddress, receiveAddress, isDepositFlow } = snap.context
 
-    if (snap.matches('awaiting_deposit') && isDepositFlow && quote?.depositAddress && sendAddress) {
-      savePendingDeposit({ quote, sendAddress })
+    if (
+      snap.matches('awaiting_deposit') &&
+      isDepositFlow &&
+      quote?.depositAddress &&
+      sendAddress &&
+      receiveAddress
+    ) {
+      savePendingDeposit({ quote, sendAddress, receiveAddress })
       return
     }
 
@@ -435,8 +441,10 @@ const SwapWidgetCore = ({
         type: 'RESTORE_DEPOSIT',
         quote: pending.quote,
         sendAddress: pending.sendAddress,
+        receiveAddress: pending.receiveAddress,
       })
       setCustomSendAddress(pending.sendAddress)
+      setCustomReceiveAddress(pending.receiveAddress)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
   }, [actorRef])

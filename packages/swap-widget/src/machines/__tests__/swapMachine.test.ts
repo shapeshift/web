@@ -922,19 +922,51 @@ describe('deposit flow', () => {
     actor.stop()
   })
 
-  it('restores a persisted deposit straight into awaiting_deposit', () => {
+  const restoreDeposit = () => {
     const actor = createActor(swapMachine)
     actor.start()
     actor.send({
       type: 'RESTORE_DEPOSIT',
       quote: TEST_DEPOSIT_QUOTE,
       sendAddress: 'bc1qrefund',
+      receiveAddress: '0xreceive',
     })
+    return actor
+  }
+
+  it('restores a persisted deposit straight into awaiting_deposit', () => {
+    const actor = restoreDeposit()
     const snapshot = actor.getSnapshot()
     expect(snapshot.value).toBe('awaiting_deposit')
     expect(snapshot.context.isDepositFlow).toBe(true)
     expect(snapshot.context.sendAddress).toBe('bc1qrefund')
     expect(snapshot.context.sellAsset.symbol).toBe('BTC')
+    actor.stop()
+  })
+
+  it('restores the receive address, which the quote does not carry', () => {
+    const actor = restoreDeposit()
+    expect(actor.getSnapshot().context.receiveAddress).toBe('0xreceive')
+    actor.stop()
+  })
+
+  it('restores chain flags describing the restored assets, not the defaults', () => {
+    const actor = restoreDeposit()
+    const { context } = actor.getSnapshot()
+    expect(context.chainType).toBe('utxo')
+    expect(context.isSellAssetUtxo).toBe(true)
+    expect(context.isSellAssetEvm).toBe(false)
+    expect(context.isBuyAssetEvm).toBe(true)
+    actor.stop()
+  })
+
+  it('carries the restored chain flags through a reset into the next swap', () => {
+    const actor = restoreDeposit()
+    actor.send({ type: 'RESET' })
+    const { context } = actor.getSnapshot()
+    expect(context.sellAsset.symbol).toBe('BTC')
+    expect(context.chainType).toBe('utxo')
+    expect(context.isSellAssetEvm).toBe(false)
     actor.stop()
   })
 })

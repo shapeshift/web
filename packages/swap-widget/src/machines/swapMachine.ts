@@ -177,16 +177,24 @@ export const swapMachine = setup({
       errorSource: 'QUOTE_ERROR' as const,
     })),
     assignRestoredDeposit: assign(({ event }) => {
-      const { quote, sendAddress } = event as Extract<
+      const { quote, sendAddress, receiveAddress } = event as Extract<
         SwapMachineEvent,
         { type: 'RESTORE_DEPOSIT' }
       >
+      const { sellAsset, buyAsset } = quote
       return {
         quote,
         sendAddress,
+        receiveAddress,
         isDepositFlow: true,
-        sellAsset: quote.sellAsset,
-        buyAsset: quote.buyAsset,
+        sellAsset,
+        buyAsset,
+        // Chain flags describe the restored assets, not the defaults they replaced
+        chainType: getChainType(sellAsset.chainId),
+        isSellAssetEvm: isWidgetExecutableEvmChainId(sellAsset.chainId),
+        isSellAssetUtxo: isWidgetExecutableUtxoChainId(sellAsset.chainId),
+        isSellAssetSolana: isWidgetExecutableSolanaChainId(sellAsset.chainId),
+        isBuyAssetEvm: getChainType(buyAsset.chainId) === 'evm',
         error: null,
         errorSource: null,
       }

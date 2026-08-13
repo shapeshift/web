@@ -8,19 +8,30 @@ import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 /** Minimum market cap threshold in USD to include in search results (filters spam tokens) */
 export const MINIMUM_MARKET_CAP_THRESHOLD = 1000
 
-const SCORE = {
-  PRIMARY_NAME_EXACT: -10,
-  PRIMARY_SYMBOL_EXACT: -9,
-  PRIMARY_NAME_PREFIX: -6,
-  PRIMARY_SYMBOL_PREFIX: -6,
-  SYMBOL_EXACT: 0,
-  SYMBOL_PREFIX: 10,
-  SYMBOL_CONTAINS: 20,
-  NAME_EXACT: 30,
-  NAME_PREFIX: 40,
-  NAME_CONTAINS: 50,
-  ASSET_ID_CONTAINS: 60,
-  NO_MATCH: 1000,
+/**
+ * Shortest query allowed to match against an assetId. That match exists for partial contract
+ * address search, but addresses are hex - so "b" alone matches virtually every EVM asset.
+ */
+const MIN_ASSET_ID_SEARCH_LENGTH = 6
+
+/**
+ * How well an asset matches, lower being better. A primary outranks a chain variant or a spam
+ * token at every tier, so searching "bitcoin" finds BTC rather than a token whose symbol is
+ * literally BITCOIN.
+ */
+const MATCH = {
+  PRIMARY_SYMBOL_EXACT: 0,
+  PRIMARY_NAME_EXACT: 1,
+  PRIMARY_SYMBOL_PREFIX: 2,
+  PRIMARY_NAME_PREFIX: 3,
+  SYMBOL_EXACT: 4,
+  SYMBOL_PREFIX: 5,
+  NAME_EXACT: 6,
+  NAME_PREFIX: 7,
+  SYMBOL_CONTAINS: 8,
+  NAME_CONTAINS: 9,
+  ASSET_ID_CONTAINS: 10,
+  NONE: 11,
 } as const
 
 export const isSearchableAsset = (assetId: AssetId): boolean => !isNft(assetId)
@@ -66,37 +77,44 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
   })
 }
 
-const scoreAsset = (asset: SearchableAsset, search: string, originalIndex: number): number => {
+const matchAsset = (asset: SearchableAsset, search: string): number => {
   const sym = asset.symbol.toLowerCase()
   const name = asset.name.toLowerCase()
 
-  // For primary assets, find the BEST score among all matches
-  // PRIMARY_SYMBOL bonus requires: short symbol (≤5 chars) AND high market cap (top 500)
-  // This filters spam tokens that copy popular symbols like BTC, ETH
   if (asset.isPrimary) {
-    let bestScore = SCORE.NO_MATCH as number
-    if (name === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_EXACT)
-    if (name.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_PREFIX)
-    const isHighMarketCap = originalIndex < 500
-    if (sym.length <= 5 && isHighMarketCap) {
-      if (sym === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_EXACT)
-      if (sym.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_PREFIX)
-    }
-    if (bestScore < SCORE.NO_MATCH) return bestScore
+    if (sym === search) return MATCH.PRIMARY_SYMBOL_EXACT
+    if (name === search) return MATCH.PRIMARY_NAME_EXACT
+    if (sym.startsWith(search)) return MATCH.PRIMARY_SYMBOL_PREFIX
+    if (name.startsWith(search)) return MATCH.PRIMARY_NAME_PREFIX
   }
 
-  if (sym === search) return SCORE.SYMBOL_EXACT
-  if (sym.startsWith(search)) return SCORE.SYMBOL_PREFIX
-  if (sym.includes(search)) return SCORE.SYMBOL_CONTAINS
+  if (sym === search) return MATCH.SYMBOL_EXACT
+  if (sym.startsWith(search)) return MATCH.SYMBOL_PREFIX
+  if (name === search) return MATCH.NAME_EXACT
+  if (name.startsWith(search)) return MATCH.NAME_PREFIX
+  if (sym.includes(search)) return MATCH.SYMBOL_CONTAINS
+  if (name.includes(search)) return MATCH.NAME_CONTAINS
 
-  if (name === search) return SCORE.NAME_EXACT
-  if (name.startsWith(search)) return SCORE.NAME_PREFIX
-  if (name.includes(search)) return SCORE.NAME_CONTAINS
+  // Only the reference, never the whole assetId - chain names live in the CAIP prefix, so matching
+  // the lot means "starknet" hits every asset on Starknet rather than STRK
+  if (
+    search.length >= MIN_ASSET_ID_SEARCH_LENGTH &&
+    asset.assetId
+      .slice(asset.assetId.lastIndexOf(':') + 1)
+      .toLowerCase()
+      .includes(search)
+  )
+    return MATCH.ASSET_ID_CONTAINS
 
-  if (asset.assetId.toLowerCase().includes(search)) return SCORE.ASSET_ID_CONTAINS
-
-  return SCORE.NO_MATCH
+  return MATCH.NONE
 }
+
+/**
+ * Whether the query hit the symbol or the head of the name, rather than turning up somewhere inside
+ * them. "fox" matches ViFoxCoin, but not in a way that should outrank FOX.
+ */
+export const isStrongMatch = (asset: SearchableAsset, searchTerm: string): boolean =>
+  matchAsset(asset, searchTerm.toLowerCase()) <= MATCH.NAME_PREFIX
 
 export const searchAssets = <T extends SearchableAsset>(searchTerm: string, assets: T[]): T[] => {
   if (!assets?.length) return []
@@ -108,31 +126,18 @@ export const searchAssets = <T extends SearchableAsset>(searchTerm: string, asse
 
   const search = searchTerm.toLowerCase()
 
-  const scored = assets
-    .map((asset, originalIndex) => ({
-      asset,
-      score: scoreAsset(asset, search, originalIndex),
-      originalIndex,
-    }))
-    .filter(x => x.score < SCORE.NO_MATCH)
+  return assets
+    .map((asset, originalIndex) => ({ asset, match: matchAsset(asset, search), originalIndex }))
+    .filter(x => x.match < MATCH.NONE)
+    .sort((a, b) => {
+      if (a.match !== b.match) return a.match - b.match
 
-  scored.sort((a, b) => {
-    // Primary sort: by score (lower is better)
-    if (a.score !== b.score) return a.score - b.score
-
-    // Secondary sort (non-primary assets only): prefer assets with related assets over orphans
-    // This helps legitimate bridged tokens rank above random LP/spam tokens
-    // Skip for primary assets - they should be sorted purely by market cap
-    if (!a.asset.isPrimary && !b.asset.isPrimary) {
+      // Within a tier, a bridged token beats a random LP or orphan
       const aHasRelated = a.asset.relatedAssetKey != null
       const bHasRelated = b.asset.relatedAssetKey != null
-      if (aHasRelated && !bHasRelated) return -1
-      if (!aHasRelated && bHasRelated) return 1
-    }
+      if (aHasRelated !== bHasRelated) return aHasRelated ? -1 : 1
 
-    // Tertiary sort: preserve original order (which should be by market cap)
-    return a.originalIndex - b.originalIndex
-  })
-
-  return scored.map(x => x.asset)
+      return a.originalIndex - b.originalIndex
+    })
+    .map(x => x.asset)
 }

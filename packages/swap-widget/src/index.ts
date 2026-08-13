@@ -3,8 +3,10 @@ export { SwapWidget } from './components/SwapWidget'
 export type {
   Asset,
   AssetId,
+  BuyAmountProps,
   ChainId,
   Chain,
+  ReceiveAddressProps,
   TradeRate,
   TradeQuote,
   SwapWidgetProps,

@@ -1,12 +1,15 @@
 import type { SwapMachineContext } from './types'
 
+export const isExactOutput = (context: SwapMachineContext): boolean => !!context.buyAmountBaseUnit
+
 export const hasValidInput = (context: SwapMachineContext): boolean => {
-  return (
-    !!context.sellAsset &&
-    !!context.buyAsset &&
-    !!context.sellAmountBaseUnit &&
-    context.sellAmountBaseUnit !== '0'
-  )
+  if (!context.sellAsset || !context.buyAsset) return false
+
+  const amountBaseUnit = isExactOutput(context)
+    ? context.buyAmountBaseUnit
+    : context.sellAmountBaseUnit
+
+  return !!amountBaseUnit && amountBaseUnit !== '0'
 }
 
 export const hasQuote = (context: SwapMachineContext): boolean => context.quote !== null

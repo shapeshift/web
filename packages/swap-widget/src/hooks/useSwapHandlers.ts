@@ -64,15 +64,32 @@ export const useSwapHandlers = ({
     [actorRef],
   )
 
+  const handleBuyAmountChange = useCallback(
+    (value: string) => {
+      const { buyAsset } = actorRef.getSnapshot().context
+      const amountBaseUnit = value ? parseAmount(value, buyAsset.precision) : undefined
+
+      actorRef.send({ type: 'SET_BUY_AMOUNT', amount: value, amountBaseUnit })
+    },
+    [actorRef],
+  )
+
   const handleToggleSellFiat = useCallback(
     (sellAssetUsdPrice?: string) => {
       if (!sellAssetUsdPrice) return
 
       const snap = actorRef.getSnapshot()
-      const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
+      const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat, buyAmountBaseUnit } =
+        snap.context
 
       if (isSellAmountFiat) {
         actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: false })
+        return
+      }
+
+      // Seeding a sell amount here would clear the buy amount that's driving the trade
+      if (buyAmountBaseUnit) {
+        actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
         return
       }
 
@@ -167,6 +184,7 @@ export const useSwapHandlers = ({
     handleSellAssetSelect,
     handleBuyAssetSelect,
     handleSellAmountChange,
+    handleBuyAmountChange,
     handleToggleSellFiat,
     handleSelectRate,
     handleSlippageChange,

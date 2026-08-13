@@ -7,6 +7,7 @@ import type {
   GetTronTradeRateInput,
   GetUtxoTradeQuoteInput,
   GetUtxoTradeRateInput,
+  WithExactBuyAmount,
 } from '../../../types'
 
 export type RelayTradeQuoteInput =
@@ -20,6 +21,9 @@ export type RelayTradeRateInput =
   | GetUtxoTradeRateInput
   | GetSolanaTradeRateInput
   | GetTronTradeRateInput
+
+export type RelayExactOutputTradeQuoteInput = WithExactBuyAmount<RelayTradeQuoteInput>
+export type RelayExactOutputTradeRateInput = WithExactBuyAmount<RelayTradeRateInput>
 
 // Only the Tron unsigned-tx builder consumes this (to + calldata); every other
 // ecosystem's build data lives on transactionData
@@ -108,6 +112,7 @@ export type RelayFees = {
 }
 
 export type QuoteDetails = {
+  currencyIn: RelayCurrencyData
   currencyOut: RelayCurrencyData
   rate: string
   slippageTolerance: {

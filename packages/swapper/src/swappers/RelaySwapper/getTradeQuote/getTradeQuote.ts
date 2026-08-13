@@ -14,10 +14,10 @@ import { FALLBACK_QUOTE_DEADLINE_MS } from '../../../utils/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { getRelayStepData } from '../utils/getRelayStepData'
 import { getRelayTradeContext } from '../utils/getRelayTradeContext'
-import type { RelayTradeQuoteInput } from '../utils/types'
+import type { RelayExactOutputTradeQuoteInput, RelayTradeQuoteInput } from '../utils/types'
 
-export const getTradeQuote = async (
-  input: RelayTradeQuoteInput,
+const getQuote = async (
+  input: RelayTradeQuoteInput | RelayExactOutputTradeQuoteInput,
   deps: SwapperDeps,
   relayChainMap: typeof relayChainMapImplementation,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
@@ -82,3 +82,15 @@ export const getTradeQuote = async (
 
   return Ok([tradeQuote])
 }
+
+export const getTradeQuote = (
+  input: RelayTradeQuoteInput,
+  deps: SwapperDeps,
+  relayChainMap: typeof relayChainMapImplementation,
+): Promise<Result<TradeQuote[], SwapErrorRight>> => getQuote(input, deps, relayChainMap)
+
+export const getExactOutputTradeQuote = (
+  input: RelayExactOutputTradeQuoteInput,
+  deps: SwapperDeps,
+  relayChainMap: typeof relayChainMapImplementation,
+): Promise<Result<TradeQuote[], SwapErrorRight>> => getQuote(input, deps, relayChainMap)

@@ -352,7 +352,7 @@ const SwapWidgetCore = ({
   )
 
   // Doubles as the refund address when paying a deposit address from an external wallet
-  const [customSendAddress, setCustomSendAddress] = useState<string>('')
+  const [customRefundAddress, setCustomRefundAddress] = useState<string>('')
 
   const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)
   const buyChainId = SwapMachineCtx.useSelector(s => s.context.buyAsset.chainId)
@@ -391,11 +391,11 @@ const SwapWidgetCore = ({
   const sendAddress = useMemo(
     () =>
       resolveSendAddress({
-        customAddress: customSendAddress,
+        customAddress: customRefundAddress,
         walletAddress: walletSendAddress,
         sellChainId,
       }),
-    [customSendAddress, walletSendAddress, sellChainId],
+    [customRefundAddress, walletSendAddress, sellChainId],
   )
 
   const walletReceiveAddress = useMemo(
@@ -460,7 +460,7 @@ const SwapWidgetCore = ({
         sellAmountBaseUnit: pending.sellAmountBaseUnit,
         buyAmountBaseUnit: pending.buyAmountBaseUnit,
       })
-      setCustomSendAddress(pending.sendAddress)
+      setCustomRefundAddress(pending.sendAddress)
       setCustomReceiveAddress(pending.receiveAddress)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
@@ -480,16 +480,16 @@ const SwapWidgetCore = ({
   }, [buyChainId, customReceiveAddress])
 
   useEffect(() => {
-    if (!customSendAddress) return
-    if (!validateAddress(customSendAddress, sellChainId).valid) setCustomSendAddress('')
-  }, [sellChainId, customSendAddress])
+    if (!customRefundAddress) return
+    if (!validateAddress(customRefundAddress, sellChainId).valid) setCustomRefundAddress('')
+  }, [sellChainId, customRefundAddress])
 
   const walletValue: SwapWalletContextValue = useMemo(
     () => ({
       sendAddress,
       walletSendAddress,
-      customSendAddress,
-      setCustomSendAddress,
+      customRefundAddress,
+      setCustomRefundAddress,
       receiveAddress,
       isReceiveAddressResolving,
       isReceiveAddressBlocked: isReceiveAddressLocked && !receiveAddress,
@@ -502,7 +502,7 @@ const SwapWidgetCore = ({
     [
       sendAddress,
       walletSendAddress,
-      customSendAddress,
+      customRefundAddress,
       receiveAddress,
       isReceiveAddressResolving,
       isReceiveAddressLocked,

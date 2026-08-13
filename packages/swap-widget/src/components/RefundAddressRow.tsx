@@ -6,22 +6,22 @@ import { truncateAddress } from '../types'
 import { getAddressFormatHint, validateAddress } from '../utils/addressValidation'
 
 type RefundAddressRowProps = {
-  sendAddress: string | undefined
+  refundAddress: string | undefined
   sellChainId: ChainId
-  onSetCustomSendAddress: (address: string) => void
+  onSetCustomRefundAddress: (address: string) => void
 }
 
 export const RefundAddressRow = ({
-  sendAddress,
+  refundAddress,
   sellChainId,
-  onSetCustomSendAddress,
+  onSetCustomRefundAddress,
 }: RefundAddressRowProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [hasInteracted, setHasInteracted] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const showInput = !sendAddress || isEditing
+  const showInput = !refundAddress || isEditing
 
   useLayoutEffect(() => {
     if (isEditing) inputRef.current?.focus()
@@ -49,10 +49,10 @@ export const RefundAddressRow = ({
   const chainName = useMemo(() => getChainName(sellChainId), [sellChainId])
 
   const startEditing = useCallback(() => {
-    setDraft(sendAddress ?? '')
+    setDraft(refundAddress ?? '')
     setHasInteracted(false)
     setIsEditing(true)
-  }, [sendAddress])
+  }, [refundAddress])
 
   const handleChange = useCallback((value: string) => {
     setDraft(value)
@@ -61,24 +61,24 @@ export const RefundAddressRow = ({
 
   const handleAccept = useCallback(() => {
     if (!validateAddress(trimmedDraft, sellChainId).valid) return
-    onSetCustomSendAddress(trimmedDraft)
+    onSetCustomRefundAddress(trimmedDraft)
     setIsEditing(false)
     setHasInteracted(false)
-  }, [trimmedDraft, sellChainId, onSetCustomSendAddress])
+  }, [trimmedDraft, sellChainId, onSetCustomRefundAddress])
 
   const handleReset = useCallback(() => {
-    onSetCustomSendAddress('')
+    onSetCustomRefundAddress('')
     setDraft('')
     setHasInteracted(false)
     setIsEditing(false)
-  }, [onSetCustomSendAddress])
+  }, [onSetCustomRefundAddress])
 
   if (!showInput) {
     return (
       <div className='ssw-receive-row-resolved'>
         <span className='ssw-receive-label'>Refund address</span>
         <div className='ssw-receive-resolved-value'>
-          <span className='ssw-receive-address'>{truncateAddress(sendAddress ?? '', 6)}</span>
+          <span className='ssw-receive-address'>{truncateAddress(refundAddress ?? '', 6)}</span>
           <button
             className='ssw-receive-edit-btn'
             onClick={startEditing}

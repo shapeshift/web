@@ -376,7 +376,11 @@
   transform: none;
 }
 
-.ssw-receive-row {
+/* Holds the receive address, and the refund address too when there's no wallet to send from */
+.ssw-address-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 12px;
   background: var(--ssw-bg-tertiary);
   border: 1px solid var(--ssw-border);
@@ -385,9 +389,14 @@
   transition: box-shadow 0.15s ease;
 }
 
-.ssw-receive-row:focus-within {
+.ssw-address-group:focus-within {
   border-color: var(--ssw-accent);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ssw-address-group > * + * {
+  border-top: 1px solid var(--ssw-border);
+  padding-top: 12px;
 }
 
 .ssw-receive-row-resolved {
@@ -537,11 +546,11 @@
   color: var(--ssw-text-muted);
 }
 
-.ssw-receive-row.ssw-attention {
+.ssw-address-group.ssw-attention {
   box-shadow: 0 0 16px -2px var(--ssw-accent);
 }
 
-.ssw-receive-row.ssw-receive-row-invalid {
+.ssw-address-group.ssw-address-group-invalid {
   border-color: var(--ssw-error);
 }
 

@@ -51,6 +51,7 @@ export const InputStep = ({
     setCustomSendAddress,
     receiveAddress,
     isReceiveAddressResolving,
+    isReceiveAddressBlocked,
     setCustomReceiveAddress,
     evm,
     bitcoin,
@@ -118,6 +119,10 @@ export const InputStep = ({
   const selectedRate = context.selectedRate ?? displayValues.rates?.[0]
   const isDepositCapable = !!selectedRate && isDepositCapableRate(selectedRate)
   const isDepositFlowAvailable = isDepositCapable && !walletSendAddress
+
+  // One highlight for the group - either address still missing means it wants attention
+  const needsAnAddress =
+    (!receiveAddress && !isReceiveAddressResolving) || (isDepositFlowAvailable && !sendAddress)
 
   const {
     text: buttonText,
@@ -358,21 +363,27 @@ export const InputStep = ({
         </div>
 
         {((!isUnsupportedChain && hasActiveWallet) || isDepositFlowAvailable) && (
-          <ReceiveAddressRow
-            receiveAddress={receiveAddress}
-            isResolving={isReceiveAddressResolving}
-            buyChainId={buyChainId}
-            isLocked={isReceiveAddressLocked}
-            onSetCustomReceiveAddress={setCustomReceiveAddress}
-          />
-        )}
+          <div
+            className={`ssw-address-group${needsAnAddress ? ' ssw-attention' : ''}${
+              isReceiveAddressBlocked ? ' ssw-address-group-invalid' : ''
+            }`}
+          >
+            <ReceiveAddressRow
+              receiveAddress={receiveAddress}
+              isResolving={isReceiveAddressResolving}
+              buyChainId={buyChainId}
+              isLocked={isReceiveAddressLocked}
+              onSetCustomReceiveAddress={setCustomReceiveAddress}
+            />
 
-        {isDepositFlowAvailable && (
-          <RefundAddressRow
-            sendAddress={sendAddress}
-            sellChainId={context.sellAsset.chainId}
-            onSetCustomSendAddress={setCustomSendAddress}
-          />
+            {isDepositFlowAvailable && (
+              <RefundAddressRow
+                sendAddress={sendAddress}
+                sellChainId={context.sellAsset.chainId}
+                onSetCustomSendAddress={setCustomSendAddress}
+              />
+            )}
+          </div>
         )}
       </div>
 

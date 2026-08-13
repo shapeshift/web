@@ -75,7 +75,7 @@ export const RefundAddressRow = ({
 
   if (!showInput) {
     return (
-      <div className='ssw-receive-row ssw-receive-row-resolved'>
+      <div className='ssw-receive-row-resolved'>
         <span className='ssw-receive-label'>Refund address</span>
         <div className='ssw-receive-resolved-value'>
           <span className='ssw-receive-address'>{truncateAddress(sendAddress ?? '', 6)}</span>
@@ -103,7 +103,7 @@ export const RefundAddressRow = ({
   }
 
   return (
-    <div className='ssw-receive-row ssw-receive-row-input'>
+    <div className='ssw-receive-row-input'>
       <div className='ssw-receive-header'>
         <span className='ssw-receive-label'>Refund address</span>
       </div>
@@ -170,9 +170,7 @@ export const RefundAddressRow = ({
       {!validation.valid && hasInteracted && validation.error ? (
         <span className='ssw-receive-error'>{validation.error}</span>
       ) : (
-        <span className='ssw-receive-hint'>
-          Your {chainName} address, where funds return if the swap can't be completed
-        </span>
+        <span className='ssw-receive-hint'>Your {chainName} address - funds return here if the swap fails</span>
       )}
     </div>
   )

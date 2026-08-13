@@ -10,6 +10,7 @@ import {
 } from '../../utils'
 
 export const nearIntentsSwapper: Swapper = {
+  supportsDepositAddress: true,
   executeEvmTransaction,
   executeSolanaTransaction,
   executeStarknetTransaction,

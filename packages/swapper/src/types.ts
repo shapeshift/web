@@ -828,6 +828,9 @@ export type Swapper = {
     txToSign: ton.TonSignTx,
     callbacks: TonTransactionExecutionProps,
   ) => Promise<string>
+
+  // Execution is a plain transfer to a provider-issued deposit address, so anyone can pay it
+  supportsDepositAddress?: boolean
 }
 
 export type SwapperApi = {

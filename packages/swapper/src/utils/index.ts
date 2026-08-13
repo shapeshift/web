@@ -576,8 +576,7 @@ export const getSwapMetadata = <S extends SwapperMetadata['name']>(
   return metadata as Extract<SwapperMetadata, { name: S }>
 }
 
-// The address an external wallet can pay with a plain transfer. Undefined means this step must be
-// signed by a connected wallet - the deposit is memo-bound, or the swapper isn't deposit-based.
+// The address an external wallet can pay with a plain transfer - memo-bound routes have none
 export const getDepositAddress = (
   step: TradeQuoteStep | TradeRateStep,
   swapperName: SwapperName,

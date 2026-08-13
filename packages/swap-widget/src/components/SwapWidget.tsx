@@ -78,8 +78,7 @@ const SwapWidgetContent = ({
   const state = SwapMachineCtx.useSelector(s => s)
   const actorRef = SwapMachineCtx.useActorRef()
 
-  // Replacing an expired deposit address - a quote is already in hand, so stay on the deposit
-  // screen rather than bouncing back through the input step
+  // Re-quoting an expired deposit, so stay put rather than bouncing through the input step
   const isRequotingDeposit =
     state.matches('quoting') && state.context.isDepositFlow && !!state.context.quote
 
@@ -139,8 +138,7 @@ const SwapWidgetContent = ({
       return
     }
 
-    // Never before we've saved: this effect belongs to a child of the component that restores,
-    // so on mount it runs first, and would wipe the deposit that's about to be read
+    // Not before we've saved - this child effect runs first on mount, ahead of the restore
     if (hasSavedDepositRef.current) clearPendingDeposit()
     // eslint-disable-next-line react-hooks/exhaustive-deps -- state.value is the sole trigger; context is read from the snapshot
   }, [state.value])
@@ -436,8 +434,7 @@ const SwapWidgetCore = ({
     })
   }, [isBuyAmountLocked, defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision, actorRef])
 
-  // Before paint, so a restored deposit - or an integrator's defaults - never flash the built-in
-  // input step first
+  // Before paint, so a restored deposit never flashes the built-in input step first
   const initialSyncRef = useRef(false)
   useLayoutEffect(() => {
     if (initialSyncRef.current) return

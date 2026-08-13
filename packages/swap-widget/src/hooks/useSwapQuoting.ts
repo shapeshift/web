@@ -80,8 +80,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           return
         }
 
-        // Only a connected wallet can stand in for a missing receive address - a deposit's send
-        // address is on the sell chain and would send the proceeds nowhere
+        // A deposit's send address is on the sell chain, so it can't stand in for a receive one
         const resolvedReceiveAddress = context.isDepositFlow
           ? receiveAddress
           : receiveAddress || sendAddress

@@ -14,7 +14,8 @@ export const QrCode = ({ value, size = 180 }: QrCodeProps) => {
     qr.make()
 
     const count = qr.getModuleCount()
-    const margin = 2
+    // The 4-module quiet zone ISO/IEC 18004 requires - anything less and some scanners refuse
+    const margin = 4
     const segments: string[] = []
 
     for (let row = 0; row < count; row++) {

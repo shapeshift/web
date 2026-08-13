@@ -44,13 +44,14 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
 
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
-  const { sendAddress } = useSwapWallet()
+  // Connection state, so never the resolved send address - that can be one the user typed
+  const { walletSendAddress } = useSwapWallet()
 
   const handleClick = useCallback(() => {
     open()
   }, [open])
 
-  if (!sendAddress) {
+  if (!walletSendAddress) {
     return (
       <button onClick={handleClick} type='button' className='ssw-connect-btn'>
         <svg
@@ -71,7 +72,7 @@ export const ConnectWalletButton = () => {
 
   return (
     <button onClick={handleClick} type='button' className='ssw-connect-btn ssw-connected'>
-      {truncateAddress(sendAddress)}
+      {truncateAddress(walletSendAddress)}
     </button>
   )
 }

@@ -5,8 +5,7 @@ export type DepositStatusResponse = {
   txHash?: string
 }
 
-// The api backfills txHash from the provider once it sees the deposit, so its arrival is what
-// tells us funds landed - the depositor never reports back to the widget
+// The depositor never reports back, so the api's backfilled txHash is what tells us funds landed
 export const resolveDepositStatusEvent = (
   response: DepositStatusResponse,
   hasDetectedDeposit: boolean,

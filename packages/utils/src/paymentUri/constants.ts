@@ -31,7 +31,7 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [gnosisChainId]: 'xdai',
   [btcChainId]: 'bitcoin',
   [bchChainId]: 'bitcoincash',
-  [dogeChainId]: 'doge',
+  [dogeChainId]: 'dogecoin',
   [ltcChainId]: 'litecoin',
   [zecChainId]: 'zcash',
   [thorchainChainId]: 'thorchain',
@@ -41,6 +41,15 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [tronChainId]: 'tron',
 }
 
-export const URN_SCHEME_TO_CHAIN_ID = Object.fromEntries(
-  Object.entries(CHAIN_ID_TO_URN_SCHEME).map(([chainId, scheme]) => [scheme, chainId]),
-)
+// Schemes we no longer emit but still have to read - 'doge' predates matching the one Dogecoin
+// Core actually registers, and codes carrying it are already in the wild
+const LEGACY_URN_SCHEME_TO_CHAIN_ID: Record<string, ChainId> = {
+  doge: dogeChainId,
+}
+
+export const URN_SCHEME_TO_CHAIN_ID: Record<string, ChainId> = {
+  ...Object.fromEntries(
+    Object.entries(CHAIN_ID_TO_URN_SCHEME).map(([chainId, scheme]) => [scheme, chainId]),
+  ),
+  ...LEGACY_URN_SCHEME_TO_CHAIN_ID,
+}

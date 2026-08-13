@@ -52,8 +52,8 @@ const EXECUTABLE_CHAIN_NAMESPACES: ReadonlySet<string> = new Set([
   CHAIN_NAMESPACE.Solana,
 ])
 
-const EXECUTABLE_SELL_CHAIN_IDS: readonly KnownChainIds[] = SUPPORTED_CHAIN_IDS.filter(
-  chainId => EXECUTABLE_CHAIN_NAMESPACES.has(fromChainId(chainId).chainNamespace),
+const EXECUTABLE_SELL_CHAIN_IDS: readonly KnownChainIds[] = SUPPORTED_CHAIN_IDS.filter(chainId =>
+  EXECUTABLE_CHAIN_NAMESPACES.has(fromChainId(chainId).chainNamespace),
 )
 
 const EXECUTABLE_SELL_CHAIN_IDS_SET: ReadonlySet<string> = new Set(EXECUTABLE_SELL_CHAIN_IDS)

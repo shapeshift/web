@@ -95,7 +95,7 @@ export const DepositStep = () => {
             <path d='M12 2a10 10 0 0 1 10 10' />
           </svg>
         </div>
-        <div className='ssw-step-title'>Getting a New Address</div>
+        <div className='ssw-step-title'>Requesting New Quote</div>
         <div className='ssw-step-subtitle'>Don't send to the previous address</div>
       </div>
     )
@@ -117,13 +117,13 @@ export const DepositStep = () => {
             <path d='M12 7v5l3 2' />
           </svg>
         </div>
-        <div className='ssw-step-title'>Deposit Window Closed</div>
+        <div className='ssw-step-title'>Quote Expired</div>
         <div className='ssw-step-subtitle'>
-          Don't send to the previous address. A new one comes with an updated quote.
+          Don't send to the previous address. Request a new quote to continue.
         </div>
         <div className='ssw-step-actions'>
           <button className='ssw-action-btn' onClick={handleNewAddress} type='button'>
-            Get a New Address
+            Request New Quote
           </button>
           <button className='ssw-action-btn ssw-secondary' onClick={handleNewSwap} type='button'>
             New Swap

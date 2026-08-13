@@ -96,7 +96,6 @@ export const DepositStep = () => {
           </svg>
         </div>
         <div className='ssw-step-title'>Requesting New Quote</div>
-        <div className='ssw-step-subtitle'>Don't send to the previous address</div>
       </div>
     )
   }

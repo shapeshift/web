@@ -41,6 +41,7 @@ export const createInitialContext = (input?: {
     errorSource: null,
     retryCount: 0,
     chainType: sellChainType,
+    isDepositFlow: false,
     slippage: input?.slippage ?? '0.5',
     sendAddress: undefined,
     receiveAddress: undefined,
@@ -63,6 +64,14 @@ export const swapMachine = setup({
       if (quote?.approval?.isRequired !== true || context.chainType !== 'evm') return false
       const namespace = context.sellAsset.assetId.split('/')[1]?.split(':')[0]
       return namespace === 'erc20'
+    },
+    isDepositQuote: ({ context, event }) => {
+      const { quote } = event as { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
+      return context.isDepositFlow && !!quote?.depositAddress
+    },
+    isDepositFlowWithoutAddress: ({ context, event }) => {
+      const { quote } = event as { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
+      return context.isDepositFlow && !quote?.depositAddress
     },
     canRetry: ({ context }) => guardFns.canRetry(context),
     isQuoteError: ({ context }) => context.errorSource === 'QUOTE_ERROR',
@@ -156,6 +165,32 @@ export const swapMachine = setup({
     assignTxHash: assign(({ event }) => ({
       txHash: (event as { type: 'EXECUTE_SUCCESS'; txHash: string }).txHash,
     })),
+    assignDepositFlow: assign(({ event }) => ({
+      isDepositFlow:
+        (event as { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }).isDepositFlow === true,
+    })),
+    assignDepositTxHash: assign(({ event }) => ({
+      txHash: (event as { type: 'DEPOSIT_DETECTED'; txHash: string }).txHash,
+    })),
+    assignDepositUnavailableError: assign(() => ({
+      error: 'This route needs a connected wallet',
+      errorSource: 'QUOTE_ERROR' as const,
+    })),
+    assignRestoredDeposit: assign(({ event }) => {
+      const { quote, sendAddress } = event as Extract<
+        SwapMachineEvent,
+        { type: 'RESTORE_DEPOSIT' }
+      >
+      return {
+        quote,
+        sendAddress,
+        isDepositFlow: true,
+        sellAsset: quote.sellAsset,
+        buyAsset: quote.buyAsset,
+        error: null,
+        errorSource: null,
+      }
+    }),
     assignExecuteError: assign(({ event }) => ({
       error: (event as { type: 'EXECUTE_ERROR'; error: string }).error,
       errorSource: 'EXECUTE_ERROR' as const,
@@ -211,6 +246,7 @@ export const swapMachine = setup({
       errorSource: null,
       retryCount: 0,
       selectedRate: null,
+      isDepositFlow: false,
       sellAsset: context.sellAsset,
       buyAsset: context.buyAsset,
       sellAmount: context.sellAmount,
@@ -242,15 +278,27 @@ export const swapMachine = setup({
         SET_SEND_ADDRESS: { actions: 'assignSendAddress' },
         SET_RECEIVE_ADDRESS: { actions: 'assignReceiveAddress' },
         UPDATE_CHAIN_INFO: { actions: 'assignChainInfo' },
+        RESTORE_DEPOSIT: { target: 'awaiting_deposit', actions: 'assignRestoredDeposit' },
         FETCH_QUOTE: {
           target: 'quoting',
           guard: 'hasValidInput',
+          actions: 'assignDepositFlow',
         },
       },
     },
     quoting: {
       on: {
         QUOTE_SUCCESS: [
+          {
+            target: 'awaiting_deposit',
+            guard: 'isDepositQuote',
+            actions: 'assignQuote',
+          },
+          {
+            target: 'error',
+            guard: 'isDepositFlowWithoutAddress',
+            actions: 'assignDepositUnavailableError',
+          },
           {
             target: 'approval_needed',
             guard: 'isApprovalRequired',
@@ -295,6 +343,20 @@ export const swapMachine = setup({
           target: 'error',
           actions: 'assignExecuteError',
         },
+      },
+    },
+    awaiting_deposit: {
+      on: {
+        DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
+        DEPOSIT_EXPIRED: { target: 'deposit_expired' },
+        STATUS_FAILED: { target: 'error', actions: 'assignStatusFailed' },
+        RESET: { target: 'input', actions: 'resetSwapState' },
+      },
+    },
+    deposit_expired: {
+      on: {
+        RETRY: { target: 'quoting', actions: 'incrementRetryCount' },
+        RESET: { target: 'input', actions: 'resetSwapState' },
       },
     },
     polling_status: {

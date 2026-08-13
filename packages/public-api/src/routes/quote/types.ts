@@ -188,7 +188,7 @@ export const QuoteResponseSchema = registry.register(
     depositAddress: z.string().optional().openapi({
       example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
       description:
-        'Present only when this quote can be paid by a plain transfer from any wallet: send exactly sellAmountCryptoBaseUnit of the sell asset here before expiresAt, then poll /v1/swap/status with quoteId alone - no txHash is needed, since the provider reports the deposit. A deposit that lands after expiresAt is refunded to sendAddress rather than swapped. Absent means the swap must be signed by the wallet at sendAddress; routes requiring a deposit memo are always absent, since a memo-less send would be unrecoverable.',
+        'Present only when this quote can be paid by a plain transfer from any wallet: send exactly sellAmountCryptoBaseUnit of the sell asset here before expiresAt, then poll /v1/swap/status with quoteId alone - no txHash is needed, since the provider reports the deposit. Treat expiresAt as a hard cutoff - what happens to a later deposit is provider-specific, from a refund to sendAddress to funds sent to an address no longer being watched. Absent means the swap must be signed by the wallet at sendAddress; routes requiring a deposit memo are always absent, since a memo-less send would be unrecoverable.',
     }),
     expiresAt: z.number().openapi({
       example: 1754265600000,

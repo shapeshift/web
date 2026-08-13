@@ -104,7 +104,7 @@ export const DepositStep = () => {
   if (isExpired) {
     return (
       <div className='ssw-step-screen'>
-        <div className='ssw-step-icon-circle ssw-ic-warning'>
+        <div className='ssw-step-icon-circle ssw-ic-error'>
           <svg
             width='32'
             height='32'

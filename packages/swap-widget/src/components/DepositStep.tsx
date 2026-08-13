@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { formatAmount, formatAmountForInput, truncateAddress } from '../types'
 import { formatCountdown } from '../utils/countdown'
+import { buildPaymentUri } from '../utils/paymentUri'
 import { QrCode } from './QrCode'
 
 type CopyFieldProps = {
@@ -76,6 +77,12 @@ export const DepositStep = () => {
   const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
   const buyAmount = formatAmount(quote.buyAmountAfterFeesCryptoBaseUnit, quote.buyAsset.precision)
 
+  const paymentUri = buildPaymentUri(
+    quote.depositAddress,
+    quote.sellAsset,
+    quote.sellAmountCryptoBaseUnit,
+  )
+
   if (isRequoting) {
     return (
       <div className='ssw-step-screen'>
@@ -134,7 +141,7 @@ export const DepositStep = () => {
     <div className='ssw-deposit'>
       <span className='ssw-deposit-title'>Awaiting Deposit</span>
 
-      <QrCode value={quote.depositAddress} />
+      <QrCode value={paymentUri} />
 
       <CopyField
         label='Send exactly'

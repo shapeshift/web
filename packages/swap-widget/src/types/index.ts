@@ -44,12 +44,12 @@ export enum SwapperName {
   Relay = 'Relay',
   Thorchain = 'THORChain',
   Mayachain = 'MAYAChain',
+  Chainflip = 'Chainflip',
   //ArbitrumBridge = 'Arbitrum Bridge',
   //Avnu = 'AVNU',
   //Bebop = 'Bebop',
   //ButterSwap = 'ButterSwap',
   //Cetus = 'Cetus',
-  //Chainflip = 'Chainflip',
   //CowSwap = 'CoW Swap',
   //Portals = 'Portals',
   //Sunio = 'Sun.io',
@@ -119,6 +119,8 @@ export type TradeRate = {
   shapeshiftBps: string
   affiliateBps: string
   networkFeeCryptoBaseUnit?: string
+  // The swap is paid by transferring to a deposit address, so any wallet can fund it
+  supportsDepositAddress?: boolean
   error?: {
     code: string
     message: string
@@ -232,6 +234,8 @@ export type QuoteResponse = {
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
+  // Present only when the swap can be paid by a plain transfer from any wallet
+  depositAddress?: string
 }
 
 export type AssetsResponse = {

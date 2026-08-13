@@ -41,7 +41,7 @@ import type {
   TradeStatus,
   TronTransactionExecutionProps,
 } from '../types'
-import { TradeQuoteError } from '../types'
+import { SwapperName, TradeQuoteError } from '../types'
 import { fetchSafeTransactionInfo } from './safe'
 
 export const getPermit2Eip712 = (
@@ -574,4 +574,24 @@ export const getSwapMetadata = <S extends SwapperMetadata['name']>(
 ): Extract<SwapperMetadata, { name: S }> => {
   if (metadata?.name !== name) throw new Error(`Expected ${name} swap metadata`)
   return metadata as Extract<SwapperMetadata, { name: S }>
+}
+
+// The address an external wallet can pay with a plain transfer. Undefined means this step must be
+// signed by a connected wallet - the deposit is memo-bound, or the swapper isn't deposit-based.
+export const getDepositAddress = (
+  step: TradeQuoteStep | TradeRateStep,
+  swapperName: SwapperName,
+): string | undefined => {
+  switch (swapperName) {
+    case SwapperName.Chainflip:
+      return step.chainflipSpecific?.depositAddress || undefined
+    case SwapperName.NearIntents: {
+      if (step.swapperMetadata?.name !== 'nearIntents') return undefined
+      const { depositAddress, depositMemo } = step.swapperMetadata
+      if (depositMemo) return undefined
+      return depositAddress || undefined
+    }
+    default:
+      return undefined
+  }
 }

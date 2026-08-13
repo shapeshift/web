@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express'
 
 import { env } from '../../env'
+import { bindSellTxHash, requiresTxHashToTrack } from '../../lib/depositAddress'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -17,7 +18,7 @@ registry.registerPath({
   operationId: 'getSwapStatus',
   summary: 'Get swap status',
   description:
-    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and start tracking. Subsequent calls can omit txHash.',
+    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and start tracking. Subsequent calls can omit txHash. Quotes from deposit-address swappers need no txHash at all - tracking starts from the quote ID, and the sell tx hash appears on the response once the provider sees the deposit.',
   tags: ['Swaps'],
   request: {
     headers: PartnerCodeHeaderSchema,
@@ -61,7 +62,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       return
     }
 
-    if (!txHash && !storedQuote.txHash) {
+    if (!txHash && requiresTxHashToTrack(storedQuote)) {
       res.status(400).json({
         error: 'txHash is required to begin tracking',
         code: 'TX_HASH_REQUIRED',
@@ -140,16 +141,27 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
 
       const swapServiceStatus = statusResult.data
 
+      // A deposit swapper's sell tx hash arrives from the provider rather than the client
+      let trackedQuote = storedQuote
+
+      if (!trackedQuote.txHash && swapServiceStatus.sellTxHash) {
+        trackedQuote = bindSellTxHash(trackedQuote, swapServiceStatus.sellTxHash, Date.now())
+        quoteStore.set(quoteId, trackedQuote)
+        response.txHash = trackedQuote.txHash
+        response.registeredAt = trackedQuote.registeredAt
+        response.status = trackedQuote.status
+      }
+
       const status =
         swapServiceStatus.status === 'SUCCESS'
           ? 'confirmed'
           : swapServiceStatus.status === 'FAILED'
           ? 'failed'
-          : storedQuote.status
+          : trackedQuote.status
 
-      if (status !== storedQuote.status && (status === 'confirmed' || status === 'failed')) {
+      if (status !== trackedQuote.status && (status === 'confirmed' || status === 'failed')) {
         response.status = status
-        quoteStore.set(quoteId, { ...storedQuote, status })
+        quoteStore.set(quoteId, { ...trackedQuote, status })
       }
 
       if (swapServiceStatus.buyTxHash) response.buyTxHash = swapServiceStatus.buyTxHash

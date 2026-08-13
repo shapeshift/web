@@ -801,6 +801,13 @@
   color: var(--ssw-error);
 }
 
+/* Caution rather than failure - an expired window costs nothing unless funds are sent to it */
+.ssw-step-icon-circle.ssw-ic-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: var(--ssw-warning);
+  color: var(--ssw-warning);
+}
+
 .ssw-step-title {
   font-size: 20px;
   font-weight: 600;
@@ -906,11 +913,6 @@
   text-align: center;
 }
 
-.ssw-deposit-spinner {
-  color: var(--ssw-accent);
-  margin: 20px 0;
-}
-
 .ssw-deposit-field {
   display: flex;
   flex-direction: column;
@@ -961,13 +963,6 @@
 .ssw-deposit-countdown {
   font-size: 13px;
   color: var(--ssw-text-muted);
-}
-
-.ssw-deposit-expired {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ssw-error);
-  text-align: center;
 }
 
 .ssw-deposit-summary {

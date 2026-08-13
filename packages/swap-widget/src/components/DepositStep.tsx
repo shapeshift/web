@@ -80,36 +80,55 @@ export const DepositStep = () => {
 
   if (isRequoting) {
     return (
-      <div className='ssw-deposit'>
-        <span className='ssw-deposit-title'>Getting a new deposit address</span>
-        <svg
-          className='ssw-spinner ssw-deposit-spinner'
-          width='28'
-          height='28'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'
-        >
-          <path d='M21 12a9 9 0 1 1-6.219-8.56' />
-        </svg>
-        <span className='ssw-deposit-countdown'>Don't send to the previous address</span>
+      <div className='ssw-step-screen'>
+        <div className='ssw-step-icon-circle ssw-ic-accent'>
+          <svg
+            className='ssw-spinner'
+            width='32'
+            height='32'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+          >
+            <circle cx='12' cy='12' r='10' opacity='0.25' />
+            <path d='M12 2a10 10 0 0 1 10 10' />
+          </svg>
+        </div>
+        <div className='ssw-step-title'>Getting a New Address</div>
+        <div className='ssw-step-subtitle'>Don't send to the previous address</div>
       </div>
     )
   }
 
   if (isExpired) {
     return (
-      <div className='ssw-deposit'>
-        <span className='ssw-deposit-expired'>
-          This deposit address has expired - don't send funds to it.
-        </span>
-        <button className='ssw-action-btn' onClick={handleNewAddress} type='button'>
-          Get a new deposit address
-        </button>
-        <button className='ssw-action-btn ssw-secondary' onClick={handleNewSwap} type='button'>
-          New swap
-        </button>
+      <div className='ssw-step-screen'>
+        <div className='ssw-step-icon-circle ssw-ic-warning'>
+          <svg
+            width='32'
+            height='32'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+          >
+            <circle cx='12' cy='12' r='10' />
+            <path d='M12 7v5l3 2' />
+          </svg>
+        </div>
+        <div className='ssw-step-title'>Deposit Window Closed</div>
+        <div className='ssw-step-subtitle'>
+          Don't send to the previous address. Get a new one to continue at the current rate.
+        </div>
+        <div className='ssw-step-actions'>
+          <button className='ssw-action-btn' onClick={handleNewAddress} type='button'>
+            Get a New Address
+          </button>
+          <button className='ssw-action-btn ssw-secondary' onClick={handleNewSwap} type='button'>
+            New Swap
+          </button>
+        </div>
       </div>
     )
   }

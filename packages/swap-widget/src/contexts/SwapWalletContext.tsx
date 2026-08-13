@@ -6,6 +6,10 @@ import type { UseSolanaSigningResult } from '../hooks/useSolanaSigning'
 
 export type SwapWalletContextValue = {
   sendAddress: string | undefined
+  // The sell-chain wallet address, absent on a deposit flow where sendAddress is typed by the user
+  walletSendAddress: string | undefined
+  customSendAddress: string
+  setCustomSendAddress: (address: string) => void
   receiveAddress: string | undefined
   isReceiveAddressResolving: boolean
   // A locked address the buy chain rejects - nothing can be quoted until the integrator fixes it

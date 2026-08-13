@@ -1,9 +1,9 @@
+import { buildPaymentUri } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useState } from 'react'
 
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { formatAmount, formatAmountForInput, truncateAddress } from '../types'
 import { formatCountdown } from '../utils/countdown'
-import { buildPaymentUri } from '../utils/paymentUri'
 import { QrCode } from './QrCode'
 
 type CopyFieldProps = {
@@ -77,11 +77,11 @@ export const DepositStep = () => {
   const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
   const buyAmount = formatAmount(quote.buyAmountAfterFeesCryptoBaseUnit, quote.buyAsset.precision)
 
-  const paymentUri = buildPaymentUri(
-    quote.depositAddress,
-    quote.sellAsset,
-    quote.sellAmountCryptoBaseUnit,
-  )
+  const paymentUri = buildPaymentUri({
+    address: quote.depositAddress,
+    asset: quote.sellAsset,
+    amountCryptoPrecision: sellAmount,
+  })
 
   if (isRequoting) {
     return (

@@ -536,6 +536,10 @@
   box-shadow: 0 0 16px -2px var(--ssw-accent);
 }
 
+.ssw-receive-row.ssw-receive-row-invalid {
+  border-color: var(--ssw-error);
+}
+
 .ssw-quotes {
   padding: 0 16px 16px;
 }

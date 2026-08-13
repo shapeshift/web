@@ -1,5 +1,6 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+import { getChainName } from '../constants/chains'
 import type { ChainId } from '../types'
 import { truncateAddress } from '../types'
 import { getAddressFormatHint, validateAddress } from '../utils/addressValidation'
@@ -51,6 +52,7 @@ export const ReceiveAddressRow = ({
   )
 
   const formatHint = useMemo(() => getAddressFormatHint(buyChainId), [buyChainId])
+  const chainName = useMemo(() => getChainName(buyChainId), [buyChainId])
 
   const startEditing = useCallback(() => {
     setDraft(receiveAddress ?? '')
@@ -81,11 +83,19 @@ export const ReceiveAddressRow = ({
 
   if (!showInput) {
     return (
-      <div className='ssw-receive-row ssw-receive-row-resolved'>
+      <div
+        className={`ssw-receive-row ssw-receive-row-resolved${
+          showAttention ? ' ssw-receive-row-invalid' : ''
+        }`}
+      >
         <span className='ssw-receive-label'>Receive address</span>
         <div className='ssw-receive-resolved-value'>
           {isResolving ? (
             <span className='ssw-balance-skeleton' />
+          ) : showAttention ? (
+            // Only reachable while locked, since an unlocked row without an address takes the input
+            // branch - so the address came from the integrator and the user can't correct it
+            <span className='ssw-receive-error'>Not valid for {chainName}</span>
           ) : (
             <>
               <span className='ssw-receive-address'>

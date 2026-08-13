@@ -7,6 +7,9 @@ export type PendingDeposit = {
   sendAddress: string
   // Not carried on the quote, and the deposit screen shows it back to the user
   receiveAddress: string
+  // Whichever side drove the quote, so a re-quote after expiry asks for the same thing
+  sellAmountBaseUnit: string | undefined
+  buyAmountBaseUnit: string | undefined
 }
 
 const isPendingDeposit = (value: unknown): value is PendingDeposit => {

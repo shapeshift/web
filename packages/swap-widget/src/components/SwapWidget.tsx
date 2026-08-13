@@ -122,7 +122,13 @@ const SwapWidgetContent = ({
       sendAddress &&
       receiveAddress
     ) {
-      savePendingDeposit({ quote, sendAddress, receiveAddress })
+      savePendingDeposit({
+        quote,
+        sendAddress,
+        receiveAddress,
+        sellAmountBaseUnit: snap.context.sellAmountBaseUnit,
+        buyAmountBaseUnit: snap.context.buyAmountBaseUnit,
+      })
       return
     }
 
@@ -442,6 +448,8 @@ const SwapWidgetCore = ({
         quote: pending.quote,
         sendAddress: pending.sendAddress,
         receiveAddress: pending.receiveAddress,
+        sellAmountBaseUnit: pending.sellAmountBaseUnit,
+        buyAmountBaseUnit: pending.buyAmountBaseUnit,
       })
       setCustomSendAddress(pending.sendAddress)
       setCustomReceiveAddress(pending.receiveAddress)

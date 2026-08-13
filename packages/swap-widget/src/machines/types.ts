@@ -52,6 +52,8 @@ export type SwapMachineEvent =
       quote: QuoteResponse
       sendAddress: string
       receiveAddress: string
+      sellAmountBaseUnit: string | undefined
+      buyAmountBaseUnit: string | undefined
     }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }

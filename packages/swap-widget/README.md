@@ -234,9 +234,13 @@ address.
 | Both                         | Locked to the address you supplied  |
 
 A locked address is checked against the buy asset's chain, and if it doesn't validate there the
-widget blocks the swap rather than falling back to the connected wallet — paying the user's own
-address is never what a locked destination meant. This is reachable whenever the buy asset is left
-unlocked, since the user can switch to a chain the address doesn't belong to.
+widget says so and blocks the swap rather than falling back to the connected wallet — paying the
+user's own address is never what a locked destination meant. This is reachable whenever the buy
+asset is left unlocked, since the user can switch to a chain the address doesn't belong to.
+
+An **unlocked** prefill is checked the same way but fails quietly: one that doesn't match the buy
+chain is dropped, and the connected wallet's address takes over as if you had passed nothing. Verify
+a prefill against the chain of the buy asset you pair it with.
 
 A lock is only accepted alongside the value it locks — `isReceiveAddressLocked` on its own is a type
 error, as is `isBuyAmountLocked` without `defaultBuyAmountCryptoBaseUnit`. Locking with nothing to

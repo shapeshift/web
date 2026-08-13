@@ -225,7 +225,7 @@ describe('/v1/chains', () => {
 
     expect(byChainId.get('eip155:1')?.isSellSupported).toBe(true)
     for (const { sellAssetId } of NON_SELLABLE) {
-      const [chainId] = sellAssetId.split('/')
+      const [chainId = ''] = sellAssetId.split('/')
       expect(byChainId.get(chainId)?.isSellSupported).toBe(false)
     }
   })

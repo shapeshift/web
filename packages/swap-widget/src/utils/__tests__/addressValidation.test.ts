@@ -365,3 +365,112 @@ describe('getAddressFormatHint', () => {
     expect(getAddressFormatHint(solChainId)).toBe('Enter Solana address')
   })
 })
+
+const multiByteBase58CheckAddr = (
+  versionBytes: number[],
+  hash: Uint8Array = HASH160,
+): string => {
+  const payload = new Uint8Array(versionBytes.length + hash.length)
+  payload.set(versionBytes, 0)
+  payload.set(hash, versionBytes.length)
+  return bs58check.encode(payload)
+}
+
+const tronChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Tron,
+  chainReference: CHAIN_REFERENCE.TronMainnet,
+})
+const suiChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Sui,
+  chainReference: CHAIN_REFERENCE.SuiMainnet,
+})
+const nearChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Near,
+  chainReference: CHAIN_REFERENCE.NearMainnet,
+})
+const starknetChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Starknet,
+  chainReference: CHAIN_REFERENCE.StarknetMainnet,
+})
+const zcashChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Utxo,
+  chainReference: CHAIN_REFERENCE.ZcashMainnet,
+})
+
+describe('validateAddress - deposit flow chains', () => {
+  it('accepts a tron address', () => {
+    expect(validateAddress(multiByteBase58CheckAddr([0x41]), tronChainId).valid).toBe(true)
+  })
+
+  it('rejects a tron address with a bad checksum', () => {
+    const address = multiByteBase58CheckAddr([0x41])
+    const corrupted = `${address.slice(0, -1)}${address.endsWith('a') ? 'b' : 'a'}`
+    expect(validateAddress(corrupted, tronChainId).valid).toBe(false)
+  })
+
+  it('rejects a bitcoin address on tron', () => {
+    expect(validateAddress(base58CheckAddr(0x00), tronChainId).valid).toBe(false)
+  })
+
+  it('rejects an evm address on tron', () => {
+    expect(
+      validateAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', tronChainId).valid,
+    ).toBe(false)
+  })
+
+  it('accepts a sui address', () => {
+    expect(validateAddress(`0x${'a'.repeat(64)}`, suiChainId).valid).toBe(true)
+  })
+
+  it('rejects a short sui address', () => {
+    expect(validateAddress(`0x${'a'.repeat(40)}`, suiChainId).valid).toBe(false)
+  })
+
+  it('accepts a named near account', () => {
+    expect(validateAddress('shapeshift.near', nearChainId).valid).toBe(true)
+  })
+
+  it('accepts an implicit near account', () => {
+    expect(validateAddress('f'.repeat(64), nearChainId).valid).toBe(true)
+  })
+
+  it('rejects a near account with invalid characters', () => {
+    expect(validateAddress('Shape Shift.near', nearChainId).valid).toBe(false)
+  })
+
+  it('accepts a starknet address', () => {
+    expect(validateAddress(`0x${'1'.repeat(63)}`, starknetChainId).valid).toBe(true)
+  })
+
+  it('rejects an over-long starknet address', () => {
+    expect(validateAddress(`0x${'1'.repeat(65)}`, starknetChainId).valid).toBe(false)
+  })
+
+  it('accepts transparent zcash addresses', () => {
+    expect(validateAddress(multiByteBase58CheckAddr([0x1c, 0xb8]), zcashChainId).valid).toBe(true)
+    expect(validateAddress(multiByteBase58CheckAddr([0x1c, 0xbd]), zcashChainId).valid).toBe(true)
+  })
+
+  it('rejects a bitcoin address on zcash', () => {
+    expect(validateAddress(base58CheckAddr(0x00), zcashChainId).valid).toBe(false)
+  })
+})
+
+describe('getAddressFormatHint - deposit flow chains', () => {
+  it('hints the tron format', () => {
+    expect(getAddressFormatHint(tronChainId)).toBe('T...')
+  })
+
+  it('hints the near format', () => {
+    expect(getAddressFormatHint(nearChainId)).toBe('name.near or 64 hex chars')
+  })
+
+  it('hints hex formats for sui and starknet', () => {
+    expect(getAddressFormatHint(suiChainId)).toBe('0x...')
+    expect(getAddressFormatHint(starknetChainId)).toBe('0x...')
+  })
+
+  it('hints the zcash format', () => {
+    expect(getAddressFormatHint(zcashChainId)).toBe('t1... or t3...')
+  })
+})

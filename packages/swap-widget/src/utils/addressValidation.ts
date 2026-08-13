@@ -84,6 +84,43 @@ export const isValidLitecoinAddress = (address: string): boolean =>
 export const isValidDogecoinAddress = (address: string): boolean =>
   isValidBase58Check(address, [VERSION_BYTES.dogecoinP2PKH, VERSION_BYTES.dogecoinP2SH])
 
+// Zcash transparent addresses use a two-byte version prefix, unlike the single-byte utxo chains
+const ZCASH_VERSION_BYTES = {
+  transparentP2PKH: [0x1c, 0xb8],
+  transparentP2SH: [0x1c, 0xbd],
+} as const
+
+export const isValidZcashAddress = (address: string): boolean => {
+  try {
+    const decoded = bs58check.decode(address)
+    return Object.values(ZCASH_VERSION_BYTES).some(
+      ([first, second]) => decoded[0] === first && decoded[1] === second,
+    )
+  } catch {
+    return false
+  }
+}
+
+export const isValidTronAddress = (address: string): boolean => {
+  if (!address.startsWith('T')) return false
+  try {
+    return bs58check.decode(address)[0] === 0x41
+  } catch {
+    return false
+  }
+}
+
+export const isValidSuiAddress = (address: string): boolean => /^0x[0-9a-fA-F]{64}$/.test(address)
+
+export const isValidStarknetAddress = (address: string): boolean =>
+  /^0x[0-9a-fA-F]{1,64}$/.test(address)
+
+// Either an implicit account (a 64-char hex public key) or a named one
+export const isValidNearAddress = (address: string): boolean => {
+  if (/^[0-9a-f]{64}$/.test(address)) return true
+  return /^(?=.{2,64}$)[a-z0-9]+([-_.][a-z0-9]+)*$/.test(address)
+}
+
 const UTXO_VALIDATORS: Record<
   string,
   { check: (a: string) => boolean; label: string; hint: string }
@@ -107,6 +144,11 @@ const UTXO_VALIDATORS: Record<
     check: isValidDogecoinAddress,
     label: 'Dogecoin',
     hint: 'D...',
+  },
+  [CHAIN_REFERENCE.ZcashMainnet]: {
+    check: isValidZcashAddress,
+    label: 'Zcash',
+    hint: 't1... or t3...',
   },
 }
 
@@ -148,6 +190,14 @@ export const validateAddress = (
         return invalid('Solana')
       }
     }
+    case CHAIN_NAMESPACE.Tron:
+      return isValidTronAddress(address) ? { valid: true } : invalid('Tron')
+    case CHAIN_NAMESPACE.Sui:
+      return isValidSuiAddress(address) ? { valid: true } : invalid('Sui')
+    case CHAIN_NAMESPACE.Near:
+      return isValidNearAddress(address) ? { valid: true } : invalid('NEAR')
+    case CHAIN_NAMESPACE.Starknet:
+      return isValidStarknetAddress(address) ? { valid: true } : invalid('Starknet')
     default:
       return { valid: false, error: 'Unsupported chain type' }
   }
@@ -167,6 +217,13 @@ export const getAddressFormatHint = (chainId: ChainId): string => {
     }
     case CHAIN_NAMESPACE.Solana:
       return 'Enter Solana address'
+    case CHAIN_NAMESPACE.Tron:
+      return 'T...'
+    case CHAIN_NAMESPACE.Sui:
+    case CHAIN_NAMESPACE.Starknet:
+      return '0x...'
+    case CHAIN_NAMESPACE.Near:
+      return 'name.near or 64 hex chars'
     default:
       return 'Enter address'
   }

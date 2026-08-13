@@ -895,8 +895,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 4px 0;
+  gap: 14px;
+  padding: 12px 0 4px;
 }
 
 .ssw-deposit-title {
@@ -906,13 +906,26 @@
   text-align: center;
 }
 
+.ssw-deposit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.ssw-deposit-field-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ssw-text-secondary);
+}
+
 .ssw-qr {
   border-radius: var(--ssw-radius-md);
   padding: 8px;
   background: #ffffff;
 }
 
-.ssw-deposit-address {
+.ssw-deposit-value {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -925,10 +938,11 @@
   color: var(--ssw-text-primary);
   font-family: monospace;
   font-size: 13px;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
 }
 
-.ssw-deposit-address:hover {
+.ssw-deposit-value:hover {
   border-color: var(--ssw-border-hover);
 }
 
@@ -956,8 +970,14 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  padding-top: 12px;
+  margin-top: 2px;
+  padding-top: 14px;
   border-top: 1px solid var(--ssw-border);
+}
+
+/* Keeps the action clear of the details it summarises */
+.ssw-deposit .ssw-action-btn {
+  margin-top: 6px;
 }
 
 .ssw-deposit-row {

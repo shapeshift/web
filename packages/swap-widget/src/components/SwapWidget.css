@@ -906,6 +906,11 @@
   text-align: center;
 }
 
+.ssw-deposit-spinner {
+  color: var(--ssw-accent);
+  margin: 20px 0;
+}
+
 .ssw-deposit-field {
   display: flex;
   flex-direction: column;

@@ -47,6 +47,7 @@ export const DepositStep = () => {
   // mid-payment must not repaint the screen with addresses the channel doesn't know
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isExpired = SwapMachineCtx.useSelector(s => s.matches('deposit_expired'))
+  const isRequoting = SwapMachineCtx.useSelector(s => s.matches('quoting'))
   const actorRef = SwapMachineCtx.useActorRef()
 
   const { quote, sendAddress, receiveAddress } = context
@@ -54,7 +55,7 @@ export const DepositStep = () => {
   const [msRemaining, setMsRemaining] = useState(() => (quote ? quote.expiresAt - Date.now() : 0))
 
   useEffect(() => {
-    if (!quote || isExpired) return
+    if (!quote || isExpired || isRequoting) return
 
     const tick = () => {
       const remaining = quote.expiresAt - Date.now()
@@ -65,7 +66,7 @@ export const DepositStep = () => {
     tick()
     const interval = setInterval(tick, 1000)
     return () => clearInterval(interval)
-  }, [quote, isExpired, actorRef])
+  }, [quote, isExpired, isRequoting, actorRef])
 
   const handleNewSwap = useCallback(() => actorRef.send({ type: 'RESET' }), [actorRef])
   const handleNewAddress = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
@@ -76,6 +77,26 @@ export const DepositStep = () => {
   // the user pastes into their wallet
   const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
   const buyAmount = formatAmount(quote.buyAmountAfterFeesCryptoBaseUnit, quote.buyAsset.precision)
+
+  if (isRequoting) {
+    return (
+      <div className='ssw-deposit'>
+        <span className='ssw-deposit-title'>Getting a new deposit address</span>
+        <svg
+          className='ssw-spinner ssw-deposit-spinner'
+          width='28'
+          height='28'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          strokeWidth='2'
+        >
+          <path d='M21 12a9 9 0 1 1-6.219-8.56' />
+        </svg>
+        <span className='ssw-deposit-countdown'>Don't send to the previous address</span>
+      </div>
+    )
+  }
 
   if (isExpired) {
     return (

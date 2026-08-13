@@ -23,6 +23,8 @@ export type SwapMachineContext = {
   // Set when the swap is paid by transferring to a deposit address rather than signed in-widget
   isDepositFlow: boolean
   slippage: string
+  // Named for the api field it fills. A wallet's address when one is connected; on a deposit
+  // swap it's the address the user typed, which only ever receives refunds
   sendAddress: string | undefined
   receiveAddress: string | undefined
   isSellAssetEvm: boolean

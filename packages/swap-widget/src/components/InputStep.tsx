@@ -48,7 +48,7 @@ export const InputStep = ({
   const {
     sendAddress,
     walletSendAddress,
-    setCustomSendAddress,
+    setCustomRefundAddress,
     receiveAddress,
     isReceiveAddressResolving,
     isReceiveAddressBlocked,
@@ -378,9 +378,9 @@ export const InputStep = ({
 
             {isDepositFlowAvailable && (
               <RefundAddressRow
-                sendAddress={sendAddress}
+                refundAddress={sendAddress}
                 sellChainId={context.sellAsset.chainId}
-                onSetCustomSendAddress={setCustomSendAddress}
+                onSetCustomRefundAddress={setCustomRefundAddress}
               />
             )}
           </div>

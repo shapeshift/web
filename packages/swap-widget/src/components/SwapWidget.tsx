@@ -24,6 +24,7 @@ import { validateAddress } from '../utils/addressValidation'
 import { resolveReceiveAddress } from '../utils/receiveAddress'
 import { resolveSendAddress } from '../utils/sendAddress'
 import { ApprovalStep } from './ApprovalStep'
+import { DepositStep } from './DepositStep'
 import { ExecutionStep } from './ExecutionStep'
 import { InputStep } from './InputStep'
 import { SettingsModal } from './SettingsModal'
@@ -202,6 +203,8 @@ const SwapWidgetContent = ({
         {(state.matches('approval_needed') || state.matches('approving')) && <ApprovalStep />}
 
         {state.matches('executing') && <ExecutionStep />}
+
+        {(state.matches('awaiting_deposit') || state.matches('deposit_expired')) && <DepositStep />}
 
         {(state.matches('polling_status') ||
           state.matches('complete') ||

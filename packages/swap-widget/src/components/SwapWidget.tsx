@@ -1,7 +1,7 @@
 import './SwapWidget.css'
 
 import { useAppKitAccount } from '@reown/appkit/react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { createApiClient } from '../api/client'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
@@ -436,8 +436,10 @@ const SwapWidgetCore = ({
     })
   }, [isBuyAmountLocked, defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision, actorRef])
 
+  // Before paint, so a restored deposit - or an integrator's defaults - never flash the built-in
+  // input step first
   const initialSyncRef = useRef(false)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (initialSyncRef.current) return
     initialSyncRef.current = true
     actorRef.send({ type: 'SET_SELL_ASSET', asset: defaultSellAsset })

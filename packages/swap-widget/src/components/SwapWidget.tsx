@@ -116,6 +116,7 @@ const SwapWidgetContent = ({
   useSellFiatSync(displayValues.sellAssetUsdPrice)
 
   // Only while funds are still owed - once they land it settles or refunds without us
+  const hasSavedDepositRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()
     const { quote, sendAddress, receiveAddress, isDepositFlow } = snap.context
@@ -134,10 +135,13 @@ const SwapWidgetContent = ({
         sellAmountBaseUnit: snap.context.sellAmountBaseUnit,
         buyAmountBaseUnit: snap.context.buyAmountBaseUnit,
       })
+      hasSavedDepositRef.current = true
       return
     }
 
-    if (!snap.matches('awaiting_deposit')) clearPendingDeposit()
+    // Never before we've saved: this effect belongs to a child of the component that restores,
+    // so on mount it runs first, and would wipe the deposit that's about to be read
+    if (hasSavedDepositRef.current) clearPendingDeposit()
     // eslint-disable-next-line react-hooks/exhaustive-deps -- state.value is the sole trigger; context is read from the snapshot
   }, [state.value])
 
@@ -346,12 +350,10 @@ const SwapWidgetCore = ({
   const bitcoin = useBitcoinSigning()
   const solana = useSolanaSigning()
 
-  // Seeded so an unlocked default prefills the field the user can then edit
   const [customReceiveAddress, setCustomReceiveAddress] = useState<string>(
     defaultReceiveAddress ?? '',
   )
 
-  // Doubles as the refund address when paying a deposit address from an external wallet
   const [customRefundAddress, setCustomRefundAddress] = useState<string>('')
 
   const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)

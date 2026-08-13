@@ -47,7 +47,12 @@ export type SwapMachineEvent =
   | { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }
   | { type: 'DEPOSIT_DETECTED'; txHash: string }
   | { type: 'DEPOSIT_EXPIRED' }
-  | { type: 'RESTORE_DEPOSIT'; quote: QuoteResponse; sendAddress: string }
+  | {
+      type: 'RESTORE_DEPOSIT'
+      quote: QuoteResponse
+      sendAddress: string
+      receiveAddress: string
+    }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }
   | { type: 'APPROVE' }

@@ -5,6 +5,8 @@ const STORAGE_KEY = 'ssw:pendingDeposit'
 export type PendingDeposit = {
   quote: QuoteResponse
   sendAddress: string
+  // Not carried on the quote, and the deposit screen shows it back to the user
+  receiveAddress: string
 }
 
 const isPendingDeposit = (value: unknown): value is PendingDeposit => {
@@ -12,7 +14,8 @@ const isPendingDeposit = (value: unknown): value is PendingDeposit => {
   return (
     !!candidate?.quote?.depositAddress &&
     typeof candidate.quote.expiresAt === 'number' &&
-    typeof candidate.sendAddress === 'string'
+    typeof candidate.sendAddress === 'string' &&
+    typeof candidate.receiveAddress === 'string'
   )
 }
 

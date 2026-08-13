@@ -36,7 +36,10 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
       if (stopped) return
 
       const quoteId = actorRef.getSnapshot().context.quote?.quoteId
-      if (!quoteId) return
+      if (!quoteId) {
+        setTimeout(poll, POLL_INTERVAL_MS)
+        return
+      }
 
       try {
         const response = (await apiClient.getSwapStatus({ quoteId })) as DepositStatusResponse

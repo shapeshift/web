@@ -1,9 +1,46 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import { formatAmount, truncateAddress } from '../types'
+import { formatAmount, formatAmountForInput, truncateAddress } from '../types'
 import { formatCountdown } from '../utils/countdown'
 import { QrCode } from './QrCode'
+
+type CopyFieldProps = {
+  label: string
+  display: string
+  value: string
+}
+
+const CopyField = ({ label, display, value }: CopyFieldProps) => {
+  const [hasCopied, setHasCopied] = useState(false)
+
+  // Absent on insecure origins, where the value stays selectable rather than copyable
+  const handleCopy = useCallback(() => {
+    if (!navigator.clipboard) return
+    navigator.clipboard
+      .writeText(value)
+      .then(() => {
+        setHasCopied(true)
+        setTimeout(() => setHasCopied(false), 2000)
+      })
+      .catch(() => {})
+  }, [value])
+
+  return (
+    <div className='ssw-deposit-field'>
+      <span className='ssw-deposit-field-label'>{label}</span>
+      <button
+        className='ssw-deposit-value'
+        onClick={handleCopy}
+        type='button'
+        aria-label={`Copy ${label.toLowerCase()}`}
+      >
+        <span>{display}</span>
+        <span className='ssw-deposit-copy'>{hasCopied ? 'Copied' : 'Copy'}</span>
+      </button>
+    </div>
+  )
+}
 
 export const DepositStep = () => {
   // Addresses come from the machine, which froze them at quote time - a wallet connecting
@@ -15,7 +52,6 @@ export const DepositStep = () => {
   const { quote, sendAddress, receiveAddress } = context
 
   const [msRemaining, setMsRemaining] = useState(() => (quote ? quote.expiresAt - Date.now() : 0))
-  const [hasCopied, setHasCopied] = useState(false)
 
   useEffect(() => {
     if (!quote || isExpired) return
@@ -31,24 +67,14 @@ export const DepositStep = () => {
     return () => clearInterval(interval)
   }, [quote, isExpired, actorRef])
 
-  // Absent on insecure origins, where the address stays selectable rather than copyable
-  const handleCopy = useCallback(() => {
-    if (!quote?.depositAddress || !navigator.clipboard) return
-    navigator.clipboard
-      .writeText(quote.depositAddress)
-      .then(() => {
-        setHasCopied(true)
-        setTimeout(() => setHasCopied(false), 2000)
-      })
-      .catch(() => {})
-  }, [quote?.depositAddress])
-
   const handleNewSwap = useCallback(() => actorRef.send({ type: 'RESET' }), [actorRef])
   const handleNewAddress = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
 
   if (!quote?.depositAddress) return null
 
-  const sellAmount = formatAmount(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
+  // Ungrouped and unrounded - a rounded amount would contradict "send exactly", and it's what
+  // the user pastes into their wallet
+  const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
   const buyAmount = formatAmount(quote.buyAmountAfterFeesCryptoBaseUnit, quote.buyAsset.precision)
 
   if (isExpired) {
@@ -69,16 +95,21 @@ export const DepositStep = () => {
 
   return (
     <div className='ssw-deposit'>
-      <span className='ssw-deposit-title'>
-        Send exactly {sellAmount} {quote.sellAsset.symbol}
-      </span>
+      <span className='ssw-deposit-title'>Send from any wallet</span>
 
       <QrCode value={quote.depositAddress} />
 
-      <button className='ssw-deposit-address' onClick={handleCopy} type='button'>
-        <span>{truncateAddress(quote.depositAddress, 8)}</span>
-        <span className='ssw-deposit-copy'>{hasCopied ? 'Copied' : 'Copy'}</span>
-      </button>
+      <CopyField
+        label='Send exactly'
+        display={`${sellAmount} ${quote.sellAsset.symbol}`}
+        value={sellAmount}
+      />
+
+      <CopyField
+        label='To this address'
+        display={truncateAddress(quote.depositAddress, 8)}
+        value={quote.depositAddress}
+      />
 
       <span className='ssw-deposit-countdown'>Expires in {formatCountdown(msRemaining)}</span>
 

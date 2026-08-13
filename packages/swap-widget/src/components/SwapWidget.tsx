@@ -78,6 +78,11 @@ const SwapWidgetContent = ({
   const state = SwapMachineCtx.useSelector(s => s)
   const actorRef = SwapMachineCtx.useActorRef()
 
+  // Replacing an expired deposit address - a quote is already in hand, so stay on the deposit
+  // screen rather than bouncing back through the input step
+  const isRequotingDeposit =
+    state.matches('quoting') && state.context.isDepositFlow && !!state.context.quote
+
   const [tokenModalType, setTokenModalType] = useState<'sell' | 'buy' | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
@@ -217,7 +222,9 @@ const SwapWidgetContent = ({
       </div>
 
       <div className='ssw-step-container'>
-        {(state.matches('idle') || state.matches('input') || state.matches('quoting')) && (
+        {(state.matches('idle') ||
+          state.matches('input') ||
+          (state.matches('quoting') && !isRequotingDeposit)) && (
           <InputStep
             displayValues={displayValues}
             onOpenTokenModal={setTokenModalType}
@@ -238,7 +245,9 @@ const SwapWidgetContent = ({
 
         {state.matches('executing') && <ExecutionStep />}
 
-        {(state.matches('awaiting_deposit') || state.matches('deposit_expired')) && <DepositStep />}
+        {(state.matches('awaiting_deposit') ||
+          state.matches('deposit_expired') ||
+          isRequotingDeposit) && <DepositStep />}
 
         {(state.matches('polling_status') ||
           state.matches('complete') ||

@@ -22,6 +22,11 @@ import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
 import { formatAmountForInput, getChainType } from '../types'
 import { validateAddress } from '../utils/addressValidation'
+import {
+  clearPendingDeposit,
+  loadPendingDeposit,
+  savePendingDeposit,
+} from '../utils/pendingDeposit'
 import { resolveReceiveAddress } from '../utils/receiveAddress'
 import { resolveSendAddress } from '../utils/sendAddress'
 import { ApprovalStep } from './ApprovalStep'
@@ -71,6 +76,7 @@ const SwapWidgetContent = ({
   ratesRefetchInterval,
 }: SwapWidgetContentProps) => {
   const state = SwapMachineCtx.useSelector(s => s)
+  const actorRef = SwapMachineCtx.useActorRef()
 
   const [tokenModalType, setTokenModalType] = useState<'sell' | 'buy' | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -103,6 +109,20 @@ const SwapWidgetContent = ({
   useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
   useDepositPolling({ apiClient })
   useSellFiatSync(displayValues.sellAssetUsdPrice)
+
+  // Only while funds are still owed - once they land it settles or refunds without us
+  useEffect(() => {
+    const snap = actorRef.getSnapshot()
+    const { quote, sendAddress, isDepositFlow } = snap.context
+
+    if (snap.matches('awaiting_deposit') && isDepositFlow && quote?.depositAddress && sendAddress) {
+      savePendingDeposit({ quote, sendAddress })
+      return
+    }
+
+    if (!snap.matches('awaiting_deposit')) clearPendingDeposit()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state.value is the sole trigger; context is read from the snapshot
+  }, [state.value])
 
   const widgetStyle = useMemo(() => {
     if (!themeConfig) return undefined
@@ -407,6 +427,17 @@ const SwapWidgetCore = ({
         : '',
       amountBaseUnit: defaultBuyAmountCryptoBaseUnit,
     })
+
+    // Restored last so the default assets above can't clobber the quoted ones
+    const pending = loadPendingDeposit(Date.now())
+    if (pending) {
+      actorRef.send({
+        type: 'RESTORE_DEPOSIT',
+        quote: pending.quote,
+        sendAddress: pending.sendAddress,
+      })
+      setCustomSendAddress(pending.sendAddress)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
   }, [actorRef])
 

@@ -119,7 +119,7 @@ export const DepositStep = () => {
         </div>
         <div className='ssw-step-title'>Deposit Window Closed</div>
         <div className='ssw-step-subtitle'>
-          Don't send to the previous address. Get a new one to continue at the current rate.
+          Don't send to the previous address. A new one comes with an updated quote.
         </div>
         <div className='ssw-step-actions'>
           <button className='ssw-action-btn' onClick={handleNewAddress} type='button'>

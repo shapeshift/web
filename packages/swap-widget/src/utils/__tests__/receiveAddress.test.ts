@@ -66,13 +66,12 @@ describe('resolveReceiveAddress', () => {
     })
 
     it('falls back to the wallet when the entry is for another chain', () => {
+      expect(resolveReceiveAddress({ ...args, customAddress: BTC_ADDRESS })).toBe(WALLET_ADDRESS)
+    })
+
+    it('has no address when the entry is unusable and no wallet is connected', () => {
       expect(
-        resolveReceiveAddress({
-          ...args,
-          customAddress: BTC_ADDRESS,
-          walletAddress: undefined,
-          buyChainId: ETH_CHAIN_ID,
-        }),
+        resolveReceiveAddress({ ...args, customAddress: BTC_ADDRESS, walletAddress: undefined }),
       ).toBeUndefined()
     })
 

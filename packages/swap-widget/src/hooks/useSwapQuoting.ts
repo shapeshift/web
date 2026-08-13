@@ -71,11 +71,20 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
         }
 
         if (!sendAddress) {
-          actorRef.send({ type: 'QUOTE_ERROR', error: 'No wallet address available' })
+          actorRef.send({
+            type: 'QUOTE_ERROR',
+            error: context.isDepositFlow
+              ? 'No refund address available'
+              : 'No wallet address available',
+          })
           return
         }
 
-        const resolvedReceiveAddress = receiveAddress || sendAddress
+        // Only a connected wallet can stand in for a missing receive address - a deposit's send
+        // address is on the sell chain and would send the proceeds nowhere
+        const resolvedReceiveAddress = context.isDepositFlow
+          ? receiveAddress
+          : receiveAddress || sendAddress
 
         if (!resolvedReceiveAddress) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No receive address available' })

@@ -3,19 +3,20 @@ import { z } from 'zod'
 import { registry } from '../../registry'
 import { BpsFields, EVM_ADDRESS } from '../../types'
 
+// The swap record itself, so every column swap-service leaves unset arrives as null
 export const SwapServiceStatusSchema = z.object({
   status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
-  sellTxHash: z.string().optional(),
-  buyTxHash: z.string().optional(),
-  statusMessage: z.string(),
-  isAffiliateVerified: z.boolean().optional(),
+  sellTxHash: z.string().nullable(),
+  buyTxHash: z.string().nullable(),
+  statusMessage: z.string().nullable(),
+  isAffiliateVerified: z.boolean().nullable(),
   affiliateVerificationDetails: z
     .object({
       hasAffiliate: z.boolean(),
       affiliateBps: z.number().optional(),
       affiliateAddress: EVM_ADDRESS.optional(),
     })
-    .optional(),
+    .nullable(),
 })
 
 export type SwapServiceStatus = z.infer<typeof SwapServiceStatusSchema>

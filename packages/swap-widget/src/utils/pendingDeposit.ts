@@ -38,8 +38,7 @@ export const savePendingDeposit = (deposit: PendingDeposit): void => {
   }
 }
 
-// Only the pre-deposit window is recoverable: the address is the one thing a user still needs in
-// hand to pay and cannot recreate
+// Only the pre-deposit window is recoverable: the address can't be recreated and is needed to pay
 export const loadPendingDeposit = (now: number): PendingDeposit | undefined => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)

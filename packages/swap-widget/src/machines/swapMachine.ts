@@ -371,8 +371,7 @@ export const swapMachine = setup({
     },
     deposit_expired: {
       on: {
-        // The provider decides what's too late, not our countdown - funds sent just before it
-        // ran out still swap, and must not be left looking abandoned
+        // The provider decides what's too late, not our countdown, so a late deposit still lands
         DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
         RETRY: { target: 'quoting', actions: 'incrementRetryCount' },
         RESET: { target: 'input', actions: 'resetSwapState' },

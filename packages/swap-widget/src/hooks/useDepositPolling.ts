@@ -18,8 +18,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
   const pollingRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()
-    // Keeps running past expiry: a deposit sent in the last seconds still lands, and the provider
-    // is the one that decides whether it was too late
+    // Runs past expiry too - the provider, not our countdown, decides what was too late
     const isDepositTracking =
       snap.context.isDepositFlow &&
       (snap.matches('awaiting_deposit') ||

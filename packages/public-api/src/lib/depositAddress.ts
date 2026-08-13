@@ -6,8 +6,7 @@ import type { StoredQuote } from './quoteStore'
 export const isDepositAddressSwapper = (swapperName: string): boolean =>
   swappers[swapperName as SwapperName]?.supportsDepositAddress === true
 
-// Gated on the swapper's capability, never on a missing hash - a wallet swap that failed to bind
-// its hash must keep erroring rather than drifting into deposit-style tracking
+// Gated on capability, so a wallet swap that never bound its hash keeps erroring
 export const requiresTxHashToTrack = (storedQuote: StoredQuote): boolean =>
   !storedQuote.txHash && !isDepositAddressSwapper(storedQuote.swapperName)
 

@@ -43,8 +43,7 @@ const CopyField = ({ label, display, value }: CopyFieldProps) => {
 }
 
 export const DepositStep = () => {
-  // Addresses come from the machine, which froze them at quote time - a wallet connecting
-  // mid-payment must not repaint the screen with addresses the channel doesn't know
+  // Addresses come from the machine, frozen at quote time - a wallet connecting can't repaint them
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isExpired = SwapMachineCtx.useSelector(s => s.matches('deposit_expired'))
   const isRequoting = SwapMachineCtx.useSelector(s => s.matches('quoting'))
@@ -73,8 +72,7 @@ export const DepositStep = () => {
 
   if (!quote?.depositAddress) return null
 
-  // Ungrouped and unrounded - a rounded amount would contradict "send exactly", and it's what
-  // the user pastes into their wallet
+  // Ungrouped and unrounded - it's pasted into a wallet, and "send exactly" must mean it
   const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
   const buyAmount = formatAmount(quote.buyAmountAfterFeesCryptoBaseUnit, quote.buyAsset.precision)
 
@@ -134,7 +132,7 @@ export const DepositStep = () => {
 
   return (
     <div className='ssw-deposit'>
-      <span className='ssw-deposit-title'>Send from any wallet</span>
+      <span className='ssw-deposit-title'>Awaiting Deposit</span>
 
       <QrCode value={quote.depositAddress} />
 
@@ -170,7 +168,7 @@ export const DepositStep = () => {
       </div>
 
       <button className='ssw-action-btn ssw-secondary' onClick={handleNewSwap} type='button'>
-        New swap
+        New Swap
       </button>
     </div>
   )

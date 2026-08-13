@@ -893,6 +893,18 @@ describe('deposit flow', () => {
     actor.stop()
   })
 
+  it('recovers from deposit_expired when a late deposit is detected', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    actor.send({ type: 'DEPOSIT_EXPIRED' })
+    actor.send({ type: 'DEPOSIT_DETECTED', txHash: '0xlate' })
+
+    const snapshot = actor.getSnapshot()
+    expect(snapshot.value).toBe('polling_status')
+    expect(snapshot.context.txHash).toBe('0xlate')
+    actor.stop()
+  })
+
   it('re-quotes for a fresh address from deposit_expired', () => {
     const actor = startInDepositQuoting()
     actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })

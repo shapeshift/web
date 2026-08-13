@@ -488,7 +488,6 @@ const SwapWidgetCore = ({
     () => ({
       sendAddress,
       walletSendAddress,
-      customRefundAddress,
       setCustomRefundAddress,
       receiveAddress,
       isReceiveAddressResolving,
@@ -502,7 +501,6 @@ const SwapWidgetCore = ({
     [
       sendAddress,
       walletSendAddress,
-      customRefundAddress,
       receiveAddress,
       isReceiveAddressResolving,
       isReceiveAddressLocked,

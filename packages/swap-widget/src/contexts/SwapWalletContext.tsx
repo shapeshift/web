@@ -9,7 +9,6 @@ export type SwapWalletContextValue = {
   sendAddress: string | undefined
   // Connection state - absent on a deposit flow, where nothing is signed
   walletSendAddress: string | undefined
-  customRefundAddress: string
   setCustomRefundAddress: (address: string) => void
   receiveAddress: string | undefined
   isReceiveAddressResolving: boolean

@@ -8,6 +8,7 @@ import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { useDepositPolling } from '../hooks/useDepositPolling'
 import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useSellFiatSync } from '../hooks/useSellFiatSync'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
@@ -100,6 +101,7 @@ const SwapWidgetContent = ({
   useSwapApproval()
   useSwapExecution()
   useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
+  useDepositPolling({ apiClient })
   useSellFiatSync(displayValues.sellAssetUsdPrice)
 
   const widgetStyle = useMemo(() => {

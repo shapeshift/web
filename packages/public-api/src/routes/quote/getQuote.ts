@@ -1,4 +1,5 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { GetExactOutputTradeQuoteInput, GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import {
@@ -15,6 +16,7 @@ import { getAsset } from '../../assets'
 import {
   ENABLED_SWAPPER_NAMES,
   isExecutableSellChainId,
+  isSwapperExecutableOnSellChain,
   MAX_QUOTE_DEADLINE_MS,
 } from '../../constants'
 import { env } from '../../env'
@@ -108,6 +110,14 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    if (!isSwapperExecutableOnSellChain(validSwapperName, sellAsset.chainId)) {
+      res.status(400).json({
+        error: `${swapperName} cannot be executed on ${sellAsset.chainId}`,
+        code: 'SWAPPER_UNSUPPORTED_SELL_CHAIN',
+      } satisfies ErrorResponse)
+      return
+    }
+
     const buyAsset = getAsset(buyAssetId)
     if (!buyAsset) {
       res.status(400).json({ error: `Unknown buy asset: ${buyAssetId}` } satisfies ErrorResponse)
@@ -152,8 +162,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       xpub,
       quoteOrRate: 'quote' as const,
       chainId: sellAsset.chainId,
-      // Consumers sign themselves - price with legacy gas semantics
-      supportsEIP1559: false,
+      ...(isEvmChainId(sellAsset.chainId) && { supportsEIP1559: false as const }),
     }
 
     // The input union narrows chainId per chain family; utxo accountType/xpub are unmodelled too

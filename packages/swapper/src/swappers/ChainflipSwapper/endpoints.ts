@@ -67,7 +67,6 @@ export const chainflipApi: SwapperApi = {
     const { data: statusResponse } = maybeStatusResponse.unwrap()
 
     const buyTxHash = statusResponse.status.swapEgress?.transactionReference
-    // The deposit came from whatever wallet the user paid with, so this may be our only sight of it
     const sellTxHash = statusResponse.status.deposit?.transactionReference ?? undefined
     const swapperTxId = statusResponse.status.swapId
     const swapperTxLink = swapperTxId ? `https://scan.chainflip.io/swaps/${swapperTxId}` : undefined

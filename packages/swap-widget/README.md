@@ -286,7 +286,7 @@ user's own wallet, or topping up a locked address again, are both things a user 
 twice.
 `isBuyAssetLocked` never affects this — restricting swaps to a given token is just a configuration.
 
-### Redirects are disabled by either lock
+### Locking the buy amount or receive address disables redirects
 
 The app.shapeshift.com redirect carries neither the destination nor the buy amount, so following it
 would drop whichever constraint you set. Locking the buy amount **or** the receive address
@@ -755,8 +755,8 @@ revenue attribution works.
 - **Redirects.** Assets on non-executable chains (Cosmos, Zcash, Tron, Sui, TON, NEAR, Starknet)
   send the user to app.shapeshift.com to finish the swap, unless `allowShapeshiftRedirect={false}`
   or the buy amount or receive address is locked (see
-  [Redirects are disabled by either lock](#redirects-are-disabled-by-either-lock)). A
-  [deposit-address route](#external-wallets-and-deposit-addresses) takes precedence where one is
+  [Locking the buy amount or receive address disables redirects](#locking-the-buy-amount-or-receive-address-disables-redirects)).
+  An [externally paid route](#external-wallets-and-deposit-addresses) takes precedence where one is
   available, since it can be paid without any wallet.
 - **Configuration is applied at mount.** `default*` props are read once; locked values keep
   tracking their prop. Remount to change anything else, or to start a fresh swap. See

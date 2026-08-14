@@ -784,6 +784,8 @@ export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
+  supportsExternalPayment?: boolean
+
   executeEvmTransaction?: (
     txToSign: SignTx<EvmChainId>,
     callbacks: EvmTransactionExecutionProps,
@@ -830,9 +832,6 @@ export type Swapper = {
     txToSign: ton.TonSignTx,
     callbacks: TonTransactionExecutionProps,
   ) => Promise<string>
-
-  // Paid by transferring to a provider-issued address, so the payer signs outside our app
-  supportsExternalPayment?: boolean
 }
 
 export type SwapperApi = {

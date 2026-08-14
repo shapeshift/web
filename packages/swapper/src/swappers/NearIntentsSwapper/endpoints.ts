@@ -240,9 +240,7 @@ export const nearIntentsApi: SwapperApi = {
       const txStatus = mapNearIntentsStatus(statusResponse.status)
       const message = getNearIntentsStatusMessage(statusResponse.status)
 
-      // Extract buyTxHash from destination chain transactions
       const buyTxHash = statusResponse.swapDetails?.destinationChainTxHashes?.[0]?.hash
-      // The deposit came from whatever wallet the user paid with, so this may be our only sight of it
       const sellTxHash = statusResponse.swapDetails?.originChainTxHashes?.[0]?.hash
 
       // amountOut is only meaningful destination-denominated on terminal success - in-flight and

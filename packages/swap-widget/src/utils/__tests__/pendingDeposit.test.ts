@@ -18,6 +18,7 @@ const makeDeposit = (expiresAt: number) => ({
   sellAmountBaseUnit: '10000000',
   buyAmountBaseUnit: undefined,
   txHash: undefined,
+  depositObservedAt: undefined,
 })
 
 describe('pendingDeposit', () => {
@@ -44,10 +45,22 @@ describe('pendingDeposit', () => {
     expect(loadPendingDeposit(10_000 + 60 * 60 * 1000 + 1)).toBeUndefined()
   })
 
-  it('keeps a funded deposit well past the unfunded window', () => {
-    savePendingDeposit({ ...makeDeposit(10_000), txHash: '0xdead' })
+  it('keeps a funded deposit for a settlement window timed from the deposit', () => {
+    const observedAt = 10_000 + 60 * 60 * 1000
+    savePendingDeposit({ ...makeDeposit(10_000), txHash: '0xdead', depositObservedAt: observedAt })
 
-    expect(loadPendingDeposit(10_000 + 2 * 60 * 60 * 1000)?.txHash).toBe('0xdead')
+    expect(loadPendingDeposit(observedAt + 60 * 60 * 1000)?.txHash).toBe('0xdead')
+    expect(loadPendingDeposit(observedAt + 60 * 60 * 1000 + 1)).toBeUndefined()
+  })
+
+  it('ignores a funded deposit with no observation time to resume from', () => {
+    savePendingDeposit({
+      ...makeDeposit(10_000),
+      txHash: '0xdead',
+      depositObservedAt: undefined,
+    })
+
+    expect(loadPendingDeposit(5_000)).toBeUndefined()
   })
 
   it('forgets a cleared deposit', () => {
@@ -65,6 +78,7 @@ describe('pendingDeposit', () => {
       sellAmountBaseUnit: '10000000',
       buyAmountBaseUnit: undefined,
       txHash: undefined,
+      depositObservedAt: undefined,
     })
 
     expect(loadPendingDeposit(5_000)).toBeUndefined()

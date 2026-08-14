@@ -879,7 +879,7 @@ describe('deposit flow', () => {
   it('moves to polling_status with the deposit hash on DEPOSIT_DETECTED', () => {
     const actor = startInDepositQuoting()
     actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
-    actor.send({ type: 'DEPOSIT_DETECTED', txHash: '0xdeposit' })
+    actor.send({ type: 'DEPOSIT_DETECTED', txHash: '0xdeposit', observedAt: 5_000 })
     expect(actor.getSnapshot().value).toBe('polling_status')
     expect(actor.getSnapshot().context.txHash).toBe('0xdeposit')
     actor.stop()
@@ -897,7 +897,7 @@ describe('deposit flow', () => {
     const actor = startInDepositQuoting()
     actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
     actor.send({ type: 'DEPOSIT_EXPIRED' })
-    actor.send({ type: 'DEPOSIT_DETECTED', txHash: '0xlate' })
+    actor.send({ type: 'DEPOSIT_DETECTED', txHash: '0xlate', observedAt: 5_000 })
 
     const snapshot = actor.getSnapshot()
     expect(snapshot.value).toBe('polling_status')
@@ -945,6 +945,7 @@ describe('deposit flow', () => {
       sellAmountBaseUnit: '10000000',
       buyAmountBaseUnit: undefined,
       txHash: undefined,
+      depositObservedAt: undefined,
     })
     return actor
   }
@@ -1007,6 +1008,7 @@ describe('restoring a deposit that was already funded', () => {
       sellAmountBaseUnit: '10000000',
       buyAmountBaseUnit: undefined,
       txHash,
+      depositObservedAt: txHash ? 5_000 : undefined,
     })
     return actor
   }
@@ -1038,6 +1040,7 @@ describe('a deposit flow always reaches a terminal state', () => {
       sellAmountBaseUnit: '10000000',
       buyAmountBaseUnit: undefined,
       txHash,
+      depositObservedAt: txHash ? 5_000 : undefined,
     })
     return actor
   }

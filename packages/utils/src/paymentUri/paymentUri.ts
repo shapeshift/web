@@ -8,7 +8,6 @@ import { CHAIN_ID_TO_URN_SCHEME } from './constants'
 
 export type BuildPaymentUriArgs = {
   address: string
-  // Structural, so callers carrying their own leaner asset shape can pass it straight in
   asset: Pick<Asset, 'assetId' | 'chainId' | 'precision'>
   amountCryptoPrecision?: string
 }
@@ -64,11 +63,7 @@ const buildBip21Uri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUr
   return `${scheme}:${target}?amount=${amountCryptoPrecision}`
 }
 
-/**
- * A payment URI carrying an address and, where a scheme supports it, the amount - so a scanning
- * wallet prefills what the user would otherwise retype. Chains with no scheme, and amountless
- * requests on schemes that need one, fall back to the bare address that every wallet reads.
- */
+// Chains with no scheme get their bare address back, which every wallet still reads
 export const buildPaymentUri = (args: BuildPaymentUriArgs): string => {
   switch (fromChainId(args.asset.chainId).chainNamespace) {
     case CHAIN_NAMESPACE.Utxo:

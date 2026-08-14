@@ -41,8 +41,6 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [tronChainId]: 'tron',
 }
 
-// Schemes we no longer emit but still have to read - 'doge' predates matching the one Dogecoin
-// Core actually registers, and codes carrying it are already in the wild
 const LEGACY_URN_SCHEME_TO_CHAIN_ID: Record<string, ChainId> = {
   doge: dogeChainId,
 }

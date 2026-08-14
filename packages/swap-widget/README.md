@@ -150,7 +150,7 @@ when `allowShapeshiftRedirect` is enabled.
 | `showPoweredBy`          | `boolean`                                       | `true`             | Show the "Powered by ShapeShift" footer.                                                                  |
 | `showConnectButton`      | `boolean`                                       | `true`             | Show the built-in Connect button in the widget header.                                                   |
 | `ratesRefetchInterval`   | `number`                                        | `15000`            | How often (ms) to refetch swap rates.                                                                    |
-| `onSwapSuccess`          | `(txHash: string) => void`                      | –                  | Called when a swap transaction succeeds.                                                                  |
+| `onSwapSuccess`          | `(txHash?: string) => void`                     | –                  | Called when a swap succeeds. The hash is absent if the protocol never reported one.                       |
 | `onSwapError`            | `(error: Error) => void`                        | –                  | Called when a swap fails, or when its outcome can no longer be tracked.                                   |
 
 ## Filtering Chains and Assets
@@ -751,7 +751,9 @@ revenue attribution works.
   [Configuration is applied at mount](#configuration-is-applied-at-mount).
 - **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction that
   paid the swap on the sell chain — signed by the user, or their deposit as the protocol reported
-  it. On cross-chain routes the destination transfer may still be in flight.
+  it. On cross-chain routes the destination transfer may still be in flight. A deposit can be
+  credited without the protocol ever reporting a hash, so treat the argument as optional and the
+  call itself as the success signal.
 - **`onSwapError` does not always mean the swap failed.** It also fires when the widget stops
   tracking a swap whose outcome it never learned, which can still settle afterwards. Treat it as
   "not confirmed" rather than "failed" if you act on it.

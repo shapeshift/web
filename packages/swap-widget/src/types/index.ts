@@ -170,7 +170,7 @@ export type SwapWidgetProps = ReceiveAddressProps &
     sellFilters?: SwapWidgetFilters
     buyFilters?: SwapWidgetFilters
     allowedSwapperNames?: SwapperName[]
-    onSwapSuccess?: (txHash: string) => void
+    onSwapSuccess?: (txHash?: string) => void
     onSwapError?: (error: Error) => void
     theme?: ThemeMode | ThemeConfig
     defaultSlippage?: string

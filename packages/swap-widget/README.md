@@ -375,9 +375,6 @@ Tracking then proceeds on its own — the widget polls the ShapeShift API, which
 from the protocol and reports the sell transaction once it lands. From that point the flow is
 identical to a wallet swap.
 
-> **Not live yet.** Deposit detection is still rolling out, so the deposit screen does not yet
-> advance on its own. A deposit sent to the address swaps and settles normally regardless.
-
 ### Expiry and recovery
 
 A deposit window is finite (Chainflip channels run hours, NEAR deposit addresses longer). When the

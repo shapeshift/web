@@ -119,7 +119,6 @@ export type TradeRate = {
   shapeshiftBps: string
   affiliateBps: string
   networkFeeCryptoBaseUnit?: string
-  // Payable by a transfer from any wallet, rather than a transaction this client signs
   supportsExternalPayment?: boolean
   error?: {
     code: string
@@ -234,8 +233,7 @@ export type QuoteResponse = {
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
-  // Present only when the swap can be paid by a plain transfer from any wallet
-  depositAddress?: string
+  depositAddress?: string // Present only when the swap supports external payments
 }
 
 export type AssetsResponse = {

@@ -10,6 +10,7 @@ import {
   isValidBitcoinCashAddress,
   isValidDogecoinAddress,
   isValidLitecoinAddress,
+  isValidStarknetAddress,
   isValidZcashAddress,
   validateAddress,
 } from '../addressValidation'
@@ -488,5 +489,38 @@ describe('base58check payload length', () => {
 
   it('rejects a zcash address whose payload is not 20 bytes', () => {
     expect(isValidZcashAddress(withPayload([0x1c, 0xb8], 5))).toBe(false)
+  })
+})
+
+describe('witness program length', () => {
+  it('accepts the v0 programs BIP141 defines', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 0, HASH160))).toBe(true)
+    expect(isValidBitcoinAddress(bech32Addr('bc', 0, HASH256))).toBe(true)
+  })
+
+  it('rejects a v0 program that is neither a key nor a script hash', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 0, new Uint8Array(21).fill(0x11)))).toBe(false)
+  })
+
+  it('rejects a program outside the 2-40 byte range', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 1, new Uint8Array(1), bech32m))).toBe(false)
+  })
+
+  it('still accepts taproot', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 1, HASH256, bech32m))).toBe(true)
+  })
+})
+
+describe('isValidStarknetAddress', () => {
+  it('accepts a felt below the stark prime', () => {
+    expect(isValidStarknetAddress('0x04a1b2c3')).toBe(true)
+  })
+
+  it('rejects the zero address', () => {
+    expect(isValidStarknetAddress('0x0')).toBe(false)
+  })
+
+  it('rejects a value at or above the stark prime', () => {
+    expect(isValidStarknetAddress(`0x${'f'.repeat(64)}`)).toBe(false)
   })
 })

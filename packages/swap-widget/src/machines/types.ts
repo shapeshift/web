@@ -54,6 +54,7 @@ export type SwapMachineEvent =
       receiveAddress: string
       sellAmountBaseUnit: string | undefined
       buyAmountBaseUnit: string | undefined
+      txHash: string | undefined
     }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }

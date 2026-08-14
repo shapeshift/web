@@ -13,8 +13,8 @@ import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useSellFiatSync } from '../hooks/useSellFiatSync'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useStatusPolling } from '../hooks/useStatusPolling'
-import { useSwapCallbacks } from '../hooks/useSwapCallbacks'
 import { useSwapApproval } from '../hooks/useSwapApproval'
+import { useSwapCallbacks } from '../hooks/useSwapCallbacks'
 import { useSwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { useSwapExecution } from '../hooks/useSwapExecution'
 import { useSwapHandlers } from '../hooks/useSwapHandlers'
@@ -138,8 +138,9 @@ const SwapWidgetContent = ({
       return
     }
 
-    // Not before we've saved - this child effect runs first on mount, ahead of the restore
+    // Never clear one we didn't save - it may be a deposit the restore is about to read
     if (hasSavedDepositRef.current) clearPendingDeposit()
+
     // eslint-disable-next-line react-hooks/exhaustive-deps -- state.value is the sole trigger; context is read from the snapshot
   }, [state.value])
 
@@ -439,7 +440,6 @@ const SwapWidgetCore = ({
     })
   }, [isBuyAmountLocked, defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision, actorRef])
 
-  // Before paint, so a restored deposit never flashes the built-in input step first
   const initialSyncRef = useRef(false)
   useLayoutEffect(() => {
     if (initialSyncRef.current) return

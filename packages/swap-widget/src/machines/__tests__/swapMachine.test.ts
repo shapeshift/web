@@ -944,6 +944,7 @@ describe('deposit flow', () => {
       receiveAddress: '0xreceive',
       sellAmountBaseUnit: '10000000',
       buyAmountBaseUnit: undefined,
+      txHash: undefined,
     })
     return actor
   }
@@ -990,6 +991,37 @@ describe('deposit flow', () => {
     expect(context.sellAsset.symbol).toBe('BTC')
     expect(context.chainType).toBe('utxo')
     expect(context.isSellAssetEvm).toBe(false)
+    actor.stop()
+  })
+})
+
+describe('restoring a deposit that was already funded', () => {
+  const restoreWith = (txHash: string | undefined) => {
+    const actor = createActor(swapMachine)
+    actor.start()
+    actor.send({
+      type: 'RESTORE_DEPOSIT',
+      quote: TEST_DEPOSIT_QUOTE,
+      sendAddress: 'bc1qrefund',
+      receiveAddress: '0xreceive',
+      sellAmountBaseUnit: '10000000',
+      buyAmountBaseUnit: undefined,
+      txHash,
+    })
+    return actor
+  }
+
+  it('rejoins settlement rather than asking for the deposit again', () => {
+    const actor = restoreWith('0xdead')
+    expect(actor.getSnapshot().matches('polling_status')).toBe(true)
+    expect(actor.getSnapshot().context.txHash).toBe('0xdead')
+    actor.stop()
+  })
+
+  it('still awaits a deposit that was never seen', () => {
+    const actor = restoreWith(undefined)
+    expect(actor.getSnapshot().matches('awaiting_deposit')).toBe(true)
+    expect(actor.getSnapshot().context.txHash).toBeNull()
     actor.stop()
   })
 })

@@ -63,7 +63,7 @@ export const loadPendingDeposit = (now: number): PendingDeposit | undefined => {
 
     const parsed: unknown = JSON.parse(raw)
 
-    const isWorthRestoring =
+    const isRestorable =
       isPendingDeposit(parsed) &&
       shouldKeepTrackingDeposit({
         expiresAt: parsed.quote.expiresAt,
@@ -71,7 +71,7 @@ export const loadPendingDeposit = (now: number): PendingDeposit | undefined => {
         now,
       })
 
-    if (!isWorthRestoring) {
+    if (!isRestorable) {
       clearPendingDeposit()
       return
     }

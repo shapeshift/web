@@ -370,10 +370,13 @@ export const swapMachine = setup({
         },
       },
     },
+    // Both deposit states accept a terminal status directly: the provider can settle or refund a
+    // deposit without ever reporting its hash, and that must not strand either screen
     awaiting_deposit: {
       on: {
         DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
         DEPOSIT_EXPIRED: { target: 'deposit_expired' },
+        STATUS_CONFIRMED: { target: 'complete' },
         STATUS_FAILED: { target: 'error', actions: 'assignStatusFailed' },
         RESET: { target: 'input', actions: 'resetSwapState' },
       },
@@ -381,6 +384,8 @@ export const swapMachine = setup({
     deposit_expired: {
       on: {
         DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
+        STATUS_CONFIRMED: { target: 'complete' },
+        STATUS_FAILED: { target: 'error', actions: 'assignStatusFailed' },
         RETRY: { target: 'quoting', actions: 'incrementRetryCount' },
         RESET: { target: 'input', actions: 'resetSwapState' },
       },

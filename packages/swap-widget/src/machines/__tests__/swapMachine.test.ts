@@ -1025,3 +1025,57 @@ describe('restoring a deposit that was already funded', () => {
     actor.stop()
   })
 })
+
+describe('a deposit flow always reaches a terminal state', () => {
+  const restoreInto = (txHash: string | undefined) => {
+    const actor = createActor(swapMachine)
+    actor.start()
+    actor.send({
+      type: 'RESTORE_DEPOSIT',
+      quote: TEST_DEPOSIT_QUOTE,
+      sendAddress: 'bc1qrefund',
+      receiveAddress: '0xreceive',
+      sellAmountBaseUnit: '10000000',
+      buyAmountBaseUnit: undefined,
+      txHash,
+    })
+    return actor
+  }
+
+  // The provider can settle or refund without ever reporting a hash, so every deposit state has
+  // to accept a terminal status on its own
+  it.each([
+    ['awaiting_deposit', undefined],
+    ['polling_status', '0xdead'],
+  ])('confirms from %s', (_state, txHash) => {
+    const actor = restoreInto(txHash)
+    actor.send({ type: 'STATUS_CONFIRMED' })
+    expect(actor.getSnapshot().matches('complete')).toBe(true)
+    actor.stop()
+  })
+
+  it.each([
+    ['awaiting_deposit', undefined],
+    ['polling_status', '0xdead'],
+  ])('fails from %s', (_state, txHash) => {
+    const actor = restoreInto(txHash)
+    actor.send({ type: 'STATUS_FAILED', error: 'Swap failed' })
+    expect(actor.getSnapshot().matches('error')).toBe(true)
+    actor.stop()
+  })
+
+  it('confirms and fails from deposit_expired', () => {
+    const confirmed = restoreInto(undefined)
+    confirmed.send({ type: 'DEPOSIT_EXPIRED' })
+    expect(confirmed.getSnapshot().matches('deposit_expired')).toBe(true)
+    confirmed.send({ type: 'STATUS_CONFIRMED' })
+    expect(confirmed.getSnapshot().matches('complete')).toBe(true)
+    confirmed.stop()
+
+    const failed = restoreInto(undefined)
+    failed.send({ type: 'DEPOSIT_EXPIRED' })
+    failed.send({ type: 'STATUS_FAILED', error: 'Refunded' })
+    expect(failed.getSnapshot().matches('error')).toBe(true)
+    failed.stop()
+  })
+})

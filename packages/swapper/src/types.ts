@@ -832,9 +832,6 @@ export type Swapper = {
     txToSign: ton.TonSignTx,
     callbacks: TonTransactionExecutionProps,
   ) => Promise<string>
-
-  // Paid by transferring to a provider-issued address, so the payer signs outside our app
-  supportsExternalPayment?: boolean
 }
 
 export type SwapperApi = {

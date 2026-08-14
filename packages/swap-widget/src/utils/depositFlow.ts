@@ -1,7 +1,7 @@
 import type { TradeRate } from '../types'
 
-export const isDepositCapableRate = (rate: TradeRate): boolean =>
-  rate.supportsDepositAddress === true
+export const isExternalPaymentRate = (rate: TradeRate): boolean =>
+  rate.supportsExternalPayment === true
 
 type ShouldUseDepositFlowArgs = {
   rate: TradeRate | undefined
@@ -12,4 +12,4 @@ export const shouldUseDepositFlow = ({
   rate,
   hasWalletForSellChain,
 }: ShouldUseDepositFlowArgs): boolean =>
-  !hasWalletForSellChain && !!rate && isDepositCapableRate(rate)
+  !hasWalletForSellChain && !!rate && isExternalPaymentRate(rate)

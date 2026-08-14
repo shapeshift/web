@@ -56,10 +56,10 @@ const ApiRateSchema = z.object({
       'First-hop approval spender for the sell token. Non-empty means executing this swapper pulls the sell token from an approved allowance - clients wanting to check or set an allowance manually before quoting can use it directly. Empty or absent means no approval is involved.',
   }),
   estimatedExecutionTimeMs: z.number().optional(),
-  supportsDepositAddress: z.boolean().openapi({
+  supportsExternalPayment: z.boolean().openapi({
     example: true,
     description:
-      'True when this swapper is paid by sending the sell asset to a provider-issued deposit address, so any wallet can fund the swap instead of the requesting client signing a transaction. Advisory only - the quote is authoritative: take the address from its depositAddress field, and treat its absence (memo-bound routes) as this route needing a connected wallet after all.',
+      'True when this swap can be paid externally - the sell asset is sent to a provider-issued deposit address, so any wallet can fund it instead of the requesting client signing a transaction. Advisory only - the quote is authoritative: take the address from its depositAddress field, and treat its absence (memo-bound routes) as this route needing a connected wallet after all.',
   }),
   priceImpactPercentageDecimal: z.string().optional(),
   ...BpsFields,

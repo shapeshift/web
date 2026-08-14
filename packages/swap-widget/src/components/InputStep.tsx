@@ -5,7 +5,7 @@ import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 import { formatAmount } from '../types'
-import { isDepositCapableRate } from '../utils/depositFlow'
+import { isExternalPaymentRate } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
 import type { InputCtaAction } from '../utils/inputCta'
 import { getInputCta } from '../utils/inputCta'
@@ -117,7 +117,7 @@ export const InputStep = ({
   ])
 
   const selectedRate = context.selectedRate ?? displayValues.rates?.[0]
-  const isDepositCapable = !!selectedRate && isDepositCapableRate(selectedRate)
+  const isDepositCapable = !!selectedRate && isExternalPaymentRate(selectedRate)
   const isDepositFlowAvailable = isDepositCapable && !walletSendAddress
 
   // One highlight for the group - either address still missing means it wants attention

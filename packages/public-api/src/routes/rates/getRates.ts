@@ -10,7 +10,7 @@ import {
   isSwapperExecutableOnSellChain,
 } from '../../constants'
 import { env } from '../../env'
-import { isDepositAddressSwapper } from '../../lib/depositAddress'
+import { isExternalPaymentSwapper } from '../../lib/externalPayment'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
 import type { ErrorResponse } from '../../types'
@@ -129,7 +129,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             steps: 0,
             allowanceContract: undefined,
             estimatedExecutionTimeMs: undefined,
-            supportsDepositAddress: isDepositAddressSwapper(swapperName),
+            supportsExternalPayment: isExternalPaymentSwapper(swapperName),
             priceImpactPercentageDecimal: undefined,
             partnerBps: req.affiliateInfo?.partnerBps,
             shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,
@@ -157,7 +157,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
           steps: rate.steps.length,
           allowanceContract: step.allowanceContract,
           estimatedExecutionTimeMs: step.estimatedExecutionTimeMs,
-          supportsDepositAddress: isDepositAddressSwapper(swapperName),
+          supportsExternalPayment: isExternalPaymentSwapper(swapperName),
           priceImpactPercentageDecimal: rate.priceImpactPercentageDecimal,
           partnerBps: req.affiliateInfo?.partnerBps,
           shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,

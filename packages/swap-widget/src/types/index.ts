@@ -119,8 +119,8 @@ export type TradeRate = {
   shapeshiftBps: string
   affiliateBps: string
   networkFeeCryptoBaseUnit?: string
-  // The swap is paid by transferring to a deposit address, so any wallet can fund it
-  supportsDepositAddress?: boolean
+  // Payable by a transfer from any wallet, rather than a transaction this client signs
+  supportsExternalPayment?: boolean
   error?: {
     code: string
     message: string

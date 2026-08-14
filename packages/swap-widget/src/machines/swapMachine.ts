@@ -188,7 +188,6 @@ export const swapMachine = setup({
         isDepositFlow: true,
         sellAsset,
         buyAsset,
-        // Seeded so re-quoting after expiry asks for the same amount, on the same side
         sellAmountBaseUnit,
         sellAmount: sellAmountBaseUnit
           ? formatAmountForInput(sellAmountBaseUnit, sellAsset.precision)
@@ -197,7 +196,6 @@ export const swapMachine = setup({
         buyAmount: buyAmountBaseUnit
           ? formatAmountForInput(buyAmountBaseUnit, buyAsset.precision)
           : '',
-        // Chain flags describe the restored assets, not the defaults they replaced
         chainType: getChainType(sellAsset.chainId),
         isSellAssetEvm: isWidgetExecutableEvmChainId(sellAsset.chainId),
         isSellAssetUtxo: isWidgetExecutableUtxoChainId(sellAsset.chainId),
@@ -371,7 +369,6 @@ export const swapMachine = setup({
     },
     deposit_expired: {
       on: {
-        // The provider decides what's too late, not our countdown, so a late deposit still lands
         DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
         RETRY: { target: 'quoting', actions: 'incrementRetryCount' },
         RESET: { target: 'input', actions: 'resetSwapState' },

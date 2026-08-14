@@ -107,6 +107,6 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
     }
 
     fetchQuote()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs read from snapshot
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; the rest are read from the render that entered quoting
   }, [stateValue])
 }

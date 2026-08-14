@@ -77,7 +77,7 @@ GET /v1/swap/status?quoteId=<quoteId>&txHash=0x...
 
 ### Status errors
 
-- `404` `QUOTE_NOT_FOUND` — the quote is unknown or has expired from the store. Request a new quote.
+- `404` `QUOTE_NOT_FOUND` — the quote is unknown, or has aged out of the store (an hour past its deadline, or an hour after a `txHash` is bound). Request a new quote — unless a deposit was already sent, in which case that swap may still settle and a second quote would pay twice.
 - `400` `TX_HASH_REQUIRED` — no `txHash` was provided and none is bound yet; pass the broadcast tx hash. Externally paid quotes never return this.
 - `409` `TX_HASH_MISMATCH` — a different `txHash` is already bound to this quote.
 

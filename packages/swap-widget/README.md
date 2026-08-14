@@ -151,7 +151,7 @@ when `allowShapeshiftRedirect` is enabled.
 | `showConnectButton`      | `boolean`                                       | `true`             | Show the built-in Connect button in the widget header.                                                   |
 | `ratesRefetchInterval`   | `number`                                        | `15000`            | How often (ms) to refetch swap rates.                                                                    |
 | `onSwapSuccess`          | `(txHash: string) => void`                      | –                  | Called when a swap transaction succeeds.                                                                  |
-| `onSwapError`            | `(error: Error) => void`                        | –                  | Called when a swap transaction fails.                                                                     |
+| `onSwapError`            | `(error: Error) => void`                        | –                  | Called when a swap fails, or when its outcome can no longer be tracked.                                   |
 
 ## Filtering Chains and Assets
 
@@ -373,7 +373,8 @@ from any external wallet.
 
 Tracking then proceeds on its own — the widget polls the ShapeShift API, which learns of the deposit
 from the protocol and reports the sell transaction once it lands. From that point the flow is
-identical to a wallet swap.
+identical to a wallet swap. Tracking is bounded: once the API can no longer report on the swap, the
+widget stops and says it may still be settling, rather than spinning indefinitely.
 
 ### Expiry and recovery
 
@@ -381,11 +382,13 @@ A deposit window is finite (Chainflip channels run hours, NEAR deposit addresses
 countdown reaches zero the screen warns not to send and offers a fresh quote. Treat expiry as a hard
 cutoff: what happens to a late deposit is protocol-specific — NEAR Intents refunds it to the refund
 address, while an expired Chainflip channel stops being watched altogether and recovering funds sent
-to it is not guaranteed.
+to it is not guaranteed. If a late deposit is credited anyway, the expired screen still resolves to
+the final result rather than stranding there.
 
-While funds are still owed, the deposit address is persisted to `localStorage` and restored if the
-page reloads, since it's the one thing the user can't recreate and still needs in hand. It is
-dropped once the deposit lands, once it expires, or when the user starts a new swap.
+The deposit is persisted to `localStorage` for as long as it is tracked — while funds are owed and
+after they land — and restored if the page reloads, so a reload mid-settlement doesn't lose the
+swap. A reload after the deposit was seen rejoins tracking rather than asking for it again. It is
+dropped when the swap finishes, when tracking gives up, or when the user starts a new swap.
 
 ### Limitations
 
@@ -746,6 +749,10 @@ revenue attribution works.
 - **Configuration is applied at mount.** `default*` props are read once; locked values keep
   tracking their prop. Remount to change anything else, or to start a fresh swap. See
   [Configuration is applied at mount](#configuration-is-applied-at-mount).
-- **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction the user
-  signed on the sell chain. On cross-chain routes the destination transfer may still be in flight.
+- **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction that
+  paid the swap on the sell chain — signed by the user, or their deposit as the protocol reported
+  it. On cross-chain routes the destination transfer may still be in flight.
+- **`onSwapError` does not always mean the swap failed.** It also fires when the widget stops
+  tracking a swap whose outcome it never learned, which can still settle afterwards. Treat it as
+  "not confirmed" rather than "failed" if you act on it.
 - **Mobile responsive.** The widget is designed to work on mobile as well as desktop.

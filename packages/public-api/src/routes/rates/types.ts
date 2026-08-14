@@ -59,7 +59,7 @@ const ApiRateSchema = z.object({
   supportsExternalPayment: z.boolean().openapi({
     example: true,
     description:
-      'True when this swap can be paid externally - the sell asset is sent to a provider-issued deposit address, so any wallet can fund it instead of the requesting client signing a transaction. Advisory only - the quote is authoritative: take the address from its depositAddress field, and treat its absence (memo-bound routes) as this route needing a connected wallet after all.',
+      'True when this swap can be paid externally - the sell asset is sent to a provider-issued deposit address, so any wallet can fund it instead of the requesting client signing a transaction. Advisory only - the quote is authoritative: pay the address in its depositAddress field, and if the quote omits it, the route needs a connected wallet after all.',
   }),
   priceImpactPercentageDecimal: z.string().optional(),
   ...BpsFields,

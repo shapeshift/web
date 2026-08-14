@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { StoredQuote } from './quoteStore'
 import { QuoteStore } from './quoteStore'
 
-// The store treats expiresAt as caller-provided data (swapper deadline + bind grace in prod)
+// The store treats trackableUntil as caller-provided data
 const QUOTE_TTL_MS = 15 * 60 * 1000
 
 const makeQuote = (overrides: Partial<StoredQuote> = {}): StoredQuote => ({
@@ -21,7 +21,7 @@ const makeQuote = (overrides: Partial<StoredQuote> = {}): StoredQuote => ({
   sendAddress: '0xsender',
   rate: '1800',
   createdAt: Date.now(),
-  expiresAt: Date.now() + QUOTE_TTL_MS,
+  trackableUntil: Date.now() + QUOTE_TTL_MS,
   metadata: {
     stepIndex: 0,
     quoteId: 'quote-1',
@@ -77,7 +77,7 @@ describe('QuoteStore', () => {
       const quote = makeQuote({
         txHash: '0xabc',
         registeredAt: now,
-        expiresAt: now + QUOTE_TTL_MS,
+        trackableUntil: now + QUOTE_TTL_MS,
         status: 'submitted',
       })
       store.set(quote.quoteId, quote)

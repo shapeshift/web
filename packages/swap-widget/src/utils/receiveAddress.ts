@@ -22,5 +22,7 @@ export const resolveReceiveAddress = ({
   // An unusable locked address blocks rather than quietly paying the user's own wallet
   if (isLocked) return isValidForBuyChain(defaultAddress) ? defaultAddress : undefined
 
-  return isValidForBuyChain(customAddress) ? customAddress : walletAddress
+  if (isValidForBuyChain(customAddress)) return customAddress
+
+  return isValidForBuyChain(walletAddress) ? walletAddress : undefined
 }

@@ -225,7 +225,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerAddress: req.affiliateInfo?.partnerAddress,
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
-      expiresAt: quote.deadline + QuoteStore.BIND_GRACE_MS,
+      trackableUntil: quote.deadline + QuoteStore.BIND_GRACE_MS,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
       depositAddress,

@@ -16,7 +16,8 @@ export type StoredQuote = {
   affiliateBps: string
   rate: string
   createdAt: number
-  expiresAt: number
+  // Not the quote's own deadline, which the client counts down - this is that plus the bind grace
+  trackableUntil: number
   metadata: SwapMetadata
   // Set only when this quote is payable externally - memo-bound routes get none
   depositAddress?: string
@@ -64,7 +65,7 @@ export class QuoteStore {
     const now = Date.now()
     const effectiveExpiry = quote.txHash
       ? (quote.registeredAt ?? quote.createdAt) + QuoteStore.EXECUTION_TTL_MS
-      : quote.expiresAt
+      : quote.trackableUntil
 
     if (now > effectiveExpiry) {
       this.remove(quoteId, quote)
@@ -119,7 +120,7 @@ export class QuoteStore {
     for (const [id, quote] of this.store) {
       const effectiveExpiry = quote.txHash
         ? (quote.registeredAt ?? quote.createdAt) + QuoteStore.EXECUTION_TTL_MS
-        : quote.expiresAt
+        : quote.trackableUntil
 
       if (now > effectiveExpiry) {
         this.remove(id, quote)

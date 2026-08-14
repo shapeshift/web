@@ -115,7 +115,6 @@ const SwapWidgetContent = ({
   useSwapCallbacks({ onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
   useSellFiatSync(displayValues.sellAssetUsdPrice)
 
-  // Only while funds are still owed - once they land it settles or refunds without us
   const hasSavedDepositRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()

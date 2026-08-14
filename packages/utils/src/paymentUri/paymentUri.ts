@@ -30,7 +30,10 @@ const buildEvmUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriA
   }
 
   const amount = toEip681Amount(
-    BigAmount.fromPrecision({ value: amountCryptoPrecision, precision: asset.precision }).toBaseUnit(),
+    BigAmount.fromPrecision({
+      value: amountCryptoPrecision,
+      precision: asset.precision,
+    }).toBaseUnit(),
   )
 
   if (assetNamespace === ASSET_NAMESPACE.erc20) {

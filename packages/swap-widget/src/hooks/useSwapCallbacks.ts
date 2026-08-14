@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 
 type UseSwapCallbacksParams = {
-  onSwapSuccess?: (txHash?: string) => void
+  onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   refetchSellBalance?: () => void
   refetchBuyBalance?: () => void
@@ -30,8 +30,7 @@ export const useSwapCallbacks = ({
     if (completionRef.current) return
     completionRef.current = true
 
-    // Status and sell hash are reported independently, so a missing hash is not a missing success
-    onSwapSuccess?.(snap.context.txHash ?? undefined)
+    if (snap.context.txHash) onSwapSuccess?.(snap.context.txHash)
 
     refetchSellBalance?.()
     refetchBuyBalance?.()

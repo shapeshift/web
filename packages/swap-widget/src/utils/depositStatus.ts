@@ -15,3 +15,20 @@ export const resolveDepositStatusEvent = (
     return { type: 'DEPOSIT_DETECTED', txHash: response.txHash }
   }
 }
+
+// The api keeps an unfunded quote for an hour past its deadline, so a deposit that never arrived
+// has nothing left to report after that - only a deposit already seen is still worth following
+const POST_EXPIRY_TRACKING_MS = 60 * 60 * 1000
+
+type ShouldKeepTrackingArgs = {
+  expiresAt: number
+  hasDetectedDeposit: boolean
+  now: number
+}
+
+export const shouldKeepTrackingDeposit = ({
+  expiresAt,
+  hasDetectedDeposit,
+  now,
+}: ShouldKeepTrackingArgs): boolean =>
+  hasDetectedDeposit || now <= expiresAt + POST_EXPIRY_TRACKING_MS

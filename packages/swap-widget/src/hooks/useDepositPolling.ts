@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import type { ApiClient } from '../api/client'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { DepositStatusResponse } from '../utils/depositStatus'
-import { resolveDepositStatusEvent } from '../utils/depositStatus'
+import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../utils/depositStatus'
 
 const POLL_INTERVAL_MS = 10_000
 
@@ -19,7 +19,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
   useEffect(() => {
     const snap = actorRef.getSnapshot()
 
-    // Keeps polling past expiry, so a deposit the provider still credits is picked up
+    // Keeps polling past expiry, so a deposit the provider still settles is picked up
     const isDepositTracking =
       snap.context.isDepositFlow &&
       (snap.matches('awaiting_deposit') ||
@@ -30,6 +30,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
       pollingRef.current = false
       return
     }
+
     if (pollingRef.current) return
     pollingRef.current = true
 
@@ -56,6 +57,18 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
         if (event?.type === 'STATUS_CONFIRMED' || event?.type === 'STATUS_FAILED') return
       } catch {
         // A transient status failure must not kill a deposit window - retry on the next tick
+      }
+
+      const { quote } = actorRef.getSnapshot().context
+      if (
+        quote &&
+        !shouldKeepTrackingDeposit({
+          expiresAt: quote.expiresAt,
+          hasDetectedDeposit,
+          now: Date.now(),
+        })
+      ) {
+        return
       }
 
       setTimeout(poll, POLL_INTERVAL_MS)

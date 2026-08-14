@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 
-export const isToken = (assetId: AssetId) => {
+export const isToken = (assetId: AssetId): boolean => {
   switch (fromAssetId(assetId).assetNamespace) {
     case ASSET_NAMESPACE.erc20:
     case ASSET_NAMESPACE.erc721:

@@ -61,6 +61,12 @@ const isValidSegwit = (address: string, expectedHrp: string): boolean => {
       const witnessVersion = words[0]
       if (witnessVersion === 0 && codec !== bech32) continue
       if (witnessVersion >= 1 && codec !== bech32m) continue
+
+      // BIP141: any witness program is 2-40 bytes, and v0 is a 20-byte key or a 32-byte script
+      const program = codec.fromWords(words.slice(1))
+      if (program.length < 2 || program.length > 40) continue
+      if (witnessVersion === 0 && program.length !== 20 && program.length !== 32) continue
+
       return true
     } catch {
       // try next codec
@@ -118,8 +124,15 @@ export const isValidTronAddress = (address: string): boolean => {
 
 export const isValidSuiAddress = (address: string): boolean => /^0x[0-9a-fA-F]{64}$/.test(address)
 
-export const isValidStarknetAddress = (address: string): boolean =>
-  /^0x[0-9a-fA-F]{1,64}$/.test(address)
+// Addresses are field elements, so anything at or above the STARK prime cannot be one
+const STARKNET_FIELD_PRIME = 2n ** 251n + 17n * 2n ** 192n + 1n
+
+export const isValidStarknetAddress = (address: string): boolean => {
+  if (!/^0x[0-9a-fA-F]{1,64}$/.test(address)) return false
+
+  const value = BigInt(address)
+  return value > 0n && value < STARKNET_FIELD_PRIME
+}
 
 // Either an implicit account (a 64-char hex public key) or a named one
 export const isValidNearAddress = (address: string): boolean => {

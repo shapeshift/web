@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { registry } from '../../registry'
 import { BpsFields, EVM_ADDRESS } from '../../types'
 
-// The swap record itself, so every column swap-service leaves unset arrives as null
 export const SwapServiceStatusSchema = z.object({
   swapperName: z.string(),
   sellAsset: z.object({ assetId: z.string() }),

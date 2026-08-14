@@ -42,10 +42,10 @@ describe('getDepositAddress', () => {
   })
 })
 
-describe('supportsDepositAddress', () => {
+describe('supportsExternalPayment', () => {
   it('is flagged on exactly the deposit-address swappers', () => {
     const flagged = Object.entries(swappers)
-      .filter(([, swapper]) => swapper?.supportsDepositAddress)
+      .filter(([, swapper]) => swapper?.supportsExternalPayment)
       .map(([name]) => name)
       .sort()
 

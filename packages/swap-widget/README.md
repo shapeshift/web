@@ -399,7 +399,7 @@ dropped once the deposit lands, once it expires, or when the user starts a new s
 
 If you're building against the ShapeShift Public API directly rather than using this widget:
 
-- `GET /v1/swap/rates` — each rate carries `supportsDepositAddress`, telling you before you quote
+- `GET /v1/swap/rates` — each rate carries `supportsExternalPayment`, telling you before you quote
   whether the route can be paid from any wallet.
 - `POST /v1/swap/quote` — the response carries `depositAddress` when, and only when, the quote is
   payable by a plain transfer. Send exactly `sellAmountCryptoBaseUnit` to it before `expiresAt`.

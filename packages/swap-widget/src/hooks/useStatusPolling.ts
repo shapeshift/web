@@ -27,13 +27,13 @@ export const useStatusPolling = ({
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
   const context = SwapMachineCtx.useSelector(s => s.context)
   const actorRef = SwapMachineCtx.useActorRef()
-
+  const pollingRef = useRef(false)
   const { solana } = useSwapWallet()
   const solanaConnection = solana.connection
 
-  const pollingRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()
+
     // useDepositPolling tracks the deposit flow
     if (!snap.matches('polling_status') || snap.context.isDepositFlow) {
       pollingRef.current = false

@@ -18,7 +18,7 @@ registry.registerPath({
   operationId: 'getSwapStatus',
   summary: 'Get swap status',
   description:
-    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and start tracking. Subsequent calls can omit txHash. Quotes from deposit-address swappers need no txHash at all - tracking starts from the quote ID, and the sell tx hash appears on the response once the provider sees the deposit.',
+    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and begin tracking; later calls can omit it. Externally paid quotes need no txHash at all - tracking starts from the quote ID alone, and txHash is filled in once the provider reports the deposit.',
   tags: ['Swaps'],
   request: {
     headers: PartnerCodeHeaderSchema,

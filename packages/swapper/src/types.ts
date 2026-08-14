@@ -765,7 +765,7 @@ export type CheckTradeStatusInput = {
 export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
-  // Set by deposit-address swappers, whose client may never see the deposit it reports
+  // Set by externally paid swappers, whose client may never see the deposit it reports
   sellTxHash?: string | undefined
   // The swapper/protocol's own identifier for the swap (relayer tx hash, native swap id, order uid)
   swapperTxId?: string | undefined

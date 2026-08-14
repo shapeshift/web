@@ -47,7 +47,7 @@ describe('requiresTxHashToTrack', () => {
     expect(requiresTxHashToTrack(makeStoredQuote({}))).toBe(true)
   })
 
-  it('does not require a hash for a deposit-address swapper', () => {
+  it('does not require a hash for an externally paid swapper', () => {
     const quote = makeStoredQuote({ swapperName: SwapperName.Chainflip })
     expect(requiresTxHashToTrack(quote)).toBe(false)
   })

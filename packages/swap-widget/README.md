@@ -389,24 +389,9 @@ dropped once the deposit lands, once it expires, or when the user starts a new s
 
 ### Limitations
 
-- **Chains needing a deposit memo are excluded** (currently TON via NEAR Intents). A memo-less send
-  to a memo-bound address is unrecoverable, so those routes keep asking for a wallet or redirect
-  instead.
-- **Not every protocol works this way.** Selecting a route from a swapper that signs transactions
-  turns the button back into Connect Wallet.
-
-### API contract
-
-If you're building against the ShapeShift Public API directly rather than using this widget:
-
-- `GET /v1/swap/rates` — each rate carries `supportsExternalPayment`, telling you before you quote
-  whether the route can be paid from any wallet.
-- `POST /v1/swap/quote` — the response carries `depositAddress` when, and only when, the quote is
-  payable by a plain transfer. Send exactly `sellAmountCryptoBaseUnit` to it before `expiresAt`.
-  Pass the user's refund address as `sendAddress`. Memo-bound routes never return an address here.
-- `GET /v1/swap/status` — for these quotes, poll with `quoteId` alone; no `txHash` is required to
-  start tracking. The sell transaction hash appears on the response once the protocol reports the
-  deposit.
+- **Not every route can be paid this way.** Swappers that sign transactions, and a few routes that
+  cannot take a plain transfer (currently TON via NEAR Intents), keep the Connect Wallet or
+  redirect path instead.
 
 ## Theming
 

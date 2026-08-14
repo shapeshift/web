@@ -58,3 +58,19 @@ describe('pendingDeposit', () => {
     expect(loadPendingDeposit(5_000)).toBeUndefined()
   })
 })
+
+describe('countdown across a restore', () => {
+  // expiresAt is an absolute timestamp, so a restore resumes the countdown where it left off
+  // rather than handing the user a fresh full window
+  it('returns the original deadline, not a refreshed one', () => {
+    const quotedAt = 1_000_000
+    const expiresAt = quotedAt + 60_000
+
+    savePendingDeposit(makeDeposit(expiresAt))
+
+    const restoredAfter45s = loadPendingDeposit(quotedAt + 45_000)
+
+    expect(restoredAfter45s?.quote.expiresAt).toBe(expiresAt)
+    expect((restoredAfter45s?.quote.expiresAt ?? 0) - (quotedAt + 45_000)).toBe(15_000)
+  })
+})

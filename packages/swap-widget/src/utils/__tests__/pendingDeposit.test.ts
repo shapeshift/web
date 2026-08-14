@@ -9,7 +9,7 @@ const makeDeposit = (expiresAt: number) => ({
     depositAddress: 'bc1qdeposit',
     expiresAt,
   } as unknown as QuoteResponse,
-  sendAddress: 'bc1qrefund',
+  refundAddress: 'bc1qrefund',
   receiveAddress: '0xreceive',
   sellAmountBaseUnit: '10000000',
   buyAmountBaseUnit: undefined,
@@ -22,7 +22,7 @@ describe('pendingDeposit', () => {
     savePendingDeposit(makeDeposit(10_000))
 
     expect(loadPendingDeposit(5_000)?.quote.depositAddress).toBe('bc1qdeposit')
-    expect(loadPendingDeposit(5_000)?.sendAddress).toBe('bc1qrefund')
+    expect(loadPendingDeposit(5_000)?.refundAddress).toBe('bc1qrefund')
     expect(loadPendingDeposit(5_000)?.receiveAddress).toBe('0xreceive')
     expect(loadPendingDeposit(5_000)?.sellAmountBaseUnit).toBe('10000000')
   })
@@ -43,7 +43,7 @@ describe('pendingDeposit', () => {
   it('ignores a quote with no deposit address', () => {
     savePendingDeposit({
       quote: { quoteId: 'quote-1', expiresAt: 10_000 } as unknown as QuoteResponse,
-      sendAddress: 'bc1qrefund',
+      refundAddress: 'bc1qrefund',
       receiveAddress: '0xreceive',
       sellAmountBaseUnit: '10000000',
       buyAmountBaseUnit: undefined,

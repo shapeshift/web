@@ -4,7 +4,8 @@ const STORAGE_KEY = 'ssw:pendingDeposit'
 
 export type PendingDeposit = {
   quote: QuoteResponse
-  sendAddress: string
+  // Only ever the refund destination - a deposit is paid from whatever wallet the user chooses
+  refundAddress: string
   // Not carried on the quote, and the deposit screen shows it back to the user
   receiveAddress: string
   // Whichever side drove the quote, so a re-quote after expiry asks for the same thing
@@ -14,10 +15,11 @@ export type PendingDeposit = {
 
 const isPendingDeposit = (value: unknown): value is PendingDeposit => {
   const candidate = value as PendingDeposit | null
+
   return (
     !!candidate?.quote?.depositAddress &&
     typeof candidate.quote.expiresAt === 'number' &&
-    typeof candidate.sendAddress === 'string' &&
+    typeof candidate.refundAddress === 'string' &&
     typeof candidate.receiveAddress === 'string'
   )
 }

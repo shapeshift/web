@@ -1078,4 +1078,41 @@ describe('a deposit flow always reaches a terminal state', () => {
     expect(failed.getSnapshot().matches('error')).toBe(true)
     failed.stop()
   })
+
+  it('leaves a funded deposit we can no longer follow rather than spinning on it', () => {
+    const actor = restoreInto('0xdead')
+    actor.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+
+    const snapshot = actor.getSnapshot()
+    expect(snapshot.matches('error')).toBe(true)
+    expect(snapshot.context.errorSource).toBe('TRACKING_TIMEOUT')
+    actor.stop()
+  })
+
+  it('ignores the timeout on the screens that already offer a way forward', () => {
+    const awaiting = restoreInto(undefined)
+    awaiting.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    expect(awaiting.getSnapshot().matches('awaiting_deposit')).toBe(true)
+    awaiting.stop()
+
+    const expired = restoreInto(undefined)
+    expired.send({ type: 'DEPOSIT_EXPIRED' })
+    expired.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    expect(expired.getSnapshot().matches('deposit_expired')).toBe(true)
+    expired.stop()
+  })
+
+  it('drops the previous hash when a re-quote asks for a fresh deposit', () => {
+    const actor = restoreInto('0xdead')
+    actor.send({ type: 'STATUS_FAILED', error: 'Swap failed' })
+    actor.send({ type: 'RETRY' })
+
+    expect(actor.getSnapshot().matches('quoting')).toBe(true)
+    expect(actor.getSnapshot().context.txHash).toBeNull()
+
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    expect(actor.getSnapshot().matches('awaiting_deposit')).toBe(true)
+    expect(actor.getSnapshot().context.txHash).toBeNull()
+    actor.stop()
+  })
 })

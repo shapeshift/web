@@ -68,6 +68,8 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
           now: Date.now(),
         })
       ) {
+        // Only polling_status handles this - the expired screen already offers a way forward
+        actorRef.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
         return
       }
 

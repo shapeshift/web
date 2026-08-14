@@ -1,6 +1,11 @@
 import type { Asset, QuoteResponse, TradeRate } from '../types'
 
-export type ErrorSource = 'QUOTE_ERROR' | 'APPROVAL_ERROR' | 'EXECUTE_ERROR' | 'STATUS_FAILED'
+export type ErrorSource =
+  | 'QUOTE_ERROR'
+  | 'APPROVAL_ERROR'
+  | 'EXECUTE_ERROR'
+  | 'STATUS_FAILED'
+  | 'TRACKING_TIMEOUT'
 
 export type SwapMachineContext = {
   sellAsset: Asset
@@ -47,6 +52,7 @@ export type SwapMachineEvent =
   | { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }
   | { type: 'DEPOSIT_DETECTED'; txHash: string }
   | { type: 'DEPOSIT_EXPIRED' }
+  | { type: 'DEPOSIT_TRACKING_TIMEOUT' }
   | {
       type: 'RESTORE_DEPOSIT'
       quote: QuoteResponse

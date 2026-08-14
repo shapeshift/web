@@ -50,7 +50,7 @@ export const TopAssets: React.FC = () => {
         Header: () => <Text translation='dashboard.portfolio.price' />,
         accessor: 'price',
         Cell: ({ row }: { row: RowProps }) => (
-          <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={row.original.price} />
+          <Amount.Price color='var(--chakra-colors-chakra-body-text)' value={row.original.price} />
         ),
       },
       {

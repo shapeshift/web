@@ -8,12 +8,18 @@ import { getUnsignedSolanaTransaction } from '../../utils/solana/getUnsignedSola
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { chainIdToRelayChainId } from './constant'
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { getTradeRate } from './getTradeRate/getTradeRate'
+import { getExactOutputTradeQuote, getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getExactOutputTradeRate, getTradeRate } from './getTradeRate/getTradeRate'
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 import { getRelayRequestConfig, relayService } from './utils/relayService'
-import type { RelayStatus, RelayTradeQuoteInput, RelayTradeRateInput } from './utils/types'
+import type {
+  RelayExactOutputTradeQuoteInput,
+  RelayExactOutputTradeRateInput,
+  RelayStatus,
+  RelayTradeQuoteInput,
+  RelayTradeRateInput,
+} from './utils/types'
 
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
@@ -24,6 +30,20 @@ export const relayApi: SwapperApi = {
   },
   getTradeRate: (input, deps) => {
     return getTradeRate(input as RelayTradeRateInput, deps, chainIdToRelayChainId)
+  },
+  getExactOutputTradeQuote: (input, deps) => {
+    return getExactOutputTradeQuote(
+      input as RelayExactOutputTradeQuoteInput,
+      deps,
+      chainIdToRelayChainId,
+    )
+  },
+  getExactOutputTradeRate: (input, deps) => {
+    return getExactOutputTradeRate(
+      input as RelayExactOutputTradeRateInput,
+      deps,
+      chainIdToRelayChainId,
+    )
   },
   getEvmTransactionFees,
   getUnsignedEvmTransaction,

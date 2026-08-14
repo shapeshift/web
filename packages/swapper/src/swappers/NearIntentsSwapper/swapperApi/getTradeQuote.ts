@@ -3,7 +3,8 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
-import type { NearIntentsTradeQuoteInput } from '../types'
+import { getTradeAmount } from '../../../utils/helpers'
+import type { NearIntentsExactOutputTradeQuoteInput, NearIntentsTradeQuoteInput } from '../types'
 import { QuoteRequest } from '../types'
 import { getNearIntentsStepData } from '../utils/getNearIntentsStepData'
 import { getNearIntentsTradeContext } from '../utils/getNearIntentsTradeContext'
@@ -15,23 +16,19 @@ import {
 } from '../utils/helpers'
 import { initializeOneClickService } from '../utils/oneClickService'
 
-export const getTradeQuote = async (
-  input: NearIntentsTradeQuoteInput,
+const getQuote = async (
+  input: NearIntentsTradeQuoteInput | NearIntentsExactOutputTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  const {
-    sellAsset,
-    buyAsset,
-    accountNumber,
-    affiliateBps,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-  } = input
+  const { sellAsset, buyAsset, accountNumber, affiliateBps } = input
 
   const addresses = assertQuoteAddresses(input)
   if (addresses.isErr()) return Err(addresses.unwrapErr())
   const { sendAddress, receiveAddress } = addresses.unwrap()
 
   initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY)
+
+  const amount = getTradeAmount(input)
 
   const maybeAssets = await resolveNearIntentsAssets({ sellAsset, buyAsset })
   if (maybeAssets.isErr()) return Err(maybeAssets.unwrapErr())
@@ -40,7 +37,7 @@ export const getTradeQuote = async (
   const quoteRequest = buildNearIntentsQuoteRequest({
     originAsset,
     destinationAsset,
-    sellAmountCryptoBaseUnit: sellAmount,
+    amount,
     slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
     affiliateBps,
     refundTo: sendAddress,
@@ -97,3 +94,13 @@ export const getTradeQuote = async (
 
   return Ok([tradeQuote])
 }
+
+export const getTradeQuote = (
+  input: NearIntentsTradeQuoteInput,
+  deps: SwapperDeps,
+): Promise<Result<TradeQuote[], SwapErrorRight>> => getQuote(input, deps)
+
+export const getExactOutputTradeQuote = (
+  input: NearIntentsExactOutputTradeQuoteInput,
+  deps: SwapperDeps,
+): Promise<Result<TradeQuote[], SwapErrorRight>> => getQuote(input, deps)

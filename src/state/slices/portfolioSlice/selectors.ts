@@ -5,6 +5,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type {
   AccountMetadata,
   AccountMetadataById,
+  Asset,
   Bip44Params,
   PartialRecord,
 } from '@shapeshiftoss/types'
@@ -22,6 +23,7 @@ import type { Row } from 'react-table'
 
 import { selectAssets } from '../assetsSlice/selectors'
 import {
+  getUserCurrencyPrice,
   selectEnabledWalletAccountIds,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
@@ -63,6 +65,7 @@ import {
   selectSearchQueryFromFilter,
 } from '@/state/selectors'
 import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import type { MarketDataById } from '@/state/slices/marketDataSlice/types'
 import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
@@ -176,9 +179,21 @@ export const selectPortfolioLoadingStatus = createSelector(
   },
 )
 
+// Accounts that resolved from the adapters' RPC fallback, so look healthy but have no token balances
+export const selectPortfolioDegradedAccountIds = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  (accountsById): AccountId[] =>
+    entries(accountsById).reduce<AccountId[]>((acc, [accountId, account]) => {
+      if (account?.isDegraded) acc.push(accountId)
+      return acc
+    }, []),
+)
+
 export const selectPortfolioDegradedState = createSelector(
   selectPortfolioLoadingStatusGranular,
-  (portfolioLoadingStatusGranular): boolean => {
+  selectPortfolioDegradedAccountIds,
+  (portfolioLoadingStatusGranular, degradedAccountIds): boolean => {
+    if (degradedAccountIds.length) return true
     return values(portfolioLoadingStatusGranular).some(val => val === 'error')
   },
 )
@@ -191,7 +206,7 @@ export const selectPortfolioTotalUserCurrencyBalance = createSelector(
         (acc, assetUserCurrencyBalance) => acc.plus(bnOrZero(assetUserCurrencyBalance)),
         bn(0),
       )
-      .toFixed(2),
+      .toFixed(),
 )
 
 export const selectPortfolioUserCurrencyBalanceByAssetId = createCachedSelector(
@@ -224,7 +239,7 @@ export const selectPortfolioUserCurrencyBalanceByFilter = createCachedSelector(
       const accountBalances = portfolioAccountUserCurrencyBalances[accountId]
       const totalAccountBalances =
         Object.values(accountBalances ?? {}).reduce((totalBalance, userCurrencyBalance) => {
-          return bnOrZero(totalBalance).plus(bnOrZero(userCurrencyBalance)).toFixed(2)
+          return bnOrZero(totalBalance).plus(bnOrZero(userCurrencyBalance)).toFixed()
         }, '0') ?? '0'
       return totalAccountBalances
     }
@@ -302,7 +317,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         (acc, [assetId, balance]) => {
           const asset = assetsById[assetId]
           if (!asset) return acc
-          const price = marketData[assetId]?.price
+          const price = getUserCurrencyPrice(assetId, assetsById, marketData).toFixed()
           const assetUserCurrencyBalance = balance.times(price)
           if (assetUserCurrencyBalance.lt(balanceThresholdUserCurrency)) return acc
           acc[assetId] = balance.toBaseUnit()
@@ -410,7 +425,7 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
           if (!asset) return acc
           if (spamMarkedAssetIds.includes(assetId)) return acc
 
-          const price = marketData[assetId]?.price ?? 0
+          const price = getUserCurrencyPrice(assetId, assets, marketData).toFixed()
           const calculatedValue: [AssetId, BigAmount] = [assetId, balance.times(price)]
 
           acc.push(calculatedValue)
@@ -422,7 +437,7 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
       const fiatAccountSorted = Object.fromEntries(
         entries
           .sort(([, a], [, b]) => (a.toNumber() > b.toNumber() ? -1 : 1))
-          .map(([assetId, fiatBalance]) => [assetId, fiatBalance.toFixed(2)]),
+          .map(([assetId, fiatBalance]) => [assetId, fiatBalance.toFixed()]),
       )
       acc[accountId] = fiatAccountSorted
       return acc
@@ -460,13 +475,13 @@ export const selectPortfolioTotalChainIdBalanceUserCurrency = createDeepEqualOut
         const asset = assetsById[assetId]
         if (!asset) return acc
 
-        const price = marketData[assetId]?.price
-        const assetUserCurrencyBalance = balance.times(price).toPrecision()
+        const price = getUserCurrencyPrice(assetId, assetsById, marketData)
+        const assetUserCurrencyBalance = balance.times(price.toFixed()).toPrecision()
 
         acc = acc.plus(assetUserCurrencyBalance)
         return acc
       }, bn(0))
-      .toFixed(2),
+      .toFixed(),
 )
 
 export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCachedSelector(
@@ -487,7 +502,7 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCach
           ),
         )
       }, bn(0))
-      .toFixed(2)
+      .toFixed()
   },
 )(
   (_s: ReduxState, filter) =>
@@ -516,7 +531,9 @@ export const selectPortfolioAccountIdByNumberByChainId = createDeepEqualOutputSe
   },
 )
 
-export type PortfolioAccountsGroupedByNumber = { [accountNumber: number]: AccountId[] }
+export type PortfolioAccountsGroupedByNumber = {
+  [accountNumber: number]: AccountId[]
+}
 
 export const selectPortfolioAccountsGroupedByNumberByChainId = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalances,
@@ -674,10 +691,10 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         if (!asset) return acc
         if (spamAssetIdsSet.has(assetId)) return acc
         const { name, icon, symbol } = asset
-        const price = marketData[assetId]?.price ?? '0'
+        const price = getUserCurrencyPrice(assetId, assetsById, marketData).toFixed()
         const cryptoAmount = balance.toPrecision()
         const userCurrencyAmount = balance.times(price)
-        const allocation = bnOrZero(userCurrencyAmount.toFixed(2))
+        const allocation = bnOrZero(userCurrencyAmount.toFixed())
           .div(bnOrZero(totalPortfolioUserCurrencyBalance))
           .times(100)
           .toNumber()
@@ -687,7 +704,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
           name,
           icon,
           symbol,
-          fiatAmount: userCurrencyAmount.toFixed(2),
+          fiatAmount: userCurrencyAmount.toFixed(),
           cryptoAmount,
           allocation,
           price,
@@ -726,6 +743,50 @@ const selectTotalBalancesByAssetId = createDeepEqualOutputSelector(
   },
 )
 
+type FamilyTotals = {
+  totalCryptoBalance: BN
+  totalUserCurrencyBalance: BN
+  /** Asset the family's quoted price and 24h change are read from */
+  priceAssetId: AssetId
+}
+
+// Totals a family from its held variants, valuing each at its own price or the primary's where it has none
+const getFamilyTotals = (
+  relatedAssetIds: AssetId[],
+  primaryAssetId: AssetId,
+  totalBalancesByAssetId: Record<AssetId, BigAmount>,
+  marketData: MarketDataById<AssetId>,
+  assets: PartialRecord<AssetId, Asset>,
+): FamilyTotals => {
+  const primaryPrice = bnOrZero(marketData[primaryAssetId]?.price)
+  const priceAssetId = primaryPrice.gt(0)
+    ? primaryAssetId
+    : relatedAssetIds.find(relatedAssetId => bnOrZero(marketData[relatedAssetId]?.price).gt(0)) ??
+      primaryAssetId
+
+  return relatedAssetIds.reduce<FamilyTotals>(
+    (acc, relatedAssetId) => {
+      const balance = totalBalancesByAssetId[relatedAssetId]
+      if (!balance || !assets[relatedAssetId]) return acc
+
+      const cryptoBalance = balance.toPrecision()
+
+      return {
+        ...acc,
+        totalCryptoBalance: acc.totalCryptoBalance.plus(cryptoBalance),
+        totalUserCurrencyBalance: acc.totalUserCurrencyBalance.plus(
+          bnOrZero(cryptoBalance).times(getUserCurrencyPrice(relatedAssetId, assets, marketData)),
+        ),
+      }
+    },
+    {
+      totalCryptoBalance: bnOrZero(0),
+      totalUserCurrencyBalance: bnOrZero(0),
+      priceAssetId,
+    },
+  )
+}
+
 // Optimized selector that uses precomputed balances
 export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioAccountRows,
@@ -755,23 +816,26 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
 
         if (acc.find(row => row.assetId === primaryAssetId)) return acc
 
-        let totalCryptoBalance = bnOrZero(0)
-
-        allRelatedAssetIds.forEach(relatedAssetId => {
-          const relatedAsset = assets[relatedAssetId]
-          const balance = totalBalancesByAssetId[relatedAssetId]
-
-          if (balance && relatedAsset) {
-            totalCryptoBalance = totalCryptoBalance.plus(balance.toPrecision())
-          }
-        })
-
-        const price = marketData[primaryAssetId]?.price ?? '0'
-        const userCurrencyAmount = bnOrZero(totalCryptoBalance).times(bnOrZero(price))
+        const {
+          totalCryptoBalance,
+          totalUserCurrencyBalance: userCurrencyAmount,
+          priceAssetId,
+        } = getFamilyTotals(
+          allRelatedAssetIds,
+          primaryAssetId,
+          totalBalancesByAssetId,
+          marketData,
+          assets,
+        )
 
         if (userCurrencyAmount.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
 
-        const allocation = bnOrZero(userCurrencyAmount.toFixed(2))
+        // Blended rate, so the displayed price reconciles with the balance and crypto amount beside it
+        const price = totalCryptoBalance.gt(0)
+          ? userCurrencyAmount.div(totalCryptoBalance).toFixed()
+          : marketData[priceAssetId]?.price ?? '0'
+
+        const allocation = bnOrZero(userCurrencyAmount.toFixed())
           .div(bnOrZero(totalPortfolioUserCurrencyBalance))
           .times(100)
           .toNumber()
@@ -781,11 +845,11 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
           name: primaryAsset?.name ?? '',
           icon: primaryAsset?.icon ?? '',
           symbol: primaryAsset?.symbol ?? '',
-          fiatAmount: userCurrencyAmount.toFixed(2),
+          fiatAmount: userCurrencyAmount.toFixed(),
           cryptoAmount: totalCryptoBalance.toFixed(),
           allocation,
           price,
-          priceChange: marketData[primaryAssetId]?.changePercent24Hr ?? 0,
+          priceChange: marketData[priceAssetId]?.changePercent24Hr ?? 0,
           relatedAssetKey: primaryAsset?.relatedAssetKey,
           isChainSpecific: primaryAsset?.isChainSpecific ?? false,
           isPrimary: primaryAsset?.isPrimary ?? false,
@@ -809,6 +873,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
   selectRelatedAssetIdsByAssetIdInclusive,
   selectAssets,
   selectMarketDataUserCurrency,
+  selectTotalBalancesByAssetId,
   preferences.selectors.selectSpamMarkedAssetIds,
   (_state: ReduxState, primaryAssetId: AssetId) => primaryAssetId,
   (
@@ -816,6 +881,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
     relatedAssetIdsByAssetId,
     assetsById,
     marketData,
+    totalBalancesByAssetId,
     spamMarkedAssetIds,
     primaryAssetId,
   ): GroupedAssetBalance | null => {
@@ -857,7 +923,7 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
             fiatAmount: '0',
             cryptoAmount: '0',
             allocation: 0,
-            price: marketData[assetId]?.price ?? '0',
+            price: getUserCurrencyPrice(assetId, assetsById, marketData).toFixed(),
             priceChange: marketData[assetId]?.changePercent24Hr ?? 0,
             relatedAssetKey: asset?.relatedAssetKey ?? null,
             isChainSpecific: asset?.isChainSpecific ?? false,
@@ -871,27 +937,19 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
 
     if (relatedAssets.length === 0) return null
 
-    const totalFiatBalance = allRelatedAssetIds
-      .reduce((sum, assetId) => {
-        if (spamAssetIdsSet.has(assetId)) return sum
-        const row = accountRows.find(row => row.assetId === assetId)
-        return sum.plus(row?.fiatAmount ?? '0')
-      }, bnOrZero(0))
-      .toFixed(2)
-
-    const totalCryptoBalance = allRelatedAssetIds
-      .reduce((sum, assetId) => {
-        if (spamAssetIdsSet.has(assetId)) return sum
-        const row = accountRows.find(row => row.assetId === assetId)
-        return sum.plus(row?.cryptoAmount ?? '0')
-      }, bnOrZero(0))
-      .toFixed()
+    const familyTotals = getFamilyTotals(
+      allRelatedAssetIds.filter(assetId => !spamAssetIdsSet.has(assetId)),
+      normalizedPrimaryAssetId,
+      totalBalancesByAssetId,
+      marketData,
+      assetsById,
+    )
 
     return {
       primaryAsset: {
         ...primaryRow,
-        fiatAmount: totalFiatBalance,
-        cryptoAmount: totalCryptoBalance,
+        fiatAmount: familyTotals.totalUserCurrencyBalance.toFixed(),
+        cryptoAmount: familyTotals.totalCryptoBalance.toFixed(),
       },
       relatedAssets,
     }

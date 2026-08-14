@@ -151,25 +151,34 @@ export type SwapWidgetFilters = {
   disabledAssetIds?: AssetId[]
 }
 
-export type SwapWidgetProps = {
-  partnerCode?: string
-  apiBaseUrl?: string
-  allowShapeshiftRedirect?: boolean
-  defaultSellAsset?: Asset
-  defaultBuyAsset?: Asset
-  sellFilters?: SwapWidgetFilters
-  buyFilters?: SwapWidgetFilters
-  allowedSwapperNames?: SwapperName[]
-  onSwapSuccess?: (txHash: string) => void
-  onSwapError?: (error: Error) => void
-  theme?: ThemeMode | ThemeConfig
-  defaultSlippage?: string
-  showPoweredBy?: boolean
-  showConnectButton?: boolean
-  walletConnectProjectId?: string
-  ratesRefetchInterval?: number
-  isBuyAssetLocked?: boolean
-}
+export type ReceiveAddressProps =
+  | { defaultReceiveAddress: string; isReceiveAddressLocked?: boolean }
+  | { defaultReceiveAddress?: never; isReceiveAddressLocked?: false }
+
+export type BuyAmountProps =
+  | { defaultBuyAmountCryptoBaseUnit: string; isBuyAmountLocked?: boolean }
+  | { defaultBuyAmountCryptoBaseUnit?: never; isBuyAmountLocked?: false }
+
+export type SwapWidgetProps = ReceiveAddressProps &
+  BuyAmountProps & {
+    partnerCode?: string
+    apiBaseUrl?: string
+    allowShapeshiftRedirect?: boolean
+    defaultSellAsset?: Asset
+    defaultBuyAsset?: Asset
+    sellFilters?: SwapWidgetFilters
+    buyFilters?: SwapWidgetFilters
+    allowedSwapperNames?: SwapperName[]
+    onSwapSuccess?: (txHash: string) => void
+    onSwapError?: (error: Error) => void
+    theme?: ThemeMode | ThemeConfig
+    defaultSlippage?: string
+    showPoweredBy?: boolean
+    showConnectButton?: boolean
+    walletConnectProjectId?: string
+    ratesRefetchInterval?: number
+    isBuyAssetLocked?: boolean
+  }
 
 export type RatesResponse = {
   rates: TradeRate[]
@@ -344,6 +353,10 @@ export const formatAmount = (amount: string, decimals: number, maxDecimals?: num
     minimumFractionDigits: 0,
   })
 }
+
+// Ungrouped and unrounded, unlike formatAmount - an input's value is parsed back into base units
+export const formatAmountForInput = (amount: string, decimals: number): string =>
+  BigAmount.fromBaseUnit({ value: amount, precision: decimals }).toPrecision()
 
 export const parseAmount = (amount: string, decimals: number): string => {
   return BigAmount.fromPrecision({ value: amount, precision: decimals }).toBaseUnit()

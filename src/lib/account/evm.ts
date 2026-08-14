@@ -224,7 +224,12 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
   for (const accountId of Object.keys(result)) {
     const { chainId, account } = fromAccountId(accountId)
-    if (await fetchIsSmartContractAddressQuery(account, chainId)) {
+
+    const isSmartContractAccount = await fetchIsSmartContractAddressQuery(account, chainId).catch(
+      () => false,
+    )
+
+    if (isSmartContractAccount) {
       maybeWalletConnectV2SmartContractAccountId = accountId
       break
     }

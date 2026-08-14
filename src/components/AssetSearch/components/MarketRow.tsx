@@ -54,7 +54,7 @@ export const MarketRow: FC<MarketRowProps> = memo(
     const rightContent = useMemo(
       () => (
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
-          <Amount.Fiat
+          <Amount.Price
             fontWeight='medium'
             color='text.base'
             lineHeight={1}

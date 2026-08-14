@@ -156,6 +156,7 @@ export const getDebridgeTradeContext = async ({
     protocolFees: quote.protocolFees,
     stepDataArgs: {
       tx: quote.tx,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       gasLimit: quote.gasLimit,
       fallbackNetworkFeeCryptoBaseUnit: quote.fallbackNetworkFeeCryptoBaseUnit,
       sellAsset,

@@ -7,6 +7,8 @@ export type PortfolioAccount = {
   /** The asset ids belonging to an account */
   assetIds: AssetId[]
   hasActivity?: boolean
+  /** Fetched from a degraded path, so assetIds is known to be incomplete */
+  isDegraded?: boolean
 }
 
 export type PortfolioAccounts = {

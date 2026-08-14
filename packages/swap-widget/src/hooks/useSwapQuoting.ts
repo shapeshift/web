@@ -29,14 +29,24 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
 
   useEffect(() => {
     const snap = actorRef.getSnapshot()
+
     if (!snap.matches('quoting') || quotingRef.current) return
+
     quotingRef.current = true
 
     const fetchQuote = async () => {
       try {
-        if (sellAssetBalance?.balance && context.sellAmountBaseUnit) {
+        const isExactOutput = !!context.buyAmountBaseUnit
+        const rateToUse = context.selectedRate ?? rates?.[0]
+
+        const sellAmountBaseUnit = isExactOutput
+          ? rateToUse?.sellAmountCryptoBaseUnit
+          : context.sellAmountBaseUnit
+
+        if (sellAssetBalance?.balance && sellAmountBaseUnit) {
           const balanceBigInt = BigInt(sellAssetBalance.balance)
-          const amountBigInt = BigInt(context.sellAmountBaseUnit)
+          const amountBigInt = BigInt(sellAmountBaseUnit)
+
           if (amountBigInt > balanceBigInt) {
             actorRef.send({ type: 'QUOTE_ERROR', error: 'Insufficient balance' })
             return
@@ -48,9 +58,14 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           actorRef.send({ type: 'QUOTE_ERROR', error: 'Invalid slippage value' })
           return
         }
+
         const slippageDecimal = (parsedSlippage / 100).toString()
-        const rateToUse = context.selectedRate ?? rates?.[0]
-        if (!rateToUse || !context.sellAmountBaseUnit) {
+
+        const amountBaseUnit = isExactOutput
+          ? context.buyAmountBaseUnit
+          : context.sellAmountBaseUnit
+
+        if (!rateToUse || !amountBaseUnit) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No rate or amount available' })
           return
         }
@@ -70,7 +85,9 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
         const response = await apiClient.getQuote({
           sellAssetId: context.sellAsset.assetId,
           buyAssetId: context.buyAsset.assetId,
-          sellAmountCryptoBaseUnit: context.sellAmountBaseUnit,
+          ...(isExactOutput
+            ? { buyAmountCryptoBaseUnit: amountBaseUnit }
+            : { sellAmountCryptoBaseUnit: amountBaseUnit }),
           sendAddress,
           receiveAddress: resolvedReceiveAddress,
           swapperName: rateToUse.swapperName,

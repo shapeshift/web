@@ -160,7 +160,7 @@ export const PrimaryChart = ({
           spacing={0}
           p={2}
         >
-          <Amount.Fiat value={price} fontWeight='bold' />
+          <Amount.Price value={price} fontWeight='bold' />
           <RawText fontSize={'xs'} color={colors.gray[500]}>
             {dayjs(date).locale(selectedLocale).format('LLL')}
           </RawText>

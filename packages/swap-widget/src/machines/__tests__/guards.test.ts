@@ -9,6 +9,7 @@ import {
   hasValidInput,
   isApprovalRequired,
   isEvmChain,
+  isExactOutput,
   isSolanaChain,
   isUtxoChain,
 } from '../guards'
@@ -31,6 +32,8 @@ const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachine
   },
   sellAmount: '1.0',
   sellAmountBaseUnit: '1000000000000000000',
+  buyAmount: '',
+  buyAmountBaseUnit: undefined,
   isSellAmountFiat: false,
   sellAmountFiat: '',
   selectedRate: null,
@@ -67,6 +70,31 @@ describe('guards', () => {
 
     it('returns false when sellAmountBaseUnit is empty string', () => {
       expect(hasValidInput(createTestContext({ sellAmountBaseUnit: '' }))).toBe(false)
+    })
+
+    // The sell amount only arrives with the rate, so requiring it would never let quoting start
+    it('is satisfied by a buy amount alone in exact-output mode', () => {
+      expect(
+        hasValidInput(
+          createTestContext({ sellAmountBaseUnit: undefined, buyAmountBaseUnit: '100000' }),
+        ),
+      ).toBe(true)
+    })
+
+    it('returns false when the exact-output buy amount is "0"', () => {
+      expect(
+        hasValidInput(createTestContext({ sellAmountBaseUnit: undefined, buyAmountBaseUnit: '0' })),
+      ).toBe(false)
+    })
+  })
+
+  describe('isExactOutput', () => {
+    it('is off without a buy amount', () => {
+      expect(isExactOutput(createTestContext())).toBe(false)
+    })
+
+    it('is on whenever a buy amount drives the trade', () => {
+      expect(isExactOutput(createTestContext({ buyAmountBaseUnit: '100000' }))).toBe(true)
     })
   })
 

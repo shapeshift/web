@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createActor } from 'xstate'
 
 import type { Asset, QuoteResponse, TradeRate } from '../../types'
+import { formatAmountForInput } from '../../types'
 import { createInitialContext, swapMachine } from '../swapMachine'
 
 const TEST_ETH: Asset = {
@@ -197,6 +198,137 @@ describe('swapMachine', () => {
       expect(ctx.isSellAssetUtxo).toBe(true)
       expect(ctx.isBuyAssetEvm).toBe(false)
       actor.stop()
+    })
+  })
+
+  // Only one side can drive a trade, so the machine has to retire the other on every entry
+  describe('exact output — buy amount exclusivity', () => {
+    it('SET_BUY_AMOUNT clears the sell side', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1.5',
+        amountBaseUnit: '1500000000000000000',
+        fiatValue: '3000',
+      })
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+
+      const ctx = actor.getSnapshot().context
+      expect(ctx.buyAmount).toBe('0.5')
+      expect(ctx.buyAmountBaseUnit).toBe('500000')
+      expect(ctx.sellAmount).toBe('')
+      expect(ctx.sellAmountBaseUnit).toBeUndefined()
+      expect(ctx.sellAmountFiat).toBe('')
+      actor.stop()
+    })
+
+    it('SET_SELL_AMOUNT clears the buy side', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1.5',
+        amountBaseUnit: '1500000000000000000',
+        fiatValue: '',
+      })
+
+      const ctx = actor.getSnapshot().context
+      expect(ctx.sellAmountBaseUnit).toBe('1500000000000000000')
+      expect(ctx.buyAmount).toBe('')
+      expect(ctx.buyAmountBaseUnit).toBeUndefined()
+      actor.stop()
+    })
+
+    // A rate priced against the other side of the trade can't describe this one
+    it('SET_SELL_AMOUNT drops a rate selected for the buy amount', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+      actor.send({ type: 'SELECT_RATE', rate: TEST_RATE })
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1.5',
+        amountBaseUnit: '1500000000000000000',
+        fiatValue: '',
+      })
+
+      expect(actor.getSnapshot().context.selectedRate).toBeNull()
+      actor.stop()
+    })
+
+    // The sell field is editable during exact output but shows a crypto amount, so a stale fiat mode
+    // would have the next thing the user types read as dollars
+    it('SET_BUY_AMOUNT leaves fiat entry mode', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+
+      expect(actor.getSnapshot().context.isSellAmountFiat).toBe(false)
+      actor.stop()
+    })
+
+    // The toggle picks a display unit, so it must never disturb either side's amount
+    it('SET_SELL_FIAT_MODE leaves the buy amount untouched', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
+
+      const ctx = actor.getSnapshot().context
+      expect(ctx.isSellAmountFiat).toBe(true)
+      expect(ctx.buyAmount).toBe('0.5')
+      expect(ctx.buyAmountBaseUnit).toBe('500000')
+      actor.stop()
+    })
+
+    // Base units mean nothing without the precision they were counted in, but the entered amount does
+    it('SET_BUY_ASSET keeps the buy amount and recalculates its base units', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+      actor.send({ type: 'SET_BUY_ASSET', asset: TEST_BTC })
+
+      const ctx = actor.getSnapshot().context
+      expect(ctx.buyAsset.symbol).toBe('BTC')
+      expect(ctx.buyAmount).toBe('0.5')
+      // 0.5 at BTC's 8 decimals, not USDC's 6
+      expect(ctx.buyAmountBaseUnit).toBe('50000000')
+      actor.stop()
+    })
+
+    // A seeded amount is re-parsed on a buy asset change, so a display-formatted one would zero out
+    it('SET_BUY_ASSET recalculates a seeded amount large enough to carry separators', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_BUY_AMOUNT',
+        amount: formatAmountForInput('1234500000', 6),
+        amountBaseUnit: '1234500000',
+      })
+      actor.send({ type: 'SET_BUY_ASSET', asset: TEST_BTC })
+
+      // 1234.5 at BTC's 8 decimals
+      expect(actor.getSnapshot().context.buyAmountBaseUnit).toBe('123450000000')
+      actor.stop()
+    })
+
+    it('clearing the buy amount returns the trade to the sell side', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '0.5', amountBaseUnit: '500000' })
+      actor.send({ type: 'SET_BUY_AMOUNT', amount: '', amountBaseUnit: undefined })
+
+      expect(actor.getSnapshot().context.buyAmountBaseUnit).toBeUndefined()
+      actor.stop()
+    })
+
+    it('createInitialContext seeds a buy amount', () => {
+      const ctx = createInitialContext({ buyAmount: '0.5', buyAmountBaseUnit: '500000' })
+      expect(ctx.buyAmount).toBe('0.5')
+      expect(ctx.buyAmountBaseUnit).toBe('500000')
     })
   })
 

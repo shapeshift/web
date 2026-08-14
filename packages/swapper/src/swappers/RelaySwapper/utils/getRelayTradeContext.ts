@@ -23,7 +23,7 @@ import type {
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { isNativeEvmAsset } from '../../../utils/helpers'
+import { getTradeAmount, isNativeEvmAsset } from '../../../utils/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
@@ -32,7 +32,13 @@ import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
 import { fetchRelayTrade } from './fetchRelayTrade'
 import type { GetRelayStepDataArgs } from './getRelayStepData'
 import { assertValidTrade, getRelayAllowanceContract, resolveRelayAddresses } from './helpers'
-import type { RelayQuoteItem, RelayTradeQuoteInput, RelayTradeRateInput } from './types'
+import type {
+  RelayExactOutputTradeQuoteInput,
+  RelayExactOutputTradeRateInput,
+  RelayQuoteItem,
+  RelayTradeQuoteInput,
+  RelayTradeRateInput,
+} from './types'
 import { isRelayError } from './types'
 
 type RelayTradeContext = {
@@ -50,11 +56,18 @@ export const getRelayTradeContext = async ({
   deps,
   relayChainMap,
 }: {
-  input: RelayTradeQuoteInput | RelayTradeRateInput
+  input:
+    | RelayTradeQuoteInput
+    | RelayTradeRateInput
+    | RelayExactOutputTradeQuoteInput
+    | RelayExactOutputTradeRateInput
   deps: SwapperDeps
   relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<RelayTradeContext, SwapErrorRight>> => {
-  const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
+  const { sellAsset, buyAsset, affiliateBps } = input
+
+  const amount = getTradeAmount(input)
+  const isExactOutput = amount.direction === 'exactOut'
 
   const xpub = 'xpub' in input ? input.xpub : undefined
 
@@ -78,8 +91,8 @@ export const getRelayTradeContext = async ({
       originCurrency: getRelayAssetAddress(sellAsset),
       destinationChainId: buyRelayChainId,
       destinationCurrency: getRelayAssetAddress(buyAsset),
-      tradeType: 'EXACT_INPUT',
-      amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      tradeType: isExactOutput ? 'EXACT_OUTPUT' : 'EXACT_INPUT',
+      amount: amount.cryptoBaseUnit,
       recipient,
       user: sendAddress,
       refundTo,
@@ -141,12 +154,25 @@ export const getRelayTradeContext = async ({
     )
   }
 
-  const { slippageTolerance, currencyOut, timeEstimate } = quote.details
+  const { slippageTolerance, currencyIn, currencyOut, timeEstimate } = quote.details
 
-  const buyAmountAfterFeesCryptoBaseUnit = currencyOut.amount
+  const sellAmountCryptoBaseUnit = currencyIn.amount
+
+  const buyAmountAfterFeesCryptoBaseUnit = isExactOutput
+    ? currencyOut.minimumAmount
+    : currencyOut.amount
+
+  if (isExactOutput && !bnOrZero(buyAmountAfterFeesCryptoBaseUnit).eq(amount.cryptoBaseUnit)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Relay guarantees ${buyAmountAfterFeesCryptoBaseUnit} against a requested exact output of ${amount.cryptoBaseUnit}`,
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
 
   const rate = getInputOutputRate({
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAmountCryptoBaseUnit,
     buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
     sellAsset,
     buyAsset,
@@ -354,7 +380,7 @@ export const getRelayTradeContext = async ({
 
   // Add back relayer service and gas fees (relayer is including both) since they are downsides,
   // and add appFees — these are quote-level and identical across every step
-  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
+  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
     .plus(relayerFeesBuyAssetCryptoBaseUnit)
     .plus(appFeesBaseUnit)
     .toFixed()
@@ -371,6 +397,7 @@ export const getRelayTradeContext = async ({
       id: relayId,
       rate,
       swapperName: SwapperName.Relay,
+      isExactOutput,
       affiliateBps,
       slippageTolerancePercentageDecimal,
     },
@@ -378,7 +405,7 @@ export const getRelayTradeContext = async ({
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       buyAsset,
       sellAsset,
       source: SwapperName.Relay,
@@ -388,7 +415,7 @@ export const getRelayTradeContext = async ({
         affiliateBps,
         sellAsset,
         buyAsset,
-        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAmountCryptoBaseUnit,
         buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
         fixedAssetId: chainIdToFeeAssetId(baseChainId),
         fixedAsset: deps.assetsById[chainIdToFeeAssetId(baseChainId)],
@@ -406,7 +433,7 @@ export const getRelayTradeContext = async ({
     relayStepInputs,
     stepDataArgs: {
       sellAsset,
-      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAmountCryptoBaseUnit,
       orderId,
       from: sendAddress,
       xpub,

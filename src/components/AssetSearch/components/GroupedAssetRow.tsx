@@ -235,7 +235,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           {showPrice && (
             <Flex gap={1} mt={1}>
               <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
-                <Amount.Fiat
+                <Amount.Price
                   fontWeight='semibold'
                   lineHeight='shorter'
                   height='20px'

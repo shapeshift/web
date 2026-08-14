@@ -13,6 +13,8 @@ import { makeSwapErrorRight } from '../../../utils'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import type {
+  RelayExactOutputTradeQuoteInput,
+  RelayExactOutputTradeRateInput,
   RelayQuoteItem,
   RelaySolanaInstruction,
   RelayTradeQuoteInput,
@@ -86,7 +88,11 @@ export const resolveRelayAddresses = ({
   sellChainId,
   buyChainId,
 }: {
-  input: RelayTradeQuoteInput | RelayTradeRateInput
+  input:
+    | RelayTradeQuoteInput
+    | RelayTradeRateInput
+    | RelayExactOutputTradeQuoteInput
+    | RelayExactOutputTradeRateInput
   sellChainId: ChainId
   buyChainId: ChainId
 }): { sendAddress: string; recipient: string; refundTo: string } => {

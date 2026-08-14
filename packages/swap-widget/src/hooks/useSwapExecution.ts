@@ -187,6 +187,11 @@ export const useSwapExecution = () => {
           return
         }
 
+        if (Date.now() >= quote.expiresAt) {
+          actorRef.send({ type: 'EXECUTE_ERROR', error: 'Quote expired — please try again' })
+          return
+        }
+
         const txData = quote.steps[0]?.transactionData
         if (!txData) {
           console.error('Quote missing transactionData in steps[0]', quote)

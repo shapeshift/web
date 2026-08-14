@@ -124,7 +124,12 @@ export const getSunioTradeContext = async ({
         }),
       },
       protocolFees,
-      stepDataArgs: { deps, sellAsset, route: bestRoute },
+      stepDataArgs: {
+        deps,
+        sellAsset,
+        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        route: bestRoute,
+      },
     })
   } catch (error) {
     return Err(

@@ -242,6 +242,7 @@ export const getAcrossTradeContext = async ({
     stepDataArgs: {
       swapTx: quote.swapTx,
       sellAsset,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       from: depositor,
       spenderAddress: allowanceContract,
       fallbackNetworkFeeCryptoBaseUnit: quote.fees.originGas.amount,

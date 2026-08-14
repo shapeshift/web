@@ -117,6 +117,7 @@ export const getBebopTradeContext = async ({
       tx: quote.tx,
       spenderAddress: allowanceContract,
       sellAsset,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       from,
       deps,
     },

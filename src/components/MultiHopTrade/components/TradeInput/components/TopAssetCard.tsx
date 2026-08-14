@@ -66,7 +66,7 @@ export const TopAssetCard = ({ asset, onClick }: TopAssetCardProps) => {
           </Box>
         </Flex>
         <HStack spacing={1} flexShrink={0}>
-          <Amount.Fiat
+          <Amount.Price
             fontWeight='semibold'
             color={textColor}
             fontSize='xs'

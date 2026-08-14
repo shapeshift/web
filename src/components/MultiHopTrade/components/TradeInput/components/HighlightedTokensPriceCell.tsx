@@ -83,7 +83,7 @@ export const HighlightedTokensPriceCell = ({
 
   return (
     <Stack spacing={0} fontWeight='medium' textAlign='right' alignItems='flex-end'>
-      <Amount.Fiat
+      <Amount.Price
         fontWeight='semibold'
         color={textColor}
         lineHeight='shorter'

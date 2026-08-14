@@ -18,7 +18,7 @@ const makeStoredQuote = (overrides: Partial<StoredQuote>): StoredQuote =>
     affiliateBps: '0',
     rate: '0.995',
     createdAt: 1_000,
-    trackableUntil: 100_000,
+    quoteDeadline: 100_000,
     metadata: { stepIndex: 0, quoteId: '3f1c9a58-5f4e-4a3f-9a0f-9d6b2b7c1a11' },
     status: 'pending',
     ...overrides,

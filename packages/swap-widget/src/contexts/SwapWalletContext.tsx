@@ -5,7 +5,7 @@ import type { UseEvmSigningResult } from '../hooks/useEvmSigning'
 import type { UseSolanaSigningResult } from '../hooks/useSolanaSigning'
 
 export type SwapWalletContextValue = {
-  // What the api's sendAddress field gets: a wallet's address, else the typed refund one
+  // Fills the api's sendAddress - a connected wallet address, or the deposit flow's refund address
   sendAddress: string | undefined
   // Connection state - absent on a deposit flow, where nothing is signed
   walletSendAddress: string | undefined

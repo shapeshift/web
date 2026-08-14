@@ -146,12 +146,14 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         isAffiliateVerified,
       } = statusResult.data
 
-      // An externally paid swap's sell tx hash arrives from the provider, not from the client
       let trackedQuote = storedQuote
 
+      // An externally paid swap's sell tx hash arrives from the provider, not from the client
       if (!trackedQuote.txHash && sellTxHash) {
         trackedQuote = bindSellTxHash(trackedQuote, sellTxHash, Date.now())
+
         quoteStore.set(quoteId, trackedQuote)
+
         response.txHash = trackedQuote.txHash
         response.registeredAt = trackedQuote.registeredAt
         response.status = trackedQuote.status
@@ -170,6 +172,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       }
 
       if (buyTxHash) response.buyTxHash = buyTxHash
+
       if (isAffiliateVerified !== null) {
         response.isAffiliateVerified = isAffiliateVerified
       }

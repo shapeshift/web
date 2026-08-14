@@ -11,19 +11,9 @@ const POLL_INTERVAL_MS = 5000
 
 type UseStatusPollingParams = {
   apiClient: ApiClient
-  onSwapSuccess?: (txHash: string) => void
-  onSwapError?: (error: Error) => void
-  refetchSellBalance?: () => void
-  refetchBuyBalance?: () => void
 }
 
-export const useStatusPolling = ({
-  apiClient,
-  onSwapSuccess,
-  onSwapError,
-  refetchSellBalance,
-  refetchBuyBalance,
-}: UseStatusPollingParams) => {
+export const useStatusPolling = ({ apiClient }: UseStatusPollingParams) => {
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
   const context = SwapMachineCtx.useSelector(s => s.context)
   const actorRef = SwapMachineCtx.useActorRef()
@@ -115,38 +105,5 @@ export const useStatusPolling = ({
       pollingRef.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs or read from snapshot
-  }, [stateValue])
-
-  const completionRef = useRef(false)
-  useEffect(() => {
-    const snap = actorRef.getSnapshot()
-    if (!snap.matches('complete')) {
-      completionRef.current = false
-      return
-    }
-    if (completionRef.current) return
-    completionRef.current = true
-
-    if (context.txHash) {
-      onSwapSuccess?.(context.txHash)
-    }
-
-    refetchSellBalance?.()
-    refetchBuyBalance?.()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; callbacks are stable
-  }, [stateValue])
-
-  const errorRef = useRef(false)
-  useEffect(() => {
-    const snap = actorRef.getSnapshot()
-    if (!snap.matches('error')) {
-      errorRef.current = false
-      return
-    }
-    if (errorRef.current) return
-    errorRef.current = true
-
-    onSwapError?.(new Error(context.error ?? 'Unknown error'))
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; callbacks are stable
   }, [stateValue])
 }

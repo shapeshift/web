@@ -10,6 +10,7 @@ import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 
 type BaseArgs = {
   tx: PortalsTx
+  sellAmountCryptoBaseUnit: string
   spenderAddress: string
 }
 
@@ -35,7 +36,7 @@ export function getPortalsStepData(
 export async function getPortalsStepData(
   args: GetPortalsStepDataArgs,
 ): Promise<Result<PortalsRateStepData | PortalsQuoteStepData, SwapErrorRight>> {
-  const { tx, sellAsset, spenderAddress, input, deps } = args
+  const { tx, sellAsset, sellAmountCryptoBaseUnit, spenderAddress, input, deps } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
@@ -48,7 +49,7 @@ export async function getPortalsStepData(
         try {
           const gasLimit = await estimateGasWithStateOverride({
             sellAsset,
-            sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            sellAmountCryptoBaseUnit,
             from: tx.from,
             spenderAddress,
             to: tx.to,
@@ -103,7 +104,7 @@ export async function getPortalsStepData(
       supportsEIP1559,
       stateOverride: {
         sellAsset,
-        sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAmountCryptoBaseUnit,
         spenderAddress,
       },
     })

@@ -35,6 +35,8 @@ export type SwapDisplayValues = {
   buyChainInfo: ChainInfo | undefined
   displayRate: TradeRate | undefined
   buyAmount: string | undefined
+  isExactOutput: boolean
+  sellAmountBaseUnit: string | undefined
   sellChainNativeAsset: ShapeshiftAsset | undefined
   networkFeeDisplay: string | undefined
   sellUsdValue: string
@@ -50,20 +52,26 @@ export const useSwapDisplayValues = ({
   allowedSwapperNames,
   ratesRefetchInterval,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
-  const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
-  const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
-  const sellAmountBaseUnit = SwapMachineCtx.useSelector(s => s.context.sellAmountBaseUnit)
-  const isSellAssetEvm = SwapMachineCtx.useSelector(s => s.context.isSellAssetEvm)
-  const isSellAssetUtxo = SwapMachineCtx.useSelector(s => s.context.isSellAssetUtxo)
-  const isSellAssetSolana = SwapMachineCtx.useSelector(s => s.context.isSellAssetSolana)
-  const selectedRate = SwapMachineCtx.useSelector(s => s.context.selectedRate)
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const {
+    sellAsset,
+    buyAsset,
+    buyAmountBaseUnit,
+    isSellAssetEvm,
+    isSellAssetUtxo,
+    isSellAssetSolana,
+    selectedRate,
+  } = context
 
-  const { receiveAddress, evm, bitcoin, solana } = useSwapWallet()
+  const { receiveAddress, isReceiveAddressBlocked, evm, bitcoin, solana } = useSwapWallet()
   const evmAddress = evm.address
   const bitcoinAddress = bitcoin.address
   const solanaAddress = solana.address
 
   const buyChainType = getChainType(buyAsset.chainId)
+
+  const isExactOutput = !!buyAmountBaseUnit
+  const amountBaseUnit = isExactOutput ? buyAmountBaseUnit : context.sellAmountBaseUnit
 
   const {
     data: rates,
@@ -72,12 +80,15 @@ export const useSwapDisplayValues = ({
   } = useSwapRates(apiClient, {
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
-    sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+    sellAmountCryptoBaseUnit: context.sellAmountBaseUnit,
+    buyAmountCryptoBaseUnit: buyAmountBaseUnit,
     allowedSwapperNames,
     refetchInterval: ratesRefetchInterval,
+    // Rates need no destination, but a locked one the buy chain rejects can never be quoted
     enabled:
-      !!sellAmountBaseUnit &&
-      sellAmountBaseUnit !== '0' &&
+      !!amountBaseUnit &&
+      amountBaseUnit !== '0' &&
+      !isReceiveAddressBlocked &&
       (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
   })
 
@@ -117,6 +128,11 @@ export const useSwapDisplayValues = ({
 
   const displayRate = useMemo(() => selectedRate ?? rates?.[0], [selectedRate, rates])
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit
+
+  // Exact output has no user-entered sell amount - it only exists once a route has priced it
+  const sellAmountBaseUnit = isExactOutput
+    ? displayRate?.sellAmountCryptoBaseUnit
+    : context.sellAmountBaseUnit
 
   const sellChainNativeAsset = useMemo(() => getBaseAsset(sellAsset.chainId), [sellAsset.chainId])
 
@@ -188,6 +204,8 @@ export const useSwapDisplayValues = ({
       buyChainInfo,
       displayRate,
       buyAmount,
+      isExactOutput,
+      sellAmountBaseUnit,
       sellChainNativeAsset,
       networkFeeDisplay,
       sellUsdValue,
@@ -211,6 +229,8 @@ export const useSwapDisplayValues = ({
       buyChainInfo,
       displayRate,
       buyAmount,
+      isExactOutput,
+      sellAmountBaseUnit,
       sellChainNativeAsset,
       networkFeeDisplay,
       sellUsdValue,

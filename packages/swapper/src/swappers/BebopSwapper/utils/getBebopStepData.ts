@@ -11,6 +11,7 @@ import type { BebopQuoteResponse } from '../types'
 
 type BaseArgs = {
   tx: BebopQuoteResponse['tx']
+  sellAmountCryptoBaseUnit: string
   spenderAddress: string
 }
 
@@ -28,7 +29,7 @@ export function getBebopStepData(
 export async function getBebopStepData(
   args: GetBebopStepDataArgs,
 ): Promise<Result<BebopRateStepData | BebopQuoteStepData, SwapErrorRight>> {
-  const { tx, spenderAddress, sellAsset, type, input, from, deps } = args
+  const { tx, spenderAddress, sellAsset, sellAmountCryptoBaseUnit, type, input, from, deps } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
@@ -68,7 +69,7 @@ export async function getBebopStepData(
       supportsEIP1559,
       stateOverride: {
         sellAsset,
-        sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAmountCryptoBaseUnit,
         spenderAddress,
       },
     })

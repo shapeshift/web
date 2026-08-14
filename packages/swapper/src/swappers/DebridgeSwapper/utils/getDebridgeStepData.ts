@@ -9,6 +9,7 @@ import type { DebridgeTx } from './types'
 
 type BaseArgs = {
   tx: DebridgeTx
+  sellAmountCryptoBaseUnit: string
   gasLimit: string | undefined
   spenderAddress: string
   fallbackNetworkFeeCryptoBaseUnit: string | undefined
@@ -31,6 +32,7 @@ export async function getDebridgeStepData(
 ): Promise<Result<DebridgeRateStepData | DebridgeQuoteStepData, SwapErrorRight>> {
   const {
     tx,
+    sellAmountCryptoBaseUnit,
     gasLimit,
     spenderAddress,
     fallbackNetworkFeeCryptoBaseUnit,
@@ -55,7 +57,7 @@ export async function getDebridgeStepData(
 
   const stateOverride = {
     sellAsset,
-    sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAmountCryptoBaseUnit,
     spenderAddress,
   }
 

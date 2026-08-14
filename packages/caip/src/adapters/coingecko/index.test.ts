@@ -143,12 +143,19 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Robinhood,
       })
+      const ethOnKatana = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.KatanaMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Katana,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
         ethOnArbitrum,
         ethOnBase,
         ethOnBob,
+        ethOnKatana,
         ethOnZkSyncEra,
         ethOnBlast,
         ethOnWorldChain,

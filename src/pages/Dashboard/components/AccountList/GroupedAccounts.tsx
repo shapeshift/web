@@ -1,12 +1,13 @@
 import { Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { truncate } from 'lodash'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import type { Row } from 'react-table'
 import { useLongPress } from 'use-long-press'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { defaultLongPressConfig } from '@/constants/longPress'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
 import type { AccountRowData } from '@/state/slices/selectors'
 import { selectGroupedAssetsWithBalances } from '@/state/slices/selectors'
@@ -94,11 +95,20 @@ export const GroupedAccounts = memo<GroupedAccountsProps>(({ row, onRowClick, on
     selectGroupedAssetsWithBalances(state, row.original.assetId),
   )
 
-  if (groupedAssetsWithBalances?.relatedAssets.length === 1) return null
+  // The selector pads families out with unheld variants for search and markets; the portfolio can't
+  const heldRelatedAssets = useMemo<AccountRowData[]>(
+    () =>
+      groupedAssetsWithBalances?.relatedAssets.filter(asset =>
+        bnOrZero(asset.cryptoAmount).gt(0),
+      ) ?? [],
+    [groupedAssetsWithBalances],
+  )
+
+  if (heldRelatedAssets.length <= 1) return null
 
   return (
     <Stack spacing={0} p={0} bg='background.surface.raised.base'>
-      {groupedAssetsWithBalances?.relatedAssets.map(asset => (
+      {heldRelatedAssets.map(asset => (
         <RelatedAssetRow
           key={asset.assetId}
           relatedAssetRow={asset}

@@ -7,7 +7,7 @@ import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
 import type { SunioRoute, SunioTransactionData } from '../types'
 import { estimateSunioNetworkFeeCryptoBaseUnit } from './estimateSunioNetworkFee'
 
-type BaseArgs = { route: SunioRoute }
+type BaseArgs = { route: SunioRoute; sellAmountCryptoBaseUnit: string }
 
 export type GetSunioStepDataArgs = StepDataArgs<BaseArgs>
 
@@ -26,13 +26,13 @@ export function getSunioStepData(
 export async function getSunioStepData(
   args: GetSunioStepDataArgs,
 ): Promise<Result<SunioRateStepData | SunioQuoteStepData, SwapErrorRight>> {
-  const { type, route, sellAsset, from, input, deps } = args
+  const { type, route, sellAsset, sellAmountCryptoBaseUnit, from, input, deps } = args
 
   const estimateArgs = {
     rpcUrl: deps.config.VITE_TRON_NODE_URL,
     apiKey: deps.config.VITE_TRON_GRID_API_KEY,
     route,
-    sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAmountCryptoBaseUnit,
     isSellingNativeTrx: !contractAddressOrUndefined(sellAsset.assetId),
     address: from,
     slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,

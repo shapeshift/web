@@ -16,7 +16,13 @@ import type {
 import { SwapperName } from '../../../types'
 import { getInputOutputRate, makeTradeStepBuildFailedErr } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import type { NearIntentsTradeQuoteInput, NearIntentsTradeRateInput, QuoteResponse } from '../types'
+import type {
+  NearIntentsExactOutputTradeQuoteInput,
+  NearIntentsExactOutputTradeRateInput,
+  NearIntentsTradeQuoteInput,
+  NearIntentsTradeRateInput,
+  QuoteResponse,
+} from '../types'
 
 type NearIntentsTradeContext = {
   tradeCommon: TradeCommon
@@ -35,17 +41,15 @@ export const getNearIntentsTradeContext = ({
   deps,
   quote,
 }: {
-  input: NearIntentsTradeQuoteInput | NearIntentsTradeRateInput
+  input:
+    | NearIntentsTradeQuoteInput
+    | NearIntentsTradeRateInput
+    | NearIntentsExactOutputTradeQuoteInput
+    | NearIntentsExactOutputTradeRateInput
   deps: SwapperDeps
   quote: QuoteResponse['quote']
 }): Result<NearIntentsTradeContext, SwapErrorRight> => {
-  const {
-    sellAsset,
-    buyAsset,
-    affiliateBps,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    slippageTolerancePercentageDecimal,
-  } = input
+  const { sellAsset, buyAsset, affiliateBps, slippageTolerancePercentageDecimal } = input
 
   if (!quote.depositAddress) return Err(makeTradeStepBuildFailedErr('getNearIntentsTradeContext'))
 
@@ -56,11 +60,14 @@ export const getNearIntentsTradeContext = ({
     buyAsset,
   })
 
+  const isExactOutput = 'buyAmountCryptoBaseUnit' in input
+
   return Ok({
     tradeCommon: {
       id: uuid(),
       rate,
       swapperName: SwapperName.NearIntents,
+      isExactOutput,
       affiliateBps,
       slippageTolerancePercentageDecimal:
         slippageTolerancePercentageDecimal ??
@@ -92,7 +99,7 @@ export const getNearIntentsTradeContext = ({
     stepDataArgs: {
       deps,
       sellAsset,
-      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAmountCryptoBaseUnit: quote.amountIn,
       depositAddress: quote.depositAddress,
     },
   })

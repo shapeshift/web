@@ -78,7 +78,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
               <Text translation='assets.assetDetails.assetHeader.price' />
             </StatLabel>
             <StatValue isLoaded={isLoaded}>
-              <Amount.Fiat value={marketData?.price ?? 0} />
+              <Amount.Price value={marketData?.price ?? 0} />
             </StatValue>
           </StatRow>
           <StatRow>

@@ -393,13 +393,13 @@ describe('portfolioSlice', () => {
 
         const returnValue = {
           [ethAccountId]: {
-            [ethAssetId]: '1000.00',
-            [foxAssetId]: '30.00',
-            [usdcAssetId]: '10.00',
+            [ethAssetId]: '1000',
+            [foxAssetId]: '30',
+            [usdcAssetId]: '10',
           },
           [ethAccount2Id]: {
-            [ethAssetId]: '200.00',
-            [foxAssetId]: '20.00',
+            [ethAssetId]: '200',
+            [foxAssetId]: '20',
           },
         }
 
@@ -413,13 +413,13 @@ describe('portfolioSlice', () => {
 
         const returnValue = {
           [ethAccountId]: {
-            [ethAssetId]: '0.00',
-            [foxAssetId]: '0.00',
-            [usdcAssetId]: '0.00',
+            [ethAssetId]: '0',
+            [foxAssetId]: '0',
+            [usdcAssetId]: '0',
           },
           [ethAccount2Id]: {
-            [ethAssetId]: '0.00',
-            [foxAssetId]: '0.00',
+            [ethAssetId]: '0',
+            [foxAssetId]: '0',
           },
         }
 
@@ -531,13 +531,13 @@ describe('portfolioSlice', () => {
       const state = store.getState()
 
       it('should be able to filter by assetId', () => {
-        const expected = '1200.01'
+        const expected = '1200.009'
         const result = selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
-        const expected = '30.00'
+        const expected = '30'
         const result = selectPortfolioUserCurrencyBalanceByFilter(state, {
           accountId: ethAccountId,
           assetId: foxAssetId,

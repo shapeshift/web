@@ -54,6 +54,11 @@ type FiatAmountProps = {
   fiatType?: string
 } & AmountProps
 
+type FiatBaseProps = FiatAmountProps & {
+  /** Fall back to the currency's minor units rather than scaling digits to the value's magnitude */
+  defaultToMinorUnits?: boolean
+}
+
 type PercentAmountProps = AmountProps & {
   options?: NumberFormatOptions
   autoColor?: boolean
@@ -92,27 +97,32 @@ const Crypto = ({
   )
 }
 
-const Fiat = ({
+const FiatBase = ({
   value,
   fiatType,
   prefix,
   suffix,
   maximumFractionDigits,
+  defaultToMinorUnits = false,
   omitDecimalTrailingZeros = false,
   abbreviated = false,
   noSpace = false,
   ...props
-}: FiatAmountProps) => {
+}: FiatBaseProps) => {
   const {
-    number: { toFiat },
+    number: { toFiat, localeParts },
   } = useLocaleFormatter({ fiatType })
+
+  // The currency's minor units - cents for USD, none for JPY, three for KWD
+  const resolvedMaximumFractionDigits =
+    maximumFractionDigits ?? (defaultToMinorUnits ? localeParts.fraction : undefined)
 
   const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
   const fiat = toFiat(bnOrZero(resolvedValue).toFixed(), {
     fiatType,
     omitDecimalTrailingZeros,
     abbreviated,
-    maximumFractionDigits,
+    maximumFractionDigits: resolvedMaximumFractionDigits,
   })
 
   return (
@@ -152,6 +162,15 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
   )
 }
 
+/** An amount someone holds, which reads in the currency's minor units */
+const Fiat = (props: FiatAmountProps): React.ReactElement => (
+  <FiatBase {...props} defaultToMinorUnits />
+)
+
+/** A quoted price, which scales its digits to the magnitude rather than rounding to minor units */
+const Price = (props: FiatAmountProps): React.ReactElement => <FiatBase {...props} />
+
 Amount.Crypto = Crypto
 Amount.Fiat = Fiat
+Amount.Price = Price
 Amount.Percent = Percent

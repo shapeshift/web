@@ -96,6 +96,8 @@ export type Account<T extends ChainId> = {
   chainId: string
   assetId: string
   chain: T
+  /** Sourced from a degraded path and known to be incomplete */
+  isDegraded?: boolean
 } & ChainSpecificAccount<T>
 
 export type AssetBalance = {

@@ -30,7 +30,7 @@ export const useSwapCallbacks = ({
     if (completionRef.current) return
     completionRef.current = true
 
-    // A deposit can be credited without the provider ever reporting its hash
+    // Status and sell hash are reported independently, so a missing hash is not a missing success
     onSwapSuccess?.(snap.context.txHash ?? undefined)
 
     refetchSellBalance?.()

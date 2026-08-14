@@ -751,9 +751,9 @@ revenue attribution works.
   [Configuration is applied at mount](#configuration-is-applied-at-mount).
 - **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction that
   paid the swap on the sell chain — signed by the user, or their deposit as the protocol reported
-  it. On cross-chain routes the destination transfer may still be in flight. A deposit can be
-  credited without the protocol ever reporting a hash, so treat the argument as optional and the
-  call itself as the success signal.
+  it. On cross-chain routes the destination transfer may still be in flight. A protocol reports the
+  swap's status and its sell hash independently, so treat the argument as optional and the call
+  itself as the success signal.
 - **`onSwapError` does not always mean the swap failed.** It also fires when the widget stops
   tracking a swap whose outcome it never learned, which can still settle afterwards. Treat it as
   "not confirmed" rather than "failed" if you act on it.

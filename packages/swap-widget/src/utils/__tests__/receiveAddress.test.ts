@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { ChainId } from '../../types'
+import { UTXO_CHAIN_IDS } from '../../types'
 import { resolveReceiveAddress } from '../receiveAddress'
 
 const BTC_CHAIN_ID = 'bip122:000000000019d6689c085ae165831e93' as ChainId
@@ -78,5 +79,19 @@ describe('resolveReceiveAddress', () => {
     it('falls back to the wallet with nothing entered', () => {
       expect(resolveReceiveAddress(args)).toBe(WALLET_ADDRESS)
     })
+  })
+})
+
+describe('resolveReceiveAddress cross-chain wallet', () => {
+  it('never returns a wallet address the buy chain would reject', () => {
+    expect(
+      resolveReceiveAddress({
+        isLocked: false,
+        defaultAddress: undefined,
+        customAddress: '',
+        walletAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+        buyChainId: UTXO_CHAIN_IDS.dogecoin,
+      }),
+    ).toBeUndefined()
   })
 })

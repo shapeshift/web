@@ -16,7 +16,6 @@ export type StoredQuote = {
   affiliateBps: string
   rate: string
   createdAt: number
-  // What the client counts down, returned to it as expiresAt - retention runs past this
   quoteDeadline: number
   metadata: SwapMetadata
   // Set only when this quote is payable externally - memo-bound routes get none
@@ -58,7 +57,6 @@ export class QuoteStore {
     }
   }
 
-  // How long status can still answer for a quote, which outlives the quote's own deadline
   private static statusDeadline(quote: StoredQuote): number {
     return quote.txHash
       ? (quote.registeredAt ?? quote.createdAt) + QuoteStore.EXECUTION_TTL_MS

@@ -1,4 +1,5 @@
 import type { QuoteResponse } from '../types'
+import { shouldKeepTrackingDeposit } from './depositStatus'
 
 const STORAGE_KEY = 'ssw:pendingDeposit'
 
@@ -11,6 +12,9 @@ export type PendingDeposit = {
   // Whichever side drove the quote, so a re-quote after expiry asks for the same thing
   sellAmountBaseUnit: string | undefined
   buyAmountBaseUnit: string | undefined
+  // Set once the provider reports the deposit, so a restore rejoins settlement rather than
+  // showing the deposit screen again for a swap that is already funded
+  txHash: string | undefined
 }
 
 const isRestorableAsset = (value: unknown): boolean => {
@@ -31,7 +35,7 @@ const isPendingDeposit = (value: unknown): value is PendingDeposit => {
     typeof quote.buyAmountAfterFeesCryptoBaseUnit === 'string' &&
     isRestorableAsset(quote.sellAsset) &&
     isRestorableAsset(quote.buyAsset) &&
-    typeof candidate.refundAddress === 'string' &&
+    typeof candidate?.refundAddress === 'string' &&
     typeof candidate.receiveAddress === 'string'
   )
 }
@@ -52,7 +56,6 @@ export const savePendingDeposit = (deposit: PendingDeposit): void => {
   }
 }
 
-// Only the pre-deposit window is recoverable: the address can't be recreated and is needed to pay
 export const loadPendingDeposit = (now: number): PendingDeposit | undefined => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -60,7 +63,15 @@ export const loadPendingDeposit = (now: number): PendingDeposit | undefined => {
 
     const parsed: unknown = JSON.parse(raw)
 
-    if (!isPendingDeposit(parsed) || parsed.quote.expiresAt <= now) {
+    const isWorthRestoring =
+      isPendingDeposit(parsed) &&
+      shouldKeepTrackingDeposit({
+        expiresAt: parsed.quote.expiresAt,
+        hasDetectedDeposit: !!parsed.txHash,
+        now,
+      })
+
+    if (!isWorthRestoring) {
       clearPendingDeposit()
       return
     }

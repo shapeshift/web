@@ -17,6 +17,7 @@ const makeDeposit = (expiresAt: number) => ({
   receiveAddress: '0xreceive',
   sellAmountBaseUnit: '10000000',
   buyAmountBaseUnit: undefined,
+  txHash: undefined,
 })
 
 describe('pendingDeposit', () => {
@@ -31,10 +32,22 @@ describe('pendingDeposit', () => {
     expect(loadPendingDeposit(5_000)?.sellAmountBaseUnit).toBe('10000000')
   })
 
-  it('drops an expired deposit', () => {
+  it('keeps a just-expired deposit, which the provider may still credit', () => {
     savePendingDeposit(makeDeposit(10_000))
 
-    expect(loadPendingDeposit(10_001)).toBeUndefined()
+    expect(loadPendingDeposit(10_001)).not.toBeUndefined()
+  })
+
+  it('drops one past the window the api can still resolve', () => {
+    savePendingDeposit(makeDeposit(10_000))
+
+    expect(loadPendingDeposit(10_000 + 60 * 60 * 1000 + 1)).toBeUndefined()
+  })
+
+  it('keeps a funded deposit however long settlement takes', () => {
+    savePendingDeposit({ ...makeDeposit(10_000), txHash: '0xdead' })
+
+    expect(loadPendingDeposit(10_000 + 24 * 60 * 60 * 1000)?.txHash).toBe('0xdead')
   })
 
   it('forgets a cleared deposit', () => {
@@ -51,6 +64,7 @@ describe('pendingDeposit', () => {
       receiveAddress: '0xreceive',
       sellAmountBaseUnit: '10000000',
       buyAmountBaseUnit: undefined,
+      txHash: undefined,
     })
 
     expect(loadPendingDeposit(5_000)).toBeUndefined()

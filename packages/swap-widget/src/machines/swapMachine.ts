@@ -74,6 +74,8 @@ export const swapMachine = setup({
       const { quote } = event as { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
       return context.isDepositFlow && !quote?.depositAddress
     },
+    isRestoredDepositFunded: ({ event }) =>
+      !!(event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>).txHash,
     canRetry: ({ context }) => guardFns.canRetry(context),
     isQuoteError: ({ context }) => context.errorSource === 'QUOTE_ERROR',
     isApprovalError: ({ context }) => context.errorSource === 'APPROVAL_ERROR',
@@ -178,13 +180,14 @@ export const swapMachine = setup({
       errorSource: 'QUOTE_ERROR' as const,
     })),
     assignRestoredDeposit: assign(({ event }) => {
-      const { quote, sendAddress, receiveAddress, sellAmountBaseUnit, buyAmountBaseUnit } =
+      const { quote, sendAddress, receiveAddress, sellAmountBaseUnit, buyAmountBaseUnit, txHash } =
         event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>
       const { sellAsset, buyAsset } = quote
       return {
         quote,
         sendAddress,
         receiveAddress,
+        txHash: txHash ?? null,
         isDepositFlow: true,
         sellAsset,
         buyAsset,
@@ -292,7 +295,15 @@ export const swapMachine = setup({
         SET_SEND_ADDRESS: { actions: 'assignSendAddress' },
         SET_RECEIVE_ADDRESS: { actions: 'assignReceiveAddress' },
         UPDATE_CHAIN_INFO: { actions: 'assignChainInfo' },
-        RESTORE_DEPOSIT: { target: 'awaiting_deposit', actions: 'assignRestoredDeposit' },
+        RESTORE_DEPOSIT: [
+          {
+            // Already funded before the reload, so rejoin settlement rather than ask again
+            target: 'polling_status',
+            guard: 'isRestoredDepositFunded',
+            actions: 'assignRestoredDeposit',
+          },
+          { target: 'awaiting_deposit', actions: 'assignRestoredDeposit' },
+        ],
         FETCH_QUOTE: {
           target: 'quoting',
           guard: 'hasValidInput',

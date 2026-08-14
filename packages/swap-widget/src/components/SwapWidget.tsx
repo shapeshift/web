@@ -455,7 +455,7 @@ const SwapWidgetCore = ({
       amountBaseUnit: defaultBuyAmountCryptoBaseUnit,
     })
 
-    // Restored last so the default assets above can't clobber the quoted ones
+    // After the defaults above, which would otherwise overwrite the quote's assets and amounts
     const pending = loadPendingDeposit(Date.now())
     if (pending) {
       actorRef.send({
@@ -469,6 +469,7 @@ const SwapWidgetCore = ({
       setCustomRefundAddress(pending.refundAddress)
       setCustomReceiveAddress(pending.receiveAddress)
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
   }, [actorRef])
 

@@ -55,6 +55,21 @@ const buildSolanaUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentU
   return `solana:${address}?amount=${amount}`
 }
 
+// ton://transfer puts the address in the path and takes nanocoins
+const buildTonUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriArgs): string => {
+  if (!amountCryptoPrecision) return address
+
+  // The amount is nanocoins of TON itself, so a jetton would be read as a native transfer
+  if (fromAssetId(asset.assetId).assetNamespace !== ASSET_NAMESPACE.slip44) return address
+
+  const amount = BigAmount.fromPrecision({
+    value: amountCryptoPrecision,
+    precision: asset.precision,
+  }).toBaseUnit()
+
+  return `ton://transfer/${address}?amount=${amount}`
+}
+
 // BIP-21 takes decimal coin units
 const buildBip21Uri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriArgs): string => {
   const scheme = CHAIN_ID_TO_URN_SCHEME[asset.chainId]
@@ -76,6 +91,8 @@ export const buildPaymentUri = (args: BuildPaymentUriArgs): string => {
       return buildEvmUri(args)
     case CHAIN_NAMESPACE.Solana:
       return buildSolanaUri(args)
+    case CHAIN_NAMESPACE.Ton:
+      return buildTonUri(args)
     default:
       return args.address
   }

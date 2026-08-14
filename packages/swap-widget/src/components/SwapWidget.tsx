@@ -374,18 +374,23 @@ const SwapWidgetCore = ({
   }, [buyChainType, evmStatus, utxoStatus, solanaStatus])
 
   const addressForChain = useCallback(
-    (chainType: ReturnType<typeof getChainType>): string | undefined => {
-      if (chainType === 'evm') return evm.address
-      if (chainType === 'utxo') return bitcoin.address
-      if (chainType === 'solana') return solana.address
-      return undefined
+    (chainType: ReturnType<typeof getChainType>, chainId: string): string | undefined => {
+      const address = (() => {
+        if (chainType === 'evm') return evm.address
+        if (chainType === 'utxo') return bitcoin.address
+        if (chainType === 'solana') return solana.address
+        return undefined
+      })()
+
+      // The utxo adapter holds a bitcoin address only, so it can't serve a doge, ltc or bch swap
+      return address && validateAddress(address, chainId).valid ? address : undefined
     },
     [evm.address, bitcoin.address, solana.address],
   )
 
   const walletSendAddress = useMemo(
-    () => addressForChain(sellChainType),
-    [addressForChain, sellChainType],
+    () => addressForChain(sellChainType, sellChainId),
+    [addressForChain, sellChainType, sellChainId],
   )
 
   const sendAddress = useMemo(
@@ -399,8 +404,8 @@ const SwapWidgetCore = ({
   )
 
   const walletReceiveAddress = useMemo(
-    () => addressForChain(buyChainType),
-    [addressForChain, buyChainType],
+    () => addressForChain(buyChainType, buyChainId),
+    [addressForChain, buyChainType, buyChainId],
   )
 
   const receiveAddress = useMemo(

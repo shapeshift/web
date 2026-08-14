@@ -20,6 +20,8 @@ export type SwapMachineContext = {
   selectedRate: TradeRate | null
   quote: QuoteResponse | null
   txHash: string | null
+  // When the provider first reported the deposit, which is when settlement tracking starts
+  depositObservedAt: number | null
   approvalTxHash: string | null
   error: string | null
   errorSource: ErrorSource | null
@@ -50,7 +52,7 @@ export type SwapMachineEvent =
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }
   | { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }
-  | { type: 'DEPOSIT_DETECTED'; txHash: string }
+  | { type: 'DEPOSIT_DETECTED'; txHash: string; observedAt: number }
   | { type: 'DEPOSIT_EXPIRED' }
   | { type: 'DEPOSIT_TRACKING_TIMEOUT' }
   | {
@@ -61,6 +63,7 @@ export type SwapMachineEvent =
       sellAmountBaseUnit: string | undefined
       buyAmountBaseUnit: string | undefined
       txHash: string | undefined
+      depositObservedAt: number | undefined
     }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }

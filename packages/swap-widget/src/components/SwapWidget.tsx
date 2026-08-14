@@ -118,10 +118,10 @@ const SwapWidgetContent = ({
   const hasSavedDepositRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()
-    const { quote, sendAddress, receiveAddress, isDepositFlow, txHash } = snap.context
+    const { quote, sendAddress, receiveAddress, isDepositFlow, txHash, depositObservedAt } =
+      snap.context
 
-    // Held for as long as the deposit is being tracked, not just while it is owed - a reload
-    // mid-settlement would otherwise leave the user with no sign of their swap
+    // Held for as long as the deposit is tracked, so a reload mid-settlement keeps the swap
     const isTrackingDeposit =
       isDepositFlow &&
       (snap.matches('awaiting_deposit') ||
@@ -136,6 +136,7 @@ const SwapWidgetContent = ({
         sellAmountBaseUnit: snap.context.sellAmountBaseUnit,
         buyAmountBaseUnit: snap.context.buyAmountBaseUnit,
         txHash: txHash ?? undefined,
+        depositObservedAt: depositObservedAt ?? undefined,
       })
       hasSavedDepositRef.current = true
       return
@@ -469,6 +470,7 @@ const SwapWidgetCore = ({
         sellAmountBaseUnit: pending.sellAmountBaseUnit,
         buyAmountBaseUnit: pending.buyAmountBaseUnit,
         txHash: pending.txHash,
+        depositObservedAt: pending.depositObservedAt,
       })
       setCustomRefundAddress(pending.refundAddress)
       setCustomReceiveAddress(pending.receiveAddress)

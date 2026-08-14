@@ -9,8 +9,6 @@ type UseSwapCallbacksParams = {
   refetchBuyBalance?: () => void
 }
 
-// Keyed on the terminal states rather than on how the swap was watched, so a deposit reports the
-// same way a signed swap does
 export const useSwapCallbacks = ({
   onSwapSuccess,
   onSwapError,
@@ -24,10 +22,12 @@ export const useSwapCallbacks = ({
   const completionRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()
+
     if (!snap.matches('complete')) {
       completionRef.current = false
       return
     }
+
     if (completionRef.current) return
     completionRef.current = true
 
@@ -43,10 +43,12 @@ export const useSwapCallbacks = ({
   const errorRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()
+
     if (!snap.matches('error')) {
       errorRef.current = false
       return
     }
+
     if (errorRef.current) return
     errorRef.current = true
 

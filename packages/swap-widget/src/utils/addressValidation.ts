@@ -159,14 +159,14 @@ export const isValidTonAddress = (address: string): boolean => {
 
 export const isValidSuiAddress = (address: string): boolean => /^0x[0-9a-fA-F]{64}$/.test(address)
 
-// Addresses are field elements, so anything at or above the STARK prime cannot be one
-const STARKNET_FIELD_PRIME = 2n ** 251n + 17n * 2n ** 192n + 1n
+// Contract addresses are bounded well below the felt maximum
+const STARKNET_ADDRESS_BOUND = 2n ** 251n - 256n
 
 export const isValidStarknetAddress = (address: string): boolean => {
   if (!/^0x[0-9a-fA-F]{1,64}$/.test(address)) return false
 
   const value = BigInt(address)
-  return value > 0n && value < STARKNET_FIELD_PRIME
+  return value > 0n && value < STARKNET_ADDRESS_BOUND
 }
 
 // Either an implicit account (a 64-char hex public key) or a named one

@@ -18,6 +18,8 @@ export type StoredQuote = {
   createdAt: number
   expiresAt: number
   metadata: SwapMetadata
+  // Set only when this quote is payable externally - memo-bound routes get none
+  depositAddress?: string
   txHash?: string
   registeredAt?: number
   status: 'pending' | 'submitted' | 'confirmed' | 'failed'

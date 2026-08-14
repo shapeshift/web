@@ -22,8 +22,8 @@ describe('resolveDepositStatusEvent', () => {
     })
   })
 
-  it('confirms the swap even if the deposit was never separately observed', () => {
-    expect(resolveDepositStatusEvent({ status: 'confirmed', txHash: '0xdeposit' }, false)).toEqual({
+  it('confirms a swap whose deposit the provider never reported a hash for', () => {
+    expect(resolveDepositStatusEvent({ status: 'confirmed' }, false)).toEqual({
       type: 'STATUS_CONFIRMED',
     })
   })
@@ -74,5 +74,19 @@ describe('shouldKeepTrackingDeposit', () => {
         now: expiresAt + hour * 24,
       }),
     ).toBe(true)
+  })
+})
+
+describe('a deposit that confirms within one poll', () => {
+  it('reports detection first, since awaiting_deposit cannot handle a terminal status', () => {
+    expect(
+      resolveDepositStatusEvent({ status: 'confirmed', txHash: '0xdead' }, false),
+    ).toEqual({ type: 'DEPOSIT_DETECTED', txHash: '0xdead' })
+  })
+
+  it('confirms on the next poll, once the deposit is known', () => {
+    expect(resolveDepositStatusEvent({ status: 'confirmed', txHash: '0xdead' }, true)).toEqual({
+      type: 'STATUS_CONFIRMED',
+    })
   })
 })

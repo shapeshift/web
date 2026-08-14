@@ -214,6 +214,8 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    const depositAddress = getDepositAddress(step, validSwapperName)
+
     quoteStore.set(quoteId, {
       ...baseQuote,
       sellAssetId: sellAsset.assetId,
@@ -226,6 +228,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       expiresAt: quote.deadline + QuoteStore.BIND_GRACE_MS,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
+      depositAddress,
     })
 
     const response: QuoteResponse = {
@@ -238,7 +241,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       steps: quote.steps.map(transformQuoteStep),
       approval,
       expiresAt: quote.deadline,
-      depositAddress: getDepositAddress(step, validSwapperName),
+      depositAddress,
     }
 
     res.json(response)

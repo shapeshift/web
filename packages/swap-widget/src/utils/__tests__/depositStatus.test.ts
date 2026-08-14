@@ -85,9 +85,10 @@ describe('shouldKeepTrackingDeposit', () => {
 
 describe('a deposit that confirms within one poll', () => {
   it('reports detection first, since awaiting_deposit cannot handle a terminal status', () => {
-    expect(
-      resolveDepositStatusEvent({ status: 'confirmed', txHash: '0xdead' }, false),
-    ).toEqual({ type: 'DEPOSIT_DETECTED', txHash: '0xdead' })
+    expect(resolveDepositStatusEvent({ status: 'confirmed', txHash: '0xdead' }, false)).toEqual({
+      type: 'DEPOSIT_DETECTED',
+      txHash: '0xdead',
+    })
   })
 
   it('confirms on the next poll, once the deposit is known', () => {

@@ -12,9 +12,10 @@ export type PendingDeposit = {
   // Whichever side drove the quote, so a re-quote after expiry asks for the same thing
   sellAmountBaseUnit: string | undefined
   buyAmountBaseUnit: string | undefined
-  // Set once the provider reports the deposit, so a restore rejoins settlement rather than
-  // showing the deposit screen again for a swap that is already funded
+  // Set once the provider reports the deposit, so a restore rejoins settlement rather than re-asking
   txHash: string | undefined
+  // Persisted with it, so a reload resumes the settlement window instead of restarting it
+  depositObservedAt: number | undefined
 }
 
 const isRestorableAsset = (value: unknown): boolean => {
@@ -22,8 +23,7 @@ const isRestorableAsset = (value: unknown): boolean => {
   return typeof asset?.chainId === 'string' && typeof asset.precision === 'number'
 }
 
-// Restoration and the deposit screen dereference all of these, so a hand-edited or half-written
-// entry has to be rejected rather than crash the widget on mount
+// Restoration dereferences all of these, so a half-written entry has to be rejected, not crash
 const isPendingDeposit = (value: unknown): value is PendingDeposit => {
   const candidate = value as PendingDeposit | null
   const quote = candidate?.quote
@@ -36,7 +36,9 @@ const isPendingDeposit = (value: unknown): value is PendingDeposit => {
     isRestorableAsset(quote.sellAsset) &&
     isRestorableAsset(quote.buyAsset) &&
     typeof candidate?.refundAddress === 'string' &&
-    typeof candidate.receiveAddress === 'string'
+    typeof candidate.receiveAddress === 'string' &&
+    // A funded deposit without its observation time has no settlement window to resume
+    (!candidate.txHash || typeof candidate.depositObservedAt === 'number')
   )
 }
 
@@ -66,8 +68,8 @@ export const loadPendingDeposit = (now: number): PendingDeposit | undefined => {
     const isRestorable =
       isPendingDeposit(parsed) &&
       shouldKeepTrackingDeposit({
-        expiresAt: parsed.quote.expiresAt,
-        hasDetectedDeposit: !!parsed.txHash,
+        quoteDeadline: parsed.quote.expiresAt,
+        depositObservedAt: parsed.depositObservedAt,
         now,
       })
 

@@ -8,33 +8,32 @@ export type DepositStatusResponse = {
 export const resolveDepositStatusEvent = (
   response: DepositStatusResponse,
   hasDetectedDeposit: boolean,
+  observedAt: number,
 ): SwapMachineEvent | undefined => {
-  // Detection comes first even on a terminal response: awaiting_deposit has no STATUS_CONFIRMED
-  // handler, so a deposit that lands and confirms inside one poll would strand the screen
   if (!hasDetectedDeposit && response.txHash) {
-    return { type: 'DEPOSIT_DETECTED', txHash: response.txHash }
+    return { type: 'DEPOSIT_DETECTED', txHash: response.txHash, observedAt }
   }
   if (response.status === 'failed') return { type: 'STATUS_FAILED', error: 'Swap failed' }
   if (response.status === 'confirmed') return { type: 'STATUS_CONFIRMED' }
 }
 
-// The api keeps an unfunded quote for an hour past its deadline, so a deposit that never arrived
-// has nothing left to report after that
-const UNFUNDED_TRACKING_MS = 60 * 60 * 1000
+// The api keeps an unfunded quote this long past its deadline, and a late deposit still counts
+const UNFUNDED_DEPOSIT_TRACKING_MS = 60 * 60 * 1000
 
-// Settlement can outlast that, but not indefinitely: the api drops a submitted quote an hour after
-// binding its hash, so polling beyond this can never resolve either way
-const SETTLEMENT_TRACKING_MS = 2 * 60 * 60 * 1000
+// Timed from the deposit - the api drops the quote this long after binding its hash
+const SETTLEMENT_TRACKING_MS = 60 * 60 * 1000
 
 type ShouldKeepTrackingArgs = {
-  expiresAt: number
-  hasDetectedDeposit: boolean
+  quoteDeadline: number
+  depositObservedAt: number | undefined
   now: number
 }
 
 export const shouldKeepTrackingDeposit = ({
-  expiresAt,
-  hasDetectedDeposit,
+  quoteDeadline,
+  depositObservedAt,
   now,
 }: ShouldKeepTrackingArgs): boolean =>
-  now <= expiresAt + (hasDetectedDeposit ? SETTLEMENT_TRACKING_MS : UNFUNDED_TRACKING_MS)
+  depositObservedAt
+    ? now <= depositObservedAt + SETTLEMENT_TRACKING_MS
+    : now <= quoteDeadline + UNFUNDED_DEPOSIT_TRACKING_MS

@@ -37,6 +37,7 @@ export const createInitialContext = (input?: {
     selectedRate: null,
     quote: null,
     txHash: null,
+    depositObservedAt: null,
     approvalTxHash: null,
     error: null,
     errorSource: null,
@@ -172,9 +173,13 @@ export const swapMachine = setup({
       isDepositFlow:
         (event as { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }).isDepositFlow === true,
     })),
-    assignDepositTxHash: assign(({ event }) => ({
-      txHash: (event as { type: 'DEPOSIT_DETECTED'; txHash: string }).txHash,
-    })),
+    assignDepositTxHash: assign(({ event }) => {
+      const { txHash, observedAt } = event as Extract<
+        SwapMachineEvent,
+        { type: 'DEPOSIT_DETECTED' }
+      >
+      return { txHash, depositObservedAt: observedAt }
+    }),
     assignDepositUnavailableError: assign(() => ({
       error: 'This route needs a connected wallet',
       errorSource: 'QUOTE_ERROR' as const,
@@ -184,14 +189,22 @@ export const swapMachine = setup({
       errorSource: 'TRACKING_TIMEOUT' as const,
     })),
     assignRestoredDeposit: assign(({ event }) => {
-      const { quote, sendAddress, receiveAddress, sellAmountBaseUnit, buyAmountBaseUnit, txHash } =
-        event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>
+      const {
+        quote,
+        sendAddress,
+        receiveAddress,
+        sellAmountBaseUnit,
+        buyAmountBaseUnit,
+        txHash,
+        depositObservedAt,
+      } = event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>
       const { sellAsset, buyAsset } = quote
       return {
         quote,
         sendAddress,
         receiveAddress,
         txHash: txHash ?? null,
+        depositObservedAt: depositObservedAt ?? null,
         isDepositFlow: true,
         sellAsset,
         buyAsset,
@@ -260,11 +273,13 @@ export const swapMachine = setup({
       errorSource: null,
       // Every retry re-quotes or re-signs, so a carried-over hash would mark the next deposit funded
       txHash: null,
+      depositObservedAt: null,
       approvalTxHash: null,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
       txHash: null,
+      depositObservedAt: null,
       approvalTxHash: null,
       error: null,
       errorSource: null,

@@ -35,7 +35,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
     pollingRef.current = true
 
     let stopped = false
-    let hasDetectedDeposit = !!snap.context.txHash
+    let depositObservedAt = snap.context.depositObservedAt ?? undefined
 
     const poll = async () => {
       if (stopped) return
@@ -50,9 +50,9 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
         const response = (await apiClient.getSwapStatus({ quoteId })) as DepositStatusResponse
         if (stopped) return
 
-        const event = resolveDepositStatusEvent(response, hasDetectedDeposit)
+        const event = resolveDepositStatusEvent(response, !!depositObservedAt, Date.now())
 
-        if (event?.type === 'DEPOSIT_DETECTED') hasDetectedDeposit = true
+        if (event?.type === 'DEPOSIT_DETECTED') depositObservedAt = event.observedAt
         if (event) actorRef.send(event)
         if (event?.type === 'STATUS_CONFIRMED' || event?.type === 'STATUS_FAILED') return
       } catch {
@@ -63,8 +63,8 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
       if (
         quote &&
         !shouldKeepTrackingDeposit({
-          expiresAt: quote.expiresAt,
-          hasDetectedDeposit,
+          quoteDeadline: quote.expiresAt,
+          depositObservedAt,
           now: Date.now(),
         })
       ) {

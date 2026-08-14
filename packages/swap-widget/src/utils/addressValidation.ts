@@ -20,10 +20,13 @@ const VERSION_BYTES = {
   dogecoinP2SH: 0x16,
 } as const
 
+// Every base58check address here is a version prefix followed by a hash160
+const HASH160_LENGTH = 20
+
 const isValidBase58Check = (address: string, allowedVersionBytes: number[]): boolean => {
   try {
     const decoded = bs58check.decode(address)
-    return allowedVersionBytes.includes(decoded[0])
+    return decoded.length === 1 + HASH160_LENGTH && allowedVersionBytes.includes(decoded[0])
   } catch {
     return false
   }
@@ -93,6 +96,8 @@ const ZCASH_VERSION_BYTES = {
 export const isValidZcashAddress = (address: string): boolean => {
   try {
     const decoded = bs58check.decode(address)
+    if (decoded.length !== 2 + HASH160_LENGTH) return false
+
     return Object.values(ZCASH_VERSION_BYTES).some(
       ([first, second]) => decoded[0] === first && decoded[1] === second,
     )
@@ -104,7 +109,8 @@ export const isValidZcashAddress = (address: string): boolean => {
 export const isValidTronAddress = (address: string): boolean => {
   if (!address.startsWith('T')) return false
   try {
-    return bs58check.decode(address)[0] === 0x41
+    const decoded = bs58check.decode(address)
+    return decoded.length === 1 + HASH160_LENGTH && decoded[0] === 0x41
   } catch {
     return false
   }

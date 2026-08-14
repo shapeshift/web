@@ -114,7 +114,9 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
       {isError && (
         <>
           <div
-            className={`ssw-step-icon-circle ${hasStoppedTracking ? 'ssw-ic-accent' : 'ssw-ic-error'}`}
+            className={`ssw-step-icon-circle ${
+              hasStoppedTracking ? 'ssw-ic-accent' : 'ssw-ic-error'
+            }`}
           >
             <svg
               width='32'
@@ -148,7 +150,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               onClick={() => send({ type: 'RESET' })}
               type='button'
             >
-              Start Over
+              New Swap
             </button>
           </div>
         </>

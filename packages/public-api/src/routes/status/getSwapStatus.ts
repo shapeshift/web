@@ -139,13 +139,18 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         return
       }
 
-      const swapServiceStatus = statusResult.data
+      const {
+        sellTxHash,
+        buyTxHash,
+        status: serviceStatus,
+        isAffiliateVerified,
+      } = statusResult.data
 
-      // A deposit swapper's sell tx hash arrives from the provider rather than the client
+      // An externally paid swap's sell tx hash arrives from the provider, not from the client
       let trackedQuote = storedQuote
 
-      if (!trackedQuote.txHash && swapServiceStatus.sellTxHash) {
-        trackedQuote = bindSellTxHash(trackedQuote, swapServiceStatus.sellTxHash, Date.now())
+      if (!trackedQuote.txHash && sellTxHash) {
+        trackedQuote = bindSellTxHash(trackedQuote, sellTxHash, Date.now())
         quoteStore.set(quoteId, trackedQuote)
         response.txHash = trackedQuote.txHash
         response.registeredAt = trackedQuote.registeredAt
@@ -153,9 +158,9 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       }
 
       const status =
-        swapServiceStatus.status === 'SUCCESS'
+        serviceStatus === 'SUCCESS'
           ? 'confirmed'
-          : swapServiceStatus.status === 'FAILED'
+          : serviceStatus === 'FAILED'
           ? 'failed'
           : trackedQuote.status
 
@@ -164,9 +169,9 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         quoteStore.set(quoteId, { ...trackedQuote, status })
       }
 
-      if (swapServiceStatus.buyTxHash) response.buyTxHash = swapServiceStatus.buyTxHash
-      if (swapServiceStatus.isAffiliateVerified !== null) {
-        response.isAffiliateVerified = swapServiceStatus.isAffiliateVerified
+      if (buyTxHash) response.buyTxHash = buyTxHash
+      if (isAffiliateVerified !== null) {
+        response.isAffiliateVerified = isAffiliateVerified
       }
 
       res.json(response)

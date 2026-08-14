@@ -20,7 +20,6 @@ export type SwapMachineContext = {
   errorSource: ErrorSource | null
   retryCount: number
   chainType: 'evm' | 'utxo' | 'solana' | 'cosmos' | 'other'
-  // Set when the swap is paid by transferring to a deposit address rather than signed in-widget
   isDepositFlow: boolean
   slippage: string
   // Named for the api field it fills - on a deposit swap it's the typed refund address

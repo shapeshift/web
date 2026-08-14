@@ -11,6 +11,7 @@ import {
   isValidDogecoinAddress,
   isValidLitecoinAddress,
   isValidStarknetAddress,
+  isValidTonAddress,
   isValidZcashAddress,
   validateAddress,
 } from '../addressValidation'
@@ -368,10 +369,7 @@ describe('getAddressFormatHint', () => {
   })
 })
 
-const multiByteBase58CheckAddr = (
-  versionBytes: number[],
-  hash: Uint8Array = HASH160,
-): string => {
+const multiByteBase58CheckAddr = (versionBytes: number[], hash: Uint8Array = HASH160): string => {
   const payload = new Uint8Array(versionBytes.length + hash.length)
   payload.set(versionBytes, 0)
   payload.set(hash, versionBytes.length)
@@ -415,9 +413,9 @@ describe('validateAddress - deposit flow chains', () => {
   })
 
   it('rejects an evm address on tron', () => {
-    expect(
-      validateAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', tronChainId).valid,
-    ).toBe(false)
+    expect(validateAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', tronChainId).valid).toBe(
+      false,
+    )
   })
 
   it('accepts a sui address', () => {
@@ -522,5 +520,36 @@ describe('isValidStarknetAddress', () => {
 
   it('rejects a value at or above the stark prime', () => {
     expect(isValidStarknetAddress(`0x${'f'.repeat(64)}`)).toBe(false)
+  })
+})
+
+describe('isValidTonAddress', () => {
+  const BOUNCEABLE = 'EQBCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQmXi'
+  const NON_BOUNCEABLE = 'UQBCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQjgn'
+  const TESTNET = 'kQBCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQt5o'
+  const BAD_CRC = 'EQBCQkJCQkACQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQmXi'
+
+  it('accepts bounceable and non-bounceable mainnet addresses', () => {
+    expect(isValidTonAddress(BOUNCEABLE)).toBe(true)
+    expect(isValidTonAddress(NON_BOUNCEABLE)).toBe(true)
+  })
+
+  it('accepts the raw workchain form', () => {
+    expect(isValidTonAddress(`0:${'42'.repeat(32)}`)).toBe(true)
+    expect(isValidTonAddress(`-1:${'42'.repeat(32)}`)).toBe(true)
+  })
+
+  it('rejects a testnet address', () => {
+    expect(isValidTonAddress(TESTNET)).toBe(false)
+  })
+
+  it('rejects a corrupted address the checksum catches', () => {
+    expect(isValidTonAddress(BAD_CRC)).toBe(false)
+  })
+
+  it('rejects addresses of the wrong shape', () => {
+    expect(isValidTonAddress('')).toBe(false)
+    expect(isValidTonAddress('EQBCQkJC')).toBe(false)
+    expect(isValidTonAddress('0x1234')).toBe(false)
   })
 })

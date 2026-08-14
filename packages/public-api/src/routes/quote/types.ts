@@ -143,14 +143,11 @@ export const QuoteRequestSchema = z
       .string()
       .min(1)
       .openapi({ example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' }),
-    sendAddress: z
-      .string()
-      .min(1)
-      .openapi({
-        example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-        description:
-          "The user's address on the sell chain: the swap is funded from it, and refunds return to it. When the quote carries a depositAddress nothing is sent from it - the deposit can arrive from any wallet - so it only receives refunds, and must still be an address the user controls. For UTXO chains, use the account's first receive address (m/84'/0'/0'/0/0).",
-      }),
+    sendAddress: z.string().min(1).openapi({
+      example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      description:
+        "The user's address on the sell chain: the swap is funded from it, and refunds return to it. When the quote carries a depositAddress nothing is sent from it - the deposit can arrive from any wallet - so it only receives refunds, and must still be an address the user controls. For UTXO chains, use the account's first receive address (m/84'/0'/0'/0/0).",
+    }),
     swapperName: z.string().min(1).openapi({ example: 'Relay' }),
     slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
     accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),

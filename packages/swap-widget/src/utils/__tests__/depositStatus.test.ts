@@ -58,7 +58,11 @@ describe('shouldKeepTrackingDeposit', () => {
 
   it('gives up once the api can no longer resolve the quote', () => {
     expect(
-      shouldKeepTrackingDeposit({ expiresAt, hasDetectedDeposit: false, now: expiresAt + hour + 1 }),
+      shouldKeepTrackingDeposit({
+        expiresAt,
+        hasDetectedDeposit: false,
+        now: expiresAt + hour + 1,
+      }),
     ).toBe(false)
   })
 

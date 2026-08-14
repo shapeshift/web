@@ -55,15 +55,17 @@ describe('buildPaymentUri', () => {
   })
 
   it('targets the contract and moves the destination into the call for an erc20', () => {
-    expect(buildPaymentUri({ address: EVM_ADDRESS, asset: USDC, amountCryptoPrecision: '1.5' })).toBe(
+    expect(
+      buildPaymentUri({ address: EVM_ADDRESS, asset: USDC, amountCryptoPrecision: '1.5' }),
+    ).toBe(
       `ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48@1/transfer?address=${EVM_ADDRESS}&uint256=1.5e6`,
     )
   })
 
   it('builds a Solana Pay uri with ui units', () => {
-    expect(buildPaymentUri({ address: SOL_ADDRESS, asset: SOL, amountCryptoPrecision: '1.5' })).toBe(
-      `solana:${SOL_ADDRESS}?amount=1.5`,
-    )
+    expect(
+      buildPaymentUri({ address: SOL_ADDRESS, asset: SOL, amountCryptoPrecision: '1.5' }),
+    ).toBe(`solana:${SOL_ADDRESS}?amount=1.5`)
   })
 
   it('uses the cosmos sdk scheme', () => {

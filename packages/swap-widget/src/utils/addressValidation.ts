@@ -122,6 +122,41 @@ export const isValidTronAddress = (address: string): boolean => {
   }
 }
 
+// TON user-friendly addresses are 36 base64url bytes: tag, workchain, 32-byte hash, then a crc16
+const crc16Xmodem = (data: Uint8Array): number => {
+  let crc = 0
+  for (const byte of data) {
+    crc ^= byte << 8
+    for (let bit = 0; bit < 8; bit++) {
+      crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff
+    }
+  }
+  return crc
+}
+
+const TON_TAG_BOUNCEABLE = 0x11
+const TON_TAG_NON_BOUNCEABLE = 0x51
+
+export const isValidTonAddress = (address: string): boolean => {
+  // Raw form, workchain 0 (basechain) or -1 (masterchain)
+  if (/^(0|-1):[0-9a-fA-F]{64}$/.test(address)) return true
+
+  if (!/^[A-Za-z0-9_-]{48}$/.test(address)) return false
+
+  try {
+    const base64 = address.replace(/-/g, '+').replace(/_/g, '/')
+    const bytes = Uint8Array.from(atob(base64), character => character.charCodeAt(0))
+    if (bytes.length !== 36) return false
+
+    // The testnet bit is deliberately not masked off - a testnet address is not a valid destination
+    if (bytes[0] !== TON_TAG_BOUNCEABLE && bytes[0] !== TON_TAG_NON_BOUNCEABLE) return false
+
+    return crc16Xmodem(bytes.subarray(0, 34)) === ((bytes[34] << 8) | bytes[35])
+  } catch {
+    return false
+  }
+}
+
 export const isValidSuiAddress = (address: string): boolean => /^0x[0-9a-fA-F]{64}$/.test(address)
 
 // Addresses are field elements, so anything at or above the STARK prime cannot be one
@@ -213,6 +248,8 @@ export const validateAddress = (
       return isValidTronAddress(address) ? { valid: true } : invalid('Tron')
     case CHAIN_NAMESPACE.Sui:
       return isValidSuiAddress(address) ? { valid: true } : invalid('Sui')
+    case CHAIN_NAMESPACE.Ton:
+      return isValidTonAddress(address) ? { valid: true } : invalid('TON')
     case CHAIN_NAMESPACE.Near:
       return isValidNearAddress(address) ? { valid: true } : invalid('NEAR')
     case CHAIN_NAMESPACE.Starknet:
@@ -238,6 +275,8 @@ export const getAddressFormatHint = (chainId: ChainId): string => {
       return 'Enter Solana address'
     case CHAIN_NAMESPACE.Tron:
       return 'T...'
+    case CHAIN_NAMESPACE.Ton:
+      return 'UQ... or EQ...'
     case CHAIN_NAMESPACE.Sui:
     case CHAIN_NAMESPACE.Starknet:
       return '0x...'

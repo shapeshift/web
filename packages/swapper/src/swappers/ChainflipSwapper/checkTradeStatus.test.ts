@@ -24,7 +24,11 @@ describe('chainflip checkTradeStatus', () => {
   })
 
   it('reports the deposit tx hash while the swap is still pending', async () => {
-    mockStatus({ state: 'swapping', swapId: '1234', deposit: { transactionReference: '0xdeposit' } })
+    mockStatus({
+      state: 'swapping',
+      swapId: '1234',
+      deposit: { transactionReference: '0xdeposit' },
+    })
 
     const result = await chainflipApi.checkTradeStatus(makeInput())
 

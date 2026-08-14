@@ -170,7 +170,9 @@ export const RefundAddressRow = ({
       {!validation.valid && hasInteracted && validation.error ? (
         <span className='ssw-receive-error'>{validation.error}</span>
       ) : (
-        <span className='ssw-receive-hint'>Your {chainName} address - funds return here if the swap fails</span>
+        <span className='ssw-receive-hint'>
+          Your {chainName} address - funds return here if the swap fails
+        </span>
       )}
     </div>
   )

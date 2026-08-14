@@ -34,11 +34,12 @@ export const useStatusPolling = ({
   const pollingRef = useRef(false)
   useEffect(() => {
     const snap = actorRef.getSnapshot()
-    // A deposit swap has no client-side tx to watch on-chain - useDepositPolling tracks it
+    // useDepositPolling tracks the deposit flow
     if (!snap.matches('polling_status') || snap.context.isDepositFlow) {
       pollingRef.current = false
       return
     }
+
     if (pollingRef.current) return
     pollingRef.current = true
 

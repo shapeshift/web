@@ -1,7 +1,7 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { describe, expect, it } from 'vitest'
 
-import { bindSellTxHash, isDepositAddressSwapper, requiresTxHashToTrack } from './depositAddress'
+import { bindSellTxHash, isExternalPaymentSwapper, requiresTxHashToTrack } from './externalPayment'
 import type { StoredQuote } from './quoteStore'
 
 const makeStoredQuote = (overrides: Partial<StoredQuote>): StoredQuote =>
@@ -24,21 +24,21 @@ const makeStoredQuote = (overrides: Partial<StoredQuote>): StoredQuote =>
     ...overrides,
   }) as StoredQuote
 
-describe('isDepositAddressSwapper', () => {
+describe('isExternalPaymentSwapper', () => {
   it('is true for chainflip', () => {
-    expect(isDepositAddressSwapper(SwapperName.Chainflip)).toBe(true)
+    expect(isExternalPaymentSwapper(SwapperName.Chainflip)).toBe(true)
   })
 
   it('is true for near intents', () => {
-    expect(isDepositAddressSwapper(SwapperName.NearIntents)).toBe(true)
+    expect(isExternalPaymentSwapper(SwapperName.NearIntents)).toBe(true)
   })
 
   it('is false for relay', () => {
-    expect(isDepositAddressSwapper(SwapperName.Relay)).toBe(false)
+    expect(isExternalPaymentSwapper(SwapperName.Relay)).toBe(false)
   })
 
   it('is false for an unknown swapper name', () => {
-    expect(isDepositAddressSwapper('Not A Swapper')).toBe(false)
+    expect(isExternalPaymentSwapper('Not A Swapper')).toBe(false)
   })
 })
 

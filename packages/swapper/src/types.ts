@@ -831,8 +831,8 @@ export type Swapper = {
     callbacks: TonTransactionExecutionProps,
   ) => Promise<string>
 
-  // Execution is a plain transfer to a provider-issued deposit address, so anyone can pay it
-  supportsDepositAddress?: boolean
+  // Paid by transferring to a provider-issued address, so the payer signs outside our app
+  supportsExternalPayment?: boolean
 }
 
 export type SwapperApi = {

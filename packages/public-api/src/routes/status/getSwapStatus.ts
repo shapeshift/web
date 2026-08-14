@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 
 import { env } from '../../env'
-import { bindSellTxHash, requiresTxHashToTrack } from '../../lib/depositAddress'
+import { bindSellTxHash, requiresTxHashToTrack } from '../../lib/externalPayment'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'

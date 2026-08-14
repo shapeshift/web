@@ -16,8 +16,8 @@ export type StoredQuote = {
   affiliateBps: string
   rate: string
   createdAt: number
-  // Not the quote's own deadline, which the client counts down - this is that plus the bind grace
-  trackableUntil: number
+  // What the client counts down, returned to it as expiresAt - retention runs past this
+  quoteDeadline: number
   metadata: SwapMetadata
   // Set only when this quote is payable externally - memo-bound routes get none
   depositAddress?: string
@@ -28,7 +28,7 @@ export type StoredQuote = {
 
 /**
  * In-memory quote store with dual TTL:
- * - unsubmitted: swapper deadline + bind grace (a slow first confirmation must still bind)
+ * - unsubmitted: quote deadline + bind grace (a slow first confirmation must still bind)
  * - submitted: txHash bind time + execution TTL (destination-chain settlement tracking)
  *
  * Automatic sweep of expired entries every 60 seconds.
@@ -58,16 +58,18 @@ export class QuoteStore {
     }
   }
 
+  // How long status can still answer for a quote, which outlives the quote's own deadline
+  private static statusDeadline(quote: StoredQuote): number {
+    return quote.txHash
+      ? (quote.registeredAt ?? quote.createdAt) + QuoteStore.EXECUTION_TTL_MS
+      : quote.quoteDeadline + QuoteStore.BIND_GRACE_MS
+  }
+
   get(quoteId: string): StoredQuote | undefined {
     const quote = this.store.get(quoteId)
     if (!quote) return undefined
 
-    const now = Date.now()
-    const effectiveExpiry = quote.txHash
-      ? (quote.registeredAt ?? quote.createdAt) + QuoteStore.EXECUTION_TTL_MS
-      : quote.trackableUntil
-
-    if (now > effectiveExpiry) {
+    if (Date.now() > QuoteStore.statusDeadline(quote)) {
       this.remove(quoteId, quote)
       return undefined
     }
@@ -118,11 +120,7 @@ export class QuoteStore {
     const now = Date.now()
     let swept = 0
     for (const [id, quote] of this.store) {
-      const effectiveExpiry = quote.txHash
-        ? (quote.registeredAt ?? quote.createdAt) + QuoteStore.EXECUTION_TTL_MS
-        : quote.trackableUntil
-
-      if (now > effectiveExpiry) {
+      if (now > QuoteStore.statusDeadline(quote)) {
         this.remove(id, quote)
         swept++
       }

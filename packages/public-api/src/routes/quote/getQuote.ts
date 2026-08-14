@@ -21,7 +21,7 @@ import {
   MAX_QUOTE_DEADLINE_MS,
 } from '../../constants'
 import { env } from '../../env'
-import { QuoteStore, quoteStore } from '../../lib/quoteStore'
+import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
 import type { ErrorResponse } from '../../types'
@@ -256,7 +256,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerAddress: req.affiliateInfo?.partnerAddress,
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
-      trackableUntil: quote.deadline + QuoteStore.BIND_GRACE_MS,
+      quoteDeadline: quote.deadline,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
       depositAddress,

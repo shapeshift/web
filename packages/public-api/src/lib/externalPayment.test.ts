@@ -43,13 +43,21 @@ describe('isExternalPaymentSwapper', () => {
 })
 
 describe('requiresTxHashToTrack', () => {
-  it('requires a hash for a wallet-signed swapper', () => {
+  it('requires a hash for a wallet-signed quote', () => {
     expect(requiresTxHashToTrack(makeStoredQuote({}))).toBe(true)
   })
 
-  it('does not require a hash for an externally paid swapper', () => {
-    const quote = makeStoredQuote({ swapperName: SwapperName.Chainflip })
+  it('does not require a hash for a quote that issued a deposit address', () => {
+    const quote = makeStoredQuote({
+      swapperName: SwapperName.Chainflip,
+      depositAddress: 'bc1qdeposit',
+    })
     expect(requiresTxHashToTrack(quote)).toBe(false)
+  })
+
+  it('still requires a hash for a memo-bound route on an externally payable swapper', () => {
+    const quote = makeStoredQuote({ swapperName: SwapperName.NearIntents })
+    expect(requiresTxHashToTrack(quote)).toBe(true)
   })
 
   it('does not require a hash once one is already bound', () => {

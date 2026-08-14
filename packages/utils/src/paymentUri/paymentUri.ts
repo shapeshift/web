@@ -1,9 +1,8 @@
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 
 import { BigAmount } from '../bigAmount/bigAmount'
 import { bnOrZero } from '../bignumber/bignumber'
-import { isToken } from '../isToken'
 import { CHAIN_ID_TO_URN_SCHEME } from './constants'
 
 export type BuildPaymentUriArgs = {
@@ -22,15 +21,19 @@ const buildEvmUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriA
 
   if (!amountCryptoPrecision) return `ethereum:${address}${target}`
 
-  const amountCryptoBaseUnit = BigAmount.fromPrecision({
-    value: amountCryptoPrecision,
-    precision: asset.precision,
-  }).toBaseUnit()
-  const amount = toEip681Amount(amountCryptoBaseUnit)
+  const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
 
-  // A token transfer targets the contract, so the destination moves into the call's arguments
-  if (isToken(asset.assetId)) {
-    const { assetReference } = fromAssetId(asset.assetId)
+  // transfer(address,uint256) is erc20's alone - erc721 and erc1155 would encode a call they
+  // don't implement, so they get the address without an amount
+  if (assetNamespace !== ASSET_NAMESPACE.slip44 && assetNamespace !== ASSET_NAMESPACE.erc20) {
+    return `ethereum:${address}${target}`
+  }
+
+  const amount = toEip681Amount(
+    BigAmount.fromPrecision({ value: amountCryptoPrecision, precision: asset.precision }).toBaseUnit(),
+  )
+
+  if (assetNamespace === ASSET_NAMESPACE.erc20) {
     return `ethereum:${assetReference}${target}/transfer?address=${address}&uint256=${amount}`
   }
 
@@ -44,8 +47,8 @@ const buildSolanaUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentU
   const amount = bnOrZero(amountCryptoPrecision).toFixed()
 
   // Decimal ui units, and the recipient stays the native account rather than its ATA
-  if (isToken(asset.assetId)) {
-    const { assetReference } = fromAssetId(asset.assetId)
+  const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
+  if (assetNamespace === ASSET_NAMESPACE.splToken) {
     return `solana:${address}?amount=${amount}&spl-token=${assetReference}`
   }
 

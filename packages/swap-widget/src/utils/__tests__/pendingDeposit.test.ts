@@ -8,6 +8,10 @@ const makeDeposit = (expiresAt: number) => ({
     quoteId: 'quote-1',
     depositAddress: 'bc1qdeposit',
     expiresAt,
+    sellAmountCryptoBaseUnit: '10000000',
+    buyAmountAfterFeesCryptoBaseUnit: '5000',
+    sellAsset: { chainId: 'bip122:x', precision: 8 },
+    buyAsset: { chainId: 'eip155:1', precision: 18 },
   } as unknown as QuoteResponse,
   refundAddress: 'bc1qrefund',
   receiveAddress: '0xreceive',
@@ -72,5 +76,42 @@ describe('countdown across a restore', () => {
 
     expect(restoredAfter45s?.quote.expiresAt).toBe(expiresAt)
     expect((restoredAfter45s?.quote.expiresAt ?? 0) - (quotedAt + 45_000)).toBe(15_000)
+  })
+})
+
+describe('rejecting entries restoration would crash on', () => {
+  const validQuote = {
+    depositAddress: 'bc1qdeposit',
+    expiresAt: 10_000,
+    sellAmountCryptoBaseUnit: '10000000',
+    buyAmountAfterFeesCryptoBaseUnit: '5000',
+    sellAsset: { chainId: 'bip122:x', precision: 8 },
+    buyAsset: { chainId: 'eip155:1', precision: 18 },
+  }
+
+  const save = (quote: unknown) =>
+    localStorage.setItem(
+      'ssw:pendingDeposit',
+      JSON.stringify({ quote, refundAddress: 'bc1qrefund', receiveAddress: '0xreceive' }),
+    )
+
+  it('accepts a complete quote', () => {
+    save(validQuote)
+    expect(loadPendingDeposit(5_000)).not.toBeUndefined()
+  })
+
+  it('rejects a quote missing its assets', () => {
+    save({ ...validQuote, sellAsset: undefined })
+    expect(loadPendingDeposit(5_000)).toBeUndefined()
+  })
+
+  it('rejects an asset without a precision', () => {
+    save({ ...validQuote, buyAsset: { chainId: 'eip155:1' } })
+    expect(loadPendingDeposit(5_000)).toBeUndefined()
+  })
+
+  it('rejects a quote missing its amounts', () => {
+    save({ ...validQuote, sellAmountCryptoBaseUnit: undefined })
+    expect(loadPendingDeposit(5_000)).toBeUndefined()
   })
 })

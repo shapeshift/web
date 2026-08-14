@@ -13,12 +13,24 @@ export type PendingDeposit = {
   buyAmountBaseUnit: string | undefined
 }
 
+const isRestorableAsset = (value: unknown): boolean => {
+  const asset = value as { chainId?: unknown; precision?: unknown } | null
+  return typeof asset?.chainId === 'string' && typeof asset.precision === 'number'
+}
+
+// Restoration and the deposit screen dereference all of these, so a hand-edited or half-written
+// entry has to be rejected rather than crash the widget on mount
 const isPendingDeposit = (value: unknown): value is PendingDeposit => {
   const candidate = value as PendingDeposit | null
+  const quote = candidate?.quote
 
   return (
-    !!candidate?.quote?.depositAddress &&
-    typeof candidate.quote.expiresAt === 'number' &&
+    !!quote?.depositAddress &&
+    typeof quote.expiresAt === 'number' &&
+    typeof quote.sellAmountCryptoBaseUnit === 'string' &&
+    typeof quote.buyAmountAfterFeesCryptoBaseUnit === 'string' &&
+    isRestorableAsset(quote.sellAsset) &&
+    isRestorableAsset(quote.buyAsset) &&
     typeof candidate.refundAddress === 'string' &&
     typeof candidate.receiveAddress === 'string'
   )

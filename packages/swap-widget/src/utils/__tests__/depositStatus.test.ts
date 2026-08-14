@@ -66,14 +66,20 @@ describe('shouldKeepTrackingDeposit', () => {
     ).toBe(false)
   })
 
-  it('follows a detected deposit however long settlement takes', () => {
+  it('follows a detected deposit well past the unfunded window', () => {
+    expect(
+      shouldKeepTrackingDeposit({ expiresAt, hasDetectedDeposit: true, now: expiresAt + hour * 2 }),
+    ).toBe(true)
+  })
+
+  it('gives up on a detected deposit the api can no longer resolve either', () => {
     expect(
       shouldKeepTrackingDeposit({
         expiresAt,
         hasDetectedDeposit: true,
-        now: expiresAt + hour * 24,
+        now: expiresAt + hour * 2 + 1,
       }),
-    ).toBe(true)
+    ).toBe(false)
   })
 })
 

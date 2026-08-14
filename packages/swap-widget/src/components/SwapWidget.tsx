@@ -129,7 +129,7 @@ const SwapWidgetContent = ({
     ) {
       savePendingDeposit({
         quote,
-        sendAddress,
+        refundAddress: sendAddress,
         receiveAddress,
         sellAmountBaseUnit: snap.context.sellAmountBaseUnit,
         buyAmountBaseUnit: snap.context.buyAmountBaseUnit,
@@ -461,12 +461,12 @@ const SwapWidgetCore = ({
       actorRef.send({
         type: 'RESTORE_DEPOSIT',
         quote: pending.quote,
-        sendAddress: pending.sendAddress,
+        sendAddress: pending.refundAddress,
         receiveAddress: pending.receiveAddress,
         sellAmountBaseUnit: pending.sellAmountBaseUnit,
         buyAmountBaseUnit: pending.buyAmountBaseUnit,
       })
-      setCustomRefundAddress(pending.sendAddress)
+      setCustomRefundAddress(pending.refundAddress)
       setCustomReceiveAddress(pending.receiveAddress)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution

@@ -179,6 +179,10 @@ export const swapMachine = setup({
       error: 'This route needs a connected wallet',
       errorSource: 'QUOTE_ERROR' as const,
     })),
+    assignTrackingTimeout: assign(() => ({
+      error: 'Check your receive address - the provider may still settle this swap',
+      errorSource: 'TRACKING_TIMEOUT' as const,
+    })),
     assignRestoredDeposit: assign(({ event }) => {
       const { quote, sendAddress, receiveAddress, sellAmountBaseUnit, buyAmountBaseUnit, txHash } =
         event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>
@@ -254,6 +258,9 @@ export const swapMachine = setup({
       retryCount: context.retryCount + 1,
       error: null,
       errorSource: null,
+      // Every retry re-quotes or re-signs, so a carried-over hash would mark the next deposit funded
+      txHash: null,
+      approvalTxHash: null,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
@@ -396,6 +403,11 @@ export const swapMachine = setup({
         STATUS_FAILED: {
           target: 'error',
           actions: 'assignStatusFailed',
+        },
+        // The one deposit screen with no controls of its own, so it can't be left spinning
+        DEPOSIT_TRACKING_TIMEOUT: {
+          target: 'error',
+          actions: 'assignTrackingTimeout',
         },
       },
     },

@@ -22,7 +22,6 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { store } from '@/state/store'
 
-// Keyed on what we accept rather than what we emit, so legacy schemes still scan
 export const isBip21Url = (urlOrAddress: string): boolean =>
   Object.keys(URN_SCHEME_TO_CHAIN_ID).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
 

@@ -14,11 +14,12 @@ type UseDepositPollingParams = {
 export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
   const actorRef = SwapMachineCtx.useActorRef()
-
   const pollingRef = useRef(false)
+
   useEffect(() => {
     const snap = actorRef.getSnapshot()
-    // Runs past expiry too - the provider, not our countdown, decides what was too late
+
+    // Keeps polling past expiry, so a deposit the provider still credits is picked up
     const isDepositTracking =
       snap.context.isDepositFlow &&
       (snap.matches('awaiting_deposit') ||

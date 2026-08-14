@@ -7,7 +7,6 @@ export type PendingDeposit = {
   quote: QuoteResponse
   // Only ever the refund destination - a deposit is paid from whatever wallet the user chooses
   refundAddress: string
-  // Not carried on the quote, and the deposit screen shows it back to the user
   receiveAddress: string
   // Whichever side drove the quote, so a re-quote after expiry asks for the same thing
   sellAmountBaseUnit: string | undefined

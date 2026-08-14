@@ -13,6 +13,7 @@ import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useSellFiatSync } from '../hooks/useSellFiatSync'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useStatusPolling } from '../hooks/useStatusPolling'
+import { useSwapCallbacks } from '../hooks/useSwapCallbacks'
 import { useSwapApproval } from '../hooks/useSwapApproval'
 import { useSwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { useSwapExecution } from '../hooks/useSwapExecution'
@@ -78,7 +79,6 @@ const SwapWidgetContent = ({
   const state = SwapMachineCtx.useSelector(s => s)
   const actorRef = SwapMachineCtx.useActorRef()
 
-  // Re-quoting an expired deposit, so stay put rather than bouncing through the input step
   const isRequotingDeposit =
     state.matches('quoting') && state.context.isDepositFlow && !!state.context.quote
 
@@ -110,8 +110,9 @@ const SwapWidgetContent = ({
   useSwapQuoting({ apiClient, rates, sellAssetBalance })
   useSwapApproval()
   useSwapExecution()
-  useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
+  useStatusPolling({ apiClient })
   useDepositPolling({ apiClient })
+  useSwapCallbacks({ onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
   useSellFiatSync(displayValues.sellAssetUsdPrice)
 
   // Only while funds are still owed - once they land it settles or refunds without us

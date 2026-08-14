@@ -44,7 +44,7 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
 
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
-  // Connection state, so never the resolved send address - that can be one the user typed
+
   const { walletSendAddress } = useSwapWallet()
 
   const handleClick = useCallback(() => {

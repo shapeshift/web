@@ -45,7 +45,6 @@ const CopyField = ({ label, display, value }: CopyFieldProps) => {
 }
 
 export const DepositStep = () => {
-  // Addresses come from the machine, frozen at quote time - a wallet connecting can't repaint them
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isExpired = SwapMachineCtx.useSelector(s => s.matches('deposit_expired'))
   const isRequoting = SwapMachineCtx.useSelector(s => s.matches('quoting'))
@@ -70,7 +69,7 @@ export const DepositStep = () => {
   }, [quote, isExpired, isRequoting, actorRef])
 
   const handleNewSwap = useCallback(() => actorRef.send({ type: 'RESET' }), [actorRef])
-  const handleNewAddress = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
+  const handleNewQuote = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
 
   if (!quote?.depositAddress) return null
 
@@ -127,7 +126,7 @@ export const DepositStep = () => {
           Don't send to the previous address. Request a new quote to continue.
         </div>
         <div className='ssw-step-actions'>
-          <button className='ssw-action-btn' onClick={handleNewAddress} type='button'>
+          <button className='ssw-action-btn' onClick={handleNewQuote} type='button'>
             Request New Quote
           </button>
           <button className='ssw-action-btn ssw-secondary' onClick={handleNewSwap} type='button'>

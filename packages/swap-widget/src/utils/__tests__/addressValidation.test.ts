@@ -10,6 +10,7 @@ import {
   isValidBitcoinCashAddress,
   isValidDogecoinAddress,
   isValidLitecoinAddress,
+  isValidZcashAddress,
   validateAddress,
 } from '../addressValidation'
 
@@ -472,5 +473,20 @@ describe('getAddressFormatHint - deposit flow chains', () => {
 
   it('hints the zcash format', () => {
     expect(getAddressFormatHint(zcashChainId)).toBe('t1... or t3...')
+  })
+})
+
+describe('base58check payload length', () => {
+  // A correct version byte is not enough - the payload has to be a hash160
+  const withPayload = (version: number[], byteCount: number) =>
+    bs58check.encode(new Uint8Array([...version, ...Array(byteCount).fill(1)]))
+
+  it('rejects a bitcoin address whose payload is not 20 bytes', () => {
+    expect(isValidBitcoinAddress(withPayload([0x00], 15))).toBe(false)
+    expect(isValidBitcoinAddress(withPayload([0x00], 40))).toBe(false)
+  })
+
+  it('rejects a zcash address whose payload is not 20 bytes', () => {
+    expect(isValidZcashAddress(withPayload([0x1c, 0xb8], 5))).toBe(false)
   })
 })

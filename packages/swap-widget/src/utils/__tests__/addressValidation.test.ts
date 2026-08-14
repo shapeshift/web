@@ -510,16 +510,26 @@ describe('witness program length', () => {
 })
 
 describe('isValidStarknetAddress', () => {
-  it('accepts a felt below the stark prime', () => {
+  // The contract address bound, which is lower than the stark field prime
+  const BOUND = 2n ** 251n - 256n
+
+  it('accepts a value below the contract address bound', () => {
     expect(isValidStarknetAddress('0x04a1b2c3')).toBe(true)
+    expect(isValidStarknetAddress(`0x${(BOUND - 1n).toString(16)}`)).toBe(true)
   })
 
   it('rejects the zero address', () => {
     expect(isValidStarknetAddress('0x0')).toBe(false)
   })
 
-  it('rejects a value at or above the stark prime', () => {
+  it('rejects a value at or above the contract address bound', () => {
+    expect(isValidStarknetAddress(`0x${BOUND.toString(16)}`)).toBe(false)
     expect(isValidStarknetAddress(`0x${'f'.repeat(64)}`)).toBe(false)
+  })
+
+  // Between the contract address bound and the prime, which the looser check would have accepted
+  it('rejects a felt the stark prime alone would allow', () => {
+    expect(isValidStarknetAddress(`0x${(2n ** 251n).toString(16)}`)).toBe(false)
   })
 })
 

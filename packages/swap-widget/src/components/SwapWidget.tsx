@@ -50,7 +50,7 @@ type SwapWidgetContentProps = {
   isPayment: boolean
   partnerCode?: string
   canRedirectToShapeshift: boolean
-  onSwapSuccess?: (txHash: string) => void
+  onSwapSuccess?: (txHash?: string) => void
   onSwapError?: (error: Error) => void
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters
@@ -317,7 +317,7 @@ type SwapWidgetCoreProps = {
   isBuyAmountLocked: boolean
   partnerCode?: string
   allowShapeshiftRedirect: boolean
-  onSwapSuccess?: (txHash: string) => void
+  onSwapSuccess?: (txHash?: string) => void
   onSwapError?: (error: Error) => void
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters

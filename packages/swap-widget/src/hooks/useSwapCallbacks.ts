@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 
 type UseSwapCallbacksParams = {
-  onSwapSuccess?: (txHash: string) => void
+  onSwapSuccess?: (txHash?: string) => void
   onSwapError?: (error: Error) => void
   refetchSellBalance?: () => void
   refetchBuyBalance?: () => void
@@ -16,7 +16,6 @@ export const useSwapCallbacks = ({
   refetchBuyBalance,
 }: UseSwapCallbacksParams) => {
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
-  const context = SwapMachineCtx.useSelector(s => s.context)
   const actorRef = SwapMachineCtx.useActorRef()
 
   const completionRef = useRef(false)
@@ -31,9 +30,8 @@ export const useSwapCallbacks = ({
     if (completionRef.current) return
     completionRef.current = true
 
-    if (context.txHash) {
-      onSwapSuccess?.(context.txHash)
-    }
+    // A deposit can be credited without the provider ever reporting its hash
+    onSwapSuccess?.(snap.context.txHash ?? undefined)
 
     refetchSellBalance?.()
     refetchBuyBalance?.()
@@ -52,7 +50,7 @@ export const useSwapCallbacks = ({
     if (errorRef.current) return
     errorRef.current = true
 
-    onSwapError?.(new Error(context.error ?? 'Unknown error'))
+    onSwapError?.(new Error(snap.context.error ?? 'Unknown error'))
     // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; callbacks are stable
   }, [stateValue])
 }

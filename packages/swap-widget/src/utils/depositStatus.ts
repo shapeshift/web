@@ -19,8 +19,12 @@ export const resolveDepositStatusEvent = (
 }
 
 // The api keeps an unfunded quote for an hour past its deadline, so a deposit that never arrived
-// has nothing left to report after that - only a deposit already seen is still worth following
-const POST_EXPIRY_TRACKING_MS = 60 * 60 * 1000
+// has nothing left to report after that
+const UNFUNDED_TRACKING_MS = 60 * 60 * 1000
+
+// Settlement can outlast that, but not indefinitely: the api drops a submitted quote an hour after
+// binding its hash, so polling beyond this can never resolve either way
+const SETTLEMENT_TRACKING_MS = 2 * 60 * 60 * 1000
 
 type ShouldKeepTrackingArgs = {
   expiresAt: number
@@ -33,4 +37,4 @@ export const shouldKeepTrackingDeposit = ({
   hasDetectedDeposit,
   now,
 }: ShouldKeepTrackingArgs): boolean =>
-  hasDetectedDeposit || now <= expiresAt + POST_EXPIRY_TRACKING_MS
+  now <= expiresAt + (hasDetectedDeposit ? SETTLEMENT_TRACKING_MS : UNFUNDED_TRACKING_MS)

@@ -41,7 +41,7 @@ export const PriceCell = memo<PriceCellProps>(({ assetId }) => {
 
   return (
     <Stack alignItems='flex-end'>
-      <Amount.Fiat fontWeight='semibold' value={price} />
+      <Amount.Price fontWeight='semibold' value={price} />
       <Display.Mobile>
         <Tag colorScheme={colorScheme} gap={1} size='sm'>
           {icon}

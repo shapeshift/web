@@ -6,6 +6,7 @@ import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
 import { formatUsdValue } from '../hooks/useMarketData'
 import type { Asset, TradeRate } from '../types'
 import { formatAmount } from '../types'
+import { getRateAmountBaseUnit } from '../utils/rateDisplay'
 import { QuotesModal } from './QuotesModal'
 
 type QuoteSelectorProps = {
@@ -15,7 +16,10 @@ type QuoteSelectorProps = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountBaseUnit: string
+  buyAmountBaseUnit: string
+  isExactOutput: boolean
   isLoading: boolean
+  sellAssetUsdPrice?: string
   buyAssetUsdPrice?: string
 }
 
@@ -26,7 +30,10 @@ export const QuoteSelector = ({
   buyAsset,
   sellAsset,
   sellAmountBaseUnit,
+  buyAmountBaseUnit,
+  isExactOutput,
   isLoading,
+  sellAssetUsdPrice,
   buyAssetUsdPrice,
 }: QuoteSelectorProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -67,11 +74,17 @@ export const QuoteSelector = ({
   }
 
   const displayRate = selectedRate ?? bestRate
-  const buyAmount = displayRate.buyAmountCryptoBaseUnit ?? '0'
   const swapperIcon = getSwapperIcon(displayRate.swapperName)
   const swapperColor = getSwapperColor(displayRate.swapperName)
-  const formattedBuyAmount = formatAmount(buyAmount, buyAsset.precision)
-  const usdValue = formatUsdValue(buyAmount, buyAsset.precision, buyAssetUsdPrice)
+
+  const asset = isExactOutput ? sellAsset : buyAsset
+  const amountBaseUnit = getRateAmountBaseUnit(displayRate, isExactOutput)
+  const formattedAmount = formatAmount(amountBaseUnit, asset.precision)
+  const usdValue = formatUsdValue(
+    amountBaseUnit,
+    asset.precision,
+    isExactOutput ? sellAssetUsdPrice : buyAssetUsdPrice,
+  )
 
   return (
     <>
@@ -100,8 +113,8 @@ export const QuoteSelector = ({
 
         <div className='ssw-quote-right'>
           <div className='ssw-quote-amount-row'>
-            <span className='ssw-quote-amount'>{formattedBuyAmount}</span>
-            <span className='ssw-quote-symbol'>{buyAsset.symbol}</span>
+            <span className='ssw-quote-amount'>{formattedAmount}</span>
+            <span className='ssw-quote-symbol'>{asset.symbol}</span>
           </div>
           {alternativeRatesCount > 0 && (
             <span className='ssw-quote-more'>
@@ -130,6 +143,9 @@ export const QuoteSelector = ({
         buyAsset={buyAsset}
         sellAsset={sellAsset}
         sellAmountBaseUnit={sellAmountBaseUnit}
+        buyAmountBaseUnit={buyAmountBaseUnit}
+        isExactOutput={isExactOutput}
+        sellAssetUsdPrice={sellAssetUsdPrice}
         buyAssetUsdPrice={buyAssetUsdPrice}
       />
     </>

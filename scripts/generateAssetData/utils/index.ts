@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import assert from 'assert'
@@ -50,16 +50,18 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
   const data = await adapters.fetchCoingeckoData(adapters.coingeckoUrl)
   const chainIdAssetIdMap = adapters.parseCoingeckoData(data)
 
-  // Remap from Record<ChainId, Record<AssetId, string>> to Record<string, Record<ChainId, AssetId>>
-  const remappedOutput = Object.entries(chainIdAssetIdMap).reduce<
-    Record<string, Record<ChainId, AssetId>>
-  >((acc, [chainId, assetIdMap]) => {
-    Object.entries(assetIdMap).forEach(([assetId, coingeckoId]) => {
-      if (!acc[coingeckoId]) acc[coingeckoId] = {}
-      acc[coingeckoId][chainId] = assetId
-    })
-    return acc
-  }, {})
+  // Keyed by coingecko id, not chainId - one chain can hold several assets for the same id, e.g.
+  // Toncoin is both the TON native asset and a jetton on TON
+  const remappedOutput = Object.entries(chainIdAssetIdMap).reduce<Record<string, AssetId[]>>(
+    (acc, [_chainId, assetIdMap]) => {
+      Object.entries(assetIdMap).forEach(([assetId, coingeckoId]) => {
+        if (!acc[coingeckoId]) acc[coingeckoId] = []
+        acc[coingeckoId].push(assetId)
+      })
+      return acc
+    },
+    {},
+  )
 
   return Array<CoinGeckoMarketCap>()
     .concat(...results2d)
@@ -70,7 +72,7 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
     .map(coingeckoAsset => {
       // Market cap data in the coingecko API isn't chain specific, so we group the asset across
       // different chains together and rely on the secondary sort to order them sanely.
-      return Object.values(remappedOutput[coingeckoAsset.id])
+      return remappedOutput[coingeckoAsset.id]
     })
     .flat()
 }

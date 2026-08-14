@@ -64,7 +64,7 @@ export const AssetCard: FC<AssetCardProps> = memo(({ asset, width = '80%' }) => 
             </Text>
           </Box>
           <Flex flexDir='column' gap={1} alignItems='flex-end'>
-            <Amount.Fiat
+            <Amount.Price
               fontWeight='bold'
               color={textColor}
               fontSize='sm'

@@ -7,6 +7,15 @@ export type ApiClientConfig = {
   partnerCode?: string
 }
 
+export type TradeAmountParams =
+  | { sellAmountCryptoBaseUnit: string; buyAmountCryptoBaseUnit?: never }
+  | { buyAmountCryptoBaseUnit: string; sellAmountCryptoBaseUnit?: never }
+
+const getTradeAmount = (params: TradeAmountParams): Record<string, string> =>
+  params.buyAmountCryptoBaseUnit !== undefined
+    ? { buyAmountCryptoBaseUnit: params.buyAmountCryptoBaseUnit }
+    : { sellAmountCryptoBaseUnit: params.sellAmountCryptoBaseUnit }
+
 export const createApiClient = (config: ApiClientConfig = {}) => {
   const baseUrl = config.baseUrl ?? DEFAULT_API_BASE_URL
 
@@ -53,15 +62,11 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
   return {
     getAssets: () => fetchWithConfig<AssetsResponse>('/v1/assets'),
 
-    getRates: (params: {
-      sellAssetId: AssetId
-      buyAssetId: AssetId
-      sellAmountCryptoBaseUnit: string
-    }) =>
+    getRates: (params: { sellAssetId: AssetId; buyAssetId: AssetId } & TradeAmountParams) =>
       fetchWithConfig<RatesResponse>('/v1/swap/rates', {
         sellAssetId: params.sellAssetId,
         buyAssetId: params.buyAssetId,
-        sellAmountCryptoBaseUnit: params.sellAmountCryptoBaseUnit,
+        ...getTradeAmount(params),
       }),
 
     getSwapStatus: (params: { quoteId: string; txHash?: string }) =>
@@ -70,21 +75,22 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
         ...(params.txHash && { txHash: params.txHash }),
       }),
 
-    getQuote: (params: {
-      sellAssetId: AssetId
-      buyAssetId: AssetId
-      sellAmountCryptoBaseUnit: string
-      sendAddress: string
-      receiveAddress: string
-      swapperName: string
-      slippageTolerancePercentageDecimal?: string
-    }) =>
+    getQuote: (
+      params: {
+        sellAssetId: AssetId
+        buyAssetId: AssetId
+        sendAddress: string
+        receiveAddress: string
+        swapperName: string
+        slippageTolerancePercentageDecimal?: string
+      } & TradeAmountParams,
+    ) =>
       fetchWithConfig<QuoteResponse>(
         '/v1/swap/quote',
         {
           sellAssetId: params.sellAssetId,
           buyAssetId: params.buyAssetId,
-          sellAmountCryptoBaseUnit: params.sellAmountCryptoBaseUnit,
+          ...getTradeAmount(params),
           sendAddress: params.sendAddress,
           receiveAddress: params.receiveAddress,
           swapperName: params.swapperName,

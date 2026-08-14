@@ -97,7 +97,7 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps<'getAssetsTool'>) => {
             </Flex>
             <Flex direction='column' alignItems='flex-end'>
               <Text fontSize='lg' fontWeight='bold' lineHeight='shorter'>
-                <Amount.Fiat value={asset.price} />
+                <Amount.Price value={asset.price} />
               </Text>
               {priceChange24h && (
                 <Flex alignItems='end' gap={1} lineHeight='shorter'>

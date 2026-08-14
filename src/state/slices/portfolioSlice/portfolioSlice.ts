@@ -272,6 +272,18 @@ type GetAccountArgs = {
   upsertOnFetch?: boolean
 }
 
+const GET_ACCOUNT_TIMEOUT_MS = 60_000
+
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout>
+
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), timeoutMs)
+  })
+
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId))
+}
+
 export const portfolioApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
@@ -287,21 +299,29 @@ export const portfolioApi = createApi({
         try {
           const adapter = chainAdapters.get(chainId)
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-          // We want the query to be Infinity staleTime and gcTime for later use, but we also want it to always refetch
-          // This is consumed by TransactionProvider and failure to do so means portfolio will *not* be updated
-          await queryClient.invalidateQueries({
-            queryKey: accountManagement.getAccount(accountId).queryKey,
-            refetchType: 'all',
-            exact: true,
-          })
-          const portfolioAccounts = {
-            [pubkey]: await queryClient.fetchQuery({
-              ...accountManagement.getAccount(accountId),
-              staleTime: Infinity,
-              // Never garbage collect me, I'm a special snowflake
-              gcTime: Infinity,
-            }),
-          }
+          // Bounded so an unresponsive node errors the account rather than leaving it loading forever
+          const portfolioAccounts = await withTimeout(
+            (async () => {
+              // We want the query to be Infinity staleTime and gcTime for later use, but we also want it to always refetch
+              // This is consumed by TransactionProvider and failure to do so means portfolio will *not* be updated
+              await queryClient.invalidateQueries({
+                queryKey: accountManagement.getAccount(accountId).queryKey,
+                refetchType: 'all',
+                exact: true,
+              })
+
+              return {
+                [pubkey]: await queryClient.fetchQuery({
+                  ...accountManagement.getAccount(accountId),
+                  staleTime: Infinity,
+                  // Never garbage collect me, I'm a special snowflake
+                  gcTime: Infinity,
+                }),
+              }
+            })(),
+            GET_ACCOUNT_TIMEOUT_MS,
+            `getAccount: timed out after ${GET_ACCOUNT_TIMEOUT_MS}ms for ${accountId}`,
+          )
 
           // Prefetch smart contract checks - do *not* await/.then() me, this is only for the purpose of having this cached later
           fetchIsSmartContractAddressQuery(pubkey, chainId)
@@ -332,7 +352,9 @@ export const portfolioApi = createApi({
           console.error(e)
           const data = cloneDeep(initialState)
           data.accounts.ids.push(accountId)
-          data.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
+          // upsertPortfolio deep merges, and an empty assetIds array does not clear a populated one,
+          // so a refetch failure after a successful load is only visible via this flag
+          data.accounts.byId[accountId] = { assetIds: [], hasActivity: false, isDegraded: true }
           dispatch(portfolio.actions.upsertPortfolio(data))
           dispatch(
             portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: false }),

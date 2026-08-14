@@ -47,6 +47,8 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.quoteUnsupportedChain'
       case SwapperTradeQuoteError.CrossChainNotSupported:
         return 'trade.errors.quoteCrossChainNotSupported'
+      case SwapperTradeQuoteError.ExactOutputNotSupported:
+        return 'trade.errors.quoteExactOutputNotSupported'
       case SwapperTradeQuoteError.NetworkFeeEstimationFailed:
         return 'trade.errors.networkFeeEstimateFailed'
       case SwapperTradeQuoteError.RateLimitExceeded:

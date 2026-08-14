@@ -137,6 +137,8 @@ export enum TradeQuoteError {
   UnsupportedChain = 'UnsupportedChain',
   // the swapper can't swap across chains
   CrossChainNotSupported = 'CrossChainNotSupported',
+  // the swapper can quote this pair, but can't derive a sell amount from an exact buy amount
+  ExactOutputNotSupported = 'ExactOutputNotSupported',
   // the swapper wasn't able to get a network fee estimate
   NetworkFeeEstimationFailed = 'NetworkFeeEstimationFailed',
   // trading has been halted upstream
@@ -317,14 +319,31 @@ export type GetTradeRateInput =
   | GetStarknetTradeRateInput
   | GetSuiTradeRateInput
 
+export type WithExactBuyAmount<
+  T extends { sellAmountIncludingProtocolFeesCryptoBaseUnit: string },
+> = T extends unknown
+  ? Omit<T, 'sellAmountIncludingProtocolFeesCryptoBaseUnit'> & { buyAmountCryptoBaseUnit: string }
+  : never
+
+export type GetExactOutputTradeQuoteInput = WithExactBuyAmount<GetTradeQuoteInput>
+export type GetExactOutputTradeRateInput = WithExactBuyAmount<GetTradeRateInput>
+
+export type TradeAmount = {
+  direction: 'exactIn' | 'exactOut'
+  cryptoBaseUnit: string
+}
+
 type StepDataBaseArgs = {
   deps: SwapperDeps
   sellAsset: Asset
 }
 
+type StepDataRateInput = GetTradeRateInput | GetExactOutputTradeRateInput
+type StepDataQuoteInput = GetTradeQuoteInput | GetExactOutputTradeQuoteInput
+
 export type StepDataArgs<Base, Rate = unknown, Quote = unknown> =
-  | (StepDataBaseArgs & Base & { type: 'rate'; input: GetTradeRateInput; from?: string } & Rate)
-  | (StepDataBaseArgs & Base & { type: 'quote'; input: GetTradeQuoteInput; from: string } & Quote)
+  | (StepDataBaseArgs & Base & { type: 'rate'; input: StepDataRateInput; from?: string } & Rate)
+  | (StepDataBaseArgs & Base & { type: 'quote'; input: StepDataQuoteInput; from: string } & Quote)
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -464,6 +483,7 @@ export type TradeCommon = {
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
   swapperName: SwapperName // The swapper that generated this quote/rate
+  isExactOutput?: boolean
 }
 
 type TradeQuoteBase = TradeCommon & {
@@ -815,6 +835,16 @@ export type SwapperApi = {
 
   getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
+
+  // Implemented only where upstream can honour an exact buy amount and derive the sell amount
+  getExactOutputTradeQuote?: (
+    input: GetExactOutputTradeQuoteInput,
+    deps: SwapperDeps,
+  ) => Promise<TradeQuoteResult>
+  getExactOutputTradeRate?: (
+    input: GetExactOutputTradeRateInput,
+    deps: SwapperDeps,
+  ) => Promise<TradeRateResult>
 
   getUnsignedEvmTransaction?: (input: GetUnsignedEvmTransactionArgs) => Promise<SignTx<EvmChainId>>
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>

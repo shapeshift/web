@@ -190,7 +190,7 @@ describe('adapters:coingecko:utils', () => {
           'eip155:534352/slip44:60': 'ethereum',
         },
         'eip155:747474': {
-          'eip155:747474/slip44:60': 'katana',
+          'eip155:747474/slip44:60': 'ethereum',
         },
         'eip155:747': {
           'eip155:747/slip44:60': 'flow',
@@ -242,6 +242,12 @@ describe('adapters:coingecko:utils', () => {
         },
         'eip155:2741': {
           'eip155:2741/slip44:60': 'ethereum',
+        },
+        'eip155:1329': {
+          'eip155:1329/slip44:60': 'sei-network',
+        },
+        'eip155:5064014': {
+          'eip155:5064014/slip44:60': 'ethena-usde',
         },
         'eip155:4663': {
           'eip155:4663/slip44:60': 'ethereum',

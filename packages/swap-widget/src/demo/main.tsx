@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { ExternalWalletApp } from './ExternalWalletApp'
 import { InternalWalletApp } from './InternalWalletApp'
 
-const getRoute = () => window.location.hash.replace(/^#/, '') || 'internal'
+const getRoute = () => window.location.hash.replace(/^#/, '').split('?')[0] || 'internal'
 
 const Router = () => {
   const [route, setRoute] = useState(getRoute)

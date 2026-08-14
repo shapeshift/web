@@ -1,6 +1,6 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { GetExactOutputTradeQuoteInput, GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import {
   buildSwapMetadata,
   getDefaultSlippageDecimalPercentageForSwapper,
@@ -67,6 +67,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAssetId,
       buyAssetId,
       sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
       receiveAddress,
       sendAddress,
       swapperName,
@@ -127,7 +128,9 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const quoteInput = {
       sellAsset,
       buyAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+      ...(buyAmountCryptoBaseUnit
+        ? { buyAmountCryptoBaseUnit }
+        : { sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit }),
       affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: slippage,
@@ -141,8 +144,12 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       supportsEIP1559: false,
     }
 
-    // utxo accountType/xpub are not first class public api inputs yet, the cast covers that gap
-    const result = await getTradeQuotes(quoteInput as GetTradeQuoteInput, validSwapperName, deps)
+    // The input union narrows chainId per chain family; utxo accountType/xpub are unmodelled too
+    const result = await getTradeQuotes(
+      quoteInput as GetTradeQuoteInput | GetExactOutputTradeQuoteInput,
+      validSwapperName,
+      deps,
+    )
 
     if (!result) {
       res.status(404).json({

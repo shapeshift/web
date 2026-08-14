@@ -44,17 +44,17 @@ export const savePendingDeposit = (deposit: PendingDeposit): void => {
 export const loadPendingDeposit = (now: number): PendingDeposit | undefined => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return undefined
+    if (!raw) return
 
     const parsed: unknown = JSON.parse(raw)
+
     if (!isPendingDeposit(parsed) || parsed.quote.expiresAt <= now) {
       clearPendingDeposit()
-      return undefined
+      return
     }
 
     return parsed
   } catch {
     clearPendingDeposit()
-    return undefined
   }
 }

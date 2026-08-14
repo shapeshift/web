@@ -80,12 +80,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           return
         }
 
-        // A deposit's send address is on the sell chain, so it can't stand in for a receive one
-        const resolvedReceiveAddress = context.isDepositFlow
-          ? receiveAddress
-          : receiveAddress || sendAddress
-
-        if (!resolvedReceiveAddress) {
+        if (!receiveAddress) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No receive address available' })
           return
         }
@@ -97,7 +92,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
             ? { buyAmountCryptoBaseUnit: amountBaseUnit }
             : { sellAmountCryptoBaseUnit: amountBaseUnit }),
           sendAddress,
-          receiveAddress: resolvedReceiveAddress,
+          receiveAddress,
           swapperName: rateToUse.swapperName,
           slippageTolerancePercentageDecimal: slippageDecimal,
         })

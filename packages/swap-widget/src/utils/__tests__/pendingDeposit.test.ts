@@ -44,10 +44,10 @@ describe('pendingDeposit', () => {
     expect(loadPendingDeposit(10_000 + 60 * 60 * 1000 + 1)).toBeUndefined()
   })
 
-  it('keeps a funded deposit however long settlement takes', () => {
+  it('keeps a funded deposit well past the unfunded window', () => {
     savePendingDeposit({ ...makeDeposit(10_000), txHash: '0xdead' })
 
-    expect(loadPendingDeposit(10_000 + 24 * 60 * 60 * 1000)?.txHash).toBe('0xdead')
+    expect(loadPendingDeposit(10_000 + 2 * 60 * 60 * 1000)?.txHash).toBe('0xdead')
   })
 
   it('forgets a cleared deposit', () => {

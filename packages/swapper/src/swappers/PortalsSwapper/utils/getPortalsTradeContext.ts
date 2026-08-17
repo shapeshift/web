@@ -65,7 +65,9 @@ export const getPortalsTradeContext = ({
     .div(bn(1).minus(requestedSlippageDecimal))
     .toFixed(0)
 
-  const buyAmountAfterFeesCryptoBaseUnit = hasSlippageBuffer ? outputAmount : preSlippageOutputAmount
+  const buyAmountAfterFeesCryptoBaseUnit = hasSlippageBuffer
+    ? outputAmount
+    : preSlippageOutputAmount
 
   const appliedSlippageDecimal = bnOrZero(minOutputAmount).gt(0)
     ? bnOrZero(buyAmountAfterFeesCryptoBaseUnit)

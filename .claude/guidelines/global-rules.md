@@ -47,6 +47,8 @@
 
 ### Documentation & Communication
 - Never add code comments unless explicitly requested
+- The bar for a comment is high: only where the code genuinely cannot explain itself, e.g. an external API quirk, a subtle product rule, or a non-obvious "why". If the code or a better name already says it, drop the comment
+- Keep comments to ONE line unless there is a strong reason to go longer. Write the decisive fact, not the derivation - reasoning belongs in the commit message or PR body
 - When modifying code, do not add comments that reference previous implementations or explain what changed. Comments should only describe the current logic and functionality.
 - Write clear commit messages explaining the "why"
 - Use meaningful names for branches, variables, and functions

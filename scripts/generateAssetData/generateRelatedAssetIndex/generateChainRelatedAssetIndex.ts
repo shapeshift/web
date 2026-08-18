@@ -288,7 +288,8 @@ const processRelatedAssetIds = async (
   if (existingRelatedAssetKey) {
     const group = relatedAssetIndex[existingRelatedAssetKey] ?? []
 
-    if (group.includes(assetId)) return
+    // A group that omits its own primary is malformed - repair it rather than returning
+    if (group.includes(assetId) && group.includes(existingRelatedAssetKey)) return
 
     const rejoinedGroup = Array.from(new Set([...group, existingRelatedAssetKey, assetId]))
 

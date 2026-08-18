@@ -535,8 +535,10 @@ export const generateRelatedAssetIndex = async () => {
 
     delete relatedAssetIndex[relatedAssetKey]
 
+    // Only clear a key pointing at the group we just deleted - the asset may have rejoined another
     for (const assetId of [relatedAssetKey, ...relatedAssetIds]) {
-      if (generatedAssetData[assetId]) delete generatedAssetData[assetId].relatedAssetKey
+      const asset = generatedAssetData[assetId]
+      if (asset?.relatedAssetKey === relatedAssetKey) delete asset.relatedAssetKey
     }
   })
 

@@ -284,30 +284,29 @@ const processRelatedAssetIds = async (
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
+  // An asset can carry a key the index no longer lists - e.g. it left the dataset and came back
   if (existingRelatedAssetKey) {
-    const group = relatedAssetIndex[existingRelatedAssetKey]
-    if (group && group.includes(assetId)) {
+    const group = relatedAssetIndex[existingRelatedAssetKey] ?? []
+
+    if (group.includes(assetId)) return
+
+    const rejoinedGroup = Array.from(new Set([...group, existingRelatedAssetKey, assetId]))
+
+    // A group of one is not a group - fall through and let the providers regroup it
+    if (rejoinedGroup.length > 1) {
+      console.log(`Restoring ${assetId} to group ${existingRelatedAssetKey}`)
+      relatedAssetIndex[existingRelatedAssetKey] = rejoinedGroup
+
+      // Only fill a missing key - repointing would steal the asset from another group
+      for (const relatedAssetId of rejoinedGroup) {
+        const relatedAsset = assetData[relatedAssetId]
+        if (relatedAsset && !relatedAsset.relatedAssetKey) {
+          relatedAsset.relatedAssetKey = existingRelatedAssetKey
+        }
+      }
+
       return
     }
-
-    if (group && !group.includes(assetId)) {
-      console.log(
-        `Adding ${assetId} to existing group ${existingRelatedAssetKey} (had key but wasn't in array)`,
-      )
-      relatedAssetIndex[existingRelatedAssetKey] = Array.from(new Set([...group, assetId]))
-      return
-    }
-
-    // Group absent from index but asset has a relatedAssetKey - recover by creating the group
-    if (!group) {
-      console.log(
-        `Recovering orphaned relatedAssetKey for ${assetId}: creating group ${existingRelatedAssetKey}`,
-      )
-      relatedAssetIndex[existingRelatedAssetKey] = [assetId]
-      return
-    }
-
-    return
   }
 
   for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {

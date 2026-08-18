@@ -376,7 +376,11 @@
   transform: none;
 }
 
-.ssw-receive-row {
+/* Holds the receive address, and the refund address too when there's no wallet to send from */
+.ssw-address-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 12px;
   background: var(--ssw-bg-tertiary);
   border: 1px solid var(--ssw-border);
@@ -385,9 +389,14 @@
   transition: box-shadow 0.15s ease;
 }
 
-.ssw-receive-row:focus-within {
+.ssw-address-group:focus-within {
   border-color: var(--ssw-accent);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ssw-address-group > * + * {
+  border-top: 1px solid var(--ssw-border);
+  padding-top: 12px;
 }
 
 .ssw-receive-row-resolved {
@@ -532,11 +541,16 @@
   color: var(--ssw-error);
 }
 
-.ssw-receive-row.ssw-attention {
+.ssw-receive-hint {
+  font-size: 12px;
+  color: var(--ssw-text-muted);
+}
+
+.ssw-address-group.ssw-attention {
   box-shadow: 0 0 16px -2px var(--ssw-accent);
 }
 
-.ssw-receive-row.ssw-receive-row-invalid {
+.ssw-address-group.ssw-address-group-invalid {
   border-color: var(--ssw-error);
 }
 
@@ -875,4 +889,94 @@
   border-color: var(--ssw-border-hover);
   color: var(--ssw-text-primary);
   background: var(--ssw-bg-hover);
+}
+
+.ssw-deposit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0 4px;
+}
+
+.ssw-deposit-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ssw-text-primary);
+  text-align: center;
+}
+
+.ssw-deposit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.ssw-deposit-field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-qr {
+  border-radius: var(--ssw-radius-md);
+  padding: 8px;
+  background: #ffffff;
+}
+
+.ssw-deposit-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--ssw-border);
+  border-radius: var(--ssw-radius-md);
+  background: var(--ssw-bg-input);
+  color: var(--ssw-text-primary);
+  font-family: monospace;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.ssw-deposit-value:hover {
+  border-color: var(--ssw-border-hover);
+}
+
+.ssw-deposit-copy {
+  color: var(--ssw-accent);
+  font-family: var(--ssw-font-family);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ssw-deposit-countdown {
+  font-size: 13px;
+  color: var(--ssw-text-muted);
+}
+
+.ssw-deposit-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ssw-border);
+}
+
+/* Keeps the action clear of the details it summarises */
+.ssw-deposit .ssw-action-btn {
+  margin-top: 6px;
+}
+
+.ssw-deposit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ssw-text-secondary);
 }

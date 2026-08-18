@@ -33,6 +33,7 @@ export type ChainFlipStatus = {
   status: {
     state: 'waiting' | 'receiving' | 'swapping' | 'sending' | 'sent' | 'completed' | 'failed'
     swapId?: string
+    deposit?: { transactionReference?: string | null }
     swap?: ChainflipBaasStatusSwap
     swapEgress?: ChainflipBaasStatusEgress
   }

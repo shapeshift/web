@@ -83,11 +83,7 @@ export const ReceiveAddressRow = ({
 
   if (!showInput) {
     return (
-      <div
-        className={`ssw-receive-row ssw-receive-row-resolved${
-          showAttention ? ' ssw-receive-row-invalid' : ''
-        }`}
-      >
+      <div className='ssw-receive-row-resolved'>
         <span className='ssw-receive-label'>Receive address</span>
         <div className='ssw-receive-resolved-value'>
           {isResolving ? (
@@ -128,9 +124,7 @@ export const ReceiveAddressRow = ({
   }
 
   return (
-    <div
-      className={`ssw-receive-row ssw-receive-row-input${showAttention ? ' ssw-attention' : ''}`}
-    >
+    <div className='ssw-receive-row-input'>
       <div className='ssw-receive-header'>
         <span className='ssw-receive-label'>Receive address</span>
       </div>

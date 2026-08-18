@@ -1,18 +1,20 @@
 import './SwapWidget.css'
 
 import { useAppKitAccount } from '@reown/appkit/react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { createApiClient } from '../api/client'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { useDepositPolling } from '../hooks/useDepositPolling'
 import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useSellFiatSync } from '../hooks/useSellFiatSync'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useStatusPolling } from '../hooks/useStatusPolling'
 import { useSwapApproval } from '../hooks/useSwapApproval'
+import { useSwapCallbacks } from '../hooks/useSwapCallbacks'
 import { useSwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { useSwapExecution } from '../hooks/useSwapExecution'
 import { useSwapHandlers } from '../hooks/useSwapHandlers'
@@ -21,8 +23,15 @@ import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
 import { formatAmountForInput, getChainType } from '../types'
 import { validateAddress } from '../utils/addressValidation'
+import {
+  clearPendingDeposit,
+  loadPendingDeposit,
+  savePendingDeposit,
+} from '../utils/pendingDeposit'
 import { resolveReceiveAddress } from '../utils/receiveAddress'
+import { resolveSendAddress } from '../utils/sendAddress'
 import { ApprovalStep } from './ApprovalStep'
+import { DepositStep } from './DepositStep'
 import { ExecutionStep } from './ExecutionStep'
 import { InputStep } from './InputStep'
 import { SettingsModal } from './SettingsModal'
@@ -41,7 +50,7 @@ type SwapWidgetContentProps = {
   isPayment: boolean
   partnerCode?: string
   canRedirectToShapeshift: boolean
-  onSwapSuccess?: (txHash: string) => void
+  onSwapSuccess?: (txHash?: string) => void
   onSwapError?: (error: Error) => void
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters
@@ -68,6 +77,10 @@ const SwapWidgetContent = ({
   ratesRefetchInterval,
 }: SwapWidgetContentProps) => {
   const state = SwapMachineCtx.useSelector(s => s)
+  const actorRef = SwapMachineCtx.useActorRef()
+
+  const isRequotingDeposit =
+    state.matches('quoting') && state.context.isDepositFlow && !!state.context.quote
 
   const [tokenModalType, setTokenModalType] = useState<'sell' | 'buy' | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -97,8 +110,43 @@ const SwapWidgetContent = ({
   useSwapQuoting({ apiClient, rates, sellAssetBalance })
   useSwapApproval()
   useSwapExecution()
-  useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
+  useStatusPolling({ apiClient })
+  useDepositPolling({ apiClient })
+  useSwapCallbacks({ onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
   useSellFiatSync(displayValues.sellAssetUsdPrice)
+
+  const hasSavedDepositRef = useRef(false)
+  useEffect(() => {
+    const snap = actorRef.getSnapshot()
+    const { quote, sendAddress, receiveAddress, isDepositFlow, txHash, depositObservedAt } =
+      snap.context
+
+    // Held for as long as the deposit is tracked, so a reload mid-settlement keeps the swap
+    const isTrackingDeposit =
+      isDepositFlow &&
+      (snap.matches('awaiting_deposit') ||
+        snap.matches('deposit_expired') ||
+        snap.matches('polling_status'))
+
+    if (isTrackingDeposit && quote?.depositAddress && sendAddress && receiveAddress) {
+      savePendingDeposit({
+        quote,
+        refundAddress: sendAddress,
+        receiveAddress,
+        sellAmountBaseUnit: snap.context.sellAmountBaseUnit,
+        buyAmountBaseUnit: snap.context.buyAmountBaseUnit,
+        txHash: txHash ?? undefined,
+        depositObservedAt: depositObservedAt ?? undefined,
+      })
+      hasSavedDepositRef.current = true
+      return
+    }
+
+    // Never clear one we didn't save - it may be a deposit the restore is about to read
+    if (hasSavedDepositRef.current) clearPendingDeposit()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state.value is the sole trigger; context is read from the snapshot
+  }, [state.value])
 
   const widgetStyle = useMemo(() => {
     if (!themeConfig) return undefined
@@ -181,7 +229,9 @@ const SwapWidgetContent = ({
       </div>
 
       <div className='ssw-step-container'>
-        {(state.matches('idle') || state.matches('input') || state.matches('quoting')) && (
+        {(state.matches('idle') ||
+          state.matches('input') ||
+          (state.matches('quoting') && !isRequotingDeposit)) && (
           <InputStep
             displayValues={displayValues}
             onOpenTokenModal={setTokenModalType}
@@ -201,6 +251,10 @@ const SwapWidgetContent = ({
         {(state.matches('approval_needed') || state.matches('approving')) && <ApprovalStep />}
 
         {state.matches('executing') && <ExecutionStep />}
+
+        {(state.matches('awaiting_deposit') ||
+          state.matches('deposit_expired') ||
+          isRequotingDeposit) && <DepositStep />}
 
         {(state.matches('polling_status') ||
           state.matches('complete') ||
@@ -263,7 +317,7 @@ type SwapWidgetCoreProps = {
   isBuyAmountLocked: boolean
   partnerCode?: string
   allowShapeshiftRedirect: boolean
-  onSwapSuccess?: (txHash: string) => void
+  onSwapSuccess?: (txHash?: string) => void
   onSwapError?: (error: Error) => void
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters
@@ -299,10 +353,11 @@ const SwapWidgetCore = ({
   const bitcoin = useBitcoinSigning()
   const solana = useSolanaSigning()
 
-  // Seeded so an unlocked default prefills the field the user can then edit
   const [customReceiveAddress, setCustomReceiveAddress] = useState<string>(
     defaultReceiveAddress ?? '',
   )
+
+  const [customRefundAddress, setCustomRefundAddress] = useState<string>('')
 
   const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)
   const buyChainId = SwapMachineCtx.useSelector(s => s.context.buyAsset.chainId)
@@ -324,23 +379,38 @@ const SwapWidgetCore = ({
   }, [buyChainType, evmStatus, utxoStatus, solanaStatus])
 
   const addressForChain = useCallback(
-    (chainType: ReturnType<typeof getChainType>): string | undefined => {
-      if (chainType === 'evm') return evm.address
-      if (chainType === 'utxo') return bitcoin.address
-      if (chainType === 'solana') return solana.address
-      return undefined
+    (chainType: ReturnType<typeof getChainType>, chainId: string): string | undefined => {
+      const address = (() => {
+        if (chainType === 'evm') return evm.address
+        if (chainType === 'utxo') return bitcoin.address
+        if (chainType === 'solana') return solana.address
+        return undefined
+      })()
+
+      // The utxo adapter holds a bitcoin address only, so it can't serve a doge, ltc or bch swap
+      return address && validateAddress(address, chainId).valid ? address : undefined
     },
     [evm.address, bitcoin.address, solana.address],
   )
 
+  const walletSendAddress = useMemo(
+    () => addressForChain(sellChainType, sellChainId),
+    [addressForChain, sellChainType, sellChainId],
+  )
+
   const sendAddress = useMemo(
-    () => addressForChain(sellChainType),
-    [addressForChain, sellChainType],
+    () =>
+      resolveSendAddress({
+        customAddress: customRefundAddress,
+        walletAddress: walletSendAddress,
+        sellChainId,
+      }),
+    [customRefundAddress, walletSendAddress, sellChainId],
   )
 
   const walletReceiveAddress = useMemo(
-    () => addressForChain(buyChainType),
-    [addressForChain, buyChainType],
+    () => addressForChain(buyChainType, buyChainId),
+    [addressForChain, buyChainType, buyChainId],
   )
 
   const receiveAddress = useMemo(
@@ -375,7 +445,7 @@ const SwapWidgetCore = ({
   }, [isBuyAmountLocked, defaultBuyAmountCryptoBaseUnit, defaultBuyAsset.precision, actorRef])
 
   const initialSyncRef = useRef(false)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (initialSyncRef.current) return
     initialSyncRef.current = true
     actorRef.send({ type: 'SET_SELL_ASSET', asset: defaultSellAsset })
@@ -388,6 +458,24 @@ const SwapWidgetCore = ({
         : '',
       amountBaseUnit: defaultBuyAmountCryptoBaseUnit,
     })
+
+    // After the defaults above, which would otherwise overwrite the quote's assets and amounts
+    const pending = loadPendingDeposit(Date.now())
+    if (pending) {
+      actorRef.send({
+        type: 'RESTORE_DEPOSIT',
+        quote: pending.quote,
+        sendAddress: pending.refundAddress,
+        receiveAddress: pending.receiveAddress,
+        sellAmountBaseUnit: pending.sellAmountBaseUnit,
+        buyAmountBaseUnit: pending.buyAmountBaseUnit,
+        txHash: pending.txHash,
+        depositObservedAt: pending.depositObservedAt,
+      })
+      setCustomRefundAddress(pending.refundAddress)
+      setCustomReceiveAddress(pending.receiveAddress)
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
   }, [actorRef])
 
@@ -404,9 +492,16 @@ const SwapWidgetCore = ({
     if (!validateAddress(customReceiveAddress, buyChainId).valid) setCustomReceiveAddress('')
   }, [buyChainId, customReceiveAddress])
 
+  useEffect(() => {
+    if (!customRefundAddress) return
+    if (!validateAddress(customRefundAddress, sellChainId).valid) setCustomRefundAddress('')
+  }, [sellChainId, customRefundAddress])
+
   const walletValue: SwapWalletContextValue = useMemo(
     () => ({
       sendAddress,
+      walletSendAddress,
+      setCustomRefundAddress,
       receiveAddress,
       isReceiveAddressResolving,
       isReceiveAddressBlocked: isReceiveAddressLocked && !receiveAddress,
@@ -418,6 +513,7 @@ const SwapWidgetCore = ({
     }),
     [
       sendAddress,
+      walletSendAddress,
       receiveAddress,
       isReceiveAddressResolving,
       isReceiveAddressLocked,

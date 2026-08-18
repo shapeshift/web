@@ -3,6 +3,7 @@ import { assign, setup } from 'xstate'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { Asset, QuoteResponse, TradeRate } from '../types'
 import {
+  formatAmountForInput,
   getChainType,
   isWidgetExecutableEvmChainId,
   isWidgetExecutableSolanaChainId,
@@ -36,11 +37,13 @@ export const createInitialContext = (input?: {
     selectedRate: null,
     quote: null,
     txHash: null,
+    depositObservedAt: null,
     approvalTxHash: null,
     error: null,
     errorSource: null,
     retryCount: 0,
     chainType: sellChainType,
+    isDepositFlow: false,
     slippage: input?.slippage ?? '0.5',
     sendAddress: undefined,
     receiveAddress: undefined,
@@ -64,6 +67,16 @@ export const swapMachine = setup({
       const namespace = context.sellAsset.assetId.split('/')[1]?.split(':')[0]
       return namespace === 'erc20'
     },
+    isDepositQuote: ({ context, event }) => {
+      const { quote } = event as { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
+      return context.isDepositFlow && !!quote?.depositAddress
+    },
+    isDepositFlowWithoutAddress: ({ context, event }) => {
+      const { quote } = event as { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
+      return context.isDepositFlow && !quote?.depositAddress
+    },
+    isRestoredDepositFunded: ({ event }) =>
+      !!(event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>).txHash,
     canRetry: ({ context }) => guardFns.canRetry(context),
     isQuoteError: ({ context }) => context.errorSource === 'QUOTE_ERROR',
     isApprovalError: ({ context }) => context.errorSource === 'APPROVAL_ERROR',
@@ -156,6 +169,62 @@ export const swapMachine = setup({
     assignTxHash: assign(({ event }) => ({
       txHash: (event as { type: 'EXECUTE_SUCCESS'; txHash: string }).txHash,
     })),
+    assignDepositFlow: assign(({ event }) => ({
+      isDepositFlow:
+        (event as { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }).isDepositFlow === true,
+    })),
+    assignDepositTxHash: assign(({ event }) => {
+      const { txHash, observedAt } = event as Extract<
+        SwapMachineEvent,
+        { type: 'DEPOSIT_DETECTED' }
+      >
+      return { txHash, depositObservedAt: observedAt }
+    }),
+    assignDepositUnavailableError: assign(() => ({
+      error: 'This route needs a connected wallet',
+      errorSource: 'QUOTE_ERROR' as const,
+    })),
+    assignTrackingTimeout: assign(() => ({
+      error: 'Check your receive address - the provider may still settle this swap',
+      errorSource: 'TRACKING_TIMEOUT' as const,
+    })),
+    assignRestoredDeposit: assign(({ event }) => {
+      const {
+        quote,
+        sendAddress,
+        receiveAddress,
+        sellAmountBaseUnit,
+        buyAmountBaseUnit,
+        txHash,
+        depositObservedAt,
+      } = event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>
+      const { sellAsset, buyAsset } = quote
+      return {
+        quote,
+        sendAddress,
+        receiveAddress,
+        txHash: txHash ?? null,
+        depositObservedAt: depositObservedAt ?? null,
+        isDepositFlow: true,
+        sellAsset,
+        buyAsset,
+        sellAmountBaseUnit,
+        sellAmount: sellAmountBaseUnit
+          ? formatAmountForInput(sellAmountBaseUnit, sellAsset.precision)
+          : '',
+        buyAmountBaseUnit,
+        buyAmount: buyAmountBaseUnit
+          ? formatAmountForInput(buyAmountBaseUnit, buyAsset.precision)
+          : '',
+        chainType: getChainType(sellAsset.chainId),
+        isSellAssetEvm: isWidgetExecutableEvmChainId(sellAsset.chainId),
+        isSellAssetUtxo: isWidgetExecutableUtxoChainId(sellAsset.chainId),
+        isSellAssetSolana: isWidgetExecutableSolanaChainId(sellAsset.chainId),
+        isBuyAssetEvm: getChainType(buyAsset.chainId) === 'evm',
+        error: null,
+        errorSource: null,
+      }
+    }),
     assignExecuteError: assign(({ event }) => ({
       error: (event as { type: 'EXECUTE_ERROR'; error: string }).error,
       errorSource: 'EXECUTE_ERROR' as const,
@@ -202,15 +271,21 @@ export const swapMachine = setup({
       retryCount: context.retryCount + 1,
       error: null,
       errorSource: null,
+      // Every retry re-quotes or re-signs, so a carried-over hash would mark the next deposit funded
+      txHash: null,
+      depositObservedAt: null,
+      approvalTxHash: null,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
       txHash: null,
+      depositObservedAt: null,
       approvalTxHash: null,
       error: null,
       errorSource: null,
       retryCount: 0,
       selectedRate: null,
+      isDepositFlow: false,
       sellAsset: context.sellAsset,
       buyAsset: context.buyAsset,
       sellAmount: context.sellAmount,
@@ -242,15 +317,35 @@ export const swapMachine = setup({
         SET_SEND_ADDRESS: { actions: 'assignSendAddress' },
         SET_RECEIVE_ADDRESS: { actions: 'assignReceiveAddress' },
         UPDATE_CHAIN_INFO: { actions: 'assignChainInfo' },
+        RESTORE_DEPOSIT: [
+          {
+            // Already funded before the reload, so rejoin settlement rather than ask again
+            target: 'polling_status',
+            guard: 'isRestoredDepositFunded',
+            actions: 'assignRestoredDeposit',
+          },
+          { target: 'awaiting_deposit', actions: 'assignRestoredDeposit' },
+        ],
         FETCH_QUOTE: {
           target: 'quoting',
           guard: 'hasValidInput',
+          actions: 'assignDepositFlow',
         },
       },
     },
     quoting: {
       on: {
         QUOTE_SUCCESS: [
+          {
+            target: 'awaiting_deposit',
+            guard: 'isDepositQuote',
+            actions: 'assignQuote',
+          },
+          {
+            target: 'error',
+            guard: 'isDepositFlowWithoutAddress',
+            actions: 'assignDepositUnavailableError',
+          },
           {
             target: 'approval_needed',
             guard: 'isApprovalRequired',
@@ -297,12 +392,37 @@ export const swapMachine = setup({
         },
       },
     },
+    // Both deposit states accept a terminal status directly: the provider can settle or refund a
+    // deposit without ever reporting its hash, and that must not strand either screen
+    awaiting_deposit: {
+      on: {
+        DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
+        DEPOSIT_EXPIRED: { target: 'deposit_expired' },
+        STATUS_CONFIRMED: { target: 'complete' },
+        STATUS_FAILED: { target: 'error', actions: 'assignStatusFailed' },
+        RESET: { target: 'input', actions: 'resetSwapState' },
+      },
+    },
+    deposit_expired: {
+      on: {
+        DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
+        STATUS_CONFIRMED: { target: 'complete' },
+        STATUS_FAILED: { target: 'error', actions: 'assignStatusFailed' },
+        RETRY: { target: 'quoting', actions: 'incrementRetryCount' },
+        RESET: { target: 'input', actions: 'resetSwapState' },
+      },
+    },
     polling_status: {
       on: {
         STATUS_CONFIRMED: { target: 'complete' },
         STATUS_FAILED: {
           target: 'error',
           actions: 'assignStatusFailed',
+        },
+        // The one deposit screen with no controls of its own, so it can't be left spinning
+        DEPOSIT_TRACKING_TIMEOUT: {
+          target: 'error',
+          actions: 'assignTrackingTimeout',
         },
       },
     },

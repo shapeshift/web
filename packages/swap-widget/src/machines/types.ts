@@ -1,6 +1,11 @@
 import type { Asset, QuoteResponse, TradeRate } from '../types'
 
-export type ErrorSource = 'QUOTE_ERROR' | 'APPROVAL_ERROR' | 'EXECUTE_ERROR' | 'STATUS_FAILED'
+export type ErrorSource =
+  | 'QUOTE_ERROR'
+  | 'APPROVAL_ERROR'
+  | 'EXECUTE_ERROR'
+  | 'STATUS_FAILED'
+  | 'TRACKING_TIMEOUT'
 
 export type SwapMachineContext = {
   sellAsset: Asset
@@ -15,12 +20,16 @@ export type SwapMachineContext = {
   selectedRate: TradeRate | null
   quote: QuoteResponse | null
   txHash: string | null
+  // When the provider first reported the deposit, which is when settlement tracking starts
+  depositObservedAt: number | null
   approvalTxHash: string | null
   error: string | null
   errorSource: ErrorSource | null
   retryCount: number
   chainType: 'evm' | 'utxo' | 'solana' | 'cosmos' | 'other'
+  isDepositFlow: boolean
   slippage: string
+  // Named for the api field it fills - on a deposit swap it's the typed refund address
   sendAddress: string | undefined
   receiveAddress: string | undefined
   isSellAssetEvm: boolean
@@ -42,7 +51,20 @@ export type SwapMachineEvent =
   | { type: 'SET_SELL_FIAT_MODE'; isFiat: boolean }
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }
-  | { type: 'FETCH_QUOTE' }
+  | { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }
+  | { type: 'DEPOSIT_DETECTED'; txHash: string; observedAt: number }
+  | { type: 'DEPOSIT_EXPIRED' }
+  | { type: 'DEPOSIT_TRACKING_TIMEOUT' }
+  | {
+      type: 'RESTORE_DEPOSIT'
+      quote: QuoteResponse
+      sendAddress: string
+      receiveAddress: string
+      sellAmountBaseUnit: string | undefined
+      buyAmountBaseUnit: string | undefined
+      txHash: string | undefined
+      depositObservedAt: number | undefined
+    }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }
   | { type: 'APPROVE' }

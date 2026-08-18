@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express'
 
 import { env } from '../../env'
+import { bindSellTxHash, requiresTxHashToTrack } from '../../lib/externalPayment'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -17,7 +18,7 @@ registry.registerPath({
   operationId: 'getSwapStatus',
   summary: 'Get swap status',
   description:
-    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and start tracking. Subsequent calls can omit txHash.',
+    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and begin tracking; later calls can omit it. Externally paid quotes need no txHash at all - tracking starts from the quote ID alone, and txHash is filled in once the provider reports the deposit.',
   tags: ['Swaps'],
   request: {
     headers: PartnerCodeHeaderSchema,
@@ -61,7 +62,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       return
     }
 
-    if (!txHash && !storedQuote.txHash) {
+    if (!txHash && requiresTxHashToTrack(storedQuote)) {
       res.status(400).json({
         error: 'txHash is required to begin tracking',
         code: 'TX_HASH_REQUIRED',
@@ -138,23 +139,42 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         return
       }
 
-      const swapServiceStatus = statusResult.data
+      const {
+        sellTxHash,
+        buyTxHash,
+        status: serviceStatus,
+        isAffiliateVerified,
+      } = statusResult.data
 
-      const status =
-        swapServiceStatus.status === 'SUCCESS'
-          ? 'confirmed'
-          : swapServiceStatus.status === 'FAILED'
-          ? 'failed'
-          : storedQuote.status
+      let trackedQuote = storedQuote
 
-      if (status !== storedQuote.status && (status === 'confirmed' || status === 'failed')) {
-        response.status = status
-        quoteStore.set(quoteId, { ...storedQuote, status })
+      // An externally paid swap's sell tx hash arrives from the provider, not from the client
+      if (!trackedQuote.txHash && sellTxHash) {
+        trackedQuote = bindSellTxHash(trackedQuote, sellTxHash, Date.now())
+
+        quoteStore.set(quoteId, trackedQuote)
+
+        response.txHash = trackedQuote.txHash
+        response.registeredAt = trackedQuote.registeredAt
+        response.status = trackedQuote.status
       }
 
-      if (swapServiceStatus.buyTxHash) response.buyTxHash = swapServiceStatus.buyTxHash
-      if (swapServiceStatus.isAffiliateVerified !== undefined) {
-        response.isAffiliateVerified = swapServiceStatus.isAffiliateVerified
+      const status =
+        serviceStatus === 'SUCCESS'
+          ? 'confirmed'
+          : serviceStatus === 'FAILED'
+          ? 'failed'
+          : trackedQuote.status
+
+      if (status !== trackedQuote.status && (status === 'confirmed' || status === 'failed')) {
+        response.status = status
+        quoteStore.set(quoteId, { ...trackedQuote, status })
+      }
+
+      if (buyTxHash) response.buyTxHash = buyTxHash
+
+      if (isAffiliateVerified !== null) {
+        response.isAffiliateVerified = isAffiliateVerified
       }
 
       res.json(response)

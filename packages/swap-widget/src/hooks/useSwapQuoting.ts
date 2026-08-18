@@ -71,13 +71,16 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
         }
 
         if (!sendAddress) {
-          actorRef.send({ type: 'QUOTE_ERROR', error: 'No wallet address available' })
+          actorRef.send({
+            type: 'QUOTE_ERROR',
+            error: context.isDepositFlow
+              ? 'No refund address available'
+              : 'No wallet address available',
+          })
           return
         }
 
-        const resolvedReceiveAddress = receiveAddress || sendAddress
-
-        if (!resolvedReceiveAddress) {
+        if (!receiveAddress) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No receive address available' })
           return
         }
@@ -89,7 +92,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
             ? { buyAmountCryptoBaseUnit: amountBaseUnit }
             : { sellAmountCryptoBaseUnit: amountBaseUnit }),
           sendAddress,
-          receiveAddress: resolvedReceiveAddress,
+          receiveAddress,
           swapperName: rateToUse.swapperName,
           slippageTolerancePercentageDecimal: slippageDecimal,
         })
@@ -104,6 +107,6 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
     }
 
     fetchQuote()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs read from snapshot
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; the rest are read from the render that entered quoting
   }, [stateValue])
 }

@@ -6,6 +6,7 @@ import {
 } from '../../utils'
 
 export const chainflipSwapper: Swapper = {
+  supportsExternalPayment: true,
   executeEvmTransaction,
   executeSolanaTransaction,
   executeTronTransaction,

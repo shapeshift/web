@@ -34,7 +34,8 @@ import {
   isTreasuryChainId,
 } from '@shapeshiftoss/utils'
 
-import type { TradeAmount } from '../types'
+import type { TradeAmount, TradeQuoteStep, TradeRateStep } from '../types'
+import { SwapperName } from '../types'
 
 // Deadline for providers without their own expiry - short enough to keep priced amounts honest
 export const FALLBACK_QUOTE_DEADLINE_MS = 60_000
@@ -112,4 +113,24 @@ export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {
   if (!treasuryAddress)
     throw new Error(`[getTreasuryAddressFromChainId] - Unsupported chainId: ${chainId}`)
   return treasuryAddress
+}
+
+export const getDepositAddress = (
+  step: TradeQuoteStep | TradeRateStep,
+  swapperName: SwapperName,
+): string | undefined => {
+  switch (swapperName) {
+    case SwapperName.Chainflip:
+      return step.chainflipSpecific?.depositAddress || undefined
+    case SwapperName.NearIntents: {
+      if (step.swapperMetadata?.name !== 'nearIntents') return
+
+      const { depositAddress, depositMemo } = step.swapperMetadata
+      if (depositMemo) return
+
+      return depositAddress || undefined
+    }
+    default:
+      return
+  }
 }

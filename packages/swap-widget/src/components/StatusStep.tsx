@@ -28,8 +28,19 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   const isComplete = SwapMachineCtx.useSelector(s => s.matches('complete'))
   const isError = SwapMachineCtx.useSelector(s => s.matches('error'))
   const { send } = SwapMachineCtx.useActorRef()
-  const { sellAsset, buyAsset, txHash, error, retryCount, isSellAssetUtxo, isSellAssetSolana } =
-    context
+  const {
+    sellAsset,
+    buyAsset,
+    txHash,
+    error,
+    errorSource,
+    retryCount,
+    isSellAssetUtxo,
+    isSellAssetSolana,
+  } = context
+
+  // The swap may well have settled, so no failure wording and no retry quoting a second one
+  const hasStoppedTracking = errorSource === 'TRACKING_TIMEOUT'
 
   const explorerUrl = useMemo(() => {
     if (!txHash) return undefined
@@ -102,7 +113,11 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
 
       {isError && (
         <>
-          <div className='ssw-step-icon-circle ssw-ic-error'>
+          <div
+            className={`ssw-step-icon-circle ${
+              hasStoppedTracking ? 'ssw-ic-accent' : 'ssw-ic-error'
+            }`}
+          >
             <svg
               width='32'
               height='32'
@@ -112,13 +127,16 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               strokeWidth='2'
             >
               <circle cx='12' cy='12' r='10' />
-              <path d='M15 9l-6 6M9 9l6 6' />
+              <path d={hasStoppedTracking ? 'M12 7v5l3 2' : 'M15 9l-6 6M9 9l6 6'} />
             </svg>
           </div>
-          <div className='ssw-step-title'>Transaction Failed</div>
+          <div className='ssw-step-title'>
+            {hasStoppedTracking ? 'Still Processing' : 'Transaction Failed'}
+          </div>
           <div className='ssw-step-subtitle'>{truncatedError ?? 'Something went wrong'}</div>
+          {hasStoppedTracking && explorerUrl && <ExplorerLink url={explorerUrl} />}
           <div className='ssw-step-actions'>
-            {retryCount < 3 && (
+            {!hasStoppedTracking && retryCount < 3 && (
               <button
                 className='ssw-action-btn'
                 onClick={() => send({ type: 'RETRY' })}
@@ -132,7 +150,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               onClick={() => send({ type: 'RESET' })}
               type='button'
             >
-              Start Over
+              New Swap
             </button>
           </div>
         </>

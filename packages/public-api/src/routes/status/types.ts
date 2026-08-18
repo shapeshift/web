@@ -5,17 +5,17 @@ import { BpsFields, EVM_ADDRESS } from '../../types'
 
 export const SwapServiceStatusSchema = z.object({
   status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
-  sellTxHash: z.string().optional(),
-  buyTxHash: z.string().optional(),
-  statusMessage: z.string(),
-  isAffiliateVerified: z.boolean().optional(),
+  sellTxHash: z.string().nullable(),
+  buyTxHash: z.string().nullable(),
+  statusMessage: z.string().nullable(),
+  isAffiliateVerified: z.boolean().nullable(),
   affiliateVerificationDetails: z
     .object({
       hasAffiliate: z.boolean(),
       affiliateBps: z.number().optional(),
       affiliateAddress: EVM_ADDRESS.optional(),
     })
-    .optional(),
+    .nullable(),
 })
 
 export type SwapServiceStatus = z.infer<typeof SwapServiceStatusSchema>

@@ -765,6 +765,8 @@ export type CheckTradeStatusInput = {
 export type TradeStatus = {
   status: TxStatus
   buyTxHash: string | undefined
+  // Set by externally paid swappers, whose client may never see the deposit it reports
+  sellTxHash?: string | undefined
   // The swapper/protocol's own identifier for the swap (relayer tx hash, native swap id, order uid)
   swapperTxId?: string | undefined
   // Fully-formed link to the swapper/protocol's own tracker page for the swap
@@ -782,6 +784,8 @@ export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
+  supportsExternalPayment?: boolean
+
   executeEvmTransaction?: (
     txToSign: SignTx<EvmChainId>,
     callbacks: EvmTransactionExecutionProps,

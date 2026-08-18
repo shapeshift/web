@@ -44,12 +44,12 @@ export enum SwapperName {
   Relay = 'Relay',
   Thorchain = 'THORChain',
   Mayachain = 'MAYAChain',
+  Chainflip = 'Chainflip',
   //ArbitrumBridge = 'Arbitrum Bridge',
   //Avnu = 'AVNU',
   //Bebop = 'Bebop',
   //ButterSwap = 'ButterSwap',
   //Cetus = 'Cetus',
-  //Chainflip = 'Chainflip',
   //CowSwap = 'CoW Swap',
   //Portals = 'Portals',
   //Sunio = 'Sun.io',
@@ -119,6 +119,7 @@ export type TradeRate = {
   shapeshiftBps: string
   affiliateBps: string
   networkFeeCryptoBaseUnit?: string
+  supportsExternalPayment?: boolean
   error?: {
     code: string
     message: string
@@ -169,7 +170,7 @@ export type SwapWidgetProps = ReceiveAddressProps &
     sellFilters?: SwapWidgetFilters
     buyFilters?: SwapWidgetFilters
     allowedSwapperNames?: SwapperName[]
-    onSwapSuccess?: (txHash: string) => void
+    onSwapSuccess?: (txHash?: string) => void
     onSwapError?: (error: Error) => void
     theme?: ThemeMode | ThemeConfig
     defaultSlippage?: string
@@ -232,6 +233,7 @@ export type QuoteResponse = {
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
+  depositAddress?: string // Present only when the swap supports external payments
 }
 
 export type AssetsResponse = {

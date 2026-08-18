@@ -377,11 +377,13 @@ const processRelatedAssetIds = async (
   const zerionRelatedAssetIds = zerionRelatedAssetsResult?.relatedAssetIds ?? []
   const coingeckoRelatedAssetIds = coingeckoRelatedAssetsResult?.relatedAssetIds ?? []
 
+  // Providers report related assets exclusive of the primary, so add it back
   const mergedRelatedAssetIds = Array.from(
     new Set([
       ...manualRelatedAssetIds,
       ...zerionRelatedAssetIds,
       ...coingeckoRelatedAssetIds,
+      relatedAssetKey,
       assetId,
     ]),
   )

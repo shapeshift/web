@@ -10,7 +10,6 @@ import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
-import semverGte from 'semver/functions/gte'
 
 import { KeepKeyConfig } from '../config'
 import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
@@ -94,6 +93,11 @@ export const KeepKeyConnect = () => {
           setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
           return
         }
+        // Below 6.1.0 the usb interface reports as a protected class and cannot be claimed
+        if ((err as HDWalletError).name === 'FirmwareUpdateRequired') {
+          dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
+          return
+        }
 
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
@@ -103,24 +107,6 @@ export const KeepKeyConnect = () => {
     if (!wallet) return
 
     try {
-      // Check firmware version before proceeding
-      const deviceFirmware = await wallet.getFirmwareVersion()
-
-      // If we're still loading the latest firmware version, wait
-      if (versionsQuery.isFetching) {
-        setLoading(true)
-        return
-      }
-
-      // If the latest firmware version is not available, proceed anyway
-      if (!latestFirmware) {
-        console.warn('Latest firmware version not available, proceeding anyway')
-      } else if (!semverGte(deviceFirmware, latestFirmware)) {
-        // If the device firmware is older than the required firmware version, show error and return
-        setErrorLoading('walletProvider.errors.walletNotFound')
-        return
-      }
-
       const { name, icon } = KeepKeyConfig
       const deviceId = await wallet.getDeviceID()
       await wallet.getFeatures()
@@ -166,15 +152,7 @@ export const KeepKeyConnect = () => {
     }
 
     setLoading(false)
-  }, [
-    dispatch,
-    getAdapter,
-    localWallet,
-    setErrorLoading,
-    state.keyring,
-    latestFirmware,
-    versionsQuery.isFetching,
-  ])
+  }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring])
 
   const walletNotFoundTranslation: [string, InterpolationOptions] = useMemo(
     () => ['walletProvider.keepKey.errors.updateAlert', { version: latestFirmware }],

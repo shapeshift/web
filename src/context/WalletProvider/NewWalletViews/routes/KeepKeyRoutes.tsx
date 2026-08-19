@@ -6,7 +6,6 @@ import { Route, Routes } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
 
-import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'

@@ -118,9 +118,6 @@ export const isNonEmptyString = (value: string | undefined): value is string =>
 type Falsy = false | null | undefined | '' | 0
 export const isTruthy = <T>(value: T | Falsy): value is T => Boolean(value)
 
-// KeepKey firmware reconstructs the THORChain MsgSend it signs and hardcodes the `rune` denom, so
-// it cannot sign transfers of native THORChain assets that aren't RUNE. Deposits are unaffected, as
-// those carry the asset through verbatim.
 export const walletSupportsSendingAsset = (assetId: AssetId, wallet: HDWallet): boolean => {
   if (isKeepKeyHDWallet(wallet) && [tcyAssetId, rujiAssetId].includes(assetId)) return false
 

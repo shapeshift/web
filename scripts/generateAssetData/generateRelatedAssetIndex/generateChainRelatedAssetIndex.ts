@@ -288,14 +288,14 @@ const processRelatedAssetIds = async (
   if (existingRelatedAssetKey) {
     const group = relatedAssetIndex[existingRelatedAssetKey] ?? []
 
-    // A group that omits its own primary is malformed - repair it rather than returning
-    if (group.includes(assetId) && group.includes(existingRelatedAssetKey)) return
-
     const rejoinedGroup = Array.from(new Set([...group, existingRelatedAssetKey, assetId]))
 
     // A group of one is not a group - fall through and let the providers regroup it
     if (rejoinedGroup.length > 1) {
-      console.log(`Restoring ${assetId} to group ${existingRelatedAssetKey}`)
+      if (rejoinedGroup.length !== group.length) {
+        console.log(`Restoring ${assetId} to group ${existingRelatedAssetKey}`)
+      }
+
       relatedAssetIndex[existingRelatedAssetKey] = rejoinedGroup
 
       // Only fill a missing key - repointing would steal the asset from another group

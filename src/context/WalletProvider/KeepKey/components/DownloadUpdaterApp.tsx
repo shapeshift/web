@@ -2,7 +2,7 @@ import { Button, Icon, Link, ModalBody, ModalHeader, Text as CText } from '@chak
 import { useMemo } from 'react'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 
-import { getPlatform, RELEASE_PAGE, UPDATER_BASE_URL } from '../helpers'
+import { getPlatform, getUpdaterFilename, getUpdaterUrl, RELEASE_PAGE } from '../helpers'
 import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
 
 import { Text } from '@/components/Text'
@@ -14,23 +14,10 @@ export const KeepKeyDownloadUpdaterApp = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const { stableDesktopVersionQuery } = useKeepKeyVersions({ wallet })
-  const stableVersion = stableDesktopVersionQuery.data
+  const { latestUpdaterVersionQuery } = useKeepKeyVersions({ wallet })
+  const latestVersion = latestUpdaterVersionQuery.data
 
-  const latestVersion = stableVersion
-
-  const platformFilename = useMemo(() => {
-    switch (platform) {
-      case 'Mac OS':
-        return `KeepKey-Desktop-${latestVersion}-universal.dmg`
-      case 'Windows':
-        return `KeepKey-Desktop-Setup-${latestVersion}.exe`
-      case 'Linux':
-        return `KeepKey-Desktop-${latestVersion}.AppImage`
-      default:
-        return null
-    }
-  }, [platform, latestVersion])
+  const platformFilename = useMemo(() => getUpdaterFilename(latestVersion), [latestVersion])
 
   const platformIcon = useMemo(() => {
     switch (platform) {
@@ -53,14 +40,12 @@ export const KeepKeyDownloadUpdaterApp = () => {
   const downloadUpdaterTranslation: TextPropTypes['translation'] = useMemo(
     () => [
       'modals.keepKey.downloadUpdater.button',
-      { filename: platformFilename || 'Desktop App' },
+      { filename: platformFilename ?? 'KeepKey Vault' },
     ],
     [platformFilename],
   )
 
-  const updaterUrl = platformFilename
-    ? `${UPDATER_BASE_URL}v${latestVersion}/${platformFilename}`
-    : RELEASE_PAGE
+  const updaterUrl = getUpdaterUrl(latestVersion)
 
   return (
     <>

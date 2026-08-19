@@ -20,11 +20,7 @@ import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuConta
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
-import {
-  getPlatform,
-  RELEASE_PAGE,
-  UPDATER_BASE_URL,
-} from '@/context/WalletProvider/KeepKey/helpers'
+import { getUpdaterUrl } from '@/context/WalletProvider/KeepKey/helpers'
 import { useKeepKeyVersions } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -60,9 +56,9 @@ export const KeepKeyMenu = () => {
     setDeviceState,
     state: { wallet, isConnected, walletInfo },
   } = useWallet()
-  const { versionsQuery, stableDesktopVersionQuery } = useKeepKeyVersions({ wallet })
+  const { versionsQuery, latestUpdaterVersionQuery } = useKeepKeyVersions({ wallet })
   const versions = versionsQuery.data?.versions
-  const stableVersion = stableDesktopVersionQuery.data
+  const latestVersion = latestUpdaterVersionQuery.data
   const keepKeyWipe = useModal('keepKeyWipe')
 
   // Reset ephemeral device state properties when opening the KeepKey menu
@@ -73,28 +69,7 @@ export const KeepKeyMenu = () => {
     })
   }, [setDeviceState])
 
-  // Get the platform and construct the dynamic download URL
-  const platform = useMemo(() => getPlatform(), [])
-  const latestVersion = stableVersion
-
-  const platformFilename = useMemo(() => {
-    switch (platform) {
-      case 'Mac OS':
-        return `KeepKey-Desktop-${latestVersion}-universal.dmg`
-      case 'Windows':
-        return `KeepKey-Desktop-Setup-${latestVersion}.exe`
-      case 'Linux':
-        return `KeepKey-Desktop-${latestVersion}.AppImage`
-      default:
-        return null
-    }
-  }, [platform, latestVersion])
-
-  const updaterUrl = useMemo(
-    () =>
-      platformFilename ? `${UPDATER_BASE_URL}v${latestVersion}/${platformFilename}` : RELEASE_PAGE,
-    [platformFilename, latestVersion],
-  )
+  const updaterUrl = useMemo(() => getUpdaterUrl(latestVersion), [latestVersion])
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value

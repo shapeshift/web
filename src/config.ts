@@ -189,10 +189,10 @@ const validators = {
   VITE_ONRAMPER_API_KEY: str(),
   VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
-    default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
+    default: 'https://github.com/keepkey/keepkey-vault/releases/latest',
   }),
   VITE_KEEPKEY_UPDATER_BASE_URL: url({
-    default: 'https://github.com/keepkey/keepkey-desktop/releases/download/',
+    default: 'https://github.com/keepkey/keepkey-vault/releases/download/',
   }),
   VITE_ETHERSCAN_API_KEY: str({
     default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF',

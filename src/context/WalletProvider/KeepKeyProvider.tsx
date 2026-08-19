@@ -24,7 +24,7 @@ import React, {
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 
-import { getPlatform, RELEASE_PAGE, UPDATER_BASE_URL } from './KeepKey/helpers'
+import { getUpdaterUrl } from './KeepKey/helpers'
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
 import type { RadioOption } from '@/components/Radio/Radio'
@@ -127,10 +127,10 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
-  const { versionsQuery, stableDesktopVersionQuery } = useKeepKeyVersions({ wallet })
+  const { versionsQuery, latestUpdaterVersionQuery } = useKeepKeyVersions({ wallet })
   const versions = versionsQuery.data?.versions
   const isLTCSupportedFirmwareVersion = versionsQuery.data?.isLTCSupportedFirmwareVersion ?? false
-  const stableVersion = stableDesktopVersionQuery.data
+  const latestVersion = latestUpdaterVersionQuery.data
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(
@@ -190,27 +190,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })()
   }, [keepKeyWallet, setDeviceTimeout, setHasPassphrase])
 
-  const platform = useMemo(() => getPlatform(), [])
-  const latestVersion = stableVersion
-
-  const platformFilename = useMemo(() => {
-    switch (platform) {
-      case 'Mac OS':
-        return `KeepKey-Desktop-${latestVersion}-universal.dmg`
-      case 'Windows':
-        return `KeepKey-Desktop-Setup-${latestVersion}.exe`
-      case 'Linux':
-        return `KeepKey-Desktop-${latestVersion}.AppImage`
-      default:
-        return null
-    }
-  }, [platform, latestVersion])
-
-  const updaterUrl = useMemo(
-    () =>
-      platformFilename ? `${UPDATER_BASE_URL}v${latestVersion}/${platformFilename}` : RELEASE_PAGE,
-    [platformFilename, latestVersion],
-  )
+  const updaterUrl = useMemo(() => getUpdaterUrl(latestVersion), [latestVersion])
 
   useEffect(() => {
     if (!keepKeyWallet) return

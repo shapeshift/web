@@ -40,7 +40,7 @@ npm install react react-dom \
   @tanstack/react-query \
   @reown/appkit @reown/appkit-adapter-wagmi \
   @reown/appkit-adapter-bitcoin @reown/appkit-adapter-solana \
-  @solana/wallet-adapter-wallets @solana/web3.js
+  @solana/wallet-adapter-phantom @solana/wallet-adapter-solflare @solana/web3.js
 ```
 
 - **React 18 or 19** is supported (`^18.0.0 || ^19.0.0`).

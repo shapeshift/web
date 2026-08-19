@@ -1,10 +1,8 @@
-import { Alert, AlertDescription, AlertIcon, Button } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWallet, HDWalletError } from '@shapeshiftoss/hdwallet-core'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import semverGte from 'semver/functions/gte'
 
 import { PairBody } from '../components/PairBody'
 
@@ -45,15 +43,10 @@ export const KeepKeyRoutes = () => {
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const { deviceFirmwareQuery, versionsQuery } = useKeepKeyVersions({ wallet })
-  const latestFirmware = versionsQuery.data?.latestFirmware
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
   }, [])
-
-  const handleDownloadButtonClick = useCallback(() => {
-    dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
-  }, [dispatch])
 
   // This... well, pairs KK, but we still need to initialize it later on as a side-effect
   const pairKeepKeyHdWallet = useCallback(async () => {
@@ -86,32 +79,24 @@ export const KeepKeyRoutes = () => {
           setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
           return
         }
+        // The only firmware version the client genuinely cannot work with - the transport throws
+        // this when the usb interface reports as a protected class, below firmware 6.1.0
+        if ((err as HDWalletError).name === 'FirmwareUpdateRequired') {
+          dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
+          return
+        }
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
       }
     })()
 
     setWallet(wallet || null)
-  }, [getAdapter, setErrorLoading, state.keyring])
+  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
 
   // Actually initializes KK once hdwallet is paired
   const initializeKeepKeyMutation = useMutation({
     mutationFn: async () => {
       if (!wallet) throw new Error('No wallet available')
-
-      // Check firmware version before proceeding
-      const deviceFirmware = deviceFirmwareQuery.data
-
-      if (!deviceFirmware) throw new Error('Device firmware data not available')
-
-      // If the latest firmware version is not available, proceed anyway
-      if (!latestFirmware) {
-        console.warn('Latest firmware version not available, proceeding anyway')
-      } else if (!semverGte(deviceFirmware, latestFirmware)) {
-        // If the device firmware is older than the required firmware version, show error and throw
-        console.error(`Firmware version ${deviceFirmware} is older than required ${latestFirmware}`)
-        throw new Error('walletProvider.errors.walletVersionTooOld')
-      }
 
       const { name, icon } = KeepKeyConfig
       const deviceId = await wallet.getDeviceID()
@@ -174,30 +159,6 @@ export const KeepKeyRoutes = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, deviceFirmwareQuery.data, versionsQuery.data, initializeKeepKeyMutation.mutate])
 
-  const secondaryContent = useMemo(
-    () =>
-      error === 'walletProvider.errors.walletVersionTooOld' && (
-        <>
-          <Alert status='error'>
-            <AlertIcon />
-            <AlertDescription>
-              <Text
-                // This is already memoized
-                translation={[
-                  'walletProvider.keepKey.errors.updateAlert',
-                  { version: latestFirmware },
-                ]}
-              />
-            </AlertDescription>
-          </Alert>
-          <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue'>
-            <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
-          </Button>
-        </>
-      ),
-    [error, handleDownloadButtonClick, latestFirmware],
-  )
-
   const pairBodyElement = useMemo(
     () => (
       <PairBody
@@ -212,7 +173,6 @@ export const KeepKeyRoutes = () => {
         }
         error={error}
         onPairDeviceClick={pairKeepKeyHdWallet}
-        secondaryContent={secondaryContent}
       />
     ),
     [
@@ -221,7 +181,6 @@ export const KeepKeyRoutes = () => {
       versionsQuery.isLoading,
       error,
       pairKeepKeyHdWallet,
-      secondaryContent,
     ],
   )
 

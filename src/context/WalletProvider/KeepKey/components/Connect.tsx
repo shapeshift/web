@@ -55,7 +55,7 @@ export const KeepKeyConnect = () => {
   }, [])
 
   const handleDownloadButtonClick = useCallback(() => {
-    dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
+    dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
   }, [dispatch])
 
   const pairDevice = useCallback(async () => {

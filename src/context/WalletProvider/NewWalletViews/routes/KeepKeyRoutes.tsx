@@ -79,8 +79,7 @@ export const KeepKeyRoutes = () => {
           setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
           return
         }
-        // The only firmware version the client genuinely cannot work with - the transport throws
-        // this when the usb interface reports as a protected class, below firmware 6.1.0
+        // Below 6.1.0 the usb interface reports as a protected class and cannot be claimed
         if ((err as HDWalletError).name === 'FirmwareUpdateRequired') {
           dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
           return

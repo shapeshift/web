@@ -80,21 +80,23 @@ export const getPlatform = () => {
   }
 }
 
-// KeepKey Vault ships separate arm64 and x86_64 macOS builds, and navigator.platform reports
-// MacIntel for both, so there is no way to pick the right one - mac falls back to the release page
-export const getUpdaterFilename = (version: string | undefined): string | null => {
+// Vault ships separate arm64/x86_64 mac builds and navigator.platform cannot tell them apart
+export const getUpdaterFilename = (version: string | null | undefined): string | null => {
+  // The release query is still in flight on first render
+  if (!version) return null
+
   switch (getPlatform()) {
     case 'Windows':
       return `KeepKey-Vault-${version}-win-x64-setup.exe`
     case 'Linux':
-      // The AppImage is the only asset published without its version in the filename
+      // The only asset published without its version in the filename
       return 'KeepKey-Vault-x86_64.AppImage'
     default:
       return null
   }
 }
 
-export const getUpdaterUrl = (version: string | undefined): string => {
+export const getUpdaterUrl = (version: string | null | undefined): string => {
   const filename = getUpdaterFilename(version)
 
   return filename ? `${UPDATER_BASE_URL}v${version}/${filename}` : RELEASE_PAGE

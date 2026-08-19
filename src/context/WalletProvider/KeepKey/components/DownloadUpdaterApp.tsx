@@ -45,7 +45,7 @@ export const KeepKeyDownloadUpdaterApp = () => {
     [platformFilename],
   )
 
-  const updaterUrl = getUpdaterUrl(latestVersion)
+  const updaterUrl = useMemo(() => getUpdaterUrl(latestVersion), [latestVersion])
 
   return (
     <>

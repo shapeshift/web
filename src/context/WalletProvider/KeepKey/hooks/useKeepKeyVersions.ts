@@ -34,7 +34,6 @@ type FirmwareReleases = {
 }
 
 type VersionStatus = {
-  // The bootloader reports a hash we reverse-look-up, so an unlisted one resolves to nothing
   device: string | undefined
   latest: string
   updateAvailable: boolean
@@ -45,8 +44,7 @@ type Versions = {
   firmware: VersionStatus
 }
 
-// The manifest only lists releases it knows about, so a device can legitimately sit ahead of it -
-// only an older version is an update, and an unrecognised one is not something we can call
+// A device can sit ahead of the manifest, and an unknown version is not an update
 const isUpdateAvailable = (deviceVersion: string | undefined, latestVersion: string): boolean => {
   if (!deviceVersion) return false
 

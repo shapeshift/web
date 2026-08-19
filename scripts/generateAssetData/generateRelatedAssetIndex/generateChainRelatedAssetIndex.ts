@@ -292,7 +292,7 @@ const processRelatedAssetIds = async (
 
     // A group of one is not a group - fall through and let the providers regroup it
     if (rejoinedGroup.length > 1) {
-      if (rejoinedGroup.length !== group.length) {
+      if (rejoinedGroup.length !== new Set(group).size) {
         console.log(`Restoring ${assetId} to group ${existingRelatedAssetKey}`)
       }
 

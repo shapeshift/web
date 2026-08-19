@@ -118,7 +118,7 @@ export async function thorchainSignTx(
         }
 
         const coinAsset = m.value.coins[0].asset
-        if (coinAsset !== 'THOR.RUNE' && coinAsset !== 'THOR.TCY') {
+        if (!['THOR.RUNE', 'THOR.TCY', 'THOR.RUJI'].includes(coinAsset)) {
           throw new Error('THORChain: Unsupported coin asset: ' + coinAsset)
         }
 

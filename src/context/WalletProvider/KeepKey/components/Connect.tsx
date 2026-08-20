@@ -9,12 +9,10 @@ import {
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { HDWalletErrorType } from '@shapeshiftoss/hdwallet-core'
-import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { KeepKeyConfig } from '../config'
 import { isHDWalletErrorType } from '../helpers'
-import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 import { setupKeepKeySDK } from '../setupKeepKeySdk'
 
@@ -47,8 +45,6 @@ export const KeepKeyConnect = () => {
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { versionsQuery } = useKeepKeyVersions({ wallet: state.wallet })
-  const latestFirmware = versionsQuery.data?.latestFirmware
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -156,10 +152,6 @@ export const KeepKeyConnect = () => {
     setLoading(false)
   }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring])
 
-  const walletNotFoundTranslation: [string, InterpolationOptions] = useMemo(
-    () => ['walletProvider.keepKey.errors.updateAlert', { version: latestFirmware }],
-    [latestFirmware],
-  )
   return (
     <>
       <ModalHeader>
@@ -183,17 +175,9 @@ export const KeepKeyConnect = () => {
           </Alert>
         )}
         {error === 'walletProvider.errors.walletNotFound' && (
-          <>
-            <Alert status='error' mt={4}>
-              <AlertIcon />
-              <AlertDescription>
-                <Text translation={walletNotFoundTranslation} />
-              </AlertDescription>
-            </Alert>
-            <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>
-              <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
-            </Button>
-          </>
+          <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>
+            <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
+          </Button>
         )}
       </ModalBody>
     </>

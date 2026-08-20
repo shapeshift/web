@@ -152,12 +152,13 @@ export const KeepKeyRoutes = () => {
   // Fires the mutation when we're ready
   useEffect(() => {
     if (!wallet) return
-    if (!deviceFirmwareQuery.data || !versionsQuery.data) return
+    // Only the device is a prerequisite, the manifest is fetched from a third party
+    if (!deviceFirmwareQuery.data) return
 
     initializeKeepKeyMutation.mutate()
     // Don't memoize initializeKeepKeyMutation or this will run in an infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, deviceFirmwareQuery.data, versionsQuery.data, initializeKeepKeyMutation.mutate])
+  }, [wallet, deviceFirmwareQuery.data, initializeKeepKeyMutation.mutate])
 
   const pairBodyElement = useMemo(
     () => (

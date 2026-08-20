@@ -2,12 +2,26 @@ import { Button, Icon, Link, ModalBody, ModalHeader, Text as CText } from '@chak
 import { useMemo } from 'react'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 
-import { getPlatform, getUpdaterFilename, getUpdaterUrl, RELEASE_PAGE } from '../helpers'
+import type { UpdaterDownload } from '../helpers'
+import { getPlatform, getUpdaterDownloads, RELEASE_PAGE } from '../helpers'
 import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
 
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+
+const DownloadButton = ({ filename, url }: UpdaterDownload) => {
+  const translation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.keepKey.downloadUpdater.button', { filename }],
+    [filename],
+  )
+
+  return (
+    <Button as={Link} width='full' isExternal href={url} colorScheme='blue' mt={2}>
+      <Text translation={translation} />
+    </Button>
+  )
+}
 
 export const KeepKeyDownloadUpdaterApp = () => {
   const platform = useMemo(() => getPlatform(), [])
@@ -17,7 +31,7 @@ export const KeepKeyDownloadUpdaterApp = () => {
   const { latestUpdaterVersionQuery } = useKeepKeyVersions({ wallet })
   const latestVersion = latestUpdaterVersionQuery.data
 
-  const platformFilename = useMemo(() => getUpdaterFilename(latestVersion), [latestVersion])
+  const downloads = useMemo(() => getUpdaterDownloads(latestVersion), [latestVersion])
 
   const platformIcon = useMemo(() => {
     switch (platform) {
@@ -37,15 +51,15 @@ export const KeepKeyDownloadUpdaterApp = () => {
     [platform],
   )
 
-  const downloadUpdaterTranslation: TextPropTypes['translation'] = useMemo(
-    () => [
-      'modals.keepKey.downloadUpdater.button',
-      { filename: platformFilename ?? 'KeepKey Vault' },
-    ],
-    [platformFilename],
+  const releasePageTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['modals.keepKey.downloadUpdater.button', { filename: 'KeepKey Vault' }],
+    [],
   )
 
-  const updaterUrl = useMemo(() => getUpdaterUrl(latestVersion), [latestVersion])
+  const downloadButtons = useMemo(
+    () => downloads.map(download => <DownloadButton key={download.filename} {...download} />),
+    [downloads],
+  )
 
   return (
     <>
@@ -62,9 +76,13 @@ export const KeepKeyDownloadUpdaterApp = () => {
             </Link>
           </>
         )}
-        <Button as={Link} width='full' isExternal href={updaterUrl} colorScheme='blue' mt={2}>
-          <Text translation={downloadUpdaterTranslation} />
-        </Button>
+        {downloadButtons.length ? (
+          downloadButtons
+        ) : (
+          <Button as={Link} width='full' isExternal href={RELEASE_PAGE} colorScheme='blue' mt={2}>
+            <Text translation={releasePageTranslation} />
+          </Button>
+        )}
       </ModalBody>
     </>
   )

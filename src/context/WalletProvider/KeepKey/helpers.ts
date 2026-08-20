@@ -80,24 +80,35 @@ export const getPlatform = () => {
   }
 }
 
-// Vault ships separate arm64/x86_64 mac builds and navigator.platform cannot tell them apart
-export const getUpdaterFilename = (version: string | null | undefined): string | null => {
-  // The release query is still in flight on first render
-  if (!version) return null
+export type UpdaterDownload = { filename: string; url: string }
 
+const getUpdaterFilenames = (version: string): string[] => {
   switch (getPlatform()) {
     case 'Windows':
-      return `KeepKey-Vault-${version}-win-x64-setup.exe`
+      return [`KeepKey-Vault-${version}-win-x64-setup.exe`]
     case 'Linux':
       // The only asset published without its version in the filename
-      return 'KeepKey-Vault-x86_64.AppImage'
+      return ['KeepKey-Vault-x86_64.AppImage']
+    case 'Mac OS':
+      // navigator.platform reports MacIntel on Apple Silicon too, so we offer both builds
+      return [`KeepKey-Vault-${version}-arm64.dmg`, `KeepKey-Vault-${version}-x86_64.dmg`]
     default:
-      return null
+      return []
   }
 }
 
-export const getUpdaterUrl = (version: string | null | undefined): string => {
-  const filename = getUpdaterFilename(version)
+export const getUpdaterDownloads = (version: string | null | undefined): UpdaterDownload[] => {
+  // The release query is still in flight on first render
+  if (!version) return []
 
-  return filename ? `${UPDATER_BASE_URL}v${version}/${filename}` : RELEASE_PAGE
+  return getUpdaterFilenames(version).map(filename => ({
+    filename,
+    url: `${UPDATER_BASE_URL}v${version}/${filename}`,
+  }))
+}
+
+export const getUpdaterUrl = (version: string | null | undefined): string => {
+  const downloads = getUpdaterDownloads(version)
+
+  return downloads.length === 1 ? downloads[0].url : RELEASE_PAGE
 }

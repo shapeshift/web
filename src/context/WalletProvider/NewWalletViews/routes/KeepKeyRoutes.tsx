@@ -43,7 +43,7 @@ export const KeepKeyRoutes = () => {
   const { dispatch, getAdapter, state } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
-  const { deviceFirmwareQuery, versionsQuery } = useKeepKeyVersions({ wallet })
+  const { deviceFirmwareQuery } = useKeepKeyVersions({ wallet })
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -167,11 +167,7 @@ export const KeepKeyRoutes = () => {
         headerTranslation='walletProvider.keepKey.connect.header'
         bodyTranslation='walletProvider.keepKey.connect.body'
         buttonTranslation='walletProvider.keepKey.connect.button'
-        isLoading={
-          initializeKeepKeyMutation.isPending ||
-          deviceFirmwareQuery.isLoading ||
-          versionsQuery.isLoading
-        }
+        isLoading={initializeKeepKeyMutation.isPending || deviceFirmwareQuery.isLoading}
         error={error}
         onPairDeviceClick={pairKeepKeyHdWallet}
       />
@@ -179,7 +175,6 @@ export const KeepKeyRoutes = () => {
     [
       initializeKeepKeyMutation.isPending,
       deviceFirmwareQuery.isLoading,
-      versionsQuery.isLoading,
       error,
       pairKeepKeyHdWallet,
     ],

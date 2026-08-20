@@ -7,11 +7,13 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
-import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
+import type { Event } from '@shapeshiftoss/hdwallet-core'
+import { HDWalletErrorType } from '@shapeshiftoss/hdwallet-core'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 
 import { KeepKeyConfig } from '../config'
+import { isHDWalletErrorType } from '../helpers'
 import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 import { setupKeepKeySDK } from '../setupKeepKeySdk'
@@ -89,12 +91,12 @@ export const KeepKeyConnect = () => {
         }
       } catch (err) {
         console.error(err)
-        if ((err as HDWalletError).name === 'ConflictingApp') {
+        if (isHDWalletErrorType(err, HDWalletErrorType.ConflictingApp)) {
           setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
           return
         }
         // Below 6.1.0 the usb interface reports as a protected class and cannot be claimed
-        if ((err as HDWalletError).name === 'FirmwareUpdateRequired') {
+        if (isHDWalletErrorType(err, HDWalletErrorType.FirmwareUpdateRequired)) {
           dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
           return
         }

@@ -4,8 +4,8 @@ import {
   AlertDescription,
   AlertTitle,
   Box,
+  Button,
   CloseButton,
-  Link,
   Text,
   useToast,
 } from '@chakra-ui/react'
@@ -222,15 +222,16 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                     </Text>
                   ) : null}
                 </AlertDescription>
-                <Link
+                <Button
                   onClick={handleDownloadClick}
-                  display={'block'}
-                  fontWeight={'bold'}
-                  cursor='pointer'
+                  variant='link'
+                  colorScheme='whiteAlpha'
+                  color='white'
+                  fontWeight='bold'
                   mt={2}
                 >
                   {translate('updateToast.keepKey.downloadCta')}
-                </Link>
+                </Button>
               </Box>
               <CloseButton
                 alignSelf='flex-start'

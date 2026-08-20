@@ -1,4 +1,4 @@
-import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
+import type { HDWalletErrorType, RecoverDevice } from '@shapeshiftoss/hdwallet-core'
 import type { KeyboardEvent } from 'react'
 
 import { getConfig } from '@/config'
@@ -6,6 +6,10 @@ import { VALID_ENTROPY_NUMBERS } from '@/context/WalletProvider/KeepKey/componen
 
 export const RELEASE_PAGE = getConfig().VITE_KEEPKEY_UPDATER_RELEASE_PAGE
 export const UPDATER_BASE_URL = getConfig().VITE_KEEPKEY_UPDATER_BASE_URL
+
+// Pairing can reject with anything, so never assert a shape before reading it
+export const isHDWalletErrorType = (err: unknown, type: HDWalletErrorType): boolean =>
+  (err as Error | null | undefined)?.name === type
 
 export const isValidInput = (
   e: KeyboardEvent,

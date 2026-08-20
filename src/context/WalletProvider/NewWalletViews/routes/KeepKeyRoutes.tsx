@@ -1,5 +1,6 @@
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
-import type { Event, HDWallet, HDWalletError } from '@shapeshiftoss/hdwallet-core'
+import type { Event, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { HDWalletErrorType } from '@shapeshiftoss/hdwallet-core'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
@@ -8,6 +9,7 @@ import { PairBody } from '../components/PairBody'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
+import { isHDWalletErrorType } from '@/context/WalletProvider/KeepKey/helpers'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { useKeepKeyVersions } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { FailureType, MessageType } from '@/context/WalletProvider/KeepKey/KeepKeyTypes'
@@ -74,12 +76,12 @@ export const KeepKeyRoutes = () => {
         }
       } catch (err) {
         console.error(err)
-        if ((err as HDWalletError).name === 'ConflictingApp') {
+        if (isHDWalletErrorType(err, HDWalletErrorType.ConflictingApp)) {
           setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
           return
         }
         // Below 6.1.0 the usb interface reports as a protected class and cannot be claimed
-        if ((err as HDWalletError).name === 'FirmwareUpdateRequired') {
+        if (isHDWalletErrorType(err, HDWalletErrorType.FirmwareUpdateRequired)) {
           dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
           return
         }

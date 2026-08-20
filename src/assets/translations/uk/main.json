@@ -472,7 +472,6 @@
     "keepKey": {
       "title": "Доступне оновлення KeepKey",
       "newUpdateAvailable": "Доступне нове оновлення KeepKey.",
-      "downloadCta": "Завантажити оновлення",
       "updateRequiredForFeature": "Дане оновлення необхідне для підтримки %{feature}"
     }
   },
@@ -1230,7 +1229,6 @@
       },
       "downloadUpdater": {
         "header": "Завантажити оновлення KeepKey",
-        "button": "Завантажити %{filename}",
         "wrongPlatform": "Не використовуєш %{platform}? Клацніть тут"
       },
       "disconnect": {

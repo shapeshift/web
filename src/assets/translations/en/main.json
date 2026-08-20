@@ -472,7 +472,7 @@
     "keepKey": {
       "title": "KeepKey Update Available",
       "newUpdateAvailable": "A new KeepKey update is available.",
-      "downloadCta": "Download Update",
+      "downloadCta": "Update KeepKey",
       "updateRequiredForFeature": "This update is required to support %{feature}"
     }
   },
@@ -1232,8 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "Download KeepKey Updater",
-        "button": "Download %{filename}",
-        "wrongPlatform": "Not using %{platform}? Click here"
+        "body": "We couldn't connect to your KeepKey. Install KeepKey Vault to update your device, then try pairing again.",
+        "bodyUpdateAvailable": "A firmware update is available for your KeepKey. Install KeepKey Vault to update your device.",
+        "wrongPlatform": "Not using %{platform}? Click here",
+        "download": {
+          "windows": "Download for Windows",
+          "linux": "Download for Linux",
+          "macAppleSilicon": "Download for Apple Silicon (M1 or newer)",
+          "macIntel": "Download for Intel",
+          "releasePage": "View all downloads"
+        }
       },
       "disconnect": {
         "header": "Disconnect KeepKey device",

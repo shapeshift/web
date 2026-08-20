@@ -2,7 +2,6 @@ import { Button, Icon, Link, ModalBody, ModalHeader, Text as CText } from '@chak
 import { useMemo } from 'react'
 import { FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 
-import type { UpdaterDownload } from '../helpers'
 import { getPlatform, getUpdaterDownloads, RELEASE_PAGE } from '../helpers'
 import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
 
@@ -10,28 +9,20 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-const DownloadButton = ({ filename, url }: UpdaterDownload) => {
-  const translation: TextPropTypes['translation'] = useMemo(
-    () => ['modals.keepKey.downloadUpdater.button', { filename }],
-    [filename],
-  )
-
-  return (
-    <Button as={Link} width='full' isExternal href={url} colorScheme='blue' mt={2}>
-      <Text translation={translation} />
-    </Button>
-  )
-}
-
 export const KeepKeyDownloadUpdaterApp = () => {
   const platform = useMemo(() => getPlatform(), [])
   const {
-    state: { wallet },
+    state: { wallet, isConnected },
   } = useWallet()
   const { latestUpdaterVersionQuery } = useKeepKeyVersions({ wallet })
   const latestVersion = latestUpdaterVersionQuery.data
 
   const downloads = useMemo(() => getUpdaterDownloads(latestVersion), [latestVersion])
+
+  // A connected device got here from the update toast, everything else failed to pair
+  const bodyTranslation = isConnected
+    ? 'modals.keepKey.downloadUpdater.bodyUpdateAvailable'
+    : 'modals.keepKey.downloadUpdater.body'
 
   const platformIcon = useMemo(() => {
     switch (platform) {
@@ -51,13 +42,21 @@ export const KeepKeyDownloadUpdaterApp = () => {
     [platform],
   )
 
-  const releasePageTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['modals.keepKey.downloadUpdater.button', { filename: 'KeepKey Vault' }],
-    [],
-  )
-
   const downloadButtons = useMemo(
-    () => downloads.map(download => <DownloadButton key={download.filename} {...download} />),
+    () =>
+      downloads.map(({ labelKey, url }) => (
+        <Button
+          key={labelKey}
+          as={Link}
+          width='full'
+          isExternal
+          href={url}
+          colorScheme='blue'
+          mt={2}
+        >
+          <Text translation={labelKey} />
+        </Button>
+      )),
     [downloads],
   )
 
@@ -67,6 +66,7 @@ export const KeepKeyDownloadUpdaterApp = () => {
         <Text translation={'modals.keepKey.downloadUpdater.header'} />
       </ModalHeader>
       <ModalBody textAlign='center'>
+        <Text color='text.subtle' translation={bodyTranslation} mb={6} fontSize='sm' />
         {platformIcon && <Icon as={platformIcon} boxSize={20} mb={4} color='white' />}
         {platform && (
           <>
@@ -80,7 +80,7 @@ export const KeepKeyDownloadUpdaterApp = () => {
           downloadButtons
         ) : (
           <Button as={Link} width='full' isExternal href={RELEASE_PAGE} colorScheme='blue' mt={2}>
-            <Text translation={releasePageTranslation} />
+            <Text translation={'modals.keepKey.downloadUpdater.download.releasePage'} />
           </Button>
         )}
       </ModalBody>

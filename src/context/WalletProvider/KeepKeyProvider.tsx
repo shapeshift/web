@@ -24,10 +24,10 @@ import React, {
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 
-import { getUpdaterUrl } from './KeepKey/helpers'
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
 import type { RadioOption } from '@/components/Radio/Radio'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { poll } from '@/lib/poll/poll'
 import { isKeepKeyHDWallet } from '@/lib/utils'
@@ -125,12 +125,12 @@ const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const {
+    dispatch: walletDispatch,
     state: { wallet },
   } = useWallet()
-  const { versionsQuery, latestUpdaterVersionQuery } = useKeepKeyVersions({ wallet })
+  const { versionsQuery } = useKeepKeyVersions({ wallet })
   const versions = versionsQuery.data?.versions
   const isLTCSupportedFirmwareVersion = versionsQuery.data?.isLTCSupportedFirmwareVersion ?? false
-  const latestVersion = latestUpdaterVersionQuery.data
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(
@@ -190,7 +190,10 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })()
   }, [keepKeyWallet, setDeviceTimeout, setHasPassphrase])
 
-  const updaterUrl = useMemo(() => getUpdaterUrl(latestVersion), [latestVersion])
+  const handleDownloadClick = useCallback(() => {
+    onClose()
+    walletDispatch({ type: WalletActions.DOWNLOAD_UPDATER })
+  }, [onClose, walletDispatch])
 
   useEffect(() => {
     if (!keepKeyWallet) return
@@ -219,7 +222,13 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                     </Text>
                   ) : null}
                 </AlertDescription>
-                <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
+                <Link
+                  onClick={handleDownloadClick}
+                  display={'block'}
+                  fontWeight={'bold'}
+                  cursor='pointer'
+                  mt={2}
+                >
                   {translate('updateToast.keepKey.downloadCta')}
                 </Link>
               </Box>
@@ -246,7 +255,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     translate,
     versions,
     onClose,
-    updaterUrl,
+    handleDownloadClick,
   ])
 
   const value: IKeepKeyContext = useMemo(

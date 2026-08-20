@@ -8,7 +8,7 @@ import {
   MenuItem,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ExpandedMenuItem } from '@/components/Layout/Header/NavBar/ExpandedMenuItem'
@@ -20,7 +20,7 @@ import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuConta
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
-import { getUpdaterUrl } from '@/context/WalletProvider/KeepKey/helpers'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useKeepKeyVersions } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -53,12 +53,12 @@ export const KeepKeyMenu = () => {
     state: { deviceTimeout, features },
   } = useKeepKey()
   const {
+    dispatch,
     setDeviceState,
     state: { wallet, isConnected, walletInfo },
   } = useWallet()
-  const { versionsQuery, latestUpdaterVersionQuery } = useKeepKeyVersions({ wallet })
+  const { versionsQuery } = useKeepKeyVersions({ wallet })
   const versions = versionsQuery.data?.versions
-  const latestVersion = latestUpdaterVersionQuery.data
   const keepKeyWipe = useModal('keepKeyWipe')
 
   // Reset ephemeral device state properties when opening the KeepKey menu
@@ -69,7 +69,9 @@ export const KeepKeyMenu = () => {
     })
   }, [setDeviceState])
 
-  const updaterUrl = useMemo(() => getUpdaterUrl(latestVersion), [latestVersion])
+  const handleUpdateClick = useCallback(() => {
+    dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
+  }, [dispatch])
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -140,7 +142,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.bootloader.updateAvailable}
-            externalUrl={updaterUrl}
+            onClick={handleUpdateClick}
           />
           <ExpandedMenuItem
             label='walletProvider.keepKey.settings.menuLabels.firmware'
@@ -149,7 +151,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.firmware.updateAvailable}
-            externalUrl={updaterUrl}
+            onClick={handleUpdateClick}
           />
           <MenuDivider />
           <ExpandedMenuItem

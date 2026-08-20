@@ -5,7 +5,7 @@ import type { ThemeTypings } from '@chakra-ui/styled-system'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
@@ -65,6 +65,8 @@ export interface RadioOption<T> {
 export interface RadioProps<T> {
   name?: string
   defaultValue?: T
+  // Syncs the group with a value that arrives late or is reverted
+  value?: T
   options: readonly RadioOption<T>[]
   onChange: (value: T) => void
   variant?: string
@@ -83,6 +85,7 @@ export const Radio = <T extends RadioTypes>({
   options,
   onChange,
   defaultValue,
+  value,
   variant = 'ghost',
   colorScheme = 'gray',
   buttonGroupProps,
@@ -91,11 +94,17 @@ export const Radio = <T extends RadioTypes>({
   checkColor,
   isLoading,
 }: RadioProps<T>) => {
-  const { getRootProps, getRadioProps } = useRadioGroup({
+  const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: name ?? 'radio',
     defaultValue,
     onChange,
   })
+
+  useEffect(() => {
+    if (value === undefined) return
+
+    setValue(value)
+  }, [setValue, value])
 
   const group = getRootProps()
 

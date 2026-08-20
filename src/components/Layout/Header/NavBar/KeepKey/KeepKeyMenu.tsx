@@ -102,7 +102,7 @@ export const KeepKeyMenu = () => {
           <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
             <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
-              <RawText>{walletInfo?.name}</RawText>
+              <RawText>{walletInfo?.meta?.label || walletInfo?.name}</RawText>
               <Text
                 ml={3}
                 mr={3}
@@ -123,7 +123,7 @@ export const KeepKeyMenu = () => {
           <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
             <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
-              <RawText>{walletInfo?.name}</RawText>
+              <RawText>{walletInfo?.meta?.label || walletInfo?.name}</RawText>
               {!isConnected && (
                 <Text
                   mr={3}

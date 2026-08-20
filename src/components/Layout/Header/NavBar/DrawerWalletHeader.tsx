@@ -1,27 +1,14 @@
-import { CloseIcon, RepeatIcon } from '@chakra-ui/icons'
-import {
-  Flex,
-  Icon,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuGroup,
-  MenuItem,
-  MenuList,
-  Text,
-} from '@chakra-ui/react'
+import { Flex, Icon, IconButton, Menu, MenuButton, MenuList, Text } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { FiArrowLeft } from 'react-icons/fi'
-import { TbDots, TbEdit, TbEyeOff, TbHistory, TbSettings } from 'react-icons/tb'
+import { TbDots, TbEdit, TbHistory, TbSettings } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { WalletImage } from './WalletImage'
+import { DrawerWalletMenu } from './DrawerWalletMenu'
 
 import { QRCodeIcon } from '@/components/Icons/QRCode'
-import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 import { useNewConversation } from '@/features/agenticChat/hooks/useNewConversation'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -34,10 +21,12 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const settingsIcon = <TbSettings />
 const dotsIcon = <Icon as={TbDots} />
-const eyeOffIcon = <Icon as={TbEyeOff} />
 const qrCodeIcon = <QRCodeIcon />
 const historyIcon = <TbHistory />
 const newChatIcon = <TbEdit />
+// 'full' is 100% of the popper, which sizes to content, so cap against the viewport instead
+const menuMaxWidth = { base: 'calc(100vw - 1rem)', md: 'xs' }
+const menuMinWidth = { base: 0, md: 'xs' }
 
 type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
@@ -116,19 +105,6 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       navigate('/manage-hidden-assets')
     }, [navigate])
 
-    const repeatIcon = useMemo(() => <RepeatIcon />, [])
-    const closeIcon = useMemo(() => <CloseIcon />, [])
-
-    const ConnectMenuComponent = useMemo(
-      () => connectedType && SUPPORTED_WALLETS[connectedType]?.connectedMenuComponent,
-      [connectedType],
-    )
-
-    const walletImageIcon = useMemo(
-      () => <WalletImage walletInfo={maybeMipdProvider?.info ?? walletInfo} />,
-      [walletInfo, maybeMipdProvider?.info],
-    )
-
     const actionButtons = useMemo(() => {
       if (isChatOpen) {
         return (
@@ -192,7 +168,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
             size='md'
             onClick={handleSettingsClick}
           />
-          <Menu>
+          <Menu isLazy>
             <MenuButton
               as={IconButton}
               isRound
@@ -201,34 +177,20 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
               icon={dotsIcon}
               size='md'
             />
-            <MenuList zIndex={'popover'}>
-              <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
-                <MenuItem icon={walletImageIcon} isDisabled closeOnSelect={false}>
-                  <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-                    <Text>{label}</Text>
-                  </Flex>
-                </MenuItem>
-              </MenuGroup>
-              <MenuDivider />
-              <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
-                {ConnectMenuComponent && <ConnectMenuComponent />}
-                <MenuDivider />
-                <MenuItem icon={eyeOffIcon} onClick={handleManageHiddenAssetsClick}>
-                  {translate('manageHiddenAssets.title')}
-                </MenuItem>
-                <MenuDivider />
-                <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
-                  {translate('connectWallet.menu.switchWallet')}
-                </MenuItem>
-                <MenuItem
-                  fontWeight='medium'
-                  icon={closeIcon}
-                  onClick={onDisconnect}
-                  color='red.500'
-                >
-                  {translate('connectWallet.menu.disconnect')}
-                </MenuItem>
-              </MenuGroup>
+            <MenuList
+              zIndex={'popover'}
+              maxWidth={menuMaxWidth}
+              minWidth={menuMinWidth}
+              overflow='hidden'
+            >
+              <DrawerWalletMenu
+                walletInfo={maybeMipdProvider?.info ?? walletInfo}
+                connectedType={connectedType}
+                label={label}
+                onDisconnect={onDisconnect}
+                onSwitchProvider={onSwitchProvider}
+                onManageHiddenAssets={handleManageHiddenAssetsClick}
+              />
             </MenuList>
           </Menu>
         </Flex>

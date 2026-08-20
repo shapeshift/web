@@ -1585,6 +1585,21 @@
         "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
         "button": "Unlock"
       },
+      "currentPin": {
+        "header": "Enter Your Current PIN",
+        "body": "Confirm the PIN you use today, then you can choose a new one.",
+        "button": "Continue"
+      },
+      "newPin": {
+        "header": "Create New PIN",
+        "body": "Use the PIN layout shown on your device to choose a new PIN.",
+        "button": "Continue"
+      },
+      "newPinConfirm": {
+        "header": "Confirm New PIN",
+        "body": "Re-enter your new PIN using the layout shown on your device.",
+        "button": "Confirm"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Bootloader",
@@ -1613,7 +1628,9 @@
           "timeout": "Your device goes to sleep after 10 minutes of inactivity by default. However, you can change this.",
           "buttonPrompt": "Press and hold the button on your KeepKey to change the device %{setting}.",
           "updateSuccess": "%{setting} successfully updated!",
-          "updateFailed": "An error occurred whilst updating the %{setting}.",
+          "updateFailed": "%{setting} update failed",
+          "passphraseEnabled": "Passphrase protection enabled. You'll be asked for a passphrase each time you connect.",
+          "passphraseDisabled": "Passphrase protection disabled",
           "timeoutDuration": "%{minutes} minutes"
         },
         "alerts": {

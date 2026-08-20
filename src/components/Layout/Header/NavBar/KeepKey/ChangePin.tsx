@@ -1,23 +1,24 @@
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { upperFirst } from 'lodash'
 import type { JSX } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
-import { useMenuRoutes } from '../hooks/useMenuRoutes'
+import { useMenuRoutes, WalletConnectedRoutes } from '../hooks/useMenuRoutes'
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
-import { LastDeviceInteractionStatus } from './LastDeviceInteractionStatus'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import type { AwaitKeepKeyProps } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
+import { useDeviceSettingToast } from '@/components/Layout/Header/NavBar/KeepKey/hooks/useDeviceSettingToast'
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyPin } from '@/context/WalletProvider/KeepKey/components/Pin'
 import { PinMatrixRequestType } from '@/context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const gridProps = { spacing: 2 }
@@ -25,6 +26,9 @@ const gridProps = { spacing: 2 }
 const SETTING = 'PIN'
 
 export const ChangePin = () => {
+  const navigate = useNavigate()
+  const { toastSuccess, toastError } = useDeviceSettingToast(SETTING)
+
   const { handleBackClick } = useMenuRoutes()
   const translate = useTranslate()
   const {
@@ -34,11 +38,20 @@ export const ChangePin = () => {
     dispatch,
     state: {
       keepKeyPinRequestType,
-      deviceState: { awaitingDeviceInteraction, isUpdatingPin, isDeviceLoading },
+      deviceState: { awaitingDeviceInteraction, isUpdatingPin, isCancellingPin, isDeviceLoading },
     },
     setDeviceState,
   } = useWallet()
-  const toast = useNotificationToast()
+  const keepKeyWalletRef = useRef(keepKeyWallet)
+  const setDeviceStateRef = useRef(setDeviceState)
+  const isUpdatingPinRef = useRef(isUpdatingPin)
+
+  useEffect(() => {
+    keepKeyWalletRef.current = keepKeyWallet
+    setDeviceStateRef.current = setDeviceState
+    isUpdatingPinRef.current = isUpdatingPin
+  }, [isUpdatingPin, keepKeyWallet, setDeviceState])
+
   const pinButtonBackground = useColorModeValue('gray.200', 'gray.600')
   const pinButtonBackgroundHover = useColorModeValue('gray.100', 'text.subtle')
 
@@ -49,7 +62,7 @@ export const ChangePin = () => {
       case PinMatrixRequestType.NEWSECOND:
         return 'newPinConfirm'
       default:
-        return 'pin'
+        return 'currentPin'
     }
   })()
 
@@ -69,24 +82,49 @@ export const ChangePin = () => {
     [],
   )
 
+  useEffect(() => {
+    return () => {
+      if (!isUpdatingPinRef.current) return
+
+      // The drawer can unmount this mid-flow, and a stale isUpdatingPin routes the device's
+      // next pin request to a view that is gone
+      keepKeyWalletRef.current
+        ?.cancel()
+        .catch(e => console.error('KeepKey: cancel on unmount failed', e))
+      setDeviceStateRef.current({
+        isUpdatingPin: false,
+        isCancellingPin: false,
+        awaitingDeviceInteraction: false,
+      })
+    }
+  }, [])
+
   const handleCancel = useCallback(async () => {
-    await keepKeyWallet
-      ?.cancel()
-      .catch(e => {
-        console.error(e)
-        toast({
-          title: translate('common.error'),
-          description: e?.message?.message ?? translate('common.somethingWentWrong'),
-          status: 'error',
-          isClosable: true,
-        })
+    // isUpdatingPin routes in-flight requests, so hide the pad with its own flag rather than
+    // clearing it early
+    setDeviceState({ isCancellingPin: true })
+
+    try {
+      await keepKeyWallet?.cancel()
+      // Back navigation can unmount before the ref resyncs, and cleanup would cancel again
+      isUpdatingPinRef.current = false
+      setDeviceState({
+        isUpdatingPin: false,
+        isCancellingPin: false,
+        awaitingDeviceInteraction: false,
       })
-      .finally(() => {
-        setDeviceState({
-          isUpdatingPin: false,
-        })
-      })
-  }, [keepKeyWallet, setDeviceState, toast, translate])
+    } catch (e) {
+      // The device is still mid-flow, so return to the pad rather than the idle view, and leave
+      // isUpdatingPin set so a second change cannot start and unmount cleanup still retries
+      setDeviceState({ isCancellingPin: false })
+      toastError(e)
+    }
+  }, [keepKeyWallet, setDeviceState, toastError])
+
+  // AwaitKeepKey clears awaitingDeviceInteraction before cancelling, which would flash the pad
+  const handleAwaitCancel = useCallback(() => {
+    setDeviceState({ isCancellingPin: true })
+  }, [setDeviceState])
 
   const handleHeaderBackClick = useCallback(async () => {
     await handleCancel()
@@ -95,32 +133,44 @@ export const ChangePin = () => {
   }, [handleBackClick, handleCancel])
 
   const handleChangePin = useCallback(async () => {
+    // Cancelling hides the pad, which re-exposes this button while cancel is still in flight
+    if (!keepKeyWallet || isCancellingPin) return
+
     setDeviceState({
       isUpdatingPin: true,
       awaitingDeviceInteraction: true,
+      isCancellingPin: false,
     })
 
     dispatch({ type: WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE })
 
-    await keepKeyWallet
-      ?.changePin()
-      .catch(e => {
-        console.error(e)
-        toast({
-          title: translate('common.error'),
-          description: e?.message?.message ?? translate('common.somethingWentWrong'),
-          status: 'error',
-          isClosable: true,
-        })
+    try {
+      await keepKeyWallet.changePin()
+      toastSuccess()
+      // Navigating unmounts this before the ref resyncs, and the cleanup would cancel a success
+      isUpdatingPinRef.current = false
+      // Nothing left to do on this panel
+      navigate(WalletConnectedRoutes.Connected)
+    } catch (e) {
+      toastError(e)
+    } finally {
+      setDeviceState({
+        isUpdatingPin: false,
+        isCancellingPin: false,
+        awaitingDeviceInteraction: false,
       })
-      .finally(() => {
-        setDeviceState({
-          isUpdatingPin: false,
-        })
-      })
-  }, [dispatch, keepKeyWallet, setDeviceState, toast, translate])
+    }
+  }, [
+    dispatch,
+    isCancellingPin,
+    keepKeyWallet,
+    navigate,
+    setDeviceState,
+    toastError,
+    toastSuccess,
+  ])
 
-  const shouldDisplayEntryPinView = isUpdatingPin && !awaitingDeviceInteraction
+  const shouldDisplayEntryPinView = isUpdatingPin && !awaitingDeviceInteraction && !isCancellingPin
 
   const renderedPinState: JSX.Element = (() => {
     return shouldDisplayEntryPinView ? (
@@ -149,17 +199,21 @@ export const ChangePin = () => {
     ) : (
       <>
         <SubMenuBody>
-          <LastDeviceInteractionStatus setting={SETTING} />
           <Button
             colorScheme='blue'
             size='sm'
             onClick={handleChangePin}
-            isLoading={awaitingDeviceInteraction}
+            isLoading={awaitingDeviceInteraction || isCancellingPin}
           >
-            {translate('walletProvider.keepKey.settings.actions.update', { setting: SETTING })}
+            {translate('walletProvider.keepKey.settings.actions.update', {
+              setting: upperFirst(SETTING),
+            })}
           </Button>
         </SubMenuBody>
-        <AwaitKeepKey translation={awaitKeepkeyButtonPromptTranslation} />
+        <AwaitKeepKey
+          translation={awaitKeepkeyButtonPromptTranslation}
+          onCancel={handleAwaitCancel}
+        />
       </>
     )
   })()
@@ -170,7 +224,7 @@ export const ChangePin = () => {
         {!shouldDisplayEntryPinView ? (
           <SubmenuHeader
             title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-              setting: SETTING,
+              setting: upperFirst(SETTING),
             })}
             description={translate('walletProvider.keepKey.settings.descriptions.pin')}
             onBackClick={handleHeaderBackClick}

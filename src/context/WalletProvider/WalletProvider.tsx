@@ -79,6 +79,7 @@ export type DeviceState = {
   recoveryCharacterIndex: number | undefined
   recoveryWordIndex: number | undefined
   isUpdatingPin: boolean | undefined
+  isCancellingPin: boolean | undefined
   isDeviceLoading: boolean | undefined
 }
 
@@ -91,6 +92,7 @@ const initialDeviceState: DeviceState = {
   recoveryCharacterIndex: undefined,
   recoveryWordIndex: undefined,
   isUpdatingPin: false,
+  isCancellingPin: false,
   isDeviceLoading: false,
 }
 export type InitialState = {
@@ -203,28 +205,10 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.SET_PIN_REQUEST_TYPE:
       return { ...state, keepKeyPinRequestType: action.payload }
     case WalletActions.SET_DEVICE_STATE: {
-      const { deviceState } = state
-      const {
-        awaitingDeviceInteraction = deviceState.awaitingDeviceInteraction,
-        lastDeviceInteractionStatus = deviceState.lastDeviceInteractionStatus,
-        disposition = deviceState.disposition,
-        recoverWithPassphrase = deviceState.recoverWithPassphrase,
-        recoveryEntropy = deviceState.recoveryEntropy,
-        isUpdatingPin = deviceState.isUpdatingPin,
-        isDeviceLoading = deviceState.isDeviceLoading,
-      } = action.payload
+      // Omitted keys keep their value, explicitly undefined ones clear
       return {
         ...state,
-        deviceState: {
-          ...deviceState,
-          awaitingDeviceInteraction,
-          lastDeviceInteractionStatus,
-          disposition,
-          recoverWithPassphrase,
-          recoveryEntropy,
-          isUpdatingPin,
-          isDeviceLoading,
-        },
+        deviceState: { ...state.deviceState, ...action.payload },
       }
     }
     case WalletActions.SET_WALLET_MODAL:

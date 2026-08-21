@@ -1,6 +1,6 @@
 import { MemoryRouter } from 'react-router-dom'
 
-import { NewWalletViewsSwitch } from './NewWalletViews/NewWalletViewsSwitch'
+import { WalletViewsSwitch } from './WalletViews/WalletViewsSwitch'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
@@ -14,7 +14,7 @@ export const WalletViewsRouter = () => {
 
   return (
     <MemoryRouter initialIndex={0}>
-      <NewWalletViewsSwitch />
+      <WalletViewsSwitch />
     </MemoryRouter>
   )
 }

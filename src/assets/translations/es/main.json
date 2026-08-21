@@ -1706,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Importar Cuentas Ledger",
-        "body": "Para ver sus saldos en cada cadena, deberá conectar cada aplicación.",
-        "availableChains": "Cadenas Disponibles",
-        "followTheInstructions": "Sigue las instrucciones",
-        "toGetTheRuneApp": "para obtener la app RUNE en su dispositivo",
-        "added": "Agregado",
-        "connect": "Conectar"
-      },
       "verify": {
         "confirmOnDevice": "Confirmar en dispositivo",
         "addressMismatch": "Dirección no coincide. Verifique que el correcto dispositivo esté conectado y vuelva a intentar."

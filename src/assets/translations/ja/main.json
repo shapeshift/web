@@ -1706,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Ledgerアカウントのインポート",
-        "body": "各チェーンの残高を確認するには、各アプリを接続する必要があります。",
-        "availableChains": "利用可能なチェーン",
-        "followTheInstructions": "デバイスにRUNEアプリを入手するには",
-        "toGetTheRuneApp": "指示に従ってください",
-        "added": "追加した",
-        "connect": "接続する"
-      },
       "verify": {
         "confirmOnDevice": "デバイス上で確認する",
         "addressMismatch": "アドレスが一致しません。正しいデバイスが接続されていることを確認して、もう一度お試しください。"

@@ -53,106 +53,15 @@ const WalletConnectV2Connect = lazy(() =>
   })),
 )
 
-const GridPlusConnect = lazy(() =>
-  import('./GridPlus/components/Connect').then(({ GridPlusConnect }) => ({
-    default: GridPlusConnect,
-  })),
-)
 
-const GridPlusPair = lazy(() =>
-  import('./GridPlus/components/GridPlusPair').then(({ GridPlusPair }) => ({
-    default: GridPlusPair,
-  })),
-)
 
-const GridPlusSetup = lazy(() =>
-  import('./GridPlus/components/GridPlusSetup').then(({ GridPlusSetup }) => ({
-    default: GridPlusSetup,
-  })),
-)
 
-const NativeTestPhrase = lazy(() =>
-  import('./NativeWallet/components/NativeTestPhrase').then(({ NativeTestPhrase }) => ({
-    default: NativeTestPhrase,
-  })),
-)
-const NativeSuccess = lazy(() =>
-  import('./NativeWallet/components/NativeSuccess').then(({ NativeSuccess }) => ({
-    default: NativeSuccess,
-  })),
-)
-const NativeStart = lazy(() =>
-  import('./NativeWallet/components/NativeStart').then(({ NativeStart }) => ({
-    default: NativeStart,
-  })),
-)
-const NativeImportSelect = lazy(() =>
-  import('./NativeWallet/components/NativeImportSelect').then(({ NativeImportSelect }) => ({
-    default: NativeImportSelect,
-  })),
-)
 
-const NativeRename = lazy(() =>
-  import('./NativeWallet/components/NativeRename').then(({ NativeRename }) => ({
-    default: NativeRename,
-  })),
-)
-const NativePassword = lazy(() =>
-  import('./NativeWallet/components/NativePassword').then(({ NativePassword }) => ({
-    default: NativePassword,
-  })),
-)
-const NativeLoad = lazy(() =>
-  import('./NativeWallet/components/NativeLoad').then(({ NativeLoad }) => ({
-    default: NativeLoad,
-  })),
-)
-const NativeCreate = lazy(() =>
-  import('./NativeWallet/components/NativeCreate').then(({ NativeCreate }) => ({
-    default: NativeCreate,
-  })),
-)
-const NativeImportSeed = lazy(() =>
-  import('./NativeWallet/components/NativeImportSeed').then(({ NativeImportSeed }) => ({
-    default: NativeImportSeed,
-  })),
-)
-const NativeImportKeystore = lazy(() =>
-  import('./NativeWallet/components/NativeImportKeystore').then(({ NativeImportKeystore }) => ({
-    default: NativeImportKeystore,
-  })),
-)
 
-const NativeWordsError = lazy(() =>
-  import('./NativeWallet/components/NativeWordsError').then(({ NativeWordsError }) => ({
-    default: NativeWordsError,
-  })),
-)
 
-const NativeSkipConfirm = lazy(() =>
-  import('./NativeWallet/components/NativeSkipConfirm').then(({ NativeSkipConfirm }) => ({
-    default: NativeSkipConfirm,
-  })),
-)
 
-const EnterPassword = lazy(() =>
-  import('./NativeWallet/components/EnterPassword').then(({ EnterPassword }) => ({
-    default: EnterPassword,
-  })),
-)
-const SnapInstall = lazy(() =>
-  import('./MetaMask/components/SnapInstall').then(({ SnapInstall }) => ({ default: SnapInstall })),
-)
 
-const SnapUpdate = lazy(() =>
-  import('./MetaMask/components/SnapUpdate').then(({ SnapUpdate }) => ({ default: SnapUpdate })),
-)
 
-const NativeMultichainStep = lazy(() =>
-  import('./MetaMask/components/NativeMultichainStep').then(({ NativeMultichainStep }) => ({
-    default: NativeMultichainStep,
-  })),
-)
 
 const ChangeLabel = lazy(() =>
   import('@/components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
@@ -182,16 +91,6 @@ const KeepKeyMenu = lazy(() =>
 const NativeMenu = lazy(() =>
   import('@/components/Layout/Header/NavBar/Native/NativeMenu').then(({ NativeMenu }) => ({
     default: NativeMenu,
-  })),
-)
-const CoinbaseConnect = lazy(() =>
-  import('./Coinbase/components/Connect').then(({ CoinbaseConnect }) => ({
-    default: CoinbaseConnect,
-  })),
-)
-const CoinbaseFailure = lazy(() =>
-  import('./Coinbase/components/Failure').then(({ CoinbaseFailure }) => ({
-    default: CoinbaseFailure,
   })),
 )
 const KeepKeyDisconnect = lazy(() =>
@@ -252,67 +151,9 @@ const KeepKeySuccess = lazy(() =>
     default: KeepKeySuccess,
   })),
 )
-const KeplrConnect = lazy(() =>
-  import('./Keplr/components/Connect').then(({ KeplrConnect }) => ({ default: KeplrConnect })),
-)
-const KeplrFailure = lazy(() =>
-  import('./Keplr/components/Failure').then(({ KeplrFailure }) => ({ default: KeplrFailure })),
-)
-const LedgerChains = lazy(() =>
-  import('./Ledger/components/Chains').then(({ LedgerChains }) => ({ default: LedgerChains })),
-)
-const LedgerConnect = lazy(() =>
-  import('./Ledger/components/Connect').then(({ LedgerConnect }) => ({ default: LedgerConnect })),
-)
-const LedgerFailure = lazy(() =>
-  import('./Ledger/components/Failure').then(({ LedgerFailure }) => ({ default: LedgerFailure })),
-)
-const LedgerSuccess = lazy(() =>
-  import('./Ledger/components/Success').then(({ LedgerSuccess }) => ({ default: LedgerSuccess })),
-)
-const MetaMaskConnect = lazy(() =>
-  import('./MetaMask/components/Connect').then(({ MetaMaskConnect }) => ({
-    default: MetaMaskConnect,
-  })),
-)
-const MetaMaskFailure = lazy(() =>
-  import('./MetaMask/components/Failure').then(({ MetaMaskFailure }) => ({
-    default: MetaMaskFailure,
-  })),
-)
 
-const PhantomConnect = lazy(() =>
-  import('./Phantom/components/Connect').then(({ PhantomConnect }) => ({
-    default: PhantomConnect,
-  })),
-)
-const PhantomFailure = lazy(() =>
-  import('./Phantom/components/Failure').then(({ PhantomFailure }) => ({
-    default: PhantomFailure,
-  })),
-)
 
-const SeekerConnect = lazy(() =>
-  import('./Seeker/components/Connect').then(({ SeekerConnect }) => ({
-    default: SeekerConnect,
-  })),
-)
-const SeekerFailure = lazy(() =>
-  import('./Seeker/components/Failure').then(({ SeekerFailure }) => ({
-    default: SeekerFailure,
-  })),
-)
 
-const VultisigConnect = lazy(() =>
-  import('./Vultisig/components/Connect').then(({ VultisigConnect }) => ({
-    default: VultisigConnect,
-  })),
-)
-const VultisigFailure = lazy(() =>
-  import('./Vultisig/components/Failure').then(({ VultisigFailure }) => ({
-    default: VultisigFailure,
-  })),
-)
 
 const MetaMaskMenu = lazy(() =>
   import('./MetaMask/components/MetaMaskMenu').then(({ MetaMaskMenu }) => ({
@@ -330,41 +171,6 @@ const TrezorMenu = lazy(() =>
   })),
 )
 
-const MobileCreate = lazy(() =>
-  import('./MobileWallet/components/MobileCreate').then(({ MobileCreate }) => ({
-    default: MobileCreate,
-  })),
-)
-const MobileCreateTest = lazy(() =>
-  import('./MobileWallet/components/MobileCreateTest').then(({ MobileCreateTest }) => ({
-    default: MobileCreateTest,
-  })),
-)
-const MobileImport = lazy(() =>
-  import('./MobileWallet/components/MobileImport').then(({ MobileImport }) => ({
-    default: MobileImport,
-  })),
-)
-const MobileLoad = lazy(() =>
-  import('./MobileWallet/components/MobileLoad').then(({ MobileLoad }) => ({
-    default: MobileLoad,
-  })),
-)
-const MobileRename = lazy(() =>
-  import('./MobileWallet/components/MobileRename').then(({ MobileRename }) => ({
-    default: MobileRename,
-  })),
-)
-const MobileStart = lazy(() =>
-  import('./MobileWallet/components/MobileStart').then(({ MobileStart }) => ({
-    default: MobileStart,
-  })),
-)
-const MobileSuccess = lazy(() =>
-  import('./MobileWallet/components/MobileSuccess').then(({ MobileSuccess }) => ({
-    default: MobileSuccess,
-  })),
-)
 
 export type SupportedWalletInfo<T> = {
   adapters: {
@@ -403,32 +209,32 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.Mobile]: {
     ...MobileConfig,
     routes: [
-      { path: '/mobile/connect', component: MobileStart },
-      { path: '/mobile/load', component: MobileLoad },
-      { path: '/mobile/rename', component: MobileRename },
-      { path: '/mobile/import-select', component: MobileImport },
-      { path: '/mobile/create', component: MobileCreate },
-      { path: '/mobile/create-test', component: MobileCreateTest },
-      { path: '/mobile/success', component: MobileSuccess },
+      { path: '/mobile/connect' },
+      { path: '/mobile/load' },
+      { path: '/mobile/rename' },
+      { path: '/mobile/import-select' },
+      { path: '/mobile/create' },
+      { path: '/mobile/create-test' },
+      { path: '/mobile/success' },
     ],
     connectedMenuComponent: NativeMenu,
   },
   [KeyManager.Native]: {
     ...NativeConfig,
     routes: [
-      { path: NativeWalletRoutes.Connect, component: NativeStart },
-      { path: NativeWalletRoutes.Load, component: NativeLoad },
-      { path: NativeWalletRoutes.Password, component: NativePassword },
-      { path: NativeWalletRoutes.Rename, component: NativeRename },
-      { path: NativeWalletRoutes.ImportSelect, component: NativeImportSelect },
-      { path: NativeWalletRoutes.ImportSeed, component: NativeImportSeed },
-      { path: NativeWalletRoutes.ImportKeystore, component: NativeImportKeystore },
-      { path: NativeWalletRoutes.Create, component: NativeCreate },
-      { path: NativeWalletRoutes.CreateTest, component: NativeTestPhrase },
-      { path: NativeWalletRoutes.Success, component: NativeSuccess },
-      { path: NativeWalletRoutes.EnterPassword, component: EnterPassword },
-      { path: NativeWalletRoutes.WordsError, component: NativeWordsError },
-      { path: NativeWalletRoutes.SkipConfirm, component: NativeSkipConfirm },
+      { path: NativeWalletRoutes.Connect },
+      { path: NativeWalletRoutes.Load },
+      { path: NativeWalletRoutes.Password },
+      { path: NativeWalletRoutes.Rename },
+      { path: NativeWalletRoutes.ImportSelect },
+      { path: NativeWalletRoutes.ImportSeed },
+      { path: NativeWalletRoutes.ImportKeystore },
+      { path: NativeWalletRoutes.Create },
+      { path: NativeWalletRoutes.CreateTest },
+      { path: NativeWalletRoutes.Success },
+      { path: NativeWalletRoutes.EnterPassword },
+      { path: NativeWalletRoutes.WordsError },
+      { path: NativeWalletRoutes.SkipConfirm },
     ],
     connectedMenuComponent: NativeMenu,
   },
@@ -462,56 +268,56 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,
     routes: [
-      { path: '/metamask/connect', component: MetaMaskConnect },
-      { path: '/metamask/snap/install', component: SnapInstall },
-      { path: '/metamask/snap/update', component: SnapUpdate },
-      { path: '/metamask/native-multichain', component: NativeMultichainStep },
-      { path: '/metamask/failure', component: MetaMaskFailure },
+      { path: '/metamask/connect' },
+      { path: '/metamask/snap/install' },
+      { path: '/metamask/snap/update' },
+      { path: '/metamask/native-multichain' },
+      { path: '/metamask/failure' },
     ],
     connectedMenuComponent: MetaMaskMenu,
   },
   [KeyManager.Phantom]: {
     ...PhantomConfig,
     routes: [
-      { path: '/phantom/connect', component: PhantomConnect },
-      { path: '/phantom/failure', component: PhantomFailure },
+      { path: '/phantom/connect' },
+      { path: '/phantom/failure' },
     ],
   },
   [KeyManager.Seeker]: {
     ...SeekerConfig,
     routes: [
-      { path: '/seeker/connect', component: SeekerConnect },
-      { path: '/seeker/failure', component: SeekerFailure },
+      { path: '/seeker/connect' },
+      { path: '/seeker/failure' },
     ],
   },
   [KeyManager.Vultisig]: {
     ...VultisigConfig,
     routes: [
-      { path: '/vultisig/connect', component: VultisigConnect },
-      { path: '/vultisig/failure', component: VultisigFailure },
+      { path: '/vultisig/connect' },
+      { path: '/vultisig/failure' },
     ],
   },
   [KeyManager.Coinbase]: {
     ...CoinbaseConfig,
     routes: [
-      { path: '/coinbase/connect', component: CoinbaseConnect },
-      { path: '/coinbase/failure', component: CoinbaseFailure },
+      { path: '/coinbase/connect' },
+      { path: '/coinbase/failure' },
     ],
   },
   [KeyManager.Keplr]: {
     ...KeplrConfig,
     routes: [
-      { path: '/keplr/connect', component: KeplrConnect },
-      { path: '/keplr/failure', component: KeplrFailure },
+      { path: '/keplr/connect' },
+      { path: '/keplr/failure' },
     ],
   },
   [KeyManager.Ledger]: {
     ...LedgerConfig,
     routes: [
-      { path: '/ledger/connect', component: LedgerConnect },
-      { path: '/ledger/chains', component: LedgerChains },
-      { path: '/ledger/success', component: LedgerSuccess },
-      { path: '/ledger/failure', component: LedgerFailure },
+      { path: '/ledger/connect' },
+      { path: '/ledger/chains' },
+      { path: '/ledger/success' },
+      { path: '/ledger/failure' },
     ],
     connectedMenuComponent: LedgerMenu,
   },
@@ -527,9 +333,9 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.GridPlus]: {
     ...GridPlusConfig,
     routes: [
-      { path: '/gridplus/connect', component: GridPlusConnect },
-      { path: '/gridplus/pair', component: GridPlusPair },
-      { path: '/gridplus/setup', component: GridPlusSetup },
+      { path: '/gridplus/connect' },
+      { path: '/gridplus/pair' },
+      { path: '/gridplus/setup' },
     ],
     connectedMenuComponent: lazy(() =>
       import('./GridPlus/components/GridPlusMenu').then(({ GridPlusMenu }) => ({

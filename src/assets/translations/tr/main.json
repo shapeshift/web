@@ -1706,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Ledger Hesaplarını İçe Aktar",
-        "body": "Tüm zincirlere ait bakiyenizi görmek için her uygulamayı bağlamanız gerekir.",
-        "availableChains": "Mevcut Zincirler",
-        "followTheInstructions": "Talimatları takip et",
-        "toGetTheRuneApp": "RUNE uygulamasını cihazınıza yüklemek için",
-        "added": "Eklendi",
-        "connect": "Bağlan"
-      },
       "verify": {
         "confirmOnDevice": "Cihazda onayla",
         "addressMismatch": "Adres uyumsuzluğu. Lütfen doğru cihazın bağlı olduğundan emin olun ve tekrar deneyin."

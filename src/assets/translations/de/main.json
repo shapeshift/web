@@ -1706,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Ledger Konten importieren",
-        "body": "Um Ihre Guthaben für jede Kette anzuzeigen, müssen Sie jede App verbinden.",
-        "availableChains": "Verfügbare Ketten",
-        "followTheInstructions": "Folge den Anweisungen",
-        "toGetTheRuneApp": "um die RUNE-App auf Ihr Gerät zu laden",
-        "added": "Hinzugefügt",
-        "connect": "Verbinden"
-      },
       "verify": {
         "confirmOnDevice": "Auf dem Gerät bestätigen",
         "addressMismatch": "Adressen stimmen nicht überein. Bitte überprüfen Sie, ob Sie das richtige Gerät angeschlossen haben und versuchen Sie es erneut."

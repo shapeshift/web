@@ -1706,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "导入 Ledger 账户",
-        "body": "要查看您在每条链上的余额，您需要连接每个应用程序。",
-        "availableChains": "可用的链",
-        "followTheInstructions": "按照说明操作",
-        "toGetTheRuneApp": "在你的设备上安装 RUNE 应用程序",
-        "added": "添加",
-        "connect": "连接"
-      },
       "verify": {
         "confirmOnDevice": "在设备上确认",
         "addressMismatch": "地址不匹配。请检查你是否连接了正确的设备，然后重试。"

@@ -1736,15 +1736,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Import Ledger Accounts",
-        "body": "To see your balances for each chain, you'll need to connect each app.",
-        "availableChains": "Available Chains",
-        "followTheInstructions": "Follow the instructions",
-        "toGetTheRuneApp": "to get the RUNE app on your device",
-        "added": "Added",
-        "connect": "Connect"
-      },
       "verify": {
         "confirmOnDevice": "Confirm on device",
         "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."

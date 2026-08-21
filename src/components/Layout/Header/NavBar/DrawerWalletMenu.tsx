@@ -35,6 +35,7 @@ export type DrawerWalletMenuProps = {
   walletInfo: ComponentProps<typeof WalletImage>['walletInfo']
   connectedType: InitialState['connectedType']
   label: string | undefined
+  isLocked: boolean
   onDisconnect: () => void
   onSwitchProvider: () => void
   onManageHiddenAssets: () => void
@@ -50,6 +51,7 @@ const DrawerWalletMenuRoot = ({
   walletInfo,
   connectedType,
   label,
+  isLocked,
   onDisconnect,
   onSwitchProvider,
   onManageHiddenAssets,
@@ -80,13 +82,13 @@ const DrawerWalletMenuRoot = ({
       <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
         <MenuItem
           icon={walletImageIcon}
-          isDisabled={!connectedWalletMenuRoutes}
+          isDisabled={!connectedWalletMenuRoutes || isLocked}
           closeOnSelect={false}
           onClick={handleWalletClick}
         >
           <Flex flexDir='row' justifyContent='space-between' alignItems='center' width='100%'>
             <Text>{label}</Text>
-            {connectedWalletMenuRoutes && <ChevronRightIcon />}
+            {connectedWalletMenuRoutes && !isLocked && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
       </MenuGroup>

@@ -1,14 +1,10 @@
 import { MemoryRouter } from 'react-router-dom'
 
 import { NewWalletViewsSwitch } from './NewWalletViews/NewWalletViewsSwitch'
-import { WalletViewsSwitch } from './WalletViewsSwitch'
 
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const WalletViewsRouter = () => {
-  const isNewWalletFlowEnabled = useFeatureFlag('NewWalletFlow')
-
   const {
     state: { modal },
   } = useWallet()
@@ -18,7 +14,7 @@ export const WalletViewsRouter = () => {
 
   return (
     <MemoryRouter initialIndex={0}>
-      {isNewWalletFlowEnabled ? <NewWalletViewsSwitch /> : <WalletViewsSwitch />}
+      <NewWalletViewsSwitch />
     </MemoryRouter>
   )
 }

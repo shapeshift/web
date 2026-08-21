@@ -23,7 +23,6 @@ import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { NavigationDropdown } from './NavBar/NavigationDropdown'
 import { ShapeShiftMenu } from './NavBar/ShapeShiftMenu'
-import { UserMenu } from './NavBar/UserMenu'
 import { WalletManagerDrawer } from './NavBar/WalletManagerDrawer'
 import { SettingsMenu } from './SettingsMenu'
 import { TxWindow } from './TxWindow/TxWindow'
@@ -109,7 +108,6 @@ export const Header = memo(() => {
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
-  const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
   const isEarnTabEnabled = useFeatureFlag('EarnTab')
   const isChainflipLendingEnabled = useFeatureFlag('ChainflipLending')
 
@@ -236,7 +234,7 @@ export const Header = memo(() => {
             {isLargerThanMd && <ChainMenu display={displayProp2} />}
             {isLargerThanMd && (
               <Box display={displayProp2}>
-                {isNewWalletManagerEnabled ? <WalletManagerDrawer /> : <UserMenu />}
+                <WalletManagerDrawer />
               </Box>
             )}
           </HStack>

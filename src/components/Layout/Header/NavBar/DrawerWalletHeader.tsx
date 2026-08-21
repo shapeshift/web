@@ -30,7 +30,6 @@ const menuMinWidth = { base: 0, md: 'xs' }
 
 type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
-  isConnected: boolean
   isLocked: boolean
   connectedType: InitialState['connectedType']
   onDisconnect: () => void
@@ -44,7 +43,6 @@ type DrawerHeaderProps = {
 export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
   ({
     walletInfo,
-    isConnected,
     isLocked,
     connectedType,
     onDisconnect,
@@ -141,7 +139,8 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       )
     }, [isChatOpen, translate, handleNewChatClick, handleChatHistoryClick, handleQrCodeClick])
 
-    if (!isConnected || isLocked || !walletInfo) return null
+    // Renders while locked so disconnect and switch stay reachable
+    if (!walletInfo) return null
 
     return (
       <Flex align='center' px={4} pt={4} pb={isChatOpen ? 4 : 0} justify='space-between'>
@@ -184,6 +183,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
               overflow='hidden'
             >
               <DrawerWalletMenu
+                isLocked={isLocked}
                 walletInfo={maybeMipdProvider?.info ?? walletInfo}
                 connectedType={connectedType}
                 label={label}

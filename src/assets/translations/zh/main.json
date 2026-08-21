@@ -1549,13 +1549,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "无法与你的钱包通信。如果问题仍然存在，请联系 Keepkey 支持。",
-      "walletVersionTooOld": "无法配对您的钱包。请将其更新至最新版本。"
+      "walletNotFound": "无法与你的钱包通信。如果问题仍然存在，请联系 Keepkey 支持。"
     },
     "keepKey": {
       "errors": {
         "unknown": "与你的 KeepKey 通信时发生意外错误",
-        "updateAlert": "需要固件 %{version} 或更高版本才能在此客户端上使用 KeepKey。请更新你的设备。",
         "pinCancelled": "PIN 输入已取消",
         "pinInvalid": "你输入的 PIN 码无效",
         "pinMismatch": "你输入的两个 PIN 码不匹配"
@@ -1564,8 +1562,7 @@
         "header": "配对你的 KeepKey",
         "body": "连接 KeepKey 设备并单击配对。",
         "button": "配对",
-        "conflictingApp": "找不到你的 KeepKey。另一个应用程序可能正在尝试与你的 KeepKey 连接。",
-        "downloadUpdaterApp": "下载更新程序应用程序"
+        "conflictingApp": "找不到你的 KeepKey。另一个应用程序可能正在尝试与你的 KeepKey 连接。"
       },
       "pin": {
         "header": "输入您的 PIN",
@@ -1709,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "导入 Ledger 账户",
-        "body": "要查看您在每条链上的余额，您需要连接每个应用程序。",
-        "availableChains": "可用的链",
-        "followTheInstructions": "按照说明操作",
-        "toGetTheRuneApp": "在你的设备上安装 RUNE 应用程序",
-        "added": "添加",
-        "connect": "连接"
-      },
       "verify": {
         "confirmOnDevice": "在设备上确认",
         "addressMismatch": "地址不匹配。请检查你是否连接了正确的设备，然后重试。"

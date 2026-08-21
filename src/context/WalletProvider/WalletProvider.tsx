@@ -1031,38 +1031,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
-  const create = useCallback((type: KeyManager) => {
-    dispatch({
-      type: WalletActions.SET_CONNECTOR_TYPE,
-      payload: { modalType: type, isMipdProvider: false },
-    })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('create'),
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
-      })
-    }
-  }, [])
-
-  const importWallet = useCallback((type: KeyManager) => {
-    dispatch({
-      type: WalletActions.SET_CONNECTOR_TYPE,
-      payload: { modalType: type, isMipdProvider: false },
-    })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('import-select'),
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
-      })
-    }
-  }, [])
-
   const setDeviceState = useCallback((deviceState: Partial<DeviceState>) => {
     dispatch({
       type: WalletActions.SET_DEVICE_STATE,
@@ -1085,13 +1053,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       getAdapter,
       dispatch,
       connect,
-      create,
-      importWallet,
       disconnect,
       load,
       setDeviceState,
     }),
-    [state, getAdapter, connect, create, importWallet, disconnect, load, setDeviceState],
+    [state, getAdapter, connect, disconnect, load, setDeviceState],
   )
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>

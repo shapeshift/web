@@ -110,7 +110,7 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
   return null
 }
 
-export const NewWalletViewsSwitch = () => {
+export const WalletViewsSwitch = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // For visual tracking only. Do *not* use me in place of wallet state. This means exactly what you think the intent is:

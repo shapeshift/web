@@ -1,7 +1,6 @@
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 
-import { UserMenu } from './UserMenu'
 import { WalletButton } from './WalletButton'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -20,15 +19,12 @@ export const WalletManagerDrawer: FC = memo(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
+  // A locked wallet still opens the drawer, or disconnecting would mean unlocking first
   const handleOpen = useCallback(() => {
-    if (!isConnected) return
-    walletDrawer.open({})
-  }, [isConnected, walletDrawer])
+    if (!walletInfo?.deviceId) return
 
-  // If not connected or locked, fall back to the old UserMenu completely
-  if (!isConnected || isLocked) {
-    return <UserMenu />
-  }
+    walletDrawer.open({})
+  }, [walletInfo?.deviceId, walletDrawer])
 
   return (
     <WalletButton

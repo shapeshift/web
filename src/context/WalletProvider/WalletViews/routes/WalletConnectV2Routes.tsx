@@ -7,7 +7,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 const Icon = WalletConnectV2Config.icon
 const icon = <Icon boxSize='64px' />
 
-export const NewWalletConnectV2Connect = () => {
+export const WalletConnectV2Connect = () => {
   const { pairDevice, isLoading, error } = useWalletConnectV2Pairing()
 
   return (
@@ -31,5 +31,5 @@ export const WalletConnectV2Routes = () => {
 
   if (!modalType) return null
 
-  return <NewWalletConnectV2Connect />
+  return <WalletConnectV2Connect />
 }

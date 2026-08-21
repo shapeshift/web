@@ -38,13 +38,16 @@ import { WalletConnectedRoutes } from '@/components/Layout/Header/NavBar/hooks/u
 import { getConfig } from '@/config'
 import { walletConnectV2ProviderConfig } from '@/context/WalletProvider/WalletConnectV2/config'
 
+// Every consumer renders these without props
+type RouteComponent = React.LazyExoticComponent<React.ComponentType<Record<string, never>>>
+
 export type WalletProviderRouteProps = _RouteProps & {
-  component: React.LazyExoticComponent<any>
+  component: RouteComponent
 }
 
 // connect() resolves a path from here, which the new flow may render itself
 type WalletConnectRouteProps = _RouteProps & {
-  component?: React.LazyExoticComponent<any>
+  component?: RouteComponent
 }
 
 const WalletConnectV2Connect = lazy(() =>

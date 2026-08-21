@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
-import { WalletManagerDrawer } from './NavBar/WalletManagerDrawer'
+import { WalletMenu } from './NavBar/WalletMenu'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -74,7 +74,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           />
           <Flex gap={2}>
             <Flex width='full'>
-              <WalletManagerDrawer onClick={onClose} />
+              <WalletMenu onClick={onClose} />
             </Flex>
             <ChainMenu />
           </Flex>

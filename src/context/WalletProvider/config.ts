@@ -53,16 +53,6 @@ const WalletConnectV2Connect = lazy(() =>
   })),
 )
 
-
-
-
-
-
-
-
-
-
-
 const ChangeLabel = lazy(() =>
   import('@/components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
     default: ChangeLabel,
@@ -152,9 +142,6 @@ const KeepKeySuccess = lazy(() =>
   })),
 )
 
-
-
-
 const MetaMaskMenu = lazy(() =>
   import('./MetaMask/components/MetaMaskMenu').then(({ MetaMaskMenu }) => ({
     default: MetaMaskMenu,
@@ -170,7 +157,6 @@ const TrezorMenu = lazy(() =>
     default: TrezorMenu,
   })),
 )
-
 
 export type SupportedWalletInfo<T> = {
   adapters: {
@@ -278,38 +264,23 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
   [KeyManager.Phantom]: {
     ...PhantomConfig,
-    routes: [
-      { path: '/phantom/connect' },
-      { path: '/phantom/failure' },
-    ],
+    routes: [{ path: '/phantom/connect' }, { path: '/phantom/failure' }],
   },
   [KeyManager.Seeker]: {
     ...SeekerConfig,
-    routes: [
-      { path: '/seeker/connect' },
-      { path: '/seeker/failure' },
-    ],
+    routes: [{ path: '/seeker/connect' }, { path: '/seeker/failure' }],
   },
   [KeyManager.Vultisig]: {
     ...VultisigConfig,
-    routes: [
-      { path: '/vultisig/connect' },
-      { path: '/vultisig/failure' },
-    ],
+    routes: [{ path: '/vultisig/connect' }, { path: '/vultisig/failure' }],
   },
   [KeyManager.Coinbase]: {
     ...CoinbaseConfig,
-    routes: [
-      { path: '/coinbase/connect' },
-      { path: '/coinbase/failure' },
-    ],
+    routes: [{ path: '/coinbase/connect' }, { path: '/coinbase/failure' }],
   },
   [KeyManager.Keplr]: {
     ...KeplrConfig,
-    routes: [
-      { path: '/keplr/connect' },
-      { path: '/keplr/failure' },
-    ],
+    routes: [{ path: '/keplr/connect' }, { path: '/keplr/failure' }],
   },
   [KeyManager.Ledger]: {
     ...LedgerConfig,

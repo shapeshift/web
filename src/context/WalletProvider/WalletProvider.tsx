@@ -1031,8 +1031,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
-
-
   const setDeviceState = useCallback((deviceState: Partial<DeviceState>) => {
     dispatch({
       type: WalletActions.SET_DEVICE_STATE,

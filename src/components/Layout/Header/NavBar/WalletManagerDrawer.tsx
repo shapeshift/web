@@ -7,11 +7,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-type WalletManagerDrawerProps = {
-  onClick?: () => void
-}
-
-export const WalletManagerDrawer: FC<WalletManagerDrawerProps> = memo(({ onClick }) => {
+export const WalletManagerDrawer: FC = memo(() => {
   const {
     state: { isConnected, walletInfo, isLocked, isLoadingLocalWallet },
     dispatch,
@@ -20,17 +16,15 @@ export const WalletManagerDrawer: FC<WalletManagerDrawerProps> = memo(({ onClick
   const walletDrawer = useModal('walletDrawer')
 
   const handleConnect = useCallback(() => {
-    onClick?.()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [dispatch, onClick])
+  }, [dispatch])
 
   // A locked wallet still opens the drawer, or disconnecting would mean unlocking first
   const handleOpen = useCallback(() => {
     if (!walletInfo?.deviceId) return
 
-    onClick?.()
     walletDrawer.open({})
-  }, [onClick, walletInfo?.deviceId, walletDrawer])
+  }, [walletInfo?.deviceId, walletDrawer])
 
   return (
     <WalletButton

@@ -1,19 +1,21 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, ButtonGroup, Menu, MenuGroup, MenuItem, MenuList } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { DrawerWalletMenu } from './DrawerWalletMenu'
 import { WalletButton } from './WalletButton'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useMipdProviders } from '@/lib/mipd'
 import { vibrate } from '@/lib/vibrate'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
+
+const warningTwoIcon = <WarningTwoIcon />
 
 const maxWidthProp = { base: 'full', md: 'xs' }
 const minWidthProp = { base: 0, md: 'xs' }
@@ -31,18 +33,32 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
   )
 }
 
+// A local wallet resolves before its info does, so the menu has a wallet but nothing to name yet
+const Connecting = () => {
+  const translate = useTranslate()
+
+  return (
+    <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
+      <MenuItem icon={warningTwoIcon} isDisabled>
+        {translate('connectWallet.menu.connecting')}
+      </MenuItem>
+    </MenuGroup>
+  )
+}
+
 type WalletMenuProps = {
   onClick?: () => void
 }
 
 // The side nav is already a drawer, so the wallet menu renders inline rather than opening another
 export const WalletMenu = memo(({ onClick }: WalletMenuProps) => {
-  const navigate = useNavigate()
   const {
     state: { isConnected, walletInfo, connectedType, isLocked, isLoadingLocalWallet },
     dispatch,
     disconnect,
   } = useWallet()
+
+  const manageHiddenAssets = useModal('manageHiddenAssets')
 
   const maybeRdns = useAppSelector(selectWalletRdns)
   const activeSafeCard = useAppSelector(gridplusSlice.selectors.selectActiveSafeCard)
@@ -72,10 +88,11 @@ export const WalletMenu = memo(({ onClick }: WalletMenuProps) => {
     onClick?.()
   }, [disconnect, onClick])
 
+  // The drawer routes to its own screen, but this menu renders under the app router
   const handleManageHiddenAssets = useCallback(() => {
     onClick?.()
-    navigate('/manage-hidden-assets')
-  }, [navigate, onClick])
+    manageHiddenAssets.open({})
+  }, [manageHiddenAssets, onClick])
 
   return (
     <ButtonGroup width='full'>
@@ -96,7 +113,7 @@ export const WalletMenu = memo(({ onClick }: WalletMenuProps) => {
             // Override zIndex to prevent InputLeftElement displaying over menu
             zIndex={2}
           >
-            {hasWallet || isLoadingLocalWallet ? (
+            {hasWallet ? (
               <DrawerWalletMenu
                 walletInfo={maybeMipdProvider?.info ?? walletInfo}
                 connectedType={connectedType}
@@ -105,7 +122,10 @@ export const WalletMenu = memo(({ onClick }: WalletMenuProps) => {
                 onDisconnect={handleDisconnect}
                 onSwitchProvider={handleConnect}
                 onManageHiddenAssets={handleManageHiddenAssets}
+                onClose={onClick}
               />
+            ) : isLoadingLocalWallet ? (
+              <Connecting />
             ) : (
               <NoWallet onClick={handleConnect} />
             )}

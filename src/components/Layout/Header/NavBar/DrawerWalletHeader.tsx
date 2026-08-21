@@ -47,6 +47,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     connectedType,
     onDisconnect,
     onSwitchProvider,
+    onClose,
     onSettingsClick,
     isChatOpen,
     onBackFromChat,
@@ -190,6 +191,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
                 onDisconnect={onDisconnect}
                 onSwitchProvider={onSwitchProvider}
                 onManageHiddenAssets={handleManageHiddenAssetsClick}
+                onClose={onClose}
               />
             </MenuList>
           </Menu>

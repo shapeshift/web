@@ -191,14 +191,16 @@ export const KeepKeyRoutes = () => {
     ],
   )
 
-  // Note, `/keepkey/connect` is handled with PairBody instead of the regular KK routes, since it's the new, better looking version
-  // Use type assertion to tell TypeScript that our routes have the shape we expect
+  // /keepkey/connect is declared below with PairBody, so its config entry carries no component
   const walletRoutes = SUPPORTED_WALLETS[KeyManager.KeepKey].routes
   const keepKeyRoutes = useMemo(
     () =>
-      walletRoutes
-        .filter(route => route.component !== undefined)
-        .map(route => <Route key={route.path} path={route.path} element={<route.component />} />),
+      walletRoutes.flatMap(route => {
+        const Component = route.component
+        if (!Component) return []
+
+        return [<Route key={route.path} path={route.path} element={<Component />} />]
+      }),
     [walletRoutes],
   )
 

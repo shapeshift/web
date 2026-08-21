@@ -42,6 +42,11 @@ export type WalletProviderRouteProps = _RouteProps & {
   component: React.LazyExoticComponent<any>
 }
 
+// connect() resolves a path from here, which the new flow may render itself
+type WalletConnectRouteProps = _RouteProps & {
+  component?: React.LazyExoticComponent<any>
+}
+
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
     default: WalletConnectV2Connect,
@@ -187,11 +192,6 @@ const CoinbaseConnect = lazy(() =>
 const CoinbaseFailure = lazy(() =>
   import('./Coinbase/components/Failure').then(({ CoinbaseFailure }) => ({
     default: CoinbaseFailure,
-  })),
-)
-const KeepKeyConnect = lazy(() =>
-  import('./KeepKey/components/Connect').then(({ KeepKeyConnect }) => ({
-    default: KeepKeyConnect,
   })),
 )
 const KeepKeyDisconnect = lazy(() =>
@@ -374,7 +374,7 @@ export type SupportedWalletInfo<T> = {
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   description?: string
-  routes: WalletProviderRouteProps[]
+  routes: WalletConnectRouteProps[]
   connectedWalletMenuRoutes?: WalletProviderRouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
   connectedMenuComponent?: React.ComponentType<any>
@@ -435,7 +435,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,
     routes: [
-      { path: KeepKeyRoutes.Connect, component: KeepKeyConnect },
+      { path: KeepKeyRoutes.Connect },
       { path: KeepKeyRoutes.Success, component: KeepKeySuccess },
       { path: KeepKeyRoutes.Pin, component: KeepKeyPinModal },
       { path: KeepKeyRoutes.Passphrase, component: KeepKeyPassphrase },

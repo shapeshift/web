@@ -160,15 +160,7 @@ export const ChangePin = () => {
         awaitingDeviceInteraction: false,
       })
     }
-  }, [
-    dispatch,
-    isCancellingPin,
-    keepKeyWallet,
-    navigate,
-    setDeviceState,
-    toastError,
-    toastSuccess,
-  ])
+  }, [dispatch, isCancellingPin, keepKeyWallet, navigate, setDeviceState, toastError, toastSuccess])
 
   const shouldDisplayEntryPinView = isUpdatingPin && !awaitingDeviceInteraction && !isCancellingPin
 

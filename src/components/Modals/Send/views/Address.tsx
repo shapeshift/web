@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   Flex,
   FormControl,
@@ -29,9 +31,12 @@ import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
+import { walletSupportsSendingAsset } from '@/lib/utils'
 import {
   selectInternalAccountIdByAddress,
   selectIsAddressInAddressBook,
@@ -84,6 +89,23 @@ export const Address = () => {
   )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const {
+    state: { wallet, walletInfo },
+  } = useWallet()
+
+  const isSendSupported = useMemo(
+    () => !wallet || !assetId || walletSupportsSendingAsset(assetId, wallet),
+    [assetId, wallet],
+  )
+
+  const notSupportedTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'modals.send.assetNotSupportedByWallet',
+      { asset: asset?.symbol ?? '', wallet: walletInfo?.name ?? '' },
+    ],
+    [asset?.symbol, walletInfo?.name],
+  )
 
   const isInAddressBookFilter = useMemo(
     () => ({ accountAddress: address, chainId: asset?.chainId }),
@@ -247,9 +269,15 @@ export const Address = () => {
 
       <DialogFooter pt={2}>
         <Stack flex={1}>
+          {!isSendSupported && (
+            <Alert status='warning' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <Text translation={notSupportedTranslation} fontSize='sm' />
+            </Alert>
+          )}
           <Button
             width='full'
-            isDisabled={!address || !input || addressError}
+            isDisabled={!isSendSupported || !address || !input || addressError}
             isLoading={isValidating}
             colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'

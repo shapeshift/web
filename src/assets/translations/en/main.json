@@ -1310,6 +1310,7 @@
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "sendFailed": "Send failed",
+      "assetNotSupportedByWallet": "Sending %{asset} is not supported by %{wallet}.",
       "toAddress": "To Address",
       "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",

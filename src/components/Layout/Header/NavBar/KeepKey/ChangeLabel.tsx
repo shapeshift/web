@@ -1,4 +1,5 @@
 import { Button, Flex, Input, useColorModeValue } from '@chakra-ui/react'
+import { upperFirst } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -7,16 +8,23 @@ import { SubMenuContainer } from '../SubMenuContainer'
 
 import type { AwaitKeepKeyProps } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { LastDeviceInteractionStatus } from '@/components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
+import { useDeviceSettingToast } from '@/components/Layout/Header/NavBar/KeepKey/hooks/useDeviceSettingToast'
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
+const setting = 'label'
+const buttonPromptTranslation: AwaitKeepKeyProps['translation'] = [
+  'walletProvider.keepKey.settings.descriptions.buttonPrompt',
+  { setting },
+]
+
 export const ChangeLabel = () => {
+  const { toastSuccess, toastError } = useDeviceSettingToast(setting)
+
   const translate = useTranslate()
-  const toast = useNotificationToast()
-  const { state } = useWallet()
+  const { state, dispatch } = useWallet()
   const { walletInfo } = state
   const {
     state: { keepKeyWallet },
@@ -29,28 +37,23 @@ export const ChangeLabel = () => {
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.meta?.label ?? walletInfo?.name)
 
   const handleChangeLabelInitializeEvent = useCallback(async () => {
-    await keepKeyWallet?.applySettings({ label: keepKeyLabel }).catch(e => {
-      console.error(e)
-      toast({
-        title: translate('common.error'),
-        description: e?.message ?? translate('common.somethingWentWrong'),
-        status: 'error',
-        isClosable: true,
-      })
-    })
-  }, [keepKeyLabel, keepKeyWallet, toast, translate])
+    if (!keepKeyWallet) return
 
-  const setting = 'label'
+    try {
+      await keepKeyWallet.applySettings({ label: keepKeyLabel })
+      // Nothing reads the label back from the device, so mirror it into wallet state
+      if (keepKeyLabel) dispatch({ type: WalletActions.SET_WALLET_LABEL, payload: keepKeyLabel })
+      toastSuccess()
+    } catch (e) {
+      toastError(e)
+    }
+  }, [dispatch, keepKeyLabel, keepKeyWallet, toastError, toastSuccess])
+
   const inputBackground = useColorModeValue('white', 'gray.800')
   const placeholderOpacity = useColorModeValue(0.6, 0.4)
   const inputPlaceholder = useMemo(
     () => ({ opacity: placeholderOpacity, color: 'inherit' }),
     [placeholderOpacity],
-  )
-
-  const buttonPromptTranslation: AwaitKeepKeyProps['translation'] = useMemo(
-    () => ['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }],
-    [setting],
   )
 
   const handleLabelInputChange = useCallback(
@@ -63,12 +66,11 @@ export const ChangeLabel = () => {
       <Flex flexDir='column'>
         <SubmenuHeader
           title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-            setting,
+            setting: upperFirst(setting),
           })}
           description={translate('walletProvider.keepKey.settings.descriptions.label')}
         />
         <SubMenuBody>
-          <LastDeviceInteractionStatus setting={setting} />
           <Input
             type='text'
             placeholder={translate('walletProvider.keepKey.settings.placeholders.label')}
@@ -86,7 +88,9 @@ export const ChangeLabel = () => {
             size='sm'
             onClick={handleChangeLabelInitializeEvent}
           >
-            {translate('walletProvider.keepKey.settings.actions.update', { setting })}
+            {translate('walletProvider.keepKey.settings.actions.update', {
+              setting: upperFirst(setting),
+            })}
           </Button>
         </SubMenuBody>
         <AwaitKeepKey translation={buttonPromptTranslation} />

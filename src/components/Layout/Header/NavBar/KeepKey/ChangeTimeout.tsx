@@ -1,5 +1,6 @@
 import { useColorModeValue } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { upperFirst } from 'lodash'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { SubMenuBody } from '../SubMenuBody'
@@ -7,11 +8,10 @@ import { SubMenuContainer } from '../SubMenuContainer'
 
 import type { AwaitKeepKeyProps } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
-import { LastDeviceInteractionStatus } from '@/components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
+import { useDeviceSettingToast } from '@/components/Layout/Header/NavBar/KeepKey/hooks/useDeviceSettingToast'
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio } from '@/components/Radio/Radio'
 import { DeviceTimeout, timeoutOptions, useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const radioProps = { width: 'full', justifyContent: 'flex-start' }
@@ -24,7 +24,15 @@ const radioButtonGroupProps = {
   spacing: '0',
 } as const
 
+const setting = 'timeout'
+const keepkeyButtonPromptTranslation: AwaitKeepKeyProps['translation'] = [
+  'walletProvider.keepKey.settings.descriptions.buttonPrompt',
+  { setting },
+]
+
 export const ChangeTimeout = () => {
+  const { toastSuccess, toastError } = useDeviceSettingToast(setting)
+
   const translate = useTranslate()
   const {
     state: { deviceTimeout, keepKeyWallet },
@@ -34,35 +42,37 @@ export const ChangeTimeout = () => {
       deviceState: { awaitingDeviceInteraction },
     },
   } = useWallet()
-  const toast = useNotificationToast()
   const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
+  // A queued second change would be rolled back by the first one failing
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = useCallback(
     async (value: DeviceTimeout) => {
+      if (!keepKeyWallet || isSubmitting) return
+
+      setIsSubmitting(true)
+
       const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)
 
+      const previousTimeout = radioTimeout
       value && setRadioTimeout(value)
-      await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout }).catch(e => {
-        console.error(e)
-        toast({
-          title: translate('common.error'),
-          description: e?.message ?? translate('common.somethingWentWrong'),
-          status: 'error',
-          isClosable: true,
-        })
-      })
+
+      try {
+        await keepKeyWallet.applySettings({ autoLockDelayMs: parsedTimeout })
+        toastSuccess()
+      } catch (e) {
+        // Cancelling is silent, so leaving the radio moved would be the only thing the user sees
+        setRadioTimeout(previousTimeout)
+        toastError(e)
+      } finally {
+        setIsSubmitting(false)
+      }
     },
-    [keepKeyWallet, toast, translate],
+    [isSubmitting, keepKeyWallet, radioTimeout, toastError, toastSuccess],
   )
 
-  const setting = 'timeout'
   const colorScheme = useColorModeValue('blackAlpha', 'white')
   const checkColor = useColorModeValue('green', 'blue.400')
-
-  const keepkeyButtonPromptTranslation: AwaitKeepKeyProps['translation'] = useMemo(
-    () => ['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }],
-    [setting],
-  )
 
   useEffect(() => {
     if (deviceTimeout?.value) {
@@ -74,20 +84,20 @@ export const ChangeTimeout = () => {
     <SubMenuContainer>
       <SubmenuHeader
         title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-          setting: 'Timeout',
+          setting: upperFirst(setting),
         })}
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
       <SubMenuBody>
-        <LastDeviceInteractionStatus setting='timeout' />
         <Radio
           showCheck
           options={timeoutOptions}
           onChange={handleChange}
           colorScheme={colorScheme}
+          value={radioTimeout}
           defaultValue={radioTimeout}
           checkColor={checkColor}
-          isLoading={awaitingDeviceInteraction}
+          isLoading={awaitingDeviceInteraction || isSubmitting}
           radioProps={radioProps}
           buttonGroupProps={radioButtonGroupProps}
         />

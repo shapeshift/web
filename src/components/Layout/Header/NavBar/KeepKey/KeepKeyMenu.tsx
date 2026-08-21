@@ -8,7 +8,7 @@ import {
   MenuItem,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ExpandedMenuItem } from '@/components/Layout/Header/NavBar/ExpandedMenuItem'
@@ -20,11 +20,7 @@ import { SubMenuContainer } from '@/components/Layout/Header/NavBar/SubMenuConta
 import { SubmenuHeader } from '@/components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from '@/components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from '@/components/Text'
-import {
-  getPlatform,
-  RELEASE_PAGE,
-  UPDATER_BASE_URL,
-} from '@/context/WalletProvider/KeepKey/helpers'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useKeepKeyVersions } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -57,12 +53,12 @@ export const KeepKeyMenu = () => {
     state: { deviceTimeout, features },
   } = useKeepKey()
   const {
+    dispatch,
     setDeviceState,
     state: { wallet, isConnected, walletInfo },
   } = useWallet()
-  const { versionsQuery, stableDesktopVersionQuery } = useKeepKeyVersions({ wallet })
+  const { versionsQuery } = useKeepKeyVersions({ wallet })
   const versions = versionsQuery.data?.versions
-  const stableVersion = stableDesktopVersionQuery.data
   const keepKeyWipe = useModal('keepKeyWipe')
 
   // Reset ephemeral device state properties when opening the KeepKey menu
@@ -73,28 +69,9 @@ export const KeepKeyMenu = () => {
     })
   }, [setDeviceState])
 
-  // Get the platform and construct the dynamic download URL
-  const platform = useMemo(() => getPlatform(), [])
-  const latestVersion = stableVersion
-
-  const platformFilename = useMemo(() => {
-    switch (platform) {
-      case 'Mac OS':
-        return `KeepKey-Desktop-${latestVersion}-universal.dmg`
-      case 'Windows':
-        return `KeepKey-Desktop-Setup-${latestVersion}.exe`
-      case 'Linux':
-        return `KeepKey-Desktop-${latestVersion}.AppImage`
-      default:
-        return null
-    }
-  }, [platform, latestVersion])
-
-  const updaterUrl = useMemo(
-    () =>
-      platformFilename ? `${UPDATER_BASE_URL}v${latestVersion}/${platformFilename}` : RELEASE_PAGE,
-    [platformFilename, latestVersion],
-  )
+  const handleUpdateClick = useCallback(() => {
+    dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
+  }, [dispatch])
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -165,7 +142,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.bootloader.updateAvailable}
-            externalUrl={updaterUrl}
+            onClick={handleUpdateClick}
           />
           <ExpandedMenuItem
             label='walletProvider.keepKey.settings.menuLabels.firmware'
@@ -174,7 +151,7 @@ export const KeepKeyMenu = () => {
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
             isDisabled={!versions?.firmware.updateAvailable}
-            externalUrl={updaterUrl}
+            onClick={handleUpdateClick}
           />
           <MenuDivider />
           <ExpandedMenuItem

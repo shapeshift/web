@@ -472,7 +472,6 @@
     "keepKey": {
       "title": "Actualización de KeepKey disponible",
       "newUpdateAvailable": "Hay una nueva actualización de KeepKey disponible.",
-      "downloadCta": "Descargar actualización",
       "updateRequiredForFeature": "Esta actualización es necesaria para admitir %{feature}"
     }
   },
@@ -1230,7 +1229,6 @@
       },
       "downloadUpdater": {
         "header": "Descargar KeepKey Updater",
-        "button": "Descargar %{filename}",
         "wrongPlatform": "¿No usas %{platform}? haga clic aquí"
       },
       "disconnect": {

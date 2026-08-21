@@ -7,13 +7,12 @@ import {
   ModalHeader,
 } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
-import type { Event, HDWalletError } from '@shapeshiftoss/hdwallet-core'
-import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useMemo, useState } from 'react'
-import semverGte from 'semver/functions/gte'
+import type { Event } from '@shapeshiftoss/hdwallet-core'
+import { HDWalletErrorType } from '@shapeshiftoss/hdwallet-core'
+import { useCallback, useState } from 'react'
 
 import { KeepKeyConfig } from '../config'
-import { useKeepKeyVersions } from '../hooks/useKeepKeyVersions'
+import { isHDWalletErrorType } from '../helpers'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 import { setupKeepKeySDK } from '../setupKeepKeySdk'
 
@@ -46,8 +45,6 @@ export const KeepKeyConnect = () => {
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { versionsQuery } = useKeepKeyVersions({ wallet: state.wallet })
-  const latestFirmware = versionsQuery.data?.latestFirmware
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -55,7 +52,7 @@ export const KeepKeyConnect = () => {
   }, [])
 
   const handleDownloadButtonClick = useCallback(() => {
-    dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
+    dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
   }, [dispatch])
 
   const pairDevice = useCallback(async () => {
@@ -90,8 +87,13 @@ export const KeepKeyConnect = () => {
         }
       } catch (err) {
         console.error(err)
-        if ((err as HDWalletError).name === 'ConflictingApp') {
+        if (isHDWalletErrorType(err, HDWalletErrorType.ConflictingApp)) {
           setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+          return
+        }
+        // Below 6.1.0 the usb interface reports as a protected class and cannot be claimed
+        if (isHDWalletErrorType(err, HDWalletErrorType.FirmwareUpdateRequired)) {
+          dispatch({ type: WalletActions.DOWNLOAD_UPDATER })
           return
         }
 
@@ -103,24 +105,6 @@ export const KeepKeyConnect = () => {
     if (!wallet) return
 
     try {
-      // Check firmware version before proceeding
-      const deviceFirmware = await wallet.getFirmwareVersion()
-
-      // If we're still loading the latest firmware version, wait
-      if (versionsQuery.isFetching) {
-        setLoading(true)
-        return
-      }
-
-      // If the latest firmware version is not available, proceed anyway
-      if (!latestFirmware) {
-        console.warn('Latest firmware version not available, proceeding anyway')
-      } else if (!semverGte(deviceFirmware, latestFirmware)) {
-        // If the device firmware is older than the required firmware version, show error and return
-        setErrorLoading('walletProvider.errors.walletNotFound')
-        return
-      }
-
       const { name, icon } = KeepKeyConfig
       const deviceId = await wallet.getDeviceID()
       await wallet.getFeatures()
@@ -166,20 +150,8 @@ export const KeepKeyConnect = () => {
     }
 
     setLoading(false)
-  }, [
-    dispatch,
-    getAdapter,
-    localWallet,
-    setErrorLoading,
-    state.keyring,
-    latestFirmware,
-    versionsQuery.isFetching,
-  ])
+  }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring])
 
-  const walletNotFoundTranslation: [string, InterpolationOptions] = useMemo(
-    () => ['walletProvider.keepKey.errors.updateAlert', { version: latestFirmware }],
-    [latestFirmware],
-  )
   return (
     <>
       <ModalHeader>
@@ -203,17 +175,9 @@ export const KeepKeyConnect = () => {
           </Alert>
         )}
         {error === 'walletProvider.errors.walletNotFound' && (
-          <>
-            <Alert status='error' mt={4}>
-              <AlertIcon />
-              <AlertDescription>
-                <Text translation={walletNotFoundTranslation} />
-              </AlertDescription>
-            </Alert>
-            <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>
-              <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
-            </Button>
-          </>
+          <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>
+            <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
+          </Button>
         )}
       </ModalBody>
     </>

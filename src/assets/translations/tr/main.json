@@ -472,7 +472,6 @@
     "keepKey": {
       "title": "KeepKey Güncellemesi Mevcut",
       "newUpdateAvailable": "Yeni bir KeepKey güncellemesi mevcut.",
-      "downloadCta": "Güncellemeyi İndir",
       "updateRequiredForFeature": "Bu güncelleme, %{feature}'ı desteklemek için gereklidir"
     }
   },
@@ -1230,7 +1229,6 @@
       },
       "downloadUpdater": {
         "header": "KeepKey Updater'ı İndirin",
-        "button": "%{filename} dosyasını indir",
         "wrongPlatform": "%{platform}? kullanmıyor musunuz? Buraya Tıklayın"
       },
       "disconnect": {

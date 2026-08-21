@@ -472,7 +472,6 @@
     "keepKey": {
       "title": "KeepKey アップデート利用可能",
       "newUpdateAvailable": "新しい KeepKey アップデートが利用可能です",
-      "downloadCta": "アップデートをダウンロード",
       "updateRequiredForFeature": "このアップデートは %{feature} をサポートするために必要です"
     }
   },
@@ -1230,7 +1229,6 @@
       },
       "downloadUpdater": {
         "header": "KeepKeyアップデーターをダウンロード",
-        "button": "%{filename}をダウンロード",
         "wrongPlatform": "%{platform} を使用していませんか?ここをクリック"
       },
       "disconnect": {

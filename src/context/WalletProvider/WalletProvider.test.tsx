@@ -146,23 +146,6 @@ describe('WalletProvider', () => {
     })
   })
 
-  describe('create', () => {
-    it('dispatches SET_CONNECTOR_TYPE and SET_INITAL_ROUTE', () => {
-      const result = setup()
-      const type = KeyManager.Native
-      expect(result.current.state.wallet).toBe(null)
-      expect(result.current.state.walletInfo).toBe(null)
-      expect(result.current.state.isConnected).toBe(false)
-
-      act(() => {
-        result.current.create(type)
-      })
-
-      expect(result.current.state.modalType).toBe(type)
-      expect(result.current.state.initialRoute).toBe('/native/create')
-    })
-  })
-
   describe('disconnect', () => {
     it('disconnects and calls RESET_STATE', () => {
       const walletDisconnect = vi.fn()

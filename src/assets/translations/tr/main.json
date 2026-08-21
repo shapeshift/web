@@ -1549,13 +1549,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Cüzdanınızla iletişim kurulamıyor. Sorun devam ederse, lütfen Keepkey desteği ile iletişime geçin.",
-      "walletVersionTooOld": "Cüzdanınız eşleştirilemiyor. Lütfen cüzdanınızı en son sürüme güncelleyin."
+      "walletNotFound": "Cüzdanınızla iletişim kurulamıyor. Sorun devam ederse, lütfen Keepkey desteği ile iletişime geçin."
     },
     "keepKey": {
       "errors": {
         "unknown": "KeepKey'inizle iletişim kurulurken beklenmeyen bir hata oluştu",
-        "updateAlert": "KeepKey'inizi bu istemciyle kullanmak için Firmware %{version} veya üstü gereklidir. Lütfen cihazınızı güncelleyin.",
         "pinCancelled": "PIN girişi iptal edildi",
         "pinInvalid": "Girdiğiniz PIN geçerli değil",
         "pinMismatch": "Girdiğiniz iki PIN eşleşmiyor"
@@ -1564,8 +1562,7 @@
         "header": "KeepKey'inizi Eşleyin",
         "body": "Bir KeepKey cihazı bağlayın ve Eşleştir'e tıklayın.",
         "button": "Eşleştir",
-        "conflictingApp": "KeepKey'iniz bulunamadı. Başka bir uygulama, KeepKey'inizle bağlantı kurmaya çalışıyor olabilir.",
-        "downloadUpdaterApp": "Updater uygulamasını indirin"
+        "conflictingApp": "KeepKey'iniz bulunamadı. Başka bir uygulama, KeepKey'inizle bağlantı kurmaya çalışıyor olabilir."
       },
       "pin": {
         "header": "PIN'inizi girin",

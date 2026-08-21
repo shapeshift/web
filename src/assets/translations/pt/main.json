@@ -1549,13 +1549,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Não é possível se comunicar com sua carteira",
-      "walletVersionTooOld": "Não é possível parear sua carteira. Atualize sua carteira para a versão mais recente."
+      "walletNotFound": "Não é possível se comunicar com sua carteira"
     },
     "keepKey": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado durante a comunicação com sua KeepKey",
-        "updateAlert": "O firmware %{version} ou posterior é necessário para usar a KeepKey. Atualize seu dispositivo.",
         "pinCancelled": "Entrada do PIN foi cancelada",
         "pinInvalid": "O PIN que você digitou não é válido",
         "pinMismatch": "Os PINs que você digitou não correspondem"
@@ -1564,8 +1562,7 @@
         "header": "Emparelhe sua KeepKey",
         "body": "Conecte sua KeepKey e clique em Emparelhar.",
         "button": "Emparelhar",
-        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo .",
-        "downloadUpdaterApp": "Baixar o app para atualizações."
+        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo ."
       },
       "pin": {
         "header": "Digite seu PIN",

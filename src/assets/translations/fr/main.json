@@ -1549,13 +1549,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey.",
-      "walletVersionTooOld": "Impossible d'appairer votre porte-monnaie. Veuillez mettre à jour votre porte-monnaie à la dernière version."
+      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey."
     },
     "keepKey": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
-        "updateAlert": "Le firmware %{version} ou ultérieur est requis pour utiliser votre KeepKey avec ce client. Veuillez mettre à jour votre appareil.",
         "pinCancelled": "La saisie du PIN a été annulée",
         "pinInvalid": "Le PIN que vous avez saisi n'est pas valide",
         "pinMismatch": "Les deux PIN que vous avez saisis ne correspondent pas"
@@ -1564,8 +1562,7 @@
         "header": "Appairer votre KeepKey",
         "body": "Connectez un appareil KeepKey et cliquez sur Appairer.",
         "button": "Appairer",
-        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey.",
-        "downloadUpdaterApp": "Télécharger l'app de mise à jour"
+        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey."
       },
       "pin": {
         "header": "Entrez votre code PIN",

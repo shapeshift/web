@@ -1597,7 +1597,6 @@
           "timeout": "默认情况下，你的设备在 10 分钟不活动后进入睡眠状态。但是，你可以更改此设置。",
           "buttonPrompt": "按住 KeepKey 上的按钮可更改设备 %{setting} 。",
           "updateSuccess": "%{setting} 已成功更新！",
-          "updateFailed": "更新 %{setting} 时出错。",
           "timeoutDuration": "%{minutes} 分钟"
         },
         "alerts": {
@@ -2145,9 +2144,7 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {
-      "sendWarning": "此地址尚未在 Tron 上激活。您发送的代币将会到达，但收件人必须先收到一些 TRX 才能转移这些代币。"
-    }
+    "recipientNotActivated": {}
   },
   "transactionHistory": {
     "transactionHistory": "交易记录",

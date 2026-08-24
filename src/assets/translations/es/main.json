@@ -1597,7 +1597,6 @@
           "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puedes cambiar esto.",
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
-          "updateFailed": "Ocurrió un error al actualizar %{setting}.",
           "timeoutDuration": "%{minutes} minutos"
         },
         "alerts": {
@@ -2145,9 +2144,7 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {
-      "sendWarning": "Esta dirección no se ha activado en Tron. Recibirás tus tokens, pero el destinatario no podrá moverlos hasta que también reciba TRX."
-    }
+    "recipientNotActivated": {}
   },
   "transactionHistory": {
     "transactionHistory": "Historial de transacciones",

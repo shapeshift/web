@@ -1597,7 +1597,6 @@
           "timeout": "Seu dispositivo entra no modo de espera após 10 minutos de inatividade por padrão. No entanto, você pode mudar isso.",
           "buttonPrompt": "Pressione e segure o botão em sua KeepKey para alterar o dispositivo %{setting}.",
           "updateSuccess": "%{setting} atualizado com sucesso!",
-          "updateFailed": "Ocorreu um erro durante a atualização do dispositivo %{setting}.",
           "timeoutDuration": "%{minutes} minutos"
         },
         "alerts": {
@@ -2145,9 +2144,7 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {
-      "sendWarning": "Este endereço ainda não foi ativado na Tron. Seus tokens chegarão, mas o destinatário não poderá movimentá-los até que também receba TRX."
-    }
+    "recipientNotActivated": {}
   },
   "transactionHistory": {
     "transactionHistory": "Histórico de transações",

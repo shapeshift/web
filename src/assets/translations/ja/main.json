@@ -1597,7 +1597,6 @@
           "timeout": "デフォルトでは、デバイスは非アクティブ状態が10分間続くとスリープ状態になります。ただし、これは変更できます。",
           "buttonPrompt": "KeepKeyのボタンを押したままにして、デバイスの %{setting} を変更します。",
           "updateSuccess": "%{setting} が正常に更新されました。",
-          "updateFailed": "%{setting} の更新中にエラーが発生しました。",
           "timeoutDuration": "%{minutes}分"
         },
         "alerts": {
@@ -2145,9 +2144,7 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {
-      "sendWarning": "このアドレスはまだTron上で有効化されていません。トークンは届きますが、受取人はTRXを受け取るまでトークンを移動できません。"
-    }
+    "recipientNotActivated": {}
   },
   "transactionHistory": {
     "transactionHistory": "取引履歴",

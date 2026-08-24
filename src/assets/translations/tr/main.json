@@ -1597,7 +1597,6 @@
           "timeout": "Cihazınız varsayılan olarak 10 dakika işlem yapılmadığında uyku moduna geçer. Ancak bunu değiştirebilirsiniz.",
           "buttonPrompt": "%{setting} cihazını değiştirmek için KeepKey'inizdeki düğmeyi basılı tutun.",
           "updateSuccess": "%{setting} başarıyla güncellendi!",
-          "updateFailed": "%{setting} güncellenirken bir hata oluştu.",
           "timeoutDuration": "%{minutes} dakika"
         },
         "alerts": {
@@ -2145,9 +2144,7 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {
-      "sendWarning": "Bu adres henüz Tron'da etkinleştirilmedi. Tokenlarınız ulaşacak, ancak alıcı da TRX alana kadar bunları taşıyamayacak."
-    }
+    "recipientNotActivated": {}
   },
   "transactionHistory": {
     "transactionHistory": "İşlem Geçmişi",

@@ -88,6 +88,9 @@ import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddr
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 
+// Long enough to span a discovery pass, short enough not to outlive the wallet it was derived from
+const EVM_ADDRESS_CACHE_MS = 60_000
+
 const prefetchBatchedEvmAddresses = async ({
   wallet,
   chainId,
@@ -209,15 +212,19 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
     if (!address) {
       const cachedAddress = getCachedBatchAddress({ deviceId, chainId, accountNumber })
-      // Discovery derives a chain at a time, so cache off the path every evm chain shares
+      // Discovery derives a chain at a time, so cache off the path every evm chain shares.
+      // Bounded, and skipped without a deviceId: the id is not seed-derived, so a passphrase
+      // would otherwise be served the address of the seed before it
       address =
         cachedAddress ||
-        (await queryClient.fetchQuery({
-          queryKey: ['evm-address', deviceId, accountNumber],
-          queryFn: () => adapter.getAddress({ accountNumber, wallet }),
-          staleTime: Infinity,
-          gcTime: Infinity,
-        }))
+        (deviceId
+          ? await queryClient.fetchQuery({
+              queryKey: ['evm-address', deviceId, accountNumber],
+              queryFn: () => adapter.getAddress({ accountNumber, wallet }),
+              staleTime: EVM_ADDRESS_CACHE_MS,
+              gcTime: EVM_ADDRESS_CACHE_MS,
+            })
+          : await adapter.getAddress({ accountNumber, wallet }))
     }
     if (!address) continue
 

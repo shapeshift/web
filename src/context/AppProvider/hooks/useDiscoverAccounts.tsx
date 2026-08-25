@@ -74,7 +74,11 @@ export const useDiscoverAccounts = () => {
             .map(accountId => currentPortfolio.accountMetadata.byId[accountId]?.bip44Params)
             .filter(isSome)
             .map(bip44Params => bip44Params.accountNumber)
-          const resumeFrom = knownAccountNumbers.length ? Math.max(...knownAccountNumbers) + 1 : 0
+          // Manually imported accounts leave gaps, and a gap means everything above it was never
+          // scanned - resume at the first number missing rather than past the highest present
+          const knownAccountNumberSet = new Set(knownAccountNumbers)
+          let resumeFrom = 0
+          while (knownAccountNumberSet.has(resumeFrom)) resumeFrom++
 
           let accountNumber = 0
           let hasActivity = true

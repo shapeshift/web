@@ -209,7 +209,15 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
     if (!address) {
       const cachedAddress = getCachedBatchAddress({ deviceId, chainId, accountNumber })
-      address = cachedAddress || (await adapter.getAddress({ accountNumber, wallet }))
+      // Discovery derives a chain at a time, so cache off the path every evm chain shares
+      address =
+        cachedAddress ||
+        (await queryClient.fetchQuery({
+          queryKey: ['evm-address', deviceId, accountNumber],
+          queryFn: () => adapter.getAddress({ accountNumber, wallet }),
+          staleTime: Infinity,
+          gcTime: Infinity,
+        }))
     }
     if (!address) continue
 

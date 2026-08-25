@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import type { SubscribeTxsInput, Transaction } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
@@ -26,7 +26,7 @@ import { useAppDispatch } from '@/state/store'
 
 export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()
-  const subscribedAccountIdsRef = useRef<Set<AccountId>>(new Set())
+  const subscribedAccountsRef = useRef<Map<AccountId, SubscribeTxsInput>>(new Map())
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -125,7 +125,7 @@ export const useTransactionsSubscriber = () => {
     // subscription down on each addition is what made this quadratic
     return () => {
       supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
-      subscribedAccountIdsRef.current.clear()
+      subscribedAccountsRef.current.clear()
     }
   }, [supportedChains, wallet])
 
@@ -135,14 +135,21 @@ export const useTransactionsSubscriber = () => {
   useEffect(() => {
     if (!wallet || !isConnected) return
 
+    // An account that has left the portfolio - disabled by hand, or a seed changed under the
+    // same device id - keeps receiving txs into the store until it is dropped
+    subscribedAccountsRef.current.forEach((input, accountId) => {
+      if (portfolioAccountMetadata[accountId]) return
+      subscribedAccountsRef.current.delete(accountId)
+      getChainAdapterManager().get(fromAccountId(accountId).chainId)?.unsubscribeTxs(input)
+    })
+
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
 
     // Subscribe what is new rather than the set - discovery adds to it as it goes, and an
     // account already subscribed does not need doing again
     accountIds.forEach(accountId => {
-      if (subscribedAccountIdsRef.current.has(accountId)) return
-      subscribedAccountIdsRef.current.add(accountId)
+      if (subscribedAccountsRef.current.has(accountId)) return
 
       const { chainId } = fromAccountId(accountId)
       const adapter = getChainAdapterManager().get(chainId)
@@ -152,16 +159,20 @@ export const useTransactionsSubscriber = () => {
       const { accountType, bip44Params } = accountMetadata
       const { accountNumber } = bip44Params
 
+      const input = {
+        wallet,
+        accountType,
+        accountNumber,
+        // The accountId already carries this - an address, or an xpub for utxo
+        pubKey: fromAccountId(accountId).account,
+      }
+
+      subscribedAccountsRef.current.set(accountId, input)
+
       // subscribe to new transactions for all supported accounts
-      try {
-        return adapter?.subscribeTxs(
-          {
-            wallet,
-            accountType,
-            accountNumber,
-            // The accountId already carries this - an address, or an xpub for utxo
-            pubKey: fromAccountId(accountId).account,
-          },
+      adapter
+        ?.subscribeTxs(
+          input,
           msg => {
             const { getAccount } = portfolioApi.endpoints
             const { onMessage } = txHistory.actions
@@ -181,11 +192,12 @@ export const useTransactionsSubscriber = () => {
           },
           err => console.error(err),
         )
-      } catch (e) {
-        // let a failed subscription be retried the next time accounts change
-        subscribedAccountIdsRef.current.delete(accountId)
-        console.error(e)
-      }
+        // subscribeTxs resolves asynchronously, so a failure surfaces here rather than as a throw
+        .catch(e => {
+          // let a failed subscription be retried the next time accounts change
+          subscribedAccountsRef.current.delete(accountId)
+          console.error(e)
+        })
     })
   }, [
     dispatch,
@@ -193,6 +205,8 @@ export const useTransactionsSubscriber = () => {
     maybeRefetchOpportunities,
     portfolioAccountMetadata,
     portfolioLoadingStatus,
+    // The cleanup above unsubscribes on a change here, so this must resubscribe
+    supportedChains,
     wallet,
   ])
 }

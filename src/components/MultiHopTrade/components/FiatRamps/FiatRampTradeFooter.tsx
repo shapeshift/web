@@ -85,7 +85,6 @@ export const FiatRampTradeFooter = ({
 }: FiatRampTradeFooterProps) => {
   const buyAsset = 'buyAsset' in props ? props.buyAsset : undefined
   const sellAsset = 'sellAsset' in props ? props.sellAsset : undefined
-  const sellAccountId = 'sellAccountId' in props ? props.sellAccountId : undefined
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
@@ -119,13 +118,14 @@ export const FiatRampTradeFooter = ({
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       parentShouldDisablePreviewButton ||
-      (isDiscoveringAccounts && !sellAccountId) ||
+      // A trade cannot be previewed against accounts we have not finished looking for
+      isDiscoveringAccounts ||
       // don't allow executing a quote with errors
       isError ||
       // don't execute trades while in loading state
       isLoading
     )
-  }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, sellAccountId, isError, isLoading])
+  }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, isError, isLoading])
 
   const deltaPercentage = useMemo(() => {
     if (!rate || !marketRate || bnOrZero(marketRate).isZero()) return null

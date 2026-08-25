@@ -57,7 +57,6 @@ export const SharedTradeInputFooter = ({
   quoteStatusTranslation,
   rate,
   receiveSummaryDetails,
-  sellAccountId,
   sellAsset,
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   swapperName,
@@ -80,13 +79,14 @@ export const SharedTradeInputFooter = ({
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       parentShouldDisablePreviewButton ||
-      (isDiscoveringAccounts && !sellAccountId) ||
+      // A trade cannot be previewed against accounts we have not finished looking for
+      isDiscoveringAccounts ||
       // don't allow executing a quote with errors
       isError ||
       // don't execute trades while in loading state
       isLoading
     )
-  }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, sellAccountId, isError, isLoading])
+  }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, isError, isLoading])
 
   const buttonText = useMemo(() => {
     return <Text translation={quoteStatusTranslation} />
@@ -158,7 +158,7 @@ export const SharedTradeInputFooter = ({
         {children}
 
         <ButtonWalletPredicate
-          isLoading={isLoading || (isDiscoveringAccounts && !sellAccountId)}
+          isLoading={isLoading || isDiscoveringAccounts}
           loadingText={isLoading ? undefined : buttonText}
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}

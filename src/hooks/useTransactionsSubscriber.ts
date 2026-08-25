@@ -1,13 +1,11 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
+import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -35,6 +33,7 @@ export const useTransactionsSubscriber = () => {
   } = useWallet()
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
+  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const { supportedChains } = usePlugins()
 
   const stakingOpportunitiesById = useSelector(
@@ -138,6 +137,8 @@ export const useTransactionsSubscriber = () => {
   useEffect(() => {
     if (isSubscribed) return
     if (!wallet || !isConnected) return
+    // Discovery upserts an account at a time, and each upsert rebuilds every subscription
+    if (isDiscoveringAccounts) return
 
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
@@ -153,14 +154,13 @@ export const useTransactionsSubscriber = () => {
 
       // subscribe to new transactions for all supported accounts
       try {
-        const skipDeviceDerivation =
-          (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet)) && accountId
         return adapter?.subscribeTxs(
           {
             wallet,
             accountType,
             accountNumber,
-            pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
+            // The accountId already carries this - an address, or an xpub for utxo
+            pubKey: accountId ? fromAccountId(accountId).account : undefined,
           },
           msg => {
             const { getAccount } = portfolioApi.endpoints
@@ -190,6 +190,7 @@ export const useTransactionsSubscriber = () => {
   }, [
     dispatch,
     isConnected,
+    isDiscoveringAccounts,
     isSubscribed,
     maybeRefetchOpportunities,
     portfolioAccountMetadata,

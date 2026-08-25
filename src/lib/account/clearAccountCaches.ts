@@ -1,6 +1,7 @@
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 
-// All keyed on the device id, which a passphrase does not change
+// All keyed on the device id, which a passphrase does not change. The batch keys are Trezor-only
+// today, and listed so a wallet that gains both batching and a passphrase cannot go stale
 const SEED_DEPENDENT_QUERY_KEYS = [
   ['useDiscoverAccounts'],
   ['accountIdWithActivityAndMetadata'],

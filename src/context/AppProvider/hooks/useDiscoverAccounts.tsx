@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isGridPlus, isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -12,6 +13,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { METAMASK_RDNS } from '@/lib/mipd'
+import { isSome } from '@/lib/utils'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -64,6 +66,16 @@ export const useDiscoverAccounts = () => {
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
+          // Persisted metadata is keyed on the device id, which a passphrase does not change
+          const knownAccountIds = (currentPortfolio.wallet.byId[walletId] ?? []).filter(
+            accountId => fromAccountId(accountId).chainId === chainId,
+          )
+          const knownAccountNumbers = knownAccountIds
+            .map(accountId => currentPortfolio.accountMetadata.byId[accountId]?.bip44Params)
+            .filter(isSome)
+            .map(bip44Params => bip44Params.accountNumber)
+          const resumeFrom = knownAccountNumbers.length ? Math.max(...knownAccountNumbers) + 1 : 0
+
           let accountNumber = 0
           let hasActivity = true
           let isDegraded = false
@@ -98,6 +110,18 @@ export const useDiscoverAccounts = () => {
               }
 
               accountNumber++
+
+              // Account 0 matching what was stored proves the seed, so skip the rest
+              if (accountNumber === 1 && resumeFrom > 1) {
+                const derivedAccountIds = accountIdWithActivityAndMetadata.map(
+                  ({ accountId }) => accountId,
+                )
+                const isSameSeed =
+                  derivedAccountIds.length > 0 &&
+                  derivedAccountIds.every(accountId => knownAccountIds.includes(accountId))
+
+                if (isSameSeed) accountNumber = resumeFrom
+              }
             } catch (error) {
               console.error(`Error discovering accounts for chain ${chainId}:`, error)
               isDegraded = true

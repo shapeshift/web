@@ -10,5 +10,9 @@ const SEED_DEPENDENT_QUERY_KEYS = [
   ['batch-utxo-pubkeys'],
 ]
 
+// Only what has settled: a pass already running is deriving against the seed we are clearing
+// for, and removing it would orphan it and start a second one against the device
 export const clearAccountCaches = () =>
-  SEED_DEPENDENT_QUERY_KEYS.forEach(queryKey => queryClient.removeQueries({ queryKey }))
+  SEED_DEPENDENT_QUERY_KEYS.forEach(queryKey =>
+    queryClient.removeQueries({ queryKey, fetchStatus: 'idle' }),
+  )

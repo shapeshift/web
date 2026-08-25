@@ -223,6 +223,8 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
               queryFn: () => adapter.getAddress({ accountNumber, wallet }),
               staleTime: EVM_ADDRESS_CACHE_MS,
               gcTime: EVM_ADDRESS_CACHE_MS,
+              // A rejected derivation is the user declining on device, not something to retry
+              retry: false,
             })
           : await adapter.getAddress({ accountNumber, wallet }))
     }

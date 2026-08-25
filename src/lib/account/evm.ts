@@ -88,8 +88,19 @@ import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddr
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 
-// Long enough to span a discovery pass, short enough not to outlive the wallet it was derived from
-const EVM_ADDRESS_CACHE_MS = 60_000
+// Discovery derives a chain at a time, so every evm chain asks for the same address at once.
+// Dropped as soon as it settles - nothing outlives its derivation, so nothing can go stale
+const inFlightAddresses = new Map<number, Promise<string>>()
+
+const deriveEvmAddressOnce = (accountNumber: number, derive: () => Promise<string>) => {
+  const pending = inFlightAddresses.get(accountNumber)
+  if (pending) return pending
+
+  const derivation = derive().finally(() => inFlightAddresses.delete(accountNumber))
+  inFlightAddresses.set(accountNumber, derivation)
+
+  return derivation
+}
 
 const prefetchBatchedEvmAddresses = async ({
   wallet,
@@ -212,20 +223,11 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
     if (!address) {
       const cachedAddress = getCachedBatchAddress({ deviceId, chainId, accountNumber })
-      // Discovery derives a chain at a time, so cache off the path every evm chain shares.
-      // Bounded, because a passphrase changes the seed without changing the deviceId keyed on
       address =
         cachedAddress ||
-        (deviceId
-          ? await queryClient.fetchQuery({
-              queryKey: ['evm-address', deviceId, accountNumber],
-              queryFn: () => adapter.getAddress({ accountNumber, wallet }),
-              staleTime: EVM_ADDRESS_CACHE_MS,
-              gcTime: EVM_ADDRESS_CACHE_MS,
-              // A rejected derivation is the user declining on device, not something to retry
-              retry: false,
-            })
-          : await adapter.getAddress({ accountNumber, wallet }))
+        (await deriveEvmAddressOnce(accountNumber, () =>
+          adapter.getAddress({ accountNumber, wallet }),
+        ))
     }
     if (!address) continue
 

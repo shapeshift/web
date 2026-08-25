@@ -5,7 +5,6 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 const SEED_DEPENDENT_QUERY_KEYS = [
   ['useDiscoverAccounts'],
   ['accountIdWithActivityAndMetadata'],
-  ['evm-address'],
   ['batch-evm-addresses'],
   ['batch-solana-addresses'],
   ['batch-utxo-pubkeys'],

@@ -178,7 +178,6 @@ export const ConfirmSummary = ({
 
   const isManualReceiveAddressRequired = useIsManualReceiveAddressRequired({
     shouldForceManualAddressEntry: false,
-    sellAccountId: sellAssetAccountId,
     buyAsset,
     manualReceiveAddress,
     walletReceiveAddress,

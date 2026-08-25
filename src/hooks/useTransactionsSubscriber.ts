@@ -120,12 +120,15 @@ export const useTransactionsSubscriber = () => {
    * unsubscribe and cleanup logic
    */
   useEffect(() => {
+    // The map itself is never replaced, so this is the same one the cleanup would have read
+    const subscribedAccounts = subscribedAccountsRef.current
+
     // we've disconnected/switched a wallet, unsubscribe transactions. Deliberately not reacting
     // to portfolioAccountMetadata: discovery grows it an account at a time, and tearing every
     // subscription down on each addition is what made this quadratic
     return () => {
       supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
-      subscribedAccountsRef.current.clear()
+      subscribedAccounts.clear()
     }
   }, [supportedChains, wallet])
 

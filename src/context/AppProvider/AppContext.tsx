@@ -5,7 +5,7 @@ import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import difference from 'lodash/difference'
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useLocation } from 'react-router-dom'
 
@@ -63,6 +63,13 @@ const MARKET_DATA_POLLING_INTERVAL_MS = 60 * 1000 // refetch market-data every m
  *
  */
 
+// Suspending in AppProvider itself discards the render pass of everything beside it
+const ActionCenterSubscribers = () => {
+  useActionCenterSubscribers()
+
+  return null
+}
+
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
   const translate = useTranslate()
@@ -92,7 +99,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Previously <TransactionsProvider />
   useTransactionsSubscriber()
-  useActionCenterSubscribers()
   useSnapStatusHandler()
   useNativeMultichainAutoOpen()
   // Handle Ledger device connection state and wallet disconnection
@@ -365,5 +371,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const areTradeInputsInitialized =
     Boolean(tradeInputBuyAsset.assetId) && Boolean(limitOrderInputBuyAsset.assetId)
   const isReady = Boolean(assetIds.length) && (hasTradeRouteParams || areTradeInputsInitialized)
-  return <>{isReady && children}</>
+
+  return (
+    <>
+      <Suspense fallback={null}>
+        <ActionCenterSubscribers />
+      </Suspense>
+      {isReady && children}
+    </>
+  )
 }

@@ -64,7 +64,7 @@ const MARKET_DATA_POLLING_INTERVAL_MS = 60 * 1000 // refetch market-data every m
  */
 
 // Suspending in AppProvider itself discards the render pass of everything beside it
-const ActionCenterSubscribers = () => {
+const ActionCenterSubscribers = (): null => {
   useActionCenterSubscribers()
 
   return null

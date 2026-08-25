@@ -4,6 +4,7 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 // so none of them survive a wallet whose seed may have
 const SEED_DEPENDENT_QUERY_KEYS = [
   ['useDiscoverAccounts'],
+  ['accountIdWithActivityAndMetadata'],
   ['evm-address'],
   ['batch-evm-addresses'],
   ['batch-solana-addresses'],

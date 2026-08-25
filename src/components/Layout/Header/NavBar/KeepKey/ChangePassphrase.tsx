@@ -26,6 +26,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { clearAccountCaches } from '@/lib/account/clearAccountCaches'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -84,6 +85,7 @@ export const ChangePassphrase = () => {
     }
     // Clear all previous wallet meta
     appDispatch(portfolio.actions.clearWalletMetadata(walletId))
+    clearAccountCaches()
     // Trigger a refresh of the wallet metadata only once the settings have been applied
     // and the previous wallet meta is gone from the store
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

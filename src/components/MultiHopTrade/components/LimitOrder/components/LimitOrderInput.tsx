@@ -558,7 +558,6 @@ export const LimitOrderInput = ({
         quoteStatusTranslation={quoteStatusTranslation}
         rate={limitPrice.buyAssetDenomination}
         marketRate={marketPriceBuyAsset}
-        sellAccountId={sellAccountId}
         shouldDisablePreviewButton={
           !hasUserEnteredAmount ||
           isError ||
@@ -590,7 +589,6 @@ export const LimitOrderInput = ({
     quoteStatusTranslation,
     limitPrice.buyAssetDenomination,
     marketPriceBuyAsset,
-    sellAccountId,
     isReceiveAddressEntryActive,
     networkFeeUserCurrency,
     renderedReceiveAddress,

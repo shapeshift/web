@@ -1,12 +1,15 @@
+import { Flex } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { HDWalletErrorType } from '@shapeshiftoss/hdwallet-core'
+import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { useMutation } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
 
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
@@ -16,10 +19,21 @@ import { FailureType, MessageType } from '@/context/WalletProvider/KeepKey/KeepK
 import { setupKeepKeySDK } from '@/context/WalletProvider/KeepKey/setupKeepKeySdk'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const Icon = KeepKeyConfig.icon
 const icon = <Icon boxSize='64px' />
+
+type KeepKeyWebUsbAdapter = InstanceType<typeof WebUSBKeepKeyAdapter>
+
+const PAIRING_TIMEOUT_MS = 15_000
+
+const routeFallback = (
+  <Flex width='full' height='full' alignItems='center' justifyContent='center'>
+    <CircularProgress />
+  </Flex>
+)
 
 const translateError = (event: Event) => {
   let t: string
@@ -43,15 +57,19 @@ export const KeepKeyRoutes = () => {
   const { dispatch, getAdapter, state } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
+  const [isPairing, setIsPairing] = useState(false)
   const { deviceFirmwareQuery } = useKeepKeyVersions({ wallet })
+  const location = useLocation()
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
+    setIsPairing(false)
   }, [])
 
   // This... well, pairs KK, but we still need to initialize it later on as a side-effect
   const pairKeepKeyHdWallet = useCallback(async () => {
     setError(null)
+    setIsPairing(true)
 
     const wallet: HDWallet | undefined = await (async () => {
       try {
@@ -60,18 +78,17 @@ export const KeepKeyRoutes = () => {
           const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
           return await firstAdapter?.pairDevice(sdk)
         } else {
-          const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
+          const secondAdapter = (await getAdapter(
+            KeyManager.KeepKey,
+            1,
+          )) as KeepKeyWebUsbAdapter | null
 
-          // @ts-ignore - getDevices exists on WebUSBKeepKeyAdapter
-          const existingDevices = await secondAdapter?.getDevices?.()
+          const existingDevices = await secondAdapter?.getDevices()
 
-          if (existingDevices?.length > 0) {
-            const existingDevice = existingDevices[0]
-            const existingWallet = state.keyring.get(existingDevice.serialNumber)
-            if (existingWallet) return existingWallet
+          if (existingDevices?.length) {
+            return await secondAdapter?.pairRawDevice(existingDevices[0])
           }
 
-          // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
           return await secondAdapter?.pairDevice()
         }
       } catch (err) {
@@ -90,8 +107,10 @@ export const KeepKeyRoutes = () => {
       }
     })()
 
+    if (!wallet) setIsPairing(false)
+
     setWallet(wallet || null)
-  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
+  }, [dispatch, getAdapter, setErrorLoading])
 
   // Actually initializes KK once hdwallet is paired
   const initializeKeepKeyMutation = useMutation({
@@ -110,6 +129,7 @@ export const KeepKeyRoutes = () => {
       })
 
       await wallet.initialize()
+      const isLocked = await wallet.isLocked()
 
       return {
         wallet,
@@ -117,10 +137,11 @@ export const KeepKeyRoutes = () => {
         icon,
         deviceId,
         label,
+        isLocked,
       }
     },
     onSuccess: data => {
-      const { wallet, name, icon, deviceId, label } = data
+      const { wallet, name, icon, deviceId, label, isLocked } = data
 
       dispatch({
         type: WalletActions.SET_WALLET,
@@ -133,14 +154,20 @@ export const KeepKeyRoutes = () => {
           connectedType: KeyManager.KeepKey,
         },
       })
+
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
         payload: true,
       })
+
       localWallet.setLocalWallet({
         type: KeyManager.KeepKey,
         deviceId: state.keyring.getAlias(deviceId),
       })
+
+      if (isLocked) return
+
+      setIsPairing(false)
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     },
     onError: (e: Error) => {
@@ -148,6 +175,19 @@ export const KeepKeyRoutes = () => {
       setErrorLoading(e.message || 'walletProvider.keepKey.errors.unknown')
     },
   })
+
+  // Pairing can stall with nothing thrown, leaving the spinner running with no way out
+  useEffect(() => {
+    if (!isPairing) return
+    if (location.pathname !== KeepKeyRoutesEnum.Connect) return
+
+    const timeout = setTimeout(
+      () => setErrorLoading('walletProvider.keepKey.connect.timeout'),
+      PAIRING_TIMEOUT_MS,
+    )
+
+    return () => clearTimeout(timeout)
+  }, [isPairing, location.pathname, setErrorLoading])
 
   // Fires the mutation when we're ready
   useEffect(() => {
@@ -178,12 +218,15 @@ export const KeepKeyRoutes = () => {
         headerTranslation='walletProvider.keepKey.connect.header'
         bodyTranslation='walletProvider.keepKey.connect.body'
         buttonTranslation='walletProvider.keepKey.connect.button'
-        isLoading={initializeKeepKeyMutation.isPending || deviceFirmwareQuery.isLoading}
+        isLoading={
+          isPairing || initializeKeepKeyMutation.isPending || deviceFirmwareQuery.isLoading
+        }
         error={error}
         onPairDeviceClick={pairKeepKeyHdWallet}
       />
     ),
     [
+      isPairing,
       initializeKeepKeyMutation.isPending,
       deviceFirmwareQuery.isLoading,
       error,
@@ -199,7 +242,18 @@ export const KeepKeyRoutes = () => {
         const Component = route.component
         if (!Component) return []
 
-        return [<Route key={route.path} path={route.path} element={<Component />} />]
+        // Above this, suspending would hide us, tearing down the effects mid-handshake
+        return [
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              <Suspense fallback={routeFallback}>
+                <Component />
+              </Suspense>
+            }
+          />,
+        ]
       }),
     [walletRoutes],
   )

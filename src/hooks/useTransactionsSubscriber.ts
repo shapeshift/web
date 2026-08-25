@@ -27,8 +27,6 @@ import { useAppDispatch } from '@/state/store'
 export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()
   const subscribedAccountsRef = useRef<Map<AccountId, SubscribeTxsInput>>(new Map())
-  // subscribeTxs resolves an address before it registers, so one can land after a teardown
-  const generationRef = useRef(0)
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -129,7 +127,6 @@ export const useTransactionsSubscriber = () => {
     // to portfolioAccountMetadata: discovery grows it an account at a time, and tearing every
     // subscription down on each addition is what made this quadratic
     return () => {
-      generationRef.current += 1
       supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
       subscribedAccounts.clear()
     }
@@ -151,8 +148,6 @@ export const useTransactionsSubscriber = () => {
 
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
-
-    const generation = generationRef.current
 
     // Subscribe what is new rather than the set - discovery adds to it as it goes, and an
     // account already subscribed does not need doing again
@@ -182,9 +177,6 @@ export const useTransactionsSubscriber = () => {
         ?.subscribeTxs(
           input,
           msg => {
-            // This subscription registered after its wallet was torn down
-            if (generationRef.current !== generation) return
-
             const { getAccount } = portfolioApi.endpoints
             const { onMessage } = txHistory.actions
 
@@ -203,9 +195,6 @@ export const useTransactionsSubscriber = () => {
           },
           err => console.error(err),
         )
-        .then(() => {
-          if (generationRef.current !== generation) adapter?.unsubscribeTxs(input)
-        })
         // subscribeTxs resolves asynchronously, so a failure surfaces here rather than as a throw
         .catch(e => {
           // let a failed subscription be retried the next time accounts change, unless a newer

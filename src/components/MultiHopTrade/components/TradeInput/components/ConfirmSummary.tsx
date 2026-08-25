@@ -364,7 +364,6 @@ export const ConfirmSummary = ({
       quoteStatusTranslation={quoteStatusTranslation}
       rate={activeQuote?.rate}
       receiveSummaryDetails={receiveSummaryDetails}
-      sellAccountId={sellAssetAccountId}
       sellAsset={sellAsset}
       shouldDisablePreviewButton={shouldDisablePreviewButton}
       swapperName={activeSwapperName}

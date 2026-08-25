@@ -30,7 +30,6 @@ type SharedTradeInputFooterProps = {
   quoteStatusTranslation: string | [string, InterpolationOptions]
   rate: string | undefined
   receiveSummaryDetails?: JSX.Element | null
-  sellAccountId: string | undefined
   sellAsset: Asset
   shouldDisablePreviewButton: boolean | undefined
   swapperName: SwapperName | undefined

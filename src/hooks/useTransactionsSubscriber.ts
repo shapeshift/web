@@ -2,10 +2,9 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
-import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -27,13 +26,12 @@ import { useAppDispatch } from '@/state/store'
 
 export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()
-  const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
+  const subscribedAccountIdsRef = useRef<Set<AccountId>>(new Set())
   const {
     state: { isConnected, wallet },
   } = useWallet()
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
   const { supportedChains } = usePlugins()
 
   const stakingOpportunitiesById = useSelector(
@@ -122,28 +120,30 @@ export const useTransactionsSubscriber = () => {
    * unsubscribe and cleanup logic
    */
   useEffect(() => {
-    // we've disconnected/switched a wallet, unsubscribe transactions
-    if (!isSubscribed) return
-    // this is heavy handed but will ensure we're unsubscribed from everything
-    supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
-    setIsSubscribed(false)
-    // isSubscribed causes spurious unsubscriptions - this will react correctly when portfolioAccountMetadata changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supportedChains, wallet, portfolioAccountMetadata])
+    // we've disconnected/switched a wallet, unsubscribe transactions. Deliberately not reacting
+    // to portfolioAccountMetadata: discovery grows it an account at a time, and tearing every
+    // subscription down on each addition is what made this quadratic
+    return () => {
+      supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
+      subscribedAccountIdsRef.current.clear()
+    }
+  }, [supportedChains, wallet])
 
   /**
    * tx history subscription logic
    */
   useEffect(() => {
-    if (isSubscribed) return
     if (!wallet || !isConnected) return
-    // Discovery upserts an account at a time, and each upsert rebuilds every subscription
-    if (isDiscoveringAccounts) return
 
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
 
+    // Subscribe what is new rather than the set - discovery adds to it as it goes, and an
+    // account already subscribed does not need doing again
     accountIds.forEach(accountId => {
+      if (subscribedAccountIdsRef.current.has(accountId)) return
+      subscribedAccountIdsRef.current.add(accountId)
+
       const { chainId } = fromAccountId(accountId)
       const adapter = getChainAdapterManager().get(chainId)
 
@@ -160,7 +160,7 @@ export const useTransactionsSubscriber = () => {
             accountType,
             accountNumber,
             // The accountId already carries this - an address, or an xpub for utxo
-            pubKey: accountId ? fromAccountId(accountId).account : undefined,
+            pubKey: fromAccountId(accountId).account,
           },
           msg => {
             const { getAccount } = portfolioApi.endpoints
@@ -182,16 +182,14 @@ export const useTransactionsSubscriber = () => {
           err => console.error(err),
         )
       } catch (e) {
+        // let a failed subscription be retried the next time accounts change
+        subscribedAccountIdsRef.current.delete(accountId)
         console.error(e)
       }
     })
-
-    setIsSubscribed(true)
   }, [
     dispatch,
     isConnected,
-    isDiscoveringAccounts,
-    isSubscribed,
     maybeRefetchOpportunities,
     portfolioAccountMetadata,
     portfolioLoadingStatus,

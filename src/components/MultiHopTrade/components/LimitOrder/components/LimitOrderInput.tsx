@@ -589,7 +589,6 @@ export const LimitOrderInput = ({
     quoteStatusTranslation,
     limitPrice.buyAssetDenomination,
     marketPriceBuyAsset,
-    sellAccountId,
     isReceiveAddressEntryActive,
     networkFeeUserCurrency,
     renderedReceiveAddress,

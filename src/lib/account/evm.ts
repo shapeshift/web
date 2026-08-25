@@ -213,8 +213,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (!address) {
       const cachedAddress = getCachedBatchAddress({ deviceId, chainId, accountNumber })
       // Discovery derives a chain at a time, so cache off the path every evm chain shares.
-      // Bounded rather than kept: deviceId does not change with a passphrase, so a longer-lived
-      // entry would hand a second seed the address of the first
+      // Bounded, because a passphrase changes the seed without changing the deviceId keyed on
       address =
         cachedAddress ||
         (deviceId

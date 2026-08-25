@@ -123,8 +123,7 @@ export const useDiscoverAccounts = () => {
                   derivedAccountIds.length > 0 &&
                   derivedAccountIds.every(accountId => knownAccountIds.includes(accountId))
 
-                // A number is only known once every accountId account 0 derived is stored for it
-                // too - a manual import can add one utxo script type and leave its siblings out
+                // Known means every accountId account 0 derived, not just one of the script types
                 let resumeFrom = 0
                 while (knownCountByAccountNumber[resumeFrom] >= derivedAccountIds.length)
                   resumeFrom++

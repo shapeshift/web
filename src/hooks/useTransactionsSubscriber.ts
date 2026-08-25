@@ -120,12 +120,11 @@ export const useTransactionsSubscriber = () => {
    * unsubscribe and cleanup logic
    */
   useEffect(() => {
-    // The map itself is never replaced, so this is the same one the cleanup would have read
+    // .current is never replaced, so the cleanup would read this same map
     const subscribedAccounts = subscribedAccountsRef.current
 
-    // we've disconnected/switched a wallet, unsubscribe transactions. Deliberately not reacting
-    // to portfolioAccountMetadata: discovery grows it an account at a time, and tearing every
-    // subscription down on each addition is what made this quadratic
+    // Deliberately not reacting to portfolioAccountMetadata: discovery grows it an account at a
+    // time, and tearing every subscription down on each addition is what made this quadratic
     return () => {
       supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
       subscribedAccounts.clear()
@@ -138,8 +137,7 @@ export const useTransactionsSubscriber = () => {
   useEffect(() => {
     if (!wallet || !isConnected) return
 
-    // An account that has left the portfolio - disabled by hand, or a seed changed under the
-    // same device id - keeps receiving txs into the store until it is dropped
+    // An account that left the portfolio keeps receiving txs into the store until it is dropped
     subscribedAccountsRef.current.forEach((input, accountId) => {
       if (portfolioAccountMetadata[accountId]) return
       subscribedAccountsRef.current.delete(accountId)
@@ -149,8 +147,6 @@ export const useTransactionsSubscriber = () => {
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
 
-    // Subscribe what is new rather than the set - discovery adds to it as it goes, and an
-    // account already subscribed does not need doing again
     accountIds.forEach(accountId => {
       if (subscribedAccountsRef.current.has(accountId)) return
 
@@ -195,10 +191,9 @@ export const useTransactionsSubscriber = () => {
           },
           err => console.error(err),
         )
-        // subscribeTxs resolves asynchronously, so a failure surfaces here rather than as a throw
+        // subscribeTxs is async, so a failure lands here rather than in a try/catch
         .catch(e => {
-          // let a failed subscription be retried the next time accounts change, unless a newer
-          // one has already claimed this account
+          // Let it be retried next time accounts change, unless a newer one has claimed this one
           if (subscribedAccountsRef.current.get(accountId) === input)
             subscribedAccountsRef.current.delete(accountId)
           console.error(e)

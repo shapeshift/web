@@ -2,6 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { Event, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { HDWalletErrorType } from '@shapeshiftoss/hdwallet-core'
+import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { useMutation } from '@tanstack/react-query'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
@@ -23,6 +24,8 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const Icon = KeepKeyConfig.icon
 const icon = <Icon boxSize='64px' />
+
+type KeepKeyWebUsbAdapter = InstanceType<typeof WebUSBKeepKeyAdapter>
 
 const PAIRING_TIMEOUT_MS = 15_000
 
@@ -75,18 +78,17 @@ export const KeepKeyRoutes = () => {
           const firstAdapter = (await getAdapter(KeyManager.KeepKey)) as KkRestAdapter | null
           return await firstAdapter?.pairDevice(sdk)
         } else {
-          const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
+          const secondAdapter = (await getAdapter(
+            KeyManager.KeepKey,
+            1,
+          )) as KeepKeyWebUsbAdapter | null
 
-          // @ts-ignore - getDevices exists on WebUSBKeepKeyAdapter
-          const existingDevices = await secondAdapter?.getDevices?.()
+          const existingDevices = await secondAdapter?.getDevices()
 
-          if (existingDevices?.length > 0) {
-            const existingDevice = existingDevices[0]
-            const existingWallet = state.keyring.get(existingDevice.serialNumber)
-            if (existingWallet) return existingWallet
+          if (existingDevices?.length) {
+            return await secondAdapter?.pairRawDevice(existingDevices[0])
           }
 
-          // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
           return await secondAdapter?.pairDevice()
         }
       } catch (err) {
@@ -108,7 +110,7 @@ export const KeepKeyRoutes = () => {
     if (!wallet) setIsPairing(false)
 
     setWallet(wallet || null)
-  }, [dispatch, getAdapter, setErrorLoading, state.keyring])
+  }, [dispatch, getAdapter, setErrorLoading])
 
   // Actually initializes KK once hdwallet is paired
   const initializeKeepKeyMutation = useMutation({

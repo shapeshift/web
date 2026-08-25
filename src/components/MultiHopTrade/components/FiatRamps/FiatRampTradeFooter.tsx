@@ -66,6 +66,8 @@ const footerBgProp = {
 }
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
+const accountsLoadingText = <Text translation='common.accountsLoading' />
+
 export const FiatRampTradeFooter = ({
   children,
   hasUserEnteredAmount,
@@ -255,7 +257,7 @@ export const FiatRampTradeFooter = ({
 
         <ButtonWalletPredicate
           isLoading={isLoading || isDiscoveringAccounts}
-          loadingText={isLoading ? undefined : buttonText}
+          loadingText={isDiscoveringAccounts ? accountsLoadingText : isLoading ? undefined : buttonText}
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}
           size='lg-multiline'

@@ -13,7 +13,6 @@ export enum WalletConnectedRoutes {
   KeepKeyLabel = '/keepkey/label',
   KeepKeyTimeout = '/keepkey/timeout',
   KeepKeyPassphrase = '/keepkey/passphrase',
-  Native = '/native',
 }
 
 export const useMenuRoutes = () => {

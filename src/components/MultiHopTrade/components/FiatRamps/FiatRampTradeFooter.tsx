@@ -66,6 +66,8 @@ const footerBgProp = {
 }
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
 
+const accountsLoadingText = <Text translation='common.accountsLoading' />
+
 export const FiatRampTradeFooter = ({
   children,
   hasUserEnteredAmount,
@@ -85,7 +87,6 @@ export const FiatRampTradeFooter = ({
 }: FiatRampTradeFooterProps) => {
   const buyAsset = 'buyAsset' in props ? props.buyAsset : undefined
   const sellAsset = 'sellAsset' in props ? props.sellAsset : undefined
-  const sellAccountId = 'sellAccountId' in props ? props.sellAccountId : undefined
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
@@ -119,13 +120,14 @@ export const FiatRampTradeFooter = ({
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       parentShouldDisablePreviewButton ||
-      (isDiscoveringAccounts && !sellAccountId) ||
+      // A trade cannot be previewed against accounts we have not finished looking for
+      isDiscoveringAccounts ||
       // don't allow executing a quote with errors
       isError ||
       // don't execute trades while in loading state
       isLoading
     )
-  }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, sellAccountId, isError, isLoading])
+  }, [parentShouldDisablePreviewButton, isDiscoveringAccounts, isError, isLoading])
 
   const deltaPercentage = useMemo(() => {
     if (!rate || !marketRate || bnOrZero(marketRate).isZero()) return null
@@ -255,7 +257,9 @@ export const FiatRampTradeFooter = ({
 
         <ButtonWalletPredicate
           isLoading={isLoading || isDiscoveringAccounts}
-          loadingText={isLoading ? undefined : buttonText}
+          loadingText={
+            isDiscoveringAccounts ? accountsLoadingText : isLoading ? undefined : buttonText
+          }
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}
           size='lg-multiline'

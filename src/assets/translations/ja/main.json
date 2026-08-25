@@ -472,7 +472,6 @@
     "keepKey": {
       "title": "KeepKey アップデート利用可能",
       "newUpdateAvailable": "新しい KeepKey アップデートが利用可能です",
-      "downloadCta": "アップデートをダウンロード",
       "updateRequiredForFeature": "このアップデートは %{feature} をサポートするために必要です"
     }
   },
@@ -1230,7 +1229,6 @@
       },
       "downloadUpdater": {
         "header": "KeepKeyアップデーターをダウンロード",
-        "button": "%{filename}をダウンロード",
         "wrongPlatform": "%{platform} を使用していませんか?ここをクリック"
       },
       "disconnect": {
@@ -1551,13 +1549,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "ウォレットと通信できません。問題が解決しない場合は、Keepkeyサポートにお問い合わせください。",
-      "walletVersionTooOld": "ウォレットをペアリングできません。ウォレットを最新バージョンに更新してください。"
+      "walletNotFound": "ウォレットと通信できません。問題が解決しない場合は、Keepkeyサポートにお問い合わせください。"
     },
     "keepKey": {
       "errors": {
         "unknown": "KeepKeyとの通信で予期せぬエラーが発生しました",
-        "updateAlert": "このクライアントでKeepKeyを使用するには、ファームウェア %{version} 以降が必要です。デバイスを更新してください。",
         "pinCancelled": "PIN入力がキャンセルされました",
         "pinInvalid": "入力したPINは無効です",
         "pinMismatch": "入力した2つのPINが一致しません"
@@ -1566,8 +1562,7 @@
         "header": "KeepKeyをペアリングする",
         "body": "KeepKeyデバイスを接続し、「ペアリング」をクリックします。",
         "button": "ペアリング",
-        "conflictingApp": "KeepKeyが見つかりませんでした。別のアプリケーションがKeepKeyに接続しようとしている可能性があります。",
-        "downloadUpdaterApp": "アップデートをダウンロード"
+        "conflictingApp": "KeepKeyが見つかりませんでした。別のアプリケーションがKeepKeyに接続しようとしている可能性があります。"
       },
       "pin": {
         "header": "PINを入力してください",
@@ -1711,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Ledgerアカウントのインポート",
-        "body": "各チェーンの残高を確認するには、各アプリを接続する必要があります。",
-        "availableChains": "利用可能なチェーン",
-        "followTheInstructions": "デバイスにRUNEアプリを入手するには",
-        "toGetTheRuneApp": "指示に従ってください",
-        "added": "追加した",
-        "connect": "接続する"
-      },
       "verify": {
         "confirmOnDevice": "デバイス上で確認する",
         "addressMismatch": "アドレスが一致しません。正しいデバイスが接続されていることを確認して、もう一度お試しください。"

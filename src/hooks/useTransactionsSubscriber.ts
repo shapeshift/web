@@ -1,11 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import type { SubscribeTxsInput, Transaction } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -29,7 +26,7 @@ import { useAppDispatch } from '@/state/store'
 
 export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()
-  const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
+  const subscribedAccountsRef = useRef<Map<AccountId, SubscribeTxsInput>>(new Map())
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -123,26 +120,36 @@ export const useTransactionsSubscriber = () => {
    * unsubscribe and cleanup logic
    */
   useEffect(() => {
-    // we've disconnected/switched a wallet, unsubscribe transactions
-    if (!isSubscribed) return
-    // this is heavy handed but will ensure we're unsubscribed from everything
-    supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
-    setIsSubscribed(false)
-    // isSubscribed causes spurious unsubscriptions - this will react correctly when portfolioAccountMetadata changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supportedChains, wallet, portfolioAccountMetadata])
+    // .current is never replaced, so the cleanup would read this same map
+    const subscribedAccounts = subscribedAccountsRef.current
+
+    // Deliberately not reacting to portfolioAccountMetadata: discovery grows it an account at a
+    // time, and tearing every subscription down on each addition is what made this quadratic
+    return () => {
+      supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
+      subscribedAccounts.clear()
+    }
+  }, [supportedChains, wallet])
 
   /**
    * tx history subscription logic
    */
   useEffect(() => {
-    if (isSubscribed) return
     if (!wallet || !isConnected) return
+
+    // An account that left the portfolio keeps receiving txs into the store until it is dropped
+    subscribedAccountsRef.current.forEach((input, accountId) => {
+      if (portfolioAccountMetadata[accountId]) return
+      subscribedAccountsRef.current.delete(accountId)
+      getChainAdapterManager().get(fromAccountId(accountId).chainId)?.unsubscribeTxs(input)
+    })
 
     const accountIds = Object.keys(portfolioAccountMetadata)
     if (!accountIds.length) return
 
     accountIds.forEach(accountId => {
+      if (subscribedAccountsRef.current.has(accountId)) return
+
       const { chainId } = fromAccountId(accountId)
       const adapter = getChainAdapterManager().get(chainId)
 
@@ -151,17 +158,20 @@ export const useTransactionsSubscriber = () => {
       const { accountType, bip44Params } = accountMetadata
       const { accountNumber } = bip44Params
 
+      const input = {
+        wallet,
+        accountType,
+        accountNumber,
+        // The accountId already carries this - an address, or an xpub for utxo
+        pubKey: fromAccountId(accountId).account,
+      }
+
+      subscribedAccountsRef.current.set(accountId, input)
+
       // subscribe to new transactions for all supported accounts
-      try {
-        const skipDeviceDerivation =
-          (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet)) && accountId
-        return adapter?.subscribeTxs(
-          {
-            wallet,
-            accountType,
-            accountNumber,
-            pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
-          },
+      adapter
+        ?.subscribeTxs(
+          input,
           msg => {
             const { getAccount } = portfolioApi.endpoints
             const { onMessage } = txHistory.actions
@@ -181,19 +191,22 @@ export const useTransactionsSubscriber = () => {
           },
           err => console.error(err),
         )
-      } catch (e) {
-        console.error(e)
-      }
+        // subscribeTxs is async, so a failure lands here rather than in a try/catch
+        .catch(e => {
+          // Let it be retried next time accounts change, unless a newer one has claimed this one
+          if (subscribedAccountsRef.current.get(accountId) === input)
+            subscribedAccountsRef.current.delete(accountId)
+          console.error(e)
+        })
     })
-
-    setIsSubscribed(true)
   }, [
     dispatch,
     isConnected,
-    isSubscribed,
     maybeRefetchOpportunities,
     portfolioAccountMetadata,
     portfolioLoadingStatus,
+    // The cleanup above unsubscribes on a change here, so this must resubscribe
+    supportedChains,
     wallet,
   ])
 }

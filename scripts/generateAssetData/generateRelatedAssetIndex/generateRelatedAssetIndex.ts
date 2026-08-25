@@ -319,8 +319,26 @@ const processRelatedAssetIds = async (
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
+  // An asset can carry a key the index no longer lists - e.g. it left the dataset and came back
   if (!REGEN_ALL && existingRelatedAssetKey) {
-    return
+    const group = relatedAssetIndex[existingRelatedAssetKey] ?? []
+
+    const rejoinedGroup = Array.from(new Set([...group, existingRelatedAssetKey, assetId]))
+
+    // A group of one is not a group
+    if (rejoinedGroup.length > 1) {
+      relatedAssetIndex[existingRelatedAssetKey] = rejoinedGroup
+
+      // Only fill a missing key - repointing would steal the asset from another group
+      for (const relatedAssetId of rejoinedGroup) {
+        const relatedAsset = assetData[relatedAssetId]
+        if (relatedAsset && !relatedAsset.relatedAssetKey) {
+          relatedAsset.relatedAssetKey = existingRelatedAssetKey
+        }
+      }
+
+      return
+    }
   }
 
   // Check if this asset is already in the relatedAssetIndex
@@ -402,11 +420,13 @@ const processRelatedAssetIds = async (
   const zerionRelatedAssetIds = zerionRelatedAssetsResult?.relatedAssetIds ?? []
   const coingeckoRelatedAssetIds = coingeckoRelatedAssetsResult?.relatedAssetIds ?? []
 
+  // Providers report related assets exclusive of the primary, so add it back
   const mergedRelatedAssetIds = Array.from(
     new Set([
       ...manualRelatedAssetIds,
       ...zerionRelatedAssetIds,
       ...coingeckoRelatedAssetIds,
+      relatedAssetKey,
       assetId,
     ]),
   )
@@ -505,6 +525,19 @@ export const generateRelatedAssetIndex = async () => {
     relatedAssetIndex[relatedAssetKey] = relatedAssetIds.filter(
       assetId => generatedAssetData[assetId] !== undefined,
     )
+  })
+
+  // b) the group has fewer than two members left
+  Object.entries(relatedAssetIndex).forEach(([relatedAssetKey, relatedAssetIds]) => {
+    if (relatedAssetIds.length > 1) return
+
+    delete relatedAssetIndex[relatedAssetKey]
+
+    // Only clear a key pointing at the group we just deleted - the asset may have rejoined another
+    for (const assetId of [relatedAssetKey, ...relatedAssetIds]) {
+      const asset = generatedAssetData[assetId]
+      if (asset?.relatedAssetKey === relatedAssetKey) delete asset.relatedAssetKey
+    }
   })
 
   const categoryToCoinIds = await fetchBridgedCategoryMappings()

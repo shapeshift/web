@@ -89,15 +89,23 @@ import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInsta
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 
 // Discovery derives a chain at a time, so every evm chain asks for the same address at once.
-// Dropped as soon as it settles - nothing outlives its derivation, so nothing can go stale
-const inFlightAddresses = new Map<number, Promise<string>>()
+// Held against the wallet deriving it, and dropped as soon as it settles - a pass that outlives
+// its wallet cannot hand the next one an address, and nothing survives to go stale
+const inFlightAddresses = new WeakMap<HDWallet, Map<number, Promise<string>>>()
 
-const deriveEvmAddressOnce = (accountNumber: number, derive: () => Promise<string>) => {
-  const pending = inFlightAddresses.get(accountNumber)
+const deriveEvmAddressOnce = (
+  wallet: HDWallet,
+  accountNumber: number,
+  derive: () => Promise<string>,
+) => {
+  const byAccountNumber = inFlightAddresses.get(wallet) ?? new Map<number, Promise<string>>()
+  inFlightAddresses.set(wallet, byAccountNumber)
+
+  const pending = byAccountNumber.get(accountNumber)
   if (pending) return pending
 
-  const derivation = derive().finally(() => inFlightAddresses.delete(accountNumber))
-  inFlightAddresses.set(accountNumber, derivation)
+  const derivation = derive().finally(() => byAccountNumber.delete(accountNumber))
+  byAccountNumber.set(accountNumber, derivation)
 
   return derivation
 }
@@ -225,7 +233,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
       const cachedAddress = getCachedBatchAddress({ deviceId, chainId, accountNumber })
       address =
         cachedAddress ||
-        (await deriveEvmAddressOnce(accountNumber, () =>
+        (await deriveEvmAddressOnce(wallet, accountNumber, () =>
           adapter.getAddress({ accountNumber, wallet }),
         ))
     }

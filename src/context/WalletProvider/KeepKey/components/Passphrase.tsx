@@ -12,6 +12,7 @@ import { useCallback, useRef, useState } from 'react'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { clearAccountCaches } from '@/lib/account/clearAccountCaches'
 import { selectWalletId } from '@/state/slices/common-selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -39,6 +40,7 @@ export const KeepKeyPassphrase = () => {
       setError(null)
       // Clear all previous wallet meta
       appDispatch(portfolio.actions.clearWalletMetadata(walletId))
+      clearAccountCaches()
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {
       setError('modals.keepKey.passphrase.error')

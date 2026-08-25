@@ -257,7 +257,9 @@ export const FiatRampTradeFooter = ({
 
         <ButtonWalletPredicate
           isLoading={isLoading || isDiscoveringAccounts}
-          loadingText={isDiscoveringAccounts ? accountsLoadingText : isLoading ? undefined : buttonText}
+          loadingText={
+            isDiscoveringAccounts ? accountsLoadingText : isLoading ? undefined : buttonText
+          }
           type='submit'
           colorScheme={isError ? 'red' : 'blue'}
           size='lg-multiline'

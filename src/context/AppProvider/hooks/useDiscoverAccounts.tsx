@@ -13,7 +13,6 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { METAMASK_RDNS } from '@/lib/mipd'
-import { isSome } from '@/lib/utils'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -70,15 +69,15 @@ export const useDiscoverAccounts = () => {
           const knownAccountIds = (currentPortfolio.wallet.byId[walletId] ?? []).filter(
             accountId => fromAccountId(accountId).chainId === chainId,
           )
-          const knownAccountNumbers = knownAccountIds
-            .map(accountId => currentPortfolio.accountMetadata.byId[accountId]?.bip44Params)
-            .filter(isSome)
-            .map(bip44Params => bip44Params.accountNumber)
-          // Manually imported accounts leave gaps, and a gap means everything above it was never
-          // scanned - resume at the first number missing rather than past the highest present
-          const knownAccountNumberSet = new Set(knownAccountNumbers)
-          let resumeFrom = 0
-          while (knownAccountNumberSet.has(resumeFrom)) resumeFrom++
+          const knownCountByAccountNumber = knownAccountIds.reduce<Record<number, number>>(
+            (acc, accountId) => {
+              const bip44Params = currentPortfolio.accountMetadata.byId[accountId]?.bip44Params
+              if (!bip44Params) return acc
+              acc[bip44Params.accountNumber] = (acc[bip44Params.accountNumber] ?? 0) + 1
+              return acc
+            },
+            {},
+          )
 
           let accountNumber = 0
           let hasActivity = true
@@ -116,7 +115,7 @@ export const useDiscoverAccounts = () => {
               accountNumber++
 
               // Account 0 matching what was stored proves the seed, so skip the rest
-              if (accountNumber === 1 && resumeFrom > 1) {
+              if (accountNumber === 1) {
                 const derivedAccountIds = accountIdWithActivityAndMetadata.map(
                   ({ accountId }) => accountId,
                 )
@@ -124,7 +123,13 @@ export const useDiscoverAccounts = () => {
                   derivedAccountIds.length > 0 &&
                   derivedAccountIds.every(accountId => knownAccountIds.includes(accountId))
 
-                if (isSameSeed) accountNumber = resumeFrom
+                // A number is only known once every accountId account 0 derived is stored for it
+                // too - a manual import can add one utxo script type and leave its siblings out
+                let resumeFrom = 0
+                while (knownCountByAccountNumber[resumeFrom] >= derivedAccountIds.length)
+                  resumeFrom++
+
+                if (isSameSeed && resumeFrom > 1) accountNumber = resumeFrom
               }
             } catch (error) {
               console.error(`Error discovering accounts for chain ${chainId}:`, error)

@@ -189,10 +189,10 @@ const validators = {
   VITE_ONRAMPER_API_KEY: str(),
   VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
-    default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
+    default: 'https://github.com/keepkey/keepkey-vault/releases/latest',
   }),
   VITE_KEEPKEY_UPDATER_BASE_URL: url({
-    default: 'https://github.com/keepkey/keepkey-desktop/releases/download/',
+    default: 'https://github.com/keepkey/keepkey-vault/releases/download/',
   }),
   VITE_ETHERSCAN_API_KEY: str({
     default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF',
@@ -250,7 +250,6 @@ const validators = {
   VITE_CHAINFLIP_API_URL: url(),
   VITE_CHAINFLIP_RPC_URL: url({ default: 'https://rpc.mainnet.chainflip.io' }),
   VITE_FEATURE_THOR_FREE_FEES: bool({ default: false }),
-  VITE_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
   VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
@@ -282,7 +281,6 @@ const validators = {
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_AFFILIATE_REVENUE_URL: url(),
   VITE_FEATURE_LEDGER_READ_ONLY: bool({ default: false }),
-  VITE_FEATURE_NEW_WALLET_MANAGER: bool({ default: false }),
   VITE_FEATURE_SWAPPER_FIAT_RAMPS: bool({ default: false }),
   VITE_TENDERLY_ACCOUNT_SLUG: str(),
   VITE_TENDERLY_PROJECT_SLUG: str(),

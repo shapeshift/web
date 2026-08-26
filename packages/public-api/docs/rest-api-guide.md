@@ -11,6 +11,19 @@ GET /v1/assets?chainId=eip155:1&limit=100&offset=0
 
 `GET /v1/assets` supports optional `chainId`, `limit` (1–1000, default 100), and `offset` (default 0) query params for filtering and pagination. Use `GET /v1/assets/count` to size pagination. Look up a single asset with `GET /v1/assets/{assetId}` (the asset ID is a full CAIP-19 string).
 
+### Destination-only chains
+
+Each chain carries `isSellSupported`. Where it is `false` the chain can be **bought into but not sold from** — we have no way to give you a transaction to sign on it, so `/v1/swap/rates` and `/v1/swap/quote` reject it as a `sellAssetId` with a `400` and `code: 'UNSUPPORTED_SELL_CHAIN'`. It remains valid as a `buyAssetId`, where all you need is a receive address.
+
+There is no per-asset equivalent — the constraint is a property of the chain, so filter your sell-asset list by joining assets to their `chainId`:
+
+```js
+const sellable = new Set(chains.filter(c => c.isSellSupported).map(c => c.chainId))
+const sellAssets = assets.filter(a => sellable.has(a.chainId))
+```
+
+The set shrinks over time as more chains become executable, so read the flag rather than hardcoding the list.
+
 ## 2. Get rates
 
 ```

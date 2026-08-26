@@ -1,5 +1,5 @@
 import type { AssetId, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId, rujiAssetId, tcyAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
@@ -117,6 +117,12 @@ export const isNonEmptyString = (value: string | undefined): value is string =>
 
 type Falsy = false | null | undefined | '' | 0
 export const isTruthy = <T>(value: T | Falsy): value is T => Boolean(value)
+
+export const walletSupportsSendingAsset = (assetId: AssetId, wallet: HDWallet): boolean => {
+  if (isKeepKeyHDWallet(wallet) && [tcyAssetId, rujiAssetId].includes(assetId)) return false
+
+  return true
+}
 
 export const walletCanEditMemo = (wallet: HDWallet): boolean => {
   switch (true) {

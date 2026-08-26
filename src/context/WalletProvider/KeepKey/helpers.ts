@@ -1,4 +1,4 @@
-import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
+import type { HDWalletErrorType, RecoverDevice } from '@shapeshiftoss/hdwallet-core'
 import type { KeyboardEvent } from 'react'
 
 import { getConfig } from '@/config'
@@ -6,6 +6,10 @@ import { VALID_ENTROPY_NUMBERS } from '@/context/WalletProvider/KeepKey/componen
 
 export const RELEASE_PAGE = getConfig().VITE_KEEPKEY_UPDATER_RELEASE_PAGE
 export const UPDATER_BASE_URL = getConfig().VITE_KEEPKEY_UPDATER_BASE_URL
+
+// Pairing can reject with anything, so never assert a shape before reading it
+export const isHDWalletErrorType = (err: unknown, type: HDWalletErrorType): boolean =>
+  (err as Error | null | undefined)?.name === type
 
 export const isValidInput = (
   e: KeyboardEvent,
@@ -78,4 +82,34 @@ export const getPlatform = () => {
   } else if (/Linux/.test(platform)) {
     return 'Linux'
   }
+}
+
+export type UpdaterDownload = { labelKey: string; url: string }
+
+const getUpdaterFiles = (version: string): { labelKey: string; filename: string }[] => {
+  switch (getPlatform()) {
+    case 'Windows':
+      return [{ labelKey: 'windows', filename: `KeepKey-Vault-${version}-win-x64-setup.exe` }]
+    case 'Linux':
+      // The only asset published without its version in the filename
+      return [{ labelKey: 'linux', filename: 'KeepKey-Vault-x86_64.AppImage' }]
+    case 'Mac OS':
+      // navigator.platform reports MacIntel on Apple Silicon too, so we offer both builds
+      return [
+        { labelKey: 'macAppleSilicon', filename: `KeepKey-Vault-${version}-arm64.dmg` },
+        { labelKey: 'macIntel', filename: `KeepKey-Vault-${version}-x86_64.dmg` },
+      ]
+    default:
+      return []
+  }
+}
+
+export const getUpdaterDownloads = (version: string | null | undefined): UpdaterDownload[] => {
+  // The release query is still in flight on first render
+  if (!version) return []
+
+  return getUpdaterFiles(version).map(({ labelKey, filename }) => ({
+    labelKey: `modals.keepKey.downloadUpdater.download.${labelKey}`,
+    url: `${UPDATER_BASE_URL}v${version}/${filename}`,
+  }))
 }

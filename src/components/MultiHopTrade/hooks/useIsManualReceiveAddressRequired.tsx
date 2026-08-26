@@ -1,4 +1,3 @@
-import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
@@ -13,7 +12,6 @@ import { useAppSelector } from '@/state/store'
 
 type UseIsManualReceiveAddressRequiredProps = {
   shouldForceManualAddressEntry: boolean
-  sellAccountId: AccountId | undefined
   buyAsset: Asset
   manualReceiveAddress: string | undefined
   walletReceiveAddress: string | undefined
@@ -22,7 +20,6 @@ type UseIsManualReceiveAddressRequiredProps = {
 
 export const useIsManualReceiveAddressRequired = ({
   shouldForceManualAddressEntry,
-  sellAccountId,
   buyAsset,
   manualReceiveAddress,
   walletReceiveAddress,
@@ -46,7 +43,8 @@ export const useIsManualReceiveAddressRequired = ({
   const shouldForceDisplayManualAddressEntry = useMemo(() => {
     if (isWalletReceiveAddressLoading) return false
     if (!isConnected) return false
-    if (isDiscoveringAccounts && !sellAccountId) return false
+    // A buy-side address we have not looked for yet is not one we know to be missing
+    if (isDiscoveringAccounts) return false
     if (manualReceiveAddress) return false
     if (!walletReceiveAddress) return true
     if (!walletSupportsBuyAssetChain) return true
@@ -63,7 +61,6 @@ export const useIsManualReceiveAddressRequired = ({
     isConnected,
     isWalletReceiveAddressLoading,
     manualReceiveAddress,
-    sellAccountId,
     shouldForceManualAddressEntry,
     walletReceiveAddress,
     walletSupportsBuyAssetChain,

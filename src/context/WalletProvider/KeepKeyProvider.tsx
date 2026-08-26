@@ -4,8 +4,8 @@ import {
   AlertDescription,
   AlertTitle,
   Box,
+  Button,
   CloseButton,
-  Link,
   Text,
   useToast,
 } from '@chakra-ui/react'
@@ -24,10 +24,10 @@ import React, {
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 
-import { getPlatform, RELEASE_PAGE, UPDATER_BASE_URL } from './KeepKey/helpers'
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
 
 import type { RadioOption } from '@/components/Radio/Radio'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { poll } from '@/lib/poll/poll'
 import { isKeepKeyHDWallet } from '@/lib/utils'
@@ -125,12 +125,12 @@ const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const {
+    dispatch: walletDispatch,
     state: { wallet },
   } = useWallet()
-  const { versionsQuery, stableDesktopVersionQuery } = useKeepKeyVersions({ wallet })
+  const { versionsQuery } = useKeepKeyVersions({ wallet })
   const versions = versionsQuery.data?.versions
   const isLTCSupportedFirmwareVersion = versionsQuery.data?.isLTCSupportedFirmwareVersion ?? false
-  const stableVersion = stableDesktopVersionQuery.data
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(
@@ -190,27 +190,10 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })()
   }, [keepKeyWallet, setDeviceTimeout, setHasPassphrase])
 
-  const platform = useMemo(() => getPlatform(), [])
-  const latestVersion = stableVersion
-
-  const platformFilename = useMemo(() => {
-    switch (platform) {
-      case 'Mac OS':
-        return `KeepKey-Desktop-${latestVersion}-universal.dmg`
-      case 'Windows':
-        return `KeepKey-Desktop-Setup-${latestVersion}.exe`
-      case 'Linux':
-        return `KeepKey-Desktop-${latestVersion}.AppImage`
-      default:
-        return null
-    }
-  }, [platform, latestVersion])
-
-  const updaterUrl = useMemo(
-    () =>
-      platformFilename ? `${UPDATER_BASE_URL}v${latestVersion}/${platformFilename}` : RELEASE_PAGE,
-    [platformFilename, latestVersion],
-  )
+  const handleDownloadClick = useCallback(() => {
+    onClose()
+    walletDispatch({ type: WalletActions.DOWNLOAD_UPDATER })
+  }, [onClose, walletDispatch])
 
   useEffect(() => {
     if (!keepKeyWallet) return
@@ -239,9 +222,16 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
                     </Text>
                   ) : null}
                 </AlertDescription>
-                <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
+                <Button
+                  onClick={handleDownloadClick}
+                  variant='link'
+                  colorScheme='whiteAlpha'
+                  color='white'
+                  fontWeight='bold'
+                  mt={2}
+                >
                   {translate('updateToast.keepKey.downloadCta')}
-                </Link>
+                </Button>
               </Box>
               <CloseButton
                 alignSelf='flex-start'
@@ -266,7 +256,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     translate,
     versions,
     onClose,
-    updaterUrl,
+    handleDownloadClick,
   ])
 
   const value: IKeepKeyContext = useMemo(

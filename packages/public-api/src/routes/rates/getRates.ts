@@ -4,7 +4,11 @@ import { getTradeRates, swappers, TradeQuoteError } from '@shapeshiftoss/swapper
 import type { Request, Response } from 'express'
 
 import { getAsset } from '../../assets'
-import { ENABLED_SWAPPER_NAMES } from '../../constants'
+import {
+  ENABLED_SWAPPER_NAMES,
+  isExecutableSellChainId,
+  isSwapperExecutableOnSellChain,
+} from '../../constants'
 import { env } from '../../env'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
@@ -66,6 +70,14 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    if (!isExecutableSellChainId(sellAsset.chainId)) {
+      res.status(400).json({
+        error: `Unsupported sell chain: ${sellAsset.chainId}`,
+        code: 'UNSUPPORTED_SELL_CHAIN',
+      } satisfies ErrorResponse)
+      return
+    }
+
     const buyAsset = getAsset(buyAssetId)
     if (!buyAsset) {
       res.status(400).json({ error: `Unknown buy asset: ${buyAssetId}` } satisfies ErrorResponse)
@@ -95,6 +107,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       try {
         const swapper = swappers[swapperName]
         if (!swapper) return null
+        if (!isSwapperExecutableOnSellChain(swapperName, sellAsset.chainId)) return null
 
         const result = await getTradeRates(
           rateInput as GetTradeRateInput | GetExactOutputTradeRateInput,

@@ -16,11 +16,17 @@ import {
   mayachain,
   megaeth,
   monad,
+  near,
   optimism,
   plasma,
   polygon,
   solana,
+  starknet,
+  sui,
   thorchain,
+  ton,
+  tron,
+  zcash,
 } from '@shapeshiftoss/utils'
 
 import type { ChainId } from '../types'
@@ -43,10 +49,16 @@ const BASE_ASSETS_BY_CHAIN_ID: Record<ChainId, Asset> = {
   [bitcoincash.chainId]: bitcoincash,
   [dogecoin.chainId]: dogecoin,
   [litecoin.chainId]: litecoin,
+  [zcash.chainId]: zcash,
   [atom.chainId]: atom,
   [thorchain.chainId]: thorchain,
   [mayachain.chainId]: mayachain,
   [solana.chainId]: solana,
+  [tron.chainId]: tron,
+  [sui.chainId]: sui,
+  [ton.chainId]: ton,
+  [near.chainId]: near,
+  [starknet.chainId]: starknet,
 }
 
 export const SUPPORTED_CHAIN_IDS_SET: ReadonlySet<ChainId> = new Set(

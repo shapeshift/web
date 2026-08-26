@@ -110,7 +110,7 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
   return null
 }
 
-export const NewWalletViewsSwitch = () => {
+export const WalletViewsSwitch = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // For visual tracking only. Do *not* use me in place of wallet state. This means exactly what you think the intent is:
@@ -127,6 +127,7 @@ export const NewWalletViewsSwitch = () => {
     state: {
       wallet,
       modal,
+      isConnected,
       disconnectOnCloseModal,
       deviceState: { disposition },
       initialRoute,
@@ -310,14 +311,16 @@ export const NewWalletViewsSwitch = () => {
   const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
-  const Body = useCallback(() => {
+  // A connected device got here from the update toast, with no pairing step to go back to
+  const isStandaloneRoute = location.pathname === KeepKeyRoutesEnum.DownloadUpdater && isConnected
+
+  const body = useMemo(() => {
     // These routes do not have a previous step, so don't display back button
-    const isRootRoute = [
-      '/',
-      KeepKeyRoutesEnum.Pin,
-      NativeWalletRoutes.Rename,
-      NativeWalletRoutes.Delete,
-    ].includes(location.pathname)
+    const isRootRoute =
+      isStandaloneRoute ||
+      ['/', KeepKeyRoutesEnum.Pin, NativeWalletRoutes.Rename, NativeWalletRoutes.Delete].includes(
+        location.pathname,
+      )
     // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
     const isConnectRoute =
       /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
@@ -368,9 +371,8 @@ export const NewWalletViewsSwitch = () => {
     location.pathname,
     translate,
     isLargerThanMd,
+    isStandaloneRoute,
   ])
-
-  const body = useMemo(() => <Body />, [Body])
 
   return (
     <>
@@ -380,7 +382,7 @@ export const NewWalletViewsSwitch = () => {
           justifyContent='center'
           overflow='hidden'
           borderRadius={!isLargerThanMd ? 'none' : 'xl'}
-          maxW='900px'
+          maxW={isStandaloneRoute ? '450px' : '900px'}
           bg={!isLargerThanMd ? bodyBgColor : undefined}
           {...modalContentProps}
         >
@@ -395,17 +397,24 @@ export const NewWalletViewsSwitch = () => {
             >
               <ModalCloseButton position='static' borderRadius='full' size='sm' />
             </Box>
-            <Flex minH={containerMinHeight} maxH={containerMaxHeight} w={containerWidth}>
+            <Flex
+              minH={isStandaloneRoute ? undefined : containerMinHeight}
+              maxH={containerMaxHeight}
+              w={containerWidth}
+            >
               <Suspense fallback={defaultSuspenseFallback}>
                 <Routes>
                   {/* Always display sections for the root route, no matter the viewport */}
                   <Route path='/' element={sections} />
                   {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
-                  <Route path='*' element={isLargerThanMd ? sections : null} />
+                  <Route
+                    path='*'
+                    element={isLargerThanMd && !isStandaloneRoute ? sections : null}
+                  />
                 </Routes>
                 <Routes>
                   {/* Only display side panel after a wallet has been selected on mobile */}
-                  <Route path='/' element={!isLargerThanMd ? null : <Body />} />
+                  <Route path='/' element={!isLargerThanMd ? null : body} />
                   {/* And for all non-root routes, no matter the viewport */}
                   <Route path='*' element={body} />
                 </Routes>

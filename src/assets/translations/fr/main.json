@@ -472,7 +472,6 @@
     "keepKey": {
       "title": "Mise à jour KeepKey disponible",
       "newUpdateAvailable": "Une nouvelle mise à jour KeepKey est disponible.",
-      "downloadCta": "Télécharger la mise à jour",
       "updateRequiredForFeature": "Cette mise à jour est nécessaire pour prendre en charge %{feature}"
     }
   },
@@ -1230,7 +1229,6 @@
       },
       "downloadUpdater": {
         "header": "Télécharger le programme de mise à jour KeepKey",
-        "button": "Télécharger %{filename}",
         "wrongPlatform": "Vous n'utilisez pas %{platform} ? Cliquez ici"
       },
       "disconnect": {
@@ -1551,13 +1549,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey.",
-      "walletVersionTooOld": "Impossible d'appairer votre porte-monnaie. Veuillez mettre à jour votre porte-monnaie à la dernière version."
+      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey."
     },
     "keepKey": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
-        "updateAlert": "Le firmware %{version} ou ultérieur est requis pour utiliser votre KeepKey avec ce client. Veuillez mettre à jour votre appareil.",
         "pinCancelled": "La saisie du PIN a été annulée",
         "pinInvalid": "Le PIN que vous avez saisi n'est pas valide",
         "pinMismatch": "Les deux PIN que vous avez saisis ne correspondent pas"
@@ -1566,8 +1562,7 @@
         "header": "Appairer votre KeepKey",
         "body": "Connectez un appareil KeepKey et cliquez sur Appairer.",
         "button": "Appairer",
-        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey.",
-        "downloadUpdaterApp": "Télécharger l'app de mise à jour"
+        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey."
       },
       "pin": {
         "header": "Entrez votre code PIN",
@@ -1711,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Importer les comptes Ledger",
-        "body": "Pour consulter vos soldes sur chaque chaîne, vous devrez connecter chaque app.",
-        "availableChains": "Chaînes disponibles",
-        "followTheInstructions": "Suivez les instructions",
-        "toGetTheRuneApp": "pour installer l'application RUNE sur votre appareil",
-        "added": "Ajoutée",
-        "connect": "Connecter"
-      },
       "verify": {
         "confirmOnDevice": "Confirmer sur l'appareil",
         "addressMismatch": "L'adresse ne correspond pas. Veuillez vérifier que le bon appareil est connecté et réessayer."

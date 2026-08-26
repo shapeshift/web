@@ -144,8 +144,9 @@ export const getPortalsTradeQuote = async (
     input,
     deps,
     sellChainId,
-    inputToken,
     orderContext,
+    outputToken,
+    slippageTolerancePercentage,
     tx,
   })
 

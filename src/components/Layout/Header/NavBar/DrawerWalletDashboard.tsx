@@ -278,7 +278,6 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
       <>
         <DrawerWalletHeader
           walletInfo={walletInfo}
-          isConnected={isConnected}
           isLocked={isLocked}
           connectedType={connectedType}
           onDisconnect={handleDisconnect}

@@ -3,6 +3,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import semverGte from 'semver/functions/gte'
+import semverLt from 'semver/functions/lt'
 
 import { getConfig } from '@/config'
 import {
@@ -33,7 +34,7 @@ type FirmwareReleases = {
 }
 
 type VersionStatus = {
-  device: string
+  device: string | undefined
   latest: string
   updateAvailable: boolean
 }
@@ -43,7 +44,17 @@ type Versions = {
   firmware: VersionStatus
 }
 
-const getBootloaderVersion = (releases: FirmwareReleases, features: Features.AsObject): string => {
+// A device can sit ahead of the manifest, and an unknown version is not an update
+const isUpdateAvailable = (deviceVersion: string | undefined, latestVersion: string): boolean => {
+  if (!deviceVersion) return false
+
+  return semverLt(deviceVersion, latestVersion)
+}
+
+const getBootloaderVersion = (
+  releases: FirmwareReleases,
+  features: Features.AsObject,
+): string | undefined => {
   const hash = features?.bootloaderHash.toString() ?? ''
   const buffer = Buffer.from(hash, 'base64')
   const hex = buffer.toString('hex')
@@ -83,20 +94,18 @@ export const useKeepKeyVersions = ({ wallet }: { wallet: HDWallet | null }) => {
     enabled: isKeepKey,
   })
 
-  const stableDesktopVersionQuery = useQuery({
-    queryKey: ['keepKeyDesktopVersion'],
+  const latestUpdaterVersionQuery = useQuery({
+    queryKey: ['keepKeyUpdaterVersion'],
     queryFn: async () => {
       try {
-        const response = await axios.get(
-          'https://api.github.com/repos/keepkey/keepkey-desktop/releases/latest',
-        )
+        const response = await axios.get(getConfig().VITE_KEEPKEY_LATEST_RELEASE_URL)
         if (response.data && response.data.tag_name) {
           // Remove 'v' prefix if present
           return response.data.tag_name.replace(/^v/, '')
         }
         return null
       } catch (error) {
-        console.error('Failed to fetch latest stable KeepKey Desktop version:', error)
+        console.error('Failed to fetch latest KeepKey Vault version:', error)
         return null
       }
     },
@@ -147,12 +156,12 @@ export const useKeepKeyVersions = ({ wallet }: { wallet: HDWallet | null }) => {
         bootloader: {
           device: bootloaderVersion,
           latest: latestBootloader,
-          updateAvailable: bootloaderVersion !== latestBootloader,
+          updateAvailable: isUpdateAvailable(bootloaderVersion, latestBootloader),
         },
         firmware: {
           device: deviceFirmware,
           latest: latestFirmware,
-          updateAvailable: deviceFirmware !== latestFirmware,
+          updateAvailable: isUpdateAvailable(deviceFirmware, latestFirmware),
         },
       }
 
@@ -167,7 +176,7 @@ export const useKeepKeyVersions = ({ wallet }: { wallet: HDWallet | null }) => {
   })
 
   return {
-    stableDesktopVersionQuery,
+    latestUpdaterVersionQuery,
     versionsQuery,
     featuresQuery,
     deviceFirmwareQuery,

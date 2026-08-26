@@ -1,4 +1,5 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { GetExactOutputTradeQuoteInput, GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import {
@@ -12,7 +13,12 @@ import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getAsset } from '../../assets'
-import { ENABLED_SWAPPER_NAMES, MAX_QUOTE_DEADLINE_MS } from '../../constants'
+import {
+  ENABLED_SWAPPER_NAMES,
+  isExecutableSellChainId,
+  isSwapperExecutableOnSellChain,
+  MAX_QUOTE_DEADLINE_MS,
+} from '../../constants'
 import { env } from '../../env'
 import { QuoteStore, quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -96,6 +102,22 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    if (!isExecutableSellChainId(sellAsset.chainId)) {
+      res.status(400).json({
+        error: `Unsupported sell chain: ${sellAsset.chainId}`,
+        code: 'UNSUPPORTED_SELL_CHAIN',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    if (!isSwapperExecutableOnSellChain(validSwapperName, sellAsset.chainId)) {
+      res.status(400).json({
+        error: `${swapperName} cannot be executed on ${sellAsset.chainId}`,
+        code: 'SWAPPER_UNSUPPORTED_SELL_CHAIN',
+      } satisfies ErrorResponse)
+      return
+    }
+
     const buyAsset = getAsset(buyAssetId)
     if (!buyAsset) {
       res.status(400).json({ error: `Unknown buy asset: ${buyAssetId}` } satisfies ErrorResponse)
@@ -140,8 +162,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       xpub,
       quoteOrRate: 'quote' as const,
       chainId: sellAsset.chainId,
-      // Consumers sign themselves - price with legacy gas semantics
-      supportsEIP1559: false,
+      ...(isEvmChainId(sellAsset.chainId) && { supportsEIP1559: false as const }),
     }
 
     // The input union narrows chainId per chain family; utxo accountType/xpub are unmodelled too
@@ -177,6 +198,16 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const quote = quotes[0]
     const step = quote.steps[0]
     const lastStep = quote.steps[quote.steps.length - 1]
+
+    if (!step.transactionData) {
+      console.error(
+        `[getQuote] ${validSwapperName} returned a ${sellAsset.chainId} step with no transactionData - it is enabled in ENABLED_SWAPPER_NAMES but not producing an executable quote`,
+      )
+      res.status(502).json({
+        error: 'Swapper returned a quote with no transaction to sign',
+      } satisfies ErrorResponse)
+      return
+    }
 
     const quoteId = uuidv4()
 

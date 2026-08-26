@@ -472,7 +472,6 @@
     "keepKey": {
       "title": "KeepKey Aktualisierung \n verfügbar",
       "newUpdateAvailable": "Eine neue KeepKey Aktualisierung ist verfügbar.",
-      "downloadCta": "Aktualisierung herunterladen",
       "updateRequiredForFeature": "Dieses Update ist erforderlich, um %{feature} zu unterstützen"
     }
   },
@@ -1230,7 +1229,6 @@
       },
       "downloadUpdater": {
         "header": "Lade den KeepKey-Updater",
-        "button": "Lade %{filename}",
         "wrongPlatform": "Sie verwenden %{platform} nicht? Klick hier"
       },
       "disconnect": {
@@ -1551,13 +1549,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Kommunikation mit Ihrer Wallet nicht möglich",
-      "walletVersionTooOld": "Ihr Wallet konnte nicht gekoppelt werden. Bitte aktualisieren Sie Ihr Wallet auf die neueste Version."
+      "walletNotFound": "Kommunikation mit Ihrer Wallet nicht möglich"
     },
     "keepKey": {
       "errors": {
         "unknown": "Bei der Kommunikation mit Ihrem KeepKey ist ein unerwarteter Fehler aufgetreten",
-        "updateAlert": "Firmware %{version} oder höher ist erforderlich, um Ihren KeepKey mit diesem Client zu verwenden. Bitte aktualisieren Sie Ihr Gerät.",
         "pinCancelled": "PIN-Eingabe wurde abgebrochen",
         "pinInvalid": "Die eingegebene PIN ist ungültig",
         "pinMismatch": "Die beiden eingegebenen PINs stimmen nicht überein"
@@ -1566,8 +1562,7 @@
         "header": "Koppeln Sie Ihren KeepKey",
         "body": "Verbinden Sie ein KeepKey-Gerät und klicken Sie auf Koppeln.",
         "button": "Koppeln",
-        "conflictingApp": "Ihr KeepKey konnte nicht gefunden werden. Möglicherweise versucht eine andere Anwendung, sich mit Ihrem KeepKey zu verbinden.",
-        "downloadUpdaterApp": "Lade update App"
+        "conflictingApp": "Ihr KeepKey konnte nicht gefunden werden. Möglicherweise versucht eine andere Anwendung, sich mit Ihrem KeepKey zu verbinden."
       },
       "pin": {
         "header": "Geben Sie Ihre PIN ein",
@@ -1711,15 +1706,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Ledger Konten importieren",
-        "body": "Um Ihre Guthaben für jede Kette anzuzeigen, müssen Sie jede App verbinden.",
-        "availableChains": "Verfügbare Ketten",
-        "followTheInstructions": "Folge den Anweisungen",
-        "toGetTheRuneApp": "um die RUNE-App auf Ihr Gerät zu laden",
-        "added": "Hinzugefügt",
-        "connect": "Verbinden"
-      },
       "verify": {
         "confirmOnDevice": "Auf dem Gerät bestätigen",
         "addressMismatch": "Adressen stimmen nicht überein. Bitte überprüfen Sie, ob Sie das richtige Gerät angeschlossen haben und versuchen Sie es erneut."

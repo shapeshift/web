@@ -472,7 +472,7 @@
     "keepKey": {
       "title": "KeepKey Update Available",
       "newUpdateAvailable": "A new KeepKey update is available.",
-      "downloadCta": "Download Update",
+      "downloadCta": "Update KeepKey",
       "updateRequiredForFeature": "This update is required to support %{feature}"
     }
   },
@@ -1232,8 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "Download KeepKey Updater",
-        "button": "Download %{filename}",
-        "wrongPlatform": "Not using %{platform}? Click here"
+        "body": "We couldn't connect to your KeepKey. Install KeepKey Vault to update your device, then try pairing again.",
+        "bodyUpdateAvailable": "A firmware update is available for your KeepKey. Install KeepKey Vault to update your device.",
+        "wrongPlatform": "Not using %{platform}? Click here",
+        "download": {
+          "windows": "Download for Windows",
+          "linux": "Download for Linux",
+          "macAppleSilicon": "Download for Apple Silicon (M1 or newer)",
+          "macIntel": "Download for Intel",
+          "releasePage": "View all downloads"
+        }
       },
       "disconnect": {
         "header": "Disconnect KeepKey device",
@@ -1302,6 +1310,7 @@
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "sendFailed": "Send failed",
+      "assetNotSupportedByWallet": "Sending %{asset} is not supported by %{wallet}.",
       "toAddress": "To Address",
       "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
@@ -1553,13 +1562,11 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support.",
-      "walletVersionTooOld": "Unable to pair your wallet. Please update your wallet to the latest version."
+      "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support."
     },
     "keepKey": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with your KeepKey",
-        "updateAlert": "Firmware %{version} or later is required to use your KeepKey with this client. Please update your device.",
         "pinCancelled": "PIN entry was cancelled",
         "pinInvalid": "The PIN you entered is not valid",
         "pinMismatch": "The two PINs you entered do not match"
@@ -1569,12 +1576,27 @@
         "body": "Connect a KeepKey device and click Pair.",
         "button": "Pair",
         "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
-        "downloadUpdaterApp": "Download updater app"
+        "timeout": "Failed to pair your KeepKey. Please reconnect your device and try again."
       },
       "pin": {
         "header": "Enter Your PIN",
         "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
         "button": "Unlock"
+      },
+      "currentPin": {
+        "header": "Enter Your Current PIN",
+        "body": "Confirm the PIN you use today, then you can choose a new one.",
+        "button": "Continue"
+      },
+      "newPin": {
+        "header": "Create New PIN",
+        "body": "Use the PIN layout shown on your device to choose a new PIN.",
+        "button": "Continue"
+      },
+      "newPinConfirm": {
+        "header": "Confirm New PIN",
+        "body": "Re-enter your new PIN using the layout shown on your device.",
+        "button": "Confirm"
       },
       "settings": {
         "menuLabels": {
@@ -1604,7 +1626,9 @@
           "timeout": "Your device goes to sleep after 10 minutes of inactivity by default. However, you can change this.",
           "buttonPrompt": "Press and hold the button on your KeepKey to change the device %{setting}.",
           "updateSuccess": "%{setting} successfully updated!",
-          "updateFailed": "An error occurred whilst updating the %{setting}.",
+          "updateFailed": "%{setting} update failed",
+          "passphraseEnabled": "Passphrase protection enabled. You'll be asked for a passphrase each time you connect.",
+          "passphraseDisabled": "Passphrase protection disabled",
           "timeoutDuration": "%{minutes} minutes"
         },
         "alerts": {
@@ -1713,15 +1737,6 @@
       }
     },
     "ledger": {
-      "chains": {
-        "header": "Import Ledger Accounts",
-        "body": "To see your balances for each chain, you'll need to connect each app.",
-        "availableChains": "Available Chains",
-        "followTheInstructions": "Follow the instructions",
-        "toGetTheRuneApp": "to get the RUNE app on your device",
-        "added": "Added",
-        "connect": "Connect"
-      },
       "verify": {
         "confirmOnDevice": "Confirm on device",
         "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."

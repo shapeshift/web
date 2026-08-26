@@ -60,7 +60,8 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   const renderSlippageTag = useMemo(() => {
     if (
       !isUnknownAutoSlippage &&
-      bnOrZero(slippageAsPercentageString).eq(bnOrZero(userSlippagePercentage))
+      userSlippagePercentage !== undefined &&
+      bnOrZero(slippageAsPercentageString).eq(userSlippagePercentage)
     ) {
       return (
         <Tag colorScheme='purple' size='sm'>

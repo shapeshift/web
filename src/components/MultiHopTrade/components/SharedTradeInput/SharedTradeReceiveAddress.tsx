@@ -20,7 +20,6 @@ import { useTranslate } from 'react-polyglot'
 import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput'
 import type { SendInput } from '@/components/Modals/Send/Form'
 import { SendFormFields } from '@/components/Modals/Send/SendCommon'
-import { useAccountIds } from '@/components/MultiHopTrade/hooks/useAccountIds'
 import { useIsManualReceiveAddressRequired } from '@/components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
@@ -142,7 +141,6 @@ export const SharedTradeReceiveAddress = ({
   onSubmit,
 }: SharedTradeReceiveAddressProps) => {
   const translate = useTranslate()
-  const { sellAssetAccountId } = useAccountIds()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = buyAsset
   const {
@@ -165,7 +163,6 @@ export const SharedTradeReceiveAddress = ({
 
   const shouldForceDisplayManualAddressEntry = useIsManualReceiveAddressRequired({
     shouldForceManualAddressEntry: Boolean(shouldForceManualAddressEntry),
-    sellAccountId: sellAssetAccountId,
     buyAsset,
     manualReceiveAddress,
     walletReceiveAddress,

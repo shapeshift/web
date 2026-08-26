@@ -60,7 +60,7 @@ export type ActionTypes =
     }
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
-  | { type: WalletActions.DOWNLOAD_UPDATER; payload: boolean }
+  | { type: WalletActions.DOWNLOAD_UPDATER }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
   | { type: WalletActions.SET_DEVICE_STATE; payload: Partial<DeviceState> }
   | { type: WalletActions.SET_PIN_REQUEST_TYPE; payload: PinMatrixRequestType }

@@ -1575,7 +1575,8 @@
         "header": "Pair Your KeepKey",
         "body": "Connect a KeepKey device and click Pair.",
         "button": "Pair",
-        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
+        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
+        "timeout": "Failed to pair your KeepKey. Please reconnect your device and try again."
       },
       "pin": {
         "header": "Enter Your PIN",

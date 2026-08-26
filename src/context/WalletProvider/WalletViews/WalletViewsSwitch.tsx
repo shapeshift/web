@@ -314,7 +314,7 @@ export const WalletViewsSwitch = () => {
   // A connected device got here from the update toast, with no pairing step to go back to
   const isStandaloneRoute = location.pathname === KeepKeyRoutesEnum.DownloadUpdater && isConnected
 
-  const Body = useCallback(() => {
+  const body = useMemo(() => {
     // These routes do not have a previous step, so don't display back button
     const isRootRoute =
       isStandaloneRoute ||
@@ -374,8 +374,6 @@ export const WalletViewsSwitch = () => {
     isStandaloneRoute,
   ])
 
-  const body = useMemo(() => <Body />, [Body])
-
   return (
     <>
       <Modal {...modalProps} isCentered size={!isLargerThanMd ? modalSize : undefined}>
@@ -416,7 +414,7 @@ export const WalletViewsSwitch = () => {
                 </Routes>
                 <Routes>
                   {/* Only display side panel after a wallet has been selected on mobile */}
-                  <Route path='/' element={!isLargerThanMd ? null : <Body />} />
+                  <Route path='/' element={!isLargerThanMd ? null : body} />
                   {/* And for all non-root routes, no matter the viewport */}
                   <Route path='*' element={body} />
                 </Routes>

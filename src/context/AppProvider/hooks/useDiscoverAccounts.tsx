@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isGridPlus, isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -64,6 +65,20 @@ export const useDiscoverAccounts = () => {
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
+          // Persisted metadata is keyed on the device id, which a passphrase does not change
+          const knownAccountIds = (currentPortfolio.wallet.byId[walletId] ?? []).filter(
+            accountId => fromAccountId(accountId).chainId === chainId,
+          )
+          const knownCountByAccountNumber = knownAccountIds.reduce<Record<number, number>>(
+            (acc, accountId) => {
+              const bip44Params = currentPortfolio.accountMetadata.byId[accountId]?.bip44Params
+              if (!bip44Params) return acc
+              acc[bip44Params.accountNumber] = (acc[bip44Params.accountNumber] ?? 0) + 1
+              return acc
+            },
+            {},
+          )
+
           let accountNumber = 0
           let hasActivity = true
           let isDegraded = false
@@ -98,6 +113,23 @@ export const useDiscoverAccounts = () => {
               }
 
               accountNumber++
+
+              // Account 0 matching what was stored proves the seed, so skip the rest
+              if (accountNumber === 1) {
+                const derivedAccountIds = accountIdWithActivityAndMetadata.map(
+                  ({ accountId }) => accountId,
+                )
+                const isSameSeed =
+                  derivedAccountIds.length > 0 &&
+                  derivedAccountIds.every(accountId => knownAccountIds.includes(accountId))
+
+                // Known means every accountId account 0 derived, not just one of the script types
+                let resumeFrom = 0
+                while (knownCountByAccountNumber[resumeFrom] >= derivedAccountIds.length)
+                  resumeFrom++
+
+                if (isSameSeed && resumeFrom > 1) accountNumber = resumeFrom
+              }
             } catch (error) {
               console.error(`Error discovering accounts for chain ${chainId}:`, error)
               isDegraded = true

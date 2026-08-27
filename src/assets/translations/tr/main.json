@@ -472,6 +472,7 @@
     "keepKey": {
       "title": "KeepKey Güncellemesi Mevcut",
       "newUpdateAvailable": "Yeni bir KeepKey güncellemesi mevcut.",
+      "downloadCta": "KeepKey'i güncelleyin",
       "updateRequiredForFeature": "Bu güncelleme, %{feature}'ı desteklemek için gereklidir"
     }
   },
@@ -1011,6 +1012,8 @@
       "quoteExpired": "Teklifin süresi doldu, tekrar deneyin.",
       "quoteUnsupportedChain": "Zincir desteklenmiyor",
       "quoteCrossChainNotSupported": "Çapraz zincir desteklenmiyor",
+      "quoteExactOutputNotSupported": "Tam alım tutarı desteklenmiyor.",
+      "crossAccountNotSupported": "Hesaplar arası işlem desteklenmiyor.",
       "networkFeeEstimateFailed": "Ağ ücreti tahmin edilemedi",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} cüzdan tarafından desteklenmiyor",
       "intermediaryAssetNotSupportedByWallet": "Aracı varlık %{assetSymbol}.%{chainSymbol} cüzdan tarafından desteklenmiyor",
@@ -1229,7 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "KeepKey Updater'ı İndirin",
-        "wrongPlatform": "%{platform}? kullanmıyor musunuz? Buraya Tıklayın"
+        "body": "KeepKey cihazınıza bağlanamadık. Cihazınızı güncellemek için KeepKey Vault uygulamasını yükleyin, ardından tekrar eşleştirmeyi deneyin.",
+        "bodyUpdateAvailable": "KeepKey cihazınız için bir ürün yazılımı güncellemesi mevcuttur. Cihazınızı güncellemek için KeepKey Vault uygulamasını yükleyin.",
+        "wrongPlatform": "%{platform}? kullanmıyor musunuz? Buraya Tıklayın",
+        "download": {
+          "windows": "Windows için indir",
+          "linux": "Linux için indir",
+          "macAppleSilicon": "Apple Silicon (M1 veya daha yeni) için indir",
+          "macIntel": "Intel için indir",
+          "releasePage": "Tüm indirmeleri görüntüle"
+        }
       },
       "disconnect": {
         "header": "KeepKey cihazının bağlantısını kesin",
@@ -1298,6 +1310,7 @@
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
       "sendFailed": "Gönderme başarısız oldu",
+      "assetNotSupportedByWallet": "%{asset} gönderimi %{wallet} tarafından desteklenmiyor.",
       "toAddress": "Adrese",
       "toAddressOrEns": "Adres veya ENS'e",
       "scanQrCode": "QR Kodunu Tara",
@@ -1569,6 +1582,21 @@
         "body": "Cihazınızda gösterilen PIN düzenini kullanarak PIN tuşuna basılacak yeri bulun.",
         "button": "Kilit aç"
       },
+      "currentPin": {
+        "header": "Mevcut PIN kodunuzu girin.",
+        "body": "Bugün kullandığınız PIN kodunu onaylayın, ardından yeni bir PIN kodu seçebilirsiniz.",
+        "button": "Devam et"
+      },
+      "newPin": {
+        "header": "Yeni PIN oluştur",
+        "body": "Cihazınızda gösterilen PIN şablonunu kullanarak yeni bir PIN seçin.",
+        "button": "Devam et"
+      },
+      "newPinConfirm": {
+        "header": "Yeni PIN'i Onayla",
+        "body": "Cihazınızda gösterilen şablonu kullanarak yeni PIN kodunuzu tekrar girin.",
+        "button": "Onayla"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Önyükleyici",
@@ -1597,6 +1625,9 @@
           "timeout": "Cihazınız varsayılan olarak 10 dakika işlem yapılmadığında uyku moduna geçer. Ancak bunu değiştirebilirsiniz.",
           "buttonPrompt": "%{setting} cihazını değiştirmek için KeepKey'inizdeki düğmeyi basılı tutun.",
           "updateSuccess": "%{setting} başarıyla güncellendi!",
+          "updateFailed": "%{setting} güncellemesi başarısız oldu",
+          "passphraseEnabled": "Parola koruması etkinleştirildi. Her bağlantı kurduğunuzda sizden parola istenecektir.",
+          "passphraseDisabled": "Parola koruması devre dışı bırakıldı",
           "timeoutDuration": "%{minutes} dakika"
         },
         "alerts": {
@@ -2144,7 +2175,9 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {}
+    "recipientNotActivated": {
+      "sendWarning": "Bu hesap henüz Tron'da etkinleştirilmedi. Tokenlarınız gelecek, ancak hesapta işlem ücretlerini karşılayacak kadar TRX bulunana kadar bunları taşıyamayacak veya takas edemeyeceksiniz."
+    }
   },
   "transactionHistory": {
     "transactionHistory": "İşlem Geçmişi",
@@ -3345,7 +3378,8 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

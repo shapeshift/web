@@ -76,7 +76,6 @@ export const useLimitOrderReceiveAddress = ({
 
   const isManualReceiveAddressRequired = useIsManualReceiveAddressRequired({
     shouldForceManualAddressEntry: false,
-    sellAccountId,
     buyAsset,
     manualReceiveAddress,
     walletReceiveAddress,

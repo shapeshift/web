@@ -472,6 +472,7 @@
     "keepKey": {
       "title": "KeepKey アップデート利用可能",
       "newUpdateAvailable": "新しい KeepKey アップデートが利用可能です",
+      "downloadCta": "KeepKeyをアップデートする",
       "updateRequiredForFeature": "このアップデートは %{feature} をサポートするために必要です"
     }
   },
@@ -1011,6 +1012,8 @@
       "quoteExpired": "見積もりの​​有効期限が切れました。もう一度お試しください。",
       "quoteUnsupportedChain": "チェーンはサポートされていません",
       "quoteCrossChainNotSupported": "クロスチェーンはサポートされていません",
+      "quoteExactOutputNotSupported": "正確な受取金額はサポートされていません",
+      "crossAccountNotSupported": "クロスアカウントはサポートされていません",
       "networkFeeEstimateFailed": "ネットワーク手数料の見積もりに失敗しました",
       "assetNotSupportedByWallet": "ウォレットでは%{assetSymbol}.%{chainSymbol}はサポートされていません。",
       "intermediaryAssetNotSupportedByWallet": "中間アセット %{assetSymbol}.%{chainSymbol} はウォレットでサポートされていません",
@@ -1229,7 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "KeepKeyアップデーターをダウンロード",
-        "wrongPlatform": "%{platform} を使用していませんか?ここをクリック"
+        "body": "KeepKeyに接続できませんでした。KeepKey Vaultをインストールしてデバイスをアップデートしてから、再度ペアリングをお試しください。",
+        "bodyUpdateAvailable": "KeepKeyのファームウェアアップデートが利用可能です。KeepKey Vaultをインストールしてデバイスをアップデートしてください。",
+        "wrongPlatform": "%{platform} を使用していませんか?ここをクリック",
+        "download": {
+          "windows": "Windows版をダウンロード",
+          "linux": "Linux版をダウンロード",
+          "macAppleSilicon": "Apple Silicon（M1以降）向けダウンロード",
+          "macIntel": "Intel版をダウンロード",
+          "releasePage": "ダウンロードをすべて表示"
+        }
       },
       "disconnect": {
         "header": "KeepKeyデバイスを切断する",
@@ -1298,6 +1310,7 @@
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
       "sendFailed": "送信に失敗しました",
+      "assetNotSupportedByWallet": "%{asset} の送信は %{wallet} ではサポートされていません。",
       "toAddress": "宛先",
       "toAddressOrEns": "宛先またはENS",
       "scanQrCode": "QRコードをスキャン",
@@ -1569,6 +1582,21 @@
         "body": "デバイスに表示される PIN レイアウトを使用して、PIN パッド上で押す場所を見つけます。",
         "button": "ロック解除"
       },
+      "currentPin": {
+        "header": "新しいPINの確認",
+        "body": "現在使用しているPINコードを確認してください。その後、新しいPINコー",
+        "button": "次へ"
+      },
+      "newPin": {
+        "header": "新しいPINを作成する",
+        "body": "お使いのデバイスに表示されているPINレイアウトを使用して、新しいPINを選択してください。",
+        "button": "次へ"
+      },
+      "newPinConfirm": {
+        "header": "新しいPINを確認してください",
+        "body": "端末に表示されているレイアウトに従って、新しいPINコードを再入力してください。",
+        "button": "確認する"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "ブートローダー",
@@ -1597,6 +1625,9 @@
           "timeout": "デフォルトでは、デバイスは非アクティブ状態が10分間続くとスリープ状態になります。ただし、これは変更できます。",
           "buttonPrompt": "KeepKeyのボタンを押したままにして、デバイスの %{setting} を変更します。",
           "updateSuccess": "%{setting} が正常に更新されました。",
+          "updateFailed": "%{setting} の更新に失敗しました",
+          "passphraseEnabled": "パスフレーズ保護が有効になっています。接続するたびにパスフレーズの入力を求められます。",
+          "passphraseDisabled": "パスフレーズ保護が無効になっています",
           "timeoutDuration": "%{minutes}分"
         },
         "alerts": {
@@ -2144,7 +2175,9 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {}
+    "recipientNotActivated": {
+      "sendWarning": "このアカウントはまだTron上で有効化されていません。トークンは届きますが、手数料を支払うためのTRXがアカウントに蓄積されるまでは、トークンの移動や交換はできません。"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "取引履歴",
@@ -3345,7 +3378,8 @@
   "yieldXYZ": {
     "pageTitle": "利回り",
     "pageSubtitle": "複数のチェーンにわたる収益機会の発見と管理",
-    "actions": {},
+    "actions": {
+    },
     "yield": "利回り",
     "apy": "年利",
     "apr": "APR",

@@ -472,6 +472,7 @@
     "keepKey": {
       "title": "Доступно обновление KeepKey",
       "newUpdateAvailable": "Доступно новое обновление KeepKey.",
+      "downloadCta": "Обновление KeepKey",
       "updateRequiredForFeature": "Это обновление необходимо для поддержки %{feature}"
     }
   },
@@ -1011,6 +1012,8 @@
       "quoteExpired": "Срок действия истек, попробуйте еще раз.",
       "quoteUnsupportedChain": "Сеть не поддерживается",
       "quoteCrossChainNotSupported": "Крос чейн не поддерживается",
+      "quoteExactOutputNotSupported": "Точная сумма поступления не поддерживается",
+      "crossAccountNotSupported": "Межаккаунтная синхронизация не поддерживается",
       "networkFeeEstimateFailed": "Не удалось оценить комиссию сети",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} не поддерживается кошельком",
       "intermediaryAssetNotSupportedByWallet": "Посреднический актив %{assetSymbol}.%{chainSymbol} не поддерживается кошельком",
@@ -1229,7 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "Скачать KeepKey Updater",
-        "wrongPlatform": "Не используете %{platform}? Нажмите здесь"
+        "body": "Нам не удалось подключиться к вашему KeepKey. Установите приложение KeepKey Vault, чтобы обновить устройство, а затем попробуйте выполнить сопряжение заново.",
+        "bodyUpdateAvailable": "Для вашего KeepKey доступно обновление прошивки. Установите приложение KeepKey Vault, чтобы обновить устройство.",
+        "wrongPlatform": "Не используете %{platform}? Нажмите здесь",
+        "download": {
+          "windows": "Скачать для Windows",
+          "linux": "Скачать для Linux",
+          "macAppleSilicon": "Скачать для Apple Silicon (M1 или более поздние версии)",
+          "macIntel": "Скачать для Intel",
+          "releasePage": "Просмотреть все загрузки"
+        }
       },
       "disconnect": {
         "header": "Отключить устройство KeepKey",
@@ -1298,6 +1310,7 @@
       "broadcastingTransaction": "Мониторинг транзакции",
       "youHaveSent": "Вы успешно отправили %{amount} %{symbol}",
       "sendFailed": "Отправка не удалась",
+      "assetNotSupportedByWallet": "Отправка %{asset} не поддерживается %{wallet}.",
       "toAddress": "На адрес",
       "toAddressOrEns": "На адрес или ENS",
       "scanQrCode": "Отсканировать QR код",
@@ -1569,6 +1582,21 @@
         "body": "Используйте схему расположения PIN-кода, отображенную на вашем устройстве, чтобы найти место, которое необходимо нажать на клавиатуре PIN-кода.",
         "button": "Разблокировать"
       },
+      "currentPin": {
+        "header": "Введите свой текущий PIN-код",
+        "body": "Подтвердите PIN-код, который вы используете сейчас, после чего вы сможете выбрать новый.",
+        "button": "Продолжить"
+      },
+      "newPin": {
+        "header": "Создать новый PIN-код",
+        "body": "Воспользуйтесь схемой ввода PIN-кода, отображаемой на экране вашего устройства, чтобы выбрать новый PIN-код.",
+        "button": "Продолжить"
+      },
+      "newPinConfirm": {
+        "header": "Подтвердить новый PIN-код",
+        "body": "Введите новый PIN-код, следуя схеме, отображаемой на экране вашего устройства.",
+        "button": "Подтвердить"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Загрузочное устройство",
@@ -1597,6 +1625,9 @@
           "timeout": "По умолчанию устройство переходит в спящий режим после 10 минут активности. Однако вы можете изменить этот параметр.",
           "buttonPrompt": "Нажмите и удерживайте кнопку на KeepKey, чтобы изменить %{setting} устройства.",
           "updateSuccess": "%{setting} успешно обновлено!",
+          "updateFailed": "%{setting} обновление не удалось",
+          "passphraseEnabled": "Включена защита с помощью парольной фразы. При каждом подключении вам будет предлагаться ввести парольную фразу.",
+          "passphraseDisabled": "Защита парольной фразой отключена",
           "timeoutDuration": "%{minutes} минут"
         },
         "alerts": {
@@ -2144,7 +2175,9 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {}
+    "recipientNotActivated": {
+      "sendWarning": "Эта учетная запись еще не активирована в сети Tron. Ваши токены поступят на счет, но вы не сможете их переводить или обменивать, пока на счете не появится достаточное количество TRX для оплаты комиссий."
+    }
   },
   "transactionHistory": {
     "transactionHistory": "История транзакций",
@@ -3345,7 +3378,8 @@
   "yieldXYZ": {
     "pageTitle": "Прибыль",
     "pageSubtitle": "Обнаруживайте и управляйте возможностями получения дохода в нескольких сетях",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Доходность",
     "apy": "APY",
     "apr": "APR",

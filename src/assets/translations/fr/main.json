@@ -472,6 +472,7 @@
     "keepKey": {
       "title": "Mise à jour KeepKey disponible",
       "newUpdateAvailable": "Une nouvelle mise à jour KeepKey est disponible.",
+      "downloadCta": "Mettre à jour KeepKey",
       "updateRequiredForFeature": "Cette mise à jour est nécessaire pour prendre en charge %{feature}"
     }
   },
@@ -1011,6 +1012,8 @@
       "quoteExpired": "Devis expiré, réessayez.",
       "quoteUnsupportedChain": "Chaîne non prise en charge",
       "quoteCrossChainNotSupported": "Inter-chaînes non pris en charge",
+      "quoteExactOutputNotSupported": "Montant reçu exact non pris en charge",
+      "crossAccountNotSupported": "Transactions inter-comptes non prises en charge",
       "networkFeeEstimateFailed": "Échec de l'estimation des frais de réseau",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} non pris en charge par le porte-monnaie",
       "intermediaryAssetNotSupportedByWallet": "Actif intermédiaire %{assetSymbol}.%{chainSymbol} non pris en charge par le porte-monnaie",
@@ -1229,7 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "Télécharger le programme de mise à jour KeepKey",
-        "wrongPlatform": "Vous n'utilisez pas %{platform} ? Cliquez ici"
+        "body": "Impossible de se connecter à votre KeepKey. Installez KeepKey Vault pour mettre à jour votre appareil, puis réessayez.",
+        "bodyUpdateAvailable": "Une mise à jour du firmware est disponible pour votre KeepKey. Installez KeepKey Vault pour mettre à jour votre appareil.",
+        "wrongPlatform": "Vous n'utilisez pas %{platform} ? Cliquez ici",
+        "download": {
+          "windows": "Télécharger pour Windows",
+          "linux": "Télécharger pour Linux",
+          "macAppleSilicon": "Télécharger pour Apple Silicon (M1 ou plus récent)",
+          "macIntel": "Télécharger pour Intel",
+          "releasePage": "Voir tous les téléchargements"
+        }
       },
       "disconnect": {
         "header": "Déconnecter l'appareil KeepKey",
@@ -1298,6 +1310,7 @@
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
       "sendFailed": "L'envoi a échoué",
+      "assetNotSupportedByWallet": "Envoyer des %{asset} n'est pas pris en charge par %{wallet}.",
       "toAddress": "Adresse de destination",
       "toAddressOrEns": "Adresse de destination ou ENS",
       "scanQrCode": "Scanner code QR",
@@ -1569,10 +1582,25 @@
         "body": "Utilisez la disposition du PIN indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier PIN.",
         "button": "Déverrouiller"
       },
+      "currentPin": {
+        "header": "Entrer votre PIN actuel",
+        "body": "Confirmez le PIN que vous utilisez aujourd'hui, puis vous pourrez en choisir un nouveau.",
+        "button": "Continuer"
+      },
+      "newPin": {
+        "header": "Créer un nouveau PIN",
+        "body": "Utilisez le disposition du PIN indiquée sur votre appareil pour choisir un nouveau PIN.",
+        "button": "Continuer"
+      },
+      "newPinConfirm": {
+        "header": "Confirmer le nouveau PIN",
+        "body": "Entrez à nouveau votre nouveau PIN en utilisant la disposition affichée sur votre appareil.",
+        "button": "Confirmer"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Chargeur d'amorçage",
-          "firmware": "Micrologiciel",
+          "firmware": "Firmware",
           "pin": "PIN",
           "advanced": "Avancé",
           "deviceTimeout": "Délai de mise en veille de l'appareil",
@@ -1597,6 +1625,9 @@
           "timeout": "Votre appareil se met en veille après 10 minutes d'inactivité par défaut. Cependant, vous pouvez changer ceci.",
           "buttonPrompt": "Appuyez longuement sur le bouton de votre KeepKey pour modifier le %{setting} de l'appareil.",
           "updateSuccess": "%{setting} mis à jour avec succès !",
+          "updateFailed": "Échec de la mise à jour de %{setting}",
+          "passphraseEnabled": "Protection par phrase de sécurité activée. Une phrase de sécurité vous sera demandée à chaque connexion.",
+          "passphraseDisabled": "Protection par phrase de sécurité désactivée",
           "timeoutDuration": "%{minutes} minutes"
         },
         "alerts": {
@@ -2144,7 +2175,9 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {}
+    "recipientNotActivated": {
+      "sendWarning": "Ce compte n'a pas encore été activé sur Tron. Vos jetons arriveront, mais vous ne pourrez ni les déplacer ni les échanger tant que le compte ne contiendra pas de TRX pour couvrir les frais."
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Historique des transactions",
@@ -3345,7 +3378,8 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

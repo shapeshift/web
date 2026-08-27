@@ -472,6 +472,7 @@
     "keepKey": {
       "title": "KeepKey 更新可用",
       "newUpdateAvailable": "新的 KeepKey 更新现已推出。",
+      "downloadCta": "更新 KeepKey",
       "updateRequiredForFeature": "需要更新才能支持 %{feature}"
     }
   },
@@ -1011,6 +1012,8 @@
       "quoteExpired": "报价已过期，请重试。",
       "quoteUnsupportedChain": "不支持链",
       "quoteCrossChainNotSupported": "不支持跨链",
+      "quoteExactOutputNotSupported": "不支持指定确切的接收数量",
+      "crossAccountNotSupported": "不支持跨帐户",
       "networkFeeEstimateFailed": "无法估算网络费用",
       "assetNotSupportedByWallet": "钱包不支持 %{assetSymbol}.%{chainSymbol}",
       "intermediaryAssetNotSupportedByWallet": "钱包不支持中介资产: %{assetSymbol}.%{chainSymbol}",
@@ -1229,7 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "下载 KeepKey 更新程序",
-        "wrongPlatform": "不使用 %{platform} ？点击这里"
+        "body": "我们无法连接到您的 KeepKey。请安装 KeepKey Vault 以更新您的设备，然后再次尝试配对。",
+        "bodyUpdateAvailable": "您的 KeepKey 有可用的固件更新。请安装 KeepKey Vault 以更新设备。",
+        "wrongPlatform": "不使用 %{platform} ？点击这里",
+        "download": {
+          "windows": "为 Windows 下载",
+          "linux": "为 Linux 下载",
+          "macAppleSilicon": "为 Apple Silicon下载 (M1 或更新版本)",
+          "macIntel": "为 Intel 下载",
+          "releasePage": "查看所有可用下载"
+        }
       },
       "disconnect": {
         "header": "断开 KeepKey 设备",
@@ -1298,6 +1310,7 @@
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
       "sendFailed": "发送失败",
+      "assetNotSupportedByWallet": "%{wallet} 不支持发送 %{asset} 。",
       "toAddress": "目标地址",
       "toAddressOrEns": "目标地址或 ENS",
       "scanQrCode": "扫描二维码",
@@ -1569,6 +1582,21 @@
         "body": "根据设备上显示的 PIN 布局，找到在 PIN 键盘上需要按下的位置。",
         "button": "解锁"
       },
+      "currentPin": {
+        "header": "输入您当前的 PIN",
+        "body": "请确认您当前使用的 PIN，然后即可设置新的 PIN",
+        "button": "继续"
+      },
+      "newPin": {
+        "header": "创建新的 PIN",
+        "body": "根据设备上显示的 PIN 布局选择新的 PIN。",
+        "button": "继续"
+      },
+      "newPinConfirm": {
+        "header": "确认新的 PIN",
+        "body": "按照设备上显示的 PIN 布局重新输入新的 PIN。",
+        "button": "确认"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "引导装载程序",
@@ -1597,6 +1625,9 @@
           "timeout": "默认情况下，你的设备在 10 分钟不活动后进入睡眠状态。但是，你可以更改此设置。",
           "buttonPrompt": "按住 KeepKey 上的按钮可更改设备 %{setting} 。",
           "updateSuccess": "%{setting} 已成功更新！",
+          "updateFailed": "%{setting} 更新失败",
+          "passphraseEnabled": "密码保护已启用。每次连接时都需要输入密码。",
+          "passphraseDisabled": "密码保护已禁用",
           "timeoutDuration": "%{minutes} 分钟"
         },
         "alerts": {
@@ -2144,7 +2175,9 @@
     }
   },
   "tron": {
-    "recipientNotActivated": {}
+    "recipientNotActivated": {
+      "sendWarning": "该帐户尚未在 Tron 上激活。您的代币会正常到账，但在帐户中持有足够的 TRX 支付手续费之前，您将无法转出或兑换这些代币。"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "交易记录",
@@ -3345,7 +3378,8 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {},
+    "actions": {
+    },
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

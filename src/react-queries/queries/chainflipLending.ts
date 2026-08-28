@@ -1,5 +1,6 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 
+import { queryLendingPoolStats } from '@/lib/chainflip/lpServiceApi'
 import {
   cfAccountInfo,
   cfEnvironment,
@@ -12,7 +13,7 @@ import {
   cfSafeModeStatuses,
   stateGetRuntimeVersion,
 } from '@/lib/chainflip/rpc'
-import type { ChainflipAsset } from '@/lib/chainflip/types'
+import type { ChainflipAsset, ChainflipAssetSymbol } from '@/lib/chainflip/types'
 
 export const chainflipLending = createQueryKeys('chainflipLending', {
   environment: () => ({
@@ -54,5 +55,10 @@ export const chainflipLending = createQueryKeys('chainflipLending', {
   accountInfo: (scAccountId: string) => ({
     queryKey: ['accountInfo', scAccountId],
     queryFn: () => cfAccountInfo(scAccountId),
+  }),
+  // sinceIso: ISO 8601 date string computed by the caller from a UI window key
+  lendingPoolStats: (asset: ChainflipAssetSymbol, sinceIso: string) => ({
+    queryKey: ['lendingPoolStats', asset, sinceIso],
+    queryFn: () => queryLendingPoolStats(asset, new Date(sinceIso)),
   }),
 })

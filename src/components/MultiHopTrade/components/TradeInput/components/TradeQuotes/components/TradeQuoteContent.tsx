@@ -49,7 +49,8 @@ export const TradeQuoteContent = ({
     number: { toPercent },
   } = useLocaleFormatter()
 
-  const { priceImpactColor, priceImpactPercentage } = usePriceImpact(tradeQuote)
+  const { priceImpactColor, priceImpactPercentage, inputOutputDifferenceDecimal } =
+    usePriceImpact(tradeQuote)
 
   const priceImpactDecimalPercentage = useMemo(
     () => priceImpactPercentage?.div(100),
@@ -75,14 +76,10 @@ export const TradeQuoteContent = ({
 
   const lossAfterRateAndFeesUserCurrency = useMemo(
     () =>
-      priceImpactDecimalPercentage !== undefined && sellAmountUserCurrency !== undefined
-        ? bn(sellAmountUserCurrency)
-            .multipliedBy(priceImpactDecimalPercentage)
-            .times(-1)
-            .toFixed(2)
-            .toString()
+      inputOutputDifferenceDecimal !== undefined && sellAmountUserCurrency !== undefined
+        ? bn(sellAmountUserCurrency).multipliedBy(inputOutputDifferenceDecimal).times(-1).toFixed(2)
         : undefined,
-    [priceImpactDecimalPercentage, sellAmountUserCurrency],
+    [inputOutputDifferenceDecimal, sellAmountUserCurrency],
   )
 
   const maybeSlippageElement = useMemo(() => {

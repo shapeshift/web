@@ -259,10 +259,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       [accountMetadata, selectedAccountId],
     )
 
-    const rightIcon = useMemo(
-      () => (isDropdownDisabled ? null : <ChevronDownIcon />),
-      [isDropdownDisabled],
-    )
+    const rightIcon = useMemo(() => <ChevronDownIcon />, [])
 
     /**
      * for UTXO-based chains, we can have many accounts for a single account number
@@ -296,6 +293,52 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     if (!Object.keys(accountIdsByNumberAndType).length) return null
     if (!accountLabel) return null
 
+    const buttonContent = (
+      <Flex
+        direction='row'
+        alignItems='center'
+        gap={1}
+        justifyContent='space-between'
+        flexWrap='wrap'
+      >
+        {label ? (
+          label
+        ) : (
+          <>
+            <RawText fontWeight='medium'>
+              {translate('accounts.accountNumber', { accountNumber })}
+            </RawText>
+            {showLabel && (
+              <Text fontWeight='medium' color='text.subtle'>
+                {accountLabel}
+              </Text>
+            )}
+          </>
+        )}
+      </Flex>
+    )
+
+    // Nothing to pick from (single account, or selection explicitly disabled): render the label as
+    // plain, selectable text rather than a disabled button, so users can still copy their balance
+    if (isDropdownDisabled) {
+      return (
+        <Box px={2} my={2} {...boxProps}>
+          <Button
+            as='div'
+            size='sm'
+            variant='ghost'
+            color='text.base'
+            cursor='default'
+            userSelect='text'
+            _hover={{ bg: 'transparent' }}
+            {...buttonProps}
+          >
+            {buttonContent}
+          </Button>
+        </Box>
+      )
+    }
+
     return (
       <Box px={2} my={2} {...boxProps}>
         <Menu isLazy closeOnSelect={true} autoSelect={false} flip>
@@ -306,31 +349,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
             rightIcon={rightIcon}
             variant='ghost'
             color='text.base'
-            isDisabled={isDropdownDisabled}
             {...buttonProps}
           >
-            <Flex
-              direction='row'
-              alignItems='center'
-              gap={1}
-              justifyContent='space-between'
-              flexWrap='wrap'
-            >
-              {label ? (
-                label
-              ) : (
-                <>
-                  <RawText fontWeight='medium'>
-                    {translate('accounts.accountNumber', { accountNumber })}
-                  </RawText>
-                  {showLabel && (
-                    <Text fontWeight='medium' color='text.subtle'>
-                      {accountLabel}
-                    </Text>
-                  )}
-                </>
-              )}
-            </Flex>
+            {buttonContent}
           </MenuButton>
           <MenuList
             minWidth='fit-content'

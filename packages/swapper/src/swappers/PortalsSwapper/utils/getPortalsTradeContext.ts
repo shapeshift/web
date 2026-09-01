@@ -40,7 +40,6 @@ export const getPortalsTradeContext = ({
   sellChainId,
   orderContext,
   outputToken,
-  slippageTolerancePercentage,
   tx,
 }: {
   input: PortalsTradeQuoteInput | PortalsTradeRateInput
@@ -48,37 +47,43 @@ export const getPortalsTradeContext = ({
   sellChainId: PortalsSupportedChainId
   orderContext: PortalsTradeOrderResponse['context']
   outputToken: string
-  slippageTolerancePercentage: number
   tx: PortalsTx
 }): Result<PortalsTradeContext, SwapErrorRight> => {
   const { sellAsset, buyAsset, affiliateBps, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
-  const { orderId, outputAmount, minOutputAmount, target, feeAmount, feeToken } = orderContext
+  const {
+    orderId,
+    outputAmount,
+    minOutputAmount,
+    target,
+    feeAmount,
+    feeToken,
+    slippageTolerancePercentage,
+  } = orderContext
 
   const isCrossChain = sellAsset.chainId !== buyAsset.chainId
 
-  const requestedSlippageDecimal = bnOrZero(slippageTolerancePercentage).div(100)
+  // Portals report the slippage they applied, not the one we requested - bridge routes apply none
+  const appliedSlippageDecimal = bnOrZero(slippageTolerancePercentage).div(100)
 
   // Unvalidated orders report the post-slippage minimum in both amount fields
   const hasSlippageBuffer = bnOrZero(outputAmount).gt(minOutputAmount)
 
   const preSlippageOutputAmount = bnOrZero(minOutputAmount)
-    .div(bn(1).minus(requestedSlippageDecimal))
+    .div(bn(1).minus(appliedSlippageDecimal))
     .toFixed(0)
 
   const buyAmountAfterFeesCryptoBaseUnit = hasSlippageBuffer
     ? outputAmount
     : preSlippageOutputAmount
 
-  const appliedSlippageDecimal = bnOrZero(minOutputAmount).gt(0)
-    ? bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
-        .minus(minOutputAmount)
-        .div(buyAmountAfterFeesCryptoBaseUnit)
-    : requestedSlippageDecimal
+  const bufferSlippageDecimal = hasSlippageBuffer
+    ? bnOrZero(outputAmount).minus(minOutputAmount).div(outputAmount)
+    : appliedSlippageDecimal
 
-  // Portals can apply more slippage than we asked for - advertise the wider of the two
-  const slippageTolerancePercentageDecimal = hasSlippageBuffer
-    ? BigNumber.max(requestedSlippageDecimal, appliedSlippageDecimal).toString()
-    : requestedSlippageDecimal.toString()
+  const slippageTolerancePercentageDecimal = BigNumber.max(
+    appliedSlippageDecimal,
+    bufferSlippageDecimal,
+  ).toString()
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,

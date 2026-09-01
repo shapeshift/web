@@ -33,7 +33,6 @@ import {
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import axios from 'axios'
 import { EventEmitter } from 'node:events'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
@@ -48,16 +47,9 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import {
-  readStoredPartnerAddress,
-  readStoredPartnerBps,
-  readStoredShapeshiftBps,
-} from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { getAffiliateBps } from '@/lib/fees/utils'
 import { poll } from '@/lib/poll/poll'
-import { getOrCreateUser } from '@/lib/user/api'
-import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
+import { selectCurrentSwap } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
@@ -198,54 +190,6 @@ export class TradeExecution {
       }
 
       store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
-
-      const isWebServicesEnabled = getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES
-
-      if (isWebServicesEnabled) {
-        try {
-          const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
-          const userData = await queryClient.fetchQuery<{ id: string }>({
-            queryKey: ['user', walletEnabledAccountIds],
-            queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
-          })
-
-          if (userData) {
-            queryClient.fetchQuery({
-              queryKey: ['createSwap', swap.id],
-              queryFn: () => {
-                const affiliateBps = getAffiliateBps(updatedSwap.sellAsset, updatedSwap.buyAsset)
-                const storedPartnerBps = readStoredPartnerBps()
-
-                return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
-                  swapId: swap.id,
-                  sellAsset: updatedSwap.sellAsset,
-                  buyAsset: updatedSwap.buyAsset,
-                  sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
-                  expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
-                  sellTxHash,
-                  source: updatedSwap.source,
-                  swapperName: updatedSwap.swapperName,
-                  sellAccountId: accountId,
-                  buyAccountId: accountId,
-                  receiveAddress: updatedSwap.receiveAddress,
-                  partnerAddress: readStoredPartnerAddress() ?? undefined,
-                  partnerBps: storedPartnerBps ? Number(storedPartnerBps) : undefined,
-                  affiliateBps: Number(affiliateBps),
-                  shapeshiftBps: Number(readStoredShapeshiftBps() ?? affiliateBps),
-                  userId: userData?.id,
-                  origin: 'web',
-                  isStreaming: updatedSwap.isStreaming,
-                  metadata: updatedSwap.metadata,
-                })
-              },
-              staleTime: 0,
-              gcTime: 0,
-            })
-          }
-        } catch (e) {
-          console.error('Failed to notify swap webservice, chain might not be supported yet', e)
-        }
-      }
 
       const { cancelPolling } = poll({
         fn: async () => {

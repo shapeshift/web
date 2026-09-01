@@ -2,7 +2,7 @@ import { WarningIcon } from '@chakra-ui/icons'
 import { CardBody, CardFooter, Flex, Skeleton, Text as CText, Tooltip } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { TbBolt, TbClockHour3, TbGasStation, TbRipple } from 'react-icons/tb'
@@ -77,7 +77,10 @@ export const TradeQuoteContent = ({
   const lossAfterRateAndFeesUserCurrency = useMemo(
     () =>
       inputOutputDifferenceDecimal !== undefined && sellAmountUserCurrency !== undefined
-        ? bn(sellAmountUserCurrency).multipliedBy(inputOutputDifferenceDecimal).times(-1).toFixed(2)
+        ? bn(sellAmountUserCurrency)
+            .multipliedBy(bnOrZero(inputOutputDifferenceDecimal))
+            .times(-1)
+            .toFixed(2)
         : undefined,
     [inputOutputDifferenceDecimal, sellAmountUserCurrency],
   )

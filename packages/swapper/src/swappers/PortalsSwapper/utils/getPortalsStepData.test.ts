@@ -2,8 +2,10 @@ import type { Asset } from '@shapeshiftoss/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { GetTradeRateInput, SwapperDeps } from '../../../types'
+import { estimateGasWithStateOverride } from '../../../utils/evm'
 import { USDC_MAINNET } from '../../../utils/test-data/assets'
 import type { PortalsTx } from './fetchPortalsTradeOrder'
+import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 import { getPortalsStepData } from './getPortalsStepData'
 
 vi.mock('../../../utils/evm', async importOriginal => ({
@@ -15,9 +17,6 @@ vi.mock('./fetchPortalsTradeOrder', async importOriginal => ({
   ...(await importOriginal<object>()),
   fetchPortalsTradeEstimate: vi.fn(),
 }))
-
-const { estimateGasWithStateOverride } = await import('../../../utils/evm')
-const { fetchPortalsTradeEstimate } = await import('./fetchPortalsTradeOrder')
 
 const GAS_PRICE = '1000000000'
 

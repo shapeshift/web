@@ -271,10 +271,11 @@ export const selectPortfolioAccountIdsByAssetIdFilter = createCachedSelector(
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },
-)(
-  (_state: ReduxState, filter: { assetId?: AssetId } | null): string =>
+)({
+  keySelector: (_state: ReduxState, filter: { assetId?: AssetId } | null): string =>
     filter?.assetId ?? 'assetId',
-)
+  selectorCreator: createDeepEqualOutputSelector,
+})
 export const selectPortfolioAccountIdsByAssetId = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   (accounts): Record<AssetId, AccountId[]> => {

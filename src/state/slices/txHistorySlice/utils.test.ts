@@ -1,7 +1,9 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { describe, expect, it } from 'vitest'
 
+import type { Tx } from './txHistorySlice'
 import { getRelatedAssetIds, isSpam } from './utils'
 
 import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from '@/test/mocks/txs'
@@ -46,9 +48,9 @@ describe('txHistorySlice:utils', () => {
   })
 
   describe('isSpam', () => {
-    const aiccAssetId = 'eip155:1/erc20:0x66a3c2fa3e467aa586e90912f977e648589cabaf'
+    const aiccAssetId: AssetId = 'eip155:1/erc20:0x66a3c2fa3e467aa586e90912f977e648589cabaf'
 
-    const makeAirdrop = (assetId: string) => ({
+    const makeAirdrop = (assetId: AssetId): Tx => ({
       ...EthReceive,
       fee: undefined,
       transfers: [

@@ -57,8 +57,6 @@ export type AccountDropdownProps = {
   boxProps?: BoxProps
   showLabel?: boolean
   label?: JSX.Element
-  // When set, a copy button for this value is shown next to the dropdown trigger
-  copyValue?: string
 }
 
 type MenuOptionsProps = {
@@ -177,7 +175,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     boxProps,
     showLabel = true,
     label,
-    copyValue,
   }) => {
     const isConnected = useIsWalletConnected()
 
@@ -342,46 +339,37 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       )
     }
 
-    // The trigger is a real button, so its text can't be selected. Offer a copy button instead.
-    const menu = (
-      <Menu isLazy closeOnSelect={true} autoSelect={false} flip>
-        <MenuButton
-          iconSpacing={1}
-          as={Button}
-          size='sm'
-          rightIcon={rightIcon}
-          variant='ghost'
-          color='text.base'
-          {...buttonProps}
-        >
-          {buttonContent}
-        </MenuButton>
-        <MenuList
-          minWidth='fit-content'
-          maxHeight='200px'
-          overflowY='auto'
-          zIndex={modalChildZIndex}
-        >
-          <MenuOptions
-            accountIdsByNumberAndType={accountIdsByNumberAndType}
-            asset={asset}
-            autoSelectHighestBalance={autoSelectHighestBalance}
-            disabled={disabled}
-            listProps={listProps}
-            selectedAccountId={selectedAccountId}
-            onClick={handleClick}
-          />
-        </MenuList>
-      </Menu>
-    )
-
     return (
       <Box px={2} my={2} {...boxProps}>
-        {copyValue !== undefined ? (
-          <InlineCopyButton value={copyValue}>{menu}</InlineCopyButton>
-        ) : (
-          menu
-        )}
+        <Menu isLazy closeOnSelect={true} autoSelect={false} flip>
+          <MenuButton
+            iconSpacing={1}
+            as={Button}
+            size='sm'
+            rightIcon={rightIcon}
+            variant='ghost'
+            color='text.base'
+            {...buttonProps}
+          >
+            {buttonContent}
+          </MenuButton>
+          <MenuList
+            minWidth='fit-content'
+            maxHeight='200px'
+            overflowY='auto'
+            zIndex={modalChildZIndex}
+          >
+            <MenuOptions
+              accountIdsByNumberAndType={accountIdsByNumberAndType}
+              asset={asset}
+              autoSelectHighestBalance={autoSelectHighestBalance}
+              disabled={disabled}
+              listProps={listProps}
+              selectedAccountId={selectedAccountId}
+              onClick={handleClick}
+            />
+          </MenuList>
+        </Menu>
       </Box>
     )
   },

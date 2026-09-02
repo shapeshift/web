@@ -388,6 +388,12 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       [assetSymbol, balance, fiatBalance, isFiat, translate, accountDropdownBalanceColor],
     )
 
+    // Raw balance for the copy button, so it can be pasted straight into the amount field
+    const balanceCopyValue = useMemo(
+      () => (isFiat ? bnOrZero(fiatBalance).toFixed(2) : bnOrZero(balance).toFixed()),
+      [balance, fiatBalance, isFiat],
+    )
+
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
     const containerStyle = useMemo(
@@ -427,6 +433,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 boxProps={boxProps}
                 showLabel={false}
                 label={accountDropdownLabel}
+                copyValue={balanceCopyValue}
               />
             )}
           </Display.Desktop>
@@ -524,6 +531,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                     boxProps={boxProps}
                     showLabel={false}
                     label={accountDropdownLabel}
+                    copyValue={balanceCopyValue}
                   />
                 )}
 
@@ -538,6 +546,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                     boxProps={boxProps}
                     showLabel={false}
                     label={accountDropdownLabel}
+                    copyValue={balanceCopyValue}
                   />
                 )}
               </Display.Mobile>
@@ -559,6 +568,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                     boxProps={boxProps}
                     showLabel={false}
                     label={accountDropdownLabel}
+                    copyValue={balanceCopyValue}
                   />
                 )}
               </Display.Desktop>

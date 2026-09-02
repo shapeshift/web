@@ -63,7 +63,6 @@ type MenuOptionsProps = {
   accountIdsByNumberAndType: AccountIdsByNumberAndType
   asset: Asset
   autoSelectHighestBalance: boolean | undefined
-  disabled: boolean | undefined
   listProps: MenuItemOptionProps | undefined
   selectedAccountId: AccountId | undefined
   onClick: (accountId: AccountId) => void
@@ -75,7 +74,6 @@ const MenuOptions = ({
   accountIdsByNumberAndType,
   asset,
   autoSelectHighestBalance,
-  disabled,
   listProps,
   selectedAccountId,
   onClick,
@@ -154,7 +152,6 @@ const MenuOptions = ({
                 symbol={asset?.symbol ?? ''}
                 isChecked={selectedAccountId === iterAccountId}
                 onOptionClick={onClick}
-                isDisabled={disabled}
                 {...listProps}
               />
             ))}
@@ -371,7 +368,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
               accountIdsByNumberAndType={accountIdsByNumberAndType}
               asset={asset}
               autoSelectHighestBalance={autoSelectHighestBalance}
-              disabled={disabled}
               listProps={listProps}
               selectedAccountId={selectedAccountId}
               onClick={handleClick}

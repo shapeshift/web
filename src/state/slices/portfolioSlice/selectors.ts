@@ -258,8 +258,9 @@ export const selectFirstAccountIdByChainId = createCachedSelector(
  * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
  * but can contain it
  */
-// Cached per assetId so that multiple consumers with different assets (e.g. both sides of the trade
-// input) don't thrash a single-entry cache and get a fresh array on every store update
+// Keyed by assetId so consumers with different assets (e.g. both sides of the trade input) don't
+// thrash a single-entry cache, and deep-equal per key so an unrelated account change doesn't hand
+// every consumer a new array
 export const selectPortfolioAccountIdsByAssetIdFilter = createCachedSelector(
   selectEnabledWalletAccountIds,
   selectAssetIdParamFromFilter,

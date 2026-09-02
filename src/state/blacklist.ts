@@ -71,7 +71,8 @@ export const BLACKLISTED_ASSET_IDS = new Set<AssetId>([
   'eip155:1/erc20:0x514b9e5467b9eb811519e316263c9099eae546ca',
 ])
 
-export const isBlacklistedAssetId = (assetId: AssetId) => BLACKLISTED_ASSET_IDS.has(assetId)
+export const isBlacklistedAssetId = (assetId: AssetId): boolean =>
+  BLACKLISTED_ASSET_IDS.has(assetId)
 
 export const BLACKLISTED_COLLECTION_IDS = [
   'eip155:137/erc1155:0x30825b65e775678997c7fbc5831ab492c697448e',

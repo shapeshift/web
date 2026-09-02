@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -44,7 +45,7 @@ export async function getPortalsStepData(
   if (args.type === 'rate') {
     try {
       // No placeholder estimation for provider built routes - overridden estimation (approval
-      // state need not exist yet) with the Portals estimate endpoint as fallback
+      // state need not exist yet) with the Portals order and estimate endpoint as fallbacks
       const gasLimit = await (async () => {
         try {
           const gasLimit = await estimateGasWithStateOverride({
@@ -59,6 +60,11 @@ export async function getPortalsStepData(
 
           return gasLimit
         } catch {
+          // Portals only carry a tx gas limit on the bridge routes their estimate endpoint zeroes
+          const { gasLimit: txGasLimit } = tx
+
+          if (txGasLimit && bnOrZero(txGasLimit).gt(0)) return txGasLimit
+
           const quoteEstimateResponse = await fetchPortalsTradeEstimate({
             inputToken: args.inputToken,
             outputToken: args.outputToken,
@@ -67,7 +73,11 @@ export async function getPortalsStepData(
             swapperConfig: deps.config,
           })
 
-          return quoteEstimateResponse.context.gasLimit.toString()
+          const estimatedGasLimit = quoteEstimateResponse.context.gasLimit.toString()
+
+          if (bnOrZero(estimatedGasLimit).lte(0)) throw new Error('no Portals gas limit')
+
+          return estimatedGasLimit
         }
       })()
 

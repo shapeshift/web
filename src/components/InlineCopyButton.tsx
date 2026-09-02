@@ -1,5 +1,5 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons'
-import type { FlexProps } from '@chakra-ui/react'
+import type { FlexProps, IconButtonProps } from '@chakra-ui/react'
 import { Flex, IconButton, Tooltip } from '@chakra-ui/react'
 import type { MouseEvent, PropsWithChildren } from 'react'
 import React, { useCallback, useMemo } from 'react'
@@ -11,6 +11,8 @@ type InlineCopyButtonProps = {
   value: string
   isDisabled?: boolean
   flexProps?: FlexProps
+  // Render the button as another element, e.g. a span when nested inside a button
+  as?: IconButtonProps['as']
 } & PropsWithChildren
 
 const copyIcon = <CopyIcon />
@@ -21,6 +23,7 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
   children,
   isDisabled,
   flexProps,
+  as,
 }) => {
   const translate = useTranslate()
   const { isCopied, isCopying, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
@@ -42,8 +45,9 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
       fontSize: 'sm',
       'aria-label': 'Copy value',
       onClick: handleCopyClick,
+      as,
     }),
-    [handleCopyClick, isCopied],
+    [as, handleCopyClick, isCopied],
   )
 
   // Hide the copy button if it is disabled

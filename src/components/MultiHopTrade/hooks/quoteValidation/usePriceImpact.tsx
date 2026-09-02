@@ -13,6 +13,7 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
 
   const _inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(tradeQuote)
+
   const inputOutputDifferenceDecimalPercentage = useMemo(() => {
     if (!_inputOutputDifferenceDecimalPercentage) return
 
@@ -36,8 +37,10 @@ export const usePriceImpact = (tradeQuote: TradeQuote | TradeRate | undefined) =
     () => ({
       priceImpactPercentage,
       priceImpactColor,
+      // Unrounded - the rounded percentage collapses a small impact to zero
+      inputOutputDifferenceDecimal: _inputOutputDifferenceDecimalPercentage,
     }),
-    [priceImpactPercentage, priceImpactColor],
+    [priceImpactPercentage, priceImpactColor, _inputOutputDifferenceDecimalPercentage],
   )
 
   return result

@@ -120,10 +120,12 @@ export const fetchPortalsTradeOrder = async ({
   })
 
   if (!autoSlippage) {
-    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
+    // Portals API expects a string with at most 2 decimal places
+    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2))
   }
 
-  if (feePercentage) {
+  // Portals defaults to their own partner fee when this is omitted - always send it, zero included
+  if (feePercentage !== undefined) {
     params.append('feePercentage', feePercentage.toString())
   }
 
@@ -161,7 +163,8 @@ export const fetchPortalsTradeEstimate = async ({
   })
 
   if (slippageTolerancePercentage !== undefined) {
-    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
+    // Portals API expects a string with at most 2 decimal places
+    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2))
   }
 
   try {

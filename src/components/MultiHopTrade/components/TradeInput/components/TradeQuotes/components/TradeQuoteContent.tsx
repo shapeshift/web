@@ -2,7 +2,7 @@ import { WarningIcon } from '@chakra-ui/icons'
 import { CardBody, CardFooter, Flex, Skeleton, Text as CText, Tooltip } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { TbBolt, TbClockHour3, TbGasStation, TbRipple } from 'react-icons/tb'
@@ -49,7 +49,8 @@ export const TradeQuoteContent = ({
     number: { toPercent },
   } = useLocaleFormatter()
 
-  const { priceImpactColor, priceImpactPercentage } = usePriceImpact(tradeQuote)
+  const { priceImpactColor, priceImpactPercentage, inputOutputDifferenceDecimal } =
+    usePriceImpact(tradeQuote)
 
   const priceImpactDecimalPercentage = useMemo(
     () => priceImpactPercentage?.div(100),
@@ -75,14 +76,13 @@ export const TradeQuoteContent = ({
 
   const lossAfterRateAndFeesUserCurrency = useMemo(
     () =>
-      priceImpactDecimalPercentage !== undefined && sellAmountUserCurrency !== undefined
+      inputOutputDifferenceDecimal !== undefined && sellAmountUserCurrency !== undefined
         ? bn(sellAmountUserCurrency)
-            .multipliedBy(priceImpactDecimalPercentage)
+            .multipliedBy(bnOrZero(inputOutputDifferenceDecimal))
             .times(-1)
             .toFixed(2)
-            .toString()
         : undefined,
-    [priceImpactDecimalPercentage, sellAmountUserCurrency],
+    [inputOutputDifferenceDecimal, sellAmountUserCurrency],
   )
 
   const maybeSlippageElement = useMemo(() => {

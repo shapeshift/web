@@ -63,17 +63,17 @@ type MenuOptionsProps = {
   accountIdsByNumberAndType: AccountIdsByNumberAndType
   asset: Asset
   autoSelectHighestBalance: boolean | undefined
-  disabled: boolean | undefined
   listProps: MenuItemOptionProps | undefined
   selectedAccountId: AccountId | undefined
   onClick: (accountId: AccountId) => void
 }
 
+const transparentBg = { bg: 'transparent' }
+
 const MenuOptions = ({
   accountIdsByNumberAndType,
   asset,
   autoSelectHighestBalance,
-  disabled,
   listProps,
   selectedAccountId,
   onClick,
@@ -152,7 +152,6 @@ const MenuOptions = ({
                 symbol={asset?.symbol ?? ''}
                 isChecked={selectedAccountId === iterAccountId}
                 onOptionClick={onClick}
-                isDisabled={disabled}
                 {...listProps}
               />
             ))}
@@ -259,10 +258,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       [accountMetadata, selectedAccountId],
     )
 
-    const rightIcon = useMemo(
-      () => (isDropdownDisabled ? null : <ChevronDownIcon />),
-      [isDropdownDisabled],
-    )
+    const rightIcon = useMemo(() => <ChevronDownIcon />, [])
 
     /**
      * for UTXO-based chains, we can have many accounts for a single account number
@@ -284,6 +280,35 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       }, initial)
     }, [accountIds, accountMetadata])
 
+    const buttonContent = useMemo(
+      () => (
+        <Flex
+          direction='row'
+          alignItems='center'
+          gap={1}
+          justifyContent='space-between'
+          flexWrap='wrap'
+          width='full'
+        >
+          {label ? (
+            label
+          ) : (
+            <>
+              <RawText fontWeight='medium'>
+                {translate('accounts.accountNumber', { accountNumber })}
+              </RawText>
+              {showLabel && (
+                <Text fontWeight='medium' color='text.subtle'>
+                  {accountLabel}
+                </Text>
+              )}
+            </>
+          )}
+        </Flex>
+      ),
+      [accountLabel, accountNumber, label, showLabel, translate],
+    )
+
     /**
      * do NOT remove these checks, this is not a visual thing, this is a safety check!
      *
@@ -296,6 +321,29 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     if (!Object.keys(accountIdsByNumberAndType).length) return null
     if (!accountLabel) return null
 
+    // Nothing to pick from (single account, or selection explicitly disabled): render the label as
+    // plain, selectable text rather than a disabled button, so users can still copy their balance
+    if (isDropdownDisabled) {
+      return (
+        <Box px={2} my={2} {...boxProps}>
+          <Button
+            size='sm'
+            variant='ghost'
+            color='text.base'
+            {...buttonProps}
+            as='div'
+            bg='transparent'
+            cursor='default'
+            userSelect='text'
+            _hover={transparentBg}
+            _active={transparentBg}
+          >
+            {buttonContent}
+          </Button>
+        </Box>
+      )
+    }
+
     return (
       <Box px={2} my={2} {...boxProps}>
         <Menu isLazy closeOnSelect={true} autoSelect={false} flip>
@@ -306,31 +354,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
             rightIcon={rightIcon}
             variant='ghost'
             color='text.base'
-            isDisabled={isDropdownDisabled}
             {...buttonProps}
           >
-            <Flex
-              direction='row'
-              alignItems='center'
-              gap={1}
-              justifyContent='space-between'
-              flexWrap='wrap'
-            >
-              {label ? (
-                label
-              ) : (
-                <>
-                  <RawText fontWeight='medium'>
-                    {translate('accounts.accountNumber', { accountNumber })}
-                  </RawText>
-                  {showLabel && (
-                    <Text fontWeight='medium' color='text.subtle'>
-                      {accountLabel}
-                    </Text>
-                  )}
-                </>
-              )}
-            </Flex>
+            {buttonContent}
           </MenuButton>
           <MenuList
             minWidth='fit-content'
@@ -342,7 +368,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
               accountIdsByNumberAndType={accountIdsByNumberAndType}
               asset={asset}
               autoSelectHighestBalance={autoSelectHighestBalance}
-              disabled={disabled}
               listProps={listProps}
               selectedAccountId={selectedAccountId}
               onClick={handleClick}

@@ -258,7 +258,9 @@ export const selectFirstAccountIdByChainId = createCachedSelector(
  * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
  * but can contain it
  */
-export const selectPortfolioAccountIdsByAssetIdFilter = createDeepEqualOutputSelector(
+// Cached per assetId so that multiple consumers with different assets (e.g. both sides of the trade
+// input) don't thrash a single-entry cache and get a fresh array on every store update
+export const selectPortfolioAccountIdsByAssetIdFilter = createCachedSelector(
   selectEnabledWalletAccountIds,
   selectAssetIdParamFromFilter,
   selectWalletId,
@@ -269,7 +271,7 @@ export const selectPortfolioAccountIdsByAssetIdFilter = createDeepEqualOutputSel
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },
-)
+)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 export const selectPortfolioAccountIdsByAssetId = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   (accounts): Record<AssetId, AccountId[]> => {

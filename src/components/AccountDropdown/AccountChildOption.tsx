@@ -10,6 +10,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
 import { trimWithEndEllipsis } from '@/lib/utils'
 
@@ -34,13 +35,16 @@ export const AccountChildOption = forwardRef<AccountChildRowProps, 'button'>(
           <RawText fontWeight='bold' whiteSpace='nowrap' flex={1}>
             {truncatedTitle}
           </RawText>
-          <Amount.Crypto
-            whiteSpace='nowrap'
-            color='text.subtle'
-            fontWeight='medium'
-            value={cryptoBalance}
-            symbol={symbol}
-          />
+          {/* Menu items are buttons, so render the copy control as a span to avoid nesting buttons */}
+          <InlineCopyButton value={cryptoBalance} as='span'>
+            <Amount.Crypto
+              whiteSpace='nowrap'
+              color='text.subtle'
+              fontWeight='medium'
+              value={cryptoBalance}
+              symbol={symbol}
+            />
+          </InlineCopyButton>
         </Stack>
         {children}
       </MenuItemOption>

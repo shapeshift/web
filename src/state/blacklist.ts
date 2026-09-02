@@ -1,3 +1,5 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+
 const NFT_NAME_BLACKLIST = [
   'voucher',
   'airdrop',
@@ -59,6 +61,18 @@ export const isSpammyNftText = (nftText: string, excludeEmpty?: boolean) => {
 
 export const isSpammyTokenText = (tokenText: string) =>
   TOKEN_TEXT_REGEX_BLACKLIST.some(regex => regex.test(tokenText))
+
+// Known scam/airdrop tokens that slip past both the upstream Moralis spam filter and the text
+// heuristics above. These are dropped at portfolio ingestion time for all users.
+export const BLACKLISTED_ASSET_IDS = new Set<AssetId>([
+  // AI Chain Coin (AICC) - airdropped honeypot
+  'eip155:1/erc20:0x66a3c2fa3e467aa586e90912f977e648589cabaf',
+  // Privacy Coin (PVC) - airdropped honeypot
+  'eip155:1/erc20:0x514b9e5467b9eb811519e316263c9099eae546ca',
+])
+
+export const isBlacklistedAssetId = (assetId: AssetId): boolean =>
+  BLACKLISTED_ASSET_IDS.has(assetId)
 
 export const BLACKLISTED_COLLECTION_IDS = [
   'eip155:137/erc1155:0x30825b65e775678997c7fbc5831ab492c697448e',

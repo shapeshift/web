@@ -281,6 +281,34 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       }, initial)
     }, [accountIds, accountMetadata])
 
+    const buttonContent = useMemo(
+      () => (
+        <Flex
+          direction='row'
+          alignItems='center'
+          gap={1}
+          justifyContent='space-between'
+          flexWrap='wrap'
+        >
+          {label ? (
+            label
+          ) : (
+            <>
+              <RawText fontWeight='medium'>
+                {translate('accounts.accountNumber', { accountNumber })}
+              </RawText>
+              {showLabel && (
+                <Text fontWeight='medium' color='text.subtle'>
+                  {accountLabel}
+                </Text>
+              )}
+            </>
+          )}
+        </Flex>
+      ),
+      [accountLabel, accountNumber, label, showLabel, translate],
+    )
+
     /**
      * do NOT remove these checks, this is not a visual thing, this is a safety check!
      *
@@ -292,31 +320,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     if (!isValidAccountNumber(accountNumber)) return null
     if (!Object.keys(accountIdsByNumberAndType).length) return null
     if (!accountLabel) return null
-
-    const buttonContent = (
-      <Flex
-        direction='row'
-        alignItems='center'
-        gap={1}
-        justifyContent='space-between'
-        flexWrap='wrap'
-      >
-        {label ? (
-          label
-        ) : (
-          <>
-            <RawText fontWeight='medium'>
-              {translate('accounts.accountNumber', { accountNumber })}
-            </RawText>
-            {showLabel && (
-              <Text fontWeight='medium' color='text.subtle'>
-                {accountLabel}
-              </Text>
-            )}
-          </>
-        )}
-      </Flex>
-    )
 
     // Nothing to pick from (single account, or selection explicitly disabled): render the label as
     // plain, selectable text rather than a disabled button, so users can still copy their balance

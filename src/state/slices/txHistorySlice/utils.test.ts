@@ -1,7 +1,8 @@
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import { describe, expect, it } from 'vitest'
 
-import { getRelatedAssetIds } from './utils'
+import { getRelatedAssetIds, isSpam } from './utils'
 
 import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from '@/test/mocks/txs'
 
@@ -41,6 +42,38 @@ describe('txHistorySlice:utils', () => {
       expect(relatedAssetIds.includes(ethAssetId)).toBeTruthy()
       expect(relatedAssetIds.includes(usdcAssetId)).toBeTruthy()
       expect(relatedAssetIds.includes(yvusdcAssetId)).toBeTruthy()
+    })
+  })
+
+  describe('isSpam', () => {
+    const aiccAssetId = 'eip155:1/erc20:0x66a3c2fa3e467aa586e90912f977e648589cabaf'
+
+    const makeAirdrop = (assetId: string) => ({
+      ...EthReceive,
+      fee: undefined,
+      transfers: [
+        {
+          assetId,
+          from: [EthReceive.pubkey],
+          to: [EthReceive.pubkey],
+          value: '1000000000000000000',
+          type: TransferType.Receive,
+          token: { contract: assetId, decimals: 18, name: 'AI Chain Coin', symbol: 'AICC' },
+        },
+      ],
+    })
+
+    it('marks blacklisted asset ids as spam despite legitimate looking token text', () => {
+      expect(isSpam(makeAirdrop(aiccAssetId))).toBe(true)
+    })
+
+    it('does not mark legitimate token transfers as spam', () => {
+      expect(isSpam(makeAirdrop(foxAssetId))).toBe(false)
+    })
+
+    it('does not mark regular transactions as spam', () => {
+      expect(isSpam(EthReceive)).toBe(false)
+      expect(isSpam(FOXSend)).toBe(false)
     })
   })
 })

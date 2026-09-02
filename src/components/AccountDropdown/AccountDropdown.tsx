@@ -69,6 +69,8 @@ type MenuOptionsProps = {
   onClick: (accountId: AccountId) => void
 }
 
+const transparentBg = { bg: 'transparent' }
+
 const MenuOptions = ({
   accountIdsByNumberAndType,
   asset,
@@ -289,6 +291,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
           gap={1}
           justifyContent='space-between'
           flexWrap='wrap'
+          width='full'
         >
           {label ? (
             label
@@ -327,14 +330,16 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       return (
         <Box px={2} my={2} {...boxProps}>
           <Button
-            as='div'
             size='sm'
             variant='ghost'
             color='text.base'
+            {...buttonProps}
+            as='div'
+            bg='transparent'
             cursor='default'
             userSelect='text'
-            _hover={{ bg: 'transparent' }}
-            {...buttonProps}
+            _hover={transparentBg}
+            _active={transparentBg}
           >
             {buttonContent}
           </Button>

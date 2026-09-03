@@ -94,16 +94,3 @@ export const fetchSquidBridgeStatus = async (
     )
   }
 }
-
-export const getSquidTrackingLink = (
-  sourceTxHash: string,
-  squidStatus: SquidBridgeStatus,
-  sellAssetExplorerTxLink: string,
-  buyAssetExplorerTxLink: string,
-): string => {
-  if (squidStatus.status === 'confirmed' && squidStatus.destinationTxHash) {
-    return `${buyAssetExplorerTxLink}${squidStatus.destinationTxHash}`
-  }
-
-  return `${sellAssetExplorerTxLink}${sourceTxHash}`
-}

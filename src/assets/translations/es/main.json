@@ -472,6 +472,7 @@
     "keepKey": {
       "title": "Actualización de KeepKey disponible",
       "newUpdateAvailable": "Hay una nueva actualización de KeepKey disponible.",
+      "downloadCta": "Actualizar KeepKey",
       "updateRequiredForFeature": "Esta actualización es necesaria para admitir %{feature}"
     }
   },
@@ -1011,6 +1012,8 @@
       "quoteExpired": "Cotización caducada, intente de nuevo.",
       "quoteUnsupportedChain": "Cadena no compatible",
       "quoteCrossChainNotSupported": "Cadena cruzada no compatible",
+      "quoteExactOutputNotSupported": "No se admite el importe exacto a recibir.",
+      "crossAccountNotSupported": "No se admite el uso de cuentas cruzadas.",
       "networkFeeEstimateFailed": "No se pudo estimar tarifa de red",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} no es compatible con la billetera",
       "intermediaryAssetNotSupportedByWallet": "Activo intermediario %{assetSymbol}.%{chainSymbol} no admitido por billetera",
@@ -1229,7 +1232,16 @@
       },
       "downloadUpdater": {
         "header": "Descargar KeepKey Updater",
-        "wrongPlatform": "¿No usas %{platform}? haga clic aquí"
+        "body": "No pudimos conectar tu KeepKey. Instala KeepKey Vault para actualizar tu dispositivo y vuelve a intentarlo.",
+        "bodyUpdateAvailable": "Actualización de firmware disponible para KeepKey. Instala KeepKey Vault para actualizar dispositivo.",
+        "wrongPlatform": "¿No usas %{platform}? haga clic aquí",
+        "download": {
+          "windows": "Descargar para Windows",
+          "linux": "Descargar para Linux",
+          "macAppleSilicon": "Descargar para Apple Silicon (M1 o posterior)",
+          "macIntel": "Descargar para Intel",
+          "releasePage": "Ver todas las descargas"
+        }
       },
       "disconnect": {
         "header": "Desconectar dispositivo KeepKey",
@@ -1298,6 +1310,7 @@
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
       "sendFailed": "Envío fallido",
+      "assetNotSupportedByWallet": "El envío de %{asset} no es compatible con %{wallet}.",
       "toAddress": "A Dirección",
       "toAddressOrEns": "Para Dirección o ENS",
       "scanQrCode": "Escanear código QR",
@@ -1569,6 +1582,21 @@
         "body": "Utilice el diseño de PIN en su dispositivo para encontrar la ubicación en el teclado PIN.",
         "button": "Desbloquear"
       },
+      "currentPin": {
+        "header": "Introduce tu PIN actual",
+        "body": "Confirma el PIN actual y luego podrás elegir uno nuevo.",
+        "button": "Continuar"
+      },
+      "newPin": {
+        "header": "Crear nuevo PIN",
+        "body": "Utilice PIN que se muestra en dispositivo para luego elegir nuevo PIN.",
+        "button": "Continuar"
+      },
+      "newPinConfirm": {
+        "header": "Confirmar Nuevo PIN",
+        "body": "Vuelva a introducir nuevo PIN utilizando formato que aparece en su dispositivo.",
+        "button": "Confirmar"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Cargador de Arranque",
@@ -1597,7 +1625,9 @@
           "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puedes cambiar esto.",
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
-          "updateFailed": "Ocurrió un error al actualizar %{setting}.",
+          "updateFailed": "%{setting} actualización fallida",
+          "passphraseEnabled": "Protección con contraseña activada. Se le pedirá una contraseña cada vez que se conecte.",
+          "passphraseDisabled": "Protección con contraseña desactivada",
           "timeoutDuration": "%{minutes} minutos"
         },
         "alerts": {
@@ -2146,7 +2176,7 @@
   },
   "tron": {
     "recipientNotActivated": {
-      "sendWarning": "Esta dirección no se ha activado en Tron. Recibirás tus tokens, pero el destinatario no podrá moverlos hasta que también reciba TRX."
+      "sendWarning": "Esta cuenta aún no se ha activado en Tron. Recibirás tus tokens, pero no podrás moverlos ni intercambiarlos hasta que la cuenta tenga suficientes TRX para cubrir las comisiones."
     }
   },
   "transactionHistory": {
@@ -3348,7 +3378,8 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

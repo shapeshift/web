@@ -128,7 +128,7 @@ import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/l
 import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
 import { supportsNear } from '@/lib/utils/near'
 import { supportsTon } from '@/lib/utils/ton'
-import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
+import { isBlacklistedAssetId, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
 
@@ -272,6 +272,7 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
           // don't update portfolio if asset is not in the store except for nft assets,
           // nft assets will be dynamically upserted based on the state of the txHistory slice after the portfolio is loaded
           if (!isNft(token.assetId) && !assetIds.includes(token.assetId)) return
+          if (isBlacklistedAssetId(token.assetId)) return
 
           if (isNft(token.assetId)) {
             if ([token.name, token.symbol].some(nftText => isSpammyNftText(nftText, true))) return
@@ -711,7 +712,8 @@ export const makeAssets = async ({
           return isSpammyTokenText(text)
         })
 
-        if (state.assets.byId[token.assetId] || isSpam) return prev
+        if (state.assets.byId[token.assetId] || isSpam || isBlacklistedAssetId(token.assetId))
+          return prev
 
         const minimalAsset: MinimalAsset = token
 

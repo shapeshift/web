@@ -64,7 +64,6 @@ export const getPortalsTradeRate = async (
     sellChainId,
     orderContext,
     outputToken,
-    slippageTolerancePercentage,
     tx,
   })
 

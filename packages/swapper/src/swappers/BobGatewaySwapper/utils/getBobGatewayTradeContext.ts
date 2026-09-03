@@ -33,11 +33,13 @@ export const getBobGatewayTradeContext = async ({
   deps,
   sender,
   recipient,
+  refundAddress,
 }: {
   input: BobGatewayTradeQuoteInput | BobGatewayTradeRateInput
   deps: SwapperDeps
   sender: string | undefined
   recipient: string
+  refundAddress: string | undefined
 }): Promise<Result<BobGatewayTradeContext, SwapErrorRight>> => {
   const {
     sellAsset,
@@ -60,6 +62,7 @@ export const getBobGatewayTradeContext = async ({
     buyChainName,
     sender,
     recipient,
+    refundAddress,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps,
     slippageTolerancePercentageDecimal,

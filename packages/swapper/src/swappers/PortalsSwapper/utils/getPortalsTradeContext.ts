@@ -13,6 +13,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
+import { PARTNER_FEE_NAME } from '../constants'
 import type {
   PortalsSupportedChainId,
   PortalsTradeQuoteInput,
@@ -49,16 +50,21 @@ export const getPortalsTradeContext = ({
   outputToken: string
   tx: PortalsTx
 }): Result<PortalsTradeContext, SwapErrorRight> => {
-  const { sellAsset, buyAsset, affiliateBps, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
+  const { sellAsset, buyAsset, affiliateBps } = input
   const {
     orderId,
+    inputAmount,
     outputAmount,
     minOutputAmount,
     target,
     feeAmount,
     feeToken,
+    feeCosts,
     slippageTolerancePercentage,
   } = orderContext
+
+  // Portals can fill less than we asked for - price against what the transaction actually spends
+  const sellAmountIncludingProtocolFeesCryptoBaseUnit = inputAmount
 
   const isCrossChain = sellAsset.chainId !== buyAsset.chainId
 
@@ -117,15 +123,37 @@ export const getPortalsTradeContext = ({
       : buyAmountAfterFeesCryptoBaseUnit
 
   const protocolFees: QuoteFeeData['protocolFees'] = (() => {
-    if (!feeToken || !feeAmount) return
-
-    return {
-      [protocolFeeAsset.assetId]: {
-        amountCryptoBaseUnit: feeAmount,
-        asset: protocolFeeAsset,
-        requiresBalance: false,
-      },
+    if (feeToken && feeAmount) {
+      return {
+        [protocolFeeAsset.assetId]: {
+          amountCryptoBaseUnit: feeAmount,
+          asset: protocolFeeAsset,
+          requiresBalance: false,
+        },
+      }
     }
+
+    // Cross-chain orders itemise their fees here instead - the partner fee is our own affiliate fee,
+    // surfaced separately, so counting it again would double up
+    const protocolFeeCosts = (feeCosts ?? []).filter(({ name }) => name !== PARTNER_FEE_NAME)
+
+    if (!protocolFeeCosts.length) return
+
+    return protocolFeeCosts.reduce<NonNullable<QuoteFeeData['protocolFees']>>(
+      (acc, { token, amount }) => {
+        const feeAsset = token.toLowerCase() === outputToken.toLowerCase() ? buyAsset : sellAsset
+        const existingAmount = acc[feeAsset.assetId]?.amountCryptoBaseUnit
+
+        acc[feeAsset.assetId] = {
+          amountCryptoBaseUnit: bnOrZero(existingAmount).plus(amount).toFixed(0),
+          asset: feeAsset,
+          requiresBalance: false,
+        }
+
+        return acc
+      },
+      {},
+    )
   })()
 
   return Ok({

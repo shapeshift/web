@@ -10,7 +10,20 @@ import {
   fetchAxelarscanBridgeStatus,
   getAxelarscanTrackingLink,
 } from './utils/fetchAxelarscanStatus'
+import { fetchRelayBridgeStatus, getRelayTrackingLink } from './utils/fetchRelayStatus'
 import { fetchSquidBridgeStatus, getSquidTrackingLink } from './utils/fetchSquidStatus'
+
+const toTxStatus = (status: 'pending' | 'confirmed' | 'failed'): TxStatus => {
+  switch (status) {
+    case 'confirmed':
+      return TxStatus.Confirmed
+    case 'failed':
+      return TxStatus.Failed
+    case 'pending':
+    default:
+      return TxStatus.Pending
+  }
+}
 
 export const portalsApi: SwapperApi = {
   getTradeQuote: (input, deps) => getPortalsTradeQuote(input as PortalsTradeQuoteInput, deps),
@@ -59,9 +72,53 @@ export const portalsApi: SwapperApi = {
       return sourceTxStatus
     }
 
+    // Portals bridge most cross-chain orders through Relay, and the rest through Axelar or Squid,
+    // without telling us which - ask each indexer in turn until one recognises the origin tx
+    const relayResult = await fetchRelayBridgeStatus(txHash)
+
+    if (relayResult.isOk()) {
+      const relayStatus = relayResult.unwrap()
+
+      if (relayStatus) {
+        const txStatus = toTxStatus(relayStatus.status)
+
+        return {
+          status: txStatus,
+          buyTxHash: relayStatus.destinationTxHash,
+          swapperTxLink: getRelayTrackingLink(txHash),
+          message:
+            txStatus === TxStatus.Pending
+              ? 'Bridge in progress'
+              : txStatus === TxStatus.Failed
+              ? relayStatus.errorMessage
+              : undefined,
+        }
+      }
+    }
+
     const axelarscanResult = await fetchAxelarscanBridgeStatus(txHash)
 
-    if ((axelarscanResult.isErr() || !axelarscanResult.unwrap()) && swap) {
+    if (axelarscanResult.isOk()) {
+      const bridgeStatus = axelarscanResult.unwrap()
+
+      if (bridgeStatus) {
+        const txStatus = toTxStatus(bridgeStatus.status)
+
+        return {
+          status: txStatus,
+          buyTxHash: bridgeStatus.destinationTxHash,
+          swapperTxLink: getAxelarscanTrackingLink(txHash),
+          message:
+            txStatus === TxStatus.Pending
+              ? 'Bridge in progress'
+              : txStatus === TxStatus.Failed
+              ? bridgeStatus.errorMessage
+              : undefined,
+        }
+      }
+    }
+
+    if (swap) {
       const squidResult = await fetchSquidBridgeStatus(
         txHash,
         swap.sellAsset.chainId,
@@ -70,17 +127,7 @@ export const portalsApi: SwapperApi = {
 
       if (squidResult.isOk()) {
         const squidStatus = squidResult.unwrap()
-        const squidTxStatus = (() => {
-          switch (squidStatus.status) {
-            case 'confirmed':
-              return TxStatus.Confirmed
-            case 'failed':
-              return TxStatus.Failed
-            case 'pending':
-            default:
-              return TxStatus.Pending
-          }
-        })()
+        const squidTxStatus = toTxStatus(squidStatus.status)
 
         return {
           status: squidTxStatus,
@@ -94,46 +141,13 @@ export const portalsApi: SwapperApi = {
           message: squidTxStatus === TxStatus.Pending ? 'Cross-chain swap in progress' : undefined,
         }
       }
-
-      return {
-        status: TxStatus.Pending,
-        buyTxHash: undefined,
-        swapperTxLink: getAxelarscanTrackingLink(txHash),
-        message: 'Bridge status check failed - track manually',
-      }
     }
 
-    const bridgeStatus = axelarscanResult.unwrap()
-    if (!bridgeStatus) {
-      return {
-        status: TxStatus.Pending,
-        buyTxHash: undefined,
-        message: 'Cross-chain swap in progress',
-      }
-    }
-
-    const txStatus = (() => {
-      switch (bridgeStatus.status) {
-        case 'confirmed':
-          return TxStatus.Confirmed
-        case 'failed':
-          return TxStatus.Failed
-        case 'pending':
-        default:
-          return TxStatus.Pending
-      }
-    })()
-
+    // No indexer recognises the tx yet - the bridge may not have picked it up, so keep polling
     return {
-      status: txStatus,
-      buyTxHash: bridgeStatus.destinationTxHash,
-      swapperTxLink: getAxelarscanTrackingLink(txHash),
-      message:
-        txStatus === TxStatus.Pending
-          ? 'Bridge in progress'
-          : txStatus === TxStatus.Failed
-          ? bridgeStatus.errorMessage
-          : undefined,
+      status: TxStatus.Pending,
+      buyTxHash: undefined,
+      message: 'Cross-chain swap in progress',
     }
   },
 }

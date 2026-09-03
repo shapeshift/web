@@ -14,11 +14,20 @@ export const getBobGatewayTradeRate = async (
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const { accountNumber, sellAsset, buyAsset, receiveAddress } = input
 
-  const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
-  const sender =
-    sellAsset.chainId === btcChainId ? undefined : dummyAddressForChainId(sellAsset.chainId)
+  const isBtcSell = sellAsset.chainId === btcChainId
 
-  const maybeContext = await getBobGatewayTradeContext({ input, deps, sender, recipient })
+  const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
+  const sender = isBtcSell ? undefined : dummyAddressForChainId(sellAsset.chainId)
+  // utxo deposits are refunded on the sell chain, so the refund address must be a btc address
+  const refundAddress = isBtcSell ? dummyAddressForChainId(sellAsset.chainId) : undefined
+
+  const maybeContext = await getBobGatewayTradeContext({
+    input,
+    deps,
+    sender,
+    recipient,
+    refundAddress,
+  })
 
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
   const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()

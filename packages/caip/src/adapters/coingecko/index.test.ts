@@ -294,6 +294,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0xb88339cb7199b77e23db6e890353e22632ba630f',
       })
+      const usdcOnPlasma = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.PlasmaMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x2d661c89d812261039af9764eceaaee884f5f67f',
+      })
       const usdcOnPlume = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.PlumeMainnet,
@@ -369,6 +375,7 @@ describe('adapters:coingecko', () => {
         usdcOnBase,
         usdcOnMonad,
         usdcOnHyperEvm,
+        usdcOnPlasma,
         usdcOnPlume,
         usdcOnZkSyncEra,
         usdcOnWorldChain,

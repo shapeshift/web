@@ -27,6 +27,7 @@ const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get
       affiliateBps: Number(storedQuote.affiliateBps),
       shapeshiftBps: Number(storedQuote.shapeshiftBps),
       origin: 'api',
+      quotedAt: new Date(storedQuote.createdAt).toISOString(),
       metadata: storedQuote.metadata,
     }),
   }

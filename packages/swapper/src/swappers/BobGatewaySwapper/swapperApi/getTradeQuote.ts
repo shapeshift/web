@@ -20,15 +20,21 @@ export const getBobGatewayTradeQuote = async (
   if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
   const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
+  const isEvmSell = isEvmChainId(sellAsset.chainId)
+
   // omit the sender for utxo sells so order creation does not enforce a per-address confirmed
   // funds check (deposits are matched via op_return, not the sending address)
-  const sender = isEvmChainId(sellAsset.chainId) ? sendAddress : undefined
+  const sender = isEvmSell ? sendAddress : undefined
+
+  // utxo deposits are refunded on the sell chain, so refunds go to the sending address
+  const refundAddress = isEvmSell ? undefined : sendAddress
 
   const maybeContext = await getBobGatewayTradeContext({
     input,
     deps,
     sender,
     recipient: receiveAddress,
+    refundAddress,
   })
 
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())

@@ -3,7 +3,12 @@ import { isNft } from '@shapeshiftoss/caip'
 
 import type { Tx } from './txHistorySlice'
 
-import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
+import {
+  BLACKLISTED_COLLECTION_IDS,
+  isBlacklistedAssetId,
+  isSpammyNftText,
+  isSpammyTokenText,
+} from '@/state/blacklist'
 
 type TxIndex = string
 type TxDescriptor = {
@@ -100,6 +105,8 @@ export const isSpam = (tx: Tx): boolean => {
   if (!tx.transfers.length && !tx.fee) return true
 
   return tx.transfers.some(({ assetId, token }) => {
+    if (isBlacklistedAssetId(assetId)) return true
+
     if (!token) return false
 
     const { name, symbol } = token

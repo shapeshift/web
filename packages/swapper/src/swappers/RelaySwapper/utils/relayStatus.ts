@@ -27,7 +27,7 @@ export const relayStatusToTxStatus = (status: RelayStatus['status'] | undefined)
   }
 }
 
-// Relay index their requests by origin tx hash, so this resolves a swap we hold no relayId for
+// Relay index requests by origin tx hash, resolving a swap we hold no relayId for
 export const fetchRelayRequestByTxHash = async (
   txHash: string,
   config: SwapperConfig,

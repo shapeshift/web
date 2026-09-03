@@ -13,7 +13,6 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { PARTNER_FEE_NAME } from '../constants'
 import type {
   PortalsSupportedChainId,
   PortalsTradeQuoteInput,
@@ -133,9 +132,8 @@ export const getPortalsTradeContext = ({
       }
     }
 
-    // Cross-chain orders itemise their fees here instead - the partner fee is our own affiliate fee,
-    // surfaced separately, so counting it again would double up
-    const protocolFeeCosts = (feeCosts ?? []).filter(({ name }) => name !== PARTNER_FEE_NAME)
+    // Cross-chain orders itemise fees here - the partner fee is ours, reported as affiliateFee
+    const protocolFeeCosts = (feeCosts ?? []).filter(({ name }) => name !== 'Partner fee')
 
     if (!protocolFeeCosts.length) return
 

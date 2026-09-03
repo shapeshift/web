@@ -78,8 +78,7 @@ export const portalsApi: SwapperApi = {
       return sourceTxStatus
     }
 
-    // Portals bridge most cross-chain orders through Relay, and the rest through Axelar or Squid,
-    // without telling us which - ask each indexer in turn until one recognises the origin tx
+    // Portals never say which bridge they used - ask each indexer in turn for the origin tx
     const relayResult = await fetchRelayRequestByTxHash(txHash, config)
 
     if (relayResult.isOk()) {
@@ -87,7 +86,7 @@ export const portalsApi: SwapperApi = {
 
       if (relayRequest) {
         const relayTxStatus = relayStatusToTxStatus(relayRequest.status)
-        // Relay know this order, so an unrecognised status means keep polling rather than give up
+        // Relay know this order, so an unrecognised status means keep polling, not give up
         const txStatus = relayTxStatus === TxStatus.Unknown ? TxStatus.Pending : relayTxStatus
 
         return {
@@ -151,7 +150,7 @@ export const portalsApi: SwapperApi = {
       }
     }
 
-    // No indexer recognises the tx yet - the bridge may not have picked it up, so keep polling
+    // No indexer knows the tx yet - the bridge may not have picked it up, so keep polling
     return {
       status: TxStatus.Pending,
       buyTxHash: undefined,

@@ -39,7 +39,7 @@ export type RelayMetadata = {
   data?: string
 }
 
-// A single entry of the /requests/v2 listing, which Relay index by origin tx hash
+// A single entry of the /requests/v2 listing, keyed by origin tx hash
 export type RelayRequest = {
   status?: RelayStatus['status']
   data?: {

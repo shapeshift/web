@@ -63,10 +63,11 @@ export type PortalsTradeOrderResponse = {
     steps: string[]
     expiry?: string
     gasLimit?: string
-    // Same-chain orders report their fee here, cross-chain orders report theirs in feeCosts
+    // Same-chain order fees
     feeToken?: string
     feeAmount?: string
     feeAmountUsd?: number
+    // Cross-chain order fees
     feeCosts?: PortalsFeeCost[]
   }
   tx?: PortalsTx

@@ -6,17 +6,13 @@ import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/ev
 import {
   fetchRelayRequestByTxHash,
   getRelayRequestFailureMessage,
-  getRelayTrackingLink,
   relayStatusToTxStatus,
 } from '../RelaySwapper/utils/relayStatus'
 import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { getPortalsTradeRate } from './getPortalsTradeRate/getPortalsTradeRate'
 import type { PortalsTradeQuoteInput, PortalsTradeRateInput } from './types'
-import {
-  fetchAxelarscanBridgeStatus,
-  getAxelarscanTrackingLink,
-} from './utils/fetchAxelarscanStatus'
-import { fetchSquidBridgeStatus, getSquidTrackingLink } from './utils/fetchSquidStatus'
+import { fetchAxelarscanBridgeStatus } from './utils/fetchAxelarscanStatus'
+import { fetchSquidBridgeStatus } from './utils/fetchSquidStatus'
 
 const toTxStatus = (status: 'pending' | 'confirmed' | 'failed'): TxStatus => {
   switch (status) {
@@ -90,7 +86,6 @@ export const portalsApi: SwapperApi = {
         return {
           status: txStatus,
           buyTxHash: relayRequest.data?.outTxs?.[0]?.hash,
-          swapperTxLink: getRelayTrackingLink(txHash),
           message:
             txStatus === TxStatus.Failed
               ? getRelayRequestFailureMessage(relayRequest)
@@ -112,7 +107,6 @@ export const portalsApi: SwapperApi = {
         return {
           status: txStatus,
           buyTxHash: bridgeStatus.destinationTxHash,
-          swapperTxLink: getAxelarscanTrackingLink(txHash),
           message:
             txStatus === TxStatus.Pending
               ? 'Bridge in progress'
@@ -137,12 +131,6 @@ export const portalsApi: SwapperApi = {
         return {
           status: squidTxStatus,
           buyTxHash: squidStatus.destinationTxHash,
-          swapperTxLink: getSquidTrackingLink(
-            txHash,
-            squidStatus,
-            swap.sellAsset.explorerTxLink,
-            swap.buyAsset.explorerTxLink,
-          ),
           message: squidTxStatus === TxStatus.Pending ? 'Cross-chain swap in progress' : undefined,
         }
       }

@@ -53,14 +53,11 @@ export const getPortalsTradeContext = ({
   const {
     orderId,
     inputAmount,
-    inputToken,
-    partner,
     outputAmount,
     minOutputAmount,
     target,
     feeAmount,
     feeToken,
-    feeCosts,
     slippageTolerancePercentage,
   } = orderContext
 
@@ -124,37 +121,16 @@ export const getPortalsTradeContext = ({
       : buyAmountAfterFeesCryptoBaseUnit
 
   const protocolFees: QuoteFeeData['protocolFees'] = (() => {
-    if (feeToken && feeAmount) {
-      return {
-        [protocolFeeAsset.assetId]: {
-          amountCryptoBaseUnit: feeAmount,
-          asset: protocolFeeAsset,
-          requiresBalance: false,
-        },
-      }
+    if (!feeToken || !feeAmount) return
+
+    return {
+      [protocolFeeAsset.assetId]: {
+        amountCryptoBaseUnit: feeAmount,
+        asset: protocolFeeAsset,
+        requiresBalance: false,
+      },
     }
-
-    // Cross-chain orders itemise fees here - the partner fee is ours, reported as affiliateFee
-    const protocolFeeCosts = (feeCosts ?? []).filter(
-      ({ name, recipient }) =>
-        recipient?.toLowerCase() !== partner.toLowerCase() && name !== 'Partner fee',
-    )
-
-    if (!protocolFeeCosts.length) return
-
-    const protocolFeesByAssetId = protocolFeeCosts.reduce<
-      NonNullable<QuoteFeeData['protocolFees']>
-    >((acc, { token, amount }) => {
-      const feeAsset = (() => {
-        switch (token.toLowerCase()) {
-          case outputToken.toLowerCase():
-            return buyAsset
-          case inputToken.toLowerCase():
-            return sellAsset
-          default:
-            return undefined
-        }
-      })()
+  })()
 
       // A fee in neither traded asset leaves us nothing to report it against
       if (!feeAsset) return acc

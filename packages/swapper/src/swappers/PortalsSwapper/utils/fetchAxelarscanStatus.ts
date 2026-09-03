@@ -91,6 +91,3 @@ export const fetchAxelarscanBridgeStatus = async (
     )
   }
 }
-
-export const getAxelarscanTrackingLink = (sourceTxHash: string): string =>
-  `https://axelarscan.io/gmp/${sourceTxHash}`

@@ -30,8 +30,6 @@ const makeOrderContext = (
     orderId: 'eaae8ea5-30af-4463-97ab-1c5b1fe7def4',
     target: '0x4cd00e387622c35bddb9b4c962c136462338bc31',
     inputAmount: '4631313795',
-    inputToken: 'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-    partner: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
     ...overrides,
   }) as PortalsTradeOrderResponse['context']
 
@@ -111,116 +109,5 @@ describe('getPortalsTradeContext', () => {
     })
 
     expect(stepCommon.sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe('4630850664')
-  })
-
-  it('reports the itemised cross-chain fees, less our own partner fee', () => {
-    const { protocolFees } = unwrap({
-      input: makeInput(),
-      deps,
-      sellChainId: USDC_MAINNET.chainId as never,
-      orderContext: makeOrderContext({
-        outputAmount: '4616564490',
-        minOutputAmount: '4616564490',
-        slippageTolerancePercentage: 0,
-        feeCosts: [
-          {
-            name: 'Partner fee',
-            token: 'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            amount: '27787',
-            included: false,
-          },
-          {
-            name: 'Bridge fee',
-            token: 'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            amount: '48901',
-            included: true,
-          },
-        ],
-      }),
-      outputToken: 'arbitrum:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-      tx,
-    })
-
-    expect(protocolFees).toStrictEqual({
-      [USDC_MAINNET.assetId]: {
-        amountCryptoBaseUnit: '48901',
-        asset: USDC_MAINNET,
-        requiresBalance: false,
-      },
-    })
-  })
-
-  it('leaves protocol fees unset when a cross-chain order only charges our partner fee', () => {
-    const { protocolFees } = unwrap({
-      input: makeInput(),
-      deps,
-      sellChainId: USDC_MAINNET.chainId as never,
-      orderContext: makeOrderContext({
-        outputAmount: '4616564490',
-        minOutputAmount: '4616564490',
-        slippageTolerancePercentage: 0,
-        feeCosts: [
-          {
-            name: 'Partner fee',
-            token: 'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            amount: '27787',
-            included: false,
-          },
-        ],
-      }),
-      outputToken: 'arbitrum:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-      tx,
-    })
-
-    expect(protocolFees).toBeUndefined()
-  })
-
-  it('drops the partner fee by recipient when Portals rename it', () => {
-    const { protocolFees } = unwrap({
-      input: makeInput(),
-      deps,
-      sellChainId: USDC_MAINNET.chainId as never,
-      orderContext: makeOrderContext({
-        outputAmount: '4616564490',
-        minOutputAmount: '4616564490',
-        slippageTolerancePercentage: 0,
-        feeCosts: [
-          {
-            name: 'Affiliate fee',
-            recipient: '0x90A48D5CF7343B08dA12E067680B4C6dbfE551Be',
-            token: 'ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-            amount: '27787',
-          },
-        ],
-      }),
-      outputToken: 'arbitrum:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-      tx,
-    })
-
-    expect(protocolFees).toBeUndefined()
-  })
-
-  it('skips a fee denominated in neither traded asset', () => {
-    const { protocolFees } = unwrap({
-      input: makeInput(),
-      deps,
-      sellChainId: USDC_MAINNET.chainId as never,
-      orderContext: makeOrderContext({
-        outputAmount: '4616564490',
-        minOutputAmount: '4616564490',
-        slippageTolerancePercentage: 0,
-        feeCosts: [
-          {
-            name: 'Relayer gas fee',
-            token: 'ethereum:0x0000000000000000000000000000000000000000',
-            amount: '400000000000000',
-          },
-        ],
-      }),
-      outputToken: 'arbitrum:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-      tx,
-    })
-
-    expect(protocolFees).toBeUndefined()
   })
 })

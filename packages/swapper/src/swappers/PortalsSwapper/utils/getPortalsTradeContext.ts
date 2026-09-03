@@ -132,25 +132,6 @@ export const getPortalsTradeContext = ({
     }
   })()
 
-      // A fee in neither traded asset leaves us nothing to report it against
-      if (!feeAsset) return acc
-
-      acc[feeAsset.assetId] = {
-        amountCryptoBaseUnit: bnOrZero(acc[feeAsset.assetId]?.amountCryptoBaseUnit)
-          .plus(amount)
-          .toFixed(0),
-        asset: feeAsset,
-        requiresBalance: false,
-      }
-
-      return acc
-    }, {})
-
-    if (!Object.keys(protocolFeesByAssetId).length) return
-
-    return protocolFeesByAssetId
-  })()
-
   return Ok({
     tradeCommon: {
       id: orderId,

@@ -39,6 +39,16 @@ export type RelayMetadata = {
   data?: string
 }
 
+// A single entry of the /requests/v2 listing, which Relay index by origin tx hash
+export type RelayRequest = {
+  status?: RelayStatus['status']
+  data?: {
+    failReason?: string
+    refundFailReason?: string
+    outTxs?: { hash?: string; chainId?: number }[]
+  }
+}
+
 export type RelayStatus = {
   status:
     | 'success'

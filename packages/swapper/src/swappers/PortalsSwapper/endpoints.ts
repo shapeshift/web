@@ -3,6 +3,12 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { CheckTradeStatusInput, SwapperApi, TradeStatus } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import {
+  fetchRelayRequestByTxHash,
+  getRelayRequestFailureMessage,
+  getRelayTrackingLink,
+  relayStatusToTxStatus,
+} from '../RelaySwapper/utils/relayStatus'
 import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { getPortalsTradeRate } from './getPortalsTradeRate/getPortalsTradeRate'
 import type { PortalsTradeQuoteInput, PortalsTradeRateInput } from './types'
@@ -10,7 +16,6 @@ import {
   fetchAxelarscanBridgeStatus,
   getAxelarscanTrackingLink,
 } from './utils/fetchAxelarscanStatus'
-import { fetchRelayBridgeStatus, getRelayTrackingLink } from './utils/fetchRelayStatus'
 import { fetchSquidBridgeStatus, getSquidTrackingLink } from './utils/fetchSquidStatus'
 
 const toTxStatus = (status: 'pending' | 'confirmed' | 'failed'): TxStatus => {
@@ -35,6 +40,7 @@ export const portalsApi: SwapperApi = {
       txHash,
       chainId,
       swap,
+      config,
       assertGetEvmChainAdapter,
       address,
       fetchIsSmartContractAddressQuery,
@@ -74,24 +80,26 @@ export const portalsApi: SwapperApi = {
 
     // Portals bridge most cross-chain orders through Relay, and the rest through Axelar or Squid,
     // without telling us which - ask each indexer in turn until one recognises the origin tx
-    const relayResult = await fetchRelayBridgeStatus(txHash)
+    const relayResult = await fetchRelayRequestByTxHash(txHash, config)
 
     if (relayResult.isOk()) {
-      const relayStatus = relayResult.unwrap()
+      const relayRequest = relayResult.unwrap()
 
-      if (relayStatus) {
-        const txStatus = toTxStatus(relayStatus.status)
+      if (relayRequest) {
+        const relayTxStatus = relayStatusToTxStatus(relayRequest.status)
+        // Relay know this order, so an unrecognised status means keep polling rather than give up
+        const txStatus = relayTxStatus === TxStatus.Unknown ? TxStatus.Pending : relayTxStatus
 
         return {
           status: txStatus,
-          buyTxHash: relayStatus.destinationTxHash,
+          buyTxHash: relayRequest.data?.outTxs?.[0]?.hash,
           swapperTxLink: getRelayTrackingLink(txHash),
           message:
-            txStatus === TxStatus.Pending
-              ? 'Bridge in progress'
-              : txStatus === TxStatus.Failed
-              ? relayStatus.errorMessage
-              : undefined,
+            txStatus === TxStatus.Failed
+              ? getRelayRequestFailureMessage(relayRequest)
+              : txStatus === TxStatus.Confirmed
+              ? undefined
+              : 'Bridge in progress',
         }
       }
     }

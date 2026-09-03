@@ -49,9 +49,10 @@ export const getPortalsTradeContext = ({
   outputToken: string
   tx: PortalsTx
 }): Result<PortalsTradeContext, SwapErrorRight> => {
-  const { sellAsset, buyAsset, affiliateBps, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
+  const { sellAsset, buyAsset, affiliateBps } = input
   const {
     orderId,
+    inputAmount,
     outputAmount,
     minOutputAmount,
     target,
@@ -59,6 +60,9 @@ export const getPortalsTradeContext = ({
     feeToken,
     slippageTolerancePercentage,
   } = orderContext
+
+  // Portals can fill less than we asked for - price against what the transaction actually spends
+  const sellAmountIncludingProtocolFeesCryptoBaseUnit = inputAmount
 
   const isCrossChain = sellAsset.chainId !== buyAsset.chainId
 

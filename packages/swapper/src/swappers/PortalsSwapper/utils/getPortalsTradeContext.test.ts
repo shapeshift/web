@@ -29,6 +29,7 @@ const makeOrderContext = (
   ({
     orderId: 'eaae8ea5-30af-4463-97ab-1c5b1fe7def4',
     target: '0x4cd00e387622c35bddb9b4c962c136462338bc31',
+    inputAmount: '4631313795',
     ...overrides,
   }) as PortalsTradeOrderResponse['context']
 
@@ -89,5 +90,24 @@ describe('getPortalsTradeContext', () => {
 
     expect(stepCommon.buyAmountAfterFeesCryptoBaseUnit).toBe('2420957576')
     expect(tradeCommon.slippageTolerancePercentageDecimal).toBe('0.025')
+  })
+
+  it('prices against the input amount Portals filled rather than the one requested', () => {
+    const { stepCommon } = unwrap({
+      input: makeInput(),
+      deps,
+      sellChainId: USDC_MAINNET.chainId as never,
+      orderContext: makeOrderContext({
+        // Portals withhold 0.01% of the requested 4631313795 on cross-chain orders
+        inputAmount: '4630850664',
+        outputAmount: '4616564490',
+        minOutputAmount: '4616564490',
+        slippageTolerancePercentage: 0,
+      }),
+      outputToken: 'arbitrum:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+      tx,
+    })
+
+    expect(stepCommon.sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe('4630850664')
   })
 })

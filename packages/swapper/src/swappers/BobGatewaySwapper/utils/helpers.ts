@@ -83,6 +83,7 @@ export const getBobGatewayQuote = async ({
   buyChainName,
   sender,
   recipient,
+  refundAddress,
   amount,
   affiliateBps,
   slippageTolerancePercentageDecimal,
@@ -94,6 +95,7 @@ export const getBobGatewayQuote = async ({
   buyChainName: BobGatewayChainName
   sender: string | undefined
   recipient: string
+  refundAddress: string | undefined
   amount: string
   affiliateBps: string
   slippageTolerancePercentageDecimal: string | undefined
@@ -114,7 +116,7 @@ export const getBobGatewayQuote = async ({
       amount,
       maxSlippage: Number(slippage),
       ownerAddress: sellChainName === 'bitcoin' ? recipient : (sender as string),
-      refundAddress: sellChainName === 'bitcoin' ? recipient : undefined,
+      refundAddress,
       affiliates: getBobGatewayAffiliates(affiliateBps),
     })
 

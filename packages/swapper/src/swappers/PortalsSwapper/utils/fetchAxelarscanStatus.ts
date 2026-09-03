@@ -54,10 +54,9 @@ export const fetchAxelarscanBridgeStatus = async (
 
     const bridgeData = data.data[0]
 
+    // `call` is the origin call, so only the executed hashes identify the destination leg
     const destinationTxHash =
-      bridgeData.call?.transaction_hash ||
-      bridgeData.executed?.transaction_hash ||
-      bridgeData.express_executed?.transactionHash
+      bridgeData.executed?.transaction_hash || bridgeData.express_executed?.transactionHash
 
     const isCompleted =
       bridgeData.status === 'executed' ||

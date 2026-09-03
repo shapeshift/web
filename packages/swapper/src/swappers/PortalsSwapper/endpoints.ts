@@ -78,7 +78,6 @@ export const portalsApi: SwapperApi = {
       return sourceTxStatus
     }
 
-    // Portals never say which bridge they used - ask each indexer in turn for the origin tx
     const relayResult = await fetchRelayRequestByTxHash(txHash, config)
 
     if (relayResult.isOk()) {
@@ -86,7 +85,6 @@ export const portalsApi: SwapperApi = {
 
       if (relayRequest) {
         const relayTxStatus = relayStatusToTxStatus(relayRequest.status)
-        // Relay know this order, so an unrecognised status means keep polling, not give up
         const txStatus = relayTxStatus === TxStatus.Unknown ? TxStatus.Pending : relayTxStatus
 
         return {

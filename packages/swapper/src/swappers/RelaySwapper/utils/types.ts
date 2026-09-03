@@ -45,6 +45,7 @@ export type RelayRequest = {
   data?: {
     failReason?: string
     refundFailReason?: string
+    inTxs?: { hash?: string; chainId?: number }[]
     outTxs?: { hash?: string; chainId?: number }[]
   }
 }

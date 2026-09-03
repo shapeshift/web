@@ -1,6 +1,5 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperConfig } from '../../../types'
 import { getRelayRequestConfig, relayService } from './relayService'
@@ -37,7 +36,12 @@ export const fetchRelayRequestByTxHash = async (
     getRelayRequestConfig(config),
   )
 
-  return maybeResponse.map(({ data }) => data.requests?.[0])
+  // Match the origin tx ourselves rather than trusting the listing to have filtered on it
+  return maybeResponse.map(({ data }) =>
+    data.requests?.find(({ data: request }) =>
+      request?.inTxs?.some(({ hash }) => hash?.toLowerCase() === txHash.toLowerCase()),
+    ),
+  )
 }
 
 export const getRelayRequestFailureMessage = (request: RelayRequest): string => {

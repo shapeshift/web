@@ -53,6 +53,8 @@ export const getPortalsTradeContext = ({
   const {
     orderId,
     inputAmount,
+    inputToken,
+    partner,
     outputAmount,
     minOutputAmount,
     target,
@@ -133,25 +135,44 @@ export const getPortalsTradeContext = ({
     }
 
     // Cross-chain orders itemise fees here - the partner fee is ours, reported as affiliateFee
-    const protocolFeeCosts = (feeCosts ?? []).filter(({ name }) => name !== 'Partner fee')
+    const protocolFeeCosts = (feeCosts ?? []).filter(
+      ({ name, recipient }) =>
+        recipient?.toLowerCase() !== partner.toLowerCase() && name !== 'Partner fee',
+    )
 
     if (!protocolFeeCosts.length) return
 
-    return protocolFeeCosts.reduce<NonNullable<QuoteFeeData['protocolFees']>>(
-      (acc, { token, amount }) => {
-        const feeAsset = token.toLowerCase() === outputToken.toLowerCase() ? buyAsset : sellAsset
-        const existingAmount = acc[feeAsset.assetId]?.amountCryptoBaseUnit
-
-        acc[feeAsset.assetId] = {
-          amountCryptoBaseUnit: bnOrZero(existingAmount).plus(amount).toFixed(0),
-          asset: feeAsset,
-          requiresBalance: false,
+    const protocolFeesByAssetId = protocolFeeCosts.reduce<
+      NonNullable<QuoteFeeData['protocolFees']>
+    >((acc, { token, amount }) => {
+      const feeAsset = (() => {
+        switch (token.toLowerCase()) {
+          case outputToken.toLowerCase():
+            return buyAsset
+          case inputToken.toLowerCase():
+            return sellAsset
+          default:
+            return undefined
         }
+      })()
 
-        return acc
-      },
-      {},
-    )
+      // A fee in neither traded asset leaves us nothing to report it against
+      if (!feeAsset) return acc
+
+      acc[feeAsset.assetId] = {
+        amountCryptoBaseUnit: bnOrZero(acc[feeAsset.assetId]?.amountCryptoBaseUnit)
+          .plus(amount)
+          .toFixed(0),
+        asset: feeAsset,
+        requiresBalance: false,
+      }
+
+      return acc
+    }, {})
+
+    if (!Object.keys(protocolFeesByAssetId).length) return
+
+    return protocolFeesByAssetId
   })()
 
   return Ok({

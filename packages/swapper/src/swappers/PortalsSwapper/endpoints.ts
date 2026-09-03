@@ -14,7 +14,7 @@ import type { PortalsTradeQuoteInput, PortalsTradeRateInput } from './types'
 import { fetchAxelarscanBridgeStatus } from './utils/fetchAxelarscanStatus'
 import { fetchSquidBridgeStatus } from './utils/fetchSquidStatus'
 
-const toTxStatus = (status: 'pending' | 'confirmed' | 'failed'): TxStatus => {
+const bridgeStatusToTxStatus = (status: 'pending' | 'confirmed' | 'failed'): TxStatus => {
   switch (status) {
     case 'confirmed':
       return TxStatus.Confirmed
@@ -102,7 +102,7 @@ export const portalsApi: SwapperApi = {
       const bridgeStatus = axelarscanResult.unwrap()
 
       if (bridgeStatus) {
-        const txStatus = toTxStatus(bridgeStatus.status)
+        const txStatus = bridgeStatusToTxStatus(bridgeStatus.status)
 
         return {
           status: txStatus,
@@ -126,7 +126,7 @@ export const portalsApi: SwapperApi = {
 
       if (squidResult.isOk()) {
         const squidStatus = squidResult.unwrap()
-        const squidTxStatus = toTxStatus(squidStatus.status)
+        const squidTxStatus = bridgeStatusToTxStatus(squidStatus.status)
 
         return {
           status: squidTxStatus,

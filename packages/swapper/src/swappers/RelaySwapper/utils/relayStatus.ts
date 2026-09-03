@@ -37,10 +37,12 @@ export const fetchRelayRequestByTxHash = async (
   )
 
   // Match the origin tx ourselves rather than trusting the listing to have filtered on it
-  return maybeResponse.map(({ data }) =>
-    data.requests?.find(({ data: request }) =>
-      request?.inTxs?.some(({ hash }) => hash?.toLowerCase() === txHash.toLowerCase()),
-    ),
+  return maybeResponse.map(
+    ({ data }) =>
+      data.requests?.find(
+        ({ data: request }) =>
+          request?.inTxs?.some(({ hash }) => hash?.toLowerCase() === txHash.toLowerCase()),
+      ),
   )
 }
 

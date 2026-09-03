@@ -13,6 +13,7 @@ import { getExactOutputTradeRate, getTradeRate } from './getTradeRate/getTradeRa
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 import { getRelayRequestConfig, relayService } from './utils/relayService'
+import { getRelayTrackingLink, relayStatusToTxStatus } from './utils/relayStatus'
 import type {
   RelayExactOutputTradeQuoteInput,
   RelayExactOutputTradeRateInput,
@@ -103,7 +104,7 @@ export const relayApi: SwapperApi = {
 
     // relay.link tracks the swap by its origin chain transaction
     const swapperTxId = txHash
-    const swapperTxLink = `https://relay.link/transaction/${txHash}`
+    const swapperTxLink = getRelayTrackingLink(txHash)
 
     const maybeStatusResponse = await relayService.get<RelayStatus>(
       `${config.VITE_RELAY_API_URL}/intents/status/v3?requestId=${relayMetadata.relayId}`,
@@ -122,23 +123,7 @@ export const relayApi: SwapperApi = {
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
 
-    const status = (() => {
-      switch (statusResponse.status) {
-        case 'success':
-          return TxStatus.Confirmed
-        case 'waiting':
-        case 'delayed':
-        case 'pending':
-        case 'depositing':
-        case 'submitted':
-          return TxStatus.Pending
-        case 'failure':
-        case 'refund':
-          return TxStatus.Failed
-        default:
-          return TxStatus.Unknown
-      }
-    })()
+    const status = relayStatusToTxStatus(statusResponse.status)
 
     // Relay refers to in Txs as "inTxHashes" but to out Txs as simply "txHashes" when they really mean "outTxHashes"
     // One thing to note is that for same-chain Txs, there is no "out Tx" per se since the in Tx *is* the out Tx

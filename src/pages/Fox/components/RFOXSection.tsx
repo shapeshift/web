@@ -38,6 +38,7 @@ import { FoxTokenFilterButton } from '@/pages/Fox/components/FoxTokenFilterButto
 import { RFOXSimulator } from '@/pages/Fox/components/RFOXSimulator'
 import { useFoxPageContext } from '@/pages/Fox/hooks/useFoxPageContext'
 import { ClaimModal } from '@/pages/RFOX/components/ClaimModal'
+import { RfoxProgramPrefetch } from '@/pages/RFOX/components/RfoxProgramPrefetch'
 import { Stats } from '@/pages/RFOX/components/Overview/Stats'
 import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
@@ -233,6 +234,25 @@ export const RFOXSection = () => {
         migrationDate: dayjs.utc(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
       }),
     [translate],
+  )
+
+  // Everything below is keyed on the selected program, so warm the others up front
+  const programPrefetch = useMemo(
+    () =>
+      visibleStakingAssetIds
+        .filter(candidateStakingAssetId => candidateStakingAssetId !== stakingAssetId)
+        .map(candidateStakingAssetId => (
+          <RfoxProgramPrefetch
+            key={candidateStakingAssetId}
+            stakingAssetId={candidateStakingAssetId}
+            stakingAssetAccountId={
+              accountIdsByAccountNumberAndChainId[assetAccountNumber]?.[
+                getRfoxChainId(candidateStakingAssetId)
+              ]
+            }
+          />
+        )),
+    [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId, visibleStakingAssetIds],
   )
 
   const migrationTradeUrl = useMemo(() => {
@@ -576,6 +596,7 @@ export const RFOXSection = () => {
           <Stats stakingAssetId={stakingAssetId} />
         </Box>
       </Box>
+      {programPrefetch}
       <StakeModal isOpen={isStakeModalOpen} onClose={handleCloseStakeModal} />
       <UnstakeModal isOpen={isUnstakeModalOpen} onClose={handleCloseUnstakeModal} />
       <ClaimModal isOpen={isClaimModalOpen} onClose={handleCloseClaimModal} />

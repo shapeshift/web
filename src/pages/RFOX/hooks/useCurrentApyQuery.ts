@@ -45,9 +45,13 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
 
       const latestEpoch = epochs[0]
 
+      // A staking contract the epoch metadata doesn't cover yet has no knowable APY - returning
+      // undefined renders 0% rather than leaving the previously selected program's figure up
       const distributionRate =
         latestEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]
-          .distributionRate
+          ?.distributionRate
+
+      if (distributionRate === undefined) return
 
       const closestStakingAssetPrice =
         stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??

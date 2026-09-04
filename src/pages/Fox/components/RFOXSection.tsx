@@ -21,6 +21,7 @@ import {
 import { foxAssetId, foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -67,6 +68,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+dayjs.extend(utc)
 
 const tbArrowUp = <TbArrowUp />
 const tbArrowDown = <TbArrowDown />
@@ -227,7 +230,7 @@ export const RFOXSection = () => {
   const migrationBannerDescription = useMemo(
     () =>
       translate('RFOX.migrationBannerDescription', {
-        migrationDate: dayjs(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
+        migrationDate: dayjs.utc(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
       }),
     [translate],
   )

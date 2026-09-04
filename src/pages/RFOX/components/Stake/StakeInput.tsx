@@ -50,7 +50,7 @@ const formControlProps = {
   background: 'transparent',
   borderWidth: 0,
   paddingBottom: 0,
-  paddingTop: 0,
+  paddingTop: 4,
 }
 
 type StakeInputProps = {

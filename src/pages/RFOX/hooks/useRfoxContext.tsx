@@ -1,9 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import {
-  foxOnArbitrumOneAssetId,
-  fromAssetId,
-  uniV2EthFoxArbitrumAssetId,
-} from '@shapeshiftoss/caip'
+import { foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 
 import { RFOX_STAKING_ASSET_IDS } from '../constants'
@@ -12,8 +8,7 @@ import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
 } from '@/state/slices/portfolioSlice/selectors'
-import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { store, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 type RFOXContextType = {
   selectedAssetAccountId: AccountId | undefined
@@ -25,14 +20,12 @@ type RFOXContextType = {
 
 const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
 
-const featureFlags = preferences.selectors.selectFeatureFlags(store.getState())
-export const supportedStakingAssetIds = RFOX_STAKING_ASSET_IDS.filter(stakingAssetId => {
-  if (!featureFlags.RFOX_LP && stakingAssetId === uniV2EthFoxArbitrumAssetId) return false
-  return true
-})
+// Every staking program is fetched, including sunset ones - which of them are surfaced to the user
+// is a display concern, resolved from position and on-chain pause state rather than from here.
+export const supportedStakingAssetIds = RFOX_STAKING_ASSET_IDS
 
 export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [stakingAssetId, setStakingAssetId] = useState<AssetId>(foxOnArbitrumOneAssetId)
+  const [stakingAssetId, setStakingAssetId] = useState<AssetId>(foxAssetId)
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(

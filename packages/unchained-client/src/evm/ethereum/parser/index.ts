@@ -1,4 +1,5 @@
-import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { foxAssetId } from '@shapeshiftoss/caip'
+import { RFOX_ETH_PROXY_CONTRACT, ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTransactionParserArgs } from '../../parser'
@@ -6,6 +7,7 @@ import { BaseTransactionParser } from '../../parser'
 import * as arbitrumBridge from '../../parser/arbitrumBridge'
 import * as erc20 from '../../parser/erc20'
 import * as mayachain from '../../parser/mayachain'
+import * as rfox from '../../parser/rfox'
 import * as thorchain from '../../parser/thorchain'
 import * as zrx from '../../parser/zrx'
 import * as cowswap from './cowswap'
@@ -37,6 +39,10 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
         midgardUrl: args.thorMidgardUrl,
       }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
+      new rfox.Parser({
+        proxyContract: RFOX_ETH_PROXY_CONTRACT,
+        stakingAssetId: foxAssetId,
+      }),
       new cowswap.Parser(),
       new arbitrumBridge.Parser({ chainId: this.chainId }),
     ])

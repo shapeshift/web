@@ -1,9 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  RFOX_PROXY_CONTRACT,
-  RFOX_REWARD_RATE,
-  RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT,
-} from '@shapeshiftoss/contracts'
+import { RFOX_REWARD_RATE } from '@shapeshiftoss/contracts'
 
 import { getStakingContract } from '../helpers'
 import type { CurrentEpochMetadata } from '../types'
@@ -36,13 +32,3 @@ export const calcEpochRewardForAccountUsdcBaseUnit = (
   return BigInt(epochRewardUsdcBaseUnit)
 }
 
-export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {
-  switch (contractAddress) {
-    case RFOX_PROXY_CONTRACT:
-      return 222913582n
-    case RFOX_UNI_V2_ETH_FOX_PROXY_CONTRACT:
-      return 291163572n
-    default:
-      throw new Error(`Invalid RFOX proxy contract address`)
-  }
-}

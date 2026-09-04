@@ -1,5 +1,5 @@
 import { CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { arbitrumChainId, foxAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -16,6 +16,7 @@ import { ClaimStatus } from '@/components/ClaimRow/types'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getRfoxChainId } from '@/pages/RFOX/helpers'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 
 type NoClaimsAvailableProps = {
@@ -41,7 +42,7 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError }) => {
 export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
   const navigate = useNavigate()
   const { isConnected } = useWallet().state
-  const { stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetAccountId, stakingAssetId } = useRFOXContext()
 
   const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
 
@@ -52,7 +53,8 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
-    if (!stakingAssetAccountId) return <ChainNotSupported chainId={arbitrumChainId} />
+    if (!stakingAssetAccountId)
+      return <ChainNotSupported chainId={getRfoxChainId(stakingAssetId)} />
     if (!stakingAssetAccountId) return
 
     if (

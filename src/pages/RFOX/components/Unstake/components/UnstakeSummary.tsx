@@ -52,8 +52,12 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
+  // A zero cooldown means there is no lock up to describe at all
   const { data: cooldownPeriodData, isSuccess: isCooldownPeriodSuccess } =
     useCooldownPeriodQuery(stakingAssetId)
+
+  // Undefined while loading, so the row holds its place and only drops out once a zero is read back
+  const hasCooldownPeriod = cooldownPeriodData?.cooldownPeriodSeconds !== 0
 
   const {
     data: userStakingBalanceOfCryptoBaseUnit,
@@ -107,14 +111,16 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
           </Skeleton>
         </Row.Value>
       </Row>
-      <Row Tooltipbody={lockupPeriodToolTip}>
-        <Row.Label>{translate('RFOX.lockupPeriod')}</Row.Label>
-        <Row.Value>
-          <Skeleton isLoaded={isCooldownPeriodSuccess}>
-            {cooldownPeriodData?.cooldownPeriod}
-          </Skeleton>
-        </Row.Value>
-      </Row>
+      {hasCooldownPeriod ? (
+        <Row Tooltipbody={lockupPeriodToolTip}>
+          <Row.Label>{translate('RFOX.lockupPeriod')}</Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={isCooldownPeriodSuccess}>
+              {cooldownPeriodData?.cooldownPeriod}
+            </Skeleton>
+          </Row.Value>
+        </Row>
+      ) : null}
       <Row Tooltipbody={shareOfPoolToolTip}>
         <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
         <Row.Value>

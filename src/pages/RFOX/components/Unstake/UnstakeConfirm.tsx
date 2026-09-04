@@ -42,6 +42,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   confirmedQuote,
   unstakeTxid,
   setUnstakeTxid,
+  onClose,
 }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -122,8 +123,8 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     if (!stakingAsset) return
 
     await handleUnstake()
-    navigate(UnstakeRoutePaths.Input)
-  }, [handleUnstake, navigate, stakingAsset])
+    onClose?.()
+  }, [handleUnstake, onClose, stakingAsset])
 
   return (
     <SlideTransition>

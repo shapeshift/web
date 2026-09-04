@@ -57,6 +57,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   stakeTxid,
   setStakeTxid,
   confirmedQuote,
+  onClose,
 }) => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -269,8 +270,8 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     if (isApprovalRequired) return handleApprove()
 
     await handleStake()
-    navigate(StakeRoutePaths.Input)
-  }, [handleStake, navigate, isApprovalRequired, handleApprove, stakingAsset])
+    onClose?.()
+  }, [handleStake, onClose, isApprovalRequired, handleApprove, stakingAsset])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null

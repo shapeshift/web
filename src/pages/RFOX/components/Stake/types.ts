@@ -12,6 +12,7 @@ export enum StakeRoutePaths {
 export type StakeRouteProps = {
   headerComponent?: JSX.Element
   setStepIndex?: (index: number) => void
+  onClose?: () => void
 }
 
 export type RfoxStakingQuote = {

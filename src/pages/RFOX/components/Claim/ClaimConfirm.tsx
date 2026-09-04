@@ -64,11 +64,9 @@ const backIcon = <ArrowBackIcon />
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 
-export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimConfirmProps> = ({
-  selectedUnstakingRequest,
-  claimTxid,
-  setClaimTxid,
-}) => {
+export const ClaimConfirm: FC<
+  Pick<ClaimRouteProps, 'headerComponent' | 'onClose'> & ClaimConfirmProps
+> = ({ selectedUnstakingRequest, claimTxid, setClaimTxid, onClose }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
@@ -278,8 +276,8 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     const txHash = await handleClaim()
     if (!txHash) return
 
-    return navigate(`/fox-ecosystem`)
-  }, [handleClaim, navigate])
+    onClose?.()
+  }, [handleClaim, onClose])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

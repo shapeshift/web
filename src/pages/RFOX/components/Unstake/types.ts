@@ -10,6 +10,7 @@ export enum UnstakeRoutePaths {
 
 export type UnstakeRouteProps = {
   headerComponent?: JSX.Element
+  onClose?: () => void
 }
 
 export type RfoxUnstakingQuote = {

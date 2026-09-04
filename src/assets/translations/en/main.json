@@ -3042,6 +3042,7 @@
     "selectRuneAddress": "Select a RUNE address",
     "lpSunsetWarningTitle": "Program Ended",
     "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience.",
+    "claimInProgress": "Claim in progress",
     "migrationBannerTitle": "rFOX is moving to Ethereum",
     "migrationBannerDescription": "rFOX staking is moving from Arbitrum to Ethereum on %{migrationDate}. You can keep earning on Arbitrum until then, or move your FOX across when you're ready.",
     "migrationBannerCta": "Move FOX to Ethereum",

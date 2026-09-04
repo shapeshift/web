@@ -20,6 +20,9 @@ export const useCooldownPeriodQuery = (stakingAssetId: AssetId) => {
       // refetchOnMount and refetchOnWindowFocus are both disabled app wide, so without its own
       // triggers a stale value would persist until a full page reload.
       refetchOnMount: true,
+      // Independent of the above - the poll is paused while the tab is in the background, so this
+      // catches a change made while the user was away without waiting for the next tick
+      refetchOnWindowFocus: true,
       // Only poll while a cooldown is actually set. The transition worth catching is it being
       // zeroed at the migration, so polling stops for good once that is read back rather than
       // running forever for an event that has already happened.

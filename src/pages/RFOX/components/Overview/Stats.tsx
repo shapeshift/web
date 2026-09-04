@@ -55,12 +55,12 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
           amountUserCurrency={totalFeesCollectedUserCurrency}
           isLoading={affiliateRevenueUsdQuery.isLoading}
         />
+        <EmissionsPool stakingAssetId={stakingAssetId} />
         <StatItem
           description='RFOX.foxBurnAmount'
           amountUserCurrency={foxBurnAmountUserCurrency}
           isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
         />
-        <EmissionsPool stakingAssetId={stakingAssetId} />
       </SimpleGrid>
     </Box>
   )

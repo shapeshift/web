@@ -1,5 +1,5 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -310,10 +310,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     stakingAssetId,
   ])
 
+  // No cool-down means there is nothing to acknowledge, which also covers the sunset LP program
   const handleUnstakeClick = useMemo(() => {
-    if (stakingAssetId === uniV2EthFoxArbitrumAssetId) return handleSubmit
+    if (cooldownPeriodData?.cooldownPeriodSeconds === 0) return handleSubmit
     return handleWarning
-  }, [handleSubmit, handleWarning, stakingAssetId])
+  }, [cooldownPeriodData?.cooldownPeriodSeconds, handleSubmit, handleWarning])
 
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {

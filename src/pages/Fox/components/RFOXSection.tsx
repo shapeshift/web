@@ -18,12 +18,12 @@ import {
   Tooltip,
   usePrevious,
 } from '@chakra-ui/react'
-import { foxAssetId, foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { Link as RouterLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
@@ -39,7 +39,11 @@ import { ClaimModal } from '@/pages/RFOX/components/ClaimModal'
 import { Stats } from '@/pages/RFOX/components/Overview/Stats'
 import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
-import { RFOX_STAKING_ASSET_IDS, RFOX_STAKING_CONFIG } from '@/pages/RFOX/constants'
+import {
+  RFOX_CURRENT_STAKING_ASSET_IDS,
+  RFOX_STAKING_ASSET_IDS,
+  RFOX_STAKING_CONFIG,
+} from '@/pages/RFOX/constants'
 import { getRfoxChainId, getRfoxStakingConfig, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
@@ -113,7 +117,7 @@ export const RFOXSection = () => {
     | UnstakingRequest
     | undefined
 
-  const [stakingAssetId, setStakingAssetId] = useState(foxAssetId)
+  const [stakingAssetId, setStakingAssetId] = useState(RFOX_CURRENT_STAKING_ASSET_IDS[0])
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
   const [isUnstakeModalOpen, setIsUnstakeModalOpen] = useState(false)
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(!!selectedUnstakingRequest)
@@ -181,6 +185,9 @@ export const RFOXSection = () => {
         candidateStakingAssetId =>
           !RFOX_STAKING_CONFIG[candidateStakingAssetId].isLegacy ||
           hasPositionByStakingAssetId[candidateStakingAssetId],
+      ).sort(
+        (a, b) =>
+          Number(RFOX_STAKING_CONFIG[a].isLegacy) - Number(RFOX_STAKING_CONFIG[b].isLegacy),
       ),
     [hasPositionByStakingAssetId],
   )
@@ -214,13 +221,6 @@ export const RFOXSection = () => {
     () => visibleStakingAssetIds.includes(foxOnArbitrumOneAssetId),
     [visibleStakingAssetIds],
   )
-
-  const migrationTradeUrl = useMemo(() => {
-    const [buyChainId, buyAssetSubId] = foxAssetId.split('/')
-    const [sellChainId, sellAssetSubId] = foxOnArbitrumOneAssetId.split('/')
-
-    return `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/0`
-  }, [])
 
   const hasClaimableRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
@@ -311,7 +311,7 @@ export const RFOXSection = () => {
 
   const handleSelectAssetId = useCallback(
     (filter: Filter) => {
-      const assetId = filter.assetId ?? foxAssetId
+      const assetId = filter.assetId ?? RFOX_CURRENT_STAKING_ASSET_IDS[0]
       setStakingAssetId(assetId)
       setContextStakingAssetId(assetId)
     },
@@ -423,9 +423,6 @@ export const RFOXSection = () => {
                   {translate('RFOX.migrationBannerDescription')}
                 </CText>
               </Box>
-              <Button as={RouterLink} to={migrationTradeUrl} colorScheme='blue' size='sm'>
-                {translate('RFOX.migrationBannerCta')}
-              </Button>
             </Flex>
           </CardBody>
         </Card>

@@ -1,8 +1,8 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 
-import { RFOX_STAKING_ASSET_IDS } from '../constants'
+import { RFOX_CURRENT_STAKING_ASSET_IDS, RFOX_STAKING_ASSET_IDS } from '../constants'
 
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -25,7 +25,9 @@ const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
 export const supportedStakingAssetIds = RFOX_STAKING_ASSET_IDS
 
 export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [stakingAssetId, setStakingAssetId] = useState<AssetId>(foxAssetId)
+  const [stakingAssetId, setStakingAssetId] = useState<AssetId>(
+    RFOX_CURRENT_STAKING_ASSET_IDS[0],
+  )
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(

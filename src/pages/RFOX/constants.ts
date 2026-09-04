@@ -45,21 +45,26 @@ export type RfoxStakingConfig = {
   isLegacy: boolean
 }
 
+/**
+ * Order matters: programs are surfaced in this order, with sunset ones sorted last. Flipping a
+ * program's isLegacy therefore demotes it in the tab order and moves the default selection on to
+ * the next current program, as well as hiding it from users with nothing left to claim.
+ */
 export const RFOX_STAKING_CONFIG: Record<AssetId, RfoxStakingConfig> = {
-  [foxAssetId]: {
-    stakingContract: RFOX_ETH_PROXY_CONTRACT,
-    chainId: ethChainId,
-    networkId: mainnet.id,
-    rewardAssetId: usdcAssetId,
-    contractCreationBlock: 25906046n,
-    isLegacy: false,
-  },
   [foxOnArbitrumOneAssetId]: {
     stakingContract: RFOX_ARB_PROXY_CONTRACT,
     chainId: arbitrumChainId,
     networkId: arbitrum.id,
     rewardAssetId: usdcOnArbitrumOneAssetId,
     contractCreationBlock: 222913582n,
+    isLegacy: false,
+  },
+  [foxAssetId]: {
+    stakingContract: RFOX_ETH_PROXY_CONTRACT,
+    chainId: ethChainId,
+    networkId: mainnet.id,
+    rewardAssetId: usdcAssetId,
+    contractCreationBlock: 25906046n,
     isLegacy: false,
   },
   [uniV2EthFoxArbitrumAssetId]: {

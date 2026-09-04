@@ -65,7 +65,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
 
   const { data: epochMetadata } = useCurrentEpochMetadataQuery()
 
-  const estimatedBurn = useMemo(() => {
+  const estimatedBuyback = useMemo(() => {
     if (!epochMetadata) return
     if (!stakingAsset) return
     if (!stakingAssetUsdPrice) return
@@ -144,10 +144,10 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
             </Card>
             <Card>
               <CardBody py={4} px={4}>
-                <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalBurn' />
+                <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalBuyback' />
 
-                <Skeleton isLoaded={Boolean(estimatedBurn !== undefined)}>
-                  <Amount.Fiat fontSize='24px' value={estimatedBurn} />
+                <Skeleton isLoaded={Boolean(estimatedBuyback !== undefined)}>
+                  <Amount.Fiat fontSize='24px' value={estimatedBuyback} />
                 </Skeleton>
               </CardBody>
             </Card>

@@ -34,7 +34,7 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
     return bn(affiliateRevenueUsdQuery.data).times(userCurrencyToUsdRate).toFixed(2)
   }, [affiliateRevenueUsdQuery.data, userCurrencyToUsdRate])
 
-  const foxBurnAmountUserCurrency = useMemo(() => {
+  const foxBuybackAmountUserCurrency = useMemo(() => {
     if (!currentEpochMetadataQuery.data) return
     if (!totalFeesCollectedUserCurrency) return
 
@@ -57,8 +57,8 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
         />
         <EmissionsPool stakingAssetId={stakingAssetId} />
         <StatItem
-          description='RFOX.foxBurnAmount'
-          amountUserCurrency={foxBurnAmountUserCurrency}
+          description='RFOX.foxBuybackAmount'
+          amountUserCurrency={foxBuybackAmountUserCurrency}
           isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
         />
       </SimpleGrid>

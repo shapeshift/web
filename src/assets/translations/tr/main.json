@@ -3006,8 +3006,7 @@
         "body": "rFOX, FOX tokenlarınızı Arbitrum'da stake ettiğinizde elde ettiğiniz avantajları ve ödülleri tanımlamak için kullanılan bir terimdir. Şu anda, emisyonları stake etmek için vanilya FOX (Arbitrum'da) tokenlerini kilitliyor ve kilidini açıyorsunuz."
       },
       "why": {
-        "title": "Neden FOX'unuzu stake etmelisiniz?",
-        "body": "FOX'unuzu stake etmek, DAO'nun hazinesinden dönem başına USDC cinsinden düzenli ödemeler kazanmanıza olanak tanır ve dönem başına USDC'de istikrarlı bir pasif gelir akışı sağlar. Ayrıca, DAO gelirinin bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilecektir. Staking süreci, topluluk içinde bağlılığı ve istikrarı teşvik eden minimum 28 günlük bir stake kaldırma süresini gerektirir."
+        "title": "Neden FOX'unuzu stake etmelisiniz?"
       },
       "stake": {
         "title": "FOX'umu nasıl stake ederim?",
@@ -3024,10 +3023,6 @@
       "multipleUnstaking": {
         "title": "Birden fazla stake etme tutarına sahip olabilir miyim?",
         "body": "Evet, birden fazla stake etme tutarınız olabilir. Her bir stake kaldırma eyleminin kendine ait 28 günlük bekleme süresi olacaktır."
-      },
-      "connect": {
-        "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?",
-        "body": "DAO tarafından toplanan ücretler, takas başına yerel varlıklar cinsindedir. Bu gelirin bir kısmı dönüştürülerek FOX staker'larına ödül olarak dağıtılırken, bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilir. Stake edilen toplam FOX, ödüllerin dağıtımını etkiler; ödüller, stake edilen FOX miktarına göre orantılı olarak dağıtılır. Emisyon havuzu, staking ödülleri için mevcut FOX miktarını temsil eder ve FOX yakma miktarı, satın alınıp yakılan FOX miktarıdır."
       }
     },
     "totals": "rFOX Toplamı",
@@ -3036,7 +3031,6 @@
     "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
     "emissionsPool": "%{symbol} Emisyon Havuzu (Bu Dönem)",
     "emissionsPoolHelper": "Dağıtılacak toplam ödül miktarı %{symbol} staker",
-    "foxBurnAmount": "FOX Yakma Miktarı (Bu Dönem)",
     "pendingDistribution": "Bekleyen Dağıtım",
     "selectRuneAddress": "Bir RUNE adresi seçin",
     "lpSunsetWarningTitle": "Program Sona Erdi",
@@ -3156,7 +3150,6 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24sa Fiyat Değişimi",
     "rfox": {
-      "totalBurn": "Toplam Yakılan",
       "simulateTitle": "rFOX Simülatörü",
       "simulateSubtle": "rFOX staking getirilerinizi simüle edin",
       "estimatedRewards": "Tahmini Ödüller",
@@ -3378,8 +3371,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

@@ -3006,8 +3006,7 @@
         "body": "rFOX ist ein Begriff, der die Vorteile und Belohnungen beschreibt, die Sie erhalten, wenn Sie Ihre FOX-Token auf Arbitrum einsetzen. Derzeit sperren und entsperren Sie Vanilla-FOX-Token (auf Arbitrum) für das Einsetzen von Emissionen."
       },
       "why": {
-        "title": "Warum sollten Sie Ihren FOX staken?",
-        "body": "Wenn Sie Ihre FOX einsetzen, können Sie regelmäßige USDC-Auszahlungen aus der DAO-Schatzkammer erhalten, was einen stetigen Strom an passivem Einkommen in USDC pro Epoche bietet. Darüber hinaus wird ein Teil der DAO-Einnahmen dazu verwendet, das gesamte FOX-Angebot durch Token-Verbrennungen zu reduzieren. Der Staking-Prozess erfordert eine Mindest-Unstaking-Periode von 28 Tagen, was Engagement und Stabilität innerhalb der Community fördert."
+        "title": "Warum sollten Sie Ihren FOX staken?"
       },
       "stake": {
         "title": "Wie stake ich meinen FOX?",
@@ -3024,10 +3023,6 @@
       "multipleUnstaking": {
         "title": "Kann ich mehrere Beträge zum Aufheben des Stakings haben?",
         "body": "Ja, Sie können mehrere Beträge aufheben. Für jede Aufhebungsaktion gilt eine Abkühlungsphase von 28 Tagen."
-      },
-      "connect": {
-        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?",
-        "body": "Die vom DAO erhobenen Gebühren werden in nativen Vermögenswerten pro Swapper berechnet. Ein Teil dieses Einkommens wird umgewandelt und als Belohnungen an FOX-Staker verteilt, während ein anderer Teil zur Reduzierung des gesamten FOX-Angebots durch Token-Verbrennungen verwendet wird. Die Gesamtmenge der eingesetzten FOX beeinflusst die Verteilung der Belohnungen, da diese pro rata auf Basis der eingesetzten FOX-Menge verteilt werden. Der Emissionspool stellt die Menge an FOX dar, die für Staking-Belohnungen verfügbar ist, und die FOX-Verbrennungsmenge ist der Anteil an FOX, der gekauft und verbrannt wird."
       }
     },
     "totals": "rFOX Summen",
@@ -3036,7 +3031,6 @@
     "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
     "emissionsPool": "%{symbol} Emissionspool (diese Epoche)",
     "emissionsPoolHelper": "Die Gesamtsumme der zu verteilenden Belohnungen %{symbol} stakers",
-    "foxBurnAmount": "FOX-Verbrennungsmenge (diese Epoche)",
     "pendingDistribution": "Ausstehende Verteilung",
     "selectRuneAddress": "Wählen Sie eine RUNE Adresse",
     "lpSunsetWarningTitle": "Programm beendet",
@@ -3156,7 +3150,6 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Preisänderung",
     "rfox": {
-      "totalBurn": "Gesamt Verbrannt",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Simulieren Sie Ihre rFOX Staking Rendite",
       "estimatedRewards": "Geschätzte Belohnungen",
@@ -3378,8 +3371,7 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",

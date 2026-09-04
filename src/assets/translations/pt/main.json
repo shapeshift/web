@@ -3006,8 +3006,7 @@
         "body": "rFOX é um termo usado para descrever os benefícios e recompensas que você recebe ao fazer stake dos seus tokens FOX no Arbitrum. Atualmente, você os trava e desbloqueia tokens vanilla FOX (no Arbitrum) para emissões de staking."
       },
       "why": {
-        "title": "Por que fazer o stake de FOX?",
-        "body": "Fazer staking do seu FOX permite que você receba pagamentos regulares em USDC do tesouro da DAO, proporcionando um fluxo constante de renda passiva em USDC por época. Além disso, uma parte da receita da DAO será alocada para reduzir a oferta total de FOX por meio de queimas de tokens. O processo de staking requer um período mínimo de unstaking de 28 dias, incentivando o comprometimento e a estabilidade dentro da comunidade."
+        "title": "Por que fazer o stake de FOX?"
       },
       "stake": {
         "title": "Como faço para realizar stake de FOX?",
@@ -3024,10 +3023,6 @@
       "multipleUnstaking": {
         "title": "Posso ter vários valores em unstaking?",
         "body": "Sim, você pode ter vários valores em unstaking. Cada ação terá seu próprio período de espera de 28 dias."
-      },
-      "connect": {
-        "title": "Como o total de taxas cobradas, o total de FOX em stake, a pool de emissões e o valor queimado da FOX se conectam?",
-        "body": "As taxas coletadas pela DAO estão em ativos nativos por swapper. Uma parte dessa receita é convertida e distribuída aos stakers de FOX como recompensas, enquanto outra parte é alocada para reduzir a oferta total de FOX por meio de queimas de tokens. O total de FOX em stake influencia a distribuição de recompensas, pois as recompensas são distribuídas proporcionalmente com base na quantidade de FOX em stake. A pool de emissões representa a quantidade de FOX disponível para recompensas de staking, e o valor de queima de FOX é a parcela de FOX comprada e queimada."
       }
     },
     "totals": "Totais de rFOX",
@@ -3036,7 +3031,6 @@
     "totalFeesCollected": "Total de taxas coletadas (esta época)",
     "emissionsPool": "%{symbol} Emissões da Pool (Nesta Época)",
     "emissionsPoolHelper": "O valor total de recompensas a serem distribuídas %{symbol} stakers",
-    "foxBurnAmount": "Quantidade de queima da FOX (nesta época)",
     "pendingDistribution": "Distribuição pendente",
     "selectRuneAddress": "Selecione um endereço RUNE",
     "lpSunsetWarningTitle": "Programa encerrado",
@@ -3156,7 +3150,6 @@
     "foxToken": "Token FOX",
     "24hrPriceChange": "Alteração de preço 24h",
     "rfox": {
-      "totalBurn": "Total Queimado",
       "simulateTitle": "Simulador rFOX",
       "simulateSubtle": "Simule seu rendimento de staking rFOX",
       "estimatedRewards": "Recompensas estimadas",
@@ -3378,8 +3371,7 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

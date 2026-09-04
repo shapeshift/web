@@ -3006,8 +3006,7 @@
         "body": "rFOX 是一个术语，用于描述当您将 FOX 代币质押在 Arbitrum 上时所获得的利益和奖励。目前，您能够将原生 FOX（在 Arbitrum 上）代币进行锁仓和解锁，以获得质押奖励。"
       },
       "why": {
-        "title": "为什么要质押你的 FOX？",
-        "body": "质押您的 FOX 可让您从 DAO 的国库中定期获得 USDC 支付，每个时段为您提供稳定的被动收入（以 USDC 计）。此外，DAO 收入的一部分将通过代币销毁用于减少 FOX 的整体供应量。质押过程要求最少 28 天的取消质押期，以鼓励社区成员的承诺与稳定性。"
+        "title": "为什么要质押你的 FOX？"
       },
       "stake": {
         "title": "我该如何质押我的 FOX？",
@@ -3024,10 +3023,6 @@
       "multipleUnstaking": {
         "title": "我可以有多个取消质押金额吗？",
         "body": "是的，你可以有多个取消质押金额。每个取消质押操作都有各自的 28 天冷却期。"
-      },
-      "connect": {
-        "title": "收取的总费用、FOX 总质押量、排放池和 FOX 销毁量有何关联？",
-        "body": "DAO 收取的费用以每个兑换者的原生资产计算。该收入的一部分被转换后作为奖励分配给 FOX 质押者，另一部分则通过代币销毁用于减少 FOX 的整体供应量。FOX 总质押量影响奖励的分配，奖励按质押的 FOX 数量按比例分配。排放池代表可用于质押奖励的 FOX 数量，FOX 销毁量则是被购买并销毁的 FOX 份额。"
       }
     },
     "totals": "rFOX 总计",
@@ -3036,7 +3031,6 @@
     "totalFeesCollected": "收取的费用总额（当前时段）",
     "emissionsPool": "%{symbol} 排放池 (当前时段)",
     "emissionsPoolHelper": "将分发给 %{symbol} 质押者的总奖励数量。",
-    "foxBurnAmount": "FOX 销毁量（当前时段）",
     "pendingDistribution": "待分配奖励",
     "selectRuneAddress": "选择一个 RUNE 地址",
     "lpSunsetWarningTitle": "项目已结束",
@@ -3156,7 +3150,6 @@
     "foxToken": "FOX 代币",
     "24hrPriceChange": "24小时价格变化",
     "rfox": {
-      "totalBurn": "总销毁量",
       "simulateTitle": "rFOX 模拟器",
       "simulateSubtle": "模拟您的 rFOX 质押收益",
       "estimatedRewards": "预计奖励",
@@ -3378,8 +3371,7 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {
-    },
+    "actions": {},
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

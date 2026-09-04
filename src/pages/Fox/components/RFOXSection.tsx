@@ -338,11 +338,6 @@ export const RFOXSection = () => {
 
   const cooldownPeriodQuery = useCooldownPeriodQuery(stakingAssetId)
 
-  // The cooldown is fixed per request when un-staking, so anyone un-staking before it is zeroed on
-  // the migration date is held to the full period regardless. Lifts itself once the cooldown is
-  // zeroed on chain, so this needs no follow up deploy on the day.
-  // Stays disabled unless the cooldown is confirmed to be zero, so an unresolved or failed read
-  // holds the guard rather than dropping it
   const isUnstakeDisabled = useMemo(
     () =>
       stakingAssetId === foxOnArbitrumOneAssetId &&
@@ -364,8 +359,6 @@ export const RFOXSection = () => {
             {translate('defi.stake')}
           </Button>
         )}
-        {/* Tooltip wraps its child in a span to catch hover on a disabled button, so the flex
-            sizing lives on the wrapper to keep this button growing with its siblings */}
         <Box flex='1 1 auto' sx={tooltipWrapperSx}>
           <Tooltip
             label={translate('RFOX.unstakeDisabledMigrationTooltip')}

@@ -309,6 +309,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     navigate,
   ])
 
+  // Bridging still needs acknowledging, but a zero cooldown has no lock up to warn about
+  const handleStakeClick = useMemo(() => {
+    if (!isBridgeRequired && cooldownPeriodData?.cooldownPeriodSeconds === 0) return handleSubmit
+    return handleWarning
+  }, [cooldownPeriodData?.cooldownPeriodSeconds, handleSubmit, handleWarning, isBridgeRequired])
+
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleFundingAssetClick = useCallback(() => {
@@ -597,7 +603,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             )}
             size='lg'
             mx={-2}
-            onClick={handleWarning}
+            onClick={handleStakeClick}
             isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
             colorScheme={
               Boolean(errors.amountFieldInput) && !isDiscoveringAccounts ? 'red' : 'blue'

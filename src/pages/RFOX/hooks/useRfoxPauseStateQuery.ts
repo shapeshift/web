@@ -21,6 +21,9 @@ const DEFAULT_PAUSE_STATE: RfoxPauseState = {
  * Reads the on-chain pause flags for a staking contract, which gate whether each of stake, unstake
  * and claim can be actioned. Ops flips these directly on the contract, so this is what lets the UI
  * react to something like the Arbitrum sunset without a deploy.
+ *
+ * stake, unstake and withdraw each carry the contract wide `whenNotPaused` on top of their own
+ * flag, so the global pause is folded into all three rather than reported separately.
  */
 export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
   const contracts = useMemo(() => {
@@ -28,6 +31,7 @@ export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
     const chainId = getRfoxNetworkId(stakingAssetId)
 
     return [
+      { abi: RFOX_ABI, address, chainId, functionName: 'paused' },
       { abi: RFOX_ABI, address, chainId, functionName: 'stakingPaused' },
       { abi: RFOX_ABI, address, chainId, functionName: 'unstakingPaused' },
       { abi: RFOX_ABI, address, chainId, functionName: 'withdrawalsPaused' },
@@ -38,11 +42,20 @@ export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
     contracts,
     query: {
       staleTime: 60 * 1000, // 1 minute in milliseconds
-      select: ([stakingPaused, unstakingPaused, withdrawalsPaused]): RfoxPauseState => ({
-        isStakingPaused: Boolean(stakingPaused.result),
-        isUnstakingPaused: Boolean(unstakingPaused.result),
-        isWithdrawalsPaused: Boolean(withdrawalsPaused.result),
-      }),
+      select: ([
+        paused,
+        stakingPaused,
+        unstakingPaused,
+        withdrawalsPaused,
+      ]): RfoxPauseState => {
+        const isPaused = Boolean(paused.result)
+
+        return {
+          isStakingPaused: isPaused || Boolean(stakingPaused.result),
+          isUnstakingPaused: isPaused || Boolean(unstakingPaused.result),
+          isWithdrawalsPaused: isPaused || Boolean(withdrawalsPaused.result),
+        }
+      },
     },
   })
 }

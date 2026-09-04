@@ -1,4 +1,5 @@
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 
@@ -9,13 +10,16 @@ import { TotalStaked } from './TotalStaked'
 import { Text } from '@/components/Text'
 import { useAffiliateRevenueUsdQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueUsdQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { RFOX_CURRENT_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const gridColumns = { base: 1, md: 2 }
 
-export const Stats: React.FC = () => {
+type StatsProps = {
+  stakingAssetId: AssetId
+}
+
+export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
@@ -39,25 +43,13 @@ export const Stats: React.FC = () => {
       .toFixed(2)
   }, [currentEpochMetadataQuery, totalFeesCollectedUserCurrency])
 
-  const Staked = useMemo(() => {
-    return RFOX_CURRENT_STAKING_ASSET_IDS.map(stakingAssetId => (
-      <TotalStaked key={stakingAssetId} stakingAssetId={stakingAssetId} />
-    ))
-  }, [])
-
-  const Emissions = useMemo(() => {
-    return RFOX_CURRENT_STAKING_ASSET_IDS.map(stakingAssetId => (
-      <EmissionsPool key={stakingAssetId} stakingAssetId={stakingAssetId} />
-    ))
-  }, [])
-
   return (
     <Box>
       <Flex alignItems='center' gap={2} mb={6} mt={2}>
         <Text translation='RFOX.totals' fontWeight='bold' fontSize='xl' />
       </Flex>
       <SimpleGrid spacing={6} columns={gridColumns}>
-        {Staked}
+        <TotalStaked stakingAssetId={stakingAssetId} />
         <StatItem
           description='RFOX.totalFeesCollected'
           amountUserCurrency={totalFeesCollectedUserCurrency}
@@ -68,7 +60,7 @@ export const Stats: React.FC = () => {
           amountUserCurrency={foxBurnAmountUserCurrency}
           isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
         />
-        {Emissions}
+        <EmissionsPool stakingAssetId={stakingAssetId} />
       </SimpleGrid>
     </Box>
   )

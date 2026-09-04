@@ -597,7 +597,7 @@ export const RFOXSection = () => {
         </SimpleGrid>
         <RFOXSimulator stakingAssetId={stakingAssetId} />
         <Box py={4}>
-          <Stats />
+          <Stats stakingAssetId={stakingAssetId} />
         </Box>
       </Box>
       <StakeModal isOpen={isStakeModalOpen} onClose={handleCloseStakeModal} />

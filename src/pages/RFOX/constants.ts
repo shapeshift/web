@@ -28,6 +28,13 @@ export const CURRENT_EPOCH_IPFS_HASH = 'bafkreihv7ilxdosw5rqky22fj5psfjhnwcqnmiu
 export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
 export const RFOX_V3_UPGRADE_EPOCH = 18
 
+/**
+ * The announced boundary of the Arbitrum to Ethereum migration - Arbitrum staking closes and
+ * Ethereum staking opens. Display only: what users can actually do is gated by the contracts' pause
+ * flags, so nothing breaks if ops act early or late against this date.
+ */
+export const RFOX_MIGRATION_TIMESTAMP_MS = Date.UTC(2026, 9, 1)
+
 export type RfoxStakingConfig = {
   stakingContract: Address
   chainId: ChainId

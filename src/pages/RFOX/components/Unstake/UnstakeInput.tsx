@@ -46,7 +46,7 @@ const formControlProps = {
   background: 'transparent',
   borderWidth: 0,
   paddingBottom: 4,
-  paddingTop: 0,
+  paddingTop: 4,
 }
 
 const inputContainerStyleOverride = {

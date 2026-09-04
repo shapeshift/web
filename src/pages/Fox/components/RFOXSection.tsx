@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react'
 import { foxAssetId, foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
+import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -41,6 +42,7 @@ import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import {
   RFOX_CURRENT_STAKING_ASSET_IDS,
+  RFOX_MIGRATION_TIMESTAMP_MS,
   RFOX_STAKING_ASSET_IDS,
   RFOX_STAKING_CONFIG,
 } from '@/pages/RFOX/constants'
@@ -220,6 +222,14 @@ export const RFOXSection = () => {
   const isMigrationBannerVisible = useMemo(
     () => visibleStakingAssetIds.includes(foxOnArbitrumOneAssetId),
     [visibleStakingAssetIds],
+  )
+
+  const migrationBannerDescription = useMemo(
+    () =>
+      translate('RFOX.migrationBannerDescription', {
+        migrationDate: dayjs(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
+      }),
+    [translate],
   )
 
   const migrationTradeUrl = useMemo(() => {
@@ -428,7 +438,7 @@ export const RFOXSection = () => {
               <Box flex='1 1 auto'>
                 <CText fontWeight='bold'>{translate('RFOX.migrationBannerTitle')}</CText>
                 <CText fontSize='sm' color='text.subtle'>
-                  {translate('RFOX.migrationBannerDescription')}
+                  {migrationBannerDescription}
                 </CText>
               </Box>
               <Button as={RouterLink} to={migrationTradeUrl} colorScheme='blue' size='sm'>

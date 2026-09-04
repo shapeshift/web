@@ -9,7 +9,7 @@ import { TotalStaked } from './TotalStaked'
 import { Text } from '@/components/Text'
 import { useAffiliateRevenueUsdQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueUsdQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { supportedStakingAssetIds } from '@/pages/RFOX/hooks/useRfoxContext'
+import { RFOX_CURRENT_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -40,14 +40,14 @@ export const Stats: React.FC = () => {
   }, [currentEpochMetadataQuery, totalFeesCollectedUserCurrency])
 
   const Staked = useMemo(() => {
-    return supportedStakingAssetIds.map(stakingAssetId => (
-      <TotalStaked stakingAssetId={stakingAssetId} />
+    return RFOX_CURRENT_STAKING_ASSET_IDS.map(stakingAssetId => (
+      <TotalStaked key={stakingAssetId} stakingAssetId={stakingAssetId} />
     ))
   }, [])
 
   const Emissions = useMemo(() => {
-    return supportedStakingAssetIds.map(stakingAssetId => (
-      <EmissionsPool stakingAssetId={stakingAssetId} />
+    return RFOX_CURRENT_STAKING_ASSET_IDS.map(stakingAssetId => (
+      <EmissionsPool key={stakingAssetId} stakingAssetId={stakingAssetId} />
     ))
   }, [])
 

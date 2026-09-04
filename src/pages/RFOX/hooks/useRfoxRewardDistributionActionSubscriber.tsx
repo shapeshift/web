@@ -1,20 +1,26 @@
-import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo } from 'react'
 
 import { useActionCenterContext } from '../../../components/Layout/Header/ActionCenter/ActionCenterContext'
 import { useNotificationToast } from '../../../hooks/useNotificationToast'
 import { actionSlice } from '../../../state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType } from '../../../state/slices/actionSlice/types'
-import { selectAccountIdsByChainIdFilter } from '../../../state/slices/selectors'
+import { selectWalletAccountIds } from '../../../state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '../../../state/store'
 import type { RewardDistributionWithMetadata } from './useLifetimeRewardDistributionsQuery'
 import { useLifetimeRewardDistributionsQuery } from './useLifetimeRewardDistributionsQuery'
 
 import { RewardDistributionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/RewardDistributionNotification'
+import { RFOX_STAKING_CHAIN_IDS } from '@/pages/RFOX/constants'
 
 export const useRfoxRewardDistributionActionSubscriber = () => {
-  const stakingAssetAccountIds = useAppSelector(state =>
-    selectAccountIdsByChainIdFilter(state, { chainId: arbitrumChainId }),
+  const walletAccountIds = useAppSelector(selectWalletAccountIds)
+  const stakingAssetAccountIds = useMemo(
+    () =>
+      walletAccountIds.filter(accountId =>
+        RFOX_STAKING_CHAIN_IDS.includes(fromAccountId(accountId).chainId),
+      ),
+    [walletAccountIds],
   )
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()

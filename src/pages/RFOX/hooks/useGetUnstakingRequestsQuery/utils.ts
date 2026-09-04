@@ -1,18 +1,15 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { getAddress } from 'viem'
 import { multicall, readContract } from 'viem/actions'
-import { arbitrum } from 'viem/chains'
 
-import { getStakingContract } from '../../helpers'
+import { getRfoxClient, getRfoxNetworkId, getStakingContract } from '../../helpers'
 
 import { isSome } from '@/lib/utils'
 import { selectAssetById } from '@/state/slices/selectors'
 import { store } from '@/state/store'
-
-const client = viemClientByNetworkId[arbitrum.id]
 
 type UseGetUnstakingRequestsQueryProps = {
   stakingAssetAccountId: AccountId
@@ -39,6 +36,7 @@ export const getUnstakingRequestsQueryFn = ({
   stakingAssetId,
 }: UseGetUnstakingRequestsQueryProps): (() => Promise<UnstakingRequestAccountAssetData>) => {
   const stakingAssetAccountAddress = fromAccountId(stakingAssetAccountId).account
+  const client = getRfoxClient(stakingAssetId)
 
   return async () => {
     const count = await readContract(client, {
@@ -56,7 +54,7 @@ export const getUnstakingRequestsQueryFn = ({
         address: contractAddress,
         functionName: 'getUnstakingRequest',
         args: [getAddress(stakingAssetAccountAddress), BigInt(index)],
-        chainId: arbitrum.id,
+        chainId: getRfoxNetworkId(stakingAssetId),
       } as const
     })
 

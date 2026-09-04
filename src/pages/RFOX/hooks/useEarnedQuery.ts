@@ -3,10 +3,9 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { skipToken } from '@tanstack/react-query'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
 
 import { getRfoxContract } from '../constants'
-import { getStakingContract } from '../helpers'
+import { getRfoxNetworkId, getStakingContract } from '../helpers'
 
 type EarnedQueryKey = [
   'earned',
@@ -29,7 +28,7 @@ export const getEarnedQueryKey = ({
 }: UseEarnedQueryProps): EarnedQueryKey => [
   'earned',
   {
-    chainId: arbitrum.id,
+    chainId: getRfoxNetworkId(stakingAssetId),
     contractAddress: getStakingContract(stakingAssetId),
     stakingAssetAccountId,
     stakingAssetId,

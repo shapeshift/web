@@ -4,16 +4,15 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
 
 import { getRfoxContract } from '../constants'
-import { getStakingContract } from '../helpers'
+import { getRfoxNetworkId, getStakingContract } from '../helpers'
 import type { AbiStakingInfo } from '../types'
 
 export type StakingInfoQueryKey = [
   'stakingInfo',
   {
-    chainId: number
+    chainId?: number
     contractAddress?: Address
     stakingAssetAccountId?: AccountId
     stakingAssetId?: AssetId
@@ -36,7 +35,7 @@ export const getStakingInfoQueryKey = ({
   return [
     'stakingInfo',
     {
-      chainId: arbitrum.id,
+      chainId: stakingAssetId ? getRfoxNetworkId(stakingAssetId) : undefined,
       contractAddress: stakingAssetId ? getStakingContract(stakingAssetId) : undefined,
       stakingAssetAccountId,
       stakingAssetId,

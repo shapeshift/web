@@ -1,4 +1,4 @@
-import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_ARB_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 
 import type { BaseTxMetadata } from '../../../types'
 import type { SubParser, Tx, TxSpecific } from '../../parser'
@@ -33,7 +33,7 @@ export class Parser implements SubParser<Tx> {
         method: 'reward',
         epoch: parseInt(match.groups.epoch, 10),
         stakingAddress: match.groups.stakingAddress,
-        stakingContract: stakingContract || RFOX_PROXY_CONTRACT,
+        stakingContract: stakingContract || RFOX_ARB_PROXY_CONTRACT,
         ipfsHash: match.groups.ipfsHash,
       },
     })

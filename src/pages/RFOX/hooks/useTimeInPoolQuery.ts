@@ -1,10 +1,10 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { getStakingContract } from '../helpers'
+import { getRfoxChainId, getStakingContract } from '../helpers'
 
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 
@@ -44,8 +44,9 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
   select,
 }: UseTimeInPoolQueryProps<SelectData>) => {
   const provider = useMemo(() => {
-    return assertGetEvmChainAdapter(arbitrumChainId).httpProvider as unchained.evm.arbitrum.V1Api
-  }, [])
+    return assertGetEvmChainAdapter(getRfoxChainId(stakingAssetId))
+      .httpProvider as unchained.evm.arbitrum.V1Api
+  }, [stakingAssetId])
 
   const queryKey = useMemo(() => {
     return getTimeInPoolQueryKey({ stakingAssetAccountId, stakingAssetId })
@@ -55,11 +56,16 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
     if (!stakingAssetAccountId) return skipToken
 
     return async () => {
-      const stakingDuration = await provider.getRfoxStakingDuration({
-        address: fromAccountId(stakingAssetAccountId).account,
-      })
+      try {
+        const stakingDuration = await provider.getRfoxStakingDuration({
+          address: fromAccountId(stakingAssetAccountId).account,
+        })
 
-      return BigInt(stakingDuration[getStakingContract(stakingAssetId)] ?? 0)
+        return BigInt(stakingDuration[getStakingContract(stakingAssetId)] ?? 0)
+      } catch {
+        // Not every chain rFOX stakes on is indexed for it yet - callers render N/A for 0
+        return 0n
+      }
     }
   }, [provider, stakingAssetAccountId, stakingAssetId])
 

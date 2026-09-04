@@ -15,24 +15,19 @@ import {
   Stack,
   Tag,
   Text as CText,
+  Tooltip,
   usePrevious,
 } from '@chakra-ui/react'
-import {
-  foxOnArbitrumOneAssetId,
-  fromAssetId,
-  uniV2EthFoxArbitrumAssetId,
-  usdcOnArbitrumOneAssetId,
-} from '@shapeshiftoss/caip'
+import { foxAssetId, foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useLocation } from 'react-router-dom'
+import { Link as RouterLink, useLocation } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatSecondsToDuration } from '@/lib/utils/time'
@@ -44,13 +39,16 @@ import { ClaimModal } from '@/pages/RFOX/components/ClaimModal'
 import { Stats } from '@/pages/RFOX/components/Overview/Stats'
 import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
-import { selectStakingBalance } from '@/pages/RFOX/helpers'
+import { RFOX_STAKING_ASSET_IDS, RFOX_STAKING_CONFIG } from '@/pages/RFOX/constants'
+import { getRfoxChainId, getRfoxStakingConfig, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
 import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { useLifetimeRewardsUserCurrencyQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
+import { selectPauseState, useRfoxPauseStateQuery } from '@/pages/RFOX/hooks/useRfoxPauseStateQuery'
+import { useRfoxPositionsQuery } from '@/pages/RFOX/hooks/useRfoxPositionsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
@@ -59,6 +57,7 @@ import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
+  selectAssets,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -106,7 +105,6 @@ export const RFOXSection = () => {
   const isConnected = useIsWalletConnected()
 
   const translate = useTranslate()
-  const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
   const { setStakingAssetAccountId, setStakingAssetId: setContextStakingAssetId } = useRFOXContext()
   const appDispatch = useAppDispatch()
@@ -115,7 +113,7 @@ export const RFOXSection = () => {
     | UnstakingRequest
     | undefined
 
-  const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
+  const [stakingAssetId, setStakingAssetId] = useState(foxAssetId)
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
   const [isUnstakeModalOpen, setIsUnstakeModalOpen] = useState(false)
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(!!selectedUnstakingRequest)
@@ -143,83 +141,99 @@ export const RFOXSection = () => {
     selectAccountIdByAccountNumberAndChainId,
   )
 
+  const assets = useAppSelector(selectAssets)
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
+
+  const rewardAssetId = useMemo(
+    () => getRfoxStakingConfig(stakingAssetId).rewardAssetId,
+    [stakingAssetId],
+  )
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
 
   const stakingAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
-  const usdcMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, usdcOnArbitrumOneAssetId),
+  const rewardAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, rewardAssetId),
   )
-
-  const foxOnArbAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
-  const foxLpAsset = useAppSelector(state => selectAssetById(state, uniV2EthFoxArbitrumAssetId))
 
   const stakingAssetAccountId = useMemo(() => {
     const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
-    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(stakingAssetId).chainId]
+    const matchingAccountId = accountNumberAccountIds?.[getRfoxChainId(stakingAssetId)]
     return matchingAccountId
   }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
-  const lpStakingBalanceQuery = useStakingInfoQuery({
-    stakingAssetId: uniV2EthFoxArbitrumAssetId,
-    accountId: isConnected ? stakingAssetAccountId : undefined,
-    select: selectStakingBalance,
-  })
-
-  const hasLpStakingBalance = useMemo(
-    () => bnOrZero(lpStakingBalanceQuery.data).gt(0),
-    [lpStakingBalanceQuery.data],
-  )
-
   const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
 
-  // LP unstaking requests (cooldown pending or claimable) also count as an
-  // LP position — until the user claims, they still need the legacy UI.
-  const hasLpUnstakingRequests = useMemo(() => {
-    const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
-    return Boolean(
-      accountRequests?.some(request => request.stakingAssetId === uniV2EthFoxArbitrumAssetId),
-    )
-  }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId])
+  const { hasPositionByStakingAssetId } = useRfoxPositionsQuery({
+    accountNumber: isConnected ? assetAccountNumber : undefined,
+  })
 
-  const hasLpPosition = useMemo(
-    () => hasLpStakingBalance || hasLpUnstakingRequests,
-    [hasLpStakingBalance, hasLpUnstakingRequests],
+  const pauseStateQuery = useRfoxPauseStateQuery(stakingAssetId)
+  const pauseState = useMemo(() => selectPauseState(pauseStateQuery.data), [pauseStateQuery.data])
+
+  // Sunset programs are only surfaced while the user still has something to unstake or claim in
+  // them, so they fall away on their own once drained. Current programs are always surfaced, paused
+  // or not - a paused program disables its actions rather than disappearing.
+  const visibleStakingAssetIds = useMemo(
+    () =>
+      RFOX_STAKING_ASSET_IDS.filter(
+        candidateStakingAssetId =>
+          !RFOX_STAKING_CONFIG[candidateStakingAssetId].isLegacy ||
+          hasPositionByStakingAssetId[candidateStakingAssetId],
+      ),
+    [hasPositionByStakingAssetId],
   )
 
-  const filters = useMemo<Filter[]>(() => {
-    const foxFilter: Filter = {
-      label: foxOnArbAsset?.symbol ?? '',
-      chainId: foxOnArbAsset?.chainId,
-      assetId: foxOnArbitrumOneAssetId,
-      asset: foxOnArbAsset,
-    }
+  useEffect(() => {
+    if (visibleStakingAssetIds.includes(stakingAssetId)) return
+    if (!visibleStakingAssetIds.length) return
 
-    if (!hasLpPosition) return [foxFilter]
+    setStakingAssetId(visibleStakingAssetIds[0])
+    setContextStakingAssetId(visibleStakingAssetIds[0])
+  }, [setContextStakingAssetId, stakingAssetId, visibleStakingAssetIds])
 
-    return [
-      foxFilter,
-      {
-        label: foxLpAsset?.symbol ?? '',
-        chainId: foxLpAsset?.chainId,
-        assetId: uniV2EthFoxArbitrumAssetId,
-        asset: foxLpAsset,
-      },
-    ]
-  }, [foxLpAsset, foxOnArbAsset, hasLpPosition])
+  const filters = useMemo<Filter[]>(
+    () =>
+      visibleStakingAssetIds.map(candidateStakingAssetId => {
+        const asset = assets[candidateStakingAssetId]
+
+        return {
+          label: asset?.symbol ?? '',
+          chainId: asset?.chainId,
+          assetId: candidateStakingAssetId,
+          asset,
+        }
+      }),
+    [assets, visibleStakingAssetIds],
+  )
+
+  const hasLpPosition = hasPositionByStakingAssetId[uniV2EthFoxArbitrumAssetId]
+
+  const isMigrationBannerVisible = useMemo(
+    () => visibleStakingAssetIds.includes(foxOnArbitrumOneAssetId),
+    [visibleStakingAssetIds],
+  )
+
+  const migrationTradeUrl = useMemo(() => {
+    const [buyChainId, buyAssetSubId] = foxAssetId.split('/')
+    const [sellChainId, sellAssetSubId] = foxOnArbitrumOneAssetId.split('/')
+
+    return `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/0`
+  }, [])
 
   const hasClaimableRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
     if (!accountRequests?.length) return false
 
     return accountRequests.some(request => {
+      if (request.stakingAssetId !== stakingAssetId) return false
+
       const currentTimestampMs = Date.now()
       const unstakingTimestampMs = Number(request.cooldownExpiry) * 1000
       return currentTimestampMs >= unstakingTimestampMs
     })
-  }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId])
+  }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId, stakingAssetId])
 
   useEffect(() => {
     if (selectedUnstakingRequest) return
@@ -265,19 +279,19 @@ export const RFOXSection = () => {
     () =>
       BigAmount.fromBaseUnit({
         value: currentEpochRewardsQuery.data?.toString(),
-        precision: usdcAsset?.precision ?? 0,
+        precision: rewardAsset?.precision ?? 0,
       }).toPrecision(),
-    [currentEpochRewardsQuery.data, usdcAsset?.precision],
+    [currentEpochRewardsQuery.data, rewardAsset?.precision],
   )
 
   const currentEpochRewardsUserCurrency = useMemo(() => {
-    if (!usdcMarketData?.price) return '0'
+    if (!rewardAssetMarketData?.price) return '0'
     if (!currentEpochRewardsCryptoPrecision) return '0'
 
     return bnOrZero(currentEpochRewardsCryptoPrecision)
-      .times(bnOrZero(usdcMarketData.price))
+      .times(bnOrZero(rewardAssetMarketData.price))
       .toFixed(2)
-  }, [currentEpochRewardsCryptoPrecision, usdcMarketData?.price])
+  }, [currentEpochRewardsCryptoPrecision, rewardAssetMarketData?.price])
 
   const lifetimeRewardsUserCurrencyQuery = useLifetimeRewardsUserCurrencyQuery({
     stakingAssetId,
@@ -297,7 +311,7 @@ export const RFOXSection = () => {
 
   const handleSelectAssetId = useCallback(
     (filter: Filter) => {
-      const assetId = filter.assetId ?? foxOnArbitrumOneAssetId
+      const assetId = filter.assetId ?? foxAssetId
       setStakingAssetId(assetId)
       setContextStakingAssetId(assetId)
     },
@@ -335,35 +349,53 @@ export const RFOXSection = () => {
   const actionsButtons = useMemo(() => {
     return (
       <Flex flexWrap='wrap' gap={2}>
-        {stakingAssetId === foxOnArbitrumOneAssetId && (
+        <Tooltip
+          label={translate('RFOX.stakingPausedTooltip')}
+          isDisabled={!pauseState.isStakingPaused}
+          shouldWrapChildren
+        >
           <Button
             data-testid='rfox-stake-button'
             onClick={handleStakeClick}
             colorScheme='gray'
             flex='1 1 auto'
             leftIcon={tbArrowUp}
+            isDisabled={pauseState.isStakingPaused}
           >
             {translate('defi.stake')}
           </Button>
-        )}
-        <Button
-          data-testid='rfox-unstake-button'
-          onClick={handleUnstakeClick}
-          colorScheme='gray'
-          flex='1 1 auto'
-          leftIcon={tbArrowDown}
+        </Tooltip>
+        <Tooltip
+          label={translate('RFOX.unstakingPausedTooltip')}
+          isDisabled={!pauseState.isUnstakingPaused}
+          shouldWrapChildren
         >
-          {translate('defi.unstake')}
-        </Button>
-        <Button
-          data-testid='rfox-claim-button'
-          onClick={handleClaimClick}
-          colorScheme='green'
-          flex='1 1 auto'
-          isDisabled={!hasClaimableRequests}
+          <Button
+            data-testid='rfox-unstake-button'
+            onClick={handleUnstakeClick}
+            colorScheme='gray'
+            flex='1 1 auto'
+            leftIcon={tbArrowDown}
+            isDisabled={pauseState.isUnstakingPaused}
+          >
+            {translate('defi.unstake')}
+          </Button>
+        </Tooltip>
+        <Tooltip
+          label={translate('RFOX.withdrawalsPausedTooltip')}
+          isDisabled={!pauseState.isWithdrawalsPaused}
+          shouldWrapChildren
         >
-          {translate('defi.claim')}
-        </Button>
+          <Button
+            data-testid='rfox-claim-button'
+            onClick={handleClaimClick}
+            colorScheme='green'
+            flex='1 1 auto'
+            isDisabled={!hasClaimableRequests || pauseState.isWithdrawalsPaused}
+          >
+            {translate('defi.claim')}
+          </Button>
+        </Tooltip>
       </Flex>
     )
   }, [
@@ -371,15 +403,33 @@ export const RFOXSection = () => {
     handleUnstakeClick,
     handleClaimClick,
     translate,
-    stakingAssetId,
     hasClaimableRequests,
+    pauseState,
   ])
 
-  if (!(stakingAsset && usdcAsset)) return null
+  if (!(stakingAsset && rewardAsset)) return null
 
   return (
     <Box>
       <Divider mt={2} mb={6} />
+      {isMigrationBannerVisible && (
+        <Card borderColor='blue.500' borderWidth={1} borderRadius='lg' mb={2}>
+          <CardBody py={3} px={4}>
+            <Flex alignItems='center' gap={3} flexWrap='wrap'>
+              <Icon as={TbAlertTriangle} boxSize={6} color='blue.300' />
+              <Box flex='1 1 auto'>
+                <CText fontWeight='bold'>{translate('RFOX.migrationBannerTitle')}</CText>
+                <CText fontSize='sm' color='text.subtle'>
+                  {translate('RFOX.migrationBannerDescription')}
+                </CText>
+              </Box>
+              <Button as={RouterLink} to={migrationTradeUrl} colorScheme='blue' size='sm'>
+                {translate('RFOX.migrationBannerCta')}
+              </Button>
+            </Flex>
+          </CardBody>
+        </Card>
+      )}
       {hasLpPosition && (
         <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
           <CardBody py={2} px={4}>
@@ -409,7 +459,7 @@ export const RFOXSection = () => {
                 </Tag>
               </Skeleton>
             </Heading>
-            {isRFOXLPEnabled ? (
+            {filters.length > 1 ? (
               <ButtonGroup variant='transparent' mb={4} spacing={0} mt={2}>
                 <HStack spacing={1} p={1} borderRadius='md' {...hstackProps}>
                   {filters.map(filter => (
@@ -433,7 +483,7 @@ export const RFOXSection = () => {
               <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
                 <Amount.Crypto
                   value={currentEpochRewardsCryptoPrecision}
-                  symbol={usdcAsset.symbol ?? ''}
+                  symbol={rewardAsset.symbol ?? ''}
                 />
               </Skeleton>
               <Amount.Fiat

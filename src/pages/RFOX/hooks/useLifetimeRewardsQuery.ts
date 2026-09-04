@@ -1,11 +1,11 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId, usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { getAddress } from 'viem'
 
 import { RFOX_V3_UPGRADE_EPOCH } from '../constants'
-import { getStakingContract } from '../helpers'
+import { getRfoxStakingConfig, getStakingContract } from '../helpers'
 import type { Epoch } from '../types'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
@@ -25,21 +25,26 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
   stakingAssetId,
   stakingAssetAccountId,
 }: UseLifetimeRewardsQueryProps) => {
+  const rewardAssetId = useMemo(
+    () => getRfoxStakingConfig(stakingAssetId).rewardAssetId,
+    [stakingAssetId],
+  )
+
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
 
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
-  const usdcMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, usdcOnArbitrumOneAssetId),
+  const rewardAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, rewardAssetId),
   )
 
   const select = useCallback(
     (data: Epoch[]): string => {
       if (!stakingAssetAccountId) return '0'
       if (!runeAsset || !runeMarketData) return '0'
-      if (!usdcAsset || !usdcMarketData) return '0'
+      if (!rewardAsset || !rewardAssetMarketData) return '0'
 
       const { account: stakingAddress } = fromAccountId(stakingAssetAccountId)
 
@@ -54,14 +59,14 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
         if (epoch.distributionStatus === 'complete' && !distribution.txId) return acc
 
         const epochRewardUserCurrency = (() => {
-          // rFOX v3 updated rewards from rune to usdc
+          // rFOX v3 updated rewards from rune to a stable, which varies by staking contract
           if (epoch.number >= RFOX_V3_UPGRADE_EPOCH) {
             return BigAmount.fromBaseUnit({
               value: distribution.amount,
-              precision: usdcAsset?.precision ?? 0,
+              precision: rewardAsset?.precision ?? 0,
             })
               .toBN()
-              .times(usdcMarketData.price)
+              .times(rewardAssetMarketData.price)
           }
 
           return BigAmount.fromBaseUnit({
@@ -77,7 +82,14 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
 
       return lifetimeRewardsUserCurrency.toFixed(2)
     },
-    [stakingAssetId, stakingAssetAccountId, runeAsset, runeMarketData, usdcAsset, usdcMarketData],
+    [
+      stakingAssetId,
+      stakingAssetAccountId,
+      runeAsset,
+      runeMarketData,
+      rewardAsset,
+      rewardAssetMarketData,
+    ],
   )
 
   const query = useEpochHistoryQuery({

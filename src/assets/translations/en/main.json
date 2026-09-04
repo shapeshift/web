@@ -3041,7 +3041,13 @@
     "pendingDistribution": "Pending Distribution",
     "selectRuneAddress": "Select a RUNE address",
     "lpSunsetWarningTitle": "Program Ended",
-    "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience."
+    "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience.",
+    "migrationBannerTitle": "rFOX is moving to Ethereum",
+    "migrationBannerDescription": "Staking on Arbitrum is being retired. Un-stake and claim your Arbitrum position, move your FOX to Ethereum, then stake it there to keep earning rewards.",
+    "migrationBannerCta": "Move FOX to Ethereum",
+    "stakingPausedTooltip": "Staking is paused for this program.",
+    "unstakingPausedTooltip": "Un-staking is paused for this program.",
+    "withdrawalsPausedTooltip": "Claiming is paused for this program."
   },
   "TCY": {
     "stake": "Stake",

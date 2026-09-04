@@ -1,9 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
-import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 
-import { getStakingContract } from '../helpers'
+import { getRfoxNetworkId, getStakingContract } from '../helpers'
 
 type TotalStaked = bigint
 
@@ -20,7 +19,7 @@ export const useTotalStakedQuery = <SelectData = TotalStaked>({
     abi: RFOX_ABI,
     address: getStakingContract(stakingAssetId),
     functionName: 'totalStaked',
-    chainId: arbitrum.id,
+    chainId: getRfoxNetworkId(stakingAssetId),
     query: {
       select,
     },

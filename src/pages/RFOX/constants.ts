@@ -1,10 +1,23 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
-import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  ethChainId,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  usdcAssetId,
+  usdcOnArbitrumOneAssetId,
+  uniV2EthFoxArbitrumAssetId,
+} from '@shapeshiftoss/caip'
+import {
+  RFOX_ABI,
+  RFOX_ETH_PROXY_CONTRACT,
+  RFOX_ARB_PROXY_CONTRACT,
+  RFOX_ARB_UNI_V2_ETH_FOX_PROXY_CONTRACT,
+  viemClientByNetworkId,
+} from '@shapeshiftoss/contracts'
+import type { Address } from 'viem'
 import { getAbiItem, getContract } from 'viem'
-import { arbitrum } from 'viem/chains'
-
-import { getStakingContract } from './helpers'
+import { arbitrum, mainnet } from 'viem/chains'
 
 export const stakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Stake' })
 export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
@@ -15,13 +28,67 @@ export const CURRENT_EPOCH_IPFS_HASH = 'bafkreihv7ilxdosw5rqky22fj5psfjhnwcqnmiu
 export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
 export const RFOX_V3_UPGRADE_EPOCH = 18
 
-export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId]
+export type RfoxStakingConfig = {
+  stakingContract: Address
+  chainId: ChainId
+  /** viem chain id, used to resolve the rpc client for this staking contract */
+  networkId: number
+  /** the asset rewards are distributed in for epochs from RFOX_V3_UPGRADE_EPOCH onwards */
+  rewardAssetId: AssetId
+  contractCreationBlock: bigint
+  /**
+   * Sunset staking programs are only surfaced to users who still hold a position in them, and
+   * disappear once that position is fully unstaked and claimed. Unlike the on-chain pause flags -
+   * which disable individual actions - this is a product decision about whether the program is
+   * still being offered at all, so it is set here rather than derived from chain state.
+   */
+  isLegacy: boolean
+}
 
-const client = viemClientByNetworkId[arbitrum.id]
+export const RFOX_STAKING_CONFIG: Record<AssetId, RfoxStakingConfig> = {
+  [foxAssetId]: {
+    stakingContract: RFOX_ETH_PROXY_CONTRACT,
+    chainId: ethChainId,
+    networkId: mainnet.id,
+    rewardAssetId: usdcAssetId,
+    contractCreationBlock: 25906046n,
+    isLegacy: false,
+  },
+  [foxOnArbitrumOneAssetId]: {
+    stakingContract: RFOX_ARB_PROXY_CONTRACT,
+    chainId: arbitrumChainId,
+    networkId: arbitrum.id,
+    rewardAssetId: usdcOnArbitrumOneAssetId,
+    contractCreationBlock: 222913582n,
+    isLegacy: false,
+  },
+  [uniV2EthFoxArbitrumAssetId]: {
+    stakingContract: RFOX_ARB_UNI_V2_ETH_FOX_PROXY_CONTRACT,
+    chainId: arbitrumChainId,
+    networkId: arbitrum.id,
+    rewardAssetId: usdcOnArbitrumOneAssetId,
+    contractCreationBlock: 291163572n,
+    isLegacy: true,
+  },
+}
 
-export const getRfoxContract = (stakingAssetId: AssetId) =>
-  getContract({
-    address: getStakingContract(stakingAssetId),
+export const RFOX_STAKING_ASSET_IDS: AssetId[] = Object.keys(RFOX_STAKING_CONFIG)
+
+export const RFOX_CURRENT_STAKING_ASSET_IDS: AssetId[] = RFOX_STAKING_ASSET_IDS.filter(
+  stakingAssetId => !RFOX_STAKING_CONFIG[stakingAssetId].isLegacy,
+)
+
+export const RFOX_STAKING_CHAIN_IDS: ChainId[] = Array.from(
+  new Set(Object.values(RFOX_STAKING_CONFIG).map(config => config.chainId)),
+)
+
+export const getRfoxContract = (stakingAssetId: AssetId) => {
+  const config = RFOX_STAKING_CONFIG[stakingAssetId]
+  if (!config) throw new Error(`No rFOX staking config for ${stakingAssetId}`)
+
+  return getContract({
+    address: config.stakingContract,
     abi: RFOX_ABI,
-    client,
+    client: viemClientByNetworkId[config.networkId],
   })
+}

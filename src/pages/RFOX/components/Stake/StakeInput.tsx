@@ -339,7 +339,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           assetIds={fundingAssetIds}
           onlyConnectedChains={true}
           buttonProps={assetSelectButtonProps}
-          showChainDropdown={false}
+          showChainDropdown={!isSmallerThanMd}
+          px={6}
         />
       )
     }
@@ -353,6 +354,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         onlyConnectedChains={true}
         buttonProps={assetSelectButtonProps}
         showChainDropdown={!isSmallerThanMd}
+        px={6}
       />
     )
   }, [

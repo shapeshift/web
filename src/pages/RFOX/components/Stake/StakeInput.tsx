@@ -593,7 +593,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 !isValidStakingAmount ||
                 !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
                 isDiscoveringAccounts ||
-                !cooldownPeriodData?.cooldownPeriodSeconds,
+                cooldownPeriodData?.cooldownPeriodSeconds === undefined,
             )}
             size='lg'
             mx={-2}

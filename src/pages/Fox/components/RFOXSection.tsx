@@ -348,14 +348,6 @@ export const RFOXSection = () => {
     [cooldownPeriodQuery.data?.cooldownPeriodSeconds, stakingAssetId],
   )
 
-  const unstakeDisabledTooltip = useMemo(
-    () =>
-      translate('RFOX.unstakeDisabledMigrationTooltip', {
-        cooldownPeriod: cooldownPeriodQuery.data?.cooldownPeriod,
-      }),
-    [cooldownPeriodQuery.data?.cooldownPeriod, translate],
-  )
-
   const actionsButtons = useMemo(() => {
     return (
       <Flex flexWrap='wrap' gap={2}>
@@ -374,7 +366,7 @@ export const RFOXSection = () => {
             sizing lives on the wrapper to keep this button growing with its siblings */}
         <Box flex='1 1 auto' sx={tooltipWrapperSx}>
           <Tooltip
-            label={unstakeDisabledTooltip}
+            label={translate('RFOX.unstakeDisabledMigrationTooltip')}
             isDisabled={!isUnstakeDisabled}
             shouldWrapChildren
           >
@@ -409,7 +401,6 @@ export const RFOXSection = () => {
     stakingAssetId,
     hasClaimableRequests,
     isUnstakeDisabled,
-    unstakeDisabledTooltip,
   ])
 
   if (!(stakingAsset && usdcAsset)) return null

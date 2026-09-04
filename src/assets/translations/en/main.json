@@ -3040,7 +3040,7 @@
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution",
     "selectRuneAddress": "Select a RUNE address",
-    "unstakeDisabledMigrationTooltip": "Un-staking is temporarily disabled ahead of the rFOX migration to Ethereum. Your cooldown is fixed when you un-stake, so un-staking now would lock your FOX for the full %{cooldownPeriod}. The cooldown is removed on October 1 \u2014 un-stake then to claim straight away.",
+    "unstakeDisabledMigrationTooltip": "Un-staking is disabled until October 1, when the cooldown period is removed.",
     "lpSunsetWarningTitle": "Program Ended",
     "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience."
   },

@@ -14,7 +14,9 @@ export const useCooldownPeriodQuery = (stakingAssetId: AssetId) => {
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
     query: {
-      staleTime: Infinity,
+      // Ops set this on chain, so it cannot be treated as immutable - notably it is zeroed at the
+      // rFOX migration, which the UI keys un-staking off
+      staleTime: 60 * 1000, // 1 minute in milliseconds
       select: data => {
         const cooldownPeriod = formatSecondsToDuration(Number(data))
         return {

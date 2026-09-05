@@ -3040,6 +3040,7 @@
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution",
     "selectRuneAddress": "Select a RUNE address",
+    "unstakeDisabledMigrationTooltip": "Un-staking is disabled until October 1, when the cooldown period is removed.",
     "lpSunsetWarningTitle": "Program Ended",
     "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience."
   },

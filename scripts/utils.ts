@@ -27,5 +27,5 @@ export const getSemverTags = async (): Promise<string[]> => {
   const validTags: string[] = allTags
     .filter(t => semver.valid(t))
     .filter(t => semver.satisfies(t, WEB_VERSION_RANGES))
-  return validTags
+  return validTags.sort(semver.compare)
 }

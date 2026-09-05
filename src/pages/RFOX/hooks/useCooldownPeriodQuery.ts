@@ -14,7 +14,9 @@ export const useCooldownPeriodQuery = (stakingAssetId: AssetId) => {
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
     query: {
-      staleTime: Infinity,
+      staleTime: 60 * 1000,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
       select: data => {
         const cooldownPeriod = formatSecondsToDuration(Number(data))
         return {

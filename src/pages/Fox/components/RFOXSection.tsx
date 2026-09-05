@@ -15,6 +15,7 @@ import {
   Stack,
   Tag,
   Text as CText,
+  Tooltip,
   usePrevious,
 } from '@chakra-ui/react'
 import {
@@ -45,6 +46,7 @@ import { Stats } from '@/pages/RFOX/components/Overview/Stats'
 import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
+import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
@@ -62,6 +64,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const tooltipWrapperSx = { '& > span': { display: 'block', width: '100%' } }
 
 const tbArrowUp = <TbArrowUp />
 const tbArrowDown = <TbArrowDown />
@@ -332,6 +336,15 @@ export const RFOXSection = () => {
     setIsClaimModalOpen(false)
   }, [])
 
+  const cooldownPeriodQuery = useCooldownPeriodQuery(stakingAssetId)
+
+  const isUnstakeDisabled = useMemo(
+    () =>
+      stakingAssetId === foxOnArbitrumOneAssetId &&
+      cooldownPeriodQuery.data?.cooldownPeriodSeconds !== 0,
+    [cooldownPeriodQuery.data?.cooldownPeriodSeconds, stakingAssetId],
+  )
+
   const actionsButtons = useMemo(() => {
     return (
       <Flex flexWrap='wrap' gap={2}>
@@ -346,15 +359,24 @@ export const RFOXSection = () => {
             {translate('defi.stake')}
           </Button>
         )}
-        <Button
-          data-testid='rfox-unstake-button'
-          onClick={handleUnstakeClick}
-          colorScheme='gray'
-          flex='1 1 auto'
-          leftIcon={tbArrowDown}
-        >
-          {translate('defi.unstake')}
-        </Button>
+        <Box flex='1 1 auto' sx={tooltipWrapperSx}>
+          <Tooltip
+            label={translate('RFOX.unstakeDisabledMigrationTooltip')}
+            isDisabled={!isUnstakeDisabled}
+            shouldWrapChildren
+          >
+            <Button
+              data-testid='rfox-unstake-button'
+              onClick={handleUnstakeClick}
+              colorScheme='gray'
+              width='full'
+              leftIcon={tbArrowDown}
+              isDisabled={isUnstakeDisabled}
+            >
+              {translate('defi.unstake')}
+            </Button>
+          </Tooltip>
+        </Box>
         <Button
           data-testid='rfox-claim-button'
           onClick={handleClaimClick}
@@ -373,6 +395,7 @@ export const RFOXSection = () => {
     translate,
     stakingAssetId,
     hasClaimableRequests,
+    isUnstakeDisabled,
   ])
 
   if (!(stakingAsset && usdcAsset)) return null

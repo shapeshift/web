@@ -155,10 +155,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
   }
 
   // Most tokens expose both naming conventions, but LINK is balance_of only and DAI balanceOf only
-  private async fetchTokenBalance(
-    tokenAddress: string,
-    accountAddress: string,
-  ): Promise<string[]> {
+  private async fetchTokenBalance(tokenAddress: string, accountAddress: string): Promise<string[]> {
     const calldata = [accountAddress]
 
     for (const entrypoint of ['balanceOf', 'balance_of']) {
@@ -346,8 +343,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const result: RpcJsonResponse<StarknetNonceResult> = await response.json()
       if (result.result) return result.result
     }
-
-    return undefined
   }
 
   /**

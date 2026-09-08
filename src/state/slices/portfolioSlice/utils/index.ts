@@ -293,7 +293,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = `${chainId}:${pubkey}`
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: balance }
 
@@ -305,7 +309,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
@@ -326,7 +334,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
@@ -348,7 +360,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
@@ -370,7 +386,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
@@ -392,7 +412,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
@@ -413,7 +437,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
@@ -435,7 +463,11 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+          isDegraded: Boolean(account.isDegraded),
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 

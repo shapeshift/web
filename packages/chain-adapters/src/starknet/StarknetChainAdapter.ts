@@ -43,6 +43,7 @@ import type {
 } from './types'
 import {
   calculateFeeTiers,
+  isContractRejection,
   OPENZEPPELIN_ACCOUNT_CLASS_HASH,
   STATIC_FEE_ESTIMATES,
   STRK_TOKEN_ADDRESS,
@@ -166,11 +167,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           calldata,
         })
       } catch (err) {
-        continue
+        // A node that can't answer must surface as a failed account, never as a zero balance
+        if (!isContractRejection(err)) throw err
       }
     }
 
-    // Undeployed account or a contract that isn't a token
+    // Both names rejected: an undeployed account, or a contract that isn't a token
     return ['0x0', '0x0']
   }
 
@@ -339,9 +341,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
   // RPC spec 0.9 renamed the `pending` block tag to `pre_confirmed` and rejects the old name
   private async fetchPreConfirmedNonce(address: string): Promise<string | undefined> {
     for (const blockTag of ['pre_confirmed', 'pending']) {
-      const response = await this.provider.fetch('starknet_getNonce', [blockTag, address])
-      const result: RpcJsonResponse<StarknetNonceResult> = await response.json()
-      if (result.result) return result.result
+      try {
+        const response = await this.provider.fetch('starknet_getNonce', [blockTag, address])
+        const result: RpcJsonResponse<StarknetNonceResult> = await response.json()
+        if (result.result) return result.result
+      } catch (err) {
+        continue
+      }
     }
   }
 

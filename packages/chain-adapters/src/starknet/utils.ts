@@ -1,7 +1,14 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
+import { RpcError } from 'starknet'
 
 import type { FeeDataEstimate } from '../types'
+
+export const isContractRejection = (err: unknown): boolean =>
+  err instanceof RpcError &&
+  (err.isType('ENTRYPOINT_NOT_FOUND') ||
+    err.isType('CONTRACT_NOT_FOUND') ||
+    err.isType('CONTRACT_ERROR'))
 
 // STRK token contract address on Starknet mainnet (native gas token)
 export const STRK_TOKEN_ADDRESS =

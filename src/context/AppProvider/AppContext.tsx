@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId, foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import difference from 'lodash/difference'
 import React, { Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -18,6 +18,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useActionCenterSubscribers } from '@/hooks/useActionCenterSubscribers/useActionCenterSubscribers'
+import { useAssetService } from '@/hooks/useAssetService/useAssetService'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
@@ -27,7 +28,6 @@ import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { getAssetService, initAssetService } from '@/lib/asset-service'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
@@ -107,30 +107,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Initialize user system
   useUser()
 
-  // Initialize asset service and populate Redux with assets
-  const { isError: isAssetServiceError } = useQuery({
-    queryKey: ['assetService'],
-    queryFn: async () => {
-      await initAssetService()
-      const service = getAssetService()
-
-      dispatch(
-        assets.actions.upsertAssets({
-          byId: service.assetsById,
-          ids: service.assetIds,
-        }),
-      )
-      dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
-
-      // Note: Trade input defaults are now set in a useEffect below, not here.
-      // This is because assets may be persisted from a previous session, and we need
-      // to set defaults even when queryFn doesn't run (due to React Query caching).
-
-      return null
-    },
-    staleTime: Infinity,
-    gcTime: Infinity,
-  })
+  const { isError: isAssetServiceError } = useAssetService()
 
   // Show error toast if asset loading fails
   useEffect(() => {

@@ -21,6 +21,21 @@ type OnlyNecessaryProps<T, U> = T & Omit<FalsyValuesOfUnion<U>, keyof T>
 type GuardedUnionInner<T, U> = T extends any ? OnlyNecessaryProps<T, U> : never
 type GuardedUnion<T> = GuardedUnionInner<T, T>
 
+/**
+ * Zcash transaction version group IDs, keyed by transaction version.
+ */
+export const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
+  4: 0x892f2085,
+  5: 0x26a7270a,
+}
+
+/**
+ * Consensus branch ID of the currently-active Zcash network upgrade (NU6.3, ZIP-258).
+ * Update this together with ZCASH_UPGRADE_ACTIVATION_HEIGHT on every network upgrade.
+ */
+export const ZCASH_CONSENSUS_BRANCH_ID = 0x37a5165b
+export const ZCASH_UPGRADE_ACTIVATION_HEIGHT = 3428143
+
 export type BTCGetAddress = {
   coin: Coin
   addressNList: BIP32Path

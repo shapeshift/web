@@ -31,13 +31,6 @@ function translateCoin(coin: core.Coin): string {
 
 const segwitCoins = ['Bitcoin', 'Litecoin', 'BitcoinGold', 'Testnet']
 
-const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
-  4: 0x892f2085,
-  5: 0x26a7270a,
-}
-
-const ZCASH_CONSENSUS_BRANCH_ID = 0x5437f330
-
 function translateInputScriptType(scriptType?: core.BTCInputScriptType): string {
   switch (scriptType) {
     case core.BTCInputScriptType.SpendAddress:
@@ -168,8 +161,8 @@ export async function btcSignTx(
     push: false,
     ...(isZcash && {
       version,
-      versionGroupId: ZCASH_VERSION_GROUP_ID[version!],
-      branchId: ZCASH_CONSENSUS_BRANCH_ID,
+      versionGroupId: core.ZCASH_VERSION_GROUP_ID[version!],
+      branchId: core.ZCASH_CONSENSUS_BRANCH_ID,
     }),
   })
 

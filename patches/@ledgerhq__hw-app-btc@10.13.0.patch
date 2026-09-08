@@ -1,0 +1,133 @@
+diff --git a/lib/constants.d.ts b/lib/constants.d.ts
+index 87e601d5301554320e6de0109844251506ec478a..da16cea7d1099bf81174770664d556ea4cf711b0 100644
+--- a/lib/constants.d.ts
++++ b/lib/constants.d.ts
+@@ -11,6 +11,8 @@ export declare const OP_EQUALVERIFY = 136;
+ export declare const OP_CHECKSIG = 172;
+ export declare const OP_RETURN = 106;
+ export declare const ZCASH_ACTIVATION_HEIGHTS: {
++    NU6_3: number;
++    NU6_2: number;
+     NU6_1: number;
+     NU6: number;
+     NU5: number;
+diff --git a/lib/constants.js b/lib/constants.js
+index 95c0eae2aefb17da82e558d51258173f654e61f3..97dca962591d3c1d305f883cf96402e9568f3da1 100644
+--- a/lib/constants.js
++++ b/lib/constants.js
+@@ -22,6 +22,10 @@ exports.OP_RETURN = 0x6a;
+ exports.ZCASH_ACTIVATION_HEIGHTS = {
+     // https://zcash.readthedocs.io/en/latest/rtd_pages/nu_dev_guide.html
+     //
++    // https://zips.z.cash/zip-0258
++    NU6_3: 3428143,
++    // https://z.cash/upgrade/nu6-2/
++    NU6_2: 3364600,
+     // https://zips.z.cash/zip-0255
+     // https://github.com/zcash/zcash/releases/tag/v6.10.0
+     NU6_1: 3146400,
+diff --git a/lib/createTransaction.js b/lib/createTransaction.js
+index 555bb89273a7474b89055460d73bb1a4701c3f01..64ccac0984690d4a674323b338ebd7069976648a 100644
+--- a/lib/createTransaction.js
++++ b/lib/createTransaction.js
+@@ -25,8 +25,14 @@ const defaultsSignTransaction = {
+ };
+ const getZcashBranchId = (blockHeight) => {
+     const branchId = Buffer.alloc(4);
+-    if (!blockHeight || blockHeight >= constants_1.ZCASH_ACTIVATION_HEIGHTS.NU6_1) {
++    if (!blockHeight || blockHeight >= constants_1.ZCASH_ACTIVATION_HEIGHTS.NU6_3) {
+         // NOTE: null and undefined should default to latest version
++        branchId.writeUInt32LE(0x37a5165b, 0);
++    }
++    else if (blockHeight >= constants_1.ZCASH_ACTIVATION_HEIGHTS.NU6_2) {
++        branchId.writeUInt32LE(0x5437f330, 0);
++    }
++    else if (blockHeight >= constants_1.ZCASH_ACTIVATION_HEIGHTS.NU6_1) {
+         branchId.writeUInt32LE(0x4dec4df0, 0);
+     }
+     else if (blockHeight >= constants_1.ZCASH_ACTIVATION_HEIGHTS.NU6) {
+diff --git a/lib/getTrustedInputBIP143.js b/lib/getTrustedInputBIP143.js
+index de0c1eea030480e16387f715c875ac986b013624..bfd806d08e55ae47c5f50870b9abeb2fdc75e99d 100644
+--- a/lib/getTrustedInputBIP143.js
++++ b/lib/getTrustedInputBIP143.js
+@@ -4,6 +4,20 @@ exports.getTrustedInputBIP143 = void 0;
+ const sha256_1 = require("@noble/hashes/sha256");
+ const serializeTransaction_1 = require("./serializeTransaction");
+ function getTrustedInputBIP143(transport, indexLookup, transaction, additionals = []) {
++    // Zcash v5 identifies transactions by their ZIP-244 txid, not by SHA256d of the serialized
++    // transaction, so use the txid @shapeshiftoss/hdwallet-ledger supplies via _customZcashTxId.
++    if (additionals &&
++        additionals.includes("zcash") &&
++        transaction &&
++        transaction._customZcashTxId &&
++        transaction._customZcashAmount) {
++        const zcashHash = Buffer.from(transaction._customZcashTxId, "hex").reverse();
++        const zcashIndex = Buffer.alloc(4);
++        zcashIndex.writeUInt32LE(indexLookup, 0);
++        const zcashAmount = Buffer.alloc(8);
++        zcashAmount.writeBigUInt64LE(BigInt(transaction._customZcashAmount));
++        return Buffer.concat([zcashHash, zcashIndex, zcashAmount]).toString("hex");
++    }
+     if (!transaction) {
+         throw new Error("getTrustedInputBIP143: missing tx");
+     }
+diff --git a/lib-es/constants.js b/lib-es/constants.js
+index f5193c271bc13950aecb3b75c2bca69ed57248bd..43f7c87567fa210094d5704c643a242fc156911c 100644
+--- a/lib-es/constants.js
++++ b/lib-es/constants.js
+@@ -19,6 +19,10 @@ export const OP_RETURN = 0x6a;
+ export const ZCASH_ACTIVATION_HEIGHTS = {
+     // https://zcash.readthedocs.io/en/latest/rtd_pages/nu_dev_guide.html
+     //
++    // https://zips.z.cash/zip-0258
++    NU6_3: 3428143,
++    // https://z.cash/upgrade/nu6-2/
++    NU6_2: 3364600,
+     // https://zips.z.cash/zip-0255
+     // https://github.com/zcash/zcash/releases/tag/v6.10.0
+     NU6_1: 3146400,
+diff --git a/lib-es/createTransaction.js b/lib-es/createTransaction.js
+index 0f6fccd341f39e166167d81ad68da19dc944db78..f0d5ceabdc144baf727914ec6be5479c641e27d3 100644
+--- a/lib-es/createTransaction.js
++++ b/lib-es/createTransaction.js
+@@ -22,8 +22,14 @@ const defaultsSignTransaction = {
+ };
+ export const getZcashBranchId = (blockHeight) => {
+     const branchId = Buffer.alloc(4);
+-    if (!blockHeight || blockHeight >= ZCASH_ACTIVATION_HEIGHTS.NU6_1) {
++    if (!blockHeight || blockHeight >= ZCASH_ACTIVATION_HEIGHTS.NU6_3) {
+         // NOTE: null and undefined should default to latest version
++        branchId.writeUInt32LE(0x37a5165b, 0);
++    }
++    else if (blockHeight >= ZCASH_ACTIVATION_HEIGHTS.NU6_2) {
++        branchId.writeUInt32LE(0x5437f330, 0);
++    }
++    else if (blockHeight >= ZCASH_ACTIVATION_HEIGHTS.NU6_1) {
+         branchId.writeUInt32LE(0x4dec4df0, 0);
+     }
+     else if (blockHeight >= ZCASH_ACTIVATION_HEIGHTS.NU6) {
+diff --git a/lib-es/getTrustedInputBIP143.js b/lib-es/getTrustedInputBIP143.js
+index 05a31908bbe08dabf89ccd3bb8cd847cffc63a1d..969c6212797296bebac7095f45fd7648c8052bd6 100644
+--- a/lib-es/getTrustedInputBIP143.js
++++ b/lib-es/getTrustedInputBIP143.js
+@@ -1,6 +1,20 @@
+ import { sha256 } from "@noble/hashes/sha256";
+ import { serializeTransaction } from "./serializeTransaction";
+ export function getTrustedInputBIP143(transport, indexLookup, transaction, additionals = []) {
++    // Zcash v5 identifies transactions by their ZIP-244 txid, not by SHA256d of the serialized
++    // transaction, so use the txid @shapeshiftoss/hdwallet-ledger supplies via _customZcashTxId.
++    if (additionals &&
++        additionals.includes("zcash") &&
++        transaction &&
++        transaction._customZcashTxId &&
++        transaction._customZcashAmount) {
++        const zcashHash = Buffer.from(transaction._customZcashTxId, "hex").reverse();
++        const zcashIndex = Buffer.alloc(4);
++        zcashIndex.writeUInt32LE(indexLookup, 0);
++        const zcashAmount = Buffer.alloc(8);
++        zcashAmount.writeBigUInt64LE(BigInt(transaction._customZcashAmount));
++        return Buffer.concat([zcashHash, zcashIndex, zcashAmount]).toString("hex");
++    }
+     if (!transaction) {
+         throw new Error("getTrustedInputBIP143: missing tx");
+     }

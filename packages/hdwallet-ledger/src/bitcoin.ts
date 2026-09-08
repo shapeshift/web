@@ -1,11 +1,16 @@
 import ecc from '@bitcoinerlab/secp256k1'
 import type { CreateTransactionArg } from '@ledgerhq/hw-app-btc/lib/createTransaction'
 import type { Transaction } from '@ledgerhq/hw-app-btc/lib/types'
-import type Transport from '@ledgerhq/hw-transport'
 import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
 import type { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import * as core from '@shapeshiftoss/hdwallet-core'
-import { convertXpubVersion, scriptTypeToAccountType } from '@shapeshiftoss/hdwallet-core'
+import {
+  convertXpubVersion,
+  scriptTypeToAccountType,
+  ZCASH_CONSENSUS_BRANCH_ID,
+  ZCASH_UPGRADE_ACTIVATION_HEIGHT,
+  ZCASH_VERSION_GROUP_ID,
+} from '@shapeshiftoss/hdwallet-core'
 import Base64 from 'base64-js'
 import * as bchAddr from 'bchaddrjs'
 import * as bitcoinMsg from 'bitcoinjs-message'
@@ -15,19 +20,6 @@ import { currencies } from './currencies'
 import type { LedgerTransport } from './transport'
 import { handleError, networksUtil, translateScriptType } from './utils'
 
-const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
-  4: 0x892f2085,
-  5: 0x26a7270a,
-}
-
-// Consensus branch ID of the currently-active Zcash network upgrade.
-// On each network upgrade, bump this together with ZCASH_UPGRADE_ACTIVATION_HEIGHT.
-const ZCASH_CONSENSUS_BRANCH_ID = 0x5437f330
-
-// Activation height of the upgrade above. Used as a fallback block height so Ledger
-// derives the matching consensus branch ID when every input is still unconfirmed.
-const ZCASH_UPGRADE_ACTIVATION_HEIGHT = 3364600
-
 type ZcashInput = core.BTCSignTxInputLedger & {
   txid?: string
   blockHeight?: number
@@ -36,56 +28,6 @@ type ZcashInput = core.BTCSignTxInputLedger & {
 type ZcashLedgerTransaction = Transaction & {
   _customZcashTxId?: string
   _customZcashAmount?: string
-}
-
-// MONKEY PATCH: Fix Zcash v5 Trusted Input Hashing
-// @ledgerhq/hw-app-btc calculates SHA256d hash for trusted inputs, but Zcash v5 uses ZIP-244 tree hash.
-// We patch getTrustedInputBIP143 to use the correct TXID provided by the adapter (via _customZcashTxId property)
-// instead of incorrectly re-hashing the simplified transaction buffer.
-//
-// NOTE: We use 'require' here because ES6 imports are read-only and immutable.
-// To successfully patch the function exported by the library so that internal calls use our version,
-// we must modify the CommonJS exports object directly.
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const getTrustedInputModule = require('@ledgerhq/hw-app-btc/lib/getTrustedInputBIP143')
-  const originGetTrustedInputBIP143 = getTrustedInputModule.getTrustedInputBIP143
-
-  getTrustedInputModule.getTrustedInputBIP143 = function (
-    transport: Transport,
-    indexLookup: number,
-    transaction: Transaction & { _customZcashTxId?: string; _customZcashAmount?: string },
-    additionals: string[],
-    ...args: any[]
-  ) {
-    if (
-      additionals &&
-      additionals.includes('zcash') &&
-      transaction._customZcashTxId &&
-      transaction._customZcashAmount
-    ) {
-      const txid = transaction._customZcashTxId
-      const amount = transaction._customZcashAmount
-
-      const hash = Buffer.from(txid, 'hex').reverse()
-      const data = Buffer.alloc(4)
-      data.writeUInt32LE(indexLookup, 0)
-      const amountBuf = Buffer.alloc(8)
-      amountBuf.writeBigUInt64LE(BigInt(amount))
-
-      return Buffer.concat([hash, data, amountBuf]).toString('hex')
-    }
-    return originGetTrustedInputBIP143.call(
-      this,
-      transport,
-      indexLookup,
-      transaction,
-      additionals,
-      ...args,
-    )
-  }
-} catch (e) {
-  console.error('[Zcash Ledger] Failed to patch getTrustedInputBIP143:', e)
 }
 
 export const supportedCoins = [

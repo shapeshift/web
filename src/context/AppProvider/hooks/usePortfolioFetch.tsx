@@ -1,5 +1,7 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 
+import { chainScansKnownTokens, useAssetService } from '@/hooks/useAssetService/useAssetService'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -11,6 +13,7 @@ export const usePortfolioFetch = () => {
   const dispatch = useAppDispatch()
   const { isLoadingLocalWallet, modal, wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+  const { isPending: isAssetServicePending } = useAssetService()
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
 
@@ -30,6 +33,9 @@ export const usePortfolioFetch = () => {
     const { getAllTxHistory } = txHistoryApi.endpoints
 
     enabledWalletAccountIds.forEach(accountId => {
+      // RTK Query keeps the first result of a subscribed query, so this would pin empty balances
+      if (isAssetServicePending && chainScansKnownTokens(fromAccountId(accountId).chainId)) return
+
       dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     })
 
@@ -38,5 +44,12 @@ export const usePortfolioFetch = () => {
     enabledWalletAccountIds.forEach(requestedAccountId => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
-  }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled, isLoadingLocalWallet, modal])
+  }, [
+    dispatch,
+    enabledWalletAccountIds,
+    isAssetServicePending,
+    isLazyTxHistoryEnabled,
+    isLoadingLocalWallet,
+    modal,
+  ])
 }

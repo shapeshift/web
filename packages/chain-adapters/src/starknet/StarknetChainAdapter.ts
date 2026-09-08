@@ -154,6 +154,29 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     }
   }
 
+  // Most tokens expose both naming conventions, but LINK is balance_of only and DAI balanceOf only
+  private async fetchTokenBalance(
+    tokenAddress: string,
+    accountAddress: string,
+  ): Promise<string[]> {
+    const calldata = [accountAddress]
+
+    for (const entrypoint of ['balanceOf', 'balance_of']) {
+      try {
+        return await this.batchedProvider.callContract({
+          contractAddress: tokenAddress,
+          entrypoint,
+          calldata,
+        })
+      } catch (err) {
+        continue
+      }
+    }
+
+    // Undeployed account or a contract that isn't a token
+    return ['0x0', '0x0']
+  }
+
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.StarknetMainnet>> {
     try {
       // Normalize the address to ensure consistent format
@@ -178,19 +201,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         const batchResults = await this.requestQueue.add(
           () =>
             Promise.all(
-              batch.map(tokenAddress => {
-                const calldata = [normalizedAddress]
-                return this.batchedProvider
-                  .callContract({
-                    contractAddress: tokenAddress,
-                    entrypoint: 'balanceOf',
-                    calldata,
-                  })
-                  .catch(() => {
-                    // Return zero balance if call fails (e.g., account not deployed, token doesn't exist)
-                    return ['0x0', '0x0']
-                  })
-              }),
+              batch.map(tokenAddress => this.fetchTokenBalance(tokenAddress, normalizedAddress)),
             ),
           { throwOnTimeout: true },
         )

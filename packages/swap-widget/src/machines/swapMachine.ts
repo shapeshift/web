@@ -271,7 +271,7 @@ export const swapMachine = setup({
       retryCount: context.retryCount + 1,
       error: null,
       errorSource: null,
-      // Every retry re-quotes or re-signs, so a carried-over hash would mark the next deposit funded
+      // Every retry re-quotes or re-signs, so a carried-over hash would mark the next one funded
       txHash: null,
       depositObservedAt: null,
       approvalTxHash: null,
@@ -319,7 +319,6 @@ export const swapMachine = setup({
         UPDATE_CHAIN_INFO: { actions: 'assignChainInfo' },
         RESTORE_DEPOSIT: [
           {
-            // Already funded before the reload, so rejoin settlement rather than ask again
             target: 'polling_status',
             guard: 'isRestoredDepositFunded',
             actions: 'assignRestoredDeposit',
@@ -392,8 +391,7 @@ export const swapMachine = setup({
         },
       },
     },
-    // Both deposit states accept a terminal status directly: the provider can settle or refund a
-    // deposit without ever reporting its hash, and that must not strand either screen
+    // Both deposit states take a terminal status - a provider can settle or refund without a hash
     awaiting_deposit: {
       on: {
         DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },

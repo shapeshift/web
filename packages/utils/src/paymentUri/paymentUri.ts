@@ -23,8 +23,7 @@ const buildEvmUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriA
 
   const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
 
-  // transfer(address,uint256) is erc20's alone - erc721 and erc1155 would encode a call they
-  // don't implement, so they get the address without an amount
+  // transfer(address,uint256) is erc20's alone, so erc721 and erc1155 get no amount
   if (assetNamespace !== ASSET_NAMESPACE.slip44 && assetNamespace !== ASSET_NAMESPACE.erc20) {
     return `ethereum:${address}${target}`
   }
@@ -46,19 +45,18 @@ const buildEvmUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriA
 const buildSolanaUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriArgs): string => {
   if (!amountCryptoPrecision) return address
 
-  // Solana Pay normalises the amount, where bip21 passes whatever it was handed straight through
+  // Solana Pay normalises the amount rather than passing it through verbatim
   const amount = bnOrZero(amountCryptoPrecision).toFixed()
 
-  // Decimal ui units, and the recipient stays the native account rather than its ATA
   const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
   if (assetNamespace === ASSET_NAMESPACE.splToken) {
+    // Solana Pay takes decimal ui units, and the recipient is the native account, not its ATA
     return `solana:${address}?amount=${amount}&spl-token=${assetReference}`
   }
 
   return `solana:${address}?amount=${amount}`
 }
 
-// ton://transfer puts the address in the path and takes nanocoins
 const buildTonUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriArgs): string => {
   if (!amountCryptoPrecision) return address
 
@@ -84,7 +82,6 @@ const buildBip21Uri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUr
   return `${scheme}:${target}?amount=${amountCryptoPrecision}`
 }
 
-// Chains with no scheme get their bare address back, which every wallet still reads
 export const buildPaymentUri = (args: BuildPaymentUriArgs): string => {
   switch (fromChainId(args.asset.chainId).chainNamespace) {
     case CHAIN_NAMESPACE.Utxo:

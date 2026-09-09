@@ -18,8 +18,7 @@ const uriFor = (chainId: string) =>
     amountCryptoPrecision: '1.5',
   })
 
-// Chains with no adopted scheme deliberately fall back to the bare address: an unrecognised scheme
-// can stop a wallet scanning at all, which is worse than making the user type the amount
+// These fall back to the bare address - an unrecognised scheme can stop a wallet scanning at all
 const NO_ADOPTED_SCHEME = [
   REDIRECT_ONLY_CHAIN_IDS.tron,
   REDIRECT_ONLY_CHAIN_IDS.sui,

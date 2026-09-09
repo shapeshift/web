@@ -9,8 +9,7 @@ import {
 } from '../../types'
 import { getAddressFormatHint, validateAddress } from '../addressValidation'
 
-// Every selectable chain must be able to reject a bad address with a chain-specific error, or the
-// deposit flow dead-ends: it takes precedence over the redirect, so there is no fallback path
+// A chain with no chain-specific error dead-ends the deposit flow, which has no fallback path
 describe('validator coverage', () => {
   const allChainIds = [
     ...Object.values(EVM_CHAIN_IDS),

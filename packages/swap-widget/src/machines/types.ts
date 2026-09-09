@@ -20,7 +20,7 @@ export type SwapMachineContext = {
   selectedRate: TradeRate | null
   quote: QuoteResponse | null
   txHash: string | null
-  // When the provider first reported the deposit, which is when settlement tracking starts
+  // Start of the settlement tracking window
   depositObservedAt: number | null
   approvalTxHash: string | null
   error: string | null

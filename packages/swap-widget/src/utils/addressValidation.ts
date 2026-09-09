@@ -20,7 +20,6 @@ const VERSION_BYTES = {
   dogecoinP2SH: 0x16,
 } as const
 
-// Every base58check address here is a version prefix followed by a hash160
 const HASH160_LENGTH = 20
 
 const isValidBase58Check = (address: string, allowedVersionBytes: number[]): boolean => {

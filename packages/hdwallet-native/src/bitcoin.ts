@@ -21,13 +21,6 @@ const supportedCoins = [
 
 const segwit = ['p2wpkh', 'p2sh-p2wpkh', 'bech32']
 
-const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
-  4: 0x892f2085,
-  5: 0x26a7270a,
-}
-
-const ZCASH_CONSENSUS_BRANCH_ID = 0x5437f330
-
 type NonWitnessUtxo = Buffer
 
 type WitnessUtxo = {
@@ -238,11 +231,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         })
 
         if (coin.toLowerCase() === 'zcash') {
-          const versionGroupId = ZCASH_VERSION_GROUP_ID[version ?? 5]
+          const versionGroupId = core.ZCASH_VERSION_GROUP_ID[version ?? 5]
           if (!versionGroupId) throw new Error(`Unsupported version: ${version}`)
           psbt.setVersion(version ?? 5)
           psbt.setVersionGroupId(versionGroupId)
-          psbt.setConsensusBranchId(ZCASH_CONSENSUS_BRANCH_ID)
+          psbt.setConsensusBranchId(core.ZCASH_CONSENSUS_BRANCH_ID)
         } else {
           psbt.setVersion(version ?? 1)
         }

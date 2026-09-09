@@ -9,6 +9,7 @@ import { useMemo } from 'react'
 
 import { getAccountIdsWithActivityAndMetadata } from '@/components/Modals/ManageAccounts/helpers'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
+import { chainScansKnownTokens, useAssetService } from '@/hooks/useAssetService/useAssetService'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -22,6 +23,7 @@ export const useDiscoverAccounts = () => {
   const { isSnapInstalled } = useIsSnapInstalled()
   const { deviceId, wallet } = useWallet().state
   const { supportedChains } = usePlugins()
+  const { isPending: isAssetServicePending } = useAssetService()
   const connectedRdns = useAppSelector(selectWalletRdns)
 
   const shouldSkipAutoDiscovery = useMemo(() => {
@@ -166,7 +168,9 @@ export const useDiscoverAccounts = () => {
         },
         staleTime: Infinity,
         gcTime: Infinity,
-        enabled: Boolean(wallet && deviceId),
+        // Discovering before the asset service loads pins an empty token list, cached forever
+        enabled:
+          Boolean(wallet && deviceId) && !(isAssetServicePending && chainScansKnownTokens(chainId)),
       })),
     [
       dispatch,
@@ -176,6 +180,7 @@ export const useDiscoverAccounts = () => {
       supportedChainIds,
       connectedRdns,
       shouldSkipAutoDiscovery,
+      isAssetServicePending,
     ],
   )
 
@@ -183,12 +188,27 @@ export const useDiscoverAccounts = () => {
     queries,
   })
 
+  // Gated-off queries are idle, so without this consumers act on chains we haven't discovered yet
   const { isLoading, isFetching } = useMemo(() => {
+    const isAwaitingAssetService =
+      Boolean(wallet && deviceId) &&
+      !shouldSkipAutoDiscovery &&
+      isAssetServicePending &&
+      supportedChainIds.some(chainScansKnownTokens)
+
     return {
-      isLoading: accountsDiscoveryQueries.some(query => query.isLoading),
-      isFetching: accountsDiscoveryQueries.some(query => query.isFetching),
+      isLoading: isAwaitingAssetService || accountsDiscoveryQueries.some(query => query.isLoading),
+      isFetching:
+        isAwaitingAssetService || accountsDiscoveryQueries.some(query => query.isFetching),
     }
-  }, [accountsDiscoveryQueries])
+  }, [
+    accountsDiscoveryQueries,
+    deviceId,
+    isAssetServicePending,
+    shouldSkipAutoDiscovery,
+    supportedChainIds,
+    wallet,
+  ])
 
   const degradedChainIds = useMemo(() => {
     return accountsDiscoveryQueries

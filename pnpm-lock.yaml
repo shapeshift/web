@@ -54,6 +54,9 @@ patchedDependencies:
   '@bithighlander/bitcoin-cash-js-lib@5.2.1':
     hash: 4214515c36a0bb955f62f20fefed1ccf057aa1d452ca41df28201db0f9b83441
     path: patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch
+  '@ledgerhq/hw-app-btc@10.13.0':
+    hash: 9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533
+    path: patches/@ledgerhq__hw-app-btc@10.13.0.patch
   '@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2':
     hash: e4f2073629f9722c1676758983b96101da73e2bc33971821a2d19319c0ab8ee6
     path: patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch
@@ -1323,7 +1326,7 @@ importers:
         version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0
+        version: 10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -1399,7 +1402,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0
+        version: 10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
         version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
@@ -1423,7 +1426,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0
+        version: 10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -20165,7 +20168,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@ledgerhq/hw-app-btc@10.13.0':
+  '@ledgerhq/hw-app-btc@10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)':
     dependencies:
       '@ledgerhq/hw-transport': 6.31.13
       '@ledgerhq/logs': 6.13.0

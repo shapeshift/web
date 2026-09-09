@@ -50,6 +50,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_COWSWAP: string
   readonly VITE_FEATURE_THOR_SWAP: string
   readonly VITE_FEATURE_ZRX_SWAP: string
+  readonly VITE_FEATURE_FYND_SWAP: string
   readonly VITE_FEATURE_SWAPPER_RELAY: string
   readonly VITE_FEATURE_MAYA_SWAP: string
   readonly VITE_FEATURE_BUTTERSWAP: string
@@ -110,6 +111,7 @@ interface ImportMetaEnv {
   readonly VITE_SENTRY_DSN_URL: string
   readonly VITE_ZERION_BASE_URL: string
   readonly VITE_ZRX_BASE_URL: string
+  readonly VITE_FYND_ETHEREUM_BASE_URL: string
   readonly VITE_CHAINFLIP_API_KEY: string
   readonly VITE_CHAINFLIP_API_URL: string
   readonly VITE_CHAINFLIP_RPC_URL: string

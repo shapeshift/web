@@ -25,10 +25,6 @@ vi.mock('@shapeshiftoss/hdwallet-ledger-webusb', () => ({
   },
 }))
 
-vi.mock('friendly-challenge', () => ({
-  WidgetInstance: {},
-}))
-
 vi.mock('@shapeshiftoss/hdwallet-metamask-multichain', () => ({
   MetaMaskAdapter: {
     useKeyring: vi.fn(),

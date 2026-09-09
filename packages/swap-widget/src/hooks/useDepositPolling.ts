@@ -41,22 +41,20 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
       if (stopped) return
 
       const quoteId = actorRef.getSnapshot().context.quote?.quoteId
-      if (!quoteId) {
-        setTimeout(poll, POLL_INTERVAL_MS)
-        return
-      }
 
-      try {
-        const response = (await apiClient.getSwapStatus({ quoteId })) as DepositStatusResponse
-        if (stopped) return
+      if (quoteId) {
+        try {
+          const response = (await apiClient.getSwapStatus({ quoteId })) as DepositStatusResponse
+          if (stopped) return
 
-        const event = resolveDepositStatusEvent(response, !!depositObservedAt, Date.now())
+          const event = resolveDepositStatusEvent(response, !!depositObservedAt, Date.now())
 
-        if (event?.type === 'DEPOSIT_DETECTED') depositObservedAt = event.observedAt
-        if (event) actorRef.send(event)
-        if (event?.type === 'STATUS_CONFIRMED' || event?.type === 'STATUS_FAILED') return
-      } catch {
-        // A transient status failure must not kill a deposit window - retry on the next tick
+          if (event?.type === 'DEPOSIT_DETECTED') depositObservedAt = event.observedAt
+          if (event) actorRef.send(event)
+          if (event?.type === 'STATUS_CONFIRMED' || event?.type === 'STATUS_FAILED') return
+        } catch {
+          // A transient status failure must not kill a deposit window - retry on the next tick
+        }
       }
 
       const { quote } = actorRef.getSnapshot().context

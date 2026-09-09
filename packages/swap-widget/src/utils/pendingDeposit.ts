@@ -5,15 +5,13 @@ const STORAGE_KEY = 'ssw:pendingDeposit'
 
 export type PendingDeposit = {
   quote: QuoteResponse
-  // Only ever the refund destination - a deposit is paid from whatever wallet the user chooses
   refundAddress: string
   receiveAddress: string
   // Whichever side drove the quote, so a re-quote after expiry asks for the same thing
   sellAmountBaseUnit: string | undefined
   buyAmountBaseUnit: string | undefined
-  // Set once the provider reports the deposit, so a restore rejoins settlement rather than re-asking
+  // Both set once the provider reports the deposit, so a reload rejoins settlement
   txHash: string | undefined
-  // Persisted with it, so a reload resumes the settlement window instead of restarting it
   depositObservedAt: number | undefined
 }
 
@@ -22,7 +20,6 @@ const isRestorableAsset = (value: unknown): boolean => {
   return typeof asset?.chainId === 'string' && typeof asset.precision === 'number'
 }
 
-// Restoration dereferences all of these, so a half-written entry has to be rejected, not crash
 const isPendingDeposit = (value: unknown): value is PendingDeposit => {
   const candidate = value as PendingDeposit | null
   const quote = candidate?.quote
@@ -53,7 +50,7 @@ export const savePendingDeposit = (deposit: PendingDeposit): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(deposit))
   } catch {
-    // Storage is unavailable in some embeds - the deposit screen still works for this session
+    // Unavailable in some embeds - the deposit screen still works for this session
   }
 }
 

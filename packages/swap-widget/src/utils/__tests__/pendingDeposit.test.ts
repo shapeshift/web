@@ -92,8 +92,6 @@ describe('pendingDeposit', () => {
 })
 
 describe('countdown across a restore', () => {
-  // expiresAt is an absolute timestamp, so a restore resumes the countdown where it left off
-  // rather than handing the user a fresh full window
   it('returns the original deadline, not a refreshed one', () => {
     const quotedAt = 1_000_000
     const expiresAt = quotedAt + 60_000

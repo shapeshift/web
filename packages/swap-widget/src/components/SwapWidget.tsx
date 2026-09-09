@@ -121,7 +121,7 @@ const SwapWidgetContent = ({
     const { quote, sendAddress, receiveAddress, isDepositFlow, txHash, depositObservedAt } =
       snap.context
 
-    // Held for as long as the deposit is tracked, so a reload mid-settlement keeps the swap
+    // The saved entry lives as long as tracking does, so a reload mid-settlement keeps the swap
     const isTrackingDeposit =
       isDepositFlow &&
       (snap.matches('awaiting_deposit') ||

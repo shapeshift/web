@@ -120,7 +120,6 @@ export const InputStep = ({
   const isDepositCapable = !!selectedRate && isExternalPaymentRate(selectedRate)
   const isDepositFlowAvailable = isDepositCapable && !walletSendAddress
 
-  // One highlight for the group - either address still missing means it wants attention
   const needsAnAddress =
     (!receiveAddress && !isReceiveAddressResolving) || (isDepositFlowAvailable && !sendAddress)
 

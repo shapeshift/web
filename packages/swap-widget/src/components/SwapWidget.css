@@ -376,7 +376,6 @@
   transform: none;
 }
 
-/* Holds the receive address, and the refund address too when there's no wallet to send from */
 .ssw-address-group {
   display: flex;
   flex-direction: column;
@@ -968,7 +967,6 @@
   border-top: 1px solid var(--ssw-border);
 }
 
-/* Keeps the action clear of the details it summarises */
 .ssw-deposit .ssw-action-btn {
   margin-top: 6px;
 }

@@ -7,14 +7,11 @@ type QrCodeProps = {
   size?: number
 }
 
-// Share of the code the logo is allowed to cover. 'H' recovers 30%, and the finder patterns can't
-// be spared, so staying near a fifth leaves the correction real headroom rather than spending it
+// A fifth of the code, well inside the 30% that 'H' error correction can afford to lose
 const LOGO_SCALE = 0.2
 
-// Fixed black on white in both themes - scanners need the contrast
 export const QrCode = ({ value, logo, size = 180 }: QrCodeProps) => {
   const { path, dimension } = useMemo(() => {
-    // Highest error correction, so a centred logo costs redundancy the code can spare
     const qr = qrcodeGenerator(0, 'H')
     qr.addData(value)
     qr.make()
@@ -51,6 +48,7 @@ export const QrCode = ({ value, logo, size = 180 }: QrCodeProps) => {
       role='img'
       aria-label='Deposit address QR code'
     >
+      {/* Fixed black on white in both themes - scanners need the contrast */}
       <rect width={dimension} height={dimension} fill='#ffffff' />
       <path d={path} fill='#000000' />
       {logo && (

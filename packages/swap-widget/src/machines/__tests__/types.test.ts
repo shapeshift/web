@@ -29,6 +29,7 @@ describe('SwapMachine Types', () => {
       selectedRate: null,
       quote: null,
       txHash: null,
+      depositObservedAt: null,
       approvalTxHash: null,
       error: null,
       errorSource: null,

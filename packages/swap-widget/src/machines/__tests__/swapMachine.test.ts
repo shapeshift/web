@@ -1045,8 +1045,7 @@ describe('a deposit flow always reaches a terminal state', () => {
     return actor
   }
 
-  // The provider can settle or refund without ever reporting a hash, so every deposit state has
-  // to accept a terminal status on its own
+  // A provider can settle or refund without ever reporting a hash
   it.each([
     ['awaiting_deposit', undefined],
     ['polling_status', '0xdead'],

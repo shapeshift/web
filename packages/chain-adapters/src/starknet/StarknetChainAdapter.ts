@@ -43,6 +43,7 @@ import type {
 } from './types'
 import {
   calculateFeeTiers,
+  isContractRejection,
   OPENZEPPELIN_ACCOUNT_CLASS_HASH,
   STATIC_FEE_ESTIMATES,
   STRK_TOKEN_ADDRESS,
@@ -154,6 +155,27 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     }
   }
 
+  // Most tokens expose both naming conventions, but LINK is balance_of only and DAI balanceOf only
+  private async fetchTokenBalance(tokenAddress: string, accountAddress: string): Promise<string[]> {
+    const calldata = [accountAddress]
+
+    for (const entrypoint of ['balanceOf', 'balance_of']) {
+      try {
+        return await this.batchedProvider.callContract({
+          contractAddress: tokenAddress,
+          entrypoint,
+          calldata,
+        })
+      } catch (err) {
+        // A node that can't answer must surface as a failed account, never as a zero balance
+        if (!isContractRejection(err)) throw err
+      }
+    }
+
+    // Both names rejected: an undeployed account, or a contract that isn't a token
+    return ['0x0', '0x0']
+  }
+
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.StarknetMainnet>> {
     try {
       // Normalize the address to ensure consistent format
@@ -178,19 +200,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         const batchResults = await this.requestQueue.add(
           () =>
             Promise.all(
-              batch.map(tokenAddress => {
-                const calldata = [normalizedAddress]
-                return this.batchedProvider
-                  .callContract({
-                    contractAddress: tokenAddress,
-                    entrypoint: 'balanceOf',
-                    calldata,
-                  })
-                  .catch(() => {
-                    // Return zero balance if call fails (e.g., account not deployed, token doesn't exist)
-                    return ['0x0', '0x0']
-                  })
-              }),
+              batch.map(tokenAddress => this.fetchTokenBalance(tokenAddress, normalizedAddress)),
             ),
           { throwOnTimeout: true },
         )
@@ -322,11 +332,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
     if (!isDeployed) return '0x0'
 
-    const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', address])
-    const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-    if (!nonceResult.result) throw new Error('Failed to fetch nonce')
+    const nonce = await this.fetchPreConfirmedNonce(address)
+    if (!nonce) throw new Error('Failed to fetch nonce')
 
-    return nonceResult.result
+    return nonce
+  }
+
+  // RPC spec 0.9 renamed the `pending` block tag to `pre_confirmed` and rejects the old name
+  private async fetchPreConfirmedNonce(address: string): Promise<string | undefined> {
+    for (const blockTag of ['pre_confirmed', 'pending']) {
+      try {
+        const response = await this.provider.fetch('starknet_getNonce', [blockTag, address])
+        const result: RpcJsonResponse<StarknetNonceResult> = await response.json()
+        if (result.result) return result.result
+      } catch (err) {
+        continue
+      }
+    }
   }
 
   /**
@@ -485,7 +507,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
       const constructorCalldata = CallData.compile([publicKey])
       const salt = publicKey
-      const version = '0x3' as const // Use v3 for Lava RPC
+      const version = '0x3' as const // v3 is the transaction version current RPC specs accept
       const nonce = '0x0'
 
       // Format calldata - keep as-is from CallData.compile
@@ -785,9 +807,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           })
 
           // Get nonce for fee estimation (account is already confirmed deployed)
-          const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-          const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-          const nonce = nonceResult.result || '0x0'
+          const nonce = (await this.fetchPreConfirmedNonce(from)) ?? '0x0'
 
           const estimateTx = {
             type: 'INVOKE',
@@ -870,18 +890,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       // Get account nonce - use '0x0' for undeployed accounts
       let nonce = '0x0'
       try {
-        const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-        const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-        if (!nonceResult.error && nonceResult.result) {
-          nonce = nonceResult.result
-        }
+        nonce = (await this.fetchPreConfirmedNonce(from)) ?? '0x0'
       } catch (error) {
         // If nonce fetch fails (e.g., account not deployed, method not supported), use '0x0'
         nonce = '0x0'
       }
 
       const chainIdHex = await this.provider.getChainId()
-      const version = '0x3' as const // Use v3 for Lava RPC
+      const version = '0x3' as const // v3 is the transaction version current RPC specs accept
 
       // Build the invoke transaction calldata
       const calldataArray = Array.isArray(call.calldata) ? call.calldata : []

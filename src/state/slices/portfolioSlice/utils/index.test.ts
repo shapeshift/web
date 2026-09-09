@@ -3,13 +3,20 @@ import {
   avalancheAssetId,
   baseAssetId,
   bscAssetId,
+  btcAssetId,
+  btcChainId,
   ethAssetId,
+  monadAssetId,
+  monadChainId,
   optimismAssetId,
   polygonAssetId,
+  toAccountId,
 } from '@shapeshiftoss/caip'
+import type { Account } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { describe, expect, it, vi } from 'vitest'
 
-import { accountIdToLabel, findAccountsByAssetId } from '.'
+import { accountIdToLabel, accountToPortfolio, findAccountsByAssetId } from '.'
 
 import { trimWithEndEllipsis } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
@@ -153,5 +160,61 @@ describe('trimWithEndEllipsis', () => {
     const exactly50Chars = 'BlackRock USD Institutional Digital Liquidity Fund'
     expect(exactly50Chars.length).toEqual(50)
     expect(trimWithEndEllipsis(exactly50Chars, 50)).toEqual(exactly50Chars)
+  })
+})
+
+describe('accountToPortfolio', () => {
+  const evmPubkey = '0x1111111111111111111111111111111111111111'
+  const btcPubkey = 'xpub6CBTest'
+
+  const makeMonadAccount = (isDegraded: boolean): Account<KnownChainIds.MonadMainnet> => ({
+    balance: '42',
+    pubkey: evmPubkey,
+    chainId: monadChainId,
+    assetId: monadAssetId,
+    chain: KnownChainIds.MonadMainnet,
+    isDegraded,
+    chainSpecific: { nonce: 1, tokens: [] },
+  })
+
+  const makeBtcAccount = (isDegraded: boolean): Account<KnownChainIds.BitcoinMainnet> => ({
+    balance: '42',
+    pubkey: btcPubkey,
+    chainId: btcChainId,
+    assetId: btcAssetId,
+    chain: KnownChainIds.BitcoinMainnet,
+    isDegraded,
+    chainSpecific: { addresses: [] },
+  })
+
+  const btcAccountId = `${btcChainId}:${btcPubkey}`
+  const monadAccountId = toAccountId({ chainId: monadChainId, account: evmPubkey })
+
+  it('propagates a degraded account', () => {
+    const portfolio = accountToPortfolio({
+      portfolioAccounts: {
+        [evmPubkey]: makeMonadAccount(true),
+        [btcPubkey]: makeBtcAccount(true),
+      },
+      assetIds: [],
+    })
+
+    expect(portfolio.accounts.byId[monadAccountId].isDegraded).toBe(true)
+    expect(portfolio.accounts.byId[btcAccountId].isDegraded).toBe(true)
+  })
+
+  // upsertPortfolio deep merges, so a healthy account has to write false explicitly - leaving the
+  // key off lets an earlier degraded state survive and the banner never clears
+  it('writes false for a healthy account so a stale degraded flag is cleared', () => {
+    const portfolio = accountToPortfolio({
+      portfolioAccounts: {
+        [evmPubkey]: makeMonadAccount(false),
+        [btcPubkey]: makeBtcAccount(false),
+      },
+      assetIds: [],
+    })
+
+    expect(portfolio.accounts.byId[monadAccountId].isDegraded).toBe(false)
+    expect(portfolio.accounts.byId[btcAccountId].isDegraded).toBe(false)
   })
 })

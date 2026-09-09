@@ -26,6 +26,7 @@ const isPendingDeposit = (value: unknown): value is PendingDeposit => {
 
   return (
     !!quote?.depositAddress &&
+    typeof quote.quoteId === 'string' &&
     typeof quote.expiresAt === 'number' &&
     typeof quote.sellAmountCryptoBaseUnit === 'string' &&
     typeof quote.buyAmountAfterFeesCryptoBaseUnit === 'string' &&

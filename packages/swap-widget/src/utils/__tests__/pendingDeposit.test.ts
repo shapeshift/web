@@ -107,6 +107,7 @@ describe('countdown across a restore', () => {
 
 describe('rejecting entries restoration would crash on', () => {
   const validQuote = {
+    quoteId: 'quote-1',
     depositAddress: 'bc1qdeposit',
     expiresAt: 10_000,
     sellAmountCryptoBaseUnit: '10000000',
@@ -124,6 +125,12 @@ describe('rejecting entries restoration would crash on', () => {
   it('accepts a complete quote', () => {
     save(validQuote)
     expect(loadPendingDeposit(5_000)).not.toBeUndefined()
+  })
+
+  // The polling loop dereferences it every tick, and has nothing to ask the api without one
+  it('rejects a quote missing its id', () => {
+    save({ ...validQuote, quoteId: undefined })
+    expect(loadPendingDeposit(5_000)).toBeUndefined()
   })
 
   it('rejects a quote missing its assets', () => {

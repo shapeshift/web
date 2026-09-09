@@ -1575,7 +1575,8 @@
         "header": "配对你的 KeepKey",
         "body": "连接 KeepKey 设备并单击配对。",
         "button": "配对",
-        "conflictingApp": "找不到你的 KeepKey。另一个应用程序可能正在尝试与你的 KeepKey 连接。"
+        "conflictingApp": "找不到你的 KeepKey。另一个应用程序可能正在尝试与你的 KeepKey 连接。",
+        "timeout": "无法配对 KeepKey。请重新连接您的设备并重试。"
       },
       "pin": {
         "header": "输入您的 PIN",
@@ -3039,6 +3040,7 @@
     "foxBurnAmount": "FOX 销毁量（当前时段）",
     "pendingDistribution": "待分配奖励",
     "selectRuneAddress": "选择一个 RUNE 地址",
+    "unstakeDisabledMigrationTooltip": "在 10 月 1 日冷却期结束前，暂不支持取消质押。",
     "lpSunsetWarningTitle": "项目已结束",
     "lpSunsetWarningDescription": "Arbitrum WETH/FOX 奖励项目已结束。请尽快取消质押并领取您的余额。"
   },

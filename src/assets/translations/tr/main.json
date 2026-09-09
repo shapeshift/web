@@ -1575,7 +1575,8 @@
         "header": "KeepKey'inizi Eşleyin",
         "body": "Bir KeepKey cihazı bağlayın ve Eşleştir'e tıklayın.",
         "button": "Eşleştir",
-        "conflictingApp": "KeepKey'iniz bulunamadı. Başka bir uygulama, KeepKey'inizle bağlantı kurmaya çalışıyor olabilir."
+        "conflictingApp": "KeepKey'iniz bulunamadı. Başka bir uygulama, KeepKey'inizle bağlantı kurmaya çalışıyor olabilir.",
+        "timeout": "KeepKey cihazınız eşleştirilemedi. Lütfen cihazınızı yeniden bağlayın ve tekrar deneyin."
       },
       "pin": {
         "header": "PIN'inizi girin",
@@ -3039,6 +3040,7 @@
     "foxBurnAmount": "FOX Yakma Miktarı (Bu Dönem)",
     "pendingDistribution": "Bekleyen Dağıtım",
     "selectRuneAddress": "Bir RUNE adresi seçin",
+    "unstakeDisabledMigrationTooltip": "Stake kaldırma işlemi, bekleme süresi olan 1 Ekim'e kadar devre dışı bırakılmıştır.",
     "lpSunsetWarningTitle": "Program Sona Erdi",
     "lpSunsetWarningDescription": "Arbitrum WETH/FOX Ödül programı sona ermiştir. Lütfen en kısa sürede stake'lerinizi geri çekin ve bakiyenizi talep edin."
   },

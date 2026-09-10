@@ -258,5 +258,5 @@ export const getFullAppData = async (
 export type ParsedAppData = AppDataRootSchemaLatest | AppDataRootSchemaLegacy
 
 export const isLegacyAppData = (appData: ParsedAppData): appData is AppDataRootSchemaLegacy => {
-  return (appData as AppDataRootSchemaLegacy).version === 'v0.4.0'
+  return (appData as AppDataRootSchemaLegacy).version === '0.4.0'
 }

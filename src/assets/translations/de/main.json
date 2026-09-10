@@ -1575,7 +1575,8 @@
         "header": "Koppeln Sie Ihren KeepKey",
         "body": "Verbinden Sie ein KeepKey-Gerät und klicken Sie auf Koppeln.",
         "button": "Koppeln",
-        "conflictingApp": "Ihr KeepKey konnte nicht gefunden werden. Möglicherweise versucht eine andere Anwendung, sich mit Ihrem KeepKey zu verbinden."
+        "conflictingApp": "Ihr KeepKey konnte nicht gefunden werden. Möglicherweise versucht eine andere Anwendung, sich mit Ihrem KeepKey zu verbinden.",
+        "timeout": "Die Kopplung Ihres KeepKey ist fehlgeschlagen. Bitte verbinden Sie Ihr Gerät erneut und versuchen Sie es noch einmal."
       },
       "pin": {
         "header": "Geben Sie Ihre PIN ein",
@@ -3039,6 +3040,7 @@
     "foxBurnAmount": "FOX-Verbrennungsmenge (diese Epoche)",
     "pendingDistribution": "Ausstehende Verteilung",
     "selectRuneAddress": "Wählen Sie eine RUNE Adresse",
+    "unstakeDisabledMigrationTooltip": "Das Unstaking ist bis zum 1. Oktober deaktiviert, da an diesem Tag die Abkühlphase endet.",
     "lpSunsetWarningTitle": "Programm beendet",
     "lpSunsetWarningDescription": "Das Arbitrum WETH/FOX Reward Programm wurde eingestellt. Bitte lösen Sie Ihre Stakebestände auf und fordern Sie Ihr Guthaben so bald wie möglich zurück."
   },

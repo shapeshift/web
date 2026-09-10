@@ -1575,7 +1575,8 @@
         "header": "Appairer votre KeepKey",
         "body": "Connectez un appareil KeepKey et cliquez sur Appairer.",
         "button": "Appairer",
-        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey."
+        "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey.",
+        "timeout": "Impossible d'appairer votre KeepKey. Veuillez reconnecter votre appareil et réessayer."
       },
       "pin": {
         "header": "Entrez votre code PIN",
@@ -3039,6 +3040,7 @@
     "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
     "pendingDistribution": "Distribution en attente",
     "selectRuneAddress": "Sélectionnez une adresse RUNE",
+    "unstakeDisabledMigrationTooltip": "Le déstaking est désactivé jusqu'au 1er octobre, date à laquelle la période de repos sera supprimée.",
     "lpSunsetWarningTitle": "Le programme est terminé",
     "lpSunsetWarningDescription": "Le programme de récompenses pour WETH/FOX sur Arbitrum est désormais terminé. Veuillez unstaker et réclamer vos fonds à votre plus proche convenance."
   },

@@ -5,7 +5,7 @@ import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 import { formatAmount } from '../types'
-import { isExternalPaymentRate } from '../utils/depositFlow'
+import { shouldUseDepositFlow } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
 import type { InputCtaAction } from '../utils/inputCta'
 import { getInputCta } from '../utils/inputCta'
@@ -117,8 +117,18 @@ export const InputStep = ({
   ])
 
   const selectedRate = context.selectedRate ?? displayValues.rates?.[0]
-  const isDepositCapable = !!selectedRate && isExternalPaymentRate(selectedRate)
-  const isDepositFlowAvailable = isDepositCapable && !walletSendAddress
+  const isDepositFlowAvailable = shouldUseDepositFlow({
+    rate: selectedRate,
+    hasWalletForSellChain: !!walletSendAddress,
+  })
+
+  const isSellChainTypeConnected = context.isSellAssetEvm
+    ? evm.isConnected
+    : context.isSellAssetUtxo
+    ? bitcoin.isConnected
+    : context.isSellAssetSolana
+    ? solana.isConnected
+    : false
 
   const needsAnAddress =
     (!receiveAddress && !isReceiveAddressResolving) || (isDepositFlowAvailable && !sendAddress)
@@ -133,8 +143,9 @@ export const InputStep = ({
       : context.sellAmount
 
     return getInputCta({
-      isDepositCapable,
+      isDepositRoute: isDepositFlowAvailable,
       hasWalletForSellChain: !!walletSendAddress,
+      isSellChainTypeConnected,
       isUnsupportedChain,
       allowShapeshiftRedirect,
       hasReceiveAddress: !!receiveAddress,
@@ -145,8 +156,9 @@ export const InputStep = ({
       hasRatesError: !!displayValues.ratesError,
     })
   }, [
-    isDepositCapable,
+    isDepositFlowAvailable,
     walletSendAddress,
+    isSellChainTypeConnected,
     isUnsupportedChain,
     allowShapeshiftRedirect,
     receiveAddress,

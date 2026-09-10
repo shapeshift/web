@@ -378,8 +378,9 @@ widget stops and says it may still be settling, rather than spinning indefinitel
 
 ### Expiry and recovery
 
-A deposit window is finite (Chainflip channels run hours, NEAR deposit addresses longer). When the
-countdown reaches zero the screen warns not to send and offers a fresh quote. Treat expiry as a hard
+A deposit window is finite (NEAR Intents quotes run 30–60 minutes, Chainflip channels six hours).
+When the countdown reaches zero the screen warns not to send and offers a fresh quote. The same
+happens if the API stops recognising the quote before any deposit was seen. Treat expiry as a hard
 cutoff: what happens to a late deposit is protocol-specific — NEAR Intents refunds it to the refund
 address, while an expired Chainflip channel stops being watched altogether and recovering funds sent
 to it is not guaranteed. If a late deposit is credited anyway, the expired screen still resolves to

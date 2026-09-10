@@ -102,7 +102,7 @@ export const BorrowingPowerCard = memo(() => {
   )
 })
 
-const NextStepsArt = memo(({ colorScheme }: { colorScheme: 'green' | 'purple' }) => {
+export const NextStepsArt = memo(({ colorScheme }: { colorScheme: 'green' | 'purple' }) => {
   const isGreen = colorScheme === 'green'
 
   return (
@@ -174,7 +174,11 @@ const NextStepsArt = memo(({ colorScheme }: { colorScheme: 'green' | 'purple' })
   )
 })
 
-export const NextStepsCard = memo(() => {
+type NextStepsCardProps = {
+  assetId?: AssetId
+}
+
+export const NextStepsCard = memo(({ assetId }: NextStepsCardProps) => {
   const translate = useTranslate()
   const chainflipLendingModal = useModal('chainflipLending')
   const { freeBalances } = useChainflipFreeBalances()
@@ -190,20 +194,19 @@ export const NextStepsCard = memo(() => {
   const hasCollateral = collateralWithFiat.length > 0
   const hasLoans = loansWithFiat.length > 0
 
+  const targetAssetId = useMemo(() => assetId ?? LENDING_ASSET_IDS[0], [assetId])
+
   const handleSupply = useCallback(() => {
-    const firstAssetId = LENDING_ASSET_IDS[0]
-    if (firstAssetId) chainflipLendingModal.open({ mode: 'supply', assetId: firstAssetId })
-  }, [chainflipLendingModal])
+    if (targetAssetId) chainflipLendingModal.open({ mode: 'supply', assetId: targetAssetId })
+  }, [chainflipLendingModal, targetAssetId])
 
   const handleAddCollateral = useCallback(() => {
-    const firstAssetId = LENDING_ASSET_IDS[0]
-    if (firstAssetId) chainflipLendingModal.open({ mode: 'addCollateral', assetId: firstAssetId })
-  }, [chainflipLendingModal])
+    if (targetAssetId) chainflipLendingModal.open({ mode: 'addCollateral', assetId: targetAssetId })
+  }, [chainflipLendingModal, targetAssetId])
 
   const handleBorrow = useCallback(() => {
-    const firstAssetId = LENDING_ASSET_IDS[0]
-    if (firstAssetId) chainflipLendingModal.open({ mode: 'borrow', assetId: firstAssetId })
-  }, [chainflipLendingModal])
+    if (targetAssetId) chainflipLendingModal.open({ mode: 'borrow', assetId: targetAssetId })
+  }, [chainflipLendingModal, targetAssetId])
 
   // Hide when user has completed all steps
   if (hasSupply && hasCollateral && hasLoans) return null

@@ -876,6 +876,20 @@ describe('deposit flow', () => {
     actor.stop()
   })
 
+  it('can leave a detected deposit for a new swap without losing the assets', () => {
+    const actor = startInDepositQuoting()
+    actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })
+    actor.send({ type: 'DEPOSIT_DETECTED', txHash: '0xdeposit', observedAt: 5_000 })
+    actor.send({ type: 'RESET' })
+
+    const snap = actor.getSnapshot()
+    expect(snap.value).toBe('input')
+    expect(snap.context.isDepositFlow).toBe(false)
+    expect(snap.context.txHash).toBeNull()
+    expect(snap.context.depositObservedAt).toBeNull()
+    expect(snap.context.quote).toBeNull()
+  })
+
   it('moves to polling_status with the deposit hash on DEPOSIT_DETECTED', () => {
     const actor = startInDepositQuoting()
     actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_DEPOSIT_QUOTE })

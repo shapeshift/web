@@ -87,6 +87,17 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               : 'Your swap is being processed…'}
           </div>
           {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}
+          {isDepositFlow && !isPayment && (
+            <div className='ssw-step-actions'>
+              <button
+                className='ssw-action-btn ssw-secondary'
+                onClick={() => send({ type: 'RESET' })}
+                type='button'
+              >
+                New Swap
+              </button>
+            </div>
+          )}
         </>
       )}
 

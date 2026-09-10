@@ -1,7 +1,4 @@
-import type { AppDataRootSchema as AppDataRootSchemaLegacy } from '@cowprotocol/app-data/dist/generatedTypes/v0.4.0'
-import type { AppDataRootSchema as AppDataRootSchemaLatest } from '@cowprotocol/app-data/dist/generatedTypes/v1.3.0'
 import type { Nominal } from '@shapeshiftoss/caip'
-import type { TypedDataField } from 'ethers5'
 import type { Address } from 'viem'
 
 import type { KnownChainIds } from './base'
@@ -338,10 +335,5 @@ export type CowChainId =
   | KnownChainIds.LineaMainnet
   | KnownChainIds.InkMainnet
 
+export type TypedDataField = { name: string; type: string }
 export type TypedDataTypes = Record<string, TypedDataField[]>
-
-export type ParsedAppData = AppDataRootSchemaLatest | AppDataRootSchemaLegacy
-
-export const isLegacyAppData = (appData: ParsedAppData): appData is AppDataRootSchemaLegacy => {
-  return (appData as AppDataRootSchemaLegacy).version === 'v0.4.0'
-}

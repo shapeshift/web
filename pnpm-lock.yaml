@@ -2216,18 +2216,12 @@ importers:
 
   packages/types:
     dependencies:
-      '@cowprotocol/app-data':
-        specifier: ^2.3.0
-        version: 2.5.1(cross-fetch@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(ipfs-only-hash@4.0.0)(multiformats@9.9.0)
       '@shapeshiftoss/caip':
         specifier: workspace:^
         version: link:../caip
-      ethers5:
-        specifier: npm:ethers@5.7.2
-        version: ethers@5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       viem:
         specifier: 2.55.11
-        version: 2.55.11(bufferutil@4.1.0)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+        version: 2.55.11(bufferutil@4.1.0)(typescript@5.8.2)(utf-8-validate@6.0.6)(zod@3.25.76)
 
   packages/unchained-client:
     dependencies:
@@ -18533,15 +18527,6 @@ snapshots:
       ajv: 8.18.0
       cross-fetch: 4.1.0
       ethers: 6.11.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
-      ipfs-only-hash: 4.0.0
-      json-stringify-deterministic: 1.0.12
-      multiformats: 9.9.0
-
-  '@cowprotocol/app-data@2.5.1(cross-fetch@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(ipfs-only-hash@4.0.0)(multiformats@9.9.0)':
-    dependencies:
-      ajv: 8.18.0
-      cross-fetch: 4.1.0
-      ethers: 6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ipfs-only-hash: 4.0.0
       json-stringify-deterministic: 1.0.12
       multiformats: 9.9.0

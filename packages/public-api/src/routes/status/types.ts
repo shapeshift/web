@@ -13,7 +13,8 @@ export const SwapServiceStatusSchema = z.object({
     .object({
       hasAffiliate: z.boolean(),
       affiliateBps: z.number().optional(),
-      affiliateAddress: EVM_ADDRESS.optional(),
+      // Chain-native: an EVM treasury, a NEAR account, a THORChain address
+      affiliateAddress: z.string().optional(),
     })
     .nullable(),
 })

@@ -30,7 +30,6 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
-    "@cowprotocol/app-data": "^2.3.0",
     "@shapeshiftoss/caip": "workspace:^",
     "viem": "2.55.11"
   }

@@ -4,7 +4,8 @@
     "module": "commonjs",
     "rootDir": "src",
     "outDir": "dist/cjs",
-    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo"
+    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo",
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["dist"],

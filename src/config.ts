@@ -8,7 +8,6 @@ const { cleanEnv, str, url } = envalid
 // add validators for each .env variable
 // note env vars must be prefixed with VITE_
 const validators = {
-  VITE_LOG_LEVEL: str({ default: 'info' }),
   VITE_REDUX_WINDOW: bool({ default: false }),
   VITE_UNCHAINED_ETHEREUM_HTTP_URL: url(),
   VITE_UNCHAINED_ETHEREUM_WS_URL: url(),
@@ -26,8 +25,6 @@ const validators = {
   VITE_UNCHAINED_ARBITRUM_WS_URL: url(),
   VITE_UNCHAINED_BASE_HTTP_URL: url(),
   VITE_UNCHAINED_BASE_WS_URL: url(),
-  VITE_UNCHAINED_MONAD_HTTP_URL: url(),
-  VITE_UNCHAINED_MONAD_WS_URL: url(),
   VITE_UNCHAINED_BITCOIN_HTTP_URL: url(),
   VITE_UNCHAINED_BITCOIN_WS_URL: url(),
   VITE_UNCHAINED_BITCOINCASH_HTTP_URL: url(),
@@ -98,7 +95,6 @@ const validators = {
   VITE_FASTNEAR_API_URL: url(),
   VITE_KEEPKEY_VERSIONS_URL: url(),
   VITE_KEEPKEY_LATEST_RELEASE_URL: url(),
-  VITE_WALLET_MIGRATION_URL: url(),
   VITE_EXCHANGERATEHOST_BASE_URL: url(),
   VITE_EXCHANGERATEHOST_API_KEY: str(),
   VITE_MTPELERIN_API_URL: url(),
@@ -109,7 +105,6 @@ const validators = {
   VITE_MTPELERIN_INTEGRATION_KEY: str(),
   VITE_BANXA_API_URL: url(),
   VITE_BANXA_API_KEY: str(),
-  VITE_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   VITE_FEATURE_COWSWAP: bool({ default: false }),
   VITE_FEATURE_OPTIMISM: bool({ default: false }),
   VITE_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
@@ -170,13 +165,6 @@ const validators = {
   VITE_WALLET_CONNECT_RELAY_URL: str({
     default: 'wss://relay.walletconnect.com',
   }),
-  VITE_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
-  VITE_BOARDROOM_API_BASE_URL: url({
-    default: 'https://api.boardroom.info/v1/protocols/shapeshift/',
-  }),
-  VITE_BOARDROOM_APP_BASE_URL: url({
-    default: 'https://boardroom.io/shapeshift/',
-  }),
   VITE_THORCHAIN_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
   }),
@@ -198,9 +186,6 @@ const validators = {
     default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF',
   }),
   VITE_MIXPANEL_TOKEN: str({ default: '' }),
-  VITE_SNAPSHOT_BASE_URL: url({
-    default: 'https://snapshot.org/#/shapeshiftdao.eth',
-  }),
   VITE_FEATURE_MIXPANEL: bool({ default: false }),
   VITE_ENABLE_HYPELAB: bool({ default: false }),
   VITE_HYPELAB_PROPERTY_SLUG: str({ default: '' }),
@@ -208,7 +193,6 @@ const validators = {
   VITE_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   VITE_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
   VITE_FEATURE_PORTALS_SWAPPER: bool({ default: false }),
-  VITE_FEATURE_ONE_INCH: bool({ default: false }),
   VITE_SENTRY_DSN_URL: url(),
   VITE_MORALIS_API_KEY: str(),
   VITE_CHATWOOT_TOKEN: str(),
@@ -225,7 +209,6 @@ const validators = {
   VITE_FEATURE_THORCHAIN_LP_WITHDRAW: bool({ default: false }),
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: bool({ default: false }),
-  VITE_FEATURE_SHAPESHIFT_MOBILE_WALLET: bool({ default: false }),
   VITE_FEATURE_RFOX: bool({ default: false }),
   VITE_FEATURE_RFOX_LP: bool({ default: false }),
   VITE_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
@@ -249,7 +232,6 @@ const validators = {
   VITE_CHAINFLIP_API_KEY: str(),
   VITE_CHAINFLIP_API_URL: url(),
   VITE_CHAINFLIP_RPC_URL: url({ default: 'https://rpc.mainnet.chainflip.io' }),
-  VITE_FEATURE_THOR_FREE_FEES: bool({ default: false }),
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),
   VITE_FEATURE_SWAPPER_RELAY: bool({ default: false }),
@@ -287,7 +269,6 @@ const validators = {
   VITE_TENDERLY_API_KEY: str(),
   VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: bool({ default: false }),
   VITE_USER_SERVER_URL: url({ default: '' }),
-  VITE_NOTIFICATIONS_SERVER_URL: url({ default: '' }),
   VITE_PUBLIC_API_URL: url({ default: '' }),
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
   VITE_FEATURE_APP_RATING: bool({ default: false }),

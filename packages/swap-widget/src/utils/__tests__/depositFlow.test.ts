@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TradeRate } from '../../types'
-import { isExternalPaymentRate, shouldUseDepositFlow } from '../depositFlow'
+import { isExternalPaymentRate, pickDepositRate, shouldUseDepositFlow } from '../depositFlow'
 
 const makeRate = (overrides: Partial<TradeRate>): TradeRate =>
   ({
@@ -42,5 +42,30 @@ describe('shouldUseDepositFlow', () => {
 
   it('is false with no rate', () => {
     expect(shouldUseDepositFlow({ rate: undefined, hasWalletForSellChain: false })).toBe(false)
+  })
+})
+
+describe('pickDepositRate', () => {
+  const chainflip = makeRate({ supportsExternalPayment: true })
+  const near = makeRate({
+    swapperName: 'NEAR Intents' as TradeRate['swapperName'],
+    supportsExternalPayment: true,
+  })
+  const relay = makeRate({ swapperName: 'Relay' as TradeRate['swapperName'] })
+
+  it('keeps the swapper that was already quoted', () => {
+    expect(pickDepositRate([relay, chainflip, near], 'NEAR Intents')).toBe(near)
+  })
+
+  it('falls back to the best externally payable rate when that swapper no longer rates', () => {
+    expect(pickDepositRate([relay, chainflip, near], 'THORChain')).toBe(chainflip)
+  })
+
+  it('never picks a wallet-only swapper', () => {
+    expect(pickDepositRate([relay], 'Relay')).toBeUndefined()
+  })
+
+  it('is undefined with no rates', () => {
+    expect(pickDepositRate(undefined, 'Chainflip')).toBeUndefined()
   })
 })

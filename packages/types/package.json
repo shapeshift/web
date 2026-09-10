@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/types",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Common types shared across packages",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -30,9 +30,7 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
-    "@cowprotocol/app-data": "^2.3.0",
     "@shapeshiftoss/caip": "workspace:^",
-    "ethers5": "npm:ethers@5.7.2",
     "viem": "2.55.11"
   }
 }

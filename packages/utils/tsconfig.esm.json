@@ -4,7 +4,8 @@
     "module": "esnext",
     "rootDir": "src",
     "outDir": "dist/esm",
-    "tsBuildInfoFile": "dist/esm/.tsbuildinfo"
+    "tsBuildInfoFile": "dist/esm/.tsbuildinfo",
+    "types": ["node"]
   },
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],

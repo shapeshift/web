@@ -1575,7 +1575,8 @@
         "header": "Empareje su KeepKey",
         "body": "Conecte un dispositivo KeepKey y haga clic en Emparejar.",
         "button": "Emparejar",
-        "conflictingApp": "No se pudo encontrar su KeepKey. Es posible que otra aplicación esté intentando conectarse con su KeepKey."
+        "conflictingApp": "No se pudo encontrar su KeepKey. Es posible que otra aplicación esté intentando conectarse con su KeepKey.",
+        "timeout": "No se pudo emparejar su KeepKey. Vuelva a conectar e intente de nuevo."
       },
       "pin": {
         "header": "Ingrese PIN",
@@ -3039,6 +3040,7 @@
     "foxBurnAmount": "Cantidad FOX quemados (esta época)",
     "pendingDistribution": "Distribución Pendiente",
     "selectRuneAddress": "Seleccione una dirección RUNE",
+    "unstakeDisabledMigrationTooltip": "La opción de retirar staking estará deshabilitada hasta 1 de octubre, en dicha fecha se eliminará el período de espera.",
     "lpSunsetWarningTitle": "Programa Finalizado",
     "lpSunsetWarningDescription": "El programa de recompensas WETH/FOX de Arbitrum ha finalizado. Por favor, cancele su staking y reclame su saldo lo antes posible."
   },

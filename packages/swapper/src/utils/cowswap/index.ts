@@ -1,6 +1,11 @@
 import type { LatestAppDataDocVersion } from '@cowprotocol/app-data'
 import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
-import type { OrderClass, OrderClass1 } from '@cowprotocol/app-data/dist/generatedTypes/v1.3.0'
+import type { AppDataRootSchema as AppDataRootSchemaLegacy } from '@cowprotocol/app-data/dist/generatedTypes/v0.4.0'
+import type {
+  AppDataRootSchema as AppDataRootSchemaLatest,
+  OrderClass,
+  OrderClass1,
+} from '@cowprotocol/app-data/dist/generatedTypes/v1.3.0'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
@@ -248,4 +253,10 @@ export const getFullAppData = async (
 
   const { fullAppData, appDataKeccak256 } = await generateAppDataFromDoc(appDataDoc)
   return { appDataHash: appDataKeccak256, appData: fullAppData }
+}
+
+export type ParsedAppData = AppDataRootSchemaLatest | AppDataRootSchemaLegacy
+
+export const isLegacyAppData = (appData: ParsedAppData): appData is AppDataRootSchemaLegacy => {
+  return (appData as AppDataRootSchemaLegacy).version === '0.4.0'
 }

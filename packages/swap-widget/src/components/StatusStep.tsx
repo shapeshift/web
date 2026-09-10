@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 
-const ExplorerLink = ({ url }: { url: string }) => (
+const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
   <a href={url} target='_blank' rel='noopener noreferrer' className='ssw-step-explorer-link'>
-    View on Explorer
+    {label}
     <svg
       width='12'
       height='12'
@@ -31,13 +31,19 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   const {
     sellAsset,
     buyAsset,
+    quote,
     txHash,
     error,
     errorSource,
     retryCount,
     isSellAssetUtxo,
     isSellAssetSolana,
+    isDepositFlow,
   } = context
+
+  // On a deposit swap the linked tx is the user's deposit, already seen by the provider; what's
+  // pending is the provider's own swap and payout
+  const explorerLabel = isDepositFlow ? 'View deposit' : 'View on Explorer'
 
   // The swap may well have settled, so no failure wording and no retry quoting a second one
   const hasStoppedTracking = errorSource === 'TRACKING_TIMEOUT'
@@ -72,9 +78,15 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               <path d='M12 2a10 10 0 0 1 10 10' />
             </svg>
           </div>
-          <div className='ssw-step-title'>Confirming Transaction</div>
-          <div className='ssw-step-subtitle'>Your swap is being processed…</div>
-          {explorerUrl && <ExplorerLink url={explorerUrl} />}
+          <div className='ssw-step-title'>
+            {isDepositFlow ? 'Swap in Progress' : 'Confirming Transaction'}
+          </div>
+          <div className='ssw-step-subtitle'>
+            {isDepositFlow
+              ? `Deposit received. Waiting for ${quote?.swapperName ?? 'the provider'} to send your ${buyAsset.symbol}.`
+              : 'Your swap is being processed…'}
+          </div>
+          {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}
         </>
       )}
 
@@ -96,7 +108,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
           <div className='ssw-step-subtitle'>
             Swapped {sellAsset.symbol} for {buyAsset.symbol}
           </div>
-          {explorerUrl && <ExplorerLink url={explorerUrl} />}
+          {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}
           {!isPayment && (
             <div className='ssw-step-actions'>
               <button
@@ -134,7 +146,9 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
             {hasStoppedTracking ? 'Still Processing' : 'Transaction Failed'}
           </div>
           <div className='ssw-step-subtitle'>{truncatedError ?? 'Something went wrong'}</div>
-          {hasStoppedTracking && explorerUrl && <ExplorerLink url={explorerUrl} />}
+          {hasStoppedTracking && explorerUrl && (
+            <ExplorerLink url={explorerUrl} label={explorerLabel} />
+          )}
           <div className='ssw-step-actions'>
             {!hasStoppedTracking && retryCount < 3 && (
               <button

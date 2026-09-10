@@ -2,12 +2,14 @@ import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ParsedAppData } from '@shapeshiftoss/swapper'
 import {
   assertGetCowNetwork,
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   getAffiliateAppDataFragmentByChainId,
   getCowNetwork,
   getFullAppData,
+  isLegacyAppData,
   isNativeEvmAsset,
   signCowMessage,
   signCowOrder,
@@ -23,12 +25,10 @@ import type {
   OrderQuoteRequest,
   OrderQuoteResponse,
   OrderStatus,
-  ParsedAppData,
   Trade,
 } from '@shapeshiftoss/types'
 import {
   EcdsaSigningScheme,
-  isLegacyAppData,
   OrderClass,
   OrderQuoteSideKindSell,
   PriceQuality,

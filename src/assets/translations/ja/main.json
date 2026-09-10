@@ -1575,7 +1575,8 @@
         "header": "KeepKeyをペアリングする",
         "body": "KeepKeyデバイスを接続し、「ペアリング」をクリックします。",
         "button": "ペアリング",
-        "conflictingApp": "KeepKeyが見つかりませんでした。別のアプリケーションがKeepKeyに接続しようとしている可能性があります。"
+        "conflictingApp": "KeepKeyが見つかりませんでした。別のアプリケーションがKeepKeyに接続しようとしている可能性があります。",
+        "timeout": "KeepKeyのペアリングに失敗しました。デバイスを再接続して、もう一度お試しください。"
       },
       "pin": {
         "header": "PINを入力してください",
@@ -3039,6 +3040,7 @@
     "foxBurnAmount": "FOX バーン量 (このエポック中の)",
     "pendingDistribution": "配布保留中",
     "selectRuneAddress": "RUNEアドレスを選択",
+    "unstakeDisabledMigrationTooltip": "ステーキング解除は10月1日まで無効になっており、その日にクールダウン期間が解除されます。",
     "lpSunsetWarningTitle": "プログラム終了",
     "lpSunsetWarningDescription": "Arbitrum WETH/FOX Rewardsプログラムは終了いたしました。お早めにステーキングを解除し、残高を請求してください。"
   },

@@ -396,6 +396,10 @@ dropped when the swap finishes, when tracking gives up, or when the user starts 
 - **Not every route can be paid this way.** Swappers that sign transactions, and a few routes that
   cannot take a plain transfer (currently TON via NEAR Intents), keep the Connect Wallet or
   redirect path instead.
+- **Wallet QR scanners vary.** The QR is a standard payment URI (BIP-21, EIP-681, Solana Pay), but
+  a wallet's built-in scanner may read only the address from it. MetaMask's does this for native
+  ETH while its ERC-20 handling and the phone's camera app both open a fully populated transaction.
+  The amount and address are always shown as copyable text alongside the QR for this reason.
 
 ## Theming
 

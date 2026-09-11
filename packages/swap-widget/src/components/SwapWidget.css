@@ -841,6 +841,26 @@
   max-width: 320px;
 }
 
+/* Two routes to the same swap, not a primary with a fallback */
+.ssw-or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: -4px 16px 12px;
+  color: var(--ssw-text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ssw-or-divider::before,
+.ssw-or-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ssw-border);
+}
+
 .ssw-step-actions .ssw-action-btn {
   flex: 1;
   width: auto;

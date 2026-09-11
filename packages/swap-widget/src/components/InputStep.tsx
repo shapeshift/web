@@ -458,14 +458,19 @@ export const InputStep = ({
         isDepositFlowAvailable &&
         allowShapeshiftRedirect &&
         buttonAction !== 'redirect' && (
-          <button
-            className='ssw-action-btn ssw-secondary'
-            disabled={isQuoting}
-            onClick={() => onButtonClick('redirect')}
-            type='button'
-          >
-            Proceed on ShapeShift
-          </button>
+          <>
+            <div className='ssw-or-divider' aria-hidden='true'>
+              <span>or</span>
+            </div>
+            <button
+              className='ssw-action-btn ssw-secondary'
+              disabled={isQuoting}
+              onClick={() => onButtonClick('redirect')}
+              type='button'
+            >
+              Proceed on ShapeShift
+            </button>
+          </>
         )}
     </>
   )

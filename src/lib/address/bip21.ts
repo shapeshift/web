@@ -7,19 +7,14 @@ import {
   toAssetId,
   toChainId,
 } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, URN_SCHEME_TO_CHAIN_ID } from '@shapeshiftoss/utils'
 import { parseURL as parseSolanaPayURL } from '@solana/pay'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Hex } from 'viem'
 import { fromHex, isHex } from 'viem'
 
-import {
-  CHAIN_ID_TO_URN_SCHEME,
-  DANGEROUS_ETH_URL_ERROR,
-  EMPTY_ADDRESS_ERROR,
-  URN_SCHEME_TO_CHAIN_ID,
-} from './constants'
+import { DANGEROUS_ETH_URL_ERROR, EMPTY_ADDRESS_ERROR } from './constants'
 import type { ParseUrlDirectResult } from './types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -28,7 +23,7 @@ import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { store } from '@/state/store'
 
 export const isBip21Url = (urlOrAddress: string): boolean =>
-  Object.values(CHAIN_ID_TO_URN_SCHEME).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
+  Object.keys(URN_SCHEME_TO_CHAIN_ID).some(scheme => urlOrAddress.startsWith(`${scheme}:`))
 
 export const isErc681Url = (urlOrAddress: string): boolean => {
   // ERC-681 enforces ethereum: prefix regardless of chain

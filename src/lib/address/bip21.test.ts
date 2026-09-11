@@ -96,7 +96,18 @@ describe('parseUrlDirect', () => {
       })
     })
 
-    it('should parse DOGE BIP-21 with amount', () => {
+    it('should parse Dogecoin BIP-21 with amount', () => {
+      const result = parseUrlDirect('dogecoin:DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L?amount=42.123456')
+
+      expect(result).toEqual({
+        assetId: dogeAssetId,
+        chainId: dogeChainId,
+        maybeAddress: 'DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L',
+        amountCryptoPrecision: '42.123456',
+      })
+    })
+
+    it('should still parse the doge: scheme older QR codes carry', () => {
       const result = parseUrlDirect('doge:DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L?amount=42.123456')
 
       expect(result).toEqual({

@@ -19,6 +19,7 @@ import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip
 import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { buildPaymentUri } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbCheck, TbCopy, TbExternalLink, TbHash, TbZoomCheck } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -45,7 +46,6 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { generateReceiveQrText } from '@/lib/address/generateReceiveQrText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
@@ -240,8 +240,8 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
   const qrCodeText = useMemo(() => {
     if (!receiveAddress) return ''
 
-    return generateReceiveQrText({
-      receiveAddress,
+    return buildPaymentUri({
+      address: receiveAddress,
       asset,
       amountCryptoPrecision: receiveAmount,
     })

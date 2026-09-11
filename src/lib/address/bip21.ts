@@ -7,14 +7,14 @@ import {
   toAssetId,
   toChainId,
 } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, URN_SCHEME_TO_CHAIN_ID } from '@shapeshiftoss/utils'
 import { parseURL as parseSolanaPayURL } from '@solana/pay'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Hex } from 'viem'
 import { fromHex, isHex } from 'viem'
 
-import { DANGEROUS_ETH_URL_ERROR, EMPTY_ADDRESS_ERROR, URN_SCHEME_TO_CHAIN_ID } from './constants'
+import { DANGEROUS_ETH_URL_ERROR, EMPTY_ADDRESS_ERROR } from './constants'
 import type { ParseUrlDirectResult } from './types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'

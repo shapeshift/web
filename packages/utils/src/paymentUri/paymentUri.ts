@@ -2,7 +2,7 @@ import { ASSET_NAMESPACE, CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@sha
 import type { Asset } from '@shapeshiftoss/types'
 
 import { BigAmount } from '../bigAmount/bigAmount'
-import { bnOrZero } from '../bignumber/bignumber'
+import { bn } from '../bignumber/bignumber'
 import { CHAIN_ID_TO_URN_SCHEME } from './constants'
 
 export type BuildPaymentUriArgs = {
@@ -11,42 +11,50 @@ export type BuildPaymentUriArgs = {
   amountCryptoPrecision?: string
 }
 
+const toBaseUnit = (asset: BuildPaymentUriArgs['asset'], amountCryptoPrecision: string): string =>
+  BigAmount.fromPrecision({ value: amountCryptoPrecision, precision: asset.precision }).toBaseUnit()
+
 // EIP-681 encourages scientific notation, and writes it without the exponent's plus sign
 const toEip681Amount = (amountCryptoBaseUnit: string): string =>
-  bnOrZero(amountCryptoBaseUnit).toExponential().replace('+', '').replace('e0', '')
+  bn(amountCryptoBaseUnit).toExponential().replace('+', '').replace('e0', '')
 
 const buildEvmUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriArgs): string => {
-  const { chainReference } = fromChainId(asset.chainId)
-  const target = `@${Number(chainReference)}`
-
-  if (!amountCryptoPrecision) return `ethereum:${address}${target}`
-
+  const target = `@${Number(fromChainId(asset.chainId).chainReference)}`
   const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
 
   // transfer(address,uint256) is erc20's alone, so erc721 and erc1155 get no amount
-  if (assetNamespace !== ASSET_NAMESPACE.slip44 && assetNamespace !== ASSET_NAMESPACE.erc20) {
-    return `ethereum:${address}${target}`
+  const takesAmount =
+    assetNamespace === ASSET_NAMESPACE.slip44 || assetNamespace === ASSET_NAMESPACE.erc20
+  if (!amountCryptoPrecision || !takesAmount) return `ethereum:${address}${target}`
+
+  const amount = toEip681Amount(toBaseUnit(asset, amountCryptoPrecision))
+
+  return assetNamespace === ASSET_NAMESPACE.erc20
+    ? `ethereum:${assetReference}${target}/transfer?address=${address}&uint256=${amount}`
+    : `ethereum:${address}${target}?value=${amount}`
+}
+
+const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+
+// The same check as web3.js's PublicKey: base58 that decodes to exactly 32 bytes
+const isSolanaPublicKey = (address: string): boolean => {
+  let value = 0n
+  for (const char of address) {
+    const digit = BASE58_ALPHABET.indexOf(char)
+    if (digit === -1) return false
+    value = value * 58n + BigInt(digit)
   }
-
-  const amount = toEip681Amount(
-    BigAmount.fromPrecision({
-      value: amountCryptoPrecision,
-      precision: asset.precision,
-    }).toBaseUnit(),
-  )
-
-  if (assetNamespace === ASSET_NAMESPACE.erc20) {
-    return `ethereum:${assetReference}${target}/transfer?address=${address}&uint256=${amount}`
-  }
-
-  return `ethereum:${address}${target}?value=${amount}`
+  const leadingZeroBytes = address.length - address.replace(/^1+/, '').length
+  const significantBytes = value === 0n ? 0 : Math.ceil(value.toString(16).length / 2)
+  return leadingZeroBytes + significantBytes === 32
 }
 
 const buildSolanaUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriArgs): string => {
   if (!amountCryptoPrecision) return address
+  if (!isSolanaPublicKey(address)) throw new Error(`Invalid Solana address: ${address}`)
 
   // Solana Pay normalises the amount rather than passing it through verbatim
-  const amount = bnOrZero(amountCryptoPrecision).toFixed()
+  const amount = bn(amountCryptoPrecision).toFixed()
 
   const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
   if (assetNamespace === ASSET_NAMESPACE.splToken) {
@@ -60,13 +68,13 @@ const buildSolanaUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentU
 const buildTonUri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUriArgs): string => {
   if (!amountCryptoPrecision) return address
 
-  // The amount is nanocoins of TON itself, so a jetton would be read as a native transfer
-  if (fromAssetId(asset.assetId).assetNamespace !== ASSET_NAMESPACE.slip44) return address
+  const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
+  const amount = toBaseUnit(asset, amountCryptoPrecision)
 
-  const amount = BigAmount.fromPrecision({
-    value: amountCryptoPrecision,
-    precision: asset.precision,
-  }).toBaseUnit()
+  // A jetton transfer names its master contract, and its amount is in the jetton's own units
+  if (assetNamespace === ASSET_NAMESPACE.jetton) {
+    return `ton://transfer/${address}?jetton=${assetReference}&amount=${amount}`
+  }
 
   return `ton://transfer/${address}?amount=${amount}`
 }
@@ -83,6 +91,14 @@ const buildBip21Uri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUr
 }
 
 export const buildPaymentUri = (args: BuildPaymentUriArgs): string => {
+  const { amountCryptoPrecision } = args
+  if (amountCryptoPrecision) {
+    const amount = bn(amountCryptoPrecision)
+    if (!amount.isFinite() || amount.isNegative()) {
+      throw new Error(`Invalid payment amount: ${amountCryptoPrecision}`)
+    }
+  }
+
   switch (fromChainId(args.asset.chainId).chainNamespace) {
     case CHAIN_NAMESPACE.Utxo:
     case CHAIN_NAMESPACE.CosmosSdk:

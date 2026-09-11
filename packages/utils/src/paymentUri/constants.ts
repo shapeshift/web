@@ -41,13 +41,10 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [tronChainId]: 'tron',
 }
 
-const LEGACY_URN_SCHEME_TO_CHAIN_ID: Record<string, ChainId> = {
-  doge: dogeChainId,
-}
-
 export const URN_SCHEME_TO_CHAIN_ID: Record<string, ChainId> = {
   ...Object.fromEntries(
     Object.entries(CHAIN_ID_TO_URN_SCHEME).map(([chainId, scheme]) => [scheme, chainId]),
   ),
-  ...LEGACY_URN_SCHEME_TO_CHAIN_ID,
+  // The app emitted doge: QR codes for a year before adopting Dogecoin Core's scheme
+  doge: dogeChainId,
 }

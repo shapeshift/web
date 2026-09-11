@@ -84,7 +84,7 @@ GET /v1/swap/status?quoteId=<quoteId>&txHash=0x...
 ```
 
 - On the **first call after broadcasting**, include `txHash` to bind it to the quote and begin tracking. This sets status to `submitted`. Subsequent polls can omit `txHash`.
-- Externally paid quotes need no `txHash` at all: poll with `quoteId` alone from the moment the quote is issued, and `txHash` is filled in on the response once the provider reports the deposit.
+- Externally paid quotes need no `txHash` at all: poll with `quoteId` alone from the moment the quote is issued, and `txHash` is filled in on the response once the deposit is detected.
 - `status` is one of `pending`, `submitted`, `confirmed`, `failed`. Poll until `confirmed` or `failed`; a `buyTxHash` appears once the destination transaction is known.
 - Poll at a modest interval (e.g. every 5–15s) and respect rate-limit headers. Stop polling on a terminal status.
 

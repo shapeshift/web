@@ -62,8 +62,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
         } catch (error) {
           if (stopped) return
 
-          // The api has dropped the quote: funded, the provider may still settle it; unfunded, the
-          // address must not be paid
+          // Quote gone from the api: a funded deposit may still settle, an unfunded address must not be paid
           if (isQuoteNotFound(error)) {
             actorRef.send(
               depositObservedAt ? { type: 'DEPOSIT_TRACKING_TIMEOUT' } : { type: 'DEPOSIT_EXPIRED' },

@@ -41,8 +41,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     isDepositFlow,
   } = context
 
-  // On a deposit swap the linked tx is the user's deposit, already seen by the provider; what's
-  // pending is the provider's own swap and payout
+  // On a deposit swap the linked tx is the deposit; what's pending is the provider's own swap
   const explorerLabel = isDepositFlow ? 'View deposit' : 'View on Explorer'
 
   // The swap may well have settled, so no failure wording and no retry quoting a second one

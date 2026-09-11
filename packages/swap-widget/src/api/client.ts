@@ -5,7 +5,6 @@ const DEFAULT_API_BASE_URL = 'https://api.shapeshift.com'
 export class ApiError extends Error {
   constructor(
     readonly status: number,
-    // The api's machine-readable error code, when its body carried one
     readonly code: string | undefined,
     message: string,
   ) {

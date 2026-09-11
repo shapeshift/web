@@ -39,7 +39,7 @@ export const getInputCta = ({
   hasRates,
   hasRatesError,
 }: GetInputCtaArgs): InputCta => {
-  // Rates never load for a chain the widget can't sign for, so this can't wait on the rate checks
+  // A chain the widget can't sign for redirects unless a deposit route quotes it, whatever the rates say
   if (isUnsupportedChain && !isDepositRoute) return getUnsupportedCta(allowShapeshiftRedirect)
 
   if (!hasAmount) return { text: 'Enter an amount', disabled: true, action: 'none' }

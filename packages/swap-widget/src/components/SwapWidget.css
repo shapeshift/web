@@ -841,7 +841,6 @@
   max-width: 320px;
 }
 
-/* Two routes to the same swap, not a primary with a fallback */
 .ssw-or-divider {
   display: flex;
   align-items: center;

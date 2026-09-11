@@ -123,7 +123,8 @@ Once connected, the widget can sign and broadcast transactions for three wallet 
 The header shows a **Connect** button by default (toggle with `showConnectButton`) that opens the
 AppKit modal. Swaps whose sell asset is not in an executable namespace (see
 [Supported Chains](#supported-chains)) redirect to [app.shapeshift.com](https://app.shapeshift.com)
-when `allowShapeshiftRedirect` is enabled.
+when `allowShapeshiftRedirect` is enabled. When such a swap is quoted by an externally paid route,
+both are offered: continue without a wallet, or proceed on ShapeShift.
 
 ## Props Reference
 
@@ -293,8 +294,7 @@ would drop whichever constraint you set. Locking the buy amount **or** the recei
 therefore disables it outright: `allowShapeshiftRedirect` has no effect, and assets on
 non-executable chains drop out of the asset pickers rather than dead-ending. The pickers share that
 filter, so Cosmos-SDK assets go from the **buy** side too, even though a swap into them works — only
-the sell side needs a signature. The remaining redirect-only chains lose nothing: the widget has no
-address validator for them, so they were never usable as a destination.
+the sell side needs a signature. The remaining redirect-only chains go with them.
 
 Note this is a wider condition than payment mode — locking either one is enough, because a single
 dropped constraint can send funds somewhere you didn't intend.
@@ -682,7 +682,8 @@ React Query client).
 Assets on the following chains appear in the selector. Swaps are **executed in-widget** only for EVM,
 UTXO, and Solana assets (`isWidgetExecutableChainId` returns `true`). Cosmos-SDK and redirect-only
 chains are selectable but route the user to [app.shapeshift.com](https://app.shapeshift.com) to
-complete the swap (when `allowShapeshiftRedirect` is enabled).
+complete the swap (when `allowShapeshiftRedirect` is enabled), unless an
+[externally paid route](#external-wallets-and-deposit-addresses) quotes them, which needs no signer.
 
 | Chain             | Chain ID                                  | Type   | Executable in-widget |
 | ----------------- | ----------------------------------------- | ------ | -------------------- |

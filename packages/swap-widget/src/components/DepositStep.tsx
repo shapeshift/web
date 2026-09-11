@@ -5,6 +5,7 @@ import { getChainIcon } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { formatAmount, formatAmountForInput, truncateAddress } from '../types'
 import { formatCountdown } from '../utils/countdown'
+import { shouldKeepTrackingDeposit } from '../utils/depositStatus'
 import { QrCode } from './QrCode'
 
 type CopyFieldProps = {
@@ -54,13 +55,14 @@ export const DepositStep = () => {
 
   const [msRemaining, setMsRemaining] = useState(() => (quote ? quote.expiresAt - Date.now() : 0))
 
+  // Keeps ticking past expiry so the screen knows when the tracking window closes too
   useEffect(() => {
-    if (!quote || isExpired || isRequoting) return
+    if (!quote || isRequoting) return
 
     const tick = () => {
       const remaining = quote.expiresAt - Date.now()
       setMsRemaining(remaining)
-      if (remaining <= 0) actorRef.send({ type: 'DEPOSIT_EXPIRED' })
+      if (remaining <= 0 && !isExpired) actorRef.send({ type: 'DEPOSIT_EXPIRED' })
     }
 
     tick()
@@ -72,6 +74,13 @@ export const DepositStep = () => {
   const handleNewQuote = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
 
   if (!quote?.depositAddress) return null
+
+  // Polling continues this long after expiry, so a deposit already sent still resolves here
+  const isStillWatching = shouldKeepTrackingDeposit({
+    quoteDeadline: quote.expiresAt,
+    depositObservedAt: undefined,
+    now: quote.expiresAt - msRemaining,
+  })
 
   // Ungrouped and unrounded - it's pasted into a wallet, and "send exactly" must mean it
   const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
@@ -124,6 +133,27 @@ export const DepositStep = () => {
         <div className='ssw-step-title'>Quote Expired</div>
         <div className='ssw-step-subtitle'>
           Don't send to the previous address. Request a new quote to continue.
+        </div>
+        <div className='ssw-deposit-watching'>
+          {isStillWatching ? (
+            <>
+              <svg
+                className='ssw-spinner'
+                width='14'
+                height='14'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+              >
+                <circle cx='12' cy='12' r='10' opacity='0.25' />
+                <path d='M12 2a10 10 0 0 1 10 10' />
+              </svg>
+              <span>Already sent? Still watching for your deposit - this screen will update.</span>
+            </>
+          ) : (
+            <span>Already sent? The provider may still settle or refund it - check your receive and refund addresses.</span>
+          )}
         </div>
         <div className='ssw-step-actions'>
           <button className='ssw-action-btn' onClick={handleNewQuote} type='button'>

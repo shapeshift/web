@@ -1,4 +1,4 @@
-import { btcChainId, fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero, DAO_TREASURY_NEAR, isToken } from '@shapeshiftoss/utils'
@@ -10,9 +10,9 @@ import type { SwapErrorRight, TradeAmount } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import {
-  BTC_QUOTE_DEADLINE_MS,
   DEFAULT_QUOTE_DEADLINE_MS,
   DEFAULT_SLIPPAGE_BPS,
+  UTXO_QUOTE_DEADLINE_MS,
 } from '../constants'
 import type { GetExecutionStatusResponse, QuoteResponse, TokenResponse } from '../types'
 import { chainIdToNearIntentsChain, QuoteRequest } from '../types'
@@ -178,7 +178,10 @@ export const resolveNearIntentsAssets = async ({
   }
 }
 
-// BTC deposits confirm slowly, so BTC pairs get a longer deadline
+const isUtxoChainId = (chainId: string): boolean =>
+  fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
+
+// Utxo legs confirm slowly, so those pairs get a longer deadline
 export const getNearIntentsQuoteDeadline = ({
   sellAsset,
   buyAsset,
@@ -187,8 +190,8 @@ export const getNearIntentsQuoteDeadline = ({
   buyAsset: Asset
 }): string => {
   const deadlineMs =
-    sellAsset.chainId === btcChainId || buyAsset.chainId === btcChainId
-      ? BTC_QUOTE_DEADLINE_MS
+    isUtxoChainId(sellAsset.chainId) || isUtxoChainId(buyAsset.chainId)
+      ? UTXO_QUOTE_DEADLINE_MS
       : DEFAULT_QUOTE_DEADLINE_MS
 
   return new Date(Date.now() + deadlineMs).toISOString()

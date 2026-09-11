@@ -957,6 +957,18 @@
   color: var(--ssw-text-muted);
 }
 
+.ssw-deposit-watching {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  max-width: 280px;
+  font-size: 13px;
+  color: var(--ssw-text-muted);
+  line-height: 1.5;
+  text-align: left;
+}
+
 .ssw-deposit-summary {
   display: flex;
   flex-direction: column;

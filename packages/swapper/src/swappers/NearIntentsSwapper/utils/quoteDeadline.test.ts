@@ -18,20 +18,29 @@ describe('getNearIntentsQuoteDeadline', () => {
   })
 
   it('gives a utxo sell leg the long deadline', () => {
-    expect(Date.parse(getNearIntentsQuoteDeadline({ sellAsset: asset(btcChainId), buyAsset: asset(ethChainId) }))).toBe(
-      Date.now() + UTXO_QUOTE_DEADLINE_MS,
-    )
+    expect(
+      Date.parse(
+        getNearIntentsQuoteDeadline({ sellAsset: asset(btcChainId), buyAsset: asset(ethChainId) }),
+      ),
+    ).toBe(Date.now() + UTXO_QUOTE_DEADLINE_MS)
   })
 
   it('gives a utxo buy leg the long deadline, on any utxo chain', () => {
-    expect(Date.parse(getNearIntentsQuoteDeadline({ sellAsset: asset(ethChainId), buyAsset: asset(dogeChainId) }))).toBe(
-      Date.now() + UTXO_QUOTE_DEADLINE_MS,
-    )
+    expect(
+      Date.parse(
+        getNearIntentsQuoteDeadline({ sellAsset: asset(ethChainId), buyAsset: asset(dogeChainId) }),
+      ),
+    ).toBe(Date.now() + UTXO_QUOTE_DEADLINE_MS)
   })
 
   it('gives everything else the default deadline', () => {
     expect(
-      Date.parse(getNearIntentsQuoteDeadline({ sellAsset: asset(ethChainId), buyAsset: asset(solanaChainId) })),
+      Date.parse(
+        getNearIntentsQuoteDeadline({
+          sellAsset: asset(ethChainId),
+          buyAsset: asset(solanaChainId),
+        }),
+      ),
     ).toBe(Date.now() + DEFAULT_QUOTE_DEADLINE_MS)
   })
 })

@@ -66,7 +66,7 @@ export const chainflipApi: SwapperApi = {
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
 
-    const buyTxHash = statusResponse.status.swapEgress?.transactionReference
+    const buyTxHash = statusResponse.status.swapEgress?.transactionReference ?? undefined
     const sellTxHash = statusResponse.status.deposit?.transactionReference ?? undefined
     const swapperTxId = statusResponse.status.swapId
     const swapperTxLink = swapperTxId ? `https://scan.chainflip.io/swaps/${swapperTxId}` : undefined
@@ -74,7 +74,7 @@ export const chainflipApi: SwapperApi = {
     // Assume no outbound Tx is a pending Tx
     if (!buyTxHash) {
       return {
-        buyTxHash: undefined,
+        buyTxHash,
         sellTxHash,
         status: TxStatus.Pending,
         swapperTxId,

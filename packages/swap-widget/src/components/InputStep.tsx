@@ -426,7 +426,7 @@ export const InputStep = ({
       )}
 
       <button
-        className={`ssw-action-btn ${isUnsupportedChain ? 'ssw-secondary' : ''}`}
+        className={`ssw-action-btn ${buttonAction === 'redirect' ? 'ssw-secondary' : ''}`}
         disabled={isButtonDisabled || isQuoting}
         onClick={() => onButtonClick(buttonAction)}
         type='button'
@@ -453,6 +453,20 @@ export const InputStep = ({
           buttonText
         )}
       </button>
+
+      {isUnsupportedChain &&
+        isDepositFlowAvailable &&
+        allowShapeshiftRedirect &&
+        buttonAction !== 'redirect' && (
+          <button
+            className='ssw-action-btn ssw-secondary'
+            disabled={isQuoting}
+            onClick={() => onButtonClick('redirect')}
+            type='button'
+          >
+            Proceed on ShapeShift
+          </button>
+        )}
     </>
   )
 }

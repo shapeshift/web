@@ -59,9 +59,6 @@ export const useSwapDisplayValues = ({
     sellAsset,
     buyAsset,
     buyAmountBaseUnit,
-    isSellAssetEvm,
-    isSellAssetUtxo,
-    isSellAssetSolana,
     selectedRate,
   } = context
 
@@ -86,13 +83,10 @@ export const useSwapDisplayValues = ({
     buyAmountCryptoBaseUnit: buyAmountBaseUnit,
     allowedSwapperNames,
     refetchInterval: ratesRefetchInterval,
-    // Rates need no destination, but a locked one the buy chain rejects can never be quoted
+    // Rates need no destination, but a locked one the buy chain rejects can never be quoted.
+    // A chain the widget can't sign for still rates - an externally paid route needs no signer
     enabled:
-      isPollingRates &&
-      !!amountBaseUnit &&
-      amountBaseUnit !== '0' &&
-      !isReceiveAddressBlocked &&
-      (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
+      isPollingRates && !!amountBaseUnit && amountBaseUnit !== '0' && !isReceiveAddressBlocked,
   })
 
   const {

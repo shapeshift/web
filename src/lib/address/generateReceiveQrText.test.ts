@@ -74,7 +74,7 @@ describe('generateReceiveQrText', () => {
         amountCryptoPrecision: '100.0',
       })
 
-      expect(result).toBe(`doge:${dogeAddress}?amount=100.0`)
+      expect(result).toBe(`dogecoin:${dogeAddress}?amount=100.0`)
     })
 
     it('should generate BIP-21 format for Litecoin with amount', () => {

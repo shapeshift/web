@@ -181,13 +181,12 @@ export const resolveNearIntentsAssets = async ({
 const isUtxoChainId = (chainId: string): boolean =>
   fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
 
-// Utxo legs confirm slowly, so those pairs get a longer deadline
 export const getNearIntentsQuoteDeadline = ({
   sellAsset,
   buyAsset,
 }: {
-  sellAsset: Asset
-  buyAsset: Asset
+  sellAsset: Pick<Asset, 'chainId'>
+  buyAsset: Pick<Asset, 'chainId'>
 }): string => {
   const deadlineMs =
     isUtxoChainId(sellAsset.chainId) || isUtxoChainId(buyAsset.chainId)

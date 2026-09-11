@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { CheckTradeStatusInput } from '../../types'
 import { chainflipApi } from './endpoints'
+import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 
 vi.mock('./utils/chainflipService', () => ({
@@ -15,7 +16,7 @@ const makeInput = (): CheckTradeStatusInput =>
     swap: { metadata: { swapperMetadata: { name: 'chainflip', swapId: 1234 } } },
   }) as unknown as CheckTradeStatusInput
 
-const mockStatus = (status: Record<string, unknown>) =>
+const mockStatus = (status: ChainFlipStatus['status']) =>
   vi.mocked(chainflipService.get).mockResolvedValue(Ok({ data: { status } }) as never)
 
 describe('chainflip checkTradeStatus', () => {

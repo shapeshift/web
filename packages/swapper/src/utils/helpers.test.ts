@@ -5,8 +5,8 @@ import { treasuryChainIds } from '@shapeshiftoss/utils'
 import { describe, expect, it } from 'vitest'
 
 import { swappers } from '../constants'
-import type { TradeQuoteStep } from '../types'
 import { SwapperName } from '../types'
+import type { DepositAddressStep } from './helpers'
 import { getDepositAddress, getTreasuryAddressFromChainId, normalizeEpochToMs } from './helpers'
 
 describe('getTreasuryAddressFromChainId', () => {
@@ -65,7 +65,7 @@ describe('normalizeEpochToMs', () => {
   })
 })
 
-const makeStep = (overrides: Partial<TradeQuoteStep>): TradeQuoteStep => overrides as TradeQuoteStep
+const makeStep = (step: DepositAddressStep): DepositAddressStep => step
 
 describe('getDepositAddress', () => {
   it('reads the chainflip deposit address', () => {

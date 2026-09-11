@@ -34,7 +34,7 @@ import {
   isTreasuryChainId,
 } from '@shapeshiftoss/utils'
 
-import type { TradeAmount, TradeQuoteStep, TradeRateStep } from '../types'
+import type { TradeAmount, TradeStepCommon } from '../types'
 import { SwapperName } from '../types'
 
 // Deadline for providers without their own expiry - short enough to keep priced amounts honest
@@ -115,8 +115,10 @@ export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {
   return treasuryAddress
 }
 
+export type DepositAddressStep = Pick<TradeStepCommon, 'chainflipSpecific' | 'swapperMetadata'>
+
 export const getDepositAddress = (
-  step: TradeQuoteStep | TradeRateStep,
+  step: DepositAddressStep,
   swapperName: SwapperName,
 ): string | undefined => {
   switch (swapperName) {

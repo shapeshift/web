@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_QUOTE_DEADLINE_MS, UTXO_QUOTE_DEADLINE_MS } from '../constants'
 import { getNearIntentsQuoteDeadline } from './helpers'
 
-const asset = (chainId: string): Asset => ({ chainId }) as Asset
+const asset = (chainId: string): Pick<Asset, 'chainId'> => ({ chainId })
 
 describe('getNearIntentsQuoteDeadline', () => {
   beforeEach(() => {

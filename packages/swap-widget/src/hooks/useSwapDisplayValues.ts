@@ -13,6 +13,7 @@ import { useChainInfo } from './useAssets'
 import type { BalanceResult } from './useBalances'
 import { useMultiChainBalance } from './useBalances'
 import { formatUsdValue, useMarketData } from './useMarketData'
+import { shouldPollRates } from '../utils/ratesPolling'
 import { useSwapRates } from './useSwapRates'
 
 type UseSwapDisplayValuesParams = {
@@ -53,13 +54,11 @@ export const useSwapDisplayValues = ({
   ratesRefetchInterval,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const context = SwapMachineCtx.useSelector(s => s.context)
+  const isPollingRates = SwapMachineCtx.useSelector(s => shouldPollRates(s.value))
   const {
     sellAsset,
     buyAsset,
     buyAmountBaseUnit,
-    isSellAssetEvm,
-    isSellAssetUtxo,
-    isSellAssetSolana,
     selectedRate,
   } = context
 
@@ -86,10 +85,7 @@ export const useSwapDisplayValues = ({
     refetchInterval: ratesRefetchInterval,
     // Rates need no destination, but a locked one the buy chain rejects can never be quoted
     enabled:
-      !!amountBaseUnit &&
-      amountBaseUnit !== '0' &&
-      !isReceiveAddressBlocked &&
-      (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
+      isPollingRates && !!amountBaseUnit && amountBaseUnit !== '0' && !isReceiveAddressBlocked,
   })
 
   const {

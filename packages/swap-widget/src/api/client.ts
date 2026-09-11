@@ -2,6 +2,23 @@ import type { AssetId, AssetsResponse, QuoteResponse, RatesResponse } from '../t
 
 const DEFAULT_API_BASE_URL = 'https://api.shapeshift.com'
 
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly code: string | undefined,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
+const readErrorCode = async (response: Response): Promise<string | undefined> => {
+  const body: unknown = await response.json().catch(() => undefined)
+  const code = (body as { code?: unknown } | undefined)?.code
+  return typeof code === 'string' ? code : undefined
+}
+
 export type ApiClientConfig = {
   baseUrl?: string
   partnerCode?: string
@@ -54,7 +71,11 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
       clearTimeout(timeoutId)
     })
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`)
+      throw new ApiError(
+        response.status,
+        await readErrorCode(response),
+        `API error: ${response.status} ${response.statusText}`,
+      )
     }
     return response.json() as Promise<T>
   }

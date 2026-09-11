@@ -12,6 +12,7 @@ An embeddable React widget that enables multi-chain token swaps using ShapeShift
 - [Props Reference](#props-reference)
 - [Filtering Chains and Assets](#filtering-chains-and-assets)
 - [Exact Output and Locked Destinations](#exact-output-and-locked-destinations)
+- [External Wallets and Deposit Addresses](#external-wallets-and-deposit-addresses)
 - [Theming](#theming)
 - [Examples](#examples)
 - [Exported Types](#exported-types)
@@ -122,7 +123,8 @@ Once connected, the widget can sign and broadcast transactions for three wallet 
 The header shows a **Connect** button by default (toggle with `showConnectButton`) that opens the
 AppKit modal. Swaps whose sell asset is not in an executable namespace (see
 [Supported Chains](#supported-chains)) redirect to [app.shapeshift.com](https://app.shapeshift.com)
-when `allowShapeshiftRedirect` is enabled.
+when `allowShapeshiftRedirect` is enabled. When such a swap is quoted by an externally paid route,
+both are offered: continue without a wallet, or proceed on ShapeShift.
 
 ## Props Reference
 
@@ -150,7 +152,7 @@ when `allowShapeshiftRedirect` is enabled.
 | `showConnectButton`      | `boolean`                                       | `true`             | Show the built-in Connect button in the widget header.                                                   |
 | `ratesRefetchInterval`   | `number`                                        | `15000`            | How often (ms) to refetch swap rates.                                                                    |
 | `onSwapSuccess`          | `(txHash: string) => void`                      | –                  | Called when a swap transaction succeeds.                                                                  |
-| `onSwapError`            | `(error: Error) => void`                        | –                  | Called when a swap transaction fails.                                                                     |
+| `onSwapError`            | `(error: Error) => void`                        | –                  | Called when a swap fails, or when its outcome can no longer be tracked.                                   |
 
 ## Filtering Chains and Assets
 
@@ -285,15 +287,14 @@ user's own wallet, or topping up a locked address again, are both things a user 
 twice.
 `isBuyAssetLocked` never affects this — restricting swaps to a given token is just a configuration.
 
-### Redirects are disabled by either lock
+### Locking the buy amount or receive address disables redirects
 
 The app.shapeshift.com redirect carries neither the destination nor the buy amount, so following it
 would drop whichever constraint you set. Locking the buy amount **or** the receive address
 therefore disables it outright: `allowShapeshiftRedirect` has no effect, and assets on
 non-executable chains drop out of the asset pickers rather than dead-ending. The pickers share that
 filter, so Cosmos-SDK assets go from the **buy** side too, even though a swap into them works — only
-the sell side needs a signature. The remaining redirect-only chains lose nothing: the widget has no
-address validator for them, so they were never usable as a destination.
+the sell side needs a signature. The remaining redirect-only chains go with them.
 
 Note this is a wider condition than payment mode — locking either one is enough, because a single
 dropped constraint can send funds somewhere you didn't intend.
@@ -341,8 +342,65 @@ only the swap itself resets.
 ### Refunds
 
 If a swap can't be completed, the provider returns the funds to the **sending** address — the wallet
-the user swapped from — not to the receive address. A locked destination does not affect where a
-refund goes.
+the user swapped from, or the address they entered in the [deposit
+flow](#external-wallets-and-deposit-addresses) — not to the receive address. A locked destination
+does not affect where a refund goes.
+
+## External Wallets and Deposit Addresses
+
+Some protocols execute a swap by issuing a **deposit address**: the user sends the sell asset to it
+from any wallet, and the protocol handles the rest. The widget uses this to let people swap with no
+wallet connected at all, and to serve chains it can't sign for.
+
+There is nothing to configure. When the selected route comes from a deposit-address protocol and no
+wallet is connected for the sell chain, the primary button becomes **Continue without a wallet**
+instead of Connect Wallet.
+
+### What the user provides
+
+Two addresses, both entered in the widget and validated against their chains:
+
+- **Receive address** — where the bought asset is sent.
+- **Refund address** — their own address on the sell chain, returned to if the swap can't complete.
+  This is also recorded as the swap's send address; the two are always the same value. There is no
+  prop for it, because it must belong to the user.
+
+### The deposit screen
+
+After quoting, the widget shows the exact amount to send, the deposit address with a QR code, a
+countdown to the quote's expiry, and a summary of the receive and refund addresses. The user pays
+from any external wallet.
+
+Tracking then proceeds on its own — the widget polls the ShapeShift API, which learns of the deposit
+from the protocol and reports the sell transaction once it lands. From that point the flow is
+identical to a wallet swap. Tracking is bounded: once the API can no longer report on the swap, the
+widget stops and says it may still be settling, rather than spinning indefinitely.
+
+### Expiry and recovery
+
+A deposit window is finite (NEAR Intents quotes run one hour, or four when a UTXO chain is
+involved; Chainflip channels six hours).
+When the countdown reaches zero the screen warns not to send and offers a fresh quote. The same
+happens if the API stops recognising the quote before any deposit was seen. Treat expiry as a hard
+cutoff: what happens to a late deposit is protocol-specific — NEAR Intents refunds it to the refund
+address, while an expired Chainflip channel stops being watched altogether and recovering funds sent
+to it is not guaranteed. If a late deposit is credited anyway, the expired screen still resolves to
+the final result rather than stranding there.
+
+The deposit is persisted to `localStorage` for as long as it is tracked — while funds are owed and
+after they land — and restored if the page reloads, so a reload mid-settlement doesn't lose the
+swap. A reload after the deposit was seen rejoins tracking rather than asking for it again. It is
+dropped when the swap finishes, when tracking gives up, or when the user starts a new swap.
+
+### Limitations
+
+- **Not every route can be paid this way.** Swappers that sign transactions, and a few routes that
+  cannot take a plain transfer (currently TON via NEAR Intents), keep the Connect Wallet or
+  redirect path instead.
+- **Wallet QR scanners vary.** The QR is a standard payment URI (BIP-21, EIP-681, Solana Pay), but
+  a wallet's built-in scanner may read only the address from it. MetaMask's does this for native
+  ETH while its ERC-20 handling and the phone's camera app both open a fully populated transaction.
+  The amount and address are always shown as copyable text alongside the QR for this reason.
 
 ## Theming
 
@@ -624,7 +682,8 @@ React Query client).
 Assets on the following chains appear in the selector. Swaps are **executed in-widget** only for EVM,
 UTXO, and Solana assets (`isWidgetExecutableChainId` returns `true`). Cosmos-SDK and redirect-only
 chains are selectable but route the user to [app.shapeshift.com](https://app.shapeshift.com) to
-complete the swap (when `allowShapeshiftRedirect` is enabled).
+complete the swap (when `allowShapeshiftRedirect` is enabled), unless an
+[externally paid route](#external-wallets-and-deposit-addresses) quotes them, which needs no signer.
 
 | Chain             | Chain ID                                  | Type   | Executable in-widget |
 | ----------------- | ----------------------------------------- | ------ | -------------------- |
@@ -656,10 +715,14 @@ complete the swap (when `allowShapeshiftRedirect` is enabled).
 The widget aggregates quotes across the protocols below and surfaces the best rate. Use
 `allowedSwapperNames` to restrict which are used.
 
-- **NEAR Intents** (`SwapperName.NearIntents`)
+- **NEAR Intents** (`SwapperName.NearIntents`) — deposit address
+- **Chainflip** (`SwapperName.Chainflip`) — deposit address
 - **Relay** (`SwapperName.Relay`)
 - **THORChain** (`SwapperName.Thorchain`)
 - **MAYAChain** (`SwapperName.Mayachain`)
+
+Protocols marked *deposit address* can be paid from any wallet — see [External Wallets and Deposit
+Addresses](#external-wallets-and-deposit-addresses).
 
 > The set of enabled swappers changes over time. Treat this list as current-at-publish; the
 > authoritative source is the `SwapperName` enum exported by this package.
@@ -687,10 +750,16 @@ revenue attribution works.
 - **Redirects.** Assets on non-executable chains (Cosmos, Zcash, Tron, Sui, TON, NEAR, Starknet)
   send the user to app.shapeshift.com to finish the swap, unless `allowShapeshiftRedirect={false}`
   or the buy amount or receive address is locked (see
-  [Redirects are disabled by either lock](#redirects-are-disabled-by-either-lock)).
+  [Locking the buy amount or receive address disables redirects](#locking-the-buy-amount-or-receive-address-disables-redirects)).
+  An [externally paid route](#external-wallets-and-deposit-addresses) takes precedence where one is
+  available, since it can be paid without any wallet.
 - **Configuration is applied at mount.** `default*` props are read once; locked values keep
   tracking their prop. Remount to change anything else, or to start a fresh swap. See
   [Configuration is applied at mount](#configuration-is-applied-at-mount).
-- **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction the user
-  signed on the sell chain. On cross-chain routes the destination transfer may still be in flight.
+- **`onSwapSuccess` reports the sell transaction.** The hash it receives is the transaction that
+  paid the swap on the sell chain — signed by the user, or their deposit as the protocol reported
+  it. On cross-chain routes the destination transfer may still be in flight.
+- **`onSwapError` does not always mean the swap failed.** It also fires when the widget stops
+  tracking a swap whose outcome it never learned, which can still settle afterwards. Treat it as
+  "not confirmed" rather than "failed" if you act on it.
 - **Mobile responsive.** The widget is designed to work on mobile as well as desktop.

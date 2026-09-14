@@ -258,7 +258,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       createdAt: now,
       quoteDeadline: quote.deadline,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
-      status: 'pending',
       depositAddress,
     })
 

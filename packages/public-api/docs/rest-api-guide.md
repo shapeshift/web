@@ -84,15 +84,16 @@ GET /v1/swap/status?quoteId=<quoteId>&txHash=0x...
 ```
 
 - On the **first call after broadcasting**, include `txHash` to bind it to the quote and begin tracking. This sets status to `submitted`. Subsequent polls can omit `txHash`.
-- Externally paid quotes need no `txHash` at all: poll with `quoteId` alone from the moment the quote is issued, and `txHash` is filled in on the response once the deposit is detected.
-- `status` is one of `pending`, `submitted`, `confirmed`, `failed`. Poll until `confirmed` or `failed`; a `buyTxHash` appears once the destination transaction is known.
+- Externally paid quotes need no `txHash`: poll with `quoteId` alone from the moment the quote is issued, and `txHash` is filled in on the response once the deposit is detected. If your application signed the deposit itself, pass its `txHash` on the first call and it binds exactly as above. A hash binds on the first call only — one passed later is ignored.
+- `status` is one of `pending`, `submitted`, `confirmed`, `failed`. `pending` means tracking has begun but no sell transaction has been seen yet, which is an externally paid quote awaiting its deposit; `submitted` means one has. Poll until `confirmed` or `failed`; a `buyTxHash` appears once the destination transaction is known.
 - Poll at a modest interval (e.g. every 5–15s) and respect rate-limit headers. Stop polling on a terminal status.
 
 ### Status errors
 
-- `404` `QUOTE_NOT_FOUND` — the quote is unknown, or has aged out of the store (an hour past its deadline, or an hour after a `txHash` is bound). Request a new quote — unless a deposit was already sent, in which case that swap may still settle and a second quote would pay twice.
+- `404` `QUOTE_NOT_FOUND` — the quote is unknown, or aged out before tracking began (an hour past its deadline). Once tracking has begun, status stays available for as long as the swap is tracked. Request a new quote — unless a deposit was already sent, in which case that swap may still settle and a second quote would pay twice.
 - `400` `TX_HASH_REQUIRED` — no `txHash` was provided and none is bound yet; pass the broadcast tx hash. Externally paid quotes never return this.
 - `409` `TX_HASH_MISMATCH` — a different `txHash` is already bound to this quote.
+- `503` `SERVICE_UNAVAILABLE` — tracking could not start or be read. Repeat the same call, including `txHash`.
 
 ## Affiliate reporting (optional)
 

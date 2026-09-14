@@ -238,8 +238,14 @@ export const validateAddress = (
       return isValidSuiAddress(address) ? { valid: true } : invalid('Sui')
     case CHAIN_NAMESPACE.Ton:
       return isValidTonAddress(address) ? { valid: true } : invalid('TON')
-    case CHAIN_NAMESPACE.Near:
-      return isValidNearAddress(address) ? { valid: true } : invalid('NEAR')
+    case CHAIN_NAMESPACE.Near: {
+      if (isValidNearAddress(address)) return { valid: true }
+      // A checksummed evm address pasted as an implicit account is the common near-miss
+      if (isValidNearAddress(address.toLowerCase())) {
+        return { valid: false, error: 'Invalid NEAR address - must be lowercase' }
+      }
+      return invalid('NEAR')
+    }
     case CHAIN_NAMESPACE.Starknet:
       return isValidStarknetAddress(address) ? { valid: true } : invalid('Starknet')
     default:

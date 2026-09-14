@@ -431,7 +431,19 @@ describe('validateAddress - deposit flow chains', () => {
   })
 
   it('rejects a near account with invalid characters', () => {
-    expect(validateAddress('Shape Shift.near', nearChainId).valid).toBe(false)
+    expect(validateAddress('Shape Shift.near', nearChainId)).toEqual({
+      valid: false,
+      error: 'Invalid NEAR address',
+    })
+  })
+
+  it('accepts a lowercase evm-style implicit account and says why a checksummed one fails', () => {
+    const checksummed = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+    expect(validateAddress(checksummed.toLowerCase(), nearChainId).valid).toBe(true)
+    expect(validateAddress(checksummed, nearChainId)).toEqual({
+      valid: false,
+      error: 'Invalid NEAR address - must be lowercase',
+    })
   })
 
   it('accepts a starknet address', () => {

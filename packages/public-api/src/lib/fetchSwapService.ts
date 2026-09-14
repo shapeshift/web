@@ -5,12 +5,11 @@ import type { ErrorResponse } from '../types'
 
 const DEFAULT_TIMEOUT_MS = 10_000
 
-export const fetchSwapService = async (
-  res: Response,
+export const callSwapService = async (
   url: string,
   options?: RequestInit,
   timeoutMs = DEFAULT_TIMEOUT_MS,
-): Promise<globalThis.Response | null> => {
+): Promise<globalThis.Response> => {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), timeoutMs)
   try {
@@ -19,6 +18,20 @@ export const fetchSwapService = async (
       headers: { ...options?.headers, 'x-api-key': env.SWAP_SERVICE_API_KEY },
       signal: controller.signal,
     })
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+// Answers the client on failure so callers can simply return on null
+export const fetchSwapService = async (
+  res: Response,
+  url: string,
+  options?: RequestInit,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<globalThis.Response | null> => {
+  try {
+    return await callSwapService(url, options, timeoutMs)
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
       res.status(504).json({
@@ -33,7 +46,5 @@ export const fetchSwapService = async (
       } satisfies ErrorResponse)
     }
     return null
-  } finally {
-    clearTimeout(timeout)
   }
 }

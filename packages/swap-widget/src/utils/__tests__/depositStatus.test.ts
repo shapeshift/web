@@ -85,34 +85,34 @@ describe('shouldKeepTrackingDeposit', () => {
     // Late enough that the unfunded window would already have closed
     const depositObservedAt = quoteDeadline + hour
 
-    it('follows settlement for an hour from the deposit', () => {
+    it('follows settlement for a day from the deposit', () => {
       expect(
         shouldKeepTrackingDeposit({
           quoteDeadline,
           depositObservedAt,
-          now: depositObservedAt + hour,
+          now: depositObservedAt + 24 * hour,
         }),
       ).toBe(true)
     })
 
-    it('gives up an hour after the deposit, when the api drops the quote', () => {
+    it('gives up a day after the deposit, when the api has abandoned the swap', () => {
       expect(
         shouldKeepTrackingDeposit({
           quoteDeadline,
           depositObservedAt,
-          now: depositObservedAt + hour + 1,
+          now: depositObservedAt + 24 * hour + 1,
         }),
       ).toBe(false)
     })
 
-    it('does not keep polling an hour past the deadline for a deposit seen early', () => {
+    it('does not keep polling a day past the deadline for a deposit seen early', () => {
       const seenEarly = quoteDeadline - 10 * 60 * 1000
 
       expect(
         shouldKeepTrackingDeposit({
           quoteDeadline,
           depositObservedAt: seenEarly,
-          now: seenEarly + hour + 1,
+          now: seenEarly + 24 * hour + 1,
         }),
       ).toBe(false)
     })

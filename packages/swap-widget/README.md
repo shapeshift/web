@@ -373,8 +373,9 @@ from any external wallet.
 
 Tracking then proceeds on its own — the widget polls the ShapeShift API, which learns of the deposit
 from the protocol and reports the sell transaction once it lands. From that point the flow is
-identical to a wallet swap. Tracking is bounded: once the API can no longer report on the swap, the
-widget stops and says it may still be settling, rather than spinning indefinitely.
+identical to a wallet swap. Tracking is bounded: the API abandons a swap still unsettled a day after
+it was registered, and the widget stops with it and says the swap may still be settling, rather than
+spinning indefinitely.
 
 ### Expiry and recovery
 

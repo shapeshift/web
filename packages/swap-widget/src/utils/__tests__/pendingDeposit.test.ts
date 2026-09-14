@@ -49,8 +49,8 @@ describe('pendingDeposit', () => {
     const observedAt = 10_000 + 60 * 60 * 1000
     savePendingDeposit({ ...makeDeposit(10_000), txHash: '0xdead', depositObservedAt: observedAt })
 
-    expect(loadPendingDeposit(observedAt + 60 * 60 * 1000)?.txHash).toBe('0xdead')
-    expect(loadPendingDeposit(observedAt + 60 * 60 * 1000 + 1)).toBeUndefined()
+    expect(loadPendingDeposit(observedAt + 24 * 60 * 60 * 1000)?.txHash).toBe('0xdead')
+    expect(loadPendingDeposit(observedAt + 24 * 60 * 60 * 1000 + 1)).toBeUndefined()
   })
 
   it('ignores a funded deposit with no observation time to resume from', () => {

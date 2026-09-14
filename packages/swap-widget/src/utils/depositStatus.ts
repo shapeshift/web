@@ -17,11 +17,11 @@ export const resolveDepositStatusEvent = (
   if (response.status === 'confirmed') return { type: 'STATUS_CONFIRMED' }
 }
 
-// The api keeps an unfunded quote this long past its deadline, and a late deposit still counts
+// A deposit landing this long past the deadline may still be credited, so the window outlasts it
 const UNFUNDED_DEPOSIT_TRACKING_MS = 60 * 60 * 1000
 
-// Timed from the deposit - the api drops the quote this long after binding its hash
-const SETTLEMENT_TRACKING_MS = 60 * 60 * 1000
+// Timed from the deposit - the api abandons an unsettled swap a day after registration
+const SETTLEMENT_TRACKING_MS = 24 * 60 * 60 * 1000
 
 type ShouldKeepTrackingArgs = {
   quoteDeadline: number

@@ -90,7 +90,10 @@ const buildSwapRegistrationBody = (storedQuote: StoredQuote): string | undefined
   })
 }
 
-export const registerQuote = async (registration: StoredQuote): Promise<void> => {
+// Resolves to the created row, or nothing when the caller should read the row instead
+export const registerQuote = async (
+  registration: StoredQuote,
+): Promise<SwapServiceStatus | undefined> => {
   const body = buildSwapRegistrationBody(registration)
   if (!body) return
 
@@ -103,7 +106,22 @@ export const registerQuote = async (registration: StoredQuote): Promise<void> =>
 
     if (!postResponse.ok) {
       console.error(`swap-service POST failed (${postResponse.status}):`, await postResponse.text())
+      return
     }
+
+    const swapResult = SwapServiceStatusSchema.safeParse(
+      await postResponse.json().catch(() => null),
+    )
+
+    if (!swapResult.success) {
+      console.error(
+        'Unexpected response shape from swap-service POST /swaps:',
+        swapResult.error.errors,
+      )
+      return
+    }
+
+    return swapResult.data
   } catch (err) {
     console.error('Failed to register swap in swap-service:', err)
   }

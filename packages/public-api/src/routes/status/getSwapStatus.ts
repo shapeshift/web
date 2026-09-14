@@ -4,6 +4,7 @@ import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
+import type { SwapServiceStatus } from './types'
 import { StatusRequestSchema, SwapStatusResponseSchema } from './types'
 import { getSwap, registerQuote, sendError, toResponse, validateTxHash } from './utils'
 
@@ -50,6 +51,8 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
     // Present only until the swap is registered - from then on swap-service is the record
     const storedQuote = quoteStore.get(quoteId)
 
+    let swap: SwapServiceStatus | undefined
+
     if (storedQuote) {
       const txHashError = validateTxHash(storedQuote, txHash)
       if (txHashError) {
@@ -62,13 +65,14 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       // Remembered so a retry can omit the hash
       if (registration.txHash !== storedQuote.txHash) quoteStore.set(quoteId, registration)
 
-      await registerQuote(registration)
+      swap = await registerQuote(registration)
     }
 
-    const swap = await getSwap(res, quoteId, { wasJustRegistered: Boolean(storedQuote) })
+    // A registration that lost the insert race, or failed, still has a row to read
+    swap ??= await getSwap(res, quoteId, { wasJustRegistered: Boolean(storedQuote) })
     if (!swap) return
 
-    // Retired only once the row has been read
+    // Retired once the row is in hand
     if (storedQuote) quoteStore.delete(quoteId)
 
     res.json(toResponse(quoteId, swap))

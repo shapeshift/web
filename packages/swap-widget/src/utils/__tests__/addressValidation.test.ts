@@ -5,23 +5,29 @@ import { encode as encodeCashAddr } from 'cashaddrjs'
 import { describe, expect, it } from 'vitest'
 
 import {
+  COSMOS_CHAIN_IDS,
+  EVM_CHAIN_IDS,
+  OTHER_CHAIN_IDS,
+  REDIRECT_ONLY_CHAIN_IDS,
+  UTXO_CHAIN_IDS,
+} from '../../types'
+import {
   getAddressFormatHint,
   isValidBitcoinAddress,
   isValidBitcoinCashAddress,
   isValidDogecoinAddress,
   isValidLitecoinAddress,
+  isValidStarknetAddress,
+  isValidTonAddress,
+  isValidZcashAddress,
   validateAddress,
 } from '../addressValidation'
 
 const HASH160 = new Uint8Array(20).fill(0x11)
 const HASH256 = new Uint8Array(32).fill(0x22)
 
-const base58CheckAddr = (versionByte: number, hash: Uint8Array = HASH160): string => {
-  const payload = new Uint8Array(1 + hash.length)
-  payload[0] = versionByte
-  payload.set(hash, 1)
-  return bs58check.encode(payload)
-}
+const base58CheckAddr = (versionBytes: number[], hash: Uint8Array = HASH160): string =>
+  bs58check.encode(new Uint8Array([...versionBytes, ...hash]))
 
 const bech32Addr = (
   hrp: string,
@@ -68,19 +74,19 @@ const solChainId = toChainId({
 })
 
 // Address fixtures, constructed so they have valid checksums by construction.
-const BTC_P2PKH = base58CheckAddr(0x00)
-const BTC_P2SH = base58CheckAddr(0x05)
+const BTC_P2PKH = base58CheckAddr([0x00])
+const BTC_P2SH = base58CheckAddr([0x05])
 const BTC_P2WPKH = bech32Addr('bc', 0, HASH160)
 const BTC_P2TR = bech32Addr('bc', 1, HASH256, bech32m)
 
-const LTC_P2PKH = base58CheckAddr(0x30)
-const LTC_P2SH_MODERN = base58CheckAddr(0x32)
-const LTC_P2SH_LEGACY = base58CheckAddr(0x05) // collides with BTC P2SH
+const LTC_P2PKH = base58CheckAddr([0x30])
+const LTC_P2SH_MODERN = base58CheckAddr([0x32])
+const LTC_P2SH_LEGACY = base58CheckAddr([0x05]) // collides with BTC P2SH
 const LTC_P2WPKH = bech32Addr('ltc', 0, HASH160)
 const LTC_P2TR = bech32Addr('ltc', 1, HASH256, bech32m)
 
-const DOGE_P2PKH = base58CheckAddr(0x1e)
-const DOGE_P2SH = base58CheckAddr(0x16)
+const DOGE_P2PKH = base58CheckAddr([0x1e])
+const DOGE_P2SH = base58CheckAddr([0x16])
 
 const BCH_CASHADDR_P2PKH = encodeCashAddr('bitcoincash', 'P2PKH', HASH160)
 const BCH_CASHADDR_P2SH = encodeCashAddr('bitcoincash', 'P2SH', HASH160)
@@ -363,5 +369,236 @@ describe('getAddressFormatHint', () => {
   })
   it('returns Solana hint for Solana', () => {
     expect(getAddressFormatHint(solChainId)).toBe('Enter Solana address')
+  })
+})
+
+const tronChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Tron,
+  chainReference: CHAIN_REFERENCE.TronMainnet,
+})
+const suiChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Sui,
+  chainReference: CHAIN_REFERENCE.SuiMainnet,
+})
+const nearChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Near,
+  chainReference: CHAIN_REFERENCE.NearMainnet,
+})
+const starknetChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Starknet,
+  chainReference: CHAIN_REFERENCE.StarknetMainnet,
+})
+const zcashChainId = toChainId({
+  chainNamespace: CHAIN_NAMESPACE.Utxo,
+  chainReference: CHAIN_REFERENCE.ZcashMainnet,
+})
+
+describe('validateAddress - deposit flow chains', () => {
+  it('accepts a tron address', () => {
+    expect(validateAddress(base58CheckAddr([0x41]), tronChainId).valid).toBe(true)
+  })
+
+  it('rejects a tron address with a bad checksum', () => {
+    const address = base58CheckAddr([0x41])
+    const corrupted = `${address.slice(0, -1)}${address.endsWith('a') ? 'b' : 'a'}`
+    expect(validateAddress(corrupted, tronChainId).valid).toBe(false)
+  })
+
+  it('rejects a bitcoin address on tron', () => {
+    expect(validateAddress(base58CheckAddr([0x00]), tronChainId).valid).toBe(false)
+  })
+
+  it('rejects an evm address on tron', () => {
+    expect(validateAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', tronChainId).valid).toBe(
+      false,
+    )
+  })
+
+  it('accepts a sui address', () => {
+    expect(validateAddress(`0x${'a'.repeat(64)}`, suiChainId).valid).toBe(true)
+  })
+
+  it('rejects a short sui address', () => {
+    expect(validateAddress(`0x${'a'.repeat(40)}`, suiChainId).valid).toBe(false)
+  })
+
+  it('accepts a named near account', () => {
+    expect(validateAddress('shapeshift.near', nearChainId).valid).toBe(true)
+  })
+
+  it('accepts an implicit near account', () => {
+    expect(validateAddress('f'.repeat(64), nearChainId).valid).toBe(true)
+  })
+
+  it('rejects a near account with invalid characters', () => {
+    expect(validateAddress('Shape Shift.near', nearChainId)).toEqual({
+      valid: false,
+      error: 'Invalid NEAR address',
+    })
+  })
+
+  it('accepts a lowercase evm-style implicit account and says why a checksummed one fails', () => {
+    const checksummed = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+    expect(validateAddress(checksummed.toLowerCase(), nearChainId).valid).toBe(true)
+    expect(validateAddress(checksummed, nearChainId)).toEqual({
+      valid: false,
+      error: 'Invalid NEAR address - must be lowercase',
+    })
+  })
+
+  it('accepts a starknet address', () => {
+    expect(validateAddress(`0x${'1'.repeat(63)}`, starknetChainId).valid).toBe(true)
+  })
+
+  it('rejects an over-long starknet address', () => {
+    expect(validateAddress(`0x${'1'.repeat(65)}`, starknetChainId).valid).toBe(false)
+  })
+
+  it('accepts transparent zcash addresses', () => {
+    expect(validateAddress(base58CheckAddr([0x1c, 0xb8]), zcashChainId).valid).toBe(true)
+    expect(validateAddress(base58CheckAddr([0x1c, 0xbd]), zcashChainId).valid).toBe(true)
+  })
+
+  it('rejects a bitcoin address on zcash', () => {
+    expect(validateAddress(base58CheckAddr([0x00]), zcashChainId).valid).toBe(false)
+  })
+})
+
+describe('getAddressFormatHint - deposit flow chains', () => {
+  it('hints the tron format', () => {
+    expect(getAddressFormatHint(tronChainId)).toBe('T...')
+  })
+
+  it('hints the near format', () => {
+    expect(getAddressFormatHint(nearChainId)).toBe('name.near or 64 hex chars')
+  })
+
+  it('hints hex formats for sui and starknet', () => {
+    expect(getAddressFormatHint(suiChainId)).toBe('0x...')
+    expect(getAddressFormatHint(starknetChainId)).toBe('0x...')
+  })
+
+  it('hints the zcash format', () => {
+    expect(getAddressFormatHint(zcashChainId)).toBe('t1... or t3...')
+  })
+})
+
+describe('base58check payload length', () => {
+  const withPayload = (version: number[], byteCount: number) =>
+    base58CheckAddr(version, new Uint8Array(byteCount).fill(1))
+
+  it('rejects a bitcoin address whose payload is not 20 bytes', () => {
+    expect(isValidBitcoinAddress(withPayload([0x00], 15))).toBe(false)
+    expect(isValidBitcoinAddress(withPayload([0x00], 40))).toBe(false)
+  })
+
+  it('rejects a zcash address whose payload is not 20 bytes', () => {
+    expect(isValidZcashAddress(withPayload([0x1c, 0xb8], 5))).toBe(false)
+  })
+})
+
+describe('witness program length', () => {
+  it('accepts the v0 programs BIP141 defines', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 0, HASH160))).toBe(true)
+    expect(isValidBitcoinAddress(bech32Addr('bc', 0, HASH256))).toBe(true)
+  })
+
+  it('rejects a v0 program that is neither a key nor a script hash', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 0, new Uint8Array(21).fill(0x11)))).toBe(false)
+  })
+
+  it('rejects a program outside the 2-40 byte range', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 1, new Uint8Array(1), bech32m))).toBe(false)
+  })
+
+  it('still accepts taproot', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 1, HASH256, bech32m))).toBe(true)
+  })
+
+  it('rejects witness versions above 16', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 17, HASH256, bech32m))).toBe(false)
+    expect(isValidLitecoinAddress(bech32Addr('ltc', 31, HASH256, bech32m))).toBe(false)
+  })
+})
+
+describe('isValidStarknetAddress', () => {
+  // The contract address bound, which is lower than the stark field prime
+  const BOUND = 2n ** 251n - 256n
+
+  it('accepts a value below the contract address bound', () => {
+    expect(isValidStarknetAddress('0x04a1b2c3')).toBe(true)
+    expect(isValidStarknetAddress(`0x${(BOUND - 1n).toString(16)}`)).toBe(true)
+  })
+
+  it('rejects the zero address', () => {
+    expect(isValidStarknetAddress('0x0')).toBe(false)
+  })
+
+  it('rejects a value at or above the contract address bound', () => {
+    expect(isValidStarknetAddress(`0x${BOUND.toString(16)}`)).toBe(false)
+    expect(isValidStarknetAddress(`0x${'f'.repeat(64)}`)).toBe(false)
+  })
+
+  it('rejects a felt the stark prime alone would allow', () => {
+    expect(isValidStarknetAddress(`0x${(2n ** 251n).toString(16)}`)).toBe(false)
+  })
+})
+
+describe('isValidTonAddress', () => {
+  const BOUNCEABLE = 'EQBCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQmXi'
+  const NON_BOUNCEABLE = 'UQBCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQjgn'
+  const TESTNET = 'kQBCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQt5o'
+  const BAD_CRC = 'EQBCQkJCQkACQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQmXi'
+
+  it('accepts bounceable and non-bounceable mainnet addresses', () => {
+    expect(isValidTonAddress(BOUNCEABLE)).toBe(true)
+    expect(isValidTonAddress(NON_BOUNCEABLE)).toBe(true)
+  })
+
+  it('accepts the same account in standard and url-safe base64', () => {
+    expect(isValidTonAddress('EQD//////////////////////////////////////////0vo')).toBe(true)
+    expect(isValidTonAddress('EQD__________________________________________0vo')).toBe(true)
+  })
+
+  it('rejects a workchain other than basechain or masterchain', () => {
+    expect(isValidTonAddress('EQVCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQv8M')).toBe(false)
+  })
+
+  it('accepts the raw workchain form', () => {
+    expect(isValidTonAddress(`0:${'42'.repeat(32)}`)).toBe(true)
+    expect(isValidTonAddress(`-1:${'42'.repeat(32)}`)).toBe(true)
+  })
+
+  it('rejects a testnet address', () => {
+    expect(isValidTonAddress(TESTNET)).toBe(false)
+  })
+
+  it('rejects a corrupted address the checksum catches', () => {
+    expect(isValidTonAddress(BAD_CRC)).toBe(false)
+  })
+
+  it('rejects addresses of the wrong shape', () => {
+    expect(isValidTonAddress('')).toBe(false)
+    expect(isValidTonAddress('EQBCQkJC')).toBe(false)
+    expect(isValidTonAddress('0x1234')).toBe(false)
+  })
+})
+
+// Every selectable chain must be able to say what a valid address looks like, and reject one that is not
+describe('validator coverage', () => {
+  const allChainIds = [
+    ...Object.values(EVM_CHAIN_IDS),
+    ...Object.values(UTXO_CHAIN_IDS),
+    ...Object.values(COSMOS_CHAIN_IDS),
+    ...Object.values(OTHER_CHAIN_IDS),
+    ...Object.values(REDIRECT_ONLY_CHAIN_IDS),
+  ]
+
+  it.each(allChainIds)('%s rejects a non-address with its own validator', chainId => {
+    expect(validateAddress('!not an address!', chainId).error).toMatch(/^Invalid .+ address$/)
+  })
+
+  it.each(allChainIds)('%s has a format hint', chainId => {
+    expect(getAddressFormatHint(chainId)).not.toBe('Enter address')
   })
 })

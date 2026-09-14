@@ -418,7 +418,6 @@
       "tiny-secp256k1",
       "blake-hash",
       "bigint-buffer",
-      "node-hid",
       "usb",
       "sharp",
       "electron",

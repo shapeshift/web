@@ -5,6 +5,7 @@ import type { GetExactOutputTradeQuoteInput, GetTradeQuoteInput } from '@shapesh
 import {
   buildSwapMetadata,
   getDefaultSlippageDecimalPercentageForSwapper,
+  getDepositAddress,
   getTradeQuotes,
   SwapperName,
   swappers,
@@ -20,7 +21,7 @@ import {
   MAX_QUOTE_DEADLINE_MS,
 } from '../../constants'
 import { env } from '../../env'
-import { QuoteStore, quoteStore } from '../../lib/quoteStore'
+import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
 import type { ErrorResponse } from '../../types'
@@ -244,6 +245,8 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    const depositAddress = getDepositAddress(step, validSwapperName)
+
     quoteStore.set(quoteId, {
       ...baseQuote,
       sellAssetId: sellAsset.assetId,
@@ -253,9 +256,10 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerAddress: req.affiliateInfo?.partnerAddress,
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
-      expiresAt: quote.deadline + QuoteStore.BIND_GRACE_MS,
+      quoteDeadline: quote.deadline,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
+      depositAddress,
     })
 
     const response: QuoteResponse = {
@@ -268,6 +272,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       steps: quote.steps.map(transformQuoteStep),
       approval,
       expiresAt: quote.deadline,
+      depositAddress,
     }
 
     res.json(response)

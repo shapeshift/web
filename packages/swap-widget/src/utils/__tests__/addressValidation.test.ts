@@ -26,12 +26,8 @@ import {
 const HASH160 = new Uint8Array(20).fill(0x11)
 const HASH256 = new Uint8Array(32).fill(0x22)
 
-const base58CheckAddr = (versionByte: number, hash: Uint8Array = HASH160): string => {
-  const payload = new Uint8Array(1 + hash.length)
-  payload[0] = versionByte
-  payload.set(hash, 1)
-  return bs58check.encode(payload)
-}
+const base58CheckAddr = (versionBytes: number[], hash: Uint8Array = HASH160): string =>
+  bs58check.encode(new Uint8Array([...versionBytes, ...hash]))
 
 const bech32Addr = (
   hrp: string,
@@ -78,19 +74,19 @@ const solChainId = toChainId({
 })
 
 // Address fixtures, constructed so they have valid checksums by construction.
-const BTC_P2PKH = base58CheckAddr(0x00)
-const BTC_P2SH = base58CheckAddr(0x05)
+const BTC_P2PKH = base58CheckAddr([0x00])
+const BTC_P2SH = base58CheckAddr([0x05])
 const BTC_P2WPKH = bech32Addr('bc', 0, HASH160)
 const BTC_P2TR = bech32Addr('bc', 1, HASH256, bech32m)
 
-const LTC_P2PKH = base58CheckAddr(0x30)
-const LTC_P2SH_MODERN = base58CheckAddr(0x32)
-const LTC_P2SH_LEGACY = base58CheckAddr(0x05) // collides with BTC P2SH
+const LTC_P2PKH = base58CheckAddr([0x30])
+const LTC_P2SH_MODERN = base58CheckAddr([0x32])
+const LTC_P2SH_LEGACY = base58CheckAddr([0x05]) // collides with BTC P2SH
 const LTC_P2WPKH = bech32Addr('ltc', 0, HASH160)
 const LTC_P2TR = bech32Addr('ltc', 1, HASH256, bech32m)
 
-const DOGE_P2PKH = base58CheckAddr(0x1e)
-const DOGE_P2SH = base58CheckAddr(0x16)
+const DOGE_P2PKH = base58CheckAddr([0x1e])
+const DOGE_P2SH = base58CheckAddr([0x16])
 
 const BCH_CASHADDR_P2PKH = encodeCashAddr('bitcoincash', 'P2PKH', HASH160)
 const BCH_CASHADDR_P2SH = encodeCashAddr('bitcoincash', 'P2SH', HASH160)
@@ -376,13 +372,6 @@ describe('getAddressFormatHint', () => {
   })
 })
 
-const multiByteBase58CheckAddr = (versionBytes: number[], hash: Uint8Array = HASH160): string => {
-  const payload = new Uint8Array(versionBytes.length + hash.length)
-  payload.set(versionBytes, 0)
-  payload.set(hash, versionBytes.length)
-  return bs58check.encode(payload)
-}
-
 const tronChainId = toChainId({
   chainNamespace: CHAIN_NAMESPACE.Tron,
   chainReference: CHAIN_REFERENCE.TronMainnet,
@@ -406,17 +395,17 @@ const zcashChainId = toChainId({
 
 describe('validateAddress - deposit flow chains', () => {
   it('accepts a tron address', () => {
-    expect(validateAddress(multiByteBase58CheckAddr([0x41]), tronChainId).valid).toBe(true)
+    expect(validateAddress(base58CheckAddr([0x41]), tronChainId).valid).toBe(true)
   })
 
   it('rejects a tron address with a bad checksum', () => {
-    const address = multiByteBase58CheckAddr([0x41])
+    const address = base58CheckAddr([0x41])
     const corrupted = `${address.slice(0, -1)}${address.endsWith('a') ? 'b' : 'a'}`
     expect(validateAddress(corrupted, tronChainId).valid).toBe(false)
   })
 
   it('rejects a bitcoin address on tron', () => {
-    expect(validateAddress(base58CheckAddr(0x00), tronChainId).valid).toBe(false)
+    expect(validateAddress(base58CheckAddr([0x00]), tronChainId).valid).toBe(false)
   })
 
   it('rejects an evm address on tron', () => {
@@ -454,12 +443,12 @@ describe('validateAddress - deposit flow chains', () => {
   })
 
   it('accepts transparent zcash addresses', () => {
-    expect(validateAddress(multiByteBase58CheckAddr([0x1c, 0xb8]), zcashChainId).valid).toBe(true)
-    expect(validateAddress(multiByteBase58CheckAddr([0x1c, 0xbd]), zcashChainId).valid).toBe(true)
+    expect(validateAddress(base58CheckAddr([0x1c, 0xb8]), zcashChainId).valid).toBe(true)
+    expect(validateAddress(base58CheckAddr([0x1c, 0xbd]), zcashChainId).valid).toBe(true)
   })
 
   it('rejects a bitcoin address on zcash', () => {
-    expect(validateAddress(base58CheckAddr(0x00), zcashChainId).valid).toBe(false)
+    expect(validateAddress(base58CheckAddr([0x00]), zcashChainId).valid).toBe(false)
   })
 })
 
@@ -484,7 +473,7 @@ describe('getAddressFormatHint - deposit flow chains', () => {
 
 describe('base58check payload length', () => {
   const withPayload = (version: number[], byteCount: number) =>
-    bs58check.encode(new Uint8Array([...version, ...Array(byteCount).fill(1)]))
+    base58CheckAddr(version, new Uint8Array(byteCount).fill(1))
 
   it('rejects a bitcoin address whose payload is not 20 bytes', () => {
     expect(isValidBitcoinAddress(withPayload([0x00], 15))).toBe(false)

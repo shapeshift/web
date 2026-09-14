@@ -7,25 +7,35 @@ import { isAddress } from 'viem'
 
 import type { ChainId } from '../types'
 
-// base58check version bytes (first byte of the decoded payload)
+// base58check version prefixes (the leading bytes of the decoded payload, before the hash160)
 // Litecoin's pre-2018 P2SH byte (0x05) is identical to Bitcoin's P2SH byte —
 // kept to support legacy BIP49 LTC wallets, at the cost of BTC/LTC P2SH ambiguity.
 const VERSION_BYTES = {
-  bitcoinP2PKH: 0x00,
-  bitcoinP2SH: 0x05,
-  litecoinP2PKH: 0x30,
-  litecoinP2SH: 0x32,
-  litecoinP2SHLegacy: 0x05,
-  dogecoinP2PKH: 0x1e,
-  dogecoinP2SH: 0x16,
+  bitcoinP2PKH: [0x00],
+  bitcoinP2SH: [0x05],
+  litecoinP2PKH: [0x30],
+  litecoinP2SH: [0x32],
+  litecoinP2SHLegacy: [0x05],
+  dogecoinP2PKH: [0x1e],
+  dogecoinP2SH: [0x16],
+  zcashP2PKH: [0x1c, 0xb8],
+  zcashP2SH: [0x1c, 0xbd],
+  tron: [0x41],
 } as const
 
 const HASH160_LENGTH = 20
 
-const isValidBase58Check = (address: string, allowedVersionBytes: number[]): boolean => {
+const isValidBase58Check = (
+  address: string,
+  versionPrefixes: readonly (readonly number[])[],
+): boolean => {
   try {
     const decoded = bs58check.decode(address)
-    return decoded.length === 1 + HASH160_LENGTH && allowedVersionBytes.includes(decoded[0])
+    return versionPrefixes.some(
+      prefix =>
+        decoded.length === prefix.length + HASH160_LENGTH &&
+        prefix.every((byte, index) => decoded[index] === byte),
+    )
   } catch {
     return false
   }
@@ -93,34 +103,11 @@ export const isValidLitecoinAddress = (address: string): boolean =>
 export const isValidDogecoinAddress = (address: string): boolean =>
   isValidBase58Check(address, [VERSION_BYTES.dogecoinP2PKH, VERSION_BYTES.dogecoinP2SH])
 
-// Zcash transparent addresses use a two-byte version prefix, unlike the single-byte utxo chains
-const ZCASH_VERSION_BYTES = {
-  transparentP2PKH: [0x1c, 0xb8],
-  transparentP2SH: [0x1c, 0xbd],
-} as const
+export const isValidZcashAddress = (address: string): boolean =>
+  isValidBase58Check(address, [VERSION_BYTES.zcashP2PKH, VERSION_BYTES.zcashP2SH])
 
-export const isValidZcashAddress = (address: string): boolean => {
-  try {
-    const decoded = bs58check.decode(address)
-    if (decoded.length !== 2 + HASH160_LENGTH) return false
-
-    return Object.values(ZCASH_VERSION_BYTES).some(
-      ([first, second]) => decoded[0] === first && decoded[1] === second,
-    )
-  } catch {
-    return false
-  }
-}
-
-export const isValidTronAddress = (address: string): boolean => {
-  if (!address.startsWith('T')) return false
-  try {
-    const decoded = bs58check.decode(address)
-    return decoded.length === 1 + HASH160_LENGTH && decoded[0] === 0x41
-  } catch {
-    return false
-  }
-}
+export const isValidTronAddress = (address: string): boolean =>
+  isValidBase58Check(address, [VERSION_BYTES.tron])
 
 // TON user-friendly addresses are 36 base64url bytes: tag, workchain, 32-byte hash, then a crc16
 const crc16Xmodem = (data: Uint8Array): number => {

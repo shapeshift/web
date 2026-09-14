@@ -162,6 +162,24 @@ describe('buildPaymentUri', () => {
     ).toThrow('Invalid Solana address')
   })
 
+  it('writes a scientific-notation amount as a plain decimal', () => {
+    expect(
+      buildPaymentUri({ address: BTC_ADDRESS, asset: BTC, amountCryptoPrecision: '1e-8' }),
+    ).toBe(`bitcoin:${BTC_ADDRESS}?amount=0.00000001`)
+    expect(
+      buildPaymentUri({ address: SOL_ADDRESS, asset: SOL, amountCryptoPrecision: '1e-9' }),
+    ).toBe(`solana:${SOL_ADDRESS}?amount=0.000000001`)
+  })
+
+  it('throws on an amount finer than the asset', () => {
+    expect(() =>
+      buildPaymentUri({ address: BTC_ADDRESS, asset: BTC, amountCryptoPrecision: '0.000000001' }),
+    ).toThrow('exceeds 8 decimals')
+    expect(() =>
+      buildPaymentUri({ address: EVM_ADDRESS, asset: USDC, amountCryptoPrecision: '0.0000001' }),
+    ).toThrow('exceeds 6 decimals')
+  })
+
   it('throws on an amount no wallet could pay', () => {
     expect(() =>
       buildPaymentUri({ address: BTC_ADDRESS, asset: BTC, amountCryptoPrecision: '-1' }),

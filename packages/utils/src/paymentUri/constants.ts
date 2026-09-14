@@ -20,7 +20,7 @@ import {
   zecChainId,
 } from '@shapeshiftoss/caip'
 
-export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
+export const CHAIN_ID_TO_URN_SCHEME: Partial<Record<ChainId, string>> = {
   [ethChainId]: 'ethereum',
   [arbitrumChainId]: 'arbitrum',
   [optimismChainId]: 'optimism',
@@ -41,7 +41,7 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [tronChainId]: 'tron',
 }
 
-export const URN_SCHEME_TO_CHAIN_ID: Record<string, ChainId> = {
+export const URN_SCHEME_TO_CHAIN_ID: Partial<Record<string, ChainId>> = {
   ...Object.fromEntries(
     Object.entries(CHAIN_ID_TO_URN_SCHEME).map(([chainId, scheme]) => [scheme, chainId]),
   ),

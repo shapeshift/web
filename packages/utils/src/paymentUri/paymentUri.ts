@@ -87,15 +87,18 @@ const buildBip21Uri = ({ address, asset, amountCryptoPrecision }: BuildPaymentUr
   // CashAddr already carries its scheme
   const target = address.startsWith(`${scheme}:`) ? address.slice(scheme.length + 1) : address
 
-  return `${scheme}:${target}?amount=${amountCryptoPrecision}`
+  return `${scheme}:${target}?amount=${bn(amountCryptoPrecision).toFixed()}`
 }
 
 export const buildPaymentUri = (args: BuildPaymentUriArgs): string => {
-  const { amountCryptoPrecision } = args
+  const { asset, amountCryptoPrecision } = args
   if (amountCryptoPrecision) {
     const amount = bn(amountCryptoPrecision)
     if (!amount.isFinite() || amount.isNegative()) {
       throw new Error(`Invalid payment amount: ${amountCryptoPrecision}`)
+    }
+    if ((amount.decimalPlaces() ?? 0) > asset.precision) {
+      throw new Error(`Payment amount ${amountCryptoPrecision} exceeds ${asset.precision} decimals`)
     }
   }
 

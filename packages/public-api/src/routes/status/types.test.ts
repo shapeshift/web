@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { SwapServiceStatusSchema } from './types'
+
 // Module load validates the process environment, which a schema test has no use for
 vi.mock('../../env', () => ({ env: { DEFAULT_AFFILIATE_BPS: '60' } }))
-
-import { SwapServiceStatusSchema } from './types'
 
 const verifiedRow = {
   status: 'SUCCESS',

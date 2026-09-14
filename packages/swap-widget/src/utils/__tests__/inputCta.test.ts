@@ -30,7 +30,12 @@ describe('getInputCta', () => {
   })
 
   it('asks for a receive address before it can quote a deposit', () => {
-    const cta = getInputCta({ ...base, ...noWallet, isDepositRoute: true, hasReceiveAddress: false })
+    const cta = getInputCta({
+      ...base,
+      ...noWallet,
+      isDepositRoute: true,
+      hasReceiveAddress: false,
+    })
     expect(cta).toEqual({ text: 'Enter receive address', disabled: true, action: 'none' })
   })
 
@@ -45,7 +50,11 @@ describe('getInputCta', () => {
   })
 
   it('blocks a sell chain the connected wallet cannot serve when the redirect is disabled', () => {
-    const cta = getInputCta({ ...base, hasWalletForSellChain: false, allowShapeshiftRedirect: false })
+    const cta = getInputCta({
+      ...base,
+      hasWalletForSellChain: false,
+      allowShapeshiftRedirect: false,
+    })
     expect(cta).toEqual({ text: 'Route not supported', disabled: true, action: 'none' })
   })
 
@@ -54,7 +63,12 @@ describe('getInputCta', () => {
   })
 
   it('offers a deposit on a chain the widget cannot sign for', () => {
-    const cta = getInputCta({ ...base, ...noWallet, isUnsupportedChain: true, isDepositRoute: true })
+    const cta = getInputCta({
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      isDepositRoute: true,
+    })
     expect(cta.action).toBe('deposit')
   })
 

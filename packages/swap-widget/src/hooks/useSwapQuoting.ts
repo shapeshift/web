@@ -40,9 +40,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
         const isExactOutput = !!context.buyAmountBaseUnit
         const rateToUse =
           context.selectedRate ??
-          (context.isDepositFlow
-            ? pickDepositRate(rates, context.quote?.swapperName)
-            : rates?.[0])
+          (context.isDepositFlow ? pickDepositRate(rates, context.quote?.swapperName) : rates?.[0])
 
         const sellAmountBaseUnit = isExactOutput
           ? rateToUse?.sellAmountCryptoBaseUnit

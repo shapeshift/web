@@ -8,12 +8,12 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { SwapperName, TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
+import { shouldPollRates } from '../utils/ratesPolling'
 import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
 import type { BalanceResult } from './useBalances'
 import { useMultiChainBalance } from './useBalances'
 import { formatUsdValue, useMarketData } from './useMarketData'
-import { shouldPollRates } from '../utils/ratesPolling'
 import { useSwapRates } from './useSwapRates'
 
 type UseSwapDisplayValuesParams = {
@@ -55,12 +55,7 @@ export const useSwapDisplayValues = ({
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isPollingRates = SwapMachineCtx.useSelector(s => shouldPollRates(s.value))
-  const {
-    sellAsset,
-    buyAsset,
-    buyAmountBaseUnit,
-    selectedRate,
-  } = context
+  const { sellAsset, buyAsset, buyAmountBaseUnit, selectedRate } = context
 
   const { receiveAddress, isReceiveAddressBlocked, evm, bitcoin, solana } = useSwapWallet()
   const evmAddress = evm.address

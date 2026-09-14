@@ -82,7 +82,9 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
           </div>
           <div className='ssw-step-subtitle'>
             {isDepositFlow
-              ? `Deposit received. Waiting for ${quote?.swapperName ?? 'the provider'} to send your ${buyAsset.symbol}.`
+              ? `Deposit received. Waiting for ${
+                  quote?.swapperName ?? 'the provider'
+                } to send your ${buyAsset.symbol}.`
               : 'Your swap is being processed…'}
           </div>
           {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}

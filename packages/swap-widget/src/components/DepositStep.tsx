@@ -152,7 +152,10 @@ export const DepositStep = () => {
               <span>Already sent? Still watching for your deposit - this screen will update.</span>
             </>
           ) : (
-            <span>Already sent? The provider may still settle or refund it - check your receive and refund addresses.</span>
+            <span>
+              Already sent? The provider may still settle or refund it - check your receive and
+              refund addresses.
+            </span>
           )}
         </div>
         <div className='ssw-step-actions'>

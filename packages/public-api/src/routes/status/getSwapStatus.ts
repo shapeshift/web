@@ -5,14 +5,7 @@ import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
 import { StatusRequestSchema, SwapStatusResponseSchema } from './types'
-import {
-  getSwap,
-  registerQuote,
-  sendError,
-  statusErrors,
-  toResponse,
-  validateTxHash,
-} from './utils'
+import { getSwap, registerQuote, sendError, toResponse, validateTxHash } from './utils'
 
 registry.registerPath({
   method: 'get',
@@ -64,19 +57,19 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         return
       }
 
-      await registerQuote(quoteId, storedQuote, txHash)
+      const registration = { ...storedQuote, txHash: storedQuote.txHash ?? txHash }
+
+      // Remembered so a retry can omit the hash
+      if (registration.txHash !== storedQuote.txHash) quoteStore.set(quoteId, registration)
+
+      await registerQuote(registration)
     }
 
     const swap = await getSwap(res, quoteId, { wasJustRegistered: Boolean(storedQuote) })
     if (!swap) return
 
-    // The row settles it whatever registration reported - a first poll that lost the insert race must not leave a record behind
+    // Retired only once the row has been read
     if (storedQuote) quoteStore.delete(quoteId)
-
-    if (txHash && swap.sellTxHash && swap.sellTxHash !== txHash) {
-      sendError(res, statusErrors.TX_HASH_MISMATCH)
-      return
-    }
 
     res.json(toResponse(quoteId, swap))
   } catch (error) {

@@ -23,7 +23,7 @@ export const callSwapService = async (
   }
 }
 
-// Answers the client on failure so callers can simply return on null
+// Replies to the client on failure
 export const fetchSwapService = async (
   res: Response,
   url: string,

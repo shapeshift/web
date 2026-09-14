@@ -20,7 +20,6 @@ export type StoredQuote = {
   metadata: SwapMetadata
   // Set only when this quote is payable externally - memo-bound routes get none
   depositAddress?: string
-  // A client-supplied sell tx hash whose registration with swap-service has not succeeded yet
   txHash?: string
 }
 

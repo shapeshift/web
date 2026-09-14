@@ -4,7 +4,6 @@ import { getAsset } from '../../assets'
 import { env } from '../../env'
 import { callSwapService, fetchSwapService } from '../../lib/fetchSwapService'
 import type { StoredQuote } from '../../lib/quoteStore'
-import { quoteStore } from '../../lib/quoteStore'
 import type { ErrorResponse } from '../../types'
 import { STATUS_TIMEOUT_MS } from './constants'
 import type { SwapServiceStatus, SwapStatusResponse } from './types'
@@ -91,16 +90,7 @@ const buildSwapRegistrationBody = (storedQuote: StoredQuote): string | undefined
   })
 }
 
-export const registerQuote = async (
-  quoteId: string,
-  storedQuote: StoredQuote,
-  txHash: string | undefined,
-): Promise<void> => {
-  const registration = { ...storedQuote, txHash: storedQuote.txHash ?? txHash }
-
-  // Keep the client's hash so a retry can omit it - the record is retired once the row is read
-  quoteStore.set(quoteId, registration)
-
+export const registerQuote = async (registration: StoredQuote): Promise<void> => {
   const body = buildSwapRegistrationBody(registration)
   if (!body) return
 
@@ -177,7 +167,7 @@ export const toResponse = (quoteId: string, swap: SwapServiceStatus): SwapStatus
   sellAmountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
   buyAmountAfterFeesCryptoBaseUnit: swap.expectedBuyAmountCryptoBaseUnit,
   partnerAddress: swap.partnerAddress ?? undefined,
-  partnerBps: String(swap.partnerBps),
+  partnerBps: swap.partnerBps ? String(swap.partnerBps) : undefined,
   shapeshiftBps: String(swap.shapeshiftBps),
   affiliateBps: String(swap.affiliateBps),
   registeredAt: swap.createdAt,

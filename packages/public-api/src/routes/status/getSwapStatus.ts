@@ -74,10 +74,8 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
 
       const registration = { ...storedQuote, txHash: storedQuote.txHash ?? txHash }
 
-      if (await registerSwapInService(registration)) {
-        quoteStore.delete(quoteId)
-      } else {
-        // Keep the hash so the retry can omit it, as the docs promise for later polls
+      if (!(await registerSwapInService(registration))) {
+        // Keep the client's hash so a retry can omit it
         quoteStore.set(quoteId, registration)
       }
     }
@@ -94,7 +92,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
     if (swapResponse.status === 404) {
       if (storedQuote) {
         res.status(503).json({
-          error: 'Swap could not be registered with the swap service; poll again',
+          error: 'Swap could not be registered with the swap service - try again',
           code: 'SERVICE_UNAVAILABLE',
         } satisfies ErrorResponse)
         return
@@ -133,6 +131,9 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
     }
 
     const swap = swapResult.data
+
+    // The row settles it whatever registration reported - a first poll that lost the insert race must not leave a record behind
+    if (storedQuote) quoteStore.delete(quoteId)
 
     if (txHash && swap.sellTxHash && swap.sellTxHash !== txHash) {
       res.status(409).json({

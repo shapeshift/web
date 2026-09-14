@@ -4,6 +4,19 @@ import { registry } from '../../registry'
 import { BpsFields, EVM_ADDRESS } from '../../types'
 
 export const SwapServiceStatusSchema = z.object({
+  swapId: z.string(),
+  swapperName: z.string(),
+  sellAsset: z.object({ assetId: z.string() }),
+  buyAsset: z.object({ assetId: z.string() }),
+  sellAmountCryptoBaseUnit: z.string(),
+  expectedBuyAmountCryptoBaseUnit: z.string(),
+  partnerAddress: z.string().nullable(),
+  partnerBps: z.number().int().min(0),
+  shapeshiftBps: z.number().int().min(0),
+  affiliateBps: z.number().int().min(0),
+  createdAt: z
+    .union([z.string().datetime(), z.date()])
+    .transform((createdAt: string | Date): number => new Date(createdAt).getTime()),
   status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
   sellTxHash: z.string().nullable(),
   buyTxHash: z.string().nullable(),

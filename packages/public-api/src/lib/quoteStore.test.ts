@@ -25,7 +25,6 @@ const makeQuote = (overrides: Partial<StoredQuote> = {}): StoredQuote => ({
     stepIndex: 0,
     quoteId: 'quote-1',
   },
-  status: 'pending',
   ...overrides,
 })
 
@@ -42,7 +41,7 @@ describe('QuoteStore', () => {
     vi.useRealTimers()
   })
 
-  describe('set / get', () => {
+  describe('set / get / delete', () => {
     it('stores and retrieves a quote', () => {
       const quote = makeQuote()
       store.set(quote.quoteId, quote)
@@ -52,10 +51,18 @@ describe('QuoteStore', () => {
     it('returns undefined for unknown quoteId', () => {
       expect(store.get('unknown')).toBeUndefined()
     })
+
+    it('forgets a quote once it is deleted', () => {
+      const quote = makeQuote()
+      store.set(quote.quoteId, quote)
+      store.delete(quote.quoteId)
+      expect(store.get(quote.quoteId)).toBeUndefined()
+      expect(store.size()).toBe(0)
+    })
   })
 
-  describe('TTL — unsubmitted quotes', () => {
-    it('keeps a quote past its deadline, so a slow first confirmation can still bind', () => {
+  describe('retention', () => {
+    it('keeps a quote past its deadline, so a slow first status call can still register', () => {
       const quote = makeQuote()
       store.set(quote.quoteId, quote)
       vi.advanceTimersByTime(QUOTE_WINDOW_MS + QuoteStore.BIND_GRACE_MS - 1)
@@ -68,67 +75,12 @@ describe('QuoteStore', () => {
       vi.advanceTimersByTime(QUOTE_WINDOW_MS + QuoteStore.BIND_GRACE_MS + 1)
       expect(store.get(quote.quoteId)).toBeUndefined()
     })
-  })
 
-  describe('TTL — submitted quotes', () => {
-    it('uses EXECUTION_TTL_MS after txHash is bound', () => {
-      const now = Date.now()
-      const quote = makeQuote({
-        txHash: '0xabc',
-        registeredAt: now,
-        quoteDeadline: now + QUOTE_WINDOW_MS,
-        status: 'submitted',
-      })
+    it('retains a quote awaiting a registration retry on the same window', () => {
+      const quote = makeQuote({ txHash: '0xabc' })
       store.set(quote.quoteId, quote)
-
-      vi.advanceTimersByTime(QuoteStore.EXECUTION_TTL_MS - 1)
-      expect(store.get(quote.quoteId)).toBeDefined()
-    })
-
-    it('expires submitted quote after EXECUTION_TTL_MS', () => {
-      const now = Date.now()
-      const quote = makeQuote({
-        txHash: '0xabc',
-        registeredAt: now,
-        status: 'submitted',
-      })
-      store.set(quote.quoteId, quote)
-      vi.advanceTimersByTime(QuoteStore.EXECUTION_TTL_MS + 1)
-      expect(store.get(quote.quoteId)).toBeUndefined()
-    })
-
-    it('falls back to createdAt when registeredAt is absent', () => {
-      const now = Date.now()
-      const quote = makeQuote({ txHash: '0xabc', createdAt: now, status: 'submitted' })
-      store.set(quote.quoteId, quote)
-      vi.advanceTimersByTime(QuoteStore.EXECUTION_TTL_MS + 1)
-      expect(store.get(quote.quoteId)).toBeUndefined()
-    })
-  })
-
-  describe('txHash index', () => {
-    it('hasTxHash returns true for a stored txHash', () => {
-      const quote = makeQuote({ txHash: '0xabc', status: 'submitted' })
-      store.set(quote.quoteId, quote)
-      expect(store.hasTxHash('0xabc')).toBe(true)
-    })
-
-    it('hasTxHash returns false for unknown txHash', () => {
-      expect(store.hasTxHash('0xunknown')).toBe(false)
-    })
-
-    it('getQuoteIdByTxHash returns the correct quoteId', () => {
-      const quote = makeQuote({ txHash: '0xabc', status: 'submitted' })
-      store.set(quote.quoteId, quote)
-      expect(store.getQuoteIdByTxHash('0xabc')).toBe(quote.quoteId)
-    })
-
-    it('hasTxHash returns false after quote expires', () => {
-      const now = Date.now()
-      const quote = makeQuote({ txHash: '0xabc', registeredAt: now, status: 'submitted' })
-      store.set(quote.quoteId, quote)
-      vi.advanceTimersByTime(QuoteStore.EXECUTION_TTL_MS + 1)
-      expect(store.hasTxHash('0xabc')).toBe(false)
+      vi.advanceTimersByTime(QUOTE_WINDOW_MS + QuoteStore.BIND_GRACE_MS - 1)
+      expect(store.get(quote.quoteId)?.txHash).toBe('0xabc')
     })
   })
 
@@ -163,16 +115,6 @@ describe('QuoteStore', () => {
       vi.advanceTimersByTime(pastRetention + QuoteStore.CLEANUP_INTERVAL_MS + 1)
 
       expect(store.size()).toBe(0)
-    })
-
-    it('cleans up txHash index on sweep', () => {
-      const now = Date.now()
-      const quote = makeQuote({ txHash: '0xabc', registeredAt: now, status: 'submitted' })
-      store.set(quote.quoteId, quote)
-
-      vi.advanceTimersByTime(QuoteStore.EXECUTION_TTL_MS + QuoteStore.CLEANUP_INTERVAL_MS + 1)
-
-      expect(store.hasTxHash('0xabc')).toBe(false)
     })
   })
 })

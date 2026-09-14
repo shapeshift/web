@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 
 import { env } from '../../env'
-import { bindSellTxHash, requiresTxHashToTrack } from '../../lib/externalPayment'
+import { requiresTxHashToTrack } from '../../lib/externalPayment'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -18,7 +18,7 @@ registry.registerPath({
   operationId: 'getSwapStatus',
   summary: 'Get swap status',
   description:
-    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and begin tracking; later calls can omit it. Externally paid quotes need no txHash at all - tracking starts from the quote ID alone, and txHash is filled in once the provider reports the deposit.',
+    'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and begin tracking; later calls can omit it. Externally paid quotes need no txHash - tracking starts from the quote ID alone and txHash is filled in once the provider reports the deposit - unless the application signed the deposit itself and passes its hash on the first call. A hash binds on the first call only.',
   tags: ['Swaps'],
   request: {
     headers: PartnerCodeHeaderSchema,
@@ -52,65 +52,34 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
 
     const { quoteId, txHash } = queryResult.data
 
+    // Present only until the swap is registered - from then on swap-service is the record
     const storedQuote = quoteStore.get(quoteId)
 
-    if (!storedQuote) {
-      res.status(404).json({
-        error: 'Quote not found or expired',
-        code: 'QUOTE_NOT_FOUND',
-      } satisfies ErrorResponse)
-      return
-    }
-
-    if (!txHash && requiresTxHashToTrack(storedQuote)) {
-      res.status(400).json({
-        error: 'txHash is required to begin tracking',
-        code: 'TX_HASH_REQUIRED',
-      } satisfies ErrorResponse)
-      return
-    }
-
-    if (txHash && storedQuote.txHash && storedQuote.txHash !== txHash) {
-      res.status(409).json({
-        error: 'Transaction hash does not match the registered swap',
-        code: 'TX_HASH_MISMATCH',
-      } satisfies ErrorResponse)
-      return
-    }
-
-    const response: SwapStatusResponse = {
-      quoteId,
-      txHash: storedQuote.txHash,
-      status: storedQuote.status,
-      swapperName: storedQuote.swapperName,
-      sellAssetId: storedQuote.sellAssetId,
-      buyAssetId: storedQuote.buyAssetId,
-      sellAmountCryptoBaseUnit: storedQuote.sellAmountCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: storedQuote.buyAmountAfterFeesCryptoBaseUnit,
-      partnerAddress: storedQuote.partnerAddress,
-      partnerBps: storedQuote.partnerBps,
-      shapeshiftBps: storedQuote.shapeshiftBps,
-      affiliateBps: storedQuote.affiliateBps,
-      registeredAt: storedQuote.registeredAt,
-    }
-
-    if (txHash && !storedQuote.txHash) {
-      const registeredQuote = {
-        ...storedQuote,
-        txHash,
-        registeredAt: Date.now(),
-        status: 'submitted' as const,
+    if (storedQuote) {
+      if (!txHash && requiresTxHashToTrack(storedQuote)) {
+        res.status(400).json({
+          error: 'txHash is required to begin tracking',
+          code: 'TX_HASH_REQUIRED',
+        } satisfies ErrorResponse)
+        return
       }
 
-      quoteStore.set(quoteId, registeredQuote)
-      await registerSwapInService(registeredQuote)
+      if (txHash && storedQuote.txHash && storedQuote.txHash !== txHash) {
+        res.status(409).json({
+          error: 'Transaction hash does not match the registered swap',
+          code: 'TX_HASH_MISMATCH',
+        } satisfies ErrorResponse)
+        return
+      }
 
-      response.txHash = registeredQuote.txHash
-      response.registeredAt = registeredQuote.registeredAt
-      response.status = registeredQuote.status
+      const registration = { ...storedQuote, txHash: storedQuote.txHash ?? txHash }
 
-      res.json(response)
-      return
+      if (await registerSwapInService(registration)) {
+        quoteStore.delete(quoteId)
+      } else {
+        // Keep the hash so the retry can omit it, as the docs promise for later polls
+        quoteStore.set(quoteId, registration)
+      }
     }
 
     const swapResponse = await fetchSwapService(
@@ -122,67 +91,82 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
 
     if (!swapResponse) return
 
-    if (swapResponse.ok) {
-      const statusResult = SwapServiceStatusSchema.safeParse(
-        await swapResponse.json().catch(() => null),
-      )
-
-      if (!statusResult.success) {
-        console.error(
-          'Unexpected response shape from swap-service /swaps/:quoteId:',
-          statusResult.error.errors,
-        )
+    if (swapResponse.status === 404) {
+      if (storedQuote) {
         res.status(503).json({
-          error: 'Invalid response from swap service',
-          code: 'INVALID_RESPONSE',
+          error: 'Swap could not be registered with the swap service; poll again',
+          code: 'SERVICE_UNAVAILABLE',
         } satisfies ErrorResponse)
         return
       }
 
-      const {
-        sellTxHash,
-        buyTxHash,
-        status: serviceStatus,
-        isAffiliateVerified,
-      } = statusResult.data
-
-      let trackedQuote = storedQuote
-
-      // An externally paid swap's sell tx hash arrives from the provider, not from the client
-      if (!trackedQuote.txHash && sellTxHash) {
-        trackedQuote = bindSellTxHash(trackedQuote, sellTxHash, Date.now())
-
-        quoteStore.set(quoteId, trackedQuote)
-
-        response.txHash = trackedQuote.txHash
-        response.registeredAt = trackedQuote.registeredAt
-        response.status = trackedQuote.status
-      }
-
-      const status =
-        serviceStatus === 'SUCCESS'
-          ? 'confirmed'
-          : serviceStatus === 'FAILED'
-          ? 'failed'
-          : trackedQuote.status
-
-      if (status !== trackedQuote.status && (status === 'confirmed' || status === 'failed')) {
-        response.status = status
-        quoteStore.set(quoteId, { ...trackedQuote, status })
-      }
-
-      if (buyTxHash) response.buyTxHash = buyTxHash
-
-      if (isAffiliateVerified !== null) {
-        response.isAffiliateVerified = isAffiliateVerified
-      }
-
-      res.json(response)
+      res.status(404).json({
+        error: 'Quote not found or expired',
+        code: 'QUOTE_NOT_FOUND',
+      } satisfies ErrorResponse)
       return
     }
 
-    if (swapResponse.status === 404) {
-      await registerSwapInService(storedQuote)
+    if (!swapResponse.ok) {
+      console.error(`swap-service GET /swaps/${quoteId} failed (${swapResponse.status})`)
+      res.status(503).json({
+        error: 'Swap service unavailable',
+        code: 'SERVICE_UNAVAILABLE',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    const swapResult = SwapServiceStatusSchema.safeParse(
+      await swapResponse.json().catch(() => null),
+    )
+
+    if (!swapResult.success) {
+      console.error(
+        'Unexpected response shape from swap-service /swaps/:quoteId:',
+        swapResult.error.errors,
+      )
+      res.status(503).json({
+        error: 'Invalid response from swap service',
+        code: 'INVALID_RESPONSE',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    const swap = swapResult.data
+
+    if (txHash && swap.sellTxHash && swap.sellTxHash !== txHash) {
+      res.status(409).json({
+        error: 'Transaction hash does not match the registered swap',
+        code: 'TX_HASH_MISMATCH',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    const status =
+      swap.status === 'SUCCESS'
+        ? 'confirmed'
+        : swap.status === 'FAILED'
+        ? 'failed'
+        : swap.sellTxHash
+        ? 'submitted'
+        : 'pending'
+
+    const response: SwapStatusResponse = {
+      quoteId,
+      txHash: swap.sellTxHash ?? undefined,
+      status,
+      swapperName: swap.swapperName,
+      sellAssetId: swap.sellAsset.assetId,
+      buyAssetId: swap.buyAsset.assetId,
+      sellAmountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
+      buyAmountAfterFeesCryptoBaseUnit: swap.expectedBuyAmountCryptoBaseUnit,
+      partnerAddress: swap.partnerAddress ?? undefined,
+      partnerBps: String(swap.partnerBps),
+      shapeshiftBps: String(swap.shapeshiftBps),
+      affiliateBps: String(swap.affiliateBps),
+      registeredAt: swap.createdAt,
+      buyTxHash: swap.buyTxHash ?? undefined,
+      isAffiliateVerified: swap.isAffiliateVerified ?? undefined,
     }
 
     res.json(response)

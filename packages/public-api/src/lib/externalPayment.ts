@@ -8,14 +8,3 @@ export const isExternalPaymentSwapper = (swapperName: string): boolean =>
 
 export const requiresTxHashToTrack = (storedQuote: StoredQuote): boolean =>
   !storedQuote.txHash && !storedQuote.depositAddress
-
-export const bindSellTxHash = (
-  storedQuote: StoredQuote,
-  sellTxHash: string,
-  now: number,
-): StoredQuote => ({
-  ...storedQuote,
-  txHash: sellTxHash,
-  registeredAt: storedQuote.registeredAt ?? now,
-  status: 'submitted',
-})

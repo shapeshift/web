@@ -5,6 +5,13 @@ import { encode as encodeCashAddr } from 'cashaddrjs'
 import { describe, expect, it } from 'vitest'
 
 import {
+  COSMOS_CHAIN_IDS,
+  EVM_CHAIN_IDS,
+  OTHER_CHAIN_IDS,
+  REDIRECT_ONLY_CHAIN_IDS,
+  UTXO_CHAIN_IDS,
+} from '../../types'
+import {
   getAddressFormatHint,
   isValidBitcoinAddress,
   isValidBitcoinCashAddress,
@@ -476,7 +483,6 @@ describe('getAddressFormatHint - deposit flow chains', () => {
 })
 
 describe('base58check payload length', () => {
-  // A correct version byte is not enough - the payload has to be a hash160
   const withPayload = (version: number[], byteCount: number) =>
     bs58check.encode(new Uint8Array([...version, ...Array(byteCount).fill(1)]))
 
@@ -507,6 +513,11 @@ describe('witness program length', () => {
   it('still accepts taproot', () => {
     expect(isValidBitcoinAddress(bech32Addr('bc', 1, HASH256, bech32m))).toBe(true)
   })
+
+  it('rejects witness versions above 16', () => {
+    expect(isValidBitcoinAddress(bech32Addr('bc', 17, HASH256, bech32m))).toBe(false)
+    expect(isValidLitecoinAddress(bech32Addr('ltc', 31, HASH256, bech32m))).toBe(false)
+  })
 })
 
 describe('isValidStarknetAddress', () => {
@@ -527,7 +538,6 @@ describe('isValidStarknetAddress', () => {
     expect(isValidStarknetAddress(`0x${'f'.repeat(64)}`)).toBe(false)
   })
 
-  // Between the contract address bound and the prime, which the looser check would have accepted
   it('rejects a felt the stark prime alone would allow', () => {
     expect(isValidStarknetAddress(`0x${(2n ** 251n).toString(16)}`)).toBe(false)
   })
@@ -542,6 +552,15 @@ describe('isValidTonAddress', () => {
   it('accepts bounceable and non-bounceable mainnet addresses', () => {
     expect(isValidTonAddress(BOUNCEABLE)).toBe(true)
     expect(isValidTonAddress(NON_BOUNCEABLE)).toBe(true)
+  })
+
+  it('accepts the same account in standard and url-safe base64', () => {
+    expect(isValidTonAddress('EQD//////////////////////////////////////////0vo')).toBe(true)
+    expect(isValidTonAddress('EQD__________________________________________0vo')).toBe(true)
+  })
+
+  it('rejects a workchain other than basechain or masterchain', () => {
+    expect(isValidTonAddress('EQVCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQv8M')).toBe(false)
   })
 
   it('accepts the raw workchain form', () => {
@@ -561,5 +580,24 @@ describe('isValidTonAddress', () => {
     expect(isValidTonAddress('')).toBe(false)
     expect(isValidTonAddress('EQBCQkJC')).toBe(false)
     expect(isValidTonAddress('0x1234')).toBe(false)
+  })
+})
+
+// Every selectable chain must be able to say what a valid address looks like, and reject one that is not
+describe('validator coverage', () => {
+  const allChainIds = [
+    ...Object.values(EVM_CHAIN_IDS),
+    ...Object.values(UTXO_CHAIN_IDS),
+    ...Object.values(COSMOS_CHAIN_IDS),
+    ...Object.values(OTHER_CHAIN_IDS),
+    ...Object.values(REDIRECT_ONLY_CHAIN_IDS),
+  ]
+
+  it.each(allChainIds)('%s rejects a non-address with its own validator', chainId => {
+    expect(validateAddress('!not an address!', chainId).error).toMatch(/^Invalid .+ address$/)
+  })
+
+  it.each(allChainIds)('%s has a format hint', chainId => {
+    expect(getAddressFormatHint(chainId)).not.toBe('Enter address')
   })
 })

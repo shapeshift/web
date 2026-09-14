@@ -58,6 +58,7 @@ const isValidSegwit = (address: string, expectedHrp: string): boolean => {
       if (prefix !== expectedHrp) continue
       if (words.length === 0) continue
       const witnessVersion = words[0]
+      if (witnessVersion > 16) continue
       if (witnessVersion === 0 && codec !== bech32) continue
       if (witnessVersion >= 1 && codec !== bech32m) continue
 
@@ -140,7 +141,7 @@ export const isValidTonAddress = (address: string): boolean => {
   // Raw form, workchain 0 (basechain) or -1 (masterchain)
   if (/^(0|-1):[0-9a-fA-F]{64}$/.test(address)) return true
 
-  if (!/^[A-Za-z0-9_-]{48}$/.test(address)) return false
+  if (!/^[A-Za-z0-9+/_-]{48}$/.test(address)) return false
 
   try {
     const base64 = address.replace(/-/g, '+').replace(/_/g, '/')
@@ -149,6 +150,7 @@ export const isValidTonAddress = (address: string): boolean => {
 
     // The testnet bit is deliberately not masked off - a testnet address is not a valid destination
     if (bytes[0] !== TON_TAG_BOUNCEABLE && bytes[0] !== TON_TAG_NON_BOUNCEABLE) return false
+    if (bytes[1] !== 0x00 && bytes[1] !== 0xff) return false
 
     return crc16Xmodem(bytes.subarray(0, 34)) === ((bytes[34] << 8) | bytes[35])
   } catch {

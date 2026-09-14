@@ -33,7 +33,7 @@ X-Partner-Code: your-partner-code
 
 Optional `slippageTolerancePercentageDecimal` (e.g. `0.01` for 1%). The response returns a `rates` array (one entry per swapper, each with its own `swapperName`, amounts, fees, and an optional per-swapper `error`) plus `timestamp` and `expiresAt`. **Rates are indicative**, expire quickly (`expiresAt` ≈ 30s after issue), and are for display/comparison — request a quote to execute.
 
-Each rate also carries `supportsExternalPayment`. When true, the swap is paid by transferring the sell asset to an address the provider issues, so any wallet can fund it and your application signs nothing — see [Externally paid quotes](#externally-paid-quotes).
+Each rate also carries `supportsExternalPayment`. When true, the swapper takes payment at a deposit address instead of a signed transaction: any wallet can fund the swap, and your application signs nothing — see [Externally paid quotes](#externally-paid-quotes).
 
 A non-empty `allowanceContract` on a rate means executing that swapper pulls the sell token from an ERC-20 allowance. Clients that want to handle approvals themselves — checking the current allowance, or setting an unlimited approval ahead of time — can use it directly at this stage; otherwise the quote supplies ready-to-sign approval transactions.
 
@@ -59,7 +59,7 @@ X-Partner-Code: your-partner-code
 - `swapperName` comes from the rate you chose in step 2.
 - `slippageTolerancePercentageDecimal` is optional; `accountNumber` is optional (defaults to `0`) and is needed for chains that derive addresses per account index (e.g. UTXO/Cosmos).
 - The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required, the spender, and ready-to-sign `approvalTxs` when it is), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`) — describing exactly what to sign for that chain.
-- Quotes expire: honor the `expiresAt` timestamp — it reflects the swapper's own quote deadline (e.g. THORChain inbound addresses rotate, externally paid swappers deactivate their deposit channels; deadline-less providers get a conservative 60s). **Never sign or broadcast after `expiresAt`** — on externally paid quotes, funds sent late can be lost. Request a fresh quote instead.
+- Quotes expire. **Never sign, broadcast, or send a deposit after `expiresAt`** — request a fresh quote instead. `expiresAt` is the swapper's own deadline, not an arbitrary timeout: THORChain rotates its inbound addresses, externally paid swappers close their deposit channels, and funds sent to a closed channel can be lost. Swappers without a deadline of their own get a conservative 60s.
 
 ## 4. Execute the swap
 
@@ -71,9 +71,9 @@ The API does **not** broadcast transactions — your application signs and broad
 
 ### Externally paid quotes
 
-When a quote carries `depositAddress` there is nothing to sign. Send exactly `sellAmountCryptoBaseUnit` of the sell asset to that address before `expiresAt`, from any wallet — the payer does not have to be the user, and no wallet needs to be connected to your application.
+When a quote carries `depositAddress`, signing is optional. Send exactly `sellAmountCryptoBaseUnit` of the sell asset to that address before `expiresAt`, from any wallet — the payer does not have to be the user, and no wallet needs to be connected to your application. The quote still includes `transactionData` and `approval`, so a client with a connected wallet can execute it exactly as in step 4 instead; both paths land at the same address.
 
-Pass the user's own address on the sell chain as `sendAddress` when requesting the quote. Nothing is sent from it, but it is where a failed, expired or refunded swap returns funds, so it must be an address the user controls.
+Pass the user's own address on the sell chain as `sendAddress` when requesting the quote. On the deposit path nothing is sent from it, but it is where a failed, expired or refunded swap returns funds, so it must be an address the user controls.
 
 A quote from a swapper advertising `supportsExternalPayment` may still omit `depositAddress` — treat that as the route needing a signed transaction after all, and fall back to the flow above.
 

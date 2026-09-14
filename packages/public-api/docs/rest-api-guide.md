@@ -33,7 +33,7 @@ X-Partner-Code: your-partner-code
 
 Optional `slippageTolerancePercentageDecimal` (e.g. `0.01` for 1%). The response returns a `rates` array (one entry per swapper, each with its own `swapperName`, amounts, fees, and an optional per-swapper `error`) plus `timestamp` and `expiresAt`. **Rates are indicative**, expire quickly (`expiresAt` ≈ 30s after issue), and are for display/comparison — request a quote to execute.
 
-Each rate also carries `supportsExternalPayment`. When true, the swapper takes payment at a deposit address instead of a signed transaction: any wallet can fund the swap, and your application signs nothing — see [Externally paid quotes](#externally-paid-quotes).
+Each rate also carries `supportsExternalPayment`. When true, the swapper can also take payment as a plain transfer to a deposit address, so any wallet can fund the swap and your application does not have to sign — though it still can, since the quote carries `transactionData` either way. See [Externally paid quotes](#externally-paid-quotes).
 
 A non-empty `allowanceContract` on a rate means executing that swapper pulls the sell token from an ERC-20 allowance. Clients that want to handle approvals themselves — checking the current allowance, or setting an unlimited approval ahead of time — can use it directly at this stage; otherwise the quote supplies ready-to-sign approval transactions.
 

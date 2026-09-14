@@ -4,7 +4,6 @@ import { registry } from '../../registry'
 import { BpsFields, EVM_ADDRESS } from '../../types'
 
 export const SwapServiceStatusSchema = z.object({
-  swapId: z.string(),
   swapperName: z.string(),
   sellAsset: z.object({ assetId: z.string() }),
   buyAsset: z.object({ assetId: z.string() }),

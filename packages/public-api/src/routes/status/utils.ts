@@ -175,6 +175,13 @@ const toClientStatus = (swap: SwapServiceStatus): SwapStatusResponse['status'] =
   return swap.sellTxHash ? 'submitted' : 'pending'
 }
 
+const toExplorerTxLink = (assetId: string, txHash: string | null): string | undefined => {
+  const explorerTxLink = getAsset(assetId)?.explorerTxLink
+  if (!txHash || !explorerTxLink) return
+
+  return `${explorerTxLink}${txHash}`
+}
+
 export const toResponse = (quoteId: string, swap: SwapServiceStatus): SwapStatusResponse => ({
   quoteId,
   txHash: swap.sellTxHash ?? undefined,
@@ -190,5 +197,8 @@ export const toResponse = (quoteId: string, swap: SwapServiceStatus): SwapStatus
   affiliateBps: String(swap.affiliateBps),
   registeredAt: swap.createdAt,
   buyTxHash: swap.buyTxHash ?? undefined,
+  txLink: toExplorerTxLink(swap.sellAsset.assetId, swap.sellTxHash),
+  buyTxLink: toExplorerTxLink(swap.buyAsset.assetId, swap.buyTxHash),
+  swapperTxLink: swap.txLink ?? undefined,
   isAffiliateVerified: swap.isAffiliateVerified ?? undefined,
 })

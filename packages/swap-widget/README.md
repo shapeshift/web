@@ -373,6 +373,11 @@ After quoting, the widget shows the exact amount to send, the deposit address wi
 countdown to the quote's expiry, and a summary of the receive and refund addresses. The user pays
 from any external wallet.
 
+The QR carries the bare deposit address by default, which any wallet that scans addresses can read.
+A **With amount** option switches it to a payment URI (BIP-21, EIP-681, Solana Pay, TON) that also
+prefills the amount, with a note that not every wallet reads it. Chains with no adopted URI scheme
+(Tron, Sui, NEAR, Starknet) only ever show the address.
+
 Tracking then proceeds on its own — the widget polls the ShapeShift API, which learns of the deposit
 from the protocol and reports the sell transaction once it lands. From that point the flow is
 identical to a wallet swap. Tracking is bounded: the API abandons a swap still unsettled a day after
@@ -400,10 +405,9 @@ dropped when the swap finishes, when tracking gives up, or when the user starts 
 - **Not every route can be paid this way.** Swappers that sign transactions, and a few routes that
   cannot take a plain transfer (currently TON via NEAR Intents), keep the Connect Wallet or
   redirect path instead.
-- **Wallet QR scanners vary.** The QR is a standard payment URI (BIP-21, EIP-681, Solana Pay), but
-  a wallet's built-in scanner may read only the address from it. MetaMask's does this for native
-  ETH while its ERC-20 handling and the phone's camera app both open a fully populated transaction.
-  The amount and address are always shown as copyable text alongside the QR for this reason.
+- **Wallet QR scanners vary.** Support for payment URIs is uneven: some wallets read only the
+  address from one, and some fail to parse or misinterpret it. That is why the QR defaults to the
+  bare address. The amount and address are always shown as copyable text alongside it.
 
 ## Theming
 

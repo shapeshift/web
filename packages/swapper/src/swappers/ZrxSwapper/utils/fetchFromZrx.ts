@@ -81,7 +81,7 @@ const fetchFromZrx = async <T extends 'rate' | 'quote'>({
         slippageTolerancePercentageDecimal,
       ).toNumber(),
       swapFeeRecipient: maybeTreasuryAddress, // Where affiliate fees are sent
-      feeRecipientTradeSurplus: maybeTreasuryAddress, // Where trade surplus is sent
+      tradeSurplusRecipient: maybeTreasuryAddress, // Where trade surplus is sent
     },
   })
 

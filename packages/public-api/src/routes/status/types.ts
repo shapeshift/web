@@ -4,18 +4,31 @@ import { registry } from '../../registry'
 import { BpsFields, EVM_ADDRESS } from '../../types'
 
 export const SwapServiceStatusSchema = z.object({
+  swapperName: z.string(),
+  sellAsset: z.object({ assetId: z.string() }),
+  buyAsset: z.object({ assetId: z.string() }),
+  sellAmountCryptoBaseUnit: z.string(),
+  expectedBuyAmountCryptoBaseUnit: z.string(),
+  partnerAddress: z.string().nullable(),
+  partnerBps: z.number().int().min(0),
+  shapeshiftBps: z.number().int().min(0),
+  affiliateBps: z.number().int().min(0),
+  createdAt: z
+    .union([z.string().datetime(), z.date()])
+    .transform((createdAt: string | Date): number => new Date(createdAt).getTime()),
   status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
-  sellTxHash: z.string().optional(),
-  buyTxHash: z.string().optional(),
-  statusMessage: z.string(),
-  isAffiliateVerified: z.boolean().optional(),
+  sellTxHash: z.string().nullable(),
+  buyTxHash: z.string().nullable(),
+  statusMessage: z.string().nullable(),
+  isAffiliateVerified: z.boolean().nullable(),
   affiliateVerificationDetails: z
     .object({
       hasAffiliate: z.boolean(),
       affiliateBps: z.number().optional(),
-      affiliateAddress: EVM_ADDRESS.optional(),
+      // Chain-native: an EVM treasury, a NEAR account, a THORChain address
+      affiliateAddress: z.string().optional(),
     })
-    .optional(),
+    .nullable(),
 })
 
 export type SwapServiceStatus = z.infer<typeof SwapServiceStatusSchema>

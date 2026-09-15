@@ -1,9 +1,12 @@
 import type { ChainId } from '../types'
+import { sharesAddressSpace } from './addressSpace'
 import { validateAddress } from './addressValidation'
 
 type ResolveReceiveAddressArgs = {
   isLocked: boolean
   defaultAddress: string | undefined
+  // The chain the integrator supplied the default address for
+  defaultAddressChainId: ChainId
   customAddress: string
   walletAddress: string | undefined
   buyChainId: ChainId
@@ -12,6 +15,7 @@ type ResolveReceiveAddressArgs = {
 export const resolveReceiveAddress = ({
   isLocked,
   defaultAddress,
+  defaultAddressChainId,
   customAddress,
   walletAddress,
   buyChainId,
@@ -20,7 +24,11 @@ export const resolveReceiveAddress = ({
     !!address && validateAddress(address, buyChainId).valid
 
   // An unusable locked address blocks rather than quietly paying the user's own wallet
-  if (isLocked) return isValidForBuyChain(defaultAddress) ? defaultAddress : undefined
+  if (isLocked) {
+    const isUsable =
+      sharesAddressSpace(defaultAddressChainId, buyChainId) && isValidForBuyChain(defaultAddress)
+    return isUsable ? defaultAddress : undefined
+  }
 
   if (isValidForBuyChain(customAddress)) return customAddress
 

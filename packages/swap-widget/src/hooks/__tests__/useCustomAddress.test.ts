@@ -1,83 +1,63 @@
-import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toChainId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  bchChainId,
+  btcChainId,
+  ethChainId,
+  nearChainId,
+} from '@shapeshiftoss/caip'
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { useCustomAddress } from '../useCustomAddress'
 
-const btcChainId = toChainId({
-  chainNamespace: CHAIN_NAMESPACE.Utxo,
-  chainReference: CHAIN_REFERENCE.BitcoinMainnet,
-})
-const dogeChainId = toChainId({
-  chainNamespace: CHAIN_NAMESPACE.Utxo,
-  chainReference: CHAIN_REFERENCE.DogecoinMainnet,
-})
-const ethChainId = toChainId({
-  chainNamespace: CHAIN_NAMESPACE.Evm,
-  chainReference: CHAIN_REFERENCE.EthereumMainnet,
-})
-const arbChainId = toChainId({
-  chainNamespace: CHAIN_NAMESPACE.Evm,
-  chainReference: CHAIN_REFERENCE.ArbitrumMainnet,
-})
-const nearChainId = toChainId({
-  chainNamespace: CHAIN_NAMESPACE.Near,
-  chainReference: CHAIN_REFERENCE.NearMainnet,
-})
-
-const BTC = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
+const BTC = '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy'
 const ETH = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045'
 
-describe('useCustomAddress', () => {
-  it('exposes an address entered for the current chain', () => {
-    const { result } = renderHook(() => useCustomAddress(btcChainId))
-    act(() => result.current[1](BTC))
-    expect(result.current[0]).toBe(BTC)
-  })
+const render = (chainId: string) =>
+  renderHook(({ chainId }) => useCustomAddress(chainId), { initialProps: { chainId } })
 
-  it('keeps an address across chains of the same family where it still validates', () => {
-    const { result, rerender } = renderHook(({ chainId }) => useCustomAddress(chainId), {
-      initialProps: { chainId: ethChainId },
-    })
+describe('useCustomAddress', () => {
+  it('keeps an evm address across evm chains', () => {
+    const { result, rerender } = render(ethChainId)
     act(() => result.current[1](ETH))
-    rerender({ chainId: arbChainId })
+    rerender({ chainId: arbitrumChainId })
     expect(result.current[0]).toBe(ETH)
   })
 
-  it('hides an address on a chain of the same family where it does not validate', () => {
-    const { result, rerender } = renderHook(({ chainId }) => useCustomAddress(chainId), {
-      initialProps: { chainId: btcChainId },
-    })
+  it('retires a bitcoin address on bitcoin cash even though the format is shared', () => {
+    const { result, rerender } = render(btcChainId)
     act(() => result.current[1](BTC))
-    rerender({ chainId: dogeChainId })
+    rerender({ chainId: bchChainId })
     expect(result.current[0]).toBe('')
   })
 
-  it('hides an address on another chain family even where its validator would accept it', () => {
-    const { result, rerender } = renderHook(({ chainId }) => useCustomAddress(chainId), {
-      initialProps: { chainId: btcChainId },
-    })
+  it('retires an address on a chain family whose validator would accept it', () => {
+    const { result, rerender } = render(btcChainId)
     act(() => result.current[1](BTC))
     rerender({ chainId: nearChainId })
     expect(result.current[0]).toBe('')
   })
 
-  it('records the chain an address was restored for rather than the chain currently shown', () => {
-    const { result, rerender } = renderHook(({ chainId }) => useCustomAddress(chainId), {
-      initialProps: { chainId: ethChainId },
-    })
+  it('does not resurface an address after a round trip through another chain', () => {
+    const { result, rerender } = render(ethChainId)
+    act(() => result.current[1](ETH))
+    rerender({ chainId: btcChainId })
+    rerender({ chainId: ethChainId })
+    expect(result.current[0]).toBe('')
+  })
+
+  it('holds an address restored for a chain not yet shown until the chain catches up', () => {
+    const { result, rerender } = render(ethChainId)
     act(() => result.current[1](BTC, btcChainId))
     expect(result.current[0]).toBe('')
     rerender({ chainId: btcChainId })
     expect(result.current[0]).toBe(BTC)
   })
 
-  it('scopes an initial address to the mount chain', () => {
-    const { result, rerender } = renderHook(({ chainId }) => useCustomAddress(chainId, ETH), {
-      initialProps: { chainId: ethChainId },
-    })
-    expect(result.current[0]).toBe(ETH)
-    rerender({ chainId: nearChainId })
-    expect(result.current[0]).toBe('')
+  it('keeps one setter identity across chain changes', () => {
+    const { result, rerender } = render(ethChainId)
+    const setter = result.current[1]
+    rerender({ chainId: btcChainId })
+    expect(result.current[1]).toBe(setter)
   })
 })

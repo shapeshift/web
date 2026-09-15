@@ -5,7 +5,9 @@ import { UTXO_CHAIN_IDS } from '../../types'
 import { resolveReceiveAddress } from '../receiveAddress'
 
 const BTC_CHAIN_ID = 'bip122:000000000019d6689c085ae165831e93' as ChainId
+const BCH_CHAIN_ID = 'bip122:000000000000000000651ef99cb9fcbe' as ChainId
 const ETH_CHAIN_ID = 'eip155:1' as ChainId
+const ARBITRUM_CHAIN_ID = 'eip155:42161' as ChainId
 
 const BTC_ADDRESS = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
 const EVM_ADDRESS = '0x41b4D81dD40c6c91d21f686Bb0596E37e4C8cb90'
@@ -14,6 +16,7 @@ const WALLET_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 const args = {
   isLocked: false,
   defaultAddress: undefined,
+  defaultAddressChainId: ETH_CHAIN_ID,
   customAddress: '',
   walletAddress: WALLET_ADDRESS,
   buyChainId: ETH_CHAIN_ID,
@@ -35,6 +38,29 @@ describe('resolveReceiveAddress', () => {
           isLocked: true,
           defaultAddress: EVM_ADDRESS,
           buyChainId: BTC_CHAIN_ID,
+        }),
+      ).toBeUndefined()
+    })
+
+    it('keeps an evm address across evm chains', () => {
+      expect(
+        resolveReceiveAddress({
+          ...args,
+          isLocked: true,
+          defaultAddress: EVM_ADDRESS,
+          buyChainId: ARBITRUM_CHAIN_ID,
+        }),
+      ).toBe(EVM_ADDRESS)
+    })
+
+    it('blocks a bitcoin address on bitcoin cash even though the format is shared', () => {
+      expect(
+        resolveReceiveAddress({
+          ...args,
+          isLocked: true,
+          defaultAddress: '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy',
+          defaultAddressChainId: BTC_CHAIN_ID,
+          buyChainId: BCH_CHAIN_ID,
         }),
       ).toBeUndefined()
     })

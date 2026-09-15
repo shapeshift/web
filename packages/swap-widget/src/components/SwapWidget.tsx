@@ -366,10 +366,7 @@ const SwapWidgetCore = ({
   const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)
   const buyChainId = SwapMachineCtx.useSelector(s => s.context.buyAsset.chainId)
 
-  const [customReceiveAddress, setCustomReceiveAddress] = useCustomAddress(
-    buyChainId,
-    defaultReceiveAddress ?? '',
-  )
+  const [customReceiveAddress, setCustomReceiveAddress] = useCustomAddress(buyChainId)
   const [customRefundAddress, setCustomRefundAddress] = useCustomAddress(sellChainId)
 
   const sellChainType = getChainType(sellChainId)
@@ -428,6 +425,7 @@ const SwapWidgetCore = ({
       resolveReceiveAddress({
         isLocked: isReceiveAddressLocked,
         defaultAddress: defaultReceiveAddress,
+        defaultAddressChainId: defaultBuyAsset.chainId,
         customAddress: customReceiveAddress,
         walletAddress: walletReceiveAddress,
         buyChainId,
@@ -435,6 +433,7 @@ const SwapWidgetCore = ({
     [
       isReceiveAddressLocked,
       defaultReceiveAddress,
+      defaultBuyAsset.chainId,
       customReceiveAddress,
       walletReceiveAddress,
       buyChainId,
@@ -461,6 +460,9 @@ const SwapWidgetCore = ({
     actorRef.send({ type: 'SET_SELL_ASSET', asset: defaultSellAsset })
     actorRef.send({ type: 'SET_BUY_ASSET', asset: defaultBuyAsset })
     actorRef.send({ type: 'SET_SLIPPAGE', slippage: defaultSlippage })
+    if (defaultReceiveAddress) {
+      setCustomReceiveAddress(defaultReceiveAddress, defaultBuyAsset.chainId)
+    }
     actorRef.send({
       type: 'SET_BUY_AMOUNT',
       amount: defaultBuyAmountCryptoBaseUnit

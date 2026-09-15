@@ -1,35 +1,35 @@
-import { fromChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { ChainId } from '../types'
-import { validateAddress } from '../utils/addressValidation'
+import { sharesAddressSpace } from '../utils/addressSpace'
 
-type ChainNamespace = ReturnType<typeof fromChainId>['chainNamespace']
+type ScopedAddress = { address: string; chainId: ChainId }
 
-type ScopedAddress = { address: string; chainNamespace: ChainNamespace }
-
-// A custom address belongs to the chain family it was entered for. It is hidden on any other family,
-// even where a permissive validator (NEAR, Starknet) would accept it, and wherever it stops validating.
+// A custom address is kept with the chain it was entered for and retired once the chain moves away from it
 export const useCustomAddress = (
   chainId: ChainId,
-  initialAddress = '',
 ): [string, (address: string, forChainId?: ChainId) => void] => {
-  const [scoped, setScoped] = useState<ScopedAddress>(() => ({
-    address: initialAddress,
-    chainNamespace: fromChainId(chainId).chainNamespace,
-  }))
+  const [scoped, setScoped] = useState<ScopedAddress>({ address: '', chainId })
+
+  const chainIdRef = useRef(chainId)
+  chainIdRef.current = chainId
 
   const setAddress = useCallback(
-    (address: string, forChainId: ChainId = chainId) =>
-      setScoped({ address, chainNamespace: fromChainId(forChainId).chainNamespace }),
-    [chainId],
+    (address: string, forChainId: ChainId = chainIdRef.current) =>
+      setScoped({ address, chainId: forChainId }),
+    [],
   )
 
-  const address = useMemo(() => {
-    if (!scoped.address) return ''
-    if (scoped.chainNamespace !== fromChainId(chainId).chainNamespace) return ''
-    return validateAddress(scoped.address, chainId).valid ? scoped.address : ''
-  }, [scoped, chainId])
+  const previousChainIdRef = useRef(chainId)
+  useEffect(() => {
+    if (previousChainIdRef.current === chainId) return
+    previousChainIdRef.current = chainId
+    setScoped(current =>
+      current.address && !sharesAddressSpace(current.chainId, chainId)
+        ? { address: '', chainId }
+        : current,
+    )
+  }, [chainId])
 
-  return [address, setAddress]
+  return [sharesAddressSpace(scoped.chainId, chainId) ? scoped.address : '', setAddress]
 }

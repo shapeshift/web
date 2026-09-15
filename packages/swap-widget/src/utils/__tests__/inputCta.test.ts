@@ -72,7 +72,7 @@ describe('getInputCta', () => {
     expect(cta.action).toBe('deposit')
   })
 
-  it('redirects on an unsupported chain before any rates could load', () => {
+  it('asks for an amount on an unsupported chain before offering a redirect', () => {
     const cta = getInputCta({
       ...base,
       ...noWallet,
@@ -80,7 +80,27 @@ describe('getInputCta', () => {
       hasAmount: false,
       hasRates: false,
     })
-    expect(cta).toEqual({ text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' })
+    expect(cta).toEqual({ text: 'Enter an amount', disabled: true, action: 'none' })
+  })
+
+  it('waits for rates before redirecting an unsupported chain', () => {
+    const cta = getInputCta({
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      isLoadingRates: true,
+      hasRates: false,
+    })
+    expect(cta).toEqual({ text: 'Finding rates...', disabled: true, action: 'none' })
+  })
+
+  it('redirects an unsupported chain once rates show no deposit route, even if they failed', () => {
+    const redirect = { text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' }
+    const unsupported = { ...base, ...noWallet, isUnsupportedChain: true }
+
+    expect(getInputCta(unsupported)).toEqual(redirect)
+    expect(getInputCta({ ...unsupported, hasRates: false })).toEqual(redirect)
+    expect(getInputCta({ ...unsupported, hasRates: false, hasRatesError: true })).toEqual(redirect)
   })
 
   it('blocks an unsupported chain when the redirect is disabled', () => {

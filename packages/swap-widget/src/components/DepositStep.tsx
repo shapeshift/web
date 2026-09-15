@@ -79,22 +79,27 @@ export const DepositStep = () => {
 
   const handleNewSwap = useCallback(() => actorRef.send({ type: 'RESET' }), [actorRef])
   const handleNewQuote = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
+
   const handleShowAddressOnly = useCallback(() => {
     setIsAmountInQr(false)
     setIsQrInfoOpen(false)
   }, [])
+
   const handleShowWithAmount = useCallback(() => {
     setIsAmountInQr(true)
     setIsQrInfoOpen(false)
   }, [])
+
   const handleToggleQrInfo = useCallback(() => {
     setIsQrInfoDismissed(false)
     setIsQrInfoOpen(isOpen => !isOpen)
   }, [])
+
   const handleResetQrInfo = useCallback(() => {
     setIsQrInfoOpen(false)
     setIsQrInfoDismissed(false)
   }, [])
+
   const handleQrInfoMouseLeave = useCallback(() => setIsQrInfoDismissed(false), [])
 
   // Escape hides the note however it opened; a tap outside closes it, since iOS never blurs the icon
@@ -104,6 +109,7 @@ export const DepositStep = () => {
       setIsQrInfoOpen(false)
       if (qrControlsRef.current?.matches(':hover, :focus-within')) setIsQrInfoDismissed(true)
     }
+
     const handlePointerDown = (event: PointerEvent) => {
       if (qrControlsRef.current?.contains(event.target as Node)) return
       setIsQrInfoOpen(false)
@@ -111,6 +117,7 @@ export const DepositStep = () => {
 
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('pointerdown', handlePointerDown)
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('pointerdown', handlePointerDown)
@@ -119,7 +126,7 @@ export const DepositStep = () => {
 
   // Only the With amount option needs this, so a builder error must not take down the address QR
   const paymentUri = useMemo(() => {
-    if (!quote?.depositAddress) return undefined
+    if (!quote?.depositAddress) return
 
     try {
       return buildPaymentUri({
@@ -131,7 +138,7 @@ export const DepositStep = () => {
         ),
       })
     } catch {
-      return undefined
+      return
     }
   }, [quote])
 

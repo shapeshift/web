@@ -18,6 +18,21 @@ const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
   </a>
 )
 
+type TxLink = { url: string | null | undefined; label: string }
+
+const TxLinks = ({ links }: { links: TxLink[] }) => {
+  const available = links.filter((link): link is { url: string; label: string } => !!link.url)
+  if (!available.length) return null
+
+  return (
+    <div className='ssw-step-explorer-links'>
+      {available.map(({ url, label }) => (
+        <ExplorerLink key={label} url={url} label={label} />
+      ))}
+    </div>
+  )
+}
+
 type StatusStepProps = {
   isPayment: boolean
 }
@@ -33,6 +48,9 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     buyAsset,
     quote,
     txHash,
+    txLink,
+    buyTxLink,
+    swapperTxLink,
     error,
     errorSource,
     retryCount,
@@ -53,6 +71,12 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     if (isSellAssetSolana) return `https://solscan.io/tx/${txHash}`
     return `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${txHash}`
   }, [txHash, isSellAssetUtxo, isSellAssetSolana, sellAsset.explorerTxLink])
+
+  const sellTxLink: TxLink = { url: txLink ?? explorerUrl, label: explorerLabel }
+  const trackerTxLink: TxLink = {
+    url: swapperTxLink,
+    label: `Track on ${quote?.swapperName ?? 'provider'}`,
+  }
 
   const truncatedError = useMemo(
     () => (error && error.length > 100 ? `${error.slice(0, 100)}…` : error),
@@ -87,7 +111,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
                 } to send your ${buyAsset.symbol}.`
               : 'Your swap is being processed…'}
           </div>
-          {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}
+          <TxLinks links={[sellTxLink, trackerTxLink]} />
           {isDepositFlow && !isPayment && (
             <div className='ssw-step-actions'>
               <button
@@ -120,7 +144,9 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
           <div className='ssw-step-subtitle'>
             Swapped {sellAsset.symbol} for {buyAsset.symbol}
           </div>
-          {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}
+          <TxLinks
+            links={[sellTxLink, { url: buyTxLink, label: 'View payout' }, trackerTxLink]}
+          />
           {!isPayment && (
             <div className='ssw-step-actions'>
               <button
@@ -158,9 +184,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
             {hasStoppedTracking ? 'Still Processing' : 'Transaction Failed'}
           </div>
           <div className='ssw-step-subtitle'>{truncatedError ?? 'Something went wrong'}</div>
-          {hasStoppedTracking && explorerUrl && (
-            <ExplorerLink url={explorerUrl} label={explorerLabel} />
-          )}
+          {hasStoppedTracking && <TxLinks links={[sellTxLink, trackerTxLink]} />}
           <div className='ssw-step-actions'>
             {!hasStoppedTracking && retryCount < 3 && (
               <button

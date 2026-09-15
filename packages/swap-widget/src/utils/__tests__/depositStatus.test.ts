@@ -5,10 +5,21 @@ import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../deposit
 describe('resolveDepositStatusEvent', () => {
   it('reports a deposit once the sell tx hash appears', () => {
     expect(
-      resolveDepositStatusEvent({ status: 'submitted', txHash: '0xdeposit' }, false, 500),
+      resolveDepositStatusEvent(
+        {
+          status: 'submitted',
+          txHash: '0xdeposit',
+          txLink: 'https://explorer/tx/0xdeposit',
+          swapperTxLink: 'https://tracker/deposit',
+        },
+        false,
+        500,
+      ),
     ).toEqual({
       type: 'DEPOSIT_DETECTED',
       txHash: '0xdeposit',
+      txLink: 'https://explorer/tx/0xdeposit',
+      swapperTxLink: 'https://tracker/deposit',
       observedAt: 500,
     })
   })
@@ -21,9 +32,20 @@ describe('resolveDepositStatusEvent', () => {
 
   it('confirms the swap', () => {
     expect(
-      resolveDepositStatusEvent({ status: 'confirmed', txHash: '0xdeposit' }, true, 500),
+      resolveDepositStatusEvent(
+        {
+          status: 'confirmed',
+          txHash: '0xdeposit',
+          buyTxLink: 'https://explorer/tx/0xpayout',
+          swapperTxLink: 'https://tracker/deposit',
+        },
+        true,
+        500,
+      ),
     ).toEqual({
       type: 'STATUS_CONFIRMED',
+      buyTxLink: 'https://explorer/tx/0xpayout',
+      swapperTxLink: 'https://tracker/deposit',
     })
   })
 

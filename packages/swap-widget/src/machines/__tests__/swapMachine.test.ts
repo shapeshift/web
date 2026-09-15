@@ -1095,6 +1095,32 @@ describe('a deposit flow always reaches a terminal state', () => {
     failed.stop()
   })
 
+  it('keeps the tracker link from detection when the confirmation omits it', () => {
+    const actor = restoreInto(undefined)
+    actor.send({
+      type: 'DEPOSIT_DETECTED',
+      txHash: '0xdead',
+      txLink: 'https://explorer/tx/0xdead',
+      swapperTxLink: 'https://tracker/deposit',
+      observedAt: 5_000,
+    })
+    actor.send({ type: 'STATUS_CONFIRMED', buyTxLink: 'https://explorer/tx/0xpayout' })
+
+    expect(actor.getSnapshot().context).toMatchObject({
+      txLink: 'https://explorer/tx/0xdead',
+      buyTxLink: 'https://explorer/tx/0xpayout',
+      swapperTxLink: 'https://tracker/deposit',
+    })
+
+    actor.send({ type: 'RESET' })
+    expect(actor.getSnapshot().context).toMatchObject({
+      txLink: null,
+      buyTxLink: null,
+      swapperTxLink: null,
+    })
+    actor.stop()
+  })
+
   it('leaves a funded deposit we can no longer follow rather than spinning on it', () => {
     const actor = restoreInto('0xdead')
     actor.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })

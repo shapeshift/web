@@ -3,6 +3,9 @@ import type { SwapMachineEvent } from '../machines/types'
 export type DepositStatusResponse = {
   status: 'pending' | 'submitted' | 'confirmed' | 'failed'
   txHash?: string
+  txLink?: string
+  buyTxLink?: string
+  swapperTxLink?: string
 }
 
 export const resolveDepositStatusEvent = (
@@ -11,10 +14,22 @@ export const resolveDepositStatusEvent = (
   observedAt: number,
 ): SwapMachineEvent | undefined => {
   if (!hasDetectedDeposit && response.txHash) {
-    return { type: 'DEPOSIT_DETECTED', txHash: response.txHash, observedAt }
+    return {
+      type: 'DEPOSIT_DETECTED',
+      txHash: response.txHash,
+      txLink: response.txLink,
+      swapperTxLink: response.swapperTxLink,
+      observedAt,
+    }
   }
   if (response.status === 'failed') return { type: 'STATUS_FAILED', error: 'Swap failed' }
-  if (response.status === 'confirmed') return { type: 'STATUS_CONFIRMED' }
+  if (response.status === 'confirmed') {
+    return {
+      type: 'STATUS_CONFIRMED',
+      buyTxLink: response.buyTxLink,
+      swapperTxLink: response.swapperTxLink,
+    }
+  }
 }
 
 // A deposit landing this long past the deadline may still be credited, so the window outlasts it

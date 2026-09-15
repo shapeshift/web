@@ -836,6 +836,18 @@
   opacity: 0.8;
 }
 
+.ssw-step-explorer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.ssw-step-explorer-links .ssw-step-explorer-link {
+  margin-top: 0;
+}
+
 .ssw-step-actions {
   display: flex;
   gap: 10px;

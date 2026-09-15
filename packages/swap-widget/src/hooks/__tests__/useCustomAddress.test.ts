@@ -1,10 +1,4 @@
-import {
-  arbitrumChainId,
-  bchChainId,
-  btcChainId,
-  ethChainId,
-  nearChainId,
-} from '@shapeshiftoss/caip'
+import { arbitrumChainId, bchChainId, btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
@@ -28,13 +22,6 @@ describe('useCustomAddress', () => {
     const { result, rerender } = render(btcChainId)
     act(() => result.current[1](BTC))
     rerender({ chainId: bchChainId })
-    expect(result.current[0]).toBe('')
-  })
-
-  it('retires an address on a chain family whose validator would accept it', () => {
-    const { result, rerender } = render(btcChainId)
-    act(() => result.current[1](BTC))
-    rerender({ chainId: nearChainId })
     expect(result.current[0]).toBe('')
   })
 

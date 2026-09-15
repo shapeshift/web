@@ -7,6 +7,7 @@ const base = {
   hasWalletForSellChain: true,
   isSellChainTypeConnected: true,
   isUnsupportedChain: false,
+  supportsDepositRoute: false,
   allowShapeshiftRedirect: true,
   hasReceiveAddress: true,
   hasSendAddress: true,
@@ -19,7 +20,7 @@ const base = {
 const noWallet = { hasWalletForSellChain: false, isSellChainTypeConnected: false }
 
 describe('getInputCta', () => {
-  it('offers a wallet-free deposit when the selected rate supports it', () => {
+  it('offers a deposit when the selected rate supports it', () => {
     const cta = getInputCta({ ...base, ...noWallet, isDepositRoute: true })
     expect(cta).toEqual({ text: 'Continue without a wallet', disabled: false, action: 'deposit' })
   })
@@ -67,12 +68,37 @@ describe('getInputCta', () => {
       ...base,
       ...noWallet,
       isUnsupportedChain: true,
+      supportsDepositRoute: true,
       isDepositRoute: true,
     })
     expect(cta.action).toBe('deposit')
   })
 
-  it('redirects on an unsupported chain before any rates could load', () => {
+  it('asks for an amount on an unsupported chain where a deposit route can exist', () => {
+    const cta = getInputCta({
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      supportsDepositRoute: true,
+      hasAmount: false,
+      hasRates: false,
+    })
+    expect(cta).toEqual({ text: 'Enter an amount', disabled: true, action: 'none' })
+  })
+
+  it('waits for rates on an unsupported chain where a deposit route can exist', () => {
+    const cta = getInputCta({
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      supportsDepositRoute: true,
+      isLoadingRates: true,
+      hasRates: false,
+    })
+    expect(cta).toEqual({ text: 'Finding rates...', disabled: true, action: 'none' })
+  })
+
+  it('redirects straight away on an unsupported chain with no deposit route, before any amount', () => {
     const cta = getInputCta({
       ...base,
       ...noWallet,
@@ -81,6 +107,20 @@ describe('getInputCta', () => {
       hasRates: false,
     })
     expect(cta).toEqual({ text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' })
+  })
+
+  it('redirects an unsupported chain once rates show no deposit route, even if they failed', () => {
+    const redirect = { text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' }
+    const unsupported = {
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      supportsDepositRoute: true,
+    }
+
+    expect(getInputCta(unsupported)).toEqual(redirect)
+    expect(getInputCta({ ...unsupported, hasRates: false })).toEqual(redirect)
+    expect(getInputCta({ ...unsupported, hasRates: false, hasRatesError: true })).toEqual(redirect)
   })
 
   it('blocks an unsupported chain when the redirect is disabled', () => {

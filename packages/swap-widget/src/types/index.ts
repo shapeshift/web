@@ -326,6 +326,12 @@ export const isWidgetExecutableChainId = (chainId: string): boolean =>
   isWidgetExecutableUtxoChainId(chainId) ||
   isWidgetExecutableSolanaChainId(chainId)
 
+// Chains the widget can't sign for that can still be paid through a deposit address
+const EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET: ReadonlySet<string> = new Set([zecChainId])
+
+export const isExternalPaymentSellChainId = (chainId: string): boolean =>
+  EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET.has(chainId)
+
 const SUPPORTED_CHAIN_ID_SET: ReadonlySet<string> = new Set([
   ...Object.values(EVM_CHAIN_IDS),
   ...Object.values(UTXO_CHAIN_IDS),

@@ -587,7 +587,10 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  /* Only hover and quoting fade; animating colours carried one state's look into the next */
+  transition:
+    filter 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .ssw-action-btn:hover:not(:disabled) {

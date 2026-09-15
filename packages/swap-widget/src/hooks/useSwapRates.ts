@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { ApiClient } from '../api/client'
 import type { AssetId, TradeRate } from '../types'
 import { SwapperName } from '../types'
+import { isPermanentApiError } from '../utils/apiError'
 import { sortRatesByValue } from '../utils/rateDisplay'
 
 const ENABLED_SWAPPER_NAMES = new Set<string>(Object.values(SwapperName))
@@ -77,6 +78,7 @@ export const useSwapRates = (
     },
     enabled: enabled && !!sellAssetId && !!buyAssetId && !!amountCryptoBaseUnit,
     staleTime: 10_000,
-    refetchInterval,
+    retry: (failureCount, error) => !isPermanentApiError(error) && failureCount < 3,
+    refetchInterval: query => (isPermanentApiError(query.state.error) ? false : refetchInterval),
   })
 }

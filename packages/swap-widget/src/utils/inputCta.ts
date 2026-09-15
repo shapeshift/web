@@ -12,6 +12,7 @@ type GetInputCtaArgs = {
   // The adapter for the sell chain's type is connected, whether or not it can serve this chain
   isSellChainTypeConnected: boolean
   isUnsupportedChain: boolean
+  supportsDepositRoute: boolean
   allowShapeshiftRedirect: boolean
   hasReceiveAddress: boolean
   hasSendAddress: boolean
@@ -31,6 +32,7 @@ export const getInputCta = ({
   hasWalletForSellChain,
   isSellChainTypeConnected,
   isUnsupportedChain,
+  supportsDepositRoute,
   allowShapeshiftRedirect,
   hasReceiveAddress,
   hasSendAddress,
@@ -39,11 +41,16 @@ export const getInputCta = ({
   hasRates,
   hasRatesError,
 }: GetInputCtaArgs): InputCta => {
-  // A chain the widget can't sign for redirects unless a deposit route quotes it, whatever the rates say
-  if (isUnsupportedChain && !isDepositRoute) return getUnsupportedCta(allowShapeshiftRedirect)
+  // No rates are fetched here, so neither an amount nor rates can change the outcome
+  if (isUnsupportedChain && !supportsDepositRoute) return getUnsupportedCta(allowShapeshiftRedirect)
 
   if (!hasAmount) return { text: 'Enter an amount', disabled: true, action: 'none' }
+
   if (isLoadingRates) return { text: 'Finding rates...', disabled: true, action: 'none' }
+
+  // Redirects even when rates fail, since the app may still have a route
+  if (isUnsupportedChain && !isDepositRoute) return getUnsupportedCta(allowShapeshiftRedirect)
+
   if (hasRatesError) return { text: 'No routes available', disabled: true, action: 'none' }
   if (!hasRates) return { text: 'No routes found', disabled: true, action: 'none' }
 

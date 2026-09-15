@@ -235,14 +235,16 @@ address.
 | `defaultReceiveAddress` only | Prefilled, user can still edit it   |
 | Both                         | Locked to the address you supplied  |
 
-A locked address is checked against the buy asset's chain, and if it doesn't validate there the
-widget says so and blocks the swap rather than falling back to the connected wallet — paying the
-user's own address is never what a locked destination meant. This is reachable whenever the buy
-asset is left unlocked, since the user can switch to a chain the address doesn't belong to.
+The address belongs to the chain of the `defaultBuyAsset` you pair it with. It is usable there, and
+on any other EVM chain if it is an EVM address, since those share an address space; nowhere else,
+even where the format would pass — a Bitcoin address is not a Bitcoin Cash address. A locked address
+the buy chain can't use blocks the swap and says so, rather than falling back to the connected
+wallet — paying the user's own address is never what a locked destination meant. This is reachable
+whenever the buy asset is left unlocked, since the user can switch chains.
 
-An **unlocked** prefill is checked the same way but fails quietly: one that doesn't match the buy
-chain is dropped, and the connected wallet's address takes over as if you had passed nothing. Verify
-a prefill against the chain of the buy asset you pair it with.
+An **unlocked** prefill follows the same rule but fails quietly: switching to a chain that can't use
+it drops it, and the connected wallet's address takes over as if you had passed nothing. Verify a
+prefill against the chain of the buy asset you pair it with.
 
 A lock is only accepted alongside the value it locks — `isReceiveAddressLocked` on its own is a type
 error, as is `isBuyAmountLocked` without `defaultBuyAmountCryptoBaseUnit`. Locking with nothing to

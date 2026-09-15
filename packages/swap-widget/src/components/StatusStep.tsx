@@ -125,7 +125,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               : 'Your swap is being processed…'}
           </div>
           <TxLinks links={[sellTxLink, swapperLink]} />
-          {isDepositFlow && !isPayment && (
+          {!isPayment && (
             <div className='ssw-step-actions'>
               <button
                 className='ssw-action-btn ssw-secondary'

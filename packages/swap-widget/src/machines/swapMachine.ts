@@ -459,7 +459,7 @@ export const swapMachine = setup({
           target: 'error',
           actions: 'assignTrackingTimeout',
         },
-        // A deposit swap settles server-side whether or not anyone watches it
+        // A swap settles server-side whether or not anyone watches it
         RESET: { target: 'input', actions: 'resetSwapState' },
       },
     },

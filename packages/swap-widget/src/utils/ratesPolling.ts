@@ -6,6 +6,5 @@ const RATES_CONSUMING_STATES = new Set(['idle', 'input', 'quoting', 'error', 'de
 export const shouldPollRates = (stateValue: unknown): boolean =>
   typeof stateValue === 'string' && RATES_CONSUMING_STATES.has(stateValue)
 
-// A rate is only actionable where the widget can sign, or where the swap can be paid externally
 export const canActOnRates = (sellChainId: string): boolean =>
   isWidgetExecutableChainId(sellChainId) || isExternalPaymentSellChainId(sellChainId)

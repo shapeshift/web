@@ -7,7 +7,7 @@ const base = {
   hasWalletForSellChain: true,
   isSellChainTypeConnected: true,
   isUnsupportedChain: false,
-  canHaveDepositRoute: false,
+  supportsDepositRoute: false,
   allowShapeshiftRedirect: true,
   hasReceiveAddress: true,
   hasSendAddress: true,
@@ -68,7 +68,7 @@ describe('getInputCta', () => {
       ...base,
       ...noWallet,
       isUnsupportedChain: true,
-      canHaveDepositRoute: true,
+      supportsDepositRoute: true,
       isDepositRoute: true,
     })
     expect(cta.action).toBe('deposit')
@@ -90,7 +90,7 @@ describe('getInputCta', () => {
       ...base,
       ...noWallet,
       isUnsupportedChain: true,
-      canHaveDepositRoute: true,
+      supportsDepositRoute: true,
       isLoadingRates: true,
       hasRates: false,
     })
@@ -114,7 +114,7 @@ describe('getInputCta', () => {
       ...base,
       ...noWallet,
       isUnsupportedChain: true,
-      canHaveDepositRoute: true,
+      supportsDepositRoute: true,
     }
 
     expect(getInputCta(unsupported)).toEqual(redirect)

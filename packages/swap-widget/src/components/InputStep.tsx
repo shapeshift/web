@@ -65,7 +65,7 @@ export const InputStep = ({
   const isUnsupportedChain =
     !context.isSellAssetEvm && !context.isSellAssetUtxo && !context.isSellAssetSolana
 
-  const canHaveDepositRoute = isExternalPaymentSellChainId(context.sellAsset.chainId)
+  const supportsDepositRoute = isExternalPaymentSellChainId(context.sellAsset.chainId)
 
   const amountBaseUnit = displayValues.isExactOutput
     ? context.buyAmountBaseUnit
@@ -149,7 +149,7 @@ export const InputStep = ({
       hasWalletForSellChain: !!walletSendAddress,
       isSellChainTypeConnected,
       isUnsupportedChain,
-      canHaveDepositRoute,
+      supportsDepositRoute,
       allowShapeshiftRedirect,
       hasReceiveAddress: !!receiveAddress,
       hasSendAddress: !!sendAddress,
@@ -163,7 +163,7 @@ export const InputStep = ({
     walletSendAddress,
     isSellChainTypeConnected,
     isUnsupportedChain,
-    canHaveDepositRoute,
+    supportsDepositRoute,
     allowShapeshiftRedirect,
     receiveAddress,
     sendAddress,

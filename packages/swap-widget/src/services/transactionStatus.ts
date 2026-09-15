@@ -1,5 +1,4 @@
 import type { Connection, SignatureStatus } from '@solana/web3.js'
-import type { PublicClient } from 'viem'
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -22,61 +21,6 @@ export type BitcoinTransactionStatus = {
 }
 
 const MEMPOOL_API_BASE = 'https://mempool.space/api'
-
-export const checkEvmStatus = async (
-  txHash: string,
-  chainId: number,
-  existingClient?: PublicClient,
-): Promise<TransactionStatusResult> => {
-  try {
-    const chain = VIEM_CHAINS_BY_ID[chainId]
-    const client =
-      existingClient ??
-      createPublicClient({
-        chain: chain ?? mainnet,
-        transport: http(),
-      })
-
-    const receipt = await client.getTransactionReceipt({
-      hash: txHash as `0x${string}`,
-    })
-
-    if (!receipt) {
-      return { status: 'pending' }
-    }
-
-    const currentBlock = await client.getBlockNumber()
-    const confirmations = Number(currentBlock - receipt.blockNumber) + 1
-
-    if (receipt.status === 'success') {
-      return {
-        status: 'confirmed',
-        confirmations,
-        blockNumber: Number(receipt.blockNumber),
-      }
-    }
-
-    return {
-      status: 'failed',
-      blockNumber: Number(receipt.blockNumber),
-      error: 'Transaction reverted',
-    }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-
-    if (
-      errorMessage.includes('could not be found') ||
-      errorMessage.includes('Transaction not found')
-    ) {
-      return { status: 'pending' }
-    }
-
-    return {
-      status: 'pending',
-      error: errorMessage,
-    }
-  }
-}
 
 export const checkBitcoinStatus = async (
   txid: string,
@@ -263,41 +207,5 @@ export const waitForSolanaConfirmation = async (
       status: 'failed',
       error: errorMessage,
     }
-  }
-}
-
-export type ChainType = 'evm' | 'utxo' | 'solana'
-
-export type CheckStatusParams = {
-  txHash: string
-  chainType: ChainType
-  chainId?: number
-  connection?: Connection
-  network?: 'mainnet' | 'testnet'
-}
-
-export const checkTransactionStatus = async (
-  params: CheckStatusParams,
-): Promise<TransactionStatusResult> => {
-  const { txHash, chainType, chainId, connection, network = 'mainnet' } = params
-
-  switch (chainType) {
-    case 'evm':
-      if (!chainId) {
-        throw new Error('chainId is required for EVM transactions')
-      }
-      return await checkEvmStatus(txHash, chainId)
-
-    case 'utxo':
-      return await checkBitcoinStatus(txHash, network)
-
-    case 'solana':
-      if (!connection) {
-        throw new Error('connection is required for Solana transactions')
-      }
-      return await checkSolanaStatus(txHash, connection)
-
-    default:
-      throw new Error(`Unsupported chain type: ${chainType}`)
   }
 }

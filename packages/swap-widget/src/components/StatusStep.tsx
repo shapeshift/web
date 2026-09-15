@@ -114,15 +114,10 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               <path d='M12 2a10 10 0 0 1 10 10' />
             </svg>
           </div>
-          <div className='ssw-step-title'>
-            {isDepositFlow ? 'Swap in Progress' : 'Confirming Transaction'}
-          </div>
+          <div className='ssw-step-title'>Swap in Progress</div>
           <div className='ssw-step-subtitle'>
-            {isDepositFlow
-              ? `Deposit received. Waiting for ${
-                  quote?.swapperName ?? 'the provider'
-                } to send your ${buyAsset.symbol}.`
-              : 'Your swap is being processed…'}
+            {isDepositFlow ? 'Deposit received' : 'Transaction sent'}. Waiting for{' '}
+            {quote?.swapperName ?? 'the provider'} to send your {buyAsset.symbol}.
           </div>
           <TxLinks links={[sellTxLink, swapperLink]} />
           {!isPayment && (

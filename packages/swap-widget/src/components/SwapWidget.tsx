@@ -1,7 +1,6 @@
 import './SwapWidget.css'
 
 import { useAppKitAccount } from '@reown/appkit/react'
-import { fromChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { createApiClient } from '../api/client'
@@ -9,6 +8,7 @@ import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { useCustomAddress } from '../hooks/useCustomAddress'
 import { useDepositPolling } from '../hooks/useDepositPolling'
 import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useSellFiatSync } from '../hooks/useSellFiatSync'
@@ -363,14 +363,14 @@ const SwapWidgetCore = ({
   const bitcoin = useBitcoinSigning()
   const solana = useSolanaSigning()
 
-  const [customReceiveAddress, setCustomReceiveAddress] = useState<string>(
-    defaultReceiveAddress ?? '',
-  )
-
-  const [customRefundAddress, setCustomRefundAddress] = useState<string>('')
-
   const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)
   const buyChainId = SwapMachineCtx.useSelector(s => s.context.buyAsset.chainId)
+
+  const [customReceiveAddress, setCustomReceiveAddress] = useCustomAddress(
+    buyChainId,
+    defaultReceiveAddress ?? '',
+  )
+  const [customRefundAddress, setCustomRefundAddress] = useCustomAddress(sellChainId)
 
   const sellChainType = getChainType(sellChainId)
   const buyChainType = getChainType(buyChainId)
@@ -482,8 +482,8 @@ const SwapWidgetCore = ({
         txHash: pending.txHash,
         depositObservedAt: pending.depositObservedAt,
       })
-      setCustomRefundAddress(pending.refundAddress)
-      setCustomReceiveAddress(pending.receiveAddress)
+      setCustomRefundAddress(pending.refundAddress, pending.quote.sellAsset.chainId)
+      setCustomReceiveAddress(pending.receiveAddress, pending.quote.buyAsset.chainId)
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
@@ -496,31 +496,6 @@ const SwapWidgetCore = ({
   useEffect(() => {
     actorRef.send({ type: 'SET_RECEIVE_ADDRESS', address: receiveAddress })
   }, [receiveAddress, actorRef])
-
-  // An address entered for one chain family is never meant for another, even where a permissive
-  // validator (NEAR, Starknet) would happen to accept it
-  const buyChainNamespace = fromChainId(buyChainId).chainNamespace
-  const sellChainNamespace = fromChainId(sellChainId).chainNamespace
-  const previousBuyChainNamespaceRef = useRef(buyChainNamespace)
-  const previousSellChainNamespaceRef = useRef(sellChainNamespace)
-
-  useEffect(() => {
-    const namespaceChanged = previousBuyChainNamespaceRef.current !== buyChainNamespace
-    previousBuyChainNamespaceRef.current = buyChainNamespace
-    if (!customReceiveAddress) return
-    if (namespaceChanged || !validateAddress(customReceiveAddress, buyChainId).valid) {
-      setCustomReceiveAddress('')
-    }
-  }, [buyChainId, buyChainNamespace, customReceiveAddress])
-
-  useEffect(() => {
-    const namespaceChanged = previousSellChainNamespaceRef.current !== sellChainNamespace
-    previousSellChainNamespaceRef.current = sellChainNamespace
-    if (!customRefundAddress) return
-    if (namespaceChanged || !validateAddress(customRefundAddress, sellChainId).valid) {
-      setCustomRefundAddress('')
-    }
-  }, [sellChainId, sellChainNamespace, customRefundAddress])
 
   const walletValue: SwapWalletContextValue = useMemo(
     () => ({
@@ -543,6 +518,8 @@ const SwapWidgetCore = ({
       isReceiveAddressResolving,
       isReceiveAddressLocked,
       customReceiveAddress,
+      setCustomReceiveAddress,
+      setCustomRefundAddress,
       evm,
       bitcoin,
       solana,

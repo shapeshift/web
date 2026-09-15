@@ -877,8 +877,8 @@
   color: var(--ssw-text-primary);
 }
 
-.ssw-step-actions .ssw-secondary:hover,
-.ssw-deposit > .ssw-secondary:hover,
+.ssw-step-actions .ssw-action-btn.ssw-secondary:hover:not(:disabled),
+.ssw-deposit > .ssw-action-btn.ssw-secondary:hover:not(:disabled),
 .ssw-btn-outline .ssw-step-actions .ssw-action-btn.ssw-secondary:hover:not(:disabled),
 .ssw-btn-outline .ssw-deposit > .ssw-action-btn.ssw-secondary:hover:not(:disabled) {
   background: var(--ssw-bg-tertiary);
@@ -1016,10 +1016,10 @@
   outline-offset: 1px;
 }
 
-/* Floats over the QR, so opening it never moves the fields below */
+/* Floats below the buttons, so it never covers the QR or moves the fields */
 .ssw-deposit-qr-tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
   z-index: 10;
   display: grid;
@@ -1051,6 +1051,12 @@
 .ssw-deposit-qr-tooltip.ssw-open {
   opacity: 1;
   visibility: visible;
+}
+
+/* Escape outranks hover and focus until the pointer leaves or focus moves */
+.ssw-deposit-qr-controls .ssw-deposit-qr-info + .ssw-deposit-qr-tooltip.ssw-dismissed {
+  opacity: 0;
+  visibility: hidden;
 }
 
 @media (prefers-reduced-motion: no-preference) {

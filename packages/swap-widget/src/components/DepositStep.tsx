@@ -1,5 +1,5 @@
 import { buildPaymentUri } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 
 import { getChainIcon } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
@@ -55,10 +55,12 @@ export const DepositStep = () => {
 
   const [msRemaining, setMsRemaining] = useState(() => (quote ? quote.expiresAt - Date.now() : 0))
 
-  // The bare address scans in every wallet tested; many built-in scanners misread payment URIs
+  // The bare address scans in any wallet; built-in scanners often misread payment URIs
   const [isAmountInQr, setIsAmountInQr] = useState(false)
   const [isQrInfoOpen, setIsQrInfoOpen] = useState(false)
+  const [isQrInfoDismissed, setIsQrInfoDismissed] = useState(false)
   const qrInfoId = useId()
+  const qrControlsRef = useRef<HTMLDivElement>(null)
 
   // Keeps ticking past expiry so the screen knows when the tracking window closes too
   useEffect(() => {
@@ -77,10 +79,43 @@ export const DepositStep = () => {
 
   const handleNewSwap = useCallback(() => actorRef.send({ type: 'RESET' }), [actorRef])
   const handleNewQuote = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
-  const handleShowAddressOnly = useCallback(() => setIsAmountInQr(false), [])
-  const handleShowWithAmount = useCallback(() => setIsAmountInQr(true), [])
-  const handleToggleQrInfo = useCallback(() => setIsQrInfoOpen(isOpen => !isOpen), [])
-  const handleCloseQrInfo = useCallback(() => setIsQrInfoOpen(false), [])
+  const handleShowAddressOnly = useCallback(() => {
+    setIsAmountInQr(false)
+    setIsQrInfoOpen(false)
+  }, [])
+  const handleShowWithAmount = useCallback(() => {
+    setIsAmountInQr(true)
+    setIsQrInfoOpen(false)
+  }, [])
+  const handleToggleQrInfo = useCallback(() => {
+    setIsQrInfoDismissed(false)
+    setIsQrInfoOpen(isOpen => !isOpen)
+  }, [])
+  const handleResetQrInfo = useCallback(() => {
+    setIsQrInfoOpen(false)
+    setIsQrInfoDismissed(false)
+  }, [])
+  const handleQrInfoMouseLeave = useCallback(() => setIsQrInfoDismissed(false), [])
+
+  // Escape hides the note however it opened; a tap outside closes it, since iOS never blurs the icon
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      setIsQrInfoOpen(false)
+      if (qrControlsRef.current?.matches(':hover, :focus-within')) setIsQrInfoDismissed(true)
+    }
+    const handlePointerDown = (event: PointerEvent) => {
+      if (qrControlsRef.current?.contains(event.target as Node)) return
+      setIsQrInfoOpen(false)
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('pointerdown', handlePointerDown)
+    }
+  }, [])
 
   if (!quote?.depositAddress) return null
 
@@ -95,14 +130,21 @@ export const DepositStep = () => {
   const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
   const buyAmount = formatAmount(quote.buyAmountAfterFeesCryptoBaseUnit, quote.buyAsset.precision)
 
-  const paymentUri = buildPaymentUri({
-    address: quote.depositAddress,
-    asset: quote.sellAsset,
-    amountCryptoPrecision: sellAmount,
-  })
+  // Only the With amount option needs this, so a builder error must not take down the address QR
+  const paymentUri = (() => {
+    try {
+      return buildPaymentUri({
+        address: quote.depositAddress,
+        asset: quote.sellAsset,
+        amountCryptoPrecision: sellAmount,
+      })
+    } catch {
+      return undefined
+    }
+  })()
 
   // A chain with no adopted payment scheme already encodes the bare address
-  const canIncludeAmount = paymentUri !== quote.depositAddress
+  const canIncludeAmount = !!paymentUri && paymentUri !== quote.depositAddress
 
   if (isRequoting) {
     return (
@@ -187,12 +229,12 @@ export const DepositStep = () => {
       <span className='ssw-deposit-title'>Awaiting Deposit</span>
 
       <QrCode
-        value={canIncludeAmount && isAmountInQr ? paymentUri : quote.depositAddress}
+        value={canIncludeAmount && isAmountInQr && paymentUri ? paymentUri : quote.depositAddress}
         logo={getChainIcon(quote.sellAsset.chainId)}
       />
 
       {canIncludeAmount && (
-        <div className='ssw-deposit-qr-controls'>
+        <div className='ssw-deposit-qr-controls' ref={qrControlsRef}>
           <div className='ssw-deposit-qr-mode' role='group' aria-label='QR code contents'>
             <button type='button' aria-pressed={!isAmountInQr} onClick={handleShowAddressOnly}>
               Address only
@@ -206,9 +248,9 @@ export const DepositStep = () => {
             className='ssw-deposit-qr-info'
             aria-label='About the QR code options'
             aria-describedby={qrInfoId}
-            aria-expanded={isQrInfoOpen}
             onClick={handleToggleQrInfo}
-            onBlur={handleCloseQrInfo}
+            onBlur={handleResetQrInfo}
+            onMouseLeave={handleQrInfoMouseLeave}
           >
             <svg
               width='14'
@@ -225,7 +267,9 @@ export const DepositStep = () => {
           <span
             id={qrInfoId}
             role='tooltip'
-            className={`ssw-deposit-qr-tooltip${isQrInfoOpen ? ' ssw-open' : ''}`}
+            className={`ssw-deposit-qr-tooltip${isQrInfoOpen ? ' ssw-open' : ''}${
+              isQrInfoDismissed ? ' ssw-dismissed' : ''
+            }`}
           >
             <span>
               <strong>Address only:</strong> Enter the exact amount in your wallet.

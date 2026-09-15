@@ -1,5 +1,5 @@
 import { buildPaymentUri } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 
 import { getChainIcon } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
@@ -55,6 +55,11 @@ export const DepositStep = () => {
 
   const [msRemaining, setMsRemaining] = useState(() => (quote ? quote.expiresAt - Date.now() : 0))
 
+  // The bare address scans in every wallet tested; many built-in scanners misread payment URIs
+  const [isAmountInQr, setIsAmountInQr] = useState(false)
+  const [isQrInfoOpen, setIsQrInfoOpen] = useState(false)
+  const qrInfoId = useId()
+
   // Keeps ticking past expiry so the screen knows when the tracking window closes too
   useEffect(() => {
     if (!quote || isRequoting) return
@@ -72,6 +77,10 @@ export const DepositStep = () => {
 
   const handleNewSwap = useCallback(() => actorRef.send({ type: 'RESET' }), [actorRef])
   const handleNewQuote = useCallback(() => actorRef.send({ type: 'RETRY' }), [actorRef])
+  const handleShowAddressOnly = useCallback(() => setIsAmountInQr(false), [])
+  const handleShowWithAmount = useCallback(() => setIsAmountInQr(true), [])
+  const handleToggleQrInfo = useCallback(() => setIsQrInfoOpen(isOpen => !isOpen), [])
+  const handleCloseQrInfo = useCallback(() => setIsQrInfoOpen(false), [])
 
   if (!quote?.depositAddress) return null
 
@@ -91,6 +100,9 @@ export const DepositStep = () => {
     asset: quote.sellAsset,
     amountCryptoPrecision: sellAmount,
   })
+
+  // A chain with no adopted payment scheme already encodes the bare address
+  const canIncludeAmount = paymentUri !== quote.depositAddress
 
   if (isRequoting) {
     return (
@@ -174,7 +186,56 @@ export const DepositStep = () => {
     <div className='ssw-deposit'>
       <span className='ssw-deposit-title'>Awaiting Deposit</span>
 
-      <QrCode value={paymentUri} logo={getChainIcon(quote.sellAsset.chainId)} />
+      <QrCode
+        value={canIncludeAmount && isAmountInQr ? paymentUri : quote.depositAddress}
+        logo={getChainIcon(quote.sellAsset.chainId)}
+      />
+
+      {canIncludeAmount && (
+        <div className='ssw-deposit-qr-controls'>
+          <div className='ssw-deposit-qr-mode' role='group' aria-label='QR code contents'>
+            <button type='button' aria-pressed={!isAmountInQr} onClick={handleShowAddressOnly}>
+              Address only
+            </button>
+            <button type='button' aria-pressed={isAmountInQr} onClick={handleShowWithAmount}>
+              With amount
+            </button>
+          </div>
+          <button
+            type='button'
+            className='ssw-deposit-qr-info'
+            aria-label='About the QR code options'
+            aria-describedby={qrInfoId}
+            aria-expanded={isQrInfoOpen}
+            onClick={handleToggleQrInfo}
+            onBlur={handleCloseQrInfo}
+          >
+            <svg
+              width='14'
+              height='14'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+            >
+              <circle cx='12' cy='12' r='10' />
+              <path d='M12 16v-4M12 8h.01' />
+            </svg>
+          </button>
+          <span
+            id={qrInfoId}
+            role='tooltip'
+            className={`ssw-deposit-qr-tooltip${isQrInfoOpen ? ' ssw-open' : ''}`}
+          >
+            <span>
+              <strong>Address only:</strong> Enter the exact amount in your wallet.
+            </span>
+            <span>
+              <strong>With amount:</strong> Also fills in the amount, if your wallet supports it.
+            </span>
+          </span>
+        </div>
+      )}
 
       <CopyField
         label='Send exactly'

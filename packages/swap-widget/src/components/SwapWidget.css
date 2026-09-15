@@ -947,6 +947,114 @@
   background: #ffffff;
 }
 
+.ssw-deposit-qr-mode {
+  display: inline-flex;
+  border: 1px solid var(--ssw-border);
+  border-radius: var(--ssw-radius-md);
+  overflow: hidden;
+}
+
+.ssw-deposit-qr-mode button {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--ssw-text-secondary);
+  font-family: var(--ssw-font-family);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ssw-deposit-qr-mode button + button {
+  border-left: 1px solid var(--ssw-border);
+}
+
+.ssw-deposit-qr-mode button[aria-pressed='true'] {
+  background: var(--ssw-accent-light);
+  color: var(--ssw-accent);
+}
+
+.ssw-deposit-qr-mode button:focus-visible {
+  outline: 2px solid var(--ssw-accent);
+  outline-offset: -2px;
+}
+
+/* Sized to the buttons alone, so they center under the QR with the info icon hanging off the side */
+.ssw-deposit-qr-controls {
+  position: relative;
+  display: flex;
+}
+
+.ssw-deposit-qr-info {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 6px);
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ssw-text-muted);
+  cursor: help;
+}
+
+.ssw-deposit-qr-info:hover,
+.ssw-deposit-qr-info:focus-visible {
+  color: var(--ssw-text-primary);
+}
+
+.ssw-deposit-qr-info:focus-visible {
+  outline: 2px solid var(--ssw-accent);
+  outline-offset: 1px;
+}
+
+/* Floats over the QR, so opening it never moves the fields below */
+.ssw-deposit-qr-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 10;
+  display: grid;
+  gap: 6px;
+  width: max-content;
+  max-width: 240px;
+  padding: 8px 10px;
+  border: 1px solid var(--ssw-border);
+  border-radius: var(--ssw-radius-sm);
+  background: var(--ssw-bg-secondary);
+  color: var(--ssw-text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.ssw-deposit-qr-tooltip strong {
+  color: var(--ssw-text-primary);
+  font-weight: 600;
+}
+
+.ssw-deposit-qr-info:hover + .ssw-deposit-qr-tooltip,
+.ssw-deposit-qr-info:focus-visible + .ssw-deposit-qr-tooltip,
+.ssw-deposit-qr-tooltip.ssw-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ssw-deposit-qr-tooltip {
+    transition: opacity 0.12s ease, visibility 0.12s ease;
+  }
+}
+
 .ssw-deposit-value {
   display: flex;
   align-items: center;

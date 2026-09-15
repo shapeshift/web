@@ -5,29 +5,23 @@ import type { ChainId } from '../types'
 import { truncateAddress } from '../types'
 import { getAddressFormatHint, validateAddress } from '../utils/addressValidation'
 
-type ReceiveAddressRowProps = {
-  receiveAddress: string | undefined
-  isResolving: boolean
-  buyChainId: ChainId
-  isLocked: boolean
-  onSetCustomReceiveAddress: (address: string) => void
+type RefundAddressRowProps = {
+  refundAddress: string | undefined
+  sellChainId: ChainId
+  onSetCustomRefundAddress: (address: string) => void
 }
 
-export const ReceiveAddressRow = ({
-  receiveAddress,
-  isResolving,
-  buyChainId,
-  isLocked,
-  onSetCustomReceiveAddress,
-}: ReceiveAddressRowProps) => {
+export const RefundAddressRow = ({
+  refundAddress,
+  sellChainId,
+  onSetCustomRefundAddress,
+}: RefundAddressRowProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [hasInteracted, setHasInteracted] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const needsAddress = !receiveAddress
-  const showInput = !isLocked && ((needsAddress && !isResolving) || isEditing)
-  const showAttention = needsAddress && !isResolving
+  const showInput = !refundAddress || isEditing
 
   useLayoutEffect(() => {
     if (isEditing) inputRef.current?.focus()
@@ -37,28 +31,28 @@ export const ReceiveAddressRow = ({
     setDraft('')
     setHasInteracted(false)
     setIsEditing(false)
-  }, [buyChainId])
+  }, [sellChainId])
 
   const trimmedDraft = useMemo(() => draft.trim(), [draft])
 
   const validation = useMemo(() => {
     if (!trimmedDraft || !hasInteracted) return { valid: true, error: undefined }
-    return validateAddress(trimmedDraft, buyChainId)
-  }, [trimmedDraft, hasInteracted, buyChainId])
+    return validateAddress(trimmedDraft, sellChainId)
+  }, [trimmedDraft, hasInteracted, sellChainId])
 
   const canAccept = useMemo(
-    () => !!trimmedDraft && validateAddress(trimmedDraft, buyChainId).valid,
-    [trimmedDraft, buyChainId],
+    () => !!trimmedDraft && validateAddress(trimmedDraft, sellChainId).valid,
+    [trimmedDraft, sellChainId],
   )
 
-  const formatHint = useMemo(() => getAddressFormatHint(buyChainId), [buyChainId])
-  const chainName = useMemo(() => getChainName(buyChainId), [buyChainId])
+  const formatHint = useMemo(() => getAddressFormatHint(sellChainId), [sellChainId])
+  const chainName = useMemo(() => getChainName(sellChainId), [sellChainId])
 
   const startEditing = useCallback(() => {
-    setDraft(receiveAddress ?? '')
+    setDraft(refundAddress ?? '')
     setHasInteracted(false)
     setIsEditing(true)
-  }, [receiveAddress])
+  }, [refundAddress])
 
   const handleChange = useCallback((value: string) => {
     setDraft(value)
@@ -66,58 +60,43 @@ export const ReceiveAddressRow = ({
   }, [])
 
   const handleAccept = useCallback(() => {
-    if (!validateAddress(trimmedDraft, buyChainId).valid) return
-    onSetCustomReceiveAddress(trimmedDraft)
+    if (!validateAddress(trimmedDraft, sellChainId).valid) return
+    onSetCustomRefundAddress(trimmedDraft)
     setIsEditing(false)
     setHasInteracted(false)
-  }, [trimmedDraft, buyChainId, onSetCustomReceiveAddress])
+  }, [trimmedDraft, sellChainId, onSetCustomRefundAddress])
 
   const handleReset = useCallback(() => {
-    onSetCustomReceiveAddress('')
+    onSetCustomRefundAddress('')
     setDraft('')
     setHasInteracted(false)
     setIsEditing(false)
-  }, [onSetCustomReceiveAddress])
-
-  const showReset = !!draft || isEditing
+  }, [onSetCustomRefundAddress])
 
   if (!showInput) {
     return (
       <div className='ssw-receive-row-resolved'>
-        <span className='ssw-receive-label'>Receive address</span>
+        <span className='ssw-receive-label'>Refund address</span>
         <div className='ssw-receive-resolved-value'>
-          {isResolving ? (
-            <span className='ssw-balance-skeleton' />
-          ) : showAttention ? (
-            // Locked only - an unlocked row with no address shows the input instead
-            <span className='ssw-receive-error'>Not valid for {chainName}</span>
-          ) : (
-            <>
-              <span className='ssw-receive-address'>
-                {truncateAddress(receiveAddress ?? '', 6)}
-              </span>
-              {!isLocked && (
-                <button
-                  className='ssw-receive-edit-btn'
-                  onClick={startEditing}
-                  type='button'
-                  aria-label='Edit receive address'
-                >
-                  <svg
-                    width='14'
-                    height='14'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                  >
-                    <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' />
-                    <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' />
-                  </svg>
-                </button>
-              )}
-            </>
-          )}
+          <span className='ssw-receive-address'>{truncateAddress(refundAddress ?? '', 6)}</span>
+          <button
+            className='ssw-receive-edit-btn'
+            onClick={startEditing}
+            type='button'
+            aria-label='Edit refund address'
+          >
+            <svg
+              width='14'
+              height='14'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+            >
+              <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' />
+              <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' />
+            </svg>
+          </button>
         </div>
       </div>
     )
@@ -126,7 +105,7 @@ export const ReceiveAddressRow = ({
   return (
     <div className='ssw-receive-row-input'>
       <div className='ssw-receive-header'>
-        <span className='ssw-receive-label'>Receive address</span>
+        <span className='ssw-receive-label'>Refund address</span>
       </div>
 
       <div
@@ -143,7 +122,7 @@ export const ReceiveAddressRow = ({
           onChange={e => handleChange(e.target.value)}
           spellCheck={false}
           autoComplete='off'
-          aria-label='Receive address'
+          aria-label='Refund address'
         />
         <div className='ssw-receive-inline-actions'>
           <button
@@ -152,7 +131,7 @@ export const ReceiveAddressRow = ({
             onMouseDown={e => e.preventDefault()}
             disabled={!canAccept}
             type='button'
-            aria-label='Accept address'
+            aria-label='Accept refund address'
           >
             <svg
               width='16'
@@ -165,13 +144,13 @@ export const ReceiveAddressRow = ({
               <path d='M20 6L9 17l-5-5' />
             </svg>
           </button>
-          {showReset && (
+          {(!!draft || isEditing) && (
             <button
               className='ssw-receive-icon-btn ssw-receive-reset'
               onClick={handleReset}
               onMouseDown={e => e.preventDefault()}
               type='button'
-              aria-label='Reset address'
+              aria-label='Reset refund address'
             >
               <svg
                 width='16'
@@ -188,8 +167,12 @@ export const ReceiveAddressRow = ({
         </div>
       </div>
 
-      {!validation.valid && hasInteracted && validation.error && (
+      {!validation.valid && hasInteracted && validation.error ? (
         <span className='ssw-receive-error'>{validation.error}</span>
+      ) : (
+        <span className='ssw-receive-hint'>
+          Your {chainName} address - funds return here if the swap fails
+        </span>
       )}
     </div>
   )

@@ -8,6 +8,7 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { SwapperName, TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
+import { shouldPollRates } from '../utils/ratesPolling'
 import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
 import type { BalanceResult } from './useBalances'
@@ -53,15 +54,8 @@ export const useSwapDisplayValues = ({
   ratesRefetchInterval,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const context = SwapMachineCtx.useSelector(s => s.context)
-  const {
-    sellAsset,
-    buyAsset,
-    buyAmountBaseUnit,
-    isSellAssetEvm,
-    isSellAssetUtxo,
-    isSellAssetSolana,
-    selectedRate,
-  } = context
+  const isPollingRates = SwapMachineCtx.useSelector(s => shouldPollRates(s.value))
+  const { sellAsset, buyAsset, buyAmountBaseUnit, selectedRate } = context
 
   const { receiveAddress, isReceiveAddressBlocked, evm, bitcoin, solana } = useSwapWallet()
   const evmAddress = evm.address
@@ -86,10 +80,7 @@ export const useSwapDisplayValues = ({
     refetchInterval: ratesRefetchInterval,
     // Rates need no destination, but a locked one the buy chain rejects can never be quoted
     enabled:
-      !!amountBaseUnit &&
-      amountBaseUnit !== '0' &&
-      !isReceiveAddressBlocked &&
-      (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
+      isPollingRates && !!amountBaseUnit && amountBaseUnit !== '0' && !isReceiveAddressBlocked,
   })
 
   const {

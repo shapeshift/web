@@ -74,11 +74,12 @@ describe('getInputCta', () => {
     expect(cta.action).toBe('deposit')
   })
 
-  it('asks for an amount on an unsupported chain before offering a redirect', () => {
+  it('asks for an amount on an unsupported chain where a deposit route can exist', () => {
     const cta = getInputCta({
       ...base,
       ...noWallet,
       isUnsupportedChain: true,
+      supportsDepositRoute: true,
       hasAmount: false,
       hasRates: false,
     })
@@ -97,12 +98,12 @@ describe('getInputCta', () => {
     expect(cta).toEqual({ text: 'Finding rates...', disabled: true, action: 'none' })
   })
 
-  it('redirects straight away on an unsupported chain with no deposit route to wait for', () => {
+  it('redirects straight away on an unsupported chain with no deposit route, before any amount', () => {
     const cta = getInputCta({
       ...base,
       ...noWallet,
       isUnsupportedChain: true,
-      isLoadingRates: true,
+      hasAmount: false,
       hasRates: false,
     })
     expect(cta).toEqual({ text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' })

@@ -123,9 +123,10 @@ Once connected, the widget can sign and broadcast transactions for three wallet 
 The header shows a **Connect** button by default (toggle with `showConnectButton`) that opens the
 AppKit modal. Swaps whose sell asset is not in an executable namespace (see
 [Supported Chains](#supported-chains)) redirect to [app.shapeshift.com](https://app.shapeshift.com)
-when `allowShapeshiftRedirect` is enabled, once an amount is entered. Where the sell chain supports
-[externally paid swaps](#externally-paid-swaps), the widget checks rates first, and if a route can be
-paid from any wallet it offers both: continue without a wallet, or proceed on ShapeShift.
+when `allowShapeshiftRedirect` is enabled. Where the sell chain supports
+[externally paid swaps](#externally-paid-swaps), the widget asks for an amount and checks rates first,
+and if a route can be paid from any wallet it offers both: continue without a wallet, or proceed on
+ShapeShift.
 
 ## Props Reference
 

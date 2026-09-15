@@ -41,10 +41,10 @@ export const getInputCta = ({
   hasRates,
   hasRatesError,
 }: GetInputCtaArgs): InputCta => {
-  if (!hasAmount) return { text: 'Enter an amount', disabled: true, action: 'none' }
-
-  // No rates are fetched here, so there is nothing to wait for
+  // No rates are fetched here, so neither an amount nor rates can change the outcome
   if (isUnsupportedChain && !supportsDepositRoute) return getUnsupportedCta(allowShapeshiftRedirect)
+
+  if (!hasAmount) return { text: 'Enter an amount', disabled: true, action: 'none' }
 
   if (isLoadingRates) return { text: 'Finding rates...', disabled: true, action: 'none' }
 

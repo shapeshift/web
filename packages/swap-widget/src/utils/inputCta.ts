@@ -12,7 +12,7 @@ type GetInputCtaArgs = {
   // The adapter for the sell chain's type is connected, whether or not it can serve this chain
   isSellChainTypeConnected: boolean
   isUnsupportedChain: boolean
-  // A wallet-free deposit route can exist on the sell chain, so rates are worth waiting for
+  // A deposit route can exist on the sell chain, so rates are worth waiting for
   canHaveDepositRoute: boolean
   allowShapeshiftRedirect: boolean
   hasReceiveAddress: boolean

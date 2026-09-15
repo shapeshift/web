@@ -20,7 +20,7 @@ const base = {
 const noWallet = { hasWalletForSellChain: false, isSellChainTypeConnected: false }
 
 describe('getInputCta', () => {
-  it('offers a wallet-free deposit when the selected rate supports it', () => {
+  it('offers a deposit when the selected rate supports it', () => {
     const cta = getInputCta({ ...base, ...noWallet, isDepositRoute: true })
     expect(cta).toEqual({ text: 'Continue without a wallet', disabled: false, action: 'deposit' })
   })

@@ -326,7 +326,7 @@ export const isWidgetExecutableChainId = (chainId: string): boolean =>
   isWidgetExecutableUtxoChainId(chainId) ||
   isWidgetExecutableSolanaChainId(chainId)
 
-// Chains the widget can't sign on where a wallet-free deposit route can still exist
+// Chains the widget can't sign on where a deposit route can still exist
 const EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET: ReadonlySet<string> = new Set([zecChainId])
 
 export const isExternalPaymentSellChainId = (chainId: string): boolean =>

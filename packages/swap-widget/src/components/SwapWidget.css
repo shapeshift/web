@@ -867,19 +867,23 @@
   white-space: nowrap;
 }
 
-/* New Swap and cancel buttons are neutral wherever they sit; the accent-tinted secondary is for the input step's redirect */
+/* Exits from a step stay neutral in both button variants; the accent-tinted secondary is for the input step's redirect */
 .ssw-step-actions .ssw-secondary,
-.ssw-deposit > .ssw-secondary {
+.ssw-deposit > .ssw-secondary,
+.ssw-btn-outline .ssw-step-actions .ssw-action-btn.ssw-secondary,
+.ssw-btn-outline .ssw-deposit > .ssw-action-btn.ssw-secondary {
   background: var(--ssw-bg-tertiary);
-  border: 1px solid var(--ssw-border);
-  color: var(--ssw-text-secondary);
+  border: 1px solid var(--ssw-border-hover);
+  color: var(--ssw-text-primary);
 }
 
 .ssw-step-actions .ssw-secondary:hover,
-.ssw-deposit > .ssw-secondary:hover {
-  border-color: var(--ssw-border-hover);
-  color: var(--ssw-text-primary);
+.ssw-deposit > .ssw-secondary:hover,
+.ssw-btn-outline .ssw-step-actions .ssw-action-btn.ssw-secondary:hover:not(:disabled),
+.ssw-btn-outline .ssw-deposit > .ssw-action-btn.ssw-secondary:hover:not(:disabled) {
   background: var(--ssw-bg-tertiary);
+  border-color: color-mix(in srgb, var(--ssw-accent) 55%, transparent);
+  color: var(--ssw-text-primary);
 }
 
 /* Outline button variant */

@@ -33,6 +33,8 @@ X-Partner-Code: your-partner-code
 
 Optional `slippageTolerancePercentageDecimal` (e.g. `0.01` for 1%). The response returns a `rates` array (one entry per swapper, each with its own `swapperName`, amounts, fees, and an optional per-swapper `error`) plus `timestamp` and `expiresAt`. **Rates are indicative**, expire quickly (`expiresAt` ≈ 30s after issue), and are for display/comparison — request a quote to execute.
 
+Each rate also carries `supportsExternalPayment`. When true, the swapper can also take payment as a plain transfer to a deposit address, so any wallet can fund the swap and your application does not have to sign — though it still can, since the quote carries `transactionData` either way. See [Externally paid quotes](#externally-paid-quotes).
+
 A non-empty `allowanceContract` on a rate means executing that swapper pulls the sell token from an ERC-20 allowance. Clients that want to handle approvals themselves — checking the current allowance, or setting an unlimited approval ahead of time — can use it directly at this stage; otherwise the quote supplies ready-to-sign approval transactions.
 
 ## 3. Get an executable quote
@@ -57,7 +59,7 @@ X-Partner-Code: your-partner-code
 - `swapperName` comes from the rate you chose in step 2.
 - `slippageTolerancePercentageDecimal` is optional; `accountNumber` is optional (defaults to `0`) and is needed for chains that derive addresses per account index (e.g. UTXO/Cosmos).
 - The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required, the spender, and ready-to-sign `approvalTxs` when it is), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`) — describing exactly what to sign for that chain.
-- Quotes expire: honor the `expiresAt` timestamp — it reflects the swapper's own quote deadline (e.g. THORChain inbound addresses rotate, deposit-address swappers deactivate their channels; deadline-less providers get a conservative 60s). **Never sign or broadcast after `expiresAt`** — for deposit-style swappers funds sent late can be lost. Request a fresh quote instead.
+- Quotes expire. **Never sign, broadcast, or send a deposit after `expiresAt`** — request a fresh quote instead. `expiresAt` is the swapper's own deadline, not an arbitrary timeout: THORChain rotates its inbound addresses, externally paid swappers close their deposit channels, and funds sent to a closed channel can be lost. Swappers without a deadline of their own get a conservative 60s.
 
 ## 4. Execute the swap
 
@@ -67,6 +69,14 @@ The API does **not** broadcast transactions — your application signs and broad
 2. For each step with `transactionData`, build, sign, and broadcast the transaction according to its `type` (EVM tx, Solana instructions, UTXO PSBT/deposit, or Cosmos message).
 3. Capture the resulting transaction hash for status tracking.
 
+### Externally paid quotes
+
+When a quote carries `depositAddress`, signing is optional. Send exactly `sellAmountCryptoBaseUnit` of the sell asset to that address before `expiresAt`, from any wallet — the payer does not have to be the user, and no wallet needs to be connected to your application. The quote still includes `transactionData` and `approval`, so a client with a connected wallet can execute it exactly as in step 4 instead; both paths land at the same address.
+
+Pass the user's own address on the sell chain as `sendAddress` when requesting the quote. On the deposit path nothing is sent from it, but it is where a failed, expired or refunded swap returns funds, so it must be an address the user controls.
+
+A quote from a swapper advertising `supportsExternalPayment` may still omit `depositAddress` — treat that as the route needing a signed transaction after all, and fall back to the flow above.
+
 ## 5. Track status
 
 ```
@@ -74,14 +84,16 @@ GET /v1/swap/status?quoteId=<quoteId>&txHash=0x...
 ```
 
 - On the **first call after broadcasting**, include `txHash` to bind it to the quote and begin tracking. This sets status to `submitted`. Subsequent polls can omit `txHash`.
-- `status` is one of `submitted`, `confirmed`, `failed`. Poll until `confirmed` or `failed`; a `buyTxHash` appears once the destination transaction is known.
+- Externally paid quotes need no `txHash`: poll with `quoteId` alone from the moment the quote is issued, and `txHash` is filled in on the response once the deposit is detected. If your application signed the deposit itself, pass its `txHash` on the first call and it binds exactly as above. A hash binds on the first call only — one passed later is ignored.
+- `status` is one of `pending`, `submitted`, `confirmed`, `failed`. `pending` means tracking has begun but no sell transaction has been seen yet, which is an externally paid quote awaiting its deposit; `submitted` means one has. Poll until `confirmed` or `failed`; a `buyTxHash` appears once the destination transaction is known.
 - Poll at a modest interval (e.g. every 5–15s) and respect rate-limit headers. Stop polling on a terminal status.
 
 ### Status errors
 
-- `404` `QUOTE_NOT_FOUND` — the quote is unknown or has expired from the store. Request a new quote.
-- `400` `TX_HASH_REQUIRED` — no `txHash` was provided and none is bound yet; pass the broadcast tx hash.
+- `404` `QUOTE_NOT_FOUND` — the quote is unknown, or aged out before tracking began (an hour past its deadline). Once tracking has begun, status stays available for as long as the swap is tracked. Request a new quote — unless a deposit was already sent, in which case that swap may still settle and a second quote would pay twice.
+- `400` `TX_HASH_REQUIRED` — no `txHash` was provided and none is bound yet; pass the broadcast tx hash. Externally paid quotes never return this.
 - `409` `TX_HASH_MISMATCH` — a different `txHash` is already bound to this quote.
+- `503` `SERVICE_UNAVAILABLE` — tracking could not start or be read. Repeat the same call, including `txHash`.
 
 ## Affiliate reporting (optional)
 

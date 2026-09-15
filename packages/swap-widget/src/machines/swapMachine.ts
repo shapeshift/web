@@ -454,8 +454,8 @@ export const swapMachine = setup({
           actions: 'assignStatusFailed',
         },
         SWAPPER_TX_LINK_UPDATED: { actions: 'assignSwapperTxLink' },
-        // The one deposit screen with no controls of its own, so it can't be left spinning
-        DEPOSIT_TRACKING_TIMEOUT: {
+        // This screen has no controls, so a swap the api stops following can't be left spinning
+        TRACKING_TIMEOUT: {
           target: 'error',
           actions: 'assignTrackingTimeout',
         },

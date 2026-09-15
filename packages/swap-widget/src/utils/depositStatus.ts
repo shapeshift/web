@@ -1,7 +1,7 @@
 import type { SwapMachineEvent } from '../machines/types'
 import { GENERIC_ERROR_MESSAGE } from './errors'
 
-export type DepositStatusResponse = {
+export type SwapStatusResponse = {
   status: 'pending' | 'submitted' | 'confirmed' | 'failed'
   txHash?: string
   txLink?: string
@@ -9,21 +9,9 @@ export type DepositStatusResponse = {
   swapperTxLink?: string
 }
 
-export const resolveDepositStatusEvent = (
-  response: DepositStatusResponse,
-  hasDetectedDeposit: boolean,
-  observedAt: number,
-  knownSwapperTxLink?: string | null,
+export const resolveSettledSwapEvent = (
+  response: SwapStatusResponse,
 ): SwapMachineEvent | undefined => {
-  if (!hasDetectedDeposit && response.txHash) {
-    return {
-      type: 'DEPOSIT_DETECTED',
-      txHash: response.txHash,
-      txLink: response.txLink,
-      swapperTxLink: response.swapperTxLink,
-      observedAt,
-    }
-  }
   if (response.status === 'failed') {
     return {
       type: 'STATUS_FAILED',
@@ -38,6 +26,27 @@ export const resolveDepositStatusEvent = (
       swapperTxLink: response.swapperTxLink,
     }
   }
+}
+
+export const resolveDepositStatusEvent = (
+  response: SwapStatusResponse,
+  hasDetectedDeposit: boolean,
+  observedAt: number,
+  knownSwapperTxLink?: string | null,
+): SwapMachineEvent | undefined => {
+  if (!hasDetectedDeposit && response.txHash) {
+    return {
+      type: 'DEPOSIT_DETECTED',
+      txHash: response.txHash,
+      txLink: response.txLink,
+      swapperTxLink: response.swapperTxLink,
+      observedAt,
+    }
+  }
+
+  const settledEvent = resolveSettledSwapEvent(response)
+  if (settledEvent) return settledEvent
+
   // Some providers only have a page once they've seen the deposit, which can land after detection
   if (
     hasDetectedDeposit &&
@@ -51,8 +60,11 @@ export const resolveDepositStatusEvent = (
 // A deposit landing this long past the deadline may still be credited, so the window outlasts it
 const UNFUNDED_DEPOSIT_TRACKING_MS = 60 * 60 * 1000
 
-// Timed from the deposit - the api abandons an unsettled swap a day after registration
+// The api abandons an unsettled swap a day after registration
 const SETTLEMENT_TRACKING_MS = 24 * 60 * 60 * 1000
+
+export const isWithinSettlementWindow = (startedAt: number, now: number): boolean =>
+  now <= startedAt + SETTLEMENT_TRACKING_MS
 
 type ShouldKeepTrackingArgs = {
   quoteDeadline: number
@@ -66,5 +78,5 @@ export const shouldKeepTrackingDeposit = ({
   now,
 }: ShouldKeepTrackingArgs): boolean =>
   depositObservedAt
-    ? now <= depositObservedAt + SETTLEMENT_TRACKING_MS
+    ? isWithinSettlementWindow(depositObservedAt, now)
     : now <= quoteDeadline + UNFUNDED_DEPOSIT_TRACKING_MS

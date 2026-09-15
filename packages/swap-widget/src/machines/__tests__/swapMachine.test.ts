@@ -1147,7 +1147,7 @@ describe('a deposit flow always reaches a terminal state', () => {
 
   it('leaves a funded deposit we can no longer follow rather than spinning on it', () => {
     const actor = restoreInto('0xdead')
-    actor.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    actor.send({ type: 'TRACKING_TIMEOUT' })
 
     const snapshot = actor.getSnapshot()
     expect(snapshot.matches('error')).toBe(true)
@@ -1157,13 +1157,13 @@ describe('a deposit flow always reaches a terminal state', () => {
 
   it('ignores the timeout on the screens that already offer a way forward', () => {
     const awaiting = restoreInto(undefined)
-    awaiting.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    awaiting.send({ type: 'TRACKING_TIMEOUT' })
     expect(awaiting.getSnapshot().matches('awaiting_deposit')).toBe(true)
     awaiting.stop()
 
     const expired = restoreInto(undefined)
     expired.send({ type: 'DEPOSIT_EXPIRED' })
-    expired.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    expired.send({ type: 'TRACKING_TIMEOUT' })
     expect(expired.getSnapshot().matches('deposit_expired')).toBe(true)
     expired.stop()
   })

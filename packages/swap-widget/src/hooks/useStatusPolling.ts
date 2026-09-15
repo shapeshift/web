@@ -1,11 +1,10 @@
 import { useEffect, useRef } from 'react'
 
 import type { ApiClient } from '../api/client'
-import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { CheckStatusParams } from '../services/transactionStatus'
-import { checkTransactionStatus } from '../services/transactionStatus'
-import { getEvmNetworkId } from '../types'
+import { isPermanentApiError } from '../utils/apiError'
+import type { SwapStatusResponse } from '../utils/depositStatus'
+import { isWithinSettlementWindow, resolveSettledSwapEvent } from '../utils/depositStatus'
 
 const POLL_INTERVAL_MS = 5000
 
@@ -15,11 +14,8 @@ type UseStatusPollingParams = {
 
 export const useStatusPolling = ({ apiClient }: UseStatusPollingParams) => {
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
-  const context = SwapMachineCtx.useSelector(s => s.context)
   const actorRef = SwapMachineCtx.useActorRef()
   const pollingRef = useRef(false)
-  const { solana } = useSwapWallet()
-  const solanaConnection = solana.connection
 
   useEffect(() => {
     const snap = actorRef.getSnapshot()
@@ -34,68 +30,47 @@ export const useStatusPolling = ({ apiClient }: UseStatusPollingParams) => {
     pollingRef.current = true
 
     let stopped = false
-    let registeredWithApi = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const trackingStartedAt = Date.now()
 
     const poll = async () => {
-      if (stopped || !context.txHash) return
+      if (stopped) return
 
-      if (!registeredWithApi && context.quote?.quoteId) {
-        try {
-          await apiClient.getSwapStatus({ quoteId: context.quote.quoteId, txHash: context.txHash })
-          registeredWithApi = true
-        } catch {
-          // Retry on next poll cycle — don't block on-chain polling
-        }
-      }
+      const { quote, txHash } = actorRef.getSnapshot().context
+      if (!quote || !txHash) return
 
       try {
-        let statusParams: CheckStatusParams
-
-        if (context.isSellAssetEvm) {
-          statusParams = {
-            txHash: context.txHash,
-            chainType: 'evm',
-            chainId: getEvmNetworkId(context.sellAsset.chainId),
-          }
-        } else if (context.isSellAssetUtxo) {
-          statusParams = {
-            txHash: context.txHash,
-            chainType: 'utxo',
-          }
-        } else if (context.isSellAssetSolana) {
-          statusParams = {
-            txHash: context.txHash,
-            chainType: 'solana',
-            connection: solanaConnection as CheckStatusParams['connection'],
-          }
-        } else {
-          console.warn(
-            `[swap-widget] Status polling not implemented for chainType "${context.chainType}". Auto-confirming.`,
-          )
-          actorRef.send({ type: 'STATUS_CONFIRMED' })
-          return
-        }
-
-        const result = await checkTransactionStatus(statusParams)
-
+        // The first call binds the hash and starts tracking - later ones read the swapper's status
+        const response = (await apiClient.getSwapStatus({
+          quoteId: quote.quoteId,
+          txHash,
+        })) as SwapStatusResponse
         if (stopped) return
 
-        if (result.status === 'confirmed') {
-          actorRef.send({ type: 'STATUS_CONFIRMED' })
+        const event = resolveSettledSwapEvent(response)
+
+        if (event) {
+          actorRef.send(event)
           return
         }
-
-        if (result.status === 'failed') {
-          actorRef.send({ type: 'STATUS_FAILED', error: result.error ?? 'Transaction failed' })
-          return
-        }
-
-        setTimeout(poll, POLL_INTERVAL_MS)
-      } catch (err) {
+      } catch (error) {
         if (stopped) return
-        const errorMessage = err instanceof Error ? err.message : 'Unknown polling error'
-        actorRef.send({ type: 'STATUS_FAILED', error: errorMessage })
+
+        // The swap may still settle on chain, so this stops tracking rather than failing it
+        if (isPermanentApiError(error)) {
+          actorRef.send({ type: 'TRACKING_TIMEOUT' })
+          return
+        }
+
+        // A transient status failure retries on the next tick
       }
+
+      if (!isWithinSettlementWindow(trackingStartedAt, Date.now())) {
+        actorRef.send({ type: 'TRACKING_TIMEOUT' })
+        return
+      }
+
+      timer = setTimeout(poll, POLL_INTERVAL_MS)
     }
 
     poll()
@@ -103,6 +78,7 @@ export const useStatusPolling = ({ apiClient }: UseStatusPollingParams) => {
     return () => {
       stopped = true
       pollingRef.current = false
+      clearTimeout(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs or read from snapshot
   }, [stateValue])

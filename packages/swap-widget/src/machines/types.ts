@@ -64,7 +64,7 @@ export type SwapMachineEvent =
       observedAt: number
     }
   | { type: 'DEPOSIT_EXPIRED' }
-  | { type: 'DEPOSIT_TRACKING_TIMEOUT' }
+  | { type: 'TRACKING_TIMEOUT' }
   | { type: 'SWAPPER_TX_LINK_UPDATED'; swapperTxLink: string }
   | {
       type: 'RESTORE_DEPOSIT'

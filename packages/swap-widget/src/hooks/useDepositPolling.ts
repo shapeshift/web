@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import type { ApiClient } from '../api/client'
 import { ApiError } from '../api/client'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { DepositStatusResponse } from '../utils/depositStatus'
+import type { SwapStatusResponse } from '../utils/depositStatus'
 import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../utils/depositStatus'
 
 const POLL_INTERVAL_MS = 10_000
@@ -49,7 +49,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
 
       if (quoteId) {
         try {
-          const response = (await apiClient.getSwapStatus({ quoteId })) as DepositStatusResponse
+          const response = (await apiClient.getSwapStatus({ quoteId })) as SwapStatusResponse
           if (stopped) return
 
           const event = resolveDepositStatusEvent(
@@ -71,7 +71,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
           if (isQuoteNotFound(error)) {
             actorRef.send(
               depositObservedAt
-                ? { type: 'DEPOSIT_TRACKING_TIMEOUT' }
+                ? { type: 'TRACKING_TIMEOUT' }
                 : { type: 'DEPOSIT_EXPIRED' },
             )
             return
@@ -91,7 +91,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
         })
       ) {
         // Only polling_status handles this - the expired screen already offers a way forward
-        actorRef.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+        actorRef.send({ type: 'TRACKING_TIMEOUT' })
         return
       }
 

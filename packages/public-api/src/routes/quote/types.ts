@@ -143,11 +143,11 @@ export const QuoteRequestSchema = z
       .string()
       .min(1)
       .openapi({ example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' }),
-    // For UTXO chains, use the account's receive address at index 0/0 (e.g. m/84'/0'/0'/0/0).
-    sendAddress: z
-      .string()
-      .min(1)
-      .openapi({ example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' }),
+    sendAddress: z.string().min(1).openapi({
+      example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      description:
+        "The user's address on the sell chain: the swap is funded from it, and refunds return to it. When the quote carries a depositAddress nothing is sent from it - the deposit can arrive from any wallet - so it only receives refunds, and must still be an address the user controls. For UTXO chains, use the account's first receive address (m/84'/0'/0'/0/0).",
+    }),
     swapperName: z.string().min(1).openapi({ example: 'Relay' }),
     slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
     accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),
@@ -182,10 +182,15 @@ export const QuoteResponseSchema = registry.register(
     networkFeeCryptoBaseUnit: z.string().optional().openapi({ example: '23000' }),
     approval: ApprovalInfoSchema,
     steps: z.array(QuoteStepSchema),
+    depositAddress: z.string().optional().openapi({
+      example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+      description:
+        'Present when this quote can be paid by a plain transfer from any wallet: send exactly sellAmountCryptoBaseUnit here before expiresAt, then poll /v1/swap/status with quoteId alone. A deposit sent after expiresAt may be refunded to sendAddress, or lost. Absent means the swap must be signed by the wallet at sendAddress.',
+    }),
     expiresAt: z.number().openapi({
       example: 1754265600000,
       description:
-        "Epoch ms after which the quote must not be executed - the swapper's own deadline (inbound address rotation, deposit channel expiry, order validity). Broadcasting after it risks failed swaps or, for deposit-style swappers, lost funds. Request a fresh quote instead.",
+        "Epoch ms after which the quote must not be executed - the swapper's own deadline. Broadcasting after it risks a failed swap, or lost funds on an externally paid quote. Request a fresh quote instead.",
     }),
   }),
 )

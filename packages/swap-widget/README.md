@@ -124,8 +124,9 @@ The header shows a **Connect** button by default (toggle with `showConnectButton
 AppKit modal. Swaps whose sell asset is not in an executable namespace (see
 [Supported Chains](#supported-chains)) redirect to [app.shapeshift.com](https://app.shapeshift.com)
 when `allowShapeshiftRedirect` is enabled. When such a swap is quoted by an externally paid route,
-both are offered: continue without a wallet, or proceed on ShapeShift. Which applies depends on the
-routes for the pair, so the choice appears once an amount is entered and rates have loaded.
+both are offered: continue without a wallet, or proceed on ShapeShift. The choice appears once an
+amount is entered: straight away on chains with no wallet-free route to wait for, and once rates
+have loaded where one can exist.
 
 ## Props Reference
 

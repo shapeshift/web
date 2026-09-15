@@ -7,6 +7,7 @@ const base = {
   hasWalletForSellChain: true,
   isSellChainTypeConnected: true,
   isUnsupportedChain: false,
+  canHaveDepositRoute: false,
   allowShapeshiftRedirect: true,
   hasReceiveAddress: true,
   hasSendAddress: true,
@@ -83,7 +84,19 @@ describe('getInputCta', () => {
     expect(cta).toEqual({ text: 'Enter an amount', disabled: true, action: 'none' })
   })
 
-  it('waits for rates before redirecting an unsupported chain', () => {
+  it('waits for rates on an unsupported chain where a deposit route can exist', () => {
+    const cta = getInputCta({
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      canHaveDepositRoute: true,
+      isLoadingRates: true,
+      hasRates: false,
+    })
+    expect(cta).toEqual({ text: 'Finding rates...', disabled: true, action: 'none' })
+  })
+
+  it('redirects straight away on an unsupported chain with no deposit route to wait for', () => {
     const cta = getInputCta({
       ...base,
       ...noWallet,
@@ -91,12 +104,27 @@ describe('getInputCta', () => {
       isLoadingRates: true,
       hasRates: false,
     })
-    expect(cta).toEqual({ text: 'Finding rates...', disabled: true, action: 'none' })
+    expect(cta).toEqual({ text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' })
+  })
+
+  it('still offers a deposit route that rates find on a chain outside the list', () => {
+    const cta = getInputCta({
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      isDepositRoute: true,
+    })
+    expect(cta.action).toBe('deposit')
   })
 
   it('redirects an unsupported chain once rates show no deposit route, even if they failed', () => {
     const redirect = { text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' }
-    const unsupported = { ...base, ...noWallet, isUnsupportedChain: true }
+    const unsupported = {
+      ...base,
+      ...noWallet,
+      isUnsupportedChain: true,
+      canHaveDepositRoute: true,
+    }
 
     expect(getInputCta(unsupported)).toEqual(redirect)
     expect(getInputCta({ ...unsupported, hasRates: false })).toEqual(redirect)

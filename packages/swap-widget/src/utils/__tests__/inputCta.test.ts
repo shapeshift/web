@@ -68,6 +68,7 @@ describe('getInputCta', () => {
       ...base,
       ...noWallet,
       isUnsupportedChain: true,
+      canHaveDepositRoute: true,
       isDepositRoute: true,
     })
     expect(cta.action).toBe('deposit')
@@ -105,16 +106,6 @@ describe('getInputCta', () => {
       hasRates: false,
     })
     expect(cta).toEqual({ text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' })
-  })
-
-  it('still offers a deposit route that rates find on a chain outside the list', () => {
-    const cta = getInputCta({
-      ...base,
-      ...noWallet,
-      isUnsupportedChain: true,
-      isDepositRoute: true,
-    })
-    expect(cta.action).toBe('deposit')
   })
 
   it('redirects an unsupported chain once rates show no deposit route, even if they failed', () => {

@@ -44,10 +44,8 @@ export const getInputCta = ({
 }: GetInputCtaArgs): InputCta => {
   if (!hasAmount) return { text: 'Enter an amount', disabled: true, action: 'none' }
 
-  // No deposit route is expected here, so there is nothing to wait for - a route rates find anyway still wins
-  if (isUnsupportedChain && !canHaveDepositRoute && !isDepositRoute) {
-    return getUnsupportedCta(allowShapeshiftRedirect)
-  }
+  // Rates aren't fetched on a chain with no deposit route, so there is nothing to wait for
+  if (isUnsupportedChain && !canHaveDepositRoute) return getUnsupportedCta(allowShapeshiftRedirect)
 
   if (isLoadingRates) return { text: 'Finding rates...', disabled: true, action: 'none' }
 

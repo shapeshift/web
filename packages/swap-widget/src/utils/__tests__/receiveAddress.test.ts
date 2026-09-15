@@ -112,8 +112,7 @@ describe('resolveReceiveAddress cross-chain wallet', () => {
   it('never returns a wallet address the buy chain would reject', () => {
     expect(
       resolveReceiveAddress({
-        isLocked: false,
-        defaultAddress: undefined,
+        ...args,
         customAddress: '',
         walletAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
         buyChainId: UTXO_CHAIN_IDS.dogecoin,

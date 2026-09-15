@@ -8,7 +8,7 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { SwapperName, TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
-import { canActOnRates, shouldPollRates } from '../utils/ratesPolling'
+import { shouldFetchRates, shouldPollRates } from '../utils/ratesPolling'
 import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
 import type { BalanceResult } from './useBalances'
@@ -80,7 +80,7 @@ export const useSwapDisplayValues = ({
     refetchInterval: ratesRefetchInterval,
     // Rates need no destination, but a locked one the buy chain rejects can never be quoted
     enabled:
-      canActOnRates(sellAsset.chainId) &&
+      shouldFetchRates(sellAsset.chainId) &&
       isPollingRates &&
       !!amountBaseUnit &&
       amountBaseUnit !== '0' &&

@@ -6,5 +6,5 @@ const RATES_CONSUMING_STATES = new Set(['idle', 'input', 'quoting', 'error', 'de
 export const shouldPollRates = (stateValue: unknown): boolean =>
   typeof stateValue === 'string' && RATES_CONSUMING_STATES.has(stateValue)
 
-export const canActOnRates = (sellChainId: string): boolean =>
+export const shouldFetchRates = (sellChainId: string): boolean =>
   isWidgetExecutableChainId(sellChainId) || isExternalPaymentSellChainId(sellChainId)

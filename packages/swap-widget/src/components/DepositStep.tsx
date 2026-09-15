@@ -1,5 +1,5 @@
 import { buildPaymentUri } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { getChainIcon } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
@@ -117,6 +117,24 @@ export const DepositStep = () => {
     }
   }, [])
 
+  // Only the With amount option needs this, so a builder error must not take down the address QR
+  const paymentUri = useMemo(() => {
+    if (!quote?.depositAddress) return undefined
+
+    try {
+      return buildPaymentUri({
+        address: quote.depositAddress,
+        asset: quote.sellAsset,
+        amountCryptoPrecision: formatAmountForInput(
+          quote.sellAmountCryptoBaseUnit,
+          quote.sellAsset.precision,
+        ),
+      })
+    } catch {
+      return undefined
+    }
+  }, [quote])
+
   if (!quote?.depositAddress) return null
 
   // Polling continues this long after expiry, so a deposit already sent still resolves here
@@ -129,19 +147,6 @@ export const DepositStep = () => {
   // Ungrouped and unrounded - it's pasted into a wallet, and "send exactly" must mean it
   const sellAmount = formatAmountForInput(quote.sellAmountCryptoBaseUnit, quote.sellAsset.precision)
   const buyAmount = formatAmount(quote.buyAmountAfterFeesCryptoBaseUnit, quote.buyAsset.precision)
-
-  // Only the With amount option needs this, so a builder error must not take down the address QR
-  const paymentUri = (() => {
-    try {
-      return buildPaymentUri({
-        address: quote.depositAddress,
-        asset: quote.sellAsset,
-        amountCryptoPrecision: sellAmount,
-      })
-    } catch {
-      return undefined
-    }
-  })()
 
   // A chain with no adopted payment scheme already encodes the bare address
   const canIncludeAmount = !!paymentUri && paymentUri !== quote.depositAddress

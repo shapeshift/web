@@ -867,15 +867,19 @@
   white-space: nowrap;
 }
 
-.ssw-step-actions .ssw-secondary {
+/* New Swap and cancel buttons are neutral wherever they sit; the accent-tinted secondary is for the input step's redirect */
+.ssw-step-actions .ssw-secondary,
+.ssw-deposit > .ssw-secondary {
   background: var(--ssw-bg-tertiary);
   border: 1px solid var(--ssw-border);
   color: var(--ssw-text-secondary);
 }
 
-.ssw-step-actions .ssw-secondary:hover {
+.ssw-step-actions .ssw-secondary:hover,
+.ssw-deposit > .ssw-secondary:hover {
   border-color: var(--ssw-border-hover);
   color: var(--ssw-text-primary);
+  background: var(--ssw-bg-tertiary);
 }
 
 /* Outline button variant */

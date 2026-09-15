@@ -11,9 +11,12 @@ import {
 
 const ADDRESS = 'ADDRESS'
 
+// The only scheme that validates its address before encoding
+const SOLANA_ADDRESS = '11111111111111111111111111111111'
+
 const uriFor = (chainId: string) =>
   buildPaymentUri({
-    address: ADDRESS,
+    address: chainId === OTHER_CHAIN_IDS.solana ? SOLANA_ADDRESS : ADDRESS,
     asset: { assetId: `${chainId}/slip44:0`, chainId, precision: 8 },
     amountCryptoPrecision: '1.5',
   })

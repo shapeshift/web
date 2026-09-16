@@ -20,7 +20,7 @@ export type SwapMachineContext = {
   selectedRate: TradeRate | null
   quote: QuoteResponse | null
   txHash: string | null
-  // Provider-supplied links, known only on a deposit swap
+  // From the api status response - the widget can't derive the swapper's page itself
   txLink: string | null
   buyTxLink: string | null
   swapperTxLink: string | null

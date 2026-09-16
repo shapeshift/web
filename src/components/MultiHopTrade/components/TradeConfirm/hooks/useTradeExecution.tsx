@@ -573,6 +573,24 @@ export const useTradeExecution = (
               trackMixpanelEventOnExecute()
               return output
             },
+            // Sign only - the swapper broadcasts through its own api (bob gateway)
+            signTransaction: async (txToSign: SignTx<UtxoChainId>) => {
+              const inboundAddress = txToSign.outputs?.[0]?.address
+              if (inboundAddress) {
+                dispatch(
+                  tradeQuoteSlice.actions.setSwapInboundAddress({
+                    hopIndex,
+                    inboundAddress,
+                    id: confirmedTradeId,
+                  }),
+                )
+              }
+
+              const signedTx = await adapter.signTransaction({ txToSign, wallet })
+
+              trackMixpanelEventOnExecute()
+              return signedTx
+            },
           })
           cancelPollingRef.current = output?.cancelPolling
           return

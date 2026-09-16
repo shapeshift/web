@@ -62,6 +62,19 @@ describe('resolveDepositStatusEvent', () => {
     })
   })
 
+  it("fails with the provider's own message when there is one", () => {
+    expect(
+      resolveDepositStatusEvent(
+        { status: 'failed', statusMessage: 'Swap failed, funds refunded' },
+        true,
+        500,
+      ),
+    ).toEqual({
+      type: 'STATUS_FAILED',
+      error: 'Swap failed, funds refunded',
+    })
+  })
+
   it('keeps waiting while pending with no hash', () => {
     expect(resolveDepositStatusEvent({ status: 'pending' }, false, 500)).toBeUndefined()
   })

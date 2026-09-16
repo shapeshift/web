@@ -200,5 +200,6 @@ export const toResponse = (quoteId: string, swap: SwapServiceStatus): SwapStatus
   txLink: toExplorerTxLink(swap.sellAsset.assetId, swap.sellTxHash),
   buyTxLink: toExplorerTxLink(swap.buyAsset.assetId, swap.buyTxHash),
   swapperTxLink: swap.txLink ?? undefined,
+  statusMessage: swap.statusMessage ?? undefined,
   isAffiliateVerified: swap.isAffiliateVerified ?? undefined,
 })

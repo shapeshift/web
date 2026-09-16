@@ -18,8 +18,8 @@ export const getBobGatewayTradeRate = async (
 
   const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
   const sender = isBtcSell ? undefined : dummyAddressForChainId(sellAsset.chainId)
-  // utxo deposits are refunded on the sell chain, so the refund address must be a btc address
-  const refundAddress = isBtcSell ? dummyAddressForChainId(sellAsset.chainId) : undefined
+  // refunds go to the sell chain and the address is required by get-quote, so rates use a dummy
+  const refundAddress = dummyAddressForChainId(sellAsset.chainId)
 
   const maybeContext = await getBobGatewayTradeContext({
     input,

@@ -81,7 +81,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   // The swapper's own page already covers both legs, so the chain links are only a fallback
   const settledTxLinks = swapperTxLink
     ? [swapperLink]
-    : [sellTxLink, { url: buyTxLink, label: 'View payout' }]
+    : [sellTxLink, { url: buyTxLink, label: 'View received' }]
   const unsettledTxLinks = swapperTxLink ? [swapperLink] : [sellTxLink]
 
   const truncatedError = useMemo(

@@ -58,7 +58,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
 
         const parsedSlippage = parseFloat(context.slippage)
         if (isNaN(parsedSlippage) || parsedSlippage < 0) {
-          actorRef.send({ type: 'QUOTE_ERROR', error: 'Invalid slippage value' })
+          actorRef.send({ type: 'QUOTE_ERROR', error: 'Check your slippage setting' })
           return
         }
 
@@ -69,22 +69,23 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           : context.sellAmountBaseUnit
 
         if (!rateToUse || !amountBaseUnit) {
-          actorRef.send({ type: 'QUOTE_ERROR', error: 'No rate or amount available' })
+          actorRef.send({
+            type: 'QUOTE_ERROR',
+            error: 'Could not build a quote — please try again',
+          })
           return
         }
 
         if (!sendAddress) {
           actorRef.send({
             type: 'QUOTE_ERROR',
-            error: context.isDepositFlow
-              ? 'No refund address available'
-              : 'No wallet address available',
+            error: context.isDepositFlow ? 'Enter a refund address' : 'No wallet connected',
           })
           return
         }
 
         if (!receiveAddress) {
-          actorRef.send({ type: 'QUOTE_ERROR', error: 'No receive address available' })
+          actorRef.send({ type: 'QUOTE_ERROR', error: 'Enter a receive address' })
           return
         }
 

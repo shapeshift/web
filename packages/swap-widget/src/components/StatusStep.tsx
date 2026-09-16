@@ -59,8 +59,8 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     isDepositFlow,
   } = context
 
-  // On a deposit swap the linked tx is the deposit; what's pending is the provider's own swap
-  const explorerLabel = isDepositFlow ? 'View deposit' : 'View on Explorer'
+  // Names the leg, so it pairs with the buy link where both are shown
+  const explorerLabel = isDepositFlow ? 'View deposit' : 'View sent'
 
   // The swap may well have settled, so no failure wording and no retry quoting a second one
   const hasStoppedTracking = errorSource === 'TRACKING_TIMEOUT'

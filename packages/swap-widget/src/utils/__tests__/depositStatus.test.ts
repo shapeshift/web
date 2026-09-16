@@ -10,7 +10,7 @@ describe('resolveDepositStatusEvent', () => {
           status: 'submitted',
           txHash: '0xdeposit',
           txLink: 'https://explorer/tx/0xdeposit',
-          swapperTxLink: 'https://tracker/deposit',
+          swapperTxLink: 'https://swapper/deposit',
         },
         false,
         500,
@@ -19,7 +19,7 @@ describe('resolveDepositStatusEvent', () => {
       type: 'DEPOSIT_DETECTED',
       txHash: '0xdeposit',
       txLink: 'https://explorer/tx/0xdeposit',
-      swapperTxLink: 'https://tracker/deposit',
+      swapperTxLink: 'https://swapper/deposit',
       observedAt: 500,
     })
   })
@@ -37,7 +37,7 @@ describe('resolveDepositStatusEvent', () => {
           status: 'confirmed',
           txHash: '0xdeposit',
           buyTxLink: 'https://explorer/tx/0xpayout',
-          swapperTxLink: 'https://tracker/deposit',
+          swapperTxLink: 'https://swapper/deposit',
         },
         true,
         500,
@@ -45,7 +45,7 @@ describe('resolveDepositStatusEvent', () => {
     ).toEqual({
       type: 'STATUS_CONFIRMED',
       buyTxLink: 'https://explorer/tx/0xpayout',
-      swapperTxLink: 'https://tracker/deposit',
+      swapperTxLink: 'https://swapper/deposit',
     })
   })
 

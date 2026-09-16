@@ -73,16 +73,16 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   }, [txHash, isSellAssetUtxo, isSellAssetSolana, sellAsset.explorerTxLink])
 
   const sellTxLink: TxLink = { url: txLink ?? explorerUrl, label: explorerLabel }
-  const trackerTxLink: TxLink = {
+  const swapperLink: TxLink = {
     url: swapperTxLink,
     label: quote?.swapperName ? `View on ${quote.swapperName}` : 'View swap details',
   }
 
-  // The swapper's tracker already covers both legs, so the chain links are only a fallback
+  // The swapper's own page already covers both legs, so the chain links are only a fallback
   const settledTxLinks = swapperTxLink
-    ? [trackerTxLink]
+    ? [swapperLink]
     : [sellTxLink, { url: buyTxLink, label: 'View payout' }]
-  const unsettledTxLinks = swapperTxLink ? [trackerTxLink] : [sellTxLink]
+  const unsettledTxLinks = swapperTxLink ? [swapperLink] : [sellTxLink]
 
   const truncatedError = useMemo(
     () => (error && error.length > 100 ? `${error.slice(0, 100)}…` : error),
@@ -117,7 +117,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
                 } to send your ${buyAsset.symbol}.`
               : 'Your swap is being processed…'}
           </div>
-          <TxLinks links={[sellTxLink, trackerTxLink]} />
+          <TxLinks links={[sellTxLink, swapperLink]} />
           {isDepositFlow && !isPayment && (
             <div className='ssw-step-actions'>
               <button

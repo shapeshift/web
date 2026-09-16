@@ -75,14 +75,14 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   const sellTxLink: TxLink = { url: txLink ?? explorerUrl, label: explorerLabel }
   const trackerTxLink: TxLink = {
     url: swapperTxLink,
-    label: `Track on ${quote?.swapperName ?? 'provider'}`,
+    label: quote?.swapperName ? `View on ${quote.swapperName}` : 'View swap details',
   }
 
   // The swapper's tracker already covers both legs, so the chain links are only a fallback
   const settledTxLinks = swapperTxLink
     ? [trackerTxLink]
     : [sellTxLink, { url: buyTxLink, label: 'View payout' }]
-  const stoppedTrackingTxLinks = swapperTxLink ? [trackerTxLink] : [sellTxLink]
+  const unsettledTxLinks = swapperTxLink ? [trackerTxLink] : [sellTxLink]
 
   const truncatedError = useMemo(
     () => (error && error.length > 100 ? `${error.slice(0, 100)}…` : error),
@@ -117,7 +117,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
                 } to send your ${buyAsset.symbol}.`
               : 'Your swap is being processed…'}
           </div>
-          <TxLinks links={[sellTxLink]} />
+          <TxLinks links={[sellTxLink, trackerTxLink]} />
           {isDepositFlow && !isPayment && (
             <div className='ssw-step-actions'>
               <button
@@ -185,10 +185,10 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
             </svg>
           </div>
           <div className='ssw-step-title'>
-            {hasStoppedTracking ? 'Still Processing' : 'Transaction Failed'}
+            {hasStoppedTracking ? 'Still Processing' : 'Swap Failed'}
           </div>
           <div className='ssw-step-subtitle'>{truncatedError ?? 'Something went wrong'}</div>
-          {hasStoppedTracking && <TxLinks links={stoppedTrackingTxLinks} />}
+          <TxLinks links={unsettledTxLinks} />
           <div className='ssw-step-actions'>
             {!hasStoppedTracking && retryCount < 3 && (
               <button

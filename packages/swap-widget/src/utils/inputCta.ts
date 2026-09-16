@@ -46,12 +46,12 @@ export const getInputCta = ({
 
   if (!hasAmount) return { text: 'Enter an amount', disabled: true, action: 'none' }
 
-  if (isLoadingRates) return { text: 'Finding rates...', disabled: true, action: 'none' }
+  if (isLoadingRates) return { text: 'Finding rates…', disabled: true, action: 'none' }
 
   // Redirects even when rates fail, since the app may still have a route
   if (isUnsupportedChain && !isDepositRoute) return getUnsupportedCta(allowShapeshiftRedirect)
 
-  if (hasRatesError) return { text: 'No routes available', disabled: true, action: 'none' }
+  if (hasRatesError) return { text: 'Rates unavailable', disabled: true, action: 'none' }
   if (!hasRates) return { text: 'No routes found', disabled: true, action: 'none' }
 
   // A deposit route needs no wallet, so it outranks both connecting and the redirect

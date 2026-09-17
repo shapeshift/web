@@ -20,7 +20,6 @@ const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
   </a>
 )
 
-// What failed, rather than calling every failure a failed swap
 const ERROR_TITLES: Record<ErrorSource, string> = {
   QUOTE_ERROR: 'Quote Failed',
   APPROVAL_ERROR: 'Approval Failed',

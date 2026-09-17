@@ -5,10 +5,21 @@ import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../deposit
 describe('resolveDepositStatusEvent', () => {
   it('reports a deposit once the sell tx hash appears', () => {
     expect(
-      resolveDepositStatusEvent({ status: 'submitted', txHash: '0xdeposit' }, false, 500),
+      resolveDepositStatusEvent(
+        {
+          status: 'submitted',
+          txHash: '0xdeposit',
+          txLink: 'https://explorer/tx/0xdeposit',
+          swapperTxLink: 'https://swapper/deposit',
+        },
+        false,
+        500,
+      ),
     ).toEqual({
       type: 'DEPOSIT_DETECTED',
       txHash: '0xdeposit',
+      txLink: 'https://explorer/tx/0xdeposit',
+      swapperTxLink: 'https://swapper/deposit',
       observedAt: 500,
     })
   })
@@ -21,9 +32,20 @@ describe('resolveDepositStatusEvent', () => {
 
   it('confirms the swap', () => {
     expect(
-      resolveDepositStatusEvent({ status: 'confirmed', txHash: '0xdeposit' }, true, 500),
+      resolveDepositStatusEvent(
+        {
+          status: 'confirmed',
+          txHash: '0xdeposit',
+          buyTxLink: 'https://explorer/tx/0xpayout',
+          swapperTxLink: 'https://swapper/deposit',
+        },
+        true,
+        500,
+      ),
     ).toEqual({
       type: 'STATUS_CONFIRMED',
+      buyTxLink: 'https://explorer/tx/0xpayout',
+      swapperTxLink: 'https://swapper/deposit',
     })
   })
 
@@ -36,7 +58,43 @@ describe('resolveDepositStatusEvent', () => {
   it('fails the swap', () => {
     expect(resolveDepositStatusEvent({ status: 'failed' }, true, 500)).toEqual({
       type: 'STATUS_FAILED',
-      error: 'Swap failed',
+      error: 'Something went wrong',
+    })
+  })
+
+  it('fails with the swapper link, even before a deposit was seen', () => {
+    expect(
+      resolveDepositStatusEvent(
+        { status: 'failed', swapperTxLink: 'https://swapper/deposit' },
+        false,
+        500,
+      ),
+    ).toEqual({
+      type: 'STATUS_FAILED',
+      error: 'Something went wrong',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+  })
+
+  it('reports a swapper link that appears after the deposit was seen', () => {
+    const response = {
+      status: 'submitted' as const,
+      txHash: '0xdeposit',
+      swapperTxLink: 'https://swapper/deposit',
+    }
+
+    expect(resolveDepositStatusEvent(response, true, 500, null)).toEqual({
+      type: 'SWAPPER_TX_LINK_UPDATED',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+    expect(
+      resolveDepositStatusEvent(response, true, 500, 'https://swapper/deposit'),
+    ).toBeUndefined()
+    expect(
+      resolveDepositStatusEvent({ ...response, status: 'confirmed' }, true, 500, null),
+    ).toEqual({
+      type: 'STATUS_CONFIRMED',
+      swapperTxLink: 'https://swapper/deposit',
     })
   })
 

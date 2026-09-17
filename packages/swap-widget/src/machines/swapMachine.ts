@@ -37,6 +37,9 @@ export const createInitialContext = (input?: {
     selectedRate: null,
     quote: null,
     txHash: null,
+    txLink: null,
+    buyTxLink: null,
+    swapperTxLink: null,
     depositObservedAt: null,
     approvalTxHash: null,
     error: null,
@@ -174,18 +177,34 @@ export const swapMachine = setup({
         (event as { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }).isDepositFlow === true,
     })),
     assignDepositTxHash: assign(({ event }) => {
-      const { txHash, observedAt } = event as Extract<
+      const { txHash, txLink, swapperTxLink, observedAt } = event as Extract<
         SwapMachineEvent,
         { type: 'DEPOSIT_DETECTED' }
       >
-      return { txHash, depositObservedAt: observedAt }
+      return {
+        txHash,
+        txLink: txLink ?? null,
+        swapperTxLink: swapperTxLink ?? null,
+        depositObservedAt: observedAt,
+      }
+    }),
+    assignConfirmedTxLinks: assign(({ context, event }) => {
+      const { buyTxLink, swapperTxLink } = event as Extract<
+        SwapMachineEvent,
+        { type: 'STATUS_CONFIRMED' }
+      >
+      return {
+        buyTxLink: buyTxLink ?? null,
+        swapperTxLink: swapperTxLink ?? context.swapperTxLink,
+      }
     }),
     assignDepositUnavailableError: assign(() => ({
       error: 'This route needs a connected wallet',
       errorSource: 'QUOTE_ERROR' as const,
     })),
     assignTrackingTimeout: assign(() => ({
-      error: 'Check your receive address - the provider may still settle this swap',
+      error:
+        'Funds may still arrive at your receive address, or be refunded to your refund address.',
       errorSource: 'TRACKING_TIMEOUT' as const,
     })),
     assignRestoredDeposit: assign(({ event }) => {
@@ -229,10 +248,21 @@ export const swapMachine = setup({
       error: (event as { type: 'EXECUTE_ERROR'; error: string }).error,
       errorSource: 'EXECUTE_ERROR' as const,
     })),
-    assignStatusFailed: assign(({ event }) => ({
-      error: (event as { type: 'STATUS_FAILED'; error: string }).error,
-      errorSource: 'STATUS_FAILED' as const,
-    })),
+    assignStatusFailed: assign(({ context, event }) => {
+      const { error, swapperTxLink } = event as Extract<SwapMachineEvent, { type: 'STATUS_FAILED' }>
+      return {
+        error,
+        errorSource: 'STATUS_FAILED' as const,
+        swapperTxLink: swapperTxLink ?? context.swapperTxLink,
+      }
+    }),
+    assignSwapperTxLink: assign(({ event }) => {
+      const { swapperTxLink } = event as Extract<
+        SwapMachineEvent,
+        { type: 'SWAPPER_TX_LINK_UPDATED' }
+      >
+      return { swapperTxLink }
+    }),
     assignSendAddress: assign(({ event }) => ({
       sendAddress: (event as { type: 'SET_SEND_ADDRESS'; address: string | undefined }).address,
     })),
@@ -273,12 +303,18 @@ export const swapMachine = setup({
       errorSource: null,
       // Every retry re-quotes or re-signs, so a carried-over hash would mark the next one funded
       txHash: null,
+      txLink: null,
+      buyTxLink: null,
+      swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
       txHash: null,
+      txLink: null,
+      buyTxLink: null,
+      swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
       error: null,
@@ -396,7 +432,7 @@ export const swapMachine = setup({
       on: {
         DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
         DEPOSIT_EXPIRED: { target: 'deposit_expired' },
-        STATUS_CONFIRMED: { target: 'complete' },
+        STATUS_CONFIRMED: { target: 'complete', actions: 'assignConfirmedTxLinks' },
         STATUS_FAILED: { target: 'error', actions: 'assignStatusFailed' },
         RESET: { target: 'input', actions: 'resetSwapState' },
       },
@@ -404,7 +440,7 @@ export const swapMachine = setup({
     deposit_expired: {
       on: {
         DEPOSIT_DETECTED: { target: 'polling_status', actions: 'assignDepositTxHash' },
-        STATUS_CONFIRMED: { target: 'complete' },
+        STATUS_CONFIRMED: { target: 'complete', actions: 'assignConfirmedTxLinks' },
         STATUS_FAILED: { target: 'error', actions: 'assignStatusFailed' },
         RETRY: { target: 'quoting', actions: 'incrementRetryCount' },
         RESET: { target: 'input', actions: 'resetSwapState' },
@@ -412,11 +448,12 @@ export const swapMachine = setup({
     },
     polling_status: {
       on: {
-        STATUS_CONFIRMED: { target: 'complete' },
+        STATUS_CONFIRMED: { target: 'complete', actions: 'assignConfirmedTxLinks' },
         STATUS_FAILED: {
           target: 'error',
           actions: 'assignStatusFailed',
         },
+        SWAPPER_TX_LINK_UPDATED: { actions: 'assignSwapperTxLink' },
         // The one deposit screen with no controls of its own, so it can't be left spinning
         DEPOSIT_TRACKING_TIMEOUT: {
           target: 'error',

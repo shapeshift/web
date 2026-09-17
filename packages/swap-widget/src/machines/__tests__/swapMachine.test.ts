@@ -1095,6 +1095,56 @@ describe('a deposit flow always reaches a terminal state', () => {
     failed.stop()
   })
 
+  it('keeps the swapper link from detection when the confirmation omits it', () => {
+    const actor = restoreInto(undefined)
+    actor.send({
+      type: 'DEPOSIT_DETECTED',
+      txHash: '0xdead',
+      txLink: 'https://explorer/tx/0xdead',
+      swapperTxLink: 'https://swapper/deposit',
+      observedAt: 5_000,
+    })
+    actor.send({ type: 'STATUS_CONFIRMED', buyTxLink: 'https://explorer/tx/0xpayout' })
+
+    expect(actor.getSnapshot().context).toMatchObject({
+      txLink: 'https://explorer/tx/0xdead',
+      buyTxLink: 'https://explorer/tx/0xpayout',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+
+    actor.send({ type: 'RESET' })
+    expect(actor.getSnapshot().context).toMatchObject({
+      txLink: null,
+      buyTxLink: null,
+      swapperTxLink: null,
+    })
+    actor.stop()
+  })
+
+  it('picks up a swapper link mid-swap and keeps it on failure', () => {
+    const actor = restoreInto('0xdead')
+    actor.send({ type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: 'https://swapper/deposit' })
+    expect(actor.getSnapshot().matches('polling_status')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+
+    actor.send({ type: 'STATUS_FAILED', error: 'Swap failed' })
+    expect(actor.getSnapshot().matches('error')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+    actor.stop()
+  })
+
+  it('keeps the swapper link from a failure before the deposit was seen', () => {
+    const actor = restoreInto(undefined)
+    actor.send({
+      type: 'STATUS_FAILED',
+      error: 'Swap failed',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+    expect(actor.getSnapshot().matches('error')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+    actor.stop()
+  })
+
   it('leaves a funded deposit we can no longer follow rather than spinning on it', () => {
     const actor = restoreInto('0xdead')
     actor.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })

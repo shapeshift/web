@@ -52,12 +52,17 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
           const response = (await apiClient.getSwapStatus({ quoteId })) as DepositStatusResponse
           if (stopped) return
 
-          const event = resolveDepositStatusEvent(response, !!depositObservedAt, Date.now())
+          const event = resolveDepositStatusEvent(
+            response,
+            !!depositObservedAt,
+            Date.now(),
+            actorRef.getSnapshot().context.swapperTxLink,
+          )
 
-          // Every event leaves this state, and the state change restarts polling where it still applies
           if (event) {
             actorRef.send(event)
-            return
+            // Every other event leaves this state, and the state change restarts polling
+            if (event.type !== 'SWAPPER_TX_LINK_UPDATED') return
           }
         } catch (error) {
           if (stopped) return

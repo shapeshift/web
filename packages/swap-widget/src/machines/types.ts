@@ -20,6 +20,10 @@ export type SwapMachineContext = {
   selectedRate: TradeRate | null
   quote: QuoteResponse | null
   txHash: string | null
+  // From the api status response - the widget can't derive the swapper's page itself
+  txLink: string | null
+  buyTxLink: string | null
+  swapperTxLink: string | null
   // Start of the settlement tracking window
   depositObservedAt: number | null
   approvalTxHash: string | null
@@ -52,9 +56,16 @@ export type SwapMachineEvent =
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }
   | { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }
-  | { type: 'DEPOSIT_DETECTED'; txHash: string; observedAt: number }
+  | {
+      type: 'DEPOSIT_DETECTED'
+      txHash: string
+      txLink?: string
+      swapperTxLink?: string
+      observedAt: number
+    }
   | { type: 'DEPOSIT_EXPIRED' }
   | { type: 'DEPOSIT_TRACKING_TIMEOUT' }
+  | { type: 'SWAPPER_TX_LINK_UPDATED'; swapperTxLink: string }
   | {
       type: 'RESTORE_DEPOSIT'
       quote: QuoteResponse
@@ -72,8 +83,8 @@ export type SwapMachineEvent =
   | { type: 'APPROVAL_ERROR'; error: string }
   | { type: 'EXECUTE_SUCCESS'; txHash: string }
   | { type: 'EXECUTE_ERROR'; error: string }
-  | { type: 'STATUS_CONFIRMED' }
-  | { type: 'STATUS_FAILED'; error: string }
+  | { type: 'STATUS_CONFIRMED'; buyTxLink?: string; swapperTxLink?: string }
+  | { type: 'STATUS_FAILED'; error: string; swapperTxLink?: string }
   | { type: 'RETRY' }
   | { type: 'RESET' }
   | { type: 'SET_SEND_ADDRESS'; address: string | undefined }

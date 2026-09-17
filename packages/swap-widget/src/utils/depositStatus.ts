@@ -1,20 +1,51 @@
 import type { SwapMachineEvent } from '../machines/types'
+import { GENERIC_ERROR_MESSAGE } from './errors'
 
 export type DepositStatusResponse = {
   status: 'pending' | 'submitted' | 'confirmed' | 'failed'
   txHash?: string
+  txLink?: string
+  buyTxLink?: string
+  swapperTxLink?: string
 }
 
 export const resolveDepositStatusEvent = (
   response: DepositStatusResponse,
   hasDetectedDeposit: boolean,
   observedAt: number,
+  knownSwapperTxLink?: string | null,
 ): SwapMachineEvent | undefined => {
   if (!hasDetectedDeposit && response.txHash) {
-    return { type: 'DEPOSIT_DETECTED', txHash: response.txHash, observedAt }
+    return {
+      type: 'DEPOSIT_DETECTED',
+      txHash: response.txHash,
+      txLink: response.txLink,
+      swapperTxLink: response.swapperTxLink,
+      observedAt,
+    }
   }
-  if (response.status === 'failed') return { type: 'STATUS_FAILED', error: 'Swap failed' }
-  if (response.status === 'confirmed') return { type: 'STATUS_CONFIRMED' }
+  if (response.status === 'failed') {
+    return {
+      type: 'STATUS_FAILED',
+      error: GENERIC_ERROR_MESSAGE,
+      swapperTxLink: response.swapperTxLink,
+    }
+  }
+  if (response.status === 'confirmed') {
+    return {
+      type: 'STATUS_CONFIRMED',
+      buyTxLink: response.buyTxLink,
+      swapperTxLink: response.swapperTxLink,
+    }
+  }
+  // Some providers only have a page once they've seen the deposit, which can land after detection
+  if (
+    hasDetectedDeposit &&
+    response.swapperTxLink &&
+    response.swapperTxLink !== knownSwapperTxLink
+  ) {
+    return { type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: response.swapperTxLink }
+  }
 }
 
 // A deposit landing this long past the deadline may still be credited, so the window outlasts it

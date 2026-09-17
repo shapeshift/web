@@ -75,8 +75,8 @@ export type SwapMachineEvent =
       buyAmountBaseUnit: string | undefined
       txHash: string | undefined
       depositObservedAt: number | undefined
-      txLink: string | undefined
-      swapperTxLink: string | undefined
+      txLink?: string
+      swapperTxLink?: string
     }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }

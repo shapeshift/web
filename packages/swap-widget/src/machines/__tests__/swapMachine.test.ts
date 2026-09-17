@@ -534,7 +534,7 @@ describe('swapMachine', () => {
       expect(txLink).toBe(`${sellAsset.explorerTxLink}0xTxHash`)
 
       // The api reports the same link it derives from the same asset, so nothing changes
-      actor.send({ type: 'TX_LINKS_UPDATED', txLink })
+      actor.send({ type: 'TX_LINKS_UPDATED', txLink: txLink ?? undefined })
       expect(actor.getSnapshot().context.txLink).toBe(txLink)
       actor.stop()
     })

@@ -14,8 +14,8 @@ export type PendingDeposit = {
   txHash: string | undefined
   depositObservedAt: number | undefined
   // Saved so a reload shows the same links, rather than blanks until the next poll answers
-  txLink: string | undefined
-  swapperTxLink: string | undefined
+  txLink?: string
+  swapperTxLink?: string
 }
 
 const isRestorableAsset = (value: unknown): boolean => {

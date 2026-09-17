@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../depositStatus'
+import {
+  resolveDepositStatusEvent,
+  resolveSwapperTxLinkEvent,
+  shouldKeepTrackingDeposit,
+} from '../depositStatus'
 
 describe('resolveDepositStatusEvent', () => {
   it('reports a deposit once the sell tx hash appears', () => {
@@ -100,6 +104,27 @@ describe('resolveDepositStatusEvent', () => {
 
   it('keeps waiting while pending with no hash', () => {
     expect(resolveDepositStatusEvent({ status: 'pending' }, false, 500)).toBeUndefined()
+  })
+})
+
+describe('resolveSwapperTxLinkEvent', () => {
+  it('reports a link the caller does not have yet', () => {
+    expect(
+      resolveSwapperTxLinkEvent(
+        { status: 'submitted', swapperTxLink: 'https://swapper/swap' },
+        null,
+      ),
+    ).toEqual({ type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: 'https://swapper/swap' })
+  })
+
+  it('stays quiet when the link is unchanged or absent', () => {
+    expect(
+      resolveSwapperTxLinkEvent(
+        { status: 'submitted', swapperTxLink: 'https://swapper/swap' },
+        'https://swapper/swap',
+      ),
+    ).toBeUndefined()
+    expect(resolveSwapperTxLinkEvent({ status: 'submitted' }, null)).toBeUndefined()
   })
 })
 

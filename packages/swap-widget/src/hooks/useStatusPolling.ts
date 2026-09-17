@@ -4,7 +4,11 @@ import type { ApiClient } from '../api/client'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { isPermanentApiError } from '../utils/apiError'
 import type { SwapStatusResponse } from '../utils/depositStatus'
-import { isWithinSettlementWindow, resolveSettledSwapEvent } from '../utils/depositStatus'
+import {
+  isWithinSettlementWindow,
+  resolveSettledSwapEvent,
+  resolveSwapperTxLinkEvent,
+} from '../utils/depositStatus'
 
 const POLL_INTERVAL_MS = 5000
 
@@ -47,11 +51,14 @@ export const useStatusPolling = ({ apiClient }: UseStatusPollingParams) => {
         })) as SwapStatusResponse
         if (stopped) return
 
-        const event = resolveSettledSwapEvent(response)
+        const { swapperTxLink } = actorRef.getSnapshot().context
+        const event =
+          resolveSettledSwapEvent(response) ?? resolveSwapperTxLinkEvent(response, swapperTxLink)
 
         if (event) {
           actorRef.send(event)
-          return
+          // Every other event leaves this state, and the state change restarts polling
+          if (event.type !== 'SWAPPER_TX_LINK_UPDATED') return
         }
       } catch (error) {
         if (stopped) return

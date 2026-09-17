@@ -28,6 +28,16 @@ export const resolveSettledSwapEvent = (
   }
 }
 
+// Some providers only publish a page once they've seen the funds, landing after tracking starts
+export const resolveSwapperTxLinkEvent = (
+  response: SwapStatusResponse,
+  knownSwapperTxLink: string | null | undefined,
+): SwapMachineEvent | undefined => {
+  if (!response.swapperTxLink || response.swapperTxLink === knownSwapperTxLink) return
+
+  return { type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: response.swapperTxLink }
+}
+
 export const resolveDepositStatusEvent = (
   response: SwapStatusResponse,
   hasDetectedDeposit: boolean,
@@ -47,14 +57,8 @@ export const resolveDepositStatusEvent = (
   const settledEvent = resolveSettledSwapEvent(response)
   if (settledEvent) return settledEvent
 
-  // Some providers only have a page once they've seen the deposit, which can land after detection
-  if (
-    hasDetectedDeposit &&
-    response.swapperTxLink &&
-    response.swapperTxLink !== knownSwapperTxLink
-  ) {
-    return { type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: response.swapperTxLink }
-  }
+  // Before detection the link rides along on DEPOSIT_DETECTED
+  if (hasDetectedDeposit) return resolveSwapperTxLinkEvent(response, knownSwapperTxLink)
 }
 
 // A deposit landing this long past the deadline may still be credited, so the window outlasts it

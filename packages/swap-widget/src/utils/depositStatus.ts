@@ -13,6 +13,7 @@ export const resolveDepositStatusEvent = (
   response: DepositStatusResponse,
   hasDetectedDeposit: boolean,
   observedAt: number,
+  knownSwapperTxLink?: string | null,
 ): SwapMachineEvent | undefined => {
   if (!hasDetectedDeposit && response.txHash) {
     return {
@@ -24,7 +25,11 @@ export const resolveDepositStatusEvent = (
     }
   }
   if (response.status === 'failed') {
-    return { type: 'STATUS_FAILED', error: response.statusMessage ?? 'Swap failed' }
+    return {
+      type: 'STATUS_FAILED',
+      error: response.statusMessage ?? 'Swap failed',
+      swapperTxLink: response.swapperTxLink,
+    }
   }
   if (response.status === 'confirmed') {
     return {
@@ -32,6 +37,14 @@ export const resolveDepositStatusEvent = (
       buyTxLink: response.buyTxLink,
       swapperTxLink: response.swapperTxLink,
     }
+  }
+  // Some providers only have a page once they've seen the deposit, which can land after detection
+  if (
+    hasDetectedDeposit &&
+    response.swapperTxLink &&
+    response.swapperTxLink !== knownSwapperTxLink
+  ) {
+    return { type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: response.swapperTxLink }
   }
 }
 

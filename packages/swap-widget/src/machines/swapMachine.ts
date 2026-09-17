@@ -247,10 +247,21 @@ export const swapMachine = setup({
       error: (event as { type: 'EXECUTE_ERROR'; error: string }).error,
       errorSource: 'EXECUTE_ERROR' as const,
     })),
-    assignStatusFailed: assign(({ event }) => ({
-      error: (event as { type: 'STATUS_FAILED'; error: string }).error,
-      errorSource: 'STATUS_FAILED' as const,
-    })),
+    assignStatusFailed: assign(({ context, event }) => {
+      const { error, swapperTxLink } = event as Extract<SwapMachineEvent, { type: 'STATUS_FAILED' }>
+      return {
+        error,
+        errorSource: 'STATUS_FAILED' as const,
+        swapperTxLink: swapperTxLink ?? context.swapperTxLink,
+      }
+    }),
+    assignSwapperTxLink: assign(({ event }) => {
+      const { swapperTxLink } = event as Extract<
+        SwapMachineEvent,
+        { type: 'SWAPPER_TX_LINK_UPDATED' }
+      >
+      return { swapperTxLink }
+    }),
     assignSendAddress: assign(({ event }) => ({
       sendAddress: (event as { type: 'SET_SEND_ADDRESS'; address: string | undefined }).address,
     })),
@@ -441,6 +452,7 @@ export const swapMachine = setup({
           target: 'error',
           actions: 'assignStatusFailed',
         },
+        SWAPPER_TX_LINK_UPDATED: { actions: 'assignSwapperTxLink' },
         // The one deposit screen with no controls of its own, so it can't be left spinning
         DEPOSIT_TRACKING_TIMEOUT: {
           target: 'error',

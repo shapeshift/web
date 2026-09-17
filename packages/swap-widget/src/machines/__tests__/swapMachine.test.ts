@@ -1121,6 +1121,30 @@ describe('a deposit flow always reaches a terminal state', () => {
     actor.stop()
   })
 
+  it('picks up a swapper link mid-swap and keeps it on failure', () => {
+    const actor = restoreInto('0xdead')
+    actor.send({ type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: 'https://swapper/deposit' })
+    expect(actor.getSnapshot().matches('polling_status')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+
+    actor.send({ type: 'STATUS_FAILED', error: 'Swap failed' })
+    expect(actor.getSnapshot().matches('error')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+    actor.stop()
+  })
+
+  it('keeps the swapper link from a failure before the deposit was seen', () => {
+    const actor = restoreInto(undefined)
+    actor.send({
+      type: 'STATUS_FAILED',
+      error: 'Swap failed',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+    expect(actor.getSnapshot().matches('error')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+    actor.stop()
+  })
+
   it('leaves a funded deposit we can no longer follow rather than spinning on it', () => {
     const actor = restoreInto('0xdead')
     actor.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })

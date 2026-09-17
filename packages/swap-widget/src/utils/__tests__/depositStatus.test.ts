@@ -75,6 +75,42 @@ describe('resolveDepositStatusEvent', () => {
     })
   })
 
+  it('fails with the swapper link, even before a deposit was seen', () => {
+    expect(
+      resolveDepositStatusEvent(
+        { status: 'failed', swapperTxLink: 'https://swapper/deposit' },
+        false,
+        500,
+      ),
+    ).toEqual({
+      type: 'STATUS_FAILED',
+      error: 'Swap failed',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+  })
+
+  it('reports a swapper link that appears after the deposit was seen', () => {
+    const response = {
+      status: 'submitted' as const,
+      txHash: '0xdeposit',
+      swapperTxLink: 'https://swapper/deposit',
+    }
+
+    expect(resolveDepositStatusEvent(response, true, 500, null)).toEqual({
+      type: 'SWAPPER_TX_LINK_UPDATED',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+    expect(
+      resolveDepositStatusEvent(response, true, 500, 'https://swapper/deposit'),
+    ).toBeUndefined()
+    expect(
+      resolveDepositStatusEvent({ ...response, status: 'confirmed' }, true, 500, null),
+    ).toEqual({
+      type: 'STATUS_CONFIRMED',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+  })
+
   it('keeps waiting while pending with no hash', () => {
     expect(resolveDepositStatusEvent({ status: 'pending' }, false, 500)).toBeUndefined()
   })

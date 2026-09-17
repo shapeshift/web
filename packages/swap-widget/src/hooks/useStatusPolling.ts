@@ -7,7 +7,7 @@ import type { SwapStatusResponse } from '../utils/swapStatus'
 import {
   isWithinSettlementWindow,
   resolveSettledSwapEvent,
-  resolveSwapperTxLinkEvent,
+  resolveTxLinksEvent,
 } from '../utils/swapStatus'
 
 const POLL_INTERVAL_MS = 5000
@@ -51,14 +51,15 @@ export const useStatusPolling = ({ apiClient }: UseStatusPollingParams) => {
         })) as SwapStatusResponse
         if (stopped) return
 
-        const { swapperTxLink } = actorRef.getSnapshot().context
+        const { txLink, swapperTxLink } = actorRef.getSnapshot().context
         const event =
-          resolveSettledSwapEvent(response) ?? resolveSwapperTxLinkEvent(response, swapperTxLink)
+          resolveSettledSwapEvent(response) ??
+          resolveTxLinksEvent(response, { txLink, swapperTxLink })
 
         if (event) {
           actorRef.send(event)
           // Every other event leaves this state, and the state change restarts polling
-          if (event.type !== 'SWAPPER_TX_LINK_UPDATED') return
+          if (event.type !== 'TX_LINKS_UPDATED') return
         }
       } catch (error) {
         if (stopped) return

@@ -13,6 +13,9 @@ export type PendingDeposit = {
   // Both set once the provider reports the deposit, so a reload rejoins settlement
   txHash: string | undefined
   depositObservedAt: number | undefined
+  // Saved so a reload shows the same links, rather than blanks until the next poll answers
+  txLink: string | undefined
+  swapperTxLink: string | undefined
 }
 
 const isRestorableAsset = (value: unknown): boolean => {

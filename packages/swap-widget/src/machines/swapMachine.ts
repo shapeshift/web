@@ -189,11 +189,12 @@ export const swapMachine = setup({
       }
     }),
     assignConfirmedTxLinks: assign(({ context, event }) => {
-      const { buyTxLink, swapperTxLink } = event as Extract<
+      const { txLink, buyTxLink, swapperTxLink } = event as Extract<
         SwapMachineEvent,
         { type: 'STATUS_CONFIRMED' }
       >
       return {
+        txLink: txLink ?? context.txLink,
         buyTxLink: buyTxLink ?? null,
         swapperTxLink: swapperTxLink ?? context.swapperTxLink,
       }
@@ -216,6 +217,8 @@ export const swapMachine = setup({
         buyAmountBaseUnit,
         txHash,
         depositObservedAt,
+        txLink,
+        swapperTxLink,
       } = event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>
       const { sellAsset, buyAsset } = quote
       return {
@@ -224,6 +227,8 @@ export const swapMachine = setup({
         receiveAddress,
         txHash: txHash ?? null,
         depositObservedAt: depositObservedAt ?? null,
+        txLink: txLink ?? null,
+        swapperTxLink: swapperTxLink ?? null,
         isDepositFlow: true,
         sellAsset,
         buyAsset,
@@ -249,19 +254,26 @@ export const swapMachine = setup({
       errorSource: 'EXECUTE_ERROR' as const,
     })),
     assignStatusFailed: assign(({ context, event }) => {
-      const { error, swapperTxLink } = event as Extract<SwapMachineEvent, { type: 'STATUS_FAILED' }>
+      const { error, txLink, swapperTxLink } = event as Extract<
+        SwapMachineEvent,
+        { type: 'STATUS_FAILED' }
+      >
       return {
         error,
         errorSource: 'STATUS_FAILED' as const,
+        txLink: txLink ?? context.txLink,
         swapperTxLink: swapperTxLink ?? context.swapperTxLink,
       }
     }),
-    assignSwapperTxLink: assign(({ event }) => {
-      const { swapperTxLink } = event as Extract<
+    assignTxLinks: assign(({ context, event }) => {
+      const { txLink, swapperTxLink } = event as Extract<
         SwapMachineEvent,
-        { type: 'SWAPPER_TX_LINK_UPDATED' }
+        { type: 'TX_LINKS_UPDATED' }
       >
-      return { swapperTxLink }
+      return {
+        txLink: txLink ?? context.txLink,
+        swapperTxLink: swapperTxLink ?? context.swapperTxLink,
+      }
     }),
     assignSendAddress: assign(({ event }) => ({
       sendAddress: (event as { type: 'SET_SEND_ADDRESS'; address: string | undefined }).address,
@@ -453,7 +465,7 @@ export const swapMachine = setup({
           target: 'error',
           actions: 'assignStatusFailed',
         },
-        SWAPPER_TX_LINK_UPDATED: { actions: 'assignSwapperTxLink' },
+        TX_LINKS_UPDATED: { actions: 'assignTxLinks' },
         // This screen has no controls, so a swap the api stops following can't be left spinning
         TRACKING_TIMEOUT: {
           target: 'error',

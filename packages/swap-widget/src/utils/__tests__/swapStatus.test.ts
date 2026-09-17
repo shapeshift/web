@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   resolveDepositStatusEvent,
-  resolveSwapperTxLinkEvent,
+  resolveTxLinksEvent,
   shouldKeepTrackingDeposit,
 } from '../swapStatus'
 
@@ -84,20 +84,25 @@ describe('resolveDepositStatusEvent', () => {
     const response = {
       status: 'submitted' as const,
       txHash: '0xdeposit',
+      txLink: 'https://explorer/tx/0xdeposit',
       swapperTxLink: 'https://swapper/deposit',
     }
+    const known = 'https://explorer/tx/0xdeposit'
 
-    expect(resolveDepositStatusEvent(response, true, 500, null)).toEqual({
-      type: 'SWAPPER_TX_LINK_UPDATED',
+    expect(resolveDepositStatusEvent(response, true, 500, known, null)).toEqual({
+      type: 'TX_LINKS_UPDATED',
+      txLink: undefined,
       swapperTxLink: 'https://swapper/deposit',
     })
     expect(
-      resolveDepositStatusEvent(response, true, 500, 'https://swapper/deposit'),
+      resolveDepositStatusEvent(response, true, 500, known, 'https://swapper/deposit'),
     ).toBeUndefined()
     expect(
-      resolveDepositStatusEvent({ ...response, status: 'confirmed' }, true, 500, null),
+      resolveDepositStatusEvent({ ...response, status: 'confirmed' }, true, 500, known, null),
     ).toEqual({
       type: 'STATUS_CONFIRMED',
+      txLink: 'https://explorer/tx/0xdeposit',
+      buyTxLink: undefined,
       swapperTxLink: 'https://swapper/deposit',
     })
   })
@@ -107,24 +112,44 @@ describe('resolveDepositStatusEvent', () => {
   })
 })
 
-describe('resolveSwapperTxLinkEvent', () => {
-  it('reports a link the caller does not have yet', () => {
-    expect(
-      resolveSwapperTxLinkEvent(
-        { status: 'submitted', swapperTxLink: 'https://swapper/swap' },
-        null,
-      ),
-    ).toEqual({ type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: 'https://swapper/swap' })
+describe('resolveTxLinksEvent', () => {
+  const response = {
+    status: 'submitted' as const,
+    txLink: 'https://explorer/tx/0xsell',
+    swapperTxLink: 'https://swapper/swap',
+  }
+
+  it('reports both links on the first poll that carries them', () => {
+    expect(resolveTxLinksEvent(response, { txLink: null, swapperTxLink: null })).toEqual({
+      type: 'TX_LINKS_UPDATED',
+      txLink: 'https://explorer/tx/0xsell',
+      swapperTxLink: 'https://swapper/swap',
+    })
   })
 
-  it('stays quiet when the link is unchanged or absent', () => {
+  it('reports only the link the caller does not have yet', () => {
     expect(
-      resolveSwapperTxLinkEvent(
-        { status: 'submitted', swapperTxLink: 'https://swapper/swap' },
-        'https://swapper/swap',
-      ),
+      resolveTxLinksEvent(response, {
+        txLink: 'https://explorer/tx/0xsell',
+        swapperTxLink: null,
+      }),
+    ).toEqual({
+      type: 'TX_LINKS_UPDATED',
+      txLink: undefined,
+      swapperTxLink: 'https://swapper/swap',
+    })
+  })
+
+  it('stays quiet when both links are unchanged or absent', () => {
+    expect(
+      resolveTxLinksEvent(response, {
+        txLink: 'https://explorer/tx/0xsell',
+        swapperTxLink: 'https://swapper/swap',
+      }),
     ).toBeUndefined()
-    expect(resolveSwapperTxLinkEvent({ status: 'submitted' }, null)).toBeUndefined()
+    expect(
+      resolveTxLinksEvent({ status: 'submitted' }, { txLink: null, swapperTxLink: null }),
+    ).toBeUndefined()
   })
 })
 

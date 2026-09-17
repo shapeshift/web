@@ -250,15 +250,6 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       state,
       reset,
     }),
-    [
-      isConnected,
-      address,
-      sendTransfer,
-      signPsbt,
-      signMessage,
-      getAccountAddresses,
-      state,
-      reset,
-    ],
+    [isConnected, address, sendTransfer, signPsbt, signMessage, getAccountAddresses, state, reset],
   )
 }

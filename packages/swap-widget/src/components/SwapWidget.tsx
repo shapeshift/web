@@ -145,6 +145,8 @@ const SwapWidgetContent = ({
         buyAmountBaseUnit: snap.context.buyAmountBaseUnit,
         txHash: txHash ?? undefined,
         depositObservedAt: depositObservedAt ?? undefined,
+        txLink: snap.context.txLink ?? undefined,
+        swapperTxLink: snap.context.swapperTxLink ?? undefined,
       })
       hasSavedDepositRef.current = true
       return
@@ -483,6 +485,8 @@ const SwapWidgetCore = ({
         buyAmountBaseUnit: pending.buyAmountBaseUnit,
         txHash: pending.txHash,
         depositObservedAt: pending.depositObservedAt,
+        txLink: pending.txLink,
+        swapperTxLink: pending.swapperTxLink,
       })
       setCustomRefundAddress(pending.refundAddress, pending.quote.sellAsset.chainId)
       setCustomReceiveAddress(pending.receiveAddress, pending.quote.buyAsset.chainId)

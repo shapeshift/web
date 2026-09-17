@@ -1123,7 +1123,7 @@ describe('a deposit flow always reaches a terminal state', () => {
 
   it('picks up a swapper link mid-swap and keeps it on failure', () => {
     const actor = restoreInto('0xdead')
-    actor.send({ type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: 'https://swapper/deposit' })
+    actor.send({ type: 'TX_LINKS_UPDATED', swapperTxLink: 'https://swapper/deposit' })
     expect(actor.getSnapshot().matches('polling_status')).toBe(true)
     expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
 

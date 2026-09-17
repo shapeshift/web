@@ -65,7 +65,7 @@ export type SwapMachineEvent =
     }
   | { type: 'DEPOSIT_EXPIRED' }
   | { type: 'TRACKING_TIMEOUT' }
-  | { type: 'SWAPPER_TX_LINK_UPDATED'; swapperTxLink: string }
+  | { type: 'TX_LINKS_UPDATED'; txLink?: string; swapperTxLink?: string }
   | {
       type: 'RESTORE_DEPOSIT'
       quote: QuoteResponse
@@ -75,6 +75,8 @@ export type SwapMachineEvent =
       buyAmountBaseUnit: string | undefined
       txHash: string | undefined
       depositObservedAt: number | undefined
+      txLink: string | undefined
+      swapperTxLink: string | undefined
     }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }
@@ -83,8 +85,8 @@ export type SwapMachineEvent =
   | { type: 'APPROVAL_ERROR'; error: string }
   | { type: 'EXECUTE_SUCCESS'; txHash: string }
   | { type: 'EXECUTE_ERROR'; error: string }
-  | { type: 'STATUS_CONFIRMED'; buyTxLink?: string; swapperTxLink?: string }
-  | { type: 'STATUS_FAILED'; error: string; swapperTxLink?: string }
+  | { type: 'STATUS_CONFIRMED'; txLink?: string; buyTxLink?: string; swapperTxLink?: string }
+  | { type: 'STATUS_FAILED'; error: string; txLink?: string; swapperTxLink?: string }
   | { type: 'RETRY' }
   | { type: 'RESET' }
   | { type: 'SET_SEND_ADDRESS'; address: string | undefined }

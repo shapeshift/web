@@ -16,32 +16,44 @@ export const resolveSettledSwapEvent = (
     return {
       type: 'STATUS_FAILED',
       error: GENERIC_ERROR_MESSAGE,
+      txLink: response.txLink,
       swapperTxLink: response.swapperTxLink,
     }
   }
   if (response.status === 'confirmed') {
     return {
       type: 'STATUS_CONFIRMED',
+      txLink: response.txLink,
       buyTxLink: response.buyTxLink,
       swapperTxLink: response.swapperTxLink,
     }
   }
 }
 
-// Some providers only publish a page once they've seen the funds, landing after tracking starts
-export const resolveSwapperTxLinkEvent = (
-  response: SwapStatusResponse,
-  knownSwapperTxLink: string | null | undefined,
-): SwapMachineEvent | undefined => {
-  if (!response.swapperTxLink || response.swapperTxLink === knownSwapperTxLink) return
+type KnownTxLinks = {
+  txLink: string | null | undefined
+  swapperTxLink: string | null | undefined
+}
 
-  return { type: 'SWAPPER_TX_LINK_UPDATED', swapperTxLink: response.swapperTxLink }
+// The api owns both links: the sell one lands with the hash, the swapper's once it sees the funds
+export const resolveTxLinksEvent = (
+  response: SwapStatusResponse,
+  known: KnownTxLinks,
+): SwapMachineEvent | undefined => {
+  const txLink = response.txLink !== known.txLink ? response.txLink : undefined
+  const swapperTxLink =
+    response.swapperTxLink !== known.swapperTxLink ? response.swapperTxLink : undefined
+
+  if (!txLink && !swapperTxLink) return
+
+  return { type: 'TX_LINKS_UPDATED', txLink, swapperTxLink }
 }
 
 export const resolveDepositStatusEvent = (
   response: SwapStatusResponse,
   hasDetectedDeposit: boolean,
   observedAt: number,
+  knownTxLink?: string | null,
   knownSwapperTxLink?: string | null,
 ): SwapMachineEvent | undefined => {
   if (!hasDetectedDeposit && response.txHash) {
@@ -57,8 +69,10 @@ export const resolveDepositStatusEvent = (
   const settledEvent = resolveSettledSwapEvent(response)
   if (settledEvent) return settledEvent
 
-  // Before detection the link rides along on DEPOSIT_DETECTED
-  if (hasDetectedDeposit) return resolveSwapperTxLinkEvent(response, knownSwapperTxLink)
+  // Before detection the links ride along on DEPOSIT_DETECTED
+  if (hasDetectedDeposit) {
+    return resolveTxLinksEvent(response, { txLink: knownTxLink, swapperTxLink: knownSwapperTxLink })
+  }
 }
 
 // A deposit landing this long past the deadline may still be credited, so the window outlasts it

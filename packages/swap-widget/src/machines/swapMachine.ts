@@ -42,6 +42,7 @@ export const createInitialContext = (input?: {
     swapperTxLink: null,
     depositObservedAt: null,
     approvalTxHash: null,
+    approvalTxIndex: 0,
     error: null,
     errorSource: null,
     retryCount: 0,
@@ -158,6 +159,9 @@ export const swapMachine = setup({
     })),
     assignApprovalTxHash: assign(({ event }) => ({
       approvalTxHash: (event as { type: 'APPROVAL_SUCCESS'; txHash: string }).txHash,
+    })),
+    assignApprovalTxIndex: assign(({ event }) => ({
+      approvalTxIndex: (event as Extract<SwapMachineEvent, { type: 'APPROVAL_TX_STARTED' }>).index,
     })),
     assignApprovalError: assign(({ event }) => ({
       error: (event as { type: 'APPROVAL_ERROR'; error: string }).error,
@@ -319,6 +323,7 @@ export const swapMachine = setup({
       swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
+    approvalTxIndex: 0,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
@@ -328,6 +333,7 @@ export const swapMachine = setup({
       swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
+    approvalTxIndex: 0,
       error: null,
       errorSource: null,
       retryCount: 0,
@@ -416,6 +422,7 @@ export const swapMachine = setup({
     },
     approving: {
       on: {
+        APPROVAL_TX_STARTED: { actions: 'assignApprovalTxIndex' },
         APPROVAL_SUCCESS: {
           target: 'executing',
           actions: 'assignApprovalTxHash',

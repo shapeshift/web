@@ -4,7 +4,11 @@ export const ApprovalStep = () => {
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isApproving = SwapMachineCtx.useSelector(s => s.matches('approving'))
   const { send } = SwapMachineCtx.useActorRef()
-  const { sellAsset, quote } = context
+  const { sellAsset, quote, approvalTxIndex } = context
+
+  // Some tokens refuse a new allowance until the old one is reset to 0, so the quote sends both
+  const approvalTxCount = quote?.approval?.approvalTxs?.length ?? 1
+  const isResettingAllowance = approvalTxCount > 1 && approvalTxIndex === 0
 
   if (isApproving) {
     return (
@@ -23,8 +27,17 @@ export const ApprovalStep = () => {
             <path d='M12 2a10 10 0 0 1 10 10' />
           </svg>
         </div>
-        <div className='ssw-step-title'>Approving {sellAsset.symbol}…</div>
-        <div className='ssw-step-subtitle'>Waiting for the approval to confirm</div>
+        <div className='ssw-step-title'>
+          {isResettingAllowance
+            ? `Resetting ${sellAsset.symbol} Allowance…`
+            : `Approving ${sellAsset.symbol}…`}
+        </div>
+        <div className='ssw-step-subtitle'>
+          {approvalTxCount > 1 && `Step ${approvalTxIndex + 1} of ${approvalTxCount} — `}
+          {isResettingAllowance
+            ? `${sellAsset.symbol} needs its allowance reset to 0 first`
+            : 'Waiting for the approval to confirm'}
+        </div>
       </div>
     )
   }

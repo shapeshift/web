@@ -58,9 +58,7 @@ export const ApprovalStep = () => {
         </svg>
       </div>
       <div className='ssw-step-title'>Token Approval Required</div>
-      <div className='ssw-step-subtitle'>
-        Allow {quote?.swapperName ?? 'the swapper'} to use your {sellAsset.symbol}
-      </div>
+      <div className='ssw-step-subtitle'>Approves the exact amount this swap will spend</div>
       <div className='ssw-step-actions'>
         <button className='ssw-action-btn' onClick={() => send({ type: 'APPROVE' })} type='button'>
           Approve {sellAsset.symbol}

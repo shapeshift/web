@@ -35,8 +35,8 @@ export const ApprovalStep = () => {
         <div className='ssw-step-subtitle'>
           {approvalTxCount > 1 && `Step ${approvalTxIndex + 1} of ${approvalTxCount} — `}
           {isResettingAllowance
-            ? `${sellAsset.symbol} needs its allowance reset to 0 first`
-            : 'Waiting for the approval to confirm'}
+            ? 'Required before a new allowance can be set'
+            : 'Waiting for confirmation'}
         </div>
       </div>
     )

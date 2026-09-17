@@ -59,7 +59,6 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     buyAsset,
     quote,
     txHash,
-    txLink,
     buyTxLink,
     swapperTxLink,
     error,
@@ -73,12 +72,13 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   // The swap may well have settled, so no failure wording and no retry quoting a second one
   const hasStoppedTracking = errorSource === 'TRACKING_TIMEOUT'
 
-  // The api links every hash it reports - this covers a wallet swap, whose hash is ours
-  const ownTxLink = txHash
-    ? `${sellAsset.explorerTxLink ?? getExplorerTxLink(sellAsset.chainId)}${txHash}`
-    : undefined
+  const sellTxLink: TxLink = {
+    url:
+      context.txLink ??
+      (txHash && `${sellAsset.explorerTxLink ?? getExplorerTxLink(sellAsset.chainId)}${txHash}`),
+    label: explorerLabel,
+  }
 
-  const sellTxLink: TxLink = { url: txLink ?? ownTxLink, label: explorerLabel }
   const swapperLink: TxLink = {
     url: swapperTxLink,
     label: quote?.swapperName ? `View on ${quote.swapperName}` : 'View swap details',
@@ -88,6 +88,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   const settledTxLinks = swapperTxLink
     ? [swapperLink]
     : [sellTxLink, { url: buyTxLink, label: 'View received' }]
+
   const unsettledTxLinks = swapperTxLink ? [swapperLink] : [sellTxLink]
 
   const truncatedError = useMemo(

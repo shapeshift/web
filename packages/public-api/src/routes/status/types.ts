@@ -57,7 +57,6 @@ export const SwapStatusResponseSchema = registry.register(
     txLink: z.string().optional(),
     buyTxLink: z.string().optional(),
     swapperTxLink: z.string().optional(),
-    statusMessage: z.string().optional(),
     isAffiliateVerified: z.boolean().optional(),
   }),
 )

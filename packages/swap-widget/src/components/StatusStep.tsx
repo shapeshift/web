@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { getExplorerTxLink } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { ErrorSource } from '../machines/types'
 import { GENERIC_ERROR_MESSAGE } from '../utils/errors'
@@ -64,25 +65,20 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     error,
     errorSource,
     retryCount,
-    isSellAssetUtxo,
-    isSellAssetSolana,
     isDepositFlow,
   } = context
 
-  // Names the leg, so it pairs with the buy link where both are shown
   const explorerLabel = isDepositFlow ? 'View deposit' : 'View sent'
 
   // The swap may well have settled, so no failure wording and no retry quoting a second one
   const hasStoppedTracking = errorSource === 'TRACKING_TIMEOUT'
 
-  const explorerUrl = useMemo(() => {
-    if (!txHash) return undefined
-    if (isSellAssetUtxo) return `https://mempool.space/tx/${txHash}`
-    if (isSellAssetSolana) return `https://solscan.io/tx/${txHash}`
-    return `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${txHash}`
-  }, [txHash, isSellAssetUtxo, isSellAssetSolana, sellAsset.explorerTxLink])
+  // The api links every hash it reports - this covers a wallet swap, whose hash is ours
+  const ownTxLink = txHash
+    ? `${sellAsset.explorerTxLink ?? getExplorerTxLink(sellAsset.chainId)}${txHash}`
+    : undefined
 
-  const sellTxLink: TxLink = { url: txLink ?? explorerUrl, label: explorerLabel }
+  const sellTxLink: TxLink = { url: txLink ?? ownTxLink, label: explorerLabel }
   const swapperLink: TxLink = {
     url: swapperTxLink,
     label: quote?.swapperName ? `View on ${quote.swapperName}` : 'View swap details',

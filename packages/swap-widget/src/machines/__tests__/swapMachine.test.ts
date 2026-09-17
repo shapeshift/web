@@ -517,6 +517,28 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
+    it('links the sell tx off the hash, so the first poll is not waited on', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
+      actor.send({ type: 'FETCH_QUOTE' })
+      actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
+      actor.send({ type: 'EXECUTE_SUCCESS', txHash: '0xTxHash' })
+
+      const { sellAsset, txLink } = actor.getSnapshot().context
+      expect(txLink).toBe(`${sellAsset.explorerTxLink}0xTxHash`)
+
+      // The api reports the same link it derives from the same asset, so nothing changes
+      actor.send({ type: 'TX_LINKS_UPDATED', txLink })
+      expect(actor.getSnapshot().context.txLink).toBe(txLink)
+      actor.stop()
+    })
+
     it('EXECUTE_ERROR transitions to error', () => {
       const actor = createActor(swapMachine)
       actor.start()

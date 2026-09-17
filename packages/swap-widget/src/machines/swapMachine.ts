@@ -169,9 +169,14 @@ export const swapMachine = setup({
       error: (event as { type: 'APPROVAL_ERROR'; error: string }).error,
       errorSource: 'APPROVAL_ERROR' as const,
     })),
-    assignTxHash: assign(({ event }) => ({
-      txHash: (event as { type: 'EXECUTE_SUCCESS'; txHash: string }).txHash,
-    })),
+    assignTxHash: assign(({ context, event }) => {
+      const { txHash } = event as { type: 'EXECUTE_SUCCESS'; txHash: string }
+      const { explorerTxLink } = context.sellAsset
+      return {
+        txHash,
+        txLink: explorerTxLink ? `${explorerTxLink}${txHash}` : null,
+      }
+    }),
     assignDepositFlow: assign(({ event }) => ({
       isDepositFlow:
         (event as { type: 'FETCH_QUOTE'; isDepositFlow?: boolean }).isDepositFlow === true,

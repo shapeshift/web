@@ -1,4 +1,5 @@
 import type { SwapMachineEvent } from '../machines/types'
+import { GENERIC_ERROR_MESSAGE } from './errors'
 
 export type DepositStatusResponse = {
   status: 'pending' | 'submitted' | 'confirmed' | 'failed'
@@ -26,7 +27,7 @@ export const resolveDepositStatusEvent = (
   if (response.status === 'failed') {
     return {
       type: 'STATUS_FAILED',
-      error: 'Something went wrong',
+      error: GENERIC_ERROR_MESSAGE,
       swapperTxLink: response.swapperTxLink,
     }
   }

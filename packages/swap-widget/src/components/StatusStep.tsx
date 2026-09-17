@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { ErrorSource } from '../machines/types'
+import { GENERIC_ERROR_MESSAGE } from '../utils/errors'
 
 const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
   <a href={url} target='_blank' rel='noopener noreferrer' className='ssw-step-explorer-link'>
@@ -197,7 +198,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
           <div className='ssw-step-title'>
             {errorSource ? ERROR_TITLES[errorSource] : 'Swap Failed'}
           </div>
-          <div className='ssw-step-subtitle'>{truncatedError ?? 'Something went wrong'}</div>
+          <div className='ssw-step-subtitle'>{truncatedError ?? GENERIC_ERROR_MESSAGE}</div>
           <TxLinks links={unsettledTxLinks} />
           <div className='ssw-step-actions'>
             {!hasStoppedTracking && retryCount < 3 && (

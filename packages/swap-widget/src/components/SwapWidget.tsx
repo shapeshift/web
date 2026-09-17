@@ -145,6 +145,8 @@ const SwapWidgetContent = ({
         buyAmountBaseUnit: snap.context.buyAmountBaseUnit,
         txHash: txHash ?? undefined,
         depositObservedAt: depositObservedAt ?? undefined,
+        txLink: snap.context.txLink ?? undefined,
+        swapperTxLink: snap.context.swapperTxLink ?? undefined,
       })
       hasSavedDepositRef.current = true
       return
@@ -153,8 +155,9 @@ const SwapWidgetContent = ({
     // Never clear one we didn't save - it may be a deposit the restore is about to read
     if (hasSavedDepositRef.current) clearPendingDeposit()
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- state.value is the sole trigger; context is read from the snapshot
-  }, [state.value])
+    // A link can arrive without a transition, and the saved entry has to carry it
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the rest of the context is read from the snapshot
+  }, [state.value, state.context.txLink, state.context.swapperTxLink])
 
   const widgetStyle = useMemo(() => {
     if (!themeConfig) return undefined
@@ -483,6 +486,8 @@ const SwapWidgetCore = ({
         buyAmountBaseUnit: pending.buyAmountBaseUnit,
         txHash: pending.txHash,
         depositObservedAt: pending.depositObservedAt,
+        txLink: pending.txLink,
+        swapperTxLink: pending.swapperTxLink,
       })
       setCustomRefundAddress(pending.refundAddress, pending.quote.sellAsset.chainId)
       setCustomReceiveAddress(pending.receiveAddress, pending.quote.buyAsset.chainId)

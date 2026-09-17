@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react'
 import type { ApiClient } from '../api/client'
 import { ApiError } from '../api/client'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { DepositStatusResponse } from '../utils/depositStatus'
-import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../utils/depositStatus'
+import type { SwapStatusResponse } from '../utils/swapStatus'
+import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../utils/swapStatus'
 
 const POLL_INTERVAL_MS = 10_000
 
@@ -49,20 +49,22 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
 
       if (quoteId) {
         try {
-          const response = (await apiClient.getSwapStatus({ quoteId })) as DepositStatusResponse
+          const response = (await apiClient.getSwapStatus({ quoteId })) as SwapStatusResponse
           if (stopped) return
 
+          const { txLink, swapperTxLink } = actorRef.getSnapshot().context
           const event = resolveDepositStatusEvent(
             response,
             !!depositObservedAt,
             Date.now(),
-            actorRef.getSnapshot().context.swapperTxLink,
+            txLink,
+            swapperTxLink,
           )
 
           if (event) {
             actorRef.send(event)
             // Every other event leaves this state, and the state change restarts polling
-            if (event.type !== 'SWAPPER_TX_LINK_UPDATED') return
+            if (event.type !== 'TX_LINKS_UPDATED') return
           }
         } catch (error) {
           if (stopped) return
@@ -70,9 +72,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
           // Quote gone from the api: a funded deposit may still settle, an unfunded address must not be paid
           if (isQuoteNotFound(error)) {
             actorRef.send(
-              depositObservedAt
-                ? { type: 'DEPOSIT_TRACKING_TIMEOUT' }
-                : { type: 'DEPOSIT_EXPIRED' },
+              depositObservedAt ? { type: 'TRACKING_TIMEOUT' } : { type: 'DEPOSIT_EXPIRED' },
             )
             return
           }
@@ -91,7 +91,7 @@ export const useDepositPolling = ({ apiClient }: UseDepositPollingParams) => {
         })
       ) {
         // Only polling_status handles this - the expired screen already offers a way forward
-        actorRef.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+        actorRef.send({ type: 'TRACKING_TIMEOUT' })
         return
       }
 

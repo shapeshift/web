@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 
-import { getExplorerTxLink } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { ErrorSource } from '../machines/types'
 import { GENERIC_ERROR_MESSAGE } from '../utils/errors'
@@ -58,7 +57,6 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     sellAsset,
     buyAsset,
     quote,
-    txHash,
     buyTxLink,
     swapperTxLink,
     error,
@@ -72,12 +70,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
   // The swap may well have settled, so no failure wording and no retry quoting a second one
   const hasStoppedTracking = errorSource === 'TRACKING_TIMEOUT'
 
-  const sellTxLink: TxLink = {
-    url:
-      context.txLink ??
-      (txHash && `${sellAsset.explorerTxLink ?? getExplorerTxLink(sellAsset.chainId)}${txHash}`),
-    label: explorerLabel,
-  }
+  const sellTxLink: TxLink = { url: context.txLink, label: explorerLabel }
 
   const swapperLink: TxLink = {
     url: swapperTxLink,
@@ -114,18 +107,13 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               <path d='M12 2a10 10 0 0 1 10 10' />
             </svg>
           </div>
-          <div className='ssw-step-title'>
-            {isDepositFlow ? 'Swap in Progress' : 'Confirming Transaction'}
-          </div>
+          <div className='ssw-step-title'>Swap in Progress</div>
           <div className='ssw-step-subtitle'>
-            {isDepositFlow
-              ? `Deposit received. Waiting for ${
-                  quote?.swapperName ?? 'the provider'
-                } to send your ${buyAsset.symbol}.`
-              : 'Your swap is being processed…'}
+            {isDepositFlow ? 'Deposit received' : 'Transaction sent'}. Waiting for{' '}
+            {quote?.swapperName ?? 'the provider'} to send your {buyAsset.symbol}.
           </div>
           <TxLinks links={[sellTxLink, swapperLink]} />
-          {isDepositFlow && !isPayment && (
+          {!isPayment && (
             <div className='ssw-step-actions'>
               <button
                 className='ssw-action-btn ssw-secondary'

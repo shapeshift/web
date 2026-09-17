@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
+import type { ErrorSource } from '../machines/types'
 
 const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
   <a href={url} target='_blank' rel='noopener noreferrer' className='ssw-step-explorer-link'>
@@ -17,6 +18,15 @@ const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
     </svg>
   </a>
 )
+
+// What failed, rather than calling every failure a failed swap
+const ERROR_TITLES: Record<ErrorSource, string> = {
+  QUOTE_ERROR: 'Quote Failed',
+  APPROVAL_ERROR: 'Approval Failed',
+  EXECUTE_ERROR: 'Transaction Failed',
+  STATUS_FAILED: 'Swap Failed',
+  TRACKING_TIMEOUT: 'Still Processing',
+}
 
 type TxLink = { url: string | null | undefined; label: string }
 
@@ -185,7 +195,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
             </svg>
           </div>
           <div className='ssw-step-title'>
-            {hasStoppedTracking ? 'Still Processing' : 'Swap Failed'}
+            {errorSource ? ERROR_TITLES[errorSource] : 'Swap Failed'}
           </div>
           <div className='ssw-step-subtitle'>{truncatedError ?? 'Something went wrong'}</div>
           <TxLinks links={unsettledTxLinks} />

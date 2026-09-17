@@ -58,20 +58,7 @@ describe('resolveDepositStatusEvent', () => {
   it('fails the swap', () => {
     expect(resolveDepositStatusEvent({ status: 'failed' }, true, 500)).toEqual({
       type: 'STATUS_FAILED',
-      error: 'Swap failed',
-    })
-  })
-
-  it("fails with the provider's own message when there is one", () => {
-    expect(
-      resolveDepositStatusEvent(
-        { status: 'failed', statusMessage: 'Swap failed, funds refunded' },
-        true,
-        500,
-      ),
-    ).toEqual({
-      type: 'STATUS_FAILED',
-      error: 'Swap failed, funds refunded',
+      error: 'Something went wrong',
     })
   })
 
@@ -84,7 +71,7 @@ describe('resolveDepositStatusEvent', () => {
       ),
     ).toEqual({
       type: 'STATUS_FAILED',
-      error: 'Swap failed',
+      error: 'Something went wrong',
       swapperTxLink: 'https://swapper/deposit',
     })
   })

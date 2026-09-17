@@ -6,7 +6,6 @@ export type DepositStatusResponse = {
   txLink?: string
   buyTxLink?: string
   swapperTxLink?: string
-  statusMessage?: string
 }
 
 export const resolveDepositStatusEvent = (
@@ -27,7 +26,7 @@ export const resolveDepositStatusEvent = (
   if (response.status === 'failed') {
     return {
       type: 'STATUS_FAILED',
-      error: response.statusMessage ?? 'Swap failed',
+      error: 'Something went wrong',
       swapperTxLink: response.swapperTxLink,
     }
   }

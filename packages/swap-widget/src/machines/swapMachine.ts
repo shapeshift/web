@@ -203,7 +203,8 @@ export const swapMachine = setup({
       errorSource: 'QUOTE_ERROR' as const,
     })),
     assignTrackingTimeout: assign(() => ({
-      error: 'Check your receive address - the provider may still settle this swap',
+      error:
+        'Funds may still arrive at your receive address, or be refunded to your refund address.',
       errorSource: 'TRACKING_TIMEOUT' as const,
     })),
     assignRestoredDeposit: assign(({ event }) => {

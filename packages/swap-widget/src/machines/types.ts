@@ -2,6 +2,7 @@ import type { Asset, QuoteResponse, TradeRate } from '../types'
 
 export type ErrorSource =
   | 'QUOTE_ERROR'
+  | 'QUOTE_EXPIRED'
   | 'APPROVAL_ERROR'
   | 'EXECUTE_ERROR'
   | 'STATUS_FAILED'
@@ -88,6 +89,7 @@ export type SwapMachineEvent =
   | { type: 'APPROVAL_ERROR'; error: string }
   | { type: 'EXECUTE_SUCCESS'; txHash: string }
   | { type: 'EXECUTE_ERROR'; error: string }
+  | { type: 'QUOTE_EXPIRED' }
   | { type: 'STATUS_CONFIRMED'; txLink?: string; buyTxLink?: string; swapperTxLink?: string }
   | { type: 'STATUS_FAILED'; error: string; txLink?: string; swapperTxLink?: string }
   | { type: 'RETRY' }

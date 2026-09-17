@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react'
 import type { ApiClient } from '../api/client'
 import { ApiError } from '../api/client'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { SwapStatusResponse } from '../utils/depositStatus'
-import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../utils/depositStatus'
+import type { SwapStatusResponse } from '../utils/swapStatus'
+import { resolveDepositStatusEvent, shouldKeepTrackingDeposit } from '../utils/swapStatus'
 
 const POLL_INTERVAL_MS = 10_000
 

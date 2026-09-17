@@ -3,12 +3,12 @@ import { useEffect, useRef } from 'react'
 import type { ApiClient } from '../api/client'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { isPermanentApiError } from '../utils/apiError'
-import type { SwapStatusResponse } from '../utils/depositStatus'
+import type { SwapStatusResponse } from '../utils/swapStatus'
 import {
   isWithinSettlementWindow,
   resolveSettledSwapEvent,
   resolveSwapperTxLinkEvent,
-} from '../utils/depositStatus'
+} from '../utils/swapStatus'
 
 const POLL_INTERVAL_MS = 5000
 

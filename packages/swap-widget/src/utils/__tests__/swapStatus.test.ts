@@ -4,7 +4,7 @@ import {
   resolveDepositStatusEvent,
   resolveSwapperTxLinkEvent,
   shouldKeepTrackingDeposit,
-} from '../depositStatus'
+} from '../swapStatus'
 
 describe('resolveDepositStatusEvent', () => {
   it('reports a deposit once the sell tx hash appears', () => {

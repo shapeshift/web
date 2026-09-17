@@ -1,5 +1,5 @@
 import type { QuoteResponse } from '../types'
-import { shouldKeepTrackingDeposit } from './depositStatus'
+import { shouldKeepTrackingDeposit } from './swapStatus'
 
 const STORAGE_KEY = 'ssw:pendingDeposit'
 

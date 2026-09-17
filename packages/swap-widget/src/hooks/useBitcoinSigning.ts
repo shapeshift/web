@@ -2,8 +2,6 @@ import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
 import { useCallback, useMemo, useState } from 'react'
 
-import { checkBitcoinStatus } from '../services/transactionStatus'
-
 type AccountAddress = string | { address?: string; purpose?: string | number }
 
 type AccountAddressArray = AccountAddress[]
@@ -54,10 +52,6 @@ export type UseBitcoinSigningResult = {
   getAccountAddresses: () => Promise<string[]>
   state: BitcoinSigningState
   reset: () => void
-  checkTxStatus: (
-    txid: string,
-    network?: 'mainnet' | 'testnet',
-  ) => ReturnType<typeof checkBitcoinStatus>
 }
 
 export const useBitcoinSigning = (): UseBitcoinSigningResult => {
@@ -243,10 +237,6 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     })
   }, [])
 
-  const checkTxStatus = useCallback((txid: string, network: 'mainnet' | 'testnet' = 'mainnet') => {
-    return checkBitcoinStatus(txid, network)
-  }, [])
-
   const isConnected = !!provider && !!address
 
   return useMemo(
@@ -259,7 +249,6 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       getAccountAddresses,
       state,
       reset,
-      checkTxStatus,
     }),
     [
       isConnected,
@@ -270,7 +259,6 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       getAccountAddresses,
       state,
       reset,
-      checkTxStatus,
     ],
   )
 }

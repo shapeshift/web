@@ -375,22 +375,6 @@ export const truncateAddress = (address: string, chars = 4): string => {
   return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
 }
 
-export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
-
-export type TransactionStatusResult = {
-  status: TransactionStatus
-  confirmations?: number
-  blockNumber?: number
-  error?: string
-}
-
-export type BitcoinTransactionStatus = {
-  confirmed: boolean
-  block_height?: number
-  block_hash?: string
-  block_time?: number
-}
-
 export type WalletProviderNamespace = 'eip155' | 'bip122' | 'solana'
 
 export type MultiChainAddress = {

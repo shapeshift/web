@@ -32,7 +32,6 @@ type GroupedAssetRowProps = {
   showPrice?: boolean
   onLongPress?: (asset: Asset) => void
   relatedAssetIds?: AssetId[]
-  accountNumber?: number
 }
 
 export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
@@ -43,7 +42,6 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   showPrice,
   onLongPress,
   relatedAssetIds: providedRelatedAssetIds,
-  accountNumber,
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const assets = useAppSelector(selectAssets)
@@ -163,13 +161,11 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
             disableUnsupported,
             hideZeroBalanceAmounts,
             handleLongPress: onLongPress,
-            accountNumber,
           }}
         />
       )
     })
   }, [
-    accountNumber,
     assets,
     disableUnsupported,
     relatedAssetIds,

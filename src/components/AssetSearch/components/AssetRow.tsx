@@ -278,6 +278,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       changePercent24Hr,
     ])
 
+    // Grouped rows are not account scoped - the group's own total reads wallet wide
     if (showRelatedAssets && filteredRelatedAssetIds.length > 1) {
       return (
         <GroupedAssetRow
@@ -288,7 +289,6 @@ export const AssetRow: FC<AssetRowProps> = memo(
           showPrice={showPrice}
           onLongPress={handleLongPress}
           relatedAssetIds={filteredRelatedAssetIds}
-          accountNumber={accountNumber}
         />
       )
     }

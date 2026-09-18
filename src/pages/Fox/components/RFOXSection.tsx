@@ -231,12 +231,22 @@ export const RFOXSection = () => {
     [visibleStakingAssetIds],
   )
 
+  const migrationDate = useMemo(
+    () => dayjs.utc(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
+    [],
+  )
+
   const migrationBannerDescription = useMemo(
+    () => translate('RFOX.migrationBannerDescription', { migrationDate }),
+    [migrationDate, translate],
+  )
+
+  const unstakeDisabledTooltip = useMemo(
     () =>
-      translate('RFOX.migrationBannerDescription', {
-        migrationDate: dayjs.utc(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
-      }),
-    [translate],
+      pauseState.isUnstakingPaused
+        ? translate('RFOX.unstakingPausedTooltip')
+        : translate('RFOX.unstakeDisabledMigrationTooltip', { migrationDate }),
+    [migrationDate, pauseState.isUnstakingPaused, translate],
   )
 
   // Everything below is keyed on the selected program, so warm the others up front
@@ -425,11 +435,7 @@ export const RFOXSection = () => {
         </Tooltip>
         <Box flex='1 1 auto' sx={tooltipWrapperSx}>
           <Tooltip
-            label={translate(
-              pauseState.isUnstakingPaused
-                ? 'RFOX.unstakingPausedTooltip'
-                : 'RFOX.unstakeDisabledMigrationTooltip',
-            )}
+            label={unstakeDisabledTooltip}
             isDisabled={!isUnstakeDisabled}
             shouldWrapChildren
           >
@@ -470,6 +476,7 @@ export const RFOXSection = () => {
     hasClaimableRequests,
     isUnstakeDisabled,
     pauseState,
+    unstakeDisabledTooltip,
   ])
 
   if (!(stakingAsset && rewardAsset)) return null

@@ -51,13 +51,11 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
   const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
 
   const claimingRequestIds = useMemo(
-    () =>
-      new Set(pendingRfoxClaimActions.map(action => action.rfoxClaimActionMetadata.request.id)),
+    () => new Set(pendingRfoxClaimActions.map(action => action.rfoxClaimActionMetadata.request.id)),
     [pendingRfoxClaimActions],
   )
 
-  // Scoped to the selected program, matching the claim button that opens this - an accountId is
-  // shared by every program on its chain, so the accountId alone would mix them
+  // Scoped to the selected program, matching the claim button that opens this
   const accountUnstakingRequests = useMemo(
     () =>
       allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']?.filter(
@@ -91,8 +89,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
       // A claim that has been broadcast but not yet confirmed is still returned by the contract, so
       // without this the row stays actionable and the claim can be submitted again
       const isClaimInProgress = claimingRequestIds.has(unstakingRequest.id)
-      const status =
-        isAvailable && !isClaimInProgress ? ClaimStatus.Available : ClaimStatus.Pending
+      const status = isAvailable && !isClaimInProgress ? ClaimStatus.Available : ClaimStatus.Pending
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
 

@@ -61,14 +61,19 @@ export const useRfoxPositionsQuery = ({
     }),
   })
 
+  // useQueries hands back a new array of new objects every render, so the balances it resolved to
+  // are the real input here - keyed as one string, since the array is new each time too
+  const stakingBalances = stakingBalanceQueries.map(query => query.data)
+  const stakingBalancesKey = stakingBalances.join('-')
+
   const hasStakingBalanceByStakingAssetId = useMemo(
     () =>
       RFOX_STAKING_ASSET_IDS.reduce<Record<AssetId, boolean>>((acc, stakingAssetId, i) => {
-        acc[stakingAssetId] = bnOrZero(stakingBalanceQueries[i]?.data).gt(0)
+        acc[stakingAssetId] = bnOrZero(stakingBalances[i]).gt(0)
         return acc
       }, {}),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [stakingBalanceQueries.map(query => query.data).join('-')],
+    [stakingBalancesKey],
   )
 
   const hasPositionByStakingAssetId = useMemo(() => {
@@ -84,7 +89,8 @@ export const useRfoxPositionsQuery = ({
         ),
       )
 
-      acc[stakingAssetId] = hasStakingBalanceByStakingAssetId[stakingAssetId] || hasUnstakingRequests
+      acc[stakingAssetId] =
+        hasStakingBalanceByStakingAssetId[stakingAssetId] || hasUnstakingRequests
       return acc
     }, {})
   }, [
@@ -93,11 +99,8 @@ export const useRfoxPositionsQuery = ({
     unstakingRequestsQuery.data?.byAccountId,
   ])
 
-  const isLoading = useMemo(
-    () => unstakingRequestsQuery.isLoading || stakingBalanceQueries.some(query => query.isLoading),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [unstakingRequestsQuery.isLoading, stakingBalanceQueries.map(query => query.isLoading).join('-')],
-  )
+  const isLoading =
+    unstakingRequestsQuery.isLoading || stakingBalanceQueries.some(query => query.isLoading)
 
   return { hasPositionByStakingAssetId, isLoading }
 }

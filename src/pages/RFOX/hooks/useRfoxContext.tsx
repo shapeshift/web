@@ -21,9 +21,7 @@ const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
 export const supportedStakingAssetIds = RFOX_STAKING_ASSET_IDS
 
 export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [stakingAssetId, setStakingAssetId] = useState<AssetId>(
-    RFOX_CURRENT_STAKING_ASSET_IDS[0],
-  )
+  const [stakingAssetId, setStakingAssetId] = useState<AssetId>(RFOX_CURRENT_STAKING_ASSET_IDS[0])
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(

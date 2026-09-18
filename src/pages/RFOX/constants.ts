@@ -4,15 +4,15 @@ import {
   ethChainId,
   foxAssetId,
   foxOnArbitrumOneAssetId,
+  uniV2EthFoxArbitrumAssetId,
   usdcAssetId,
   usdcOnArbitrumOneAssetId,
-  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import {
   RFOX_ABI,
-  RFOX_ETH_PROXY_CONTRACT,
   RFOX_ARB_PROXY_CONTRACT,
   RFOX_ARB_UNI_V2_ETH_FOX_PROXY_CONTRACT,
+  RFOX_ETH_PROXY_CONTRACT,
   viemClientByNetworkId,
 } from '@shapeshiftoss/contracts'
 import type { Address } from 'viem'
@@ -37,8 +37,11 @@ export const RFOX_MIGRATION_TIMESTAMP_MS = Date.UTC(2026, 9, 1)
 export type RfoxStakingConfig = {
   stakingContract: Address
   chainId: ChainId
-  /** viem chain id, used to resolve the rpc client for this staking contract */
-  networkId: number
+  /**
+   * viem chain id, used to resolve the rpc client for this staking contract. A literal union rather
+   * than number, since wagmi only accepts the chains its own config registers.
+   */
+  networkId: typeof arbitrum.id | typeof mainnet.id
   /** the asset rewards are distributed in for epochs from RFOX_V3_UPGRADE_EPOCH onwards */
   rewardAssetId: AssetId
   contractCreationBlock: bigint

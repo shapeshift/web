@@ -50,7 +50,8 @@ export const useGetUnstakingRequestsQuery = () => {
             stakingAssetId,
           }),
           enabled:
-            isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
+            isConnected ||
+            (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
         }) as const,
     ),
     combine: queries => {

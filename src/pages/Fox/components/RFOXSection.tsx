@@ -18,7 +18,11 @@ import {
   Tooltip,
   usePrevious,
 } from '@chakra-ui/react'
-import { foxAssetId, foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
+import {
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  uniV2EthFoxArbitrumAssetId,
+} from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -38,8 +42,8 @@ import { FoxTokenFilterButton } from '@/pages/Fox/components/FoxTokenFilterButto
 import { RFOXSimulator } from '@/pages/Fox/components/RFOXSimulator'
 import { useFoxPageContext } from '@/pages/Fox/hooks/useFoxPageContext'
 import { ClaimModal } from '@/pages/RFOX/components/ClaimModal'
-import { RfoxProgramPrefetch } from '@/pages/RFOX/components/RfoxProgramPrefetch'
 import { Stats } from '@/pages/RFOX/components/Overview/Stats'
+import { RfoxProgramPrefetch } from '@/pages/RFOX/components/RfoxProgramPrefetch'
 import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import {
@@ -56,9 +60,9 @@ import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochR
 import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { useLifetimeRewardsUserCurrencyQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
+import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { selectPauseState, useRfoxPauseStateQuery } from '@/pages/RFOX/hooks/useRfoxPauseStateQuery'
 import { useRfoxPositionsQuery } from '@/pages/RFOX/hooks/useRfoxPositionsQuery'
-import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from '@/pages/RFOX/types'
@@ -197,8 +201,7 @@ export const RFOXSection = () => {
           !RFOX_STAKING_CONFIG[candidateStakingAssetId].isLegacy ||
           hasPositionByStakingAssetId[candidateStakingAssetId],
       ).sort(
-        (a, b) =>
-          Number(RFOX_STAKING_CONFIG[a].isLegacy) - Number(RFOX_STAKING_CONFIG[b].isLegacy),
+        (a, b) => Number(RFOX_STAKING_CONFIG[a].isLegacy) - Number(RFOX_STAKING_CONFIG[b].isLegacy),
       ),
     [hasPositionByStakingAssetId],
   )
@@ -265,7 +268,12 @@ export const RFOXSection = () => {
             }
           />
         )),
-    [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId, visibleStakingAssetIds],
+    [
+      accountIdsByAccountNumberAndChainId,
+      assetAccountNumber,
+      stakingAssetId,
+      visibleStakingAssetIds,
+    ],
   )
 
   const migrationTradeUrl = useMemo(() => {
@@ -274,7 +282,6 @@ export const RFOXSection = () => {
 
     return `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/0`
   }, [])
-
 
   const hasClaimableRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']

@@ -31,4 +31,3 @@ export const calcEpochRewardForAccountUsdcBaseUnit = (
 
   return BigInt(epochRewardUsdcBaseUnit)
 }
-

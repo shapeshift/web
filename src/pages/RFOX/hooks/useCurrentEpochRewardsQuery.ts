@@ -104,7 +104,13 @@ export const useCurrentEpochRewardsQuery = ({
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [currentEpochMetadata, stakingAssetId, stakingAssetAccountId, rewardAsset, rewardAssetMarketData],
+    [
+      currentEpochMetadata,
+      stakingAssetId,
+      stakingAssetAccountId,
+      rewardAsset,
+      rewardAssetMarketData,
+    ],
   )
 
   const combinedQueries = useQueries({

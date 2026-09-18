@@ -40,8 +40,7 @@ export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
 
   return useReadContracts({
     contracts,
-    // A call that fails on its own reads as not paused, which is the one answer that must not be
-    // guessed - fail the whole read instead, so it retries and is then reported as unknown
+    // A call failing on its own would read as not paused, and would not be retried either
     allowFailure: false,
     query: {
       staleTime: 60 * 1000, // 1 minute in milliseconds
@@ -54,9 +53,7 @@ export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
   })
 }
 
-/**
- * An unknown pause state counts as paused. The contract reverts either way, so guessing wrong costs
- * the user a gas estimate and an execution error rather than gaining them anything.
- */
+// An unknown pause state counts as paused - the contract reverts either way, so guessing the other
+// way only costs the user a gas estimate and an error at execution
 export const selectPauseState = (pauseState: RfoxPauseState | undefined): RfoxPauseState =>
   pauseState ?? PAUSED_PAUSE_STATE

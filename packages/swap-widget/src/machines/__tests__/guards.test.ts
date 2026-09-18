@@ -91,8 +91,6 @@ describe('guards', () => {
     })
   })
 
-
-
   describe('canRetry', () => {
     it('returns true when retryCount is 0', () => {
       expect(canRetry(createTestContext({ retryCount: 0 }))).toBe(true)
@@ -110,9 +108,4 @@ describe('guards', () => {
       expect(canRetry(createTestContext({ retryCount: 5 }))).toBe(false)
     })
   })
-
-
-
-
-
 })

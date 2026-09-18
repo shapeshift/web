@@ -23,7 +23,7 @@ const columnsProps = {
   md: 2,
 }
 const DEFAULT_SHAPESHIFT_REVENUES = 100000
-const DEFAULT_DEPOSIT_AMOUNT = 14000
+const DEFAULT_DEPOSIT_AMOUNT = 0
 
 type RFOXSimulatorProps = {
   stakingAssetId: AssetId
@@ -33,6 +33,12 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const translate = useTranslate()
   const [shapeShiftRevenue, setShapeShiftRevenue] = useState(DEFAULT_SHAPESHIFT_REVENUES)
   const [depositAmount, setDepositAmount] = useState(DEFAULT_DEPOSIT_AMOUNT)
+  const [simulatedStakingAssetId, setSimulatedStakingAssetId] = useState(stakingAssetId)
+
+  if (simulatedStakingAssetId !== stakingAssetId) {
+    setSimulatedStakingAssetId(stakingAssetId)
+    setDepositAmount(DEFAULT_DEPOSIT_AMOUNT)
+  }
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetUsdPrice = useAppSelector(state =>

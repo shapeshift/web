@@ -95,7 +95,7 @@ describe('getInputCta', () => {
       isLoadingRates: true,
       hasRates: false,
     })
-    expect(cta).toEqual({ text: 'Finding rates...', disabled: true, action: 'none' })
+    expect(cta).toEqual({ text: 'Finding rates…', disabled: true, action: 'none' })
   })
 
   it('redirects straight away on an unsupported chain with no deposit route, before any amount', () => {
@@ -135,8 +135,8 @@ describe('getInputCta', () => {
   })
 
   it('reports rate loading and failure states', () => {
-    expect(getInputCta({ ...base, isLoadingRates: true }).text).toBe('Finding rates...')
-    expect(getInputCta({ ...base, hasRatesError: true }).text).toBe('No routes available')
+    expect(getInputCta({ ...base, isLoadingRates: true }).text).toBe('Finding rates…')
+    expect(getInputCta({ ...base, hasRatesError: true }).text).toBe('Rates unavailable')
     expect(getInputCta({ ...base, hasRates: false }).text).toBe('No routes found')
     expect(getInputCta({ ...base, hasAmount: false }).text).toBe('Enter an amount')
   })

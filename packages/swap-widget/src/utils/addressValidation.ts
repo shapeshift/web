@@ -242,7 +242,7 @@ export const validateAddress = (
       if (isValidNearAddress(address)) return { valid: true }
       // A checksummed evm address pasted as an implicit account is the common near-miss
       if (isValidNearAddress(address.toLowerCase())) {
-        return { valid: false, error: 'Invalid NEAR address - must be lowercase' }
+        return { valid: false, error: 'Invalid NEAR address — must be lowercase' }
       }
       return invalid('NEAR')
     }

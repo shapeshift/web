@@ -84,12 +84,6 @@ export const swapMachine = setup({
     isQuoteError: ({ context }) => context.errorSource === 'QUOTE_ERROR',
     isApprovalError: ({ context }) => context.errorSource === 'APPROVAL_ERROR',
     isStatusFailed: ({ context }) => context.errorSource === 'STATUS_FAILED',
-    hasQuote: ({ context }) => guardFns.hasQuote(context),
-    isEvmChain: ({ context }) => guardFns.isEvmChain(context),
-    isUtxoChain: ({ context }) => guardFns.isUtxoChain(context),
-    isSolanaChain: ({ context }) => guardFns.isSolanaChain(context),
-    hasSendAddress: ({ context }) => guardFns.hasSendAddress(context),
-    hasReceiveAddress: ({ context }) => guardFns.hasReceiveAddress(context),
   },
   actions: {
     assignSellAsset: assign(({ context, event }) => {

@@ -141,7 +141,7 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               <path d='M20 6L9 17l-5-5' />
             </svg>
           </div>
-          <div className='ssw-step-title'>Swap Complete!</div>
+          <div className='ssw-step-title'>Swap Complete</div>
           <div className='ssw-step-subtitle'>
             Swapped {sellAsset.symbol} for {buyAsset.symbol}
           </div>

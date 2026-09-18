@@ -175,7 +175,7 @@ export const DepositStep = () => {
             <path d='M12 2a10 10 0 0 1 10 10' />
           </svg>
         </div>
-        <div className='ssw-step-title'>Requesting New Quote</div>
+        <div className='ssw-step-title'>Requesting New Quote…</div>
       </div>
     )
   }

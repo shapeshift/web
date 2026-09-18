@@ -1,9 +1,4 @@
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
-import {
-  thorchainAssetId,
-  uniV2EthFoxArbitrumAssetId,
-  usdcOnArbitrumOneAssetId,
-} from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
@@ -13,8 +8,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
-import { RFOX_V3_UPGRADE_EPOCH } from '@/pages/RFOX/constants'
-import { getStakingContract } from '@/pages/RFOX/helpers'
+import { getRewardAssetId, getStakingAssetId } from '@/pages/RFOX/helpers'
 import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -34,8 +28,11 @@ export const RewardDistributionNotification = ({
   handleClick,
   onClose,
 }: RewardDistributionNotificationProps) => {
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
+  const rewardAssetId = useMemo(
+    () => getRewardAssetId(getStakingAssetId(distribution.stakingContract), distribution.epoch),
+    [distribution.epoch, distribution.stakingContract],
+  )
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const action = actions[actionId]
   const isComplete = action?.status === ActionStatus.Complete
@@ -45,31 +42,22 @@ export const RewardDistributionNotification = ({
     return 'actionCenter.rewardDistribution.pending.description'
   }, [isComplete])
 
-  const isRuneReward = useMemo(() => {
-    return (
-      distribution.stakingContract === getStakingContract(uniV2EthFoxArbitrumAssetId) ||
-      distribution.epoch < RFOX_V3_UPGRADE_EPOCH
-    )
-  }, [distribution.epoch, distribution.stakingContract])
-
   const icon = useMemo(() => {
     if (!action) return undefined
-    const assetId = isRuneReward ? thorchainAssetId : usdcOnArbitrumOneAssetId
-    return <ActionIcon assetId={assetId} status={action.status} />
-  }, [action, isRuneReward])
+    return <ActionIcon assetId={rewardAssetId} status={action.status} />
+  }, [action, rewardAssetId])
 
   const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
-    const asset = isRuneReward ? runeAsset : usdcAsset
-    if (!asset) return
+    if (!rewardAsset) return
 
     return {
       amountAndSymbol: (
         <Amount.Crypto
           value={BigAmount.fromBaseUnit({
             value: distribution.amount.toString(),
-            precision: asset.precision ?? 0,
+            precision: rewardAsset.precision ?? 0,
           }).toPrecision()}
-          symbol={asset.symbol}
+          symbol={rewardAsset.symbol}
           fontSize='sm'
           fontWeight='bold'
           maximumFractionDigits={6}
@@ -78,7 +66,7 @@ export const RewardDistributionNotification = ({
         />
       ),
     }
-  }, [distribution.amount, isRuneReward, runeAsset, usdcAsset])
+  }, [distribution.amount, rewardAsset])
 
   const title = useMemo(() => {
     if (!rewardDistributionTranslationComponents) return

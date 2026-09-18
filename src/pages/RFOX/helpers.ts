@@ -64,9 +64,6 @@ export const getRfoxNetworkId = (stakingAssetId: AssetId) =>
 export const getRfoxClient = (stakingAssetId: AssetId) =>
   viemClientByNetworkId[getRfoxStakingConfig(stakingAssetId).networkId]
 
-export const getRfoxContractCreationBlockNumber = (stakingAssetId: AssetId) =>
-  getRfoxStakingConfig(stakingAssetId).contractCreationBlock
-
 /**
  * rFOX v3 moved rewards from RUNE to a stable, and each staking contract pays that stable on its
  * own chain, so the reward asset varies by both epoch and staking contract.

@@ -1,7 +1,6 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,7 +10,7 @@ import { RFOXSliders } from './RFOXSliders'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { getStakingContract } from '@/pages/RFOX/helpers'
+import { getRfoxStakingConfig, getStakingContract } from '@/pages/RFOX/helpers'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
@@ -40,10 +39,12 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
     selectUsdRateByAssetId(state, stakingAssetId),
   )
 
-  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
-  const usdcUsdPrice = useAppSelector(state =>
-    selectUsdRateByAssetId(state, usdcOnArbitrumOneAssetId),
+  const rewardAssetId = useMemo(
+    () => getRfoxStakingConfig(stakingAssetId).rewardAssetId,
+    [stakingAssetId],
   )
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+  const rewardAssetUsdPrice = useAppSelector(state => selectUsdRateByAssetId(state, rewardAssetId))
 
   const totalStakedCryptoResult = useTotalStakedQuery<string>({
     stakingAssetId,
@@ -76,15 +77,15 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const estimatedRewards = useMemo(() => {
     if (!epochMetadata) return
     if (!poolShare) return
-    if (!usdcUsdPrice) return
+    if (!rewardAssetUsdPrice) return
 
     const distributionRate =
       epochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 
     return bnOrZero(shapeShiftRevenue).times(distributionRate).times(poolShare).toFixed(2)
-  }, [epochMetadata, shapeShiftRevenue, usdcUsdPrice, stakingAssetId, poolShare])
+  }, [epochMetadata, shapeShiftRevenue, rewardAssetUsdPrice, stakingAssetId, poolShare])
 
-  if (!(usdcAsset && stakingAsset)) return null
+  if (!(rewardAsset && stakingAsset)) return null
 
   return (
     <Stack

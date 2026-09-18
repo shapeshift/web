@@ -18,18 +18,12 @@ import {
   Tooltip,
   usePrevious,
 } from '@chakra-ui/react'
-import {
-  foxAssetId,
-  foxOnArbitrumOneAssetId,
-  uniV2EthFoxArbitrumAssetId,
-} from '@shapeshiftoss/caip'
+import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { Link as RouterLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
@@ -48,12 +42,10 @@ import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import {
   RFOX_CURRENT_STAKING_ASSET_IDS,
-  RFOX_MIGRATION_TIMESTAMP_MS,
   RFOX_STAKING_ASSET_IDS,
   RFOX_STAKING_CONFIG,
 } from '@/pages/RFOX/constants'
 import { getRfoxChainId, getRfoxStakingConfig, selectStakingBalance } from '@/pages/RFOX/helpers'
-import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
@@ -74,8 +66,6 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-dayjs.extend(utc)
 
 const tooltipWrapperSx = { '& > span': { display: 'block', width: '100%' } }
 
@@ -227,29 +217,6 @@ export const RFOXSection = () => {
 
   const hasLpPosition = hasPositionByStakingAssetId[uniV2EthFoxArbitrumAssetId]
 
-  const isMigrationBannerVisible = useMemo(
-    () => visibleStakingAssetIds.includes(foxOnArbitrumOneAssetId),
-    [visibleStakingAssetIds],
-  )
-
-  const migrationDate = useMemo(
-    () => dayjs.utc(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
-    [],
-  )
-
-  const migrationBannerDescription = useMemo(
-    () => translate('RFOX.migrationBannerDescription', { migrationDate }),
-    [migrationDate, translate],
-  )
-
-  const unstakeDisabledTooltip = useMemo(
-    () =>
-      pauseState.isUnstakingPaused
-        ? translate('RFOX.unstakingPausedTooltip')
-        : translate('RFOX.unstakeDisabledMigrationTooltip', { migrationDate }),
-    [migrationDate, pauseState.isUnstakingPaused, translate],
-  )
-
   // Everything below is keyed on the selected program, so warm the others up front
   const programPrefetch = useMemo(
     () =>
@@ -273,13 +240,6 @@ export const RFOXSection = () => {
       visibleStakingAssetIds,
     ],
   )
-
-  const migrationTradeUrl = useMemo(() => {
-    const [buyChainId, buyAssetSubId] = foxAssetId.split('/')
-    const [sellChainId, sellAssetSubId] = foxOnArbitrumOneAssetId.split('/')
-
-    return `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/0`
-  }, [])
 
   const hasClaimableRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
@@ -403,23 +363,9 @@ export const RFOXSection = () => {
     setIsClaimModalOpen(false)
   }, [])
 
-  const cooldownPeriodQuery = useCooldownPeriodQuery(stakingAssetId)
-
-  const isUnstakeDisabledForMigration = useMemo(
-    () =>
-      stakingAssetId === foxOnArbitrumOneAssetId &&
-      cooldownPeriodQuery.data?.cooldownPeriodSeconds !== 0,
-    [cooldownPeriodQuery.data?.cooldownPeriodSeconds, stakingAssetId],
-  )
-
   const isStakeDisabled = useMemo(
     () => pauseState.isStakingPaused || RFOX_STAKING_CONFIG[stakingAssetId].isLegacy,
     [pauseState.isStakingPaused, stakingAssetId],
-  )
-
-  const isUnstakeDisabled = useMemo(
-    () => pauseState.isUnstakingPaused || isUnstakeDisabledForMigration,
-    [isUnstakeDisabledForMigration, pauseState.isUnstakingPaused],
   )
 
   const actionsButtons = useMemo(() => {
@@ -443,8 +389,8 @@ export const RFOXSection = () => {
         </Tooltip>
         <Box flex='1 1 auto' sx={tooltipWrapperSx}>
           <Tooltip
-            label={unstakeDisabledTooltip}
-            isDisabled={!isUnstakeDisabled}
+            label={translate('RFOX.unstakingPausedTooltip')}
+            isDisabled={!pauseState.isUnstakingPaused}
             shouldWrapChildren
           >
             <Button
@@ -453,7 +399,7 @@ export const RFOXSection = () => {
               colorScheme='gray'
               width='full'
               leftIcon={tbArrowDown}
-              isDisabled={isUnstakeDisabled}
+              isDisabled={pauseState.isUnstakingPaused}
             >
               {translate('defi.unstake')}
             </Button>
@@ -483,9 +429,7 @@ export const RFOXSection = () => {
     translate,
     hasClaimableRequests,
     isStakeDisabled,
-    isUnstakeDisabled,
     pauseState,
-    unstakeDisabledTooltip,
   ])
 
   if (!(stakingAsset && rewardAsset)) return null
@@ -493,24 +437,6 @@ export const RFOXSection = () => {
   return (
     <Box>
       <Divider mt={2} mb={6} />
-      {isMigrationBannerVisible && (
-        <Card borderColor='blue.500' borderWidth={1} borderRadius='lg' mb={2}>
-          <CardBody py={3} px={4}>
-            <Flex alignItems='center' gap={3} flexWrap='wrap'>
-              <Icon as={TbAlertTriangle} boxSize={6} color='blue.300' />
-              <Box flex='1 1 auto'>
-                <CText fontWeight='bold'>{translate('RFOX.migrationBannerTitle')}</CText>
-                <CText fontSize='sm' color='text.subtle'>
-                  {migrationBannerDescription}
-                </CText>
-              </Box>
-              <Button as={RouterLink} to={migrationTradeUrl} colorScheme='blue' size='sm'>
-                {translate('RFOX.migrationBannerCta')}
-              </Button>
-            </Flex>
-          </CardBody>
-        </Card>
-      )}
       {hasLpPosition && (
         <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
           <CardBody py={2} px={4}>

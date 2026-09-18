@@ -1,6 +1,11 @@
 import { CardBody, CardFooter, Collapse, Skeleton, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { BigAmount, getChainShortName, isSome } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
@@ -35,6 +40,7 @@ import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuer
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
+  selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectAssets,
   selectFeeAssetByChainId,
@@ -79,7 +85,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     state: { isConnected, wallet },
   } = useWallet()
 
-  const { stakingAssetId, selectedAssetAccountId, stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetId, stakingAssetAccountId, stakingAssetAccountNumber } = useRFOXContext()
 
   // The asset the user funds the stake with, which is not necessarily the asset the selected staking
   // program takes - the Arbitrum FOX program can also be funded with mainnet FOX, by bridging first.
@@ -130,18 +136,27 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setValue,
   } = methods
 
-  const selectedFundingAsset = useAppSelector(state =>
-    selectAssetById(state, fundingAssetId),
-  )
+  const selectedFundingAsset = useAppSelector(state => selectAssetById(state, fundingAssetId))
   const selectedFundingAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, fundingAssetId),
   )
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdByAccountNumberAndChainId,
+  )
+
+  const fundingAssetAccountId = useMemo(() => {
+    if (stakingAssetAccountNumber === undefined) return
+    return accountIdsByAccountNumberAndChainId[stakingAssetAccountNumber]?.[
+      fromAssetId(fundingAssetId).chainId
+    ]
+  }, [accountIdsByAccountNumberAndChainId, fundingAssetId, stakingAssetAccountNumber])
+
   const selectedFundingAssetBalanceFilter = useMemo(
     () => ({
-      accountId: selectedAssetAccountId ?? '',
+      accountId: fundingAssetAccountId ?? '',
       assetId: fundingAssetId,
     }),
-    [selectedAssetAccountId, fundingAssetId],
+    [fundingAssetAccountId, fundingAssetId],
   )
   const selectedFundingAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, selectedFundingAssetBalanceFilter),
@@ -262,7 +277,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const handleSubmit = useCallback(() => {
     if (
       !(
-        selectedAssetAccountId &&
+        fundingAssetAccountId &&
         stakingAssetAccountId &&
         selectedFundingAsset &&
         isValidStakingAmount
@@ -289,7 +304,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           value: amountCryptoPrecision,
           precision: selectedFundingAsset.precision,
         }).toBaseUnit(),
-        sellAssetAccountId: selectedAssetAccountId,
+        sellAssetAccountId: fundingAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }
       return navigate(BridgeRoutePaths.Confirm, { state: bridgeQuote })
@@ -297,7 +312,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
     navigate(StakeRoutePaths.Confirm)
   }, [
-    selectedAssetAccountId,
+    fundingAssetAccountId,
     stakingAssetAccountId,
     selectedFundingAsset,
     stakingAssetId,
@@ -322,8 +337,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       onAssetClick: asset => setFundingAssetId(asset.assetId),
       title: 'common.selectAsset',
       assets: fundingAssets,
+      accountNumber: stakingAssetAccountNumber,
     })
-  }, [fundingAssets, buyAssetSearch, setFundingAssetId])
+  }, [fundingAssets, buyAssetSearch, setFundingAssetId, stakingAssetAccountNumber])
 
   const handleAssetChange = useCallback(
     (asset: Asset) => setFundingAssetId(asset.assetId),
@@ -346,6 +362,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           onlyConnectedChains={true}
           buttonProps={assetSelectButtonProps}
           showChainDropdown={!isSmallerThanMd}
+          accountNumber={stakingAssetAccountNumber}
           px={6}
         />
       )
@@ -360,6 +377,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         onlyConnectedChains={true}
         buttonProps={assetSelectButtonProps}
         showChainDropdown={!isSmallerThanMd}
+        accountNumber={stakingAssetAccountNumber}
         px={6}
       />
     )
@@ -370,6 +388,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     isSmallerThanMd,
     selectedFundingAsset?.assetId,
     fundingAssetIds,
+    stakingAssetAccountNumber,
   ])
 
   const validateHasEnoughStakingAssetFeeBalance = useCallback(
@@ -522,7 +541,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           <TradeAssetInput
             amountFieldInputRules={amountFieldInputRules}
             assetId={selectedFundingAsset?.assetId}
-            accountId={selectedAssetAccountId}
+            accountId={fundingAssetAccountId}
             assetSymbol={selectedFundingAsset?.symbol ?? ''}
             assetIcon={selectedFundingAsset?.icon ?? ''}
             percentOptions={percentOptions}

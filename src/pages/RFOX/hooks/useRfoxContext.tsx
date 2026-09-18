@@ -1,19 +1,15 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 
 import { RFOX_CURRENT_STAKING_ASSET_IDS, RFOX_STAKING_ASSET_IDS } from '../constants'
 
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectAccountNumberByAccountId,
-} from '@/state/slices/portfolioSlice/selectors'
+import { selectAccountNumberByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 type RFOXContextType = {
-  selectedAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
+  stakingAssetAccountNumber: number | undefined
   setStakingAssetId: (assetId: AssetId) => void
   setStakingAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
 }
@@ -39,29 +35,18 @@ export const RFOXProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     filter ? selectAccountNumberByAccountId(state, filter) : undefined,
   )
 
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
-  )
-
-  const selectedAssetAccountId = useMemo(() => {
-    if (!(filter && stakingAssetAccountNumber !== undefined)) return
-    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[stakingAssetAccountNumber]
-    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(stakingAssetId).chainId]
-    return matchingAccountId
-  }, [accountIdsByAccountNumberAndChainId, filter, stakingAssetId, stakingAssetAccountNumber])
-
   const value: RFOXContextType = useMemo(
     () => ({
-      selectedAssetAccountId,
       setStakingAssetAccountId,
       setStakingAssetId,
       stakingAssetId,
       stakingAssetAccountId,
+      stakingAssetAccountNumber,
     }),
     [
-      selectedAssetAccountId,
       stakingAssetId,
       stakingAssetAccountId,
+      stakingAssetAccountNumber,
       setStakingAssetAccountId,
       setStakingAssetId,
     ],

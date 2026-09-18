@@ -87,7 +87,9 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     [stakingAssetFeeAsset?.assetId, stakingAssetAccountId],
   )
   const stakingAssetFeeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+    stakingAssetAccountId
+      ? selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter)
+      : BigAmount.zero({ precision: 0 }),
   )
 
   // Which program is being unstaked from is the page's to choose, not this form's

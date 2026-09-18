@@ -555,6 +555,25 @@ describe('swapMachine', () => {
       expect(actor.getSnapshot().context.error).toBe('Transaction failed')
       actor.stop()
     })
+
+    it('retries an expired quote by fetching a new one, not by executing the stale one', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
+      actor.send({ type: 'FETCH_QUOTE' })
+      actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
+      actor.send({ type: 'QUOTE_EXPIRED' })
+      expect(actor.getSnapshot().context.errorSource).toBe('QUOTE_EXPIRED')
+
+      actor.send({ type: 'RETRY' })
+      expect(actor.getSnapshot().value).toBe('quoting')
+      actor.stop()
+    })
   })
 
   describe('polling_status state', () => {

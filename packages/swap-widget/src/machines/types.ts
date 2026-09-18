@@ -2,6 +2,7 @@ import type { Asset, QuoteResponse, TradeRate } from '../types'
 
 export type ErrorSource =
   | 'QUOTE_ERROR'
+  | 'QUOTE_EXPIRED'
   | 'APPROVAL_ERROR'
   | 'EXECUTE_ERROR'
   | 'STATUS_FAILED'
@@ -27,6 +28,8 @@ export type SwapMachineContext = {
   // Start of the settlement tracking window
   depositObservedAt: number | null
   approvalTxHash: string | null
+  // Which of the quote's approval txs is in flight - a reset and an approval look alike otherwise
+  approvalTxIndex: number
   error: string | null
   errorSource: ErrorSource | null
   retryCount: number
@@ -81,10 +84,12 @@ export type SwapMachineEvent =
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }
   | { type: 'APPROVE' }
+  | { type: 'APPROVAL_TX_STARTED'; index: number }
   | { type: 'APPROVAL_SUCCESS'; txHash: string }
   | { type: 'APPROVAL_ERROR'; error: string }
   | { type: 'EXECUTE_SUCCESS'; txHash: string }
   | { type: 'EXECUTE_ERROR'; error: string }
+  | { type: 'QUOTE_EXPIRED' }
   | { type: 'STATUS_CONFIRMED'; txLink?: string; buyTxLink?: string; swapperTxLink?: string }
   | { type: 'STATUS_FAILED'; error: string; txLink?: string; swapperTxLink?: string }
   | { type: 'RETRY' }

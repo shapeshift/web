@@ -33,7 +33,7 @@ export const StakeModal: React.FC<StakeModalProps> = ({ isOpen, onClose }) => {
       </DialogHeader>
       <DialogBody p={0}>
         <Card bg='transparent'>
-          <Stake />
+          <Stake onClose={onClose} />
         </Card>
       </DialogBody>
     </Dialog>

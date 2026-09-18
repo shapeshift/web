@@ -28,6 +28,7 @@ export type AssetData = {
   showRelatedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
+  accountNumber?: number
 }
 
 type AssetListProps = AssetData & ListProps
@@ -49,6 +50,7 @@ export const AssetList: FC<AssetListProps> = ({
   showRelatedAssets = false,
   assetFilterPredicate,
   chainIdFilterPredicate,
+  accountNumber,
 }) => {
   const virtuosoStyle = useMemo(
     () => ({
@@ -69,6 +71,7 @@ export const AssetList: FC<AssetListProps> = ({
       showRelatedAssets,
       assetFilterPredicate,
       chainIdFilterPredicate,
+      accountNumber,
     }),
     [
       assets,
@@ -81,6 +84,7 @@ export const AssetList: FC<AssetListProps> = ({
       showRelatedAssets,
       assetFilterPredicate,
       chainIdFilterPredicate,
+      accountNumber,
     ],
   )
 

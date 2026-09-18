@@ -9,4 +9,5 @@ export enum ClaimRoutePaths {
 
 export type ClaimRouteProps = {
   headerComponent?: JSX.Element
+  onClose?: () => void
 }

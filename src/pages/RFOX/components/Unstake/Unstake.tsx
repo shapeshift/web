@@ -34,15 +34,15 @@ const UnstakeConfirm = makeSuspenseful(
 
 const UnstakeEntries = [UnstakeRoutePaths.Input, UnstakeRoutePaths.Confirm]
 
-export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
+export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent, onClose }) => {
   return (
     <MemoryRouter initialEntries={UnstakeEntries} initialIndex={0}>
-      <UnstakeRoutes headerComponent={headerComponent} />
+      <UnstakeRoutes headerComponent={headerComponent} onClose={onClose} />
     </MemoryRouter>
   )
 }
 
-export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
+export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent, onClose }) => {
   const location = useLocation()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
@@ -61,9 +61,10 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
         unstakeTxid={unstakeTxid}
         setUnstakeTxid={setUnstakeTxid}
         headerComponent={headerComponent}
+        onClose={onClose}
       />
     )
-  }, [confirmedQuote, headerComponent, unstakeTxid])
+  }, [confirmedQuote, headerComponent, onClose, unstakeTxid])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

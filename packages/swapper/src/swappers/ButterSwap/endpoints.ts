@@ -3,7 +3,6 @@ import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/ev
 import { getSolanaTransactionFees } from '../../utils/solana/getSolanaTransactionFees'
 import { getUnsignedSolanaTransaction } from '../../utils/solana/getUnsignedSolanaTransaction'
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
-import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { checkTradeStatus } from './swapperApi/checkTradeStatus'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
@@ -15,8 +14,6 @@ export const butterSwapApi: SwapperApi = {
   checkTradeStatus,
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
-  getUnsignedUtxoTransaction,
-  getUtxoTransactionFees,
   getUnsignedSolanaTransaction,
   getSolanaTransactionFees,
   getTronTransactionFees,

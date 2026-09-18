@@ -142,20 +142,19 @@ export const AssetRow: FC<AssetRowProps> = memo(
       return accountIdsByAccountNumberAndChainId[accountNumber]?.[asset.chainId]
     }, [accountIdsByAccountNumberAndChainId, accountNumber, asset.chainId])
 
-    // A scoped row whose account number has no account on this chain holds none of it, and an
-    // accountId of undefined would otherwise read as every account
-    const hasNoScopedAccount = accountNumber !== undefined && !accountId
+    // An unresolved accountId reads as every account in the balance selectors
+    const hasNoAccountOnChain = accountNumber !== undefined && !accountId
 
     const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
     const cryptoPrecisionBalance = useAppSelector(s =>
-      canDisplayBalances && !hasNoScopedAccount
+      canDisplayBalances && !hasNoAccountOnChain
         ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision()
         : '0',
     )
     const userCurrencyBalance =
       useAppSelector(s =>
-        canDisplayBalances && !hasNoScopedAccount
+        canDisplayBalances && !hasNoAccountOnChain
           ? selectPortfolioUserCurrencyBalanceByFilter(s, filter)
           : '0',
       ) ?? '0'

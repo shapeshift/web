@@ -416,7 +416,6 @@ export const RFOXSection = () => {
     [cooldownPeriodQuery.data?.cooldownPeriodSeconds, stakingAssetId],
   )
 
-  // A sunset program is closed to new stakes whether or not the contract has been paused for it
   const isStakeDisabled = useMemo(
     () => pauseState.isStakingPaused || RFOX_STAKING_CONFIG[stakingAssetId].isLegacy,
     [pauseState.isStakingPaused, stakingAssetId],

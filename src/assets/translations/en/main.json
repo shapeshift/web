@@ -1059,7 +1059,6 @@
       "swapEta": "Swap via %{swapperName} in ~%{eta}"
     },
     "transactionTitle": {
-      "bridge": "Swap from %{sellChainName} to %{buyChainName} via %{swapperName}",
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
@@ -2935,9 +2934,6 @@
     "unstakeInitiated": "Unstake Initiated",
     "claimWithdraw": "Claim Withdraw",
     "staking": "rFOX Staking",
-    "bridge": "Bridge",
-    "bridgeFunds": "Bridge Funds",
-    "bridgeSuccess": "Your funds have been successfully bridged. You can now continue to staking.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",
@@ -2959,7 +2955,6 @@
     "useWalletAddress": "Use wallet address",
     "useCustomAddress": "Use custom address",
     "stakeWarning": "When you stake your %{symbol} please be aware that the lock-up period is %{cooldownPeriod}. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
-    "bridgeCta": "You selected %{assetSymbol} on %{originNetwork}, but you'll need %{assetSymbol} on %{destinationNetwork} to stake. We can help you bridge your funds to %{destinationNetwork}. Would you like us to guide you through the process?",
     "unstakeWarning": "Before you can claim your %{symbol} the cool-down period is %{cooldownPeriod}. After that time has elapsed you will be able to claim your unstaked amount.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
@@ -2987,7 +2982,6 @@
     "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",
     "unstakeNow": "Unstake To Claim FOX",
-    "bridgeAndConfirm": "Bridge & Confirm",
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "myStakedBalance": "My Staked Balance",
@@ -3040,13 +3034,9 @@
     "foxBuybackAmount": "FOX Buyback Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution",
     "selectRuneAddress": "Select a RUNE address",
-    "unstakeDisabledMigrationTooltip": "Unstaking is disabled until %{migrationDate}, when the cooldown period is removed.",
     "lpSunsetWarningTitle": "Program Ended",
     "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience.",
     "claimInProgress": "Claim in progress",
-    "migrationBannerTitle": "rFOX is moving to Ethereum",
-    "migrationBannerDescription": "rFOX staking is moving from Arbitrum to Ethereum on %{migrationDate}. You'll keep earning rewards on Arbitrum until then, when unstaking opens so you can move your FOX across.",
-    "migrationBannerCta": "Move FOX to Ethereum",
     "stakingPausedTooltip": "Staking is paused for this program.",
     "unstakingPausedTooltip": "Unstaking is paused for this program.",
     "withdrawalsPausedTooltip": "Claiming is paused for this program."

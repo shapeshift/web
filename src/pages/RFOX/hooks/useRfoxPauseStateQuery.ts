@@ -11,16 +11,15 @@ export type RfoxPauseState = {
   isWithdrawalsPaused: boolean
 }
 
-const PAUSED_PAUSE_STATE: RfoxPauseState = {
-  isStakingPaused: true,
-  isUnstakingPaused: true,
-  isWithdrawalsPaused: true,
+const DEFAULT_PAUSE_STATE: RfoxPauseState = {
+  isStakingPaused: false,
+  isUnstakingPaused: false,
+  isWithdrawalsPaused: false,
 }
 
 /**
  * Reads the on-chain pause flags for a staking contract, which gate whether each of stake, unstake
- * and claim can be actioned. Ops flips these directly on the contract, so this is what lets the UI
- * react to something like the Arbitrum sunset without a deploy.
+ * and claim can be actioned.
  *
  * stake, unstake and withdraw each carry the contract wide `whenNotPaused` on top of their own
  * flag, so the global pause is folded into all three rather than reported separately.
@@ -40,10 +39,11 @@ export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
 
   return useReadContracts({
     contracts,
-    // A call failing on its own would read as not paused, and would not be retried either
     allowFailure: false,
     query: {
       staleTime: 60 * 1000, // 1 minute in milliseconds
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
       select: ([paused, stakingPaused, unstakingPaused, withdrawalsPaused]): RfoxPauseState => ({
         isStakingPaused: paused || stakingPaused,
         isUnstakingPaused: paused || unstakingPaused,
@@ -53,7 +53,5 @@ export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
   })
 }
 
-// An unknown pause state counts as paused - the contract reverts either way, so guessing the other
-// way only costs the user a gas estimate and an error at execution
 export const selectPauseState = (pauseState: RfoxPauseState | undefined): RfoxPauseState =>
-  pauseState ?? PAUSED_PAUSE_STATE
+  pauseState ?? DEFAULT_PAUSE_STATE

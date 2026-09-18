@@ -188,8 +188,6 @@ export const RFOXSection = () => {
 
   const pauseStateQuery = useRfoxPauseStateQuery(stakingAssetId)
   const pauseState = useMemo(() => selectPauseState(pauseStateQuery.data), [pauseStateQuery.data])
-  // Actions are disabled until the pause state is known, but calling that a pause would be a guess
-  const isPauseStateUnknown = pauseStateQuery.isLoading
 
   // Sunset programs are only surfaced while the user still has something to unstake or claim in
   // them, so they fall away on their own once drained. Current programs are always surfaced, paused
@@ -246,11 +244,13 @@ export const RFOXSection = () => {
     [migrationDate, translate],
   )
 
-  const unstakeDisabledTooltip = useMemo(() => {
-    if (isPauseStateUnknown) return ''
-    if (pauseState.isUnstakingPaused) return translate('RFOX.unstakingPausedTooltip')
-    return translate('RFOX.unstakeDisabledMigrationTooltip', { migrationDate })
-  }, [isPauseStateUnknown, migrationDate, pauseState.isUnstakingPaused, translate])
+  const unstakeDisabledTooltip = useMemo(
+    () =>
+      pauseState.isUnstakingPaused
+        ? translate('RFOX.unstakingPausedTooltip')
+        : translate('RFOX.unstakeDisabledMigrationTooltip', { migrationDate }),
+    [migrationDate, pauseState.isUnstakingPaused, translate],
+  )
 
   // Everything below is keyed on the selected program, so warm the others up front
   const programPrefetch = useMemo(
@@ -416,6 +416,12 @@ export const RFOXSection = () => {
     [cooldownPeriodQuery.data?.cooldownPeriodSeconds, stakingAssetId],
   )
 
+  // A sunset program is closed to new stakes whether or not the contract has been paused for it
+  const isStakeDisabled = useMemo(
+    () => pauseState.isStakingPaused || RFOX_STAKING_CONFIG[stakingAssetId].isLegacy,
+    [pauseState.isStakingPaused, stakingAssetId],
+  )
+
   const isUnstakeDisabled = useMemo(
     () => pauseState.isUnstakingPaused || isUnstakeDisabledForMigration,
     [isUnstakeDisabledForMigration, pauseState.isUnstakingPaused],
@@ -426,7 +432,7 @@ export const RFOXSection = () => {
       <Flex flexWrap='wrap' gap={2}>
         <Tooltip
           label={translate('RFOX.stakingPausedTooltip')}
-          isDisabled={!pauseState.isStakingPaused || isPauseStateUnknown}
+          isDisabled={!isStakeDisabled}
           shouldWrapChildren
         >
           <Button
@@ -435,7 +441,7 @@ export const RFOXSection = () => {
             colorScheme='gray'
             flex='1 1 auto'
             leftIcon={tbArrowUp}
-            isDisabled={pauseState.isStakingPaused}
+            isDisabled={isStakeDisabled}
           >
             {translate('defi.stake')}
           </Button>
@@ -443,7 +449,7 @@ export const RFOXSection = () => {
         <Box flex='1 1 auto' sx={tooltipWrapperSx}>
           <Tooltip
             label={unstakeDisabledTooltip}
-            isDisabled={!isUnstakeDisabled || !unstakeDisabledTooltip}
+            isDisabled={!isUnstakeDisabled}
             shouldWrapChildren
           >
             <Button
@@ -460,7 +466,7 @@ export const RFOXSection = () => {
         </Box>
         <Tooltip
           label={translate('RFOX.withdrawalsPausedTooltip')}
-          isDisabled={!pauseState.isWithdrawalsPaused || isPauseStateUnknown}
+          isDisabled={!pauseState.isWithdrawalsPaused}
           shouldWrapChildren
         >
           <Button
@@ -481,7 +487,7 @@ export const RFOXSection = () => {
     handleClaimClick,
     translate,
     hasClaimableRequests,
-    isPauseStateUnknown,
+    isStakeDisabled,
     isUnstakeDisabled,
     pauseState,
     unstakeDisabledTooltip,

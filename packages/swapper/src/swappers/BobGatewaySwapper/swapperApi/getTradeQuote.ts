@@ -1,4 +1,4 @@
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { btcChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -20,14 +20,14 @@ export const getBobGatewayTradeQuote = async (
   if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
   const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
-  const isEvmSell = isEvmChainId(sellAsset.chainId)
+  const isBtcSell = sellAsset.chainId === btcChainId
 
   // omit the sender for utxo sells so order creation does not enforce a per-address confirmed
   // funds check (deposits are matched via op_return, not the sending address)
-  const sender = isEvmSell ? sendAddress : undefined
+  const sender = isBtcSell ? undefined : sendAddress
 
-  // utxo deposits are refunded on the sell chain, so refunds go to the sending address
-  const refundAddress = isEvmSell ? undefined : sendAddress
+  // refunds go to the sending address on the sell chain; required by create-order
+  const refundAddress = sendAddress
 
   const maybeContext = await getBobGatewayTradeContext({
     input,

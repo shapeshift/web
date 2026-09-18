@@ -4,11 +4,12 @@ export const ApprovalStep = () => {
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isApproving = SwapMachineCtx.useSelector(s => s.matches('approving'))
   const { send } = SwapMachineCtx.useActorRef()
-  const { sellAsset, approvalTxHash } = context
+  const { sellAsset, quote, approvalTxIndex } = context
 
-  const explorerUrl = approvalTxHash
-    ? `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${approvalTxHash}`
-    : undefined
+  // A second tx is the reset USDT-likes need before a non-zero allowance can change
+  const approvalTxCount = quote?.approval?.approvalTxs?.length ?? 1
+  const needsAllowanceReset = approvalTxCount > 1
+  const isResettingAllowance = needsAllowanceReset && approvalTxIndex === 0
 
   if (isApproving) {
     return (
@@ -27,28 +28,12 @@ export const ApprovalStep = () => {
             <path d='M12 2a10 10 0 0 1 10 10' />
           </svg>
         </div>
-        <div className='ssw-step-title'>Approving {sellAsset.symbol}…</div>
-        <div className='ssw-step-subtitle'>Waiting for wallet confirmation</div>
-        {explorerUrl && (
-          <a
-            href={explorerUrl}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='ssw-step-explorer-link'
-          >
-            View on Explorer
-            <svg
-              width='12'
-              height='12'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-            >
-              <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3' />
-            </svg>
-          </a>
-        )}
+        <div className='ssw-step-title'>
+          {isResettingAllowance
+            ? `Resetting ${sellAsset.symbol} Allowance…`
+            : `Approving ${sellAsset.symbol}…`}
+        </div>
+        <div className='ssw-step-subtitle'>Waiting for confirmation</div>
       </div>
     )
   }
@@ -70,11 +55,13 @@ export const ApprovalStep = () => {
       </div>
       <div className='ssw-step-title'>Token Approval Required</div>
       <div className='ssw-step-subtitle'>
-        Allow the swap contract to use your {sellAsset.symbol}
+        {needsAllowanceReset
+          ? 'Resets the old allowance, then approves the exact amount this swap will spend'
+          : 'Approves the exact amount this swap will spend'}
       </div>
       <div className='ssw-step-actions'>
         <button className='ssw-action-btn' onClick={() => send({ type: 'APPROVE' })} type='button'>
-          Approve {sellAsset.symbol}
+          {needsAllowanceReset ? 'Reset & Approve' : 'Approve'} {sellAsset.symbol}
         </button>
         <button
           className='ssw-action-btn ssw-secondary'

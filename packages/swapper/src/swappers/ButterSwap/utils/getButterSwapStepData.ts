@@ -25,7 +25,6 @@ import {
   omitComputeBudgetInstructions,
   withComputeUnitLimit,
 } from '../../../utils/solana'
-import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 import type { BuildTxSuccessItem, ButterSwapTransactionMetadata, RouteSuccessItem } from '../types'
 import { getProviderNetworkFeeCryptoBaseUnit } from './helpers'
 
@@ -118,66 +117,6 @@ export async function getButterSwapStepData(
             sellAmountCryptoBaseUnit,
             spenderAddress,
           },
-        })
-
-        const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
-
-        return Ok(stepData)
-      } catch (error) {
-        return Err(makeNetworkFeeEstimationFailedErr('getButterSwapStepData', error))
-      }
-    }
-    case CHAIN_NAMESPACE.Utxo: {
-      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-      const pubkey = 'xpub' in input ? input.xpub : undefined
-
-      if (args.type === 'rate') {
-        const networkFeeCryptoBaseUnit = await (async () => {
-          try {
-            const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
-              adapter,
-              pubkey,
-              to: input.sendAddress ?? UTXO_PLACEHOLDER_ADDRESS,
-              value: sellAmountCryptoBaseUnit,
-            })
-
-            return networkFeeCryptoBaseUnit
-          } catch {
-            return getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
-          }
-        })()
-
-        const stepData: ButterSwapRateStepData = { networkFeeCryptoBaseUnit }
-
-        return Ok(stepData)
-      }
-
-      const { buildTx } = args
-
-      // opReturnData routes the bridge for BTC deposits
-      if (!buildTx.memo) {
-        return Err(
-          makeSwapErrorRight({
-            message: '[getButterSwapStepData] Missing memo (opReturnData)',
-            code: TradeQuoteError.InvalidResponse,
-          }),
-        )
-      }
-
-      const transactionData = {
-        type: 'utxo' as const,
-        to: buildTx.to,
-        opReturnData: buildTx.memo,
-        value: sellAmountCryptoBaseUnit,
-      }
-
-      try {
-        const { networkFeeCryptoBaseUnit } = await getUtxoNetworkFeeCryptoBaseUnit({
-          adapter,
-          pubkey,
-          to: transactionData.to,
-          value: transactionData.value,
-          opReturnData: transactionData.opReturnData,
         })
 
         const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

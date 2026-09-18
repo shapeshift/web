@@ -188,7 +188,7 @@ export const useSwapExecution = () => {
         }
 
         if (Date.now() >= quote.expiresAt) {
-          actorRef.send({ type: 'EXECUTE_ERROR', error: 'Quote expired — please try again' })
+          actorRef.send({ type: 'QUOTE_EXPIRED' })
           return
         }
 

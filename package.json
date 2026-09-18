@@ -420,7 +420,6 @@
       "bigint-buffer",
       "usb",
       "sharp",
-      "electron",
       "unrs-resolver"
     ]
   }

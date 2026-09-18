@@ -25,9 +25,12 @@ import {
   DAO_TREASURY_ETHEREUM_MAINNET,
   DAO_TREASURY_GNOSIS,
   DAO_TREASURY_HYPEREVM,
+  DAO_TREASURY_MEGAETH,
   DAO_TREASURY_MONAD,
   DAO_TREASURY_OPTIMISM,
+  DAO_TREASURY_PLASMA,
   DAO_TREASURY_POLYGON,
+  DAO_TREASURY_ROBINHOOD,
   DAO_TREASURY_SOLANA,
   DAO_TREASURY_STARKNET,
   DAO_TREASURY_TON,
@@ -103,6 +106,9 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.MonadMainnet]: DAO_TREASURY_MONAD,
   [KnownChainIds.HyperEvmMainnet]: DAO_TREASURY_HYPEREVM,
   [KnownChainIds.BobMainnet]: DAO_TREASURY_BOB,
+  [KnownChainIds.RobinhoodMainnet]: DAO_TREASURY_ROBINHOOD,
+  [KnownChainIds.PlasmaMainnet]: DAO_TREASURY_PLASMA,
+  [KnownChainIds.MegaEthMainnet]: DAO_TREASURY_MEGAETH,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { GetTradeQuoteInput, GetTradeRateInput, SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { BTC, ETH, RUNE, WETH } from '../../../utils/test-data/assets'
+import { ETH, RUNE, WETH } from '../../../utils/test-data/assets'
 import { ROUTE_QUOTE } from '../test-data/routeQuote'
 import type { BuildTxSuccessItem, RouteSuccessItem } from '../types'
 import { getButterSwapStepData } from './getButterSwapStepData'
@@ -159,74 +159,6 @@ describe('getButterSwapStepData', () => {
 
       expect(actual.isErr()).toBe(true)
       expect(actual.unwrapErr().code).toBe(TradeQuoteError.NetworkFeeEstimationFailed)
-    })
-  })
-
-  describe('utxo', () => {
-    const utxoAdapter = {
-      getFeeData: () => Promise.resolve({ fast: { txFee: '4200' } }),
-      httpProvider: {
-        getNetworkFees: () => Promise.resolve({ fast: { satsPerKiloByte: 10000 } }),
-      },
-    }
-
-    it('estimates off the default vsize for a rate with no pubkey', async () => {
-      const actual = await getButterSwapStepData({
-        type: 'rate',
-        input: {} as GetTradeRateInput,
-        deps: makeDeps({ utxo: utxoAdapter }),
-        route,
-        sellAsset: BTC,
-        feeAsset: BTC,
-        sellAmountCryptoBaseUnit: '100000',
-        spenderAddress: '',
-      })
-
-      // 10 sats/byte * 200 vbyte default
-      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '2000' })
-    })
-
-    it('builds transaction data with the memo as op return data for a quote', async () => {
-      const actual = await getButterSwapStepData({
-        type: 'quote',
-        input: { xpub: 'zpub6qux' } as unknown as GetTradeQuoteInput,
-        from: 'bc1qaddress',
-        buildTx: { ...evmBuildTx, to: 'bc1qbridge', memo: 'butter-memo' },
-        deps: makeDeps({ utxo: utxoAdapter }),
-        route,
-        sellAsset: BTC,
-        feeAsset: BTC,
-        sellAmountCryptoBaseUnit: '100000',
-        spenderAddress: '',
-      })
-
-      expect(actual.unwrap()).toEqual({
-        networkFeeCryptoBaseUnit: '4200',
-        transactionData: {
-          type: 'utxo',
-          to: 'bc1qbridge',
-          opReturnData: 'butter-memo',
-          value: '100000',
-        },
-      })
-    })
-
-    it('errors when the quote is missing the memo the bridge routes on', async () => {
-      const actual = await getButterSwapStepData({
-        type: 'quote',
-        input: { xpub: 'zpub6qux' } as unknown as GetTradeQuoteInput,
-        from: 'bc1qaddress',
-        buildTx: { ...evmBuildTx, to: 'bc1qbridge', memo: undefined },
-        deps: makeDeps({ utxo: utxoAdapter }),
-        route,
-        sellAsset: BTC,
-        feeAsset: BTC,
-        sellAmountCryptoBaseUnit: '100000',
-        spenderAddress: '',
-      })
-
-      expect(actual.isErr()).toBe(true)
-      expect(actual.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
     })
   })
 

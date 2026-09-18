@@ -72,17 +72,26 @@ export const useRfoxPositionsQuery = ({
   )
 
   const hasPositionByStakingAssetId = useMemo(() => {
-    const allUnstakingRequests = unstakingRequestsQuery.data?.all ?? []
+    const unstakingRequestsByAccountId = unstakingRequestsQuery.data?.byAccountId
 
     return RFOX_STAKING_ASSET_IDS.reduce<Record<AssetId, boolean>>((acc, stakingAssetId) => {
-      const hasUnstakingRequests = allUnstakingRequests.some(
-        request => request.stakingAssetId === stakingAssetId,
+      const stakingAssetAccountId = accountIdByStakingAssetId[stakingAssetId]
+
+      // An accountId is shared by every program on its chain, so the program still has to be matched
+      const hasUnstakingRequests = Boolean(
+        unstakingRequestsByAccountId?.[stakingAssetAccountId ?? '']?.some(
+          request => request.stakingAssetId === stakingAssetId,
+        ),
       )
 
       acc[stakingAssetId] = hasStakingBalanceByStakingAssetId[stakingAssetId] || hasUnstakingRequests
       return acc
     }, {})
-  }, [hasStakingBalanceByStakingAssetId, unstakingRequestsQuery.data?.all])
+  }, [
+    accountIdByStakingAssetId,
+    hasStakingBalanceByStakingAssetId,
+    unstakingRequestsQuery.data?.byAccountId,
+  ])
 
   const isLoading = useMemo(
     () => unstakingRequestsQuery.isLoading || stakingBalanceQueries.some(query => query.isLoading),

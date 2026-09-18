@@ -56,9 +56,14 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
     [pendingRfoxClaimActions],
   )
 
+  // Scoped to the selected program, matching the claim button that opens this - an accountId is
+  // shared by every program on its chain, so the accountId alone would mix them
   const accountUnstakingRequests = useMemo(
-    () => allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? ''],
-    [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId],
+    () =>
+      allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']?.filter(
+        request => request.stakingAssetId === stakingAssetId,
+      ),
+    [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId, stakingAssetId],
   )
 
   const claimBody = useMemo(() => {

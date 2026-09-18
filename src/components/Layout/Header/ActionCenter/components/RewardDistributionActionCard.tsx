@@ -75,7 +75,8 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   }, [rewardDistributionTranslationComponents, action.status])
 
   const icon = useMemo(() => {
-    return <ActionIcon assetId={rewardAssetId ?? ''} status={action.status} />
+    if (!rewardAssetId) return
+    return <ActionIcon assetId={rewardAssetId} status={action.status} />
   }, [action.status, rewardAssetId])
 
   const txLink = useMemo(() => {
@@ -95,6 +96,9 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   const footer = useMemo(() => {
     return <ActionStatusTag status={action.status} />
   }, [action.status])
+
+  // An unrecognised staking contract leaves no reward to describe, and the card is only the reward
+  if (!rewardAsset) return null
 
   return (
     <ActionCard

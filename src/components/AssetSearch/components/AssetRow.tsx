@@ -288,6 +288,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           showPrice={showPrice}
           onLongPress={handleLongPress}
           relatedAssetIds={filteredRelatedAssetIds}
+          accountNumber={accountNumber}
         />
       )
     }

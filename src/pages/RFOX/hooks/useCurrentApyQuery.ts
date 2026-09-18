@@ -66,6 +66,9 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
         .toBN()
         .times(closestStakingAssetPrice.price)
 
+      // A program with a distribution rate but nothing staked yet has no apy to report
+      if (totalStakedUsd.isZero()) return
+
       return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)
     },
     [stakingAssetPriceHistory, stakingAsset, totalStakedCryptoCurrencyQuery],

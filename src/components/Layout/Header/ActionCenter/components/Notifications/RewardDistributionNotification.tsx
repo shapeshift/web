@@ -44,7 +44,7 @@ export const RewardDistributionNotification = ({
   }, [isComplete])
 
   const icon = useMemo(() => {
-    if (!(action && rewardAssetId)) return undefined
+    if (!(action && rewardAssetId)) return
     return <ActionIcon assetId={rewardAssetId} status={action.status} />
   }, [action, rewardAssetId])
 

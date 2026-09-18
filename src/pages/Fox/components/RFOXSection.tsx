@@ -123,14 +123,13 @@ export const RFOXSection = () => {
 
   const translate = useTranslate()
   const { assetAccountNumber } = useFoxPageContext()
-  const { setStakingAssetAccountId, setStakingAssetId: setContextStakingAssetId } = useRFOXContext()
+  const { setStakingAssetAccountId, setStakingAssetId, stakingAssetId } = useRFOXContext()
   const appDispatch = useAppDispatch()
   const location = useLocation()
   const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
     | UnstakingRequest
     | undefined
 
-  const [stakingAssetId, setStakingAssetId] = useState(RFOX_CURRENT_STAKING_ASSET_IDS[0])
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
   const [isUnstakeModalOpen, setIsUnstakeModalOpen] = useState(false)
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(!!selectedUnstakingRequest)
@@ -209,8 +208,7 @@ export const RFOXSection = () => {
     if (!visibleStakingAssetIds.length) return
 
     setStakingAssetId(visibleStakingAssetIds[0])
-    setContextStakingAssetId(visibleStakingAssetIds[0])
-  }, [setContextStakingAssetId, stakingAssetId, visibleStakingAssetIds])
+  }, [setStakingAssetId, stakingAssetId, visibleStakingAssetIds])
 
   const filters = useMemo<Filter[]>(
     () =>
@@ -372,11 +370,9 @@ export const RFOXSection = () => {
 
   const handleSelectAssetId = useCallback(
     (filter: Filter) => {
-      const assetId = filter.assetId ?? RFOX_CURRENT_STAKING_ASSET_IDS[0]
-      setStakingAssetId(assetId)
-      setContextStakingAssetId(assetId)
+      setStakingAssetId(filter.assetId ?? RFOX_CURRENT_STAKING_ASSET_IDS[0])
     },
-    [setContextStakingAssetId],
+    [setStakingAssetId],
   )
 
   const isTimeInPoolLoading = useMemo(() => {

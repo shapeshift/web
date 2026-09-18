@@ -179,7 +179,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
   )
   const stakingAssetFeeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+    stakingAssetAccountId
+      ? selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter)
+      : BigAmount.zero({ precision: 0 }),
   )
 
   const [showWarning, setShowWarning] = useState(false)

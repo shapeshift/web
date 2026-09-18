@@ -11,10 +11,10 @@ export type RfoxPauseState = {
   isWithdrawalsPaused: boolean
 }
 
-const DEFAULT_PAUSE_STATE: RfoxPauseState = {
-  isStakingPaused: false,
-  isUnstakingPaused: false,
-  isWithdrawalsPaused: false,
+const PAUSED_PAUSE_STATE: RfoxPauseState = {
+  isStakingPaused: true,
+  isUnstakingPaused: true,
+  isWithdrawalsPaused: true,
 }
 
 /**
@@ -40,25 +40,23 @@ export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
 
   return useReadContracts({
     contracts,
+    // A call that fails on its own reads as not paused, which is the one answer that must not be
+    // guessed - fail the whole read instead, so it retries and is then reported as unknown
+    allowFailure: false,
     query: {
       staleTime: 60 * 1000, // 1 minute in milliseconds
-      select: ([
-        paused,
-        stakingPaused,
-        unstakingPaused,
-        withdrawalsPaused,
-      ]): RfoxPauseState => {
-        const isPaused = Boolean(paused.result)
-
-        return {
-          isStakingPaused: isPaused || Boolean(stakingPaused.result),
-          isUnstakingPaused: isPaused || Boolean(unstakingPaused.result),
-          isWithdrawalsPaused: isPaused || Boolean(withdrawalsPaused.result),
-        }
-      },
+      select: ([paused, stakingPaused, unstakingPaused, withdrawalsPaused]): RfoxPauseState => ({
+        isStakingPaused: paused || stakingPaused,
+        isUnstakingPaused: paused || unstakingPaused,
+        isWithdrawalsPaused: paused || withdrawalsPaused,
+      }),
     },
   })
 }
 
+/**
+ * An unknown pause state counts as paused. The contract reverts either way, so guessing wrong costs
+ * the user a gas estimate and an execution error rather than gaining them anything.
+ */
 export const selectPauseState = (pauseState: RfoxPauseState | undefined): RfoxPauseState =>
-  pauseState ?? DEFAULT_PAUSE_STATE
+  pauseState ?? PAUSED_PAUSE_STATE

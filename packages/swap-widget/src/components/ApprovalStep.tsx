@@ -6,7 +6,7 @@ export const ApprovalStep = () => {
   const { send } = SwapMachineCtx.useActorRef()
   const { sellAsset, quote, approvalTxIndex } = context
 
-  // Some tokens refuse a new allowance until the old one is reset to 0, so the quote sends both
+  // A second tx is the reset USDT-likes need before a non-zero allowance can change
   const approvalTxCount = quote?.approval?.approvalTxs?.length ?? 1
   const needsAllowanceReset = approvalTxCount > 1
   const isResettingAllowance = needsAllowanceReset && approvalTxIndex === 0

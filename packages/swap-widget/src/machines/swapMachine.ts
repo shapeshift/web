@@ -328,7 +328,7 @@ export const swapMachine = setup({
       swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
-    approvalTxIndex: 0,
+      approvalTxIndex: 0,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
@@ -338,7 +338,7 @@ export const swapMachine = setup({
       swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
-    approvalTxIndex: 0,
+      approvalTxIndex: 0,
       error: null,
       errorSource: null,
       retryCount: 0,

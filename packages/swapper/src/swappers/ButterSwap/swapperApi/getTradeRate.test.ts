@@ -72,5 +72,4 @@ describe('getTradeRate', () => {
     const tradeRate = result.unwrap()
     expect(tradeRate[0].rate).toBe('2296.409699')
   })
-
 })

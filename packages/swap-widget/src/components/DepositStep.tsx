@@ -5,7 +5,7 @@ import { getChainIcon } from '../constants/chains'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { formatAmount, formatAmountForInput, truncateAddress } from '../types'
 import { formatCountdown } from '../utils/countdown'
-import { shouldKeepTrackingDeposit } from '../utils/depositStatus'
+import { shouldKeepTrackingDeposit } from '../utils/swapStatus'
 import { QrCode } from './QrCode'
 
 type CopyFieldProps = {
@@ -175,7 +175,7 @@ export const DepositStep = () => {
             <path d='M12 2a10 10 0 0 1 10 10' />
           </svg>
         </div>
-        <div className='ssw-step-title'>Requesting New Quote</div>
+        <div className='ssw-step-title'>Requesting New Quote…</div>
       </div>
     )
   }

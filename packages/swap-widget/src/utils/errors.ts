@@ -1,3 +1,5 @@
+export const GENERIC_ERROR_MESSAGE = 'Something went wrong'
+
 export const getErrorMessage = (error: unknown, fallback = 'Unknown error'): string => {
   if (typeof error === 'string') return error
   if (error && typeof error === 'object') {

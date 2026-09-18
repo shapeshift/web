@@ -442,7 +442,7 @@ describe('validateAddress - deposit flow chains', () => {
     expect(validateAddress(checksummed.toLowerCase(), nearChainId).valid).toBe(true)
     expect(validateAddress(checksummed, nearChainId)).toEqual({
       valid: false,
-      error: 'Invalid NEAR address - must be lowercase',
+      error: 'Invalid NEAR address — must be lowercase',
     })
   })
 

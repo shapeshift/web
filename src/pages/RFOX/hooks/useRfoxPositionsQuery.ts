@@ -16,11 +16,8 @@ type UseRfoxPositionsQueryProps = {
   enabled?: boolean
 }
 
-/**
- * Whether the given account still holds a position - staked balance, or an unstaking request that
- * has yet to be claimed - in each rFOX staking program. Sunset programs stay visible only while
- * this is true, so a user mid-migration keeps access to unstake and claim until they are done.
- */
+// Whether the account still has a staked balance or an unclaimed unstaking request, per program
+// Sunset programs stay visible only while this holds, so a user keeps access until they are done
 export const useRfoxPositionsQuery = ({
   accountNumber,
   enabled = true,

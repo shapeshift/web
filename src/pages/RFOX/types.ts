@@ -14,9 +14,9 @@ export type CurrentEpochMetadata = {
   epochStartTimestamp: number
   /** The end timestamp for the current epoch */
   epochEndTimestamp: number
-  /** The treasury address on THORChain used to determine revenue earned by the DAO for rFOX reward distributions and total buyback */
+  /** The THORChain treasury address revenue is measured from, for distributions and buyback */
   treasuryAddress: string
-  /** The current percentage of revenue (RUNE) earned by the treasury to be used to buy FOX back from the open market. Named for when that FOX was subsequently burned - the field name follows the distribution service. */
+  /** The percentage of treasury revenue (RUNE) used to buy FOX back - named for when it was burned */
   burnRate: number
   /** The current percentage of revenue (RUNE) earned by the treasury to be distributed as rewards for each staking contract */
   distributionRateByStakingContract: Record<string, number>
@@ -54,7 +54,7 @@ export type Epoch = {
   totalRevenue: string
   /** The revenue (USD) earned (by service) for this epoch */
   revenue: Record<string, string>
-  /** The percentage of revenue to be used to buy FOX back from the open market for this epoch */
+  /** The percentage of revenue used to buy FOX back for this epoch */
   burnRate: number
   /** The spot price of reward asset in USD */
   rewardAssetPriceUsd: string

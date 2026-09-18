@@ -29,36 +29,20 @@ export const CURRENT_EPOCH_IPFS_HASH = 'bafkreib3ftdt4rhq4fapplsyesyzyorayvnc3a4
 export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
 export const RFOX_V3_UPGRADE_EPOCH = 18
 
-/**
- * The date rFOX staking moves from Arbitrum to Ethereum. Display only - what users can actually do
- * is gated on the contracts' pause flags, so nothing breaks if ops act either side of it.
- */
+// Months are 0 indexed, so this is October 1st
 export const RFOX_MIGRATION_TIMESTAMP_MS = Date.UTC(2026, 9, 1)
 
 export type RfoxStakingConfig = {
   stakingContract: Address
   chainId: ChainId
-  /**
-   * viem chain id, used to resolve the rpc client for this staking contract. A literal union rather
-   * than number, since wagmi only accepts the chains its own config registers.
-   */
   networkId: typeof arbitrum.id | typeof mainnet.id
-  /** the asset rewards are distributed in for epochs from RFOX_V3_UPGRADE_EPOCH onwards */
   rewardAssetId: AssetId
-  /**
-   * Sunset staking programs are only surfaced to users who still hold a position in them, and
-   * disappear once that position is fully unstaked and claimed. Unlike the on-chain pause flags -
-   * which disable individual actions - this is a product decision about whether the program is
-   * still being offered at all, so it is set here rather than derived from chain state.
-   */
+  // Whether the program is still offered at all, as opposed to the pause flags disabling an action
+  // A sunset program is surfaced only to users with a position left to unstake or claim
   isLegacy: boolean
 }
 
-/**
- * Order matters: programs are surfaced in this order, with sunset ones sorted last. Flipping a
- * program's isLegacy therefore demotes it in the tab order and moves the default selection on to
- * the next current program, as well as hiding it from users with nothing left to claim.
- */
+// Order matters: programs surface in this order, with sunset ones sorted last
 export const RFOX_STAKING_CONFIG: Record<AssetId, RfoxStakingConfig> = {
   [foxOnArbitrumOneAssetId]: {
     stakingContract: RFOX_ARB_PROXY_CONTRACT,

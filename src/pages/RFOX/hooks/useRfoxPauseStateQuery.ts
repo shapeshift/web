@@ -17,13 +17,9 @@ const DEFAULT_PAUSE_STATE: RfoxPauseState = {
   isWithdrawalsPaused: false,
 }
 
-/**
- * Reads the on-chain pause flags for a staking contract, which gate whether each of stake, unstake
- * and claim can be actioned.
- *
- * stake, unstake and withdraw each carry the contract wide `whenNotPaused` on top of their own
- * flag, so the global pause is folded into all three rather than reported separately.
- */
+// Ops flips these on the contract, which is what sunsets a program without a deploy
+// Each action carries the contract wide whenNotPaused on top of its own flag, so paused is folded
+// into all three rather than reported separately
 export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
   const contracts = useMemo(() => {
     const address = getStakingContract(stakingAssetId)

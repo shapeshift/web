@@ -16,15 +16,9 @@ type RfoxProgramPrefetchProps = {
   stakingAssetAccountId: AccountId | undefined
 }
 
-/**
- * Warms every query keyed on a staking program, for programs the user has not selected. Almost
- * everything in the rFOX view is keyed on the selected program, so without this the first switch
- * to another program leaves the whole view loading at once while it all refetches.
- *
- * Rendered once per program rather than looped over inside a hook, so each program gets its own
- * set of hooks. Query keys match the ones the real consumers use, so this only ever results in one
- * request per key.
- */
+// Warms the queries keyed on a staking program, for the programs the user has not selected
+// Without it, the first switch to another program leaves the whole view loading at once
+// Rendered once per program rather than looped inside a hook, so each gets its own set of hooks
 export const RfoxProgramPrefetch: React.FC<RfoxProgramPrefetchProps> = ({
   stakingAssetId,
   stakingAssetAccountId,

@@ -22,6 +22,7 @@ const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
 
 const ERROR_TITLES: Record<ErrorSource, string> = {
   QUOTE_ERROR: 'Quote Failed',
+  QUOTE_EXPIRED: 'Quote Expired',
   APPROVAL_ERROR: 'Approval Failed',
   EXECUTE_ERROR: 'Transaction Failed',
   STATUS_FAILED: 'Swap Failed',

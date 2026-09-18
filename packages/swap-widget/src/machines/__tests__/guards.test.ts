@@ -32,6 +32,7 @@ const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachine
   swapperTxLink: null,
   depositObservedAt: null,
   approvalTxHash: null,
+  approvalTxIndex: 0,
   error: null,
   errorSource: null,
   retryCount: 0,

@@ -42,6 +42,7 @@ export const createInitialContext = (input?: {
     swapperTxLink: null,
     depositObservedAt: null,
     approvalTxHash: null,
+    approvalTxIndex: 0,
     error: null,
     errorSource: null,
     retryCount: 0,
@@ -82,6 +83,7 @@ export const swapMachine = setup({
       !!(event as Extract<SwapMachineEvent, { type: 'RESTORE_DEPOSIT' }>).txHash,
     canRetry: ({ context }) => guardFns.canRetry(context),
     isQuoteError: ({ context }) => context.errorSource === 'QUOTE_ERROR',
+    isQuoteExpired: ({ context }) => context.errorSource === 'QUOTE_EXPIRED',
     isApprovalError: ({ context }) => context.errorSource === 'APPROVAL_ERROR',
     isStatusFailed: ({ context }) => context.errorSource === 'STATUS_FAILED',
   },
@@ -158,6 +160,9 @@ export const swapMachine = setup({
     })),
     assignApprovalTxHash: assign(({ event }) => ({
       approvalTxHash: (event as { type: 'APPROVAL_SUCCESS'; txHash: string }).txHash,
+    })),
+    assignApprovalTxIndex: assign(({ event }) => ({
+      approvalTxIndex: (event as Extract<SwapMachineEvent, { type: 'APPROVAL_TX_STARTED' }>).index,
     })),
     assignApprovalError: assign(({ event }) => ({
       error: (event as { type: 'APPROVAL_ERROR'; error: string }).error,
@@ -248,6 +253,10 @@ export const swapMachine = setup({
         errorSource: null,
       }
     }),
+    assignQuoteExpired: assign(() => ({
+      error: 'Rates move quickly, so a quote is only good for a short while',
+      errorSource: 'QUOTE_EXPIRED' as const,
+    })),
     assignExecuteError: assign(({ event }) => ({
       error: (event as { type: 'EXECUTE_ERROR'; error: string }).error,
       errorSource: 'EXECUTE_ERROR' as const,
@@ -319,6 +328,7 @@ export const swapMachine = setup({
       swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
+      approvalTxIndex: 0,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
@@ -328,6 +338,7 @@ export const swapMachine = setup({
       swapperTxLink: null,
       depositObservedAt: null,
       approvalTxHash: null,
+      approvalTxIndex: 0,
       error: null,
       errorSource: null,
       retryCount: 0,
@@ -416,6 +427,7 @@ export const swapMachine = setup({
     },
     approving: {
       on: {
+        APPROVAL_TX_STARTED: { actions: 'assignApprovalTxIndex' },
         APPROVAL_SUCCESS: {
           target: 'executing',
           actions: 'assignApprovalTxHash',
@@ -436,6 +448,7 @@ export const swapMachine = setup({
           target: 'error',
           actions: 'assignExecuteError',
         },
+        QUOTE_EXPIRED: { target: 'error', actions: 'assignQuoteExpired' },
       },
     },
     // Both deposit states take a terminal status - a provider can settle or refund without a hash
@@ -485,6 +498,11 @@ export const swapMachine = setup({
           {
             target: 'quoting',
             guard: { type: 'isQuoteError' },
+            actions: 'incrementRetryCount',
+          },
+          {
+            target: 'quoting',
+            guard: { type: 'isQuoteExpired' },
             actions: 'incrementRetryCount',
           },
           {

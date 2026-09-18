@@ -94,7 +94,8 @@ export const useSwapApproval = () => {
         })
 
         let approvalHash: `0x${string}` | undefined
-        for (const approvalTx of approvalTxs) {
+        for (const [index, approvalTx] of approvalTxs.entries()) {
+          actorRef.send({ type: 'APPROVAL_TX_STARTED', index })
           approvalHash = await client.sendTransaction({
             to: approvalTx.to as `0x${string}`,
             data: approvalTx.data as `0x${string}`,

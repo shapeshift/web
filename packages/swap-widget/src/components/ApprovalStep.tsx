@@ -4,7 +4,12 @@ export const ApprovalStep = () => {
   const context = SwapMachineCtx.useSelector(s => s.context)
   const isApproving = SwapMachineCtx.useSelector(s => s.matches('approving'))
   const { send } = SwapMachineCtx.useActorRef()
-  const { sellAsset, quote } = context
+  const { sellAsset, quote, approvalTxIndex } = context
+
+  // A second tx is the reset USDT-likes need before a non-zero allowance can change
+  const approvalTxCount = quote?.approval?.approvalTxs?.length ?? 1
+  const needsAllowanceReset = approvalTxCount > 1
+  const isResettingAllowance = needsAllowanceReset && approvalTxIndex === 0
 
   if (isApproving) {
     return (
@@ -23,8 +28,12 @@ export const ApprovalStep = () => {
             <path d='M12 2a10 10 0 0 1 10 10' />
           </svg>
         </div>
-        <div className='ssw-step-title'>Approving {sellAsset.symbol}…</div>
-        <div className='ssw-step-subtitle'>Waiting for the approval to confirm</div>
+        <div className='ssw-step-title'>
+          {isResettingAllowance
+            ? `Resetting ${sellAsset.symbol} Allowance…`
+            : `Approving ${sellAsset.symbol}…`}
+        </div>
+        <div className='ssw-step-subtitle'>Waiting for confirmation</div>
       </div>
     )
   }
@@ -46,11 +55,13 @@ export const ApprovalStep = () => {
       </div>
       <div className='ssw-step-title'>Token Approval Required</div>
       <div className='ssw-step-subtitle'>
-        Allow {quote?.swapperName ?? 'the swapper'} to use your {sellAsset.symbol}
+        {needsAllowanceReset
+          ? 'Resets the old allowance, then approves the exact amount this swap will spend'
+          : 'Approves the exact amount this swap will spend'}
       </div>
       <div className='ssw-step-actions'>
         <button className='ssw-action-btn' onClick={() => send({ type: 'APPROVE' })} type='button'>
-          Approve {sellAsset.symbol}
+          {needsAllowanceReset ? 'Reset & Approve' : 'Approve'} {sellAsset.symbol}
         </button>
         <button
           className='ssw-action-btn ssw-secondary'

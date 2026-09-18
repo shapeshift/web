@@ -1,4 +1,4 @@
-import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
@@ -13,7 +13,12 @@ import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 
-import { getRfoxClient, getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
+import {
+  getRfoxClient,
+  getRfoxStakingConfig,
+  getStakingContract,
+  selectStakingBalance,
+} from '@/pages/RFOX/helpers'
 import { getStakingInfoQueryFn } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 
@@ -66,7 +71,7 @@ export const rFOXStakingMetadataResolver = async ({
         name: 'rFOX',
         apy: undefined,
         tvl,
-        rewardAssetIds: [thorchainAssetId] as const,
+        rewardAssetIds: [getRfoxStakingConfig(opportunityId).rewardAssetId] as const,
         isClaimableRewards: true,
       },
     },

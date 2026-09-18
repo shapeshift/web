@@ -143,18 +143,18 @@ export const AssetRow: FC<AssetRowProps> = memo(
     }, [accountIdsByAccountNumberAndChainId, accountNumber, asset.chainId])
 
     // An unresolved accountId reads as every account in the balance selectors
-    const hasNoAccountOnChain = accountNumber !== undefined && !accountId
+    const hasUnresolvedAccountId = accountNumber !== undefined && !accountId
 
     const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
     const cryptoPrecisionBalance = useAppSelector(s =>
-      canDisplayBalances && !hasNoAccountOnChain
+      canDisplayBalances && !hasUnresolvedAccountId
         ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision()
         : '0',
     )
     const userCurrencyBalance =
       useAppSelector(s =>
-        canDisplayBalances && !hasNoAccountOnChain
+        canDisplayBalances && !hasUnresolvedAccountId
           ? selectPortfolioUserCurrencyBalanceByFilter(s, filter)
           : '0',
       ) ?? '0'

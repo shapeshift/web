@@ -17,9 +17,6 @@ const DEFAULT_PAUSE_STATE: RfoxPauseState = {
   isWithdrawalsPaused: false,
 }
 
-// Ops flips these on the contract, which is what sunsets a program without a deploy
-// Each action carries the contract wide whenNotPaused on top of its own flag, so paused is folded
-// into all three rather than reported separately
 export const useRfoxPauseStateQuery = (stakingAssetId: AssetId) => {
   const contracts = useMemo(() => {
     const address = getStakingContract(stakingAssetId)

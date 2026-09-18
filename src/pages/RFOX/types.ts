@@ -14,9 +14,9 @@ export type CurrentEpochMetadata = {
   epochStartTimestamp: number
   /** The end timestamp for the current epoch */
   epochEndTimestamp: number
-  /** The THORChain treasury address revenue is measured from, for distributions and buyback */
+  /** The THORChain treasury address */
   treasuryAddress: string
-  /** The percentage of treasury revenue (RUNE) used to buy FOX back - named for when it was burned */
+  /** The percentage of treasury revenue used to buy FOX back - named for when it was burned */
   burnRate: number
   /** The current percentage of revenue (RUNE) earned by the treasury to be distributed as rewards for each staking contract */
   distributionRateByStakingContract: Record<string, number>

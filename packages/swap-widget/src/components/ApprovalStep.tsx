@@ -8,7 +8,8 @@ export const ApprovalStep = () => {
 
   // Some tokens refuse a new allowance until the old one is reset to 0, so the quote sends both
   const approvalTxCount = quote?.approval?.approvalTxs?.length ?? 1
-  const isResettingAllowance = approvalTxCount > 1 && approvalTxIndex === 0
+  const needsAllowanceReset = approvalTxCount > 1
+  const isResettingAllowance = needsAllowanceReset && approvalTxIndex === 0
 
   if (isApproving) {
     return (
@@ -32,12 +33,7 @@ export const ApprovalStep = () => {
             ? `Resetting ${sellAsset.symbol} Allowance…`
             : `Approving ${sellAsset.symbol}…`}
         </div>
-        <div className='ssw-step-subtitle'>
-          {approvalTxCount > 1 && `Step ${approvalTxIndex + 1} of ${approvalTxCount} — `}
-          {isResettingAllowance
-            ? 'Required before a new allowance can be set'
-            : 'Waiting for confirmation'}
-        </div>
+        <div className='ssw-step-subtitle'>Waiting for confirmation</div>
       </div>
     )
   }
@@ -58,10 +54,14 @@ export const ApprovalStep = () => {
         </svg>
       </div>
       <div className='ssw-step-title'>Token Approval Required</div>
-      <div className='ssw-step-subtitle'>Approves the exact amount this swap will spend</div>
+      <div className='ssw-step-subtitle'>
+        {needsAllowanceReset
+          ? 'Resets the old allowance, then approves the exact amount this swap will spend'
+          : 'Approves the exact amount this swap will spend'}
+      </div>
       <div className='ssw-step-actions'>
         <button className='ssw-action-btn' onClick={() => send({ type: 'APPROVE' })} type='button'>
-          Approve {sellAsset.symbol}
+          {needsAllowanceReset ? 'Reset & Approve' : 'Approve'} {sellAsset.symbol}
         </button>
         <button
           className='ssw-action-btn ssw-secondary'

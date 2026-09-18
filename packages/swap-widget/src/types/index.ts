@@ -326,6 +326,12 @@ export const isWidgetExecutableChainId = (chainId: string): boolean =>
   isWidgetExecutableUtxoChainId(chainId) ||
   isWidgetExecutableSolanaChainId(chainId)
 
+// Chains the widget can't sign for that can still be paid through a deposit address
+const EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET: ReadonlySet<string> = new Set([zecChainId])
+
+export const isExternalPaymentSellChainId = (chainId: string): boolean =>
+  EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET.has(chainId)
+
 const SUPPORTED_CHAIN_ID_SET: ReadonlySet<string> = new Set([
   ...Object.values(EVM_CHAIN_IDS),
   ...Object.values(UTXO_CHAIN_IDS),
@@ -367,22 +373,6 @@ export const parseAmount = (amount: string, decimals: number): string => {
 export const truncateAddress = (address: string, chars = 4): string => {
   if (address.length <= chars * 2 + 2) return address
   return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
-}
-
-export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
-
-export type TransactionStatusResult = {
-  status: TransactionStatus
-  confirmations?: number
-  blockNumber?: number
-  error?: string
-}
-
-export type BitcoinTransactionStatus = {
-  confirmed: boolean
-  block_height?: number
-  block_hash?: string
-  block_time?: number
 }
 
 export type WalletProviderNamespace = 'eip155' | 'bip122' | 'solana'

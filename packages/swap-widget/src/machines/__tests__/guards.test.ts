@@ -1,18 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { QuoteResponse } from '../../types'
-import {
-  canRetry,
-  hasQuote,
-  hasReceiveAddress,
-  hasSendAddress,
-  hasValidInput,
-  isApprovalRequired,
-  isEvmChain,
-  isExactOutput,
-  isSolanaChain,
-  isUtxoChain,
-} from '../guards'
+import { canRetry, hasValidInput, isExactOutput } from '../guards'
 import type { SwapMachineContext } from '../types'
 
 const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachineContext => ({
@@ -39,8 +27,12 @@ const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachine
   selectedRate: null,
   quote: null,
   txHash: null,
+  txLink: null,
+  buyTxLink: null,
+  swapperTxLink: null,
   depositObservedAt: null,
   approvalTxHash: null,
+  approvalTxIndex: 0,
   error: null,
   errorSource: null,
   retryCount: 0,
@@ -100,92 +92,6 @@ describe('guards', () => {
     })
   })
 
-  describe('hasQuote', () => {
-    it('returns false when quote is null', () => {
-      expect(hasQuote(createTestContext())).toBe(false)
-    })
-
-    it('returns true when quote is present', () => {
-      expect(hasQuote(createTestContext({ quote: {} as QuoteResponse }))).toBe(true)
-    })
-
-    it('returns true when quote has approval data', () => {
-      expect(
-        hasQuote(
-          createTestContext({
-            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
-          }),
-        ),
-      ).toBe(true)
-    })
-  })
-
-  describe('isApprovalRequired', () => {
-    it('returns false when quote is null', () => {
-      expect(isApprovalRequired(createTestContext())).toBe(false)
-    })
-
-    it('returns false when approval is not required', () => {
-      expect(
-        isApprovalRequired(
-          createTestContext({
-            quote: { approval: { isRequired: false, spender: '0xSpender' } } as QuoteResponse,
-          }),
-        ),
-      ).toBe(false)
-    })
-
-    it('returns true when approval is required for ERC20 on EVM chain', () => {
-      expect(
-        isApprovalRequired(
-          createTestContext({
-            sellAsset: {
-              assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-              chainId: 'eip155:1',
-              symbol: 'USDC',
-              name: 'USD Coin',
-              precision: 6,
-            },
-            chainType: 'evm',
-            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
-          }),
-        ),
-      ).toBe(true)
-    })
-
-    it('returns false when approval is required but sell asset is native (slip44)', () => {
-      expect(
-        isApprovalRequired(
-          createTestContext({
-            chainType: 'evm',
-            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
-          }),
-        ),
-      ).toBe(false)
-    })
-
-    it('returns false when approval is required but chain is not EVM', () => {
-      expect(
-        isApprovalRequired(
-          createTestContext({
-            chainType: 'utxo',
-            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
-          }),
-        ),
-      ).toBe(false)
-    })
-
-    it('returns false when quote has no approval field', () => {
-      expect(
-        isApprovalRequired(
-          createTestContext({
-            quote: {} as QuoteResponse,
-          }),
-        ),
-      ).toBe(false)
-    })
-  })
-
   describe('canRetry', () => {
     it('returns true when retryCount is 0', () => {
       expect(canRetry(createTestContext({ retryCount: 0 }))).toBe(true)
@@ -201,60 +107,6 @@ describe('guards', () => {
 
     it('returns false when retryCount is greater than 3', () => {
       expect(canRetry(createTestContext({ retryCount: 5 }))).toBe(false)
-    })
-  })
-
-  describe('isEvmChain', () => {
-    it('returns true for evm chain', () => {
-      expect(isEvmChain(createTestContext({ chainType: 'evm' }))).toBe(true)
-    })
-
-    it('returns false for utxo chain', () => {
-      expect(isEvmChain(createTestContext({ chainType: 'utxo' }))).toBe(false)
-    })
-  })
-
-  describe('isUtxoChain', () => {
-    it('returns true for utxo chain', () => {
-      expect(isUtxoChain(createTestContext({ chainType: 'utxo' }))).toBe(true)
-    })
-
-    it('returns false for evm chain', () => {
-      expect(isUtxoChain(createTestContext({ chainType: 'evm' }))).toBe(false)
-    })
-  })
-
-  describe('isSolanaChain', () => {
-    it('returns true for solana chain', () => {
-      expect(isSolanaChain(createTestContext({ chainType: 'solana' }))).toBe(true)
-    })
-
-    it('returns false for evm chain', () => {
-      expect(isSolanaChain(createTestContext({ chainType: 'evm' }))).toBe(false)
-    })
-  })
-
-  describe('hasSendAddress', () => {
-    it('returns true when sendAddress is set', () => {
-      expect(hasSendAddress(createTestContext())).toBe(true)
-    })
-
-    it('returns false when sendAddress is undefined', () => {
-      expect(hasSendAddress(createTestContext({ sendAddress: undefined }))).toBe(false)
-    })
-
-    it('returns false when sendAddress is empty string', () => {
-      expect(hasSendAddress(createTestContext({ sendAddress: '' }))).toBe(false)
-    })
-  })
-
-  describe('hasReceiveAddress', () => {
-    it('returns true when receiveAddress is set', () => {
-      expect(hasReceiveAddress(createTestContext())).toBe(true)
-    })
-
-    it('returns false when receiveAddress is undefined', () => {
-      expect(hasReceiveAddress(createTestContext({ receiveAddress: undefined }))).toBe(false)
     })
   })
 })

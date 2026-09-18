@@ -517,6 +517,28 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
+    it('links the sell tx off the hash, so the first poll is not waited on', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
+      actor.send({ type: 'FETCH_QUOTE' })
+      actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
+      actor.send({ type: 'EXECUTE_SUCCESS', txHash: '0xTxHash' })
+
+      const { sellAsset, txLink } = actor.getSnapshot().context
+      expect(txLink).toBe(`${sellAsset.explorerTxLink}0xTxHash`)
+
+      // The api reports the same link it derives from the same asset, so nothing changes
+      actor.send({ type: 'TX_LINKS_UPDATED', txLink: txLink ?? undefined })
+      expect(actor.getSnapshot().context.txLink).toBe(txLink)
+      actor.stop()
+    })
+
     it('EXECUTE_ERROR transitions to error', () => {
       const actor = createActor(swapMachine)
       actor.start()
@@ -531,6 +553,25 @@ describe('swapMachine', () => {
       actor.send({ type: 'EXECUTE_ERROR', error: 'Transaction failed' })
       expect(actor.getSnapshot().value).toBe('error')
       expect(actor.getSnapshot().context.error).toBe('Transaction failed')
+      actor.stop()
+    })
+
+    it('retries an expired quote by fetching a new one, not by executing the stale one', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_AMOUNT',
+        amount: '1',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      })
+      actor.send({ type: 'FETCH_QUOTE' })
+      actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_NO_APPROVAL })
+      actor.send({ type: 'QUOTE_EXPIRED' })
+      expect(actor.getSnapshot().context.errorSource).toBe('QUOTE_EXPIRED')
+
+      actor.send({ type: 'RETRY' })
+      expect(actor.getSnapshot().value).toBe('quoting')
       actor.stop()
     })
   })
@@ -1095,9 +1136,59 @@ describe('a deposit flow always reaches a terminal state', () => {
     failed.stop()
   })
 
+  it('keeps the swapper link from detection when the confirmation omits it', () => {
+    const actor = restoreInto(undefined)
+    actor.send({
+      type: 'DEPOSIT_DETECTED',
+      txHash: '0xdead',
+      txLink: 'https://explorer/tx/0xdead',
+      swapperTxLink: 'https://swapper/deposit',
+      observedAt: 5_000,
+    })
+    actor.send({ type: 'STATUS_CONFIRMED', buyTxLink: 'https://explorer/tx/0xpayout' })
+
+    expect(actor.getSnapshot().context).toMatchObject({
+      txLink: 'https://explorer/tx/0xdead',
+      buyTxLink: 'https://explorer/tx/0xpayout',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+
+    actor.send({ type: 'RESET' })
+    expect(actor.getSnapshot().context).toMatchObject({
+      txLink: null,
+      buyTxLink: null,
+      swapperTxLink: null,
+    })
+    actor.stop()
+  })
+
+  it('picks up a swapper link mid-swap and keeps it on failure', () => {
+    const actor = restoreInto('0xdead')
+    actor.send({ type: 'TX_LINKS_UPDATED', swapperTxLink: 'https://swapper/deposit' })
+    expect(actor.getSnapshot().matches('polling_status')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+
+    actor.send({ type: 'STATUS_FAILED', error: 'Swap failed' })
+    expect(actor.getSnapshot().matches('error')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+    actor.stop()
+  })
+
+  it('keeps the swapper link from a failure before the deposit was seen', () => {
+    const actor = restoreInto(undefined)
+    actor.send({
+      type: 'STATUS_FAILED',
+      error: 'Swap failed',
+      swapperTxLink: 'https://swapper/deposit',
+    })
+    expect(actor.getSnapshot().matches('error')).toBe(true)
+    expect(actor.getSnapshot().context.swapperTxLink).toBe('https://swapper/deposit')
+    actor.stop()
+  })
+
   it('leaves a funded deposit we can no longer follow rather than spinning on it', () => {
     const actor = restoreInto('0xdead')
-    actor.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    actor.send({ type: 'TRACKING_TIMEOUT' })
 
     const snapshot = actor.getSnapshot()
     expect(snapshot.matches('error')).toBe(true)
@@ -1107,13 +1198,13 @@ describe('a deposit flow always reaches a terminal state', () => {
 
   it('ignores the timeout on the screens that already offer a way forward', () => {
     const awaiting = restoreInto(undefined)
-    awaiting.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    awaiting.send({ type: 'TRACKING_TIMEOUT' })
     expect(awaiting.getSnapshot().matches('awaiting_deposit')).toBe(true)
     awaiting.stop()
 
     const expired = restoreInto(undefined)
     expired.send({ type: 'DEPOSIT_EXPIRED' })
-    expired.send({ type: 'DEPOSIT_TRACKING_TIMEOUT' })
+    expired.send({ type: 'TRACKING_TIMEOUT' })
     expect(expired.getSnapshot().matches('deposit_expired')).toBe(true)
     expired.stop()
   })

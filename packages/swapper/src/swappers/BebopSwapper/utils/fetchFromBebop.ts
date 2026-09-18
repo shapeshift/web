@@ -53,19 +53,17 @@ export const fetchBebopQuote = async ({
       approval_type: 'Standard',
       skip_validation: 'true',
       gasless: 'false',
+      // PMM fees are configured against our api key on Bebop's side, not sent per quote
       source: 'shapeshift',
     }
 
     const jamParams = new URLSearchParams(baseParams)
     const pmmParams = new URLSearchParams(baseParams)
 
+    // JAM settles the fee on-chain, so it still takes our bps and a recipient per quote
     if (affiliateBps && affiliateBps !== '0') {
-      // JAM collects the fee on-chain and requires a recipient
       jamParams.set('fee', affiliateBps)
       jamParams.set('fee_recipient', getAddress(getTreasuryAddressFromChainId(buyAsset.chainId)))
-
-      // PMM attributes the fee off-chain via source
-      pmmParams.set('fee', affiliateBps)
     }
 
     const service = bebopServiceFactory({ apiKey })
@@ -131,7 +129,6 @@ export const fetchBebopSolanaQuote = async ({
   takerAddress,
   receiverAddress,
   slippageTolerancePercentageDecimal,
-  affiliateBps,
   apiKey,
 }: {
   buyAsset: Asset
@@ -140,7 +137,6 @@ export const fetchBebopSolanaQuote = async ({
   takerAddress: string
   receiverAddress: string
   slippageTolerancePercentageDecimal: string
-  affiliateBps?: string
   apiKey: string
 }): Promise<Result<BebopSolanaQuoteResponse, SwapErrorRight>> => {
   try {
@@ -170,12 +166,9 @@ export const fetchBebopSolanaQuote = async ({
       approval_type: 'Standard',
       skip_validation: 'false',
       gasless: 'true',
+      // Solana is PMM only, so its fees are configured against our api key on Bebop's side
       source: 'shapeshift',
     })
-
-    if (affiliateBps && affiliateBps !== '0') {
-      params.set('fee', affiliateBps)
-    }
 
     const maybeResponse = await bebopServiceFactory({ apiKey }).get<BebopSolanaQuoteResponse>(
       'https://api.bebop.xyz/pmm/solana/v3/quote',

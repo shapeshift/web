@@ -4,7 +4,7 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
-import { formatAmount } from '../types'
+import { formatAmount, isExternalPaymentSellChainId } from '../types'
 import { shouldUseDepositFlow } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
 import type { InputCtaAction } from '../utils/inputCta'
@@ -64,6 +64,8 @@ export const InputStep = ({
 
   const isUnsupportedChain =
     !context.isSellAssetEvm && !context.isSellAssetUtxo && !context.isSellAssetSolana
+
+  const supportsDepositRoute = isExternalPaymentSellChainId(context.sellAsset.chainId)
 
   const amountBaseUnit = displayValues.isExactOutput
     ? context.buyAmountBaseUnit
@@ -147,6 +149,7 @@ export const InputStep = ({
       hasWalletForSellChain: !!walletSendAddress,
       isSellChainTypeConnected,
       isUnsupportedChain,
+      supportsDepositRoute,
       allowShapeshiftRedirect,
       hasReceiveAddress: !!receiveAddress,
       hasSendAddress: !!sendAddress,
@@ -160,6 +163,7 @@ export const InputStep = ({
     walletSendAddress,
     isSellChainTypeConnected,
     isUnsupportedChain,
+    supportsDepositRoute,
     allowShapeshiftRedirect,
     receiveAddress,
     sendAddress,

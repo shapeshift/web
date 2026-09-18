@@ -4,8 +4,6 @@ import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import type { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useCallback, useMemo, useState } from 'react'
 
-import { checkSolanaStatus, waitForSolanaConfirmation } from '../services/transactionStatus'
-
 type AnyTransaction = Transaction | VersionedTransaction
 type TransactionSignature = string | { toString: () => string }
 type MessageSignature = Uint8Array
@@ -42,11 +40,6 @@ export type UseSolanaSigningResult = {
   signTransaction: <T extends Transaction | VersionedTransaction>(transaction: T) => Promise<T>
   state: SolanaSigningState
   reset: () => void
-  checkTxStatus: (signature: string) => ReturnType<typeof checkSolanaStatus>
-  waitForConfirmation: (
-    signature: string,
-    commitment?: 'confirmed' | 'finalized',
-  ) => ReturnType<typeof waitForSolanaConfirmation>
 }
 
 export const useSolanaSigning = (): UseSolanaSigningResult => {
@@ -211,39 +204,6 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
     })
   }, [])
 
-  const checkTxStatus = useCallback(
-    (signature: string) => {
-      if (!connection) {
-        return Promise.resolve({
-          status: 'pending' as const,
-          error: 'Solana connection not available',
-        })
-      }
-      return checkSolanaStatus(
-        signature,
-        connection as unknown as Parameters<typeof checkSolanaStatus>[1],
-      )
-    },
-    [connection],
-  )
-
-  const waitForConfirmation = useCallback(
-    (signature: string, commitment: 'confirmed' | 'finalized' = 'confirmed') => {
-      if (!connection) {
-        return Promise.resolve({
-          status: 'failed' as const,
-          error: 'Solana connection not available',
-        })
-      }
-      return waitForSolanaConfirmation(
-        signature,
-        connection as unknown as Parameters<typeof waitForSolanaConfirmation>[1],
-        commitment,
-      )
-    },
-    [connection],
-  )
-
   const actuallyConnected = !!address && !!connection
 
   return useMemo(
@@ -256,8 +216,6 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
       signMessage,
       state,
       reset,
-      checkTxStatus,
-      waitForConfirmation,
     }),
     [
       actuallyConnected,
@@ -268,8 +226,6 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
       signMessage,
       state,
       reset,
-      checkTxStatus,
-      waitForConfirmation,
     ],
   )
 }

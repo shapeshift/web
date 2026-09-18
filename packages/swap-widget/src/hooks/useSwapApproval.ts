@@ -32,7 +32,10 @@ export const useSwapApproval = () => {
         const { quote, sellAsset, sellAmountBaseUnit } = actorRef.getSnapshot().context
 
         if (!quote?.approval?.spender) {
-          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No approval data in quote' })
+          actorRef.send({
+            type: 'APPROVAL_ERROR',
+            error: 'Could not prepare the approval — please try again',
+          })
           return
         }
 
@@ -40,20 +43,26 @@ export const useSwapApproval = () => {
         if (!sellAssetAddress || !/^0x[a-fA-F0-9]{40}$/.test(sellAssetAddress)) {
           actorRef.send({
             type: 'APPROVAL_ERROR',
-            error: 'Approval not applicable for native assets',
+            error: 'This asset does not need an approval',
           })
           return
         }
 
         if (!sellAmountBaseUnit || sellAmountBaseUnit === '0') {
-          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No sell amount specified' })
+          actorRef.send({
+            type: 'APPROVAL_ERROR',
+            error: 'Could not prepare the approval — please try again',
+          })
           return
         }
 
         // api-supplied approvals are exact and in broadcast order (reset-then-approve for USDT-likes)
         const approvalTxs = quote.approval.approvalTxs
         if (!approvalTxs?.length) {
-          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No approval transactions in quote' })
+          actorRef.send({
+            type: 'APPROVAL_ERROR',
+            error: 'Could not prepare the approval — please try again',
+          })
           return
         }
 
@@ -85,7 +94,8 @@ export const useSwapApproval = () => {
         })
 
         let approvalHash: `0x${string}` | undefined
-        for (const approvalTx of approvalTxs) {
+        for (const [index, approvalTx] of approvalTxs.entries()) {
+          actorRef.send({ type: 'APPROVAL_TX_STARTED', index })
           approvalHash = await client.sendTransaction({
             to: approvalTx.to as `0x${string}`,
             data: approvalTx.data as `0x${string}`,

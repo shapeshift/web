@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import { solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -34,7 +34,6 @@ const BUTTERSWAP_CHAIN_ID_TO_CHAIN_ID: Record<number, KnownChainIds> = {
   [avalanche.id]: KnownChainIds.AvalancheMainnet,
   [robinhood.id]: KnownChainIds.RobinhoodMainnet,
   1360108768460801: KnownChainIds.SolanaMainnet,
-  1360095883558913: KnownChainIds.BitcoinMainnet,
   [tron.id]: KnownChainIds.TronMainnet,
 }
 
@@ -63,7 +62,6 @@ export const assertValidTrade = ({
 }): Result<void, SwapErrorRight> => {
   if (
     !isEvmChainId(sellAsset.chainId) &&
-    sellAsset.chainId !== btcChainId &&
     sellAsset.chainId !== solanaChainId &&
     sellAsset.chainId !== tronChainId
   ) {

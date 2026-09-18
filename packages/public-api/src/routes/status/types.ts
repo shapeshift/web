@@ -19,6 +19,7 @@ export const SwapServiceStatusSchema = z.object({
   status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
   sellTxHash: z.string().nullable(),
   buyTxHash: z.string().nullable(),
+  txLink: z.string().nullable(),
   statusMessage: z.string().nullable(),
   isAffiliateVerified: z.boolean().nullable(),
   affiliateVerificationDetails: z
@@ -53,6 +54,9 @@ export const SwapStatusResponseSchema = registry.register(
     ...BpsFields,
     registeredAt: z.number().optional(),
     buyTxHash: z.string().optional(),
+    txLink: z.string().optional(),
+    buyTxLink: z.string().optional(),
+    swapperTxLink: z.string().optional(),
     isAffiliateVerified: z.boolean().optional(),
   }),
 )

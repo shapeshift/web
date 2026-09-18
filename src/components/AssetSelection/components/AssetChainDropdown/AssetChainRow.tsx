@@ -48,13 +48,17 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
     return accountIdsByAccountNumberAndChainId[accountNumber]?.[fromAssetId(assetId).chainId]
   }, [accountIdsByAccountNumberAndChainId, accountNumber, assetId])
 
+  // A scoped row whose account number has no account on this chain holds none of it, and an
+  // accountId of undefined would otherwise read as every account
+  const hasNoScopedAccount = accountNumber !== undefined && !accountId
+
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoPrecisionBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, filter),
-  ).toPrecision()
+    hasNoScopedAccount ? '0' : selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision(),
+  )
 
   const userCurrencyBalance = useAppSelector(state =>
-    selectPortfolioUserCurrencyBalanceByFilter(state, filter),
+    hasNoScopedAccount ? '0' : selectPortfolioUserCurrencyBalanceByFilter(state, filter),
   )
 
   // An account scoped row reports that account's balance as it is, zero included

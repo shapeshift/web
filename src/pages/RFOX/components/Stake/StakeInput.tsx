@@ -158,9 +158,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     }),
     [fundingAssetAccountId, fundingAssetId],
   )
+  // An empty accountId reads as every account, so without this the form would validate the amount
+  // against funds held on accounts the stake cannot be funded from
   const selectedFundingAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, selectedFundingAssetBalanceFilter),
-  ).toPrecision()
+    fundingAssetAccountId
+      ? selectPortfolioCryptoBalanceByFilter(state, selectedFundingAssetBalanceFilter).toPrecision()
+      : '0',
+  )
   const selectedFundingAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(fundingAssetId).chainId),
   )

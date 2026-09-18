@@ -49,8 +49,11 @@ export const getRfoxStakingConfig = (stakingAssetId: AssetId): RfoxStakingConfig
 export const getStakingContract = (stakingAssetId: AssetId) =>
   getRfoxStakingConfig(stakingAssetId).stakingContract
 
+export const maybeGetStakingAssetId = (stakingContract: string): AssetId | undefined =>
+  stakingAssetIdByContract[stakingContract]
+
 export const getStakingAssetId = (stakingContract: string) => {
-  const stakingAssetId = stakingAssetIdByContract[stakingContract]
+  const stakingAssetId = maybeGetStakingAssetId(stakingContract)
   if (!stakingAssetId) throw new Error(`No rFOX staking assetId for ${stakingContract}`)
   return stakingAssetId
 }

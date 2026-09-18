@@ -4,6 +4,7 @@ import {
   ethChainId,
   foxAssetId,
   foxOnArbitrumOneAssetId,
+  thorchainAssetId,
   uniV2EthFoxArbitrumAssetId,
   usdcAssetId,
   usdcOnArbitrumOneAssetId,
@@ -44,7 +45,6 @@ export type RfoxStakingConfig = {
   networkId: typeof arbitrum.id | typeof mainnet.id
   /** the asset rewards are distributed in for epochs from RFOX_V3_UPGRADE_EPOCH onwards */
   rewardAssetId: AssetId
-  contractCreationBlock: bigint
   /**
    * Sunset staking programs are only surfaced to users who still hold a position in them, and
    * disappear once that position is fully unstaked and claimed. Unlike the on-chain pause flags -
@@ -65,7 +65,6 @@ export const RFOX_STAKING_CONFIG: Record<AssetId, RfoxStakingConfig> = {
     chainId: arbitrumChainId,
     networkId: arbitrum.id,
     rewardAssetId: usdcOnArbitrumOneAssetId,
-    contractCreationBlock: 222913582n,
     isLegacy: false,
   },
   [foxAssetId]: {
@@ -73,15 +72,13 @@ export const RFOX_STAKING_CONFIG: Record<AssetId, RfoxStakingConfig> = {
     chainId: ethChainId,
     networkId: mainnet.id,
     rewardAssetId: usdcAssetId,
-    contractCreationBlock: 25906046n,
     isLegacy: false,
   },
   [uniV2EthFoxArbitrumAssetId]: {
     stakingContract: RFOX_ARB_UNI_V2_ETH_FOX_PROXY_CONTRACT,
     chainId: arbitrumChainId,
     networkId: arbitrum.id,
-    rewardAssetId: usdcOnArbitrumOneAssetId,
-    contractCreationBlock: 291163572n,
+    rewardAssetId: thorchainAssetId,
     isLegacy: true,
   },
 }

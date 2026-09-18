@@ -12,7 +12,7 @@ import { Amount } from '@/components/Amount/Amount'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { getTxLink } from '@/lib/getTxLink'
-import { getRewardAssetId, getStakingAssetId } from '@/pages/RFOX/helpers'
+import { getRewardAssetId, maybeGetStakingAssetId } from '@/pages/RFOX/helpers'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -27,11 +27,12 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
   const { distribution } = action.rewardDistributionMetadata
 
-  const rewardAssetId = useMemo(
-    () => getRewardAssetId(getStakingAssetId(distribution.stakingContract), distribution.epoch),
-    [distribution.epoch, distribution.stakingContract],
-  )
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+  const rewardAssetId = useMemo(() => {
+    const stakingAssetId = maybeGetStakingAssetId(distribution.stakingContract)
+    if (!stakingAssetId) return
+    return getRewardAssetId(stakingAssetId, distribution.epoch)
+  }, [distribution.epoch, distribution.stakingContract])
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId ?? ''))
 
   const formattedDate = useMemo(() => {
     return dayjs(action.updatedAt).fromNow()
@@ -74,7 +75,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   }, [rewardDistributionTranslationComponents, action.status])
 
   const icon = useMemo(() => {
-    return <ActionIcon assetId={rewardAssetId} status={action.status} />
+    return <ActionIcon assetId={rewardAssetId ?? ''} status={action.status} />
   }, [action.status, rewardAssetId])
 
   const txLink = useMemo(() => {

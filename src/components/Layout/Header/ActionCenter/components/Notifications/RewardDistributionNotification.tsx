@@ -8,7 +8,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
-import { getRewardAssetId, getStakingAssetId } from '@/pages/RFOX/helpers'
+import { getRewardAssetId, maybeGetStakingAssetId } from '@/pages/RFOX/helpers'
 import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -28,11 +28,12 @@ export const RewardDistributionNotification = ({
   handleClick,
   onClose,
 }: RewardDistributionNotificationProps) => {
-  const rewardAssetId = useMemo(
-    () => getRewardAssetId(getStakingAssetId(distribution.stakingContract), distribution.epoch),
-    [distribution.epoch, distribution.stakingContract],
-  )
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+  const rewardAssetId = useMemo(() => {
+    const stakingAssetId = maybeGetStakingAssetId(distribution.stakingContract)
+    if (!stakingAssetId) return
+    return getRewardAssetId(stakingAssetId, distribution.epoch)
+  }, [distribution.epoch, distribution.stakingContract])
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId ?? ''))
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const action = actions[actionId]
   const isComplete = action?.status === ActionStatus.Complete
@@ -43,7 +44,7 @@ export const RewardDistributionNotification = ({
   }, [isComplete])
 
   const icon = useMemo(() => {
-    if (!action) return undefined
+    if (!(action && rewardAssetId)) return undefined
     return <ActionIcon assetId={rewardAssetId} status={action.status} />
   }, [action, rewardAssetId])
 

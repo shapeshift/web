@@ -633,7 +633,7 @@ export type EvmMessageExecutionProps = {
 
 export type UtxoTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SignTx<UtxoChainId>) => Promise<string>
-  signTransaction: (txToSign: SignTx<UtxoChainId>) => Promise<string>
+  signTransaction?: (txToSign: SignTx<UtxoChainId>) => Promise<string>
 }
 
 export type UtxoTransactionExecutionContext = {
@@ -804,7 +804,7 @@ export type Swapper = {
   executeUtxoTransaction?: (
     txToSign: SignTx<UtxoChainId>,
     callbacks: UtxoTransactionExecutionProps,
-    context: UtxoTransactionExecutionContext,
+    context?: UtxoTransactionExecutionContext,
   ) => Promise<string>
   executeCosmosSdkTransaction?: (
     txToSign: SignTx<CosmosSdkChainId>,

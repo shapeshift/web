@@ -81,10 +81,16 @@ export const addL1ToLongtailPartsToMemo = ({
     finalAssetContract,
   ] = quotedMemoWithAggregatorAndFinalAssetContract.split(MEMO_PART_DELIMITER)
 
-  const shortenedNativeAssetName =
-    shortenedNativeAssetNameByNativeAssetName[
-      nativeAssetName as keyof typeof shortenedNativeAssetNameByNativeAssetName
-    ]
+  // THORNode quote memos may already use the shortened native asset name
+  const isAlreadyShortened = (
+    Object.values(shortenedNativeAssetNameByNativeAssetName) as string[]
+  ).includes(nativeAssetName)
+
+  const shortenedNativeAssetName = isAlreadyShortened
+    ? nativeAssetName
+    : shortenedNativeAssetNameByNativeAssetName[
+        nativeAssetName as keyof typeof shortenedNativeAssetNameByNativeAssetName
+      ]
 
   assert(shortenedNativeAssetName, 'cannot find shortened native asset name')
 

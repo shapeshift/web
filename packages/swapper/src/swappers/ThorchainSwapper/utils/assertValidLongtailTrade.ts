@@ -113,5 +113,15 @@ export const assertValidL1ToLongtailTrade = async ({
     )
   }
 
+  if (sellAsset.assetId === buyAssetFeeAsset.assetId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Cannot swap ${sellAsset.assetId} to itself before the aggregator.`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
+
   return Ok({ buyAssetFeeAsset, longtailTokens })
 }

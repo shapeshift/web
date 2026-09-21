@@ -1,33 +1,31 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 
+const MINIMUM_UNIQUE_SUBSTRING = 2
+
+// Mirrors THORNode's externalAssetMatch: a case-insensitive suffix match against the target chain's token list only
 export const getUniqueAddressSubstring = (
   destinationAssetId: AssetId,
   longTailAssetIds: AssetId[],
 ) => {
-  const MINIMUM_UNIQUE_SUBSTRING = 2
-  let maybeShortenedDestinationAddress = destinationAssetId
+  const { chainId, assetReference } = fromAssetId(destinationAssetId)
+  const address = assetReference.toLowerCase()
 
-  const substringsCount: Record<string, number> = {}
+  const sameChainAddresses = longTailAssetIds
+    .map(assetId => fromAssetId(assetId))
+    .filter(asset => asset.chainId === chainId)
+    .map(asset => asset.assetReference.toLowerCase())
 
-  for (let length = MINIMUM_UNIQUE_SUBSTRING; length <= destinationAssetId.length - 2; length++) {
-    const currentSubstring = destinationAssetId.slice(-length)
-    substringsCount[currentSubstring] = 0
+  if (!sameChainAddresses.includes(address)) return address
+
+  for (let length = MINIMUM_UNIQUE_SUBSTRING; length < address.length; length++) {
+    const suffix = address.slice(-length)
+    const matchCount = sameChainAddresses.filter(sameChainAddress =>
+      sameChainAddress.endsWith(suffix),
+    ).length
+
+    if (matchCount === 1) return suffix
   }
 
-  longTailAssetIds.forEach(assetId => {
-    Object.keys(substringsCount).forEach(substring => {
-      if (assetId.includes(substring)) {
-        substringsCount[substring] += 1
-      }
-    })
-  })
-
-  for (const [substring, count] of Object.entries(substringsCount)) {
-    if (count === 1) {
-      maybeShortenedDestinationAddress = substring
-      break
-    }
-  }
-
-  return maybeShortenedDestinationAddress
+  return address
 }

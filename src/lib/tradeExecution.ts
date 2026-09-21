@@ -361,6 +361,7 @@ export class TradeExecution {
     senderAddress,
     accountType,
     signAndBroadcastTransaction,
+    signTransaction,
   }: UtxoTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
@@ -391,9 +392,11 @@ export class TradeExecution {
         assertGetUtxoChainAdapter,
       })
 
-      return await swapper.executeUtxoTransaction(unsignedTxResult, {
-        signAndBroadcastTransaction,
-      })
+      return await swapper.executeUtxoTransaction(
+        unsignedTxResult,
+        { signAndBroadcastTransaction, signTransaction },
+        { config, swapperMetadata: getHopByIndex(tradeQuote, stepIndex)?.swapperMetadata },
+      )
     }
 
     return await this._execWalletAgnostic(

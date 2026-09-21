@@ -633,8 +633,7 @@ export type EvmMessageExecutionProps = {
 
 export type UtxoTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SignTx<UtxoChainId>) => Promise<string>
-  /** Sign-only callback for swappers that broadcast through their own api (bob gateway) */
-  signTransaction?: (txToSign: SignTx<UtxoChainId>) => Promise<string>
+  signTransaction: (txToSign: SignTx<UtxoChainId>) => Promise<string>
 }
 
 export type UtxoTransactionExecutionContext = {

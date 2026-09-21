@@ -12,11 +12,11 @@ export type BobGatewayMetadata = {
   orderId: string
 }
 
-// Bob Gateway bridges BTC (utxo), EVM chains and Tron
 export type BobGatewayTradeQuoteInput =
   | GetEvmTradeQuoteInput
   | GetUtxoTradeQuoteInput
   | GetTronTradeQuoteInput
+
 export type BobGatewayTradeRateInput =
   | GetEvmTradeRateInput
   | GetUtxoTradeRateInput

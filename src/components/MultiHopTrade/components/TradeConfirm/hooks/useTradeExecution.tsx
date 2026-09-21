@@ -187,23 +187,19 @@ export const useTradeExecution = (
         resolve()
       }
 
-      // only track after swapper successfully executes a trade
-      // otherwise unsigned txs will be tracked as confirmed trades
-      const trackMixpanelEventOnExecute = () => {
-        const event =
-          hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
-        trackMixpanelEvent(event, eventDataSnapshot)
-        if (hopIndex === 0) {
-          trackHypeLabEvent(HypeLabEvent.TradeConfirm)
-        }
-      }
-
       const execution = new TradeExecution()
 
       let txHashReceived: boolean = false
 
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         txHashReceived = true
+
+        trackMixpanelEvent(
+          hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop,
+          eventDataSnapshot,
+        )
+        if (hopIndex === 0) trackHypeLabEvent(HypeLabEvent.TradeConfirm)
+
         dispatch(
           tradeQuoteSlice.actions.setSwapSellTxHash({
             hopIndex,
@@ -416,7 +412,6 @@ export const useTradeExecution = (
 
             const output = await adapter.signTypedData(signTypedDataInput)
 
-            trackMixpanelEventOnExecute()
             return output
           },
         })
@@ -445,7 +440,6 @@ export const useTradeExecution = (
               throw new Error('Failed to sign serialized Solana transaction')
             }
 
-            trackMixpanelEventOnExecute()
             return result.signatures
           },
           signAndBroadcastSerializedTransaction: async (serializedTx: string) => {
@@ -464,7 +458,6 @@ export const useTradeExecution = (
 
             const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
 
-            trackMixpanelEventOnExecute()
             return adapter.broadcastTransaction({
               senderAddress: fromAccountId(sellAssetAccountId).account,
               receiverAddress: tradeQuote.receiveAddress,
@@ -520,7 +513,6 @@ export const useTradeExecution = (
                 receiverAddress,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })
@@ -535,12 +527,26 @@ export const useTradeExecution = (
           const xpub = skipDeviceDerivation
             ? pubKey
             : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
+
           const senderAddress = await adapter.getAddress({
             accountNumber,
             accountType,
             wallet,
             pubKey: skipDeviceDerivation ? pubKey : undefined,
           })
+
+          const setInboundAddress = (txToSign: SignTx<UtxoChainId>) => {
+            const inboundAddress = txToSign.outputs?.[0]?.address
+            if (inboundAddress) {
+              dispatch(
+                tradeQuoteSlice.actions.setSwapInboundAddress({
+                  hopIndex,
+                  inboundAddress,
+                  id: confirmedTradeId,
+                }),
+              )
+            }
+          }
 
           const output = await execution.execUtxoTransaction({
             swapperName,
@@ -551,45 +557,13 @@ export const useTradeExecution = (
             senderAddress,
             accountType,
             signAndBroadcastTransaction: async (txToSign: SignTx<UtxoChainId>) => {
-              const inboundAddress = txToSign.outputs?.[0]?.address
-              if (inboundAddress) {
-                dispatch(
-                  tradeQuoteSlice.actions.setSwapInboundAddress({
-                    hopIndex,
-                    inboundAddress,
-                    id: confirmedTradeId,
-                  }),
-                )
-              }
-
-              const signedTx = await adapter.signTransaction({
-                txToSign,
-                wallet,
-              })
-              const output = await adapter.broadcastTransaction({
-                hex: signedTx,
-              })
-
-              trackMixpanelEventOnExecute()
-              return output
-            },
-            // Sign only - the swapper broadcasts through its own api (bob gateway)
-            signTransaction: async (txToSign: SignTx<UtxoChainId>) => {
-              const inboundAddress = txToSign.outputs?.[0]?.address
-              if (inboundAddress) {
-                dispatch(
-                  tradeQuoteSlice.actions.setSwapInboundAddress({
-                    hopIndex,
-                    inboundAddress,
-                    id: confirmedTradeId,
-                  }),
-                )
-              }
-
+              setInboundAddress(txToSign)
               const signedTx = await adapter.signTransaction({ txToSign, wallet })
-
-              trackMixpanelEventOnExecute()
-              return signedTx
+              return adapter.broadcastTransaction({ hex: signedTx })
+            },
+            signTransaction: (txToSign: SignTx<UtxoChainId>) => {
+              setInboundAddress(txToSign)
+              return adapter.signTransaction({ txToSign, wallet })
             },
           })
           cancelPollingRef.current = output?.cancelPolling
@@ -630,7 +604,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })
@@ -661,7 +634,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
             signTransaction: (txToSign: SolanaSignTx) => {
@@ -690,7 +662,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })
@@ -722,7 +693,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })
@@ -754,7 +724,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })
@@ -785,7 +754,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })
@@ -817,7 +785,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })

@@ -1,5 +1,6 @@
 import type { GatewayOrderStatusV3, GatewayQuoteV4, GetQuoteParams } from '@gobob/bob-sdk'
 import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
+import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -189,9 +190,7 @@ export const createBobGatewayOrder = async (config: SwapperConfig, quote: Gatewa
   }
 }
 
-// Hands the signed BTC deposit to the gateway, which validates and broadcasts it. Offramp and
-// token-swap source txs are indexed on-chain by the gateway and need no registration.
-export const registerBobGatewayTx = async ({
+export const submitBobGatewayBtcDeposit = async ({
   config,
   orderId,
   bitcoinTxHex,
@@ -200,15 +199,11 @@ export const registerBobGatewayTx = async ({
   orderId: string
   bitcoinTxHex: string
 }): Promise<string> => {
-  const response = await getBobGatewayClient(config).api.registerTxV4({
+  await getBobGatewayClient(config).api.registerTxV4({
     registerTxV4: { onramp: { orderId, bitcoinTxHex } },
   })
 
-  if (typeof response === 'string' || !('onramp' in response)) {
-    throw new Error('[BobGateway] unexpected register-tx response')
-  }
-
-  return response.onramp.txid
+  return bitcoin.Transaction.fromHex(bitcoinTxHex).getId()
 }
 
 export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV3): TxStatus => {

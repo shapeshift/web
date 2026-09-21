@@ -22,19 +22,15 @@ export const getBobGatewayTradeQuote = async (
 
   const isBtcSell = sellAsset.chainId === btcChainId
 
-  // omit the sender for utxo sells so order creation does not enforce a per-address confirmed
-  // funds check (deposits are matched via op_return, not the sending address)
+  // omit the sender for btc sells so the sdk doesn't build a psbt from a single address
   const sender = isBtcSell ? undefined : sendAddress
-
-  // refunds go to the sending address on the sell chain; required by create-order
-  const refundAddress = sendAddress
 
   const maybeContext = await getBobGatewayTradeContext({
     input,
     deps,
     sender,
     recipient: receiveAddress,
-    refundAddress,
+    refundAddress: sendAddress,
   })
 
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())

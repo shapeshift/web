@@ -1,4 +1,3 @@
-import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -132,7 +131,6 @@ export const getL1ToLongtailQuote = async (
           buyAmountAfterFeesCryptoBaseUnit: quotedAmountOut.toString(),
           // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
-          allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
           transactionData,
           feeData: { ...s.feeData, networkFeeCryptoBaseUnit },
         })) as MultiHopTradeQuoteSteps,

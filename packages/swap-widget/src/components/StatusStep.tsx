@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
+import type { ErrorSource } from '../machines/types'
+import { GENERIC_ERROR_MESSAGE } from '../utils/errors'
 
 const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
   <a href={url} target='_blank' rel='noopener noreferrer' className='ssw-step-explorer-link'>
@@ -18,6 +20,30 @@ const ExplorerLink = ({ url, label }: { url: string; label: string }) => (
   </a>
 )
 
+const ERROR_TITLES: Record<ErrorSource, string> = {
+  QUOTE_ERROR: 'Quote Failed',
+  QUOTE_EXPIRED: 'Quote Expired',
+  APPROVAL_ERROR: 'Approval Failed',
+  EXECUTE_ERROR: 'Transaction Failed',
+  STATUS_FAILED: 'Swap Failed',
+  TRACKING_TIMEOUT: 'Still Processing',
+}
+
+type TxLink = { url: string | null | undefined; label: string }
+
+const TxLinks = ({ links }: { links: TxLink[] }) => {
+  const available = links.filter((link): link is { url: string; label: string } => !!link.url)
+  if (!available.length) return null
+
+  return (
+    <div className='ssw-step-explorer-links'>
+      {available.map(({ url, label }) => (
+        <ExplorerLink key={label} url={url} label={label} />
+      ))}
+    </div>
+  )
+}
+
 type StatusStepProps = {
   isPayment: boolean
 }
@@ -32,27 +58,32 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
     sellAsset,
     buyAsset,
     quote,
-    txHash,
+    buyTxLink,
+    swapperTxLink,
     error,
     errorSource,
     retryCount,
-    isSellAssetUtxo,
-    isSellAssetSolana,
     isDepositFlow,
   } = context
 
-  // On a deposit swap the linked tx is the deposit; what's pending is the provider's own swap
-  const explorerLabel = isDepositFlow ? 'View deposit' : 'View on Explorer'
+  const explorerLabel = isDepositFlow ? 'View deposit' : 'View sent'
 
   // The swap may well have settled, so no failure wording and no retry quoting a second one
   const hasStoppedTracking = errorSource === 'TRACKING_TIMEOUT'
 
-  const explorerUrl = useMemo(() => {
-    if (!txHash) return undefined
-    if (isSellAssetUtxo) return `https://mempool.space/tx/${txHash}`
-    if (isSellAssetSolana) return `https://solscan.io/tx/${txHash}`
-    return `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${txHash}`
-  }, [txHash, isSellAssetUtxo, isSellAssetSolana, sellAsset.explorerTxLink])
+  const sellTxLink: TxLink = { url: context.txLink, label: explorerLabel }
+
+  const swapperLink: TxLink = {
+    url: swapperTxLink,
+    label: quote?.swapperName ? `View on ${quote.swapperName}` : 'View swap details',
+  }
+
+  // The swapper's own page already covers both legs, so the chain links are only a fallback
+  const settledTxLinks = swapperTxLink
+    ? [swapperLink]
+    : [sellTxLink, { url: buyTxLink, label: 'View received' }]
+
+  const unsettledTxLinks = swapperTxLink ? [swapperLink] : [sellTxLink]
 
   const truncatedError = useMemo(
     () => (error && error.length > 100 ? `${error.slice(0, 100)}…` : error),
@@ -77,18 +108,13 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               <path d='M12 2a10 10 0 0 1 10 10' />
             </svg>
           </div>
-          <div className='ssw-step-title'>
-            {isDepositFlow ? 'Swap in Progress' : 'Confirming Transaction'}
-          </div>
+          <div className='ssw-step-title'>Swap in Progress</div>
           <div className='ssw-step-subtitle'>
-            {isDepositFlow
-              ? `Deposit received. Waiting for ${
-                  quote?.swapperName ?? 'the provider'
-                } to send your ${buyAsset.symbol}.`
-              : 'Your swap is being processed…'}
+            {isDepositFlow ? 'Deposit received' : 'Transaction sent'}. Waiting for{' '}
+            {quote?.swapperName ?? 'the provider'} to send your {buyAsset.symbol}.
           </div>
-          {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}
-          {isDepositFlow && !isPayment && (
+          <TxLinks links={[sellTxLink, swapperLink]} />
+          {!isPayment && (
             <div className='ssw-step-actions'>
               <button
                 className='ssw-action-btn ssw-secondary'
@@ -116,11 +142,11 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
               <path d='M20 6L9 17l-5-5' />
             </svg>
           </div>
-          <div className='ssw-step-title'>Swap Complete!</div>
+          <div className='ssw-step-title'>Swap Complete</div>
           <div className='ssw-step-subtitle'>
             Swapped {sellAsset.symbol} for {buyAsset.symbol}
           </div>
-          {explorerUrl && <ExplorerLink url={explorerUrl} label={explorerLabel} />}
+          <TxLinks links={settledTxLinks} />
           {!isPayment && (
             <div className='ssw-step-actions'>
               <button
@@ -155,12 +181,10 @@ export const StatusStep = ({ isPayment }: StatusStepProps) => {
             </svg>
           </div>
           <div className='ssw-step-title'>
-            {hasStoppedTracking ? 'Still Processing' : 'Transaction Failed'}
+            {errorSource ? ERROR_TITLES[errorSource] : 'Swap Failed'}
           </div>
-          <div className='ssw-step-subtitle'>{truncatedError ?? 'Something went wrong'}</div>
-          {hasStoppedTracking && explorerUrl && (
-            <ExplorerLink url={explorerUrl} label={explorerLabel} />
-          )}
+          <div className='ssw-step-subtitle'>{truncatedError ?? GENERIC_ERROR_MESSAGE}</div>
+          <TxLinks links={unsettledTxLinks} />
           <div className='ssw-step-actions'>
             {!hasStoppedTracking && retryCount < 3 && (
               <button

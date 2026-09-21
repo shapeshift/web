@@ -47,7 +47,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, onClose }) => {
       </DialogHeader>
       <DialogBody p={0}>
         <Card bg='none'>
-          <Claim />
+          <Claim onClose={handleClose} />
         </Card>
       </DialogBody>
     </Dialog>

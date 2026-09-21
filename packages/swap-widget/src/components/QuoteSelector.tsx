@@ -63,7 +63,7 @@ export const QuoteSelector = ({
       <div className='ssw-quote-selector ssw-loading'>
         <div className='ssw-quote-loading'>
           <div className='ssw-spinner-small' />
-          <span>Finding best rates...</span>
+          <span>Finding best rates…</span>
         </div>
       </div>
     )

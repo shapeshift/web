@@ -432,7 +432,7 @@ export const TokenSelectModal = ({
               {isLoading ? (
                 <div className='ssw-loading'>
                   <div className='ssw-spinner' />
-                  <span>Loading assets...</span>
+                  <span>Loading assets…</span>
                 </div>
               ) : sortedAssets.length === 0 ? (
                 <div className='ssw-empty'>No tokens found</div>

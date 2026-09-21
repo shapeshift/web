@@ -1,14 +1,14 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
 import { useMemo } from 'react'
 import type { Address, ReadContractReturnType } from 'viem'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
-import { arbitrum } from 'viem/chains'
 import type { Config } from 'wagmi'
+
+import { getRfoxClient, getRfoxNetworkId } from '../helpers'
 
 type StakingBalanceOfQueryKey = ReadContractQueryKey<
   typeof erc20Abi,
@@ -23,7 +23,6 @@ type UseStakingBalanceOfQueryProps<SelectData = StakingBalanceOf> = {
   select?: (stakingBalanceOf: StakingBalanceOf) => SelectData
   enabled?: boolean
 }
-const client = viemClientByNetworkId[arbitrum.id]
 
 export const getStakingBalanceOfQueryKey = ({
   accountId,
@@ -39,7 +38,7 @@ export const getStakingBalanceOfQueryKey = ({
       : ('' as Address),
     functionName: 'balanceOf',
     args: [accountId ? getAddress(fromAccountId(accountId).account) : ('' as Address)],
-    chainId: arbitrum.id,
+    chainId: stakingAssetId ? getRfoxNetworkId(stakingAssetId) : undefined,
   },
 ]
 
@@ -50,7 +49,7 @@ export const getStakingBalanceOfQueryFn = ({
   accountId: AccountId
   stakingAssetId: AssetId
 }) => {
-  return readContract(client, {
+  return readContract(getRfoxClient(stakingAssetId), {
     abi: erc20Abi,
     address: getAddress(fromAssetId(stakingAssetId).assetReference),
     functionName: 'balanceOf',

@@ -26,11 +26,12 @@ import { vibrate } from '@/lib/vibrate'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
+  selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByAssetId,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
@@ -68,6 +69,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       hideZeroBalanceAmounts,
       assetFilterPredicate,
       chainIdFilterPredicate,
+      accountNumber,
     },
     showPrice = false,
     onImportClick,
@@ -130,14 +132,31 @@ export const AssetRow: FC<AssetRowProps> = memo(
       assetsById,
     ])
 
-    const filter = useMemo(() => ({ assetId }), [assetId])
+    const accountIdsByAccountNumberAndChainId = useAppSelector(
+      selectAccountIdByAccountNumberAndChainId,
+    )
+
+    // Without an account number the balance spans the whole wallet, which is what most callers want
+    const accountId = useMemo(() => {
+      if (accountNumber === undefined) return
+      return accountIdsByAccountNumberAndChainId[accountNumber]?.[asset.chainId]
+    }, [accountIdsByAccountNumberAndChainId, accountNumber, asset.chainId])
+
+    // An unresolved accountId reads as every account in the balance selectors
+    const hasUnresolvedAccountId = accountNumber !== undefined && !accountId
+
+    const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
     const cryptoPrecisionBalance = useAppSelector(s =>
-      canDisplayBalances ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision() : '0',
+      canDisplayBalances && !hasUnresolvedAccountId
+        ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision()
+        : '0',
     )
     const userCurrencyBalance =
       useAppSelector(s =>
-        canDisplayBalances ? selectPortfolioUserCurrencyBalanceByAssetId(s, filter) : '0',
+        canDisplayBalances && !hasUnresolvedAccountId
+          ? selectPortfolioUserCurrencyBalanceByFilter(s, filter)
+          : '0',
       ) ?? '0'
 
     const knownAsset = useAppSelector(s => selectAssetById(s, assetId))
@@ -259,6 +278,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       changePercent24Hr,
     ])
 
+    // Grouped rows are not account scoped - the group's own total reads wallet wide
     if (showRelatedAssets && filteredRelatedAssetIds.length > 1) {
       return (
         <GroupedAssetRow
@@ -303,7 +323,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
               {showChainName ? `${chainName} (${asset.symbol})` : asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>
-              {bnOrZero(cryptoPrecisionBalance).gt(0) ? (
+              {canDisplayBalances && !hideAssetBalance ? (
                 <Amount.Crypto
                   fontSize='sm'
                   fontWeight='medium'

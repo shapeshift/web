@@ -21,6 +21,7 @@ type TradeAssetSelectBaseProps = {
   showChainDropdown?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
+  accountNumber?: number
 } & FlexProps
 
 type TradeAssetSelectReadonlyProps = {
@@ -51,6 +52,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
     chainIdFilterPredicate,
     flexProps,
     showChainDropdown,
+    accountNumber,
   } = useMemo(() => {
     const {
       onAssetClick,
@@ -64,6 +66,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       assetFilterPredicate,
       chainIdFilterPredicate,
       showChainDropdown = true,
+      accountNumber,
       ...flexProps
     } = props
     return {
@@ -79,6 +82,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       chainIdFilterPredicate,
       flexProps,
       showChainDropdown,
+      accountNumber,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
@@ -121,6 +125,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
             onlyConnectedChains={onlyConnectedChains}
             chainIdFilterPredicate={chainIdFilterPredicate}
             assetFilterPredicate={assetFilterPredicate}
+            accountNumber={accountNumber}
           />
         </>
       )}

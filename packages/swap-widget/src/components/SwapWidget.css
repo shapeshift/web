@@ -814,7 +814,9 @@
   font-size: 14px;
   color: var(--ssw-text-secondary);
   margin-top: 8px;
-  max-width: 280px;
+  /* Reaches into the step padding, so the longer status copy holds two lines */
+  margin-inline: -16px;
+  max-width: 300px;
   line-height: 1.5;
 }
 
@@ -834,6 +836,18 @@
 
 .ssw-step-explorer-link:hover {
   opacity: 0.8;
+}
+
+.ssw-step-explorer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.ssw-step-explorer-links .ssw-step-explorer-link {
+  margin-top: 0;
 }
 
 .ssw-step-actions {

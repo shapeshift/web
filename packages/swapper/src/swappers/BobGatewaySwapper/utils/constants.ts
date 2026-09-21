@@ -11,9 +11,10 @@ import {
   hyperEvmChainId,
   plasmaChainId,
   polygonChainId,
+  robinhoodChainId,
   seiChainId,
   sonicChainId,
-  // tronChainId,
+  tronChainId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
 import type { Address } from 'viem'
@@ -21,7 +22,7 @@ import type { Address } from 'viem'
 export const BOB_GATEWAY_BASE_URL = 'https://gateway-api-mainnet.gobob.xyz'
 
 // Chain name strings expected by the BOB Gateway API
-// https://gateway-api-mainnet.gobob.xyz/v2/get-routes
+// https://gateway-api-mainnet.gobob.xyz/v4/get-routes
 export const chainIdToBobGatewayChainName = {
   [arbitrumChainId]: 'arbitrum',
   [avalancheChainId]: 'avalanche',
@@ -36,8 +37,9 @@ export const chainIdToBobGatewayChainName = {
   [unichainChainId]: 'unichain',
   [plasmaChainId]: 'plasma',
   [polygonChainId]: 'polygon',
-  [hyperEvmChainId]: 'hyperliquid',
-  // [tronChainId]: 'tron',
+  [hyperEvmChainId]: 'hyperevm',
+  [robinhoodChainId]: 'robinhood',
+  [tronChainId]: 'tron',
 } as const
 
 export const bobGatewayChainNameToChainId = Object.fromEntries(

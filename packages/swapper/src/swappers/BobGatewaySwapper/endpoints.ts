@@ -12,11 +12,8 @@ import type { BobGatewayTradeQuoteInput, BobGatewayTradeRateInput } from './type
 import {
   getBobGatewayClient,
   mapBobGatewayOrderStatusToTxStatus,
-  registerBobGatewayTx,
   toTronBase58,
 } from './utils/helpers'
-
-const registeredSwapIds = new Set<string>()
 
 export const bobGatewayApi: SwapperApi = {
   getTradeRate: (input, deps) => getBobGatewayTradeRate(input as BobGatewayTradeRateInput, deps),
@@ -48,23 +45,10 @@ export const bobGatewayApi: SwapperApi = {
     })
   },
   getTronTransactionFees,
-  checkTradeStatus: async ({ swap, config, txHash }) => {
+  checkTradeStatus: async ({ swap, config }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 
     const { orderId } = getSwapMetadata(swap.metadata.swapperMetadata, 'bob')
-
-    if (txHash && !registeredSwapIds.has(swap.id)) {
-      try {
-        await registerBobGatewayTx({
-          config,
-          orderId,
-          txHash,
-          sellAsset: swap.sellAsset,
-          buyAsset: swap.buyAsset,
-        })
-        registeredSwapIds.add(swap.id)
-      } catch {}
-    }
 
     let orderInfo
     try {

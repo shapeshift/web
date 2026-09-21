@@ -10,6 +10,7 @@ import type { SwapErrorRight, TradeAmount } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import {
+  APP_FEE_SPLIT_MULTIPLIER,
   DEFAULT_QUOTE_DEADLINE_MS,
   DEFAULT_SLIPPAGE_BPS,
   UTXO_QUOTE_DEADLINE_MS,
@@ -241,7 +242,7 @@ export const buildNearIntentsQuoteRequest = ({
     appFees: [
       {
         recipient: DAO_TREASURY_NEAR,
-        fee: Number(affiliateBps),
+        fee: Number(affiliateBps) * APP_FEE_SPLIT_MULTIPLIER,
       },
     ],
   }

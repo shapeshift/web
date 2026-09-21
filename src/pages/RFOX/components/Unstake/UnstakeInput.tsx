@@ -1,7 +1,6 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, isSome } from '@shapeshiftoss/utils'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -23,7 +22,6 @@ import { FormDivider } from '@/components/FormDivider'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
-import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -34,7 +32,6 @@ import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/use
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAssetById,
-  selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
@@ -46,7 +43,7 @@ const formControlProps = {
   background: 'transparent',
   borderWidth: 0,
   paddingBottom: 4,
-  paddingTop: 0,
+  paddingTop: 4,
 }
 
 const inputContainerStyleOverride = {
@@ -72,18 +69,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const translate = useTranslate()
   const navigate = useNavigate()
 
-  const { stakingAssetAccountId, setStakingAssetId, stakingAssetId } = useRFOXContext()
-
-  useEffect(() => {
-    if (supportedStakingAssetIds.includes(stakingAssetId)) return
-    setStakingAssetId(supportedStakingAssetIds[0])
-  }, [stakingAssetId, setStakingAssetId])
-
-  const assets = useAppSelector(selectAssets)
-
-  const stakingAssets = useMemo(() => {
-    return supportedStakingAssetIds.map(stakingAssetId => assets[stakingAssetId]).filter(isSome)
-  }, [assets])
+  const { stakingAssetAccountId, stakingAssetId } = useRFOXContext()
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetMarketData = useAppSelector(state =>
@@ -101,35 +87,22 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     [stakingAssetFeeAsset?.assetId, stakingAssetAccountId],
   )
   const stakingAssetFeeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+    stakingAssetAccountId
+      ? selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter)
+      : BigAmount.zero({ precision: 0 }),
   )
 
-  const buyAssetSearch = useModal('buyAssetSearch')
-
-  const handleStakingAssetClick = useCallback(() => {
-    buyAssetSearch.open({
-      onAssetClick: asset => setStakingAssetId(asset.assetId),
-      title: 'common.selectAsset',
-      assets: stakingAssets,
-    })
-  }, [stakingAssets, buyAssetSearch, setStakingAssetId])
-
-  const handleAssetChange = useCallback(
-    (asset: Asset) => setStakingAssetId(asset.assetId),
-    [setStakingAssetId],
-  )
-
+  // Which program is being unstaked from is the page's to choose, not this form's
   const assetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
+        isReadOnly
         assetId={stakingAssetId}
-        onAssetClick={handleStakingAssetClick}
-        onAssetChange={handleAssetChange}
         assetIds={supportedStakingAssetIds}
         onlyConnectedChains={true}
       />
     )
-  }, [stakingAssetId, handleStakingAssetClick, handleAssetChange])
+  }, [stakingAssetId])
 
   const methods = useForm<UnstakeInputValues>({
     defaultValues: defaultFormValues,
@@ -310,10 +283,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     stakingAssetId,
   ])
 
+  // No cool-down means there is nothing to acknowledge, which also covers the sunset LP program
   const handleUnstakeClick = useMemo(() => {
-    if (stakingAssetId === uniV2EthFoxArbitrumAssetId) return handleSubmit
+    if (cooldownPeriodData?.cooldownPeriodSeconds === 0) return handleSubmit
     return handleWarning
-  }, [handleSubmit, handleWarning, stakingAssetId])
+  }, [cooldownPeriodData?.cooldownPeriodSeconds, handleSubmit, handleWarning])
 
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {

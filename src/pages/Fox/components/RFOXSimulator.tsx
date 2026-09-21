@@ -1,7 +1,6 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,7 +10,7 @@ import { RFOXSliders } from './RFOXSliders'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { getStakingContract } from '@/pages/RFOX/helpers'
+import { getRfoxStakingConfig, getStakingContract } from '@/pages/RFOX/helpers'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
@@ -24,7 +23,7 @@ const columnsProps = {
   md: 2,
 }
 const DEFAULT_SHAPESHIFT_REVENUES = 100000
-const DEFAULT_DEPOSIT_AMOUNT = 14000
+const DEFAULT_DEPOSIT_AMOUNT = 0
 
 type RFOXSimulatorProps = {
   stakingAssetId: AssetId
@@ -34,16 +33,24 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const translate = useTranslate()
   const [shapeShiftRevenue, setShapeShiftRevenue] = useState(DEFAULT_SHAPESHIFT_REVENUES)
   const [depositAmount, setDepositAmount] = useState(DEFAULT_DEPOSIT_AMOUNT)
+  const [simulatedStakingAssetId, setSimulatedStakingAssetId] = useState(stakingAssetId)
+
+  if (simulatedStakingAssetId !== stakingAssetId) {
+    setSimulatedStakingAssetId(stakingAssetId)
+    setDepositAmount(DEFAULT_DEPOSIT_AMOUNT)
+  }
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetUsdPrice = useAppSelector(state =>
     selectUsdRateByAssetId(state, stakingAssetId),
   )
 
-  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
-  const usdcUsdPrice = useAppSelector(state =>
-    selectUsdRateByAssetId(state, usdcOnArbitrumOneAssetId),
+  const rewardAssetId = useMemo(
+    () => getRfoxStakingConfig(stakingAssetId).rewardAssetId,
+    [stakingAssetId],
   )
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+  const rewardAssetUsdPrice = useAppSelector(state => selectUsdRateByAssetId(state, rewardAssetId))
 
   const totalStakedCryptoResult = useTotalStakedQuery<string>({
     stakingAssetId,
@@ -65,7 +72,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
 
   const { data: epochMetadata } = useCurrentEpochMetadataQuery()
 
-  const estimatedBurn = useMemo(() => {
+  const estimatedBuyback = useMemo(() => {
     if (!epochMetadata) return
     if (!stakingAsset) return
     if (!stakingAssetUsdPrice) return
@@ -76,15 +83,15 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const estimatedRewards = useMemo(() => {
     if (!epochMetadata) return
     if (!poolShare) return
-    if (!usdcUsdPrice) return
+    if (!rewardAssetUsdPrice) return
 
     const distributionRate =
       epochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 
     return bnOrZero(shapeShiftRevenue).times(distributionRate).times(poolShare).toFixed(2)
-  }, [epochMetadata, shapeShiftRevenue, usdcUsdPrice, stakingAssetId, poolShare])
+  }, [epochMetadata, shapeShiftRevenue, rewardAssetUsdPrice, stakingAssetId, poolShare])
 
-  if (!(usdcAsset && stakingAsset)) return null
+  if (!(rewardAsset && stakingAsset)) return null
 
   return (
     <Stack
@@ -144,10 +151,10 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
             </Card>
             <Card>
               <CardBody py={4} px={4}>
-                <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalBurn' />
+                <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalBuyback' />
 
-                <Skeleton isLoaded={Boolean(estimatedBurn !== undefined)}>
-                  <Amount.Fiat fontSize='24px' value={estimatedBurn} />
+                <Skeleton isLoaded={Boolean(estimatedBuyback !== undefined)}>
+                  <Amount.Fiat fontSize='24px' value={estimatedBuyback} />
                 </Skeleton>
               </CardBody>
             </Card>

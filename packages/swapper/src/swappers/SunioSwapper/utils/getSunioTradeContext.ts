@@ -128,6 +128,7 @@ export const getSunioTradeContext = async ({
         deps,
         sellAsset,
         sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        buyAmountCryptoBaseUnit,
         route: bestRoute,
       },
     })

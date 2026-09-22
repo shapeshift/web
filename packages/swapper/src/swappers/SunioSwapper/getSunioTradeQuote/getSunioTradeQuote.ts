@@ -3,7 +3,6 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
-import { FALLBACK_QUOTE_DEADLINE_MS } from '../../../utils/helpers'
 import type { SunioTradeQuoteInput } from '../types'
 import { getSunioStepData } from '../utils/getSunioStepData'
 import { getSunioTradeContext } from '../utils/getSunioTradeContext'
@@ -30,18 +29,18 @@ export const getSunioTradeQuote = async (
   })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
-  const { networkFeeCryptoBaseUnit, sunioTransactionData } = maybeStepData.unwrap()
+  const { networkFeeCryptoBaseUnit, transactionData, deadline } = maybeStepData.unwrap()
 
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
-    deadline: Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
+    deadline,
     receiveAddress,
     steps: [
       {
         ...stepCommon,
         accountNumber,
-        sunioTransactionData,
+        transactionData,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

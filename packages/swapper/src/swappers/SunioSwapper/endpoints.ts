@@ -1,19 +1,12 @@
-import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
-import type { tron } from '@shapeshiftoss/chain-adapters'
+import { tronChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
-import type { GetUnsignedTronTransactionArgs, SwapperApi } from '../../types'
-import {
-  createDefaultStatusResponse,
-  getExecutableTradeStep,
-  isExecutableTradeQuote,
-} from '../../utils'
+import type { SwapperApi } from '../../types'
+import { createDefaultStatusResponse } from '../../utils'
+import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getSunioTradeQuote } from './getSunioTradeQuote/getSunioTradeQuote'
 import { getSunioTradeRate } from './getSunioTradeRate/getSunioTradeRate'
 import type { SunioTradeQuoteInput, SunioTradeRateInput } from './types'
-import { buildSunioSwapCalldata } from './utils/buildSwapContractCall'
-import { SUNIO_SMART_ROUTER_CONTRACT } from './utils/constants'
-import { estimateSunioNetworkFeeCryptoBaseUnit } from './utils/estimateSunioNetworkFee'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -21,77 +14,8 @@ export const sunioApi: SwapperApi = {
   getTradeQuote: (input, deps) => getSunioTradeQuote(input as SunioTradeQuoteInput, deps),
   getTradeRate: (input, deps) => getSunioTradeRate(input as SunioTradeRateInput, deps),
 
-  getUnsignedTronTransaction: (args: GetUnsignedTronTransactionArgs): Promise<tron.TronSignTx> => {
-    const {
-      tradeQuote,
-      stepIndex,
-      from,
-      slippageTolerancePercentageDecimal,
-      assertGetTronChainAdapter,
-    } = args
-
-    if (!isExecutableTradeQuote(tradeQuote)) {
-      throw new Error('Unable to execute a trade rate quote')
-    }
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { sunioTransactionData } = step
-    if (!sunioTransactionData) throw new Error('[Sun.io] Missing transaction data in quote')
-
-    const { accountNumber } = step
-    if (accountNumber === undefined) {
-      throw new Error('[Sun.io] accountNumber is required for execution')
-    }
-
-    const adapter = assertGetTronChainAdapter(tronChainId)
-
-    const data = buildSunioSwapCalldata({
-      route: sunioTransactionData.route,
-      sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      minBuyAmountCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
-      to: tradeQuote.receiveAddress,
-      slippageTolerancePercentageDecimal,
-    })
-
-    const isSellingNativeTrx = step.sellAsset.assetId === tronAssetId
-    const value = isSellingNativeTrx ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : '0'
-
-    return adapter.buildCustomApiTx({
-      from,
-      to: SUNIO_SMART_ROUTER_CONTRACT,
-      accountNumber,
-      data,
-      value,
-    })
-  },
-
-  getTronTransactionFees: async ({
-    tradeQuote,
-    stepIndex,
-    from,
-    slippageTolerancePercentageDecimal,
-    assertGetTronChainAdapter,
-  }: GetUnsignedTronTransactionArgs): Promise<string> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    const route = step.sunioTransactionData?.route
-
-    if (!route) {
-      if (!step.feeData.networkFeeCryptoBaseUnit) throw new Error('Missing network fee in quote')
-      return step.feeData.networkFeeCryptoBaseUnit
-    }
-
-    return await estimateSunioNetworkFeeCryptoBaseUnit({
-      adapter: assertGetTronChainAdapter(tronChainId),
-      route,
-      sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      isSellingNativeTrx: step.sellAsset.assetId === tronAssetId,
-      address: from,
-      slippageTolerancePercentageDecimal,
-    })
-  },
+  getUnsignedTronTransaction,
+  getTronTransactionFees,
 
   checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
     try {

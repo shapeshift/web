@@ -13,8 +13,10 @@ type BuildSunioSwapCalldataArgs = {
   route: SunioRoute
   sellAmountCryptoBaseUnit: string
   minBuyAmountCryptoBaseUnit: string
-  to: string
+  recipient: string
   slippageTolerancePercentageDecimal: string
+  // epoch ms
+  deadline: number
 }
 
 // Encodes the SmartExchangeRouter swapExactInput calldata from a Sun.io route, handed to the chain
@@ -25,8 +27,9 @@ export const buildSunioSwapCalldata = ({
   route,
   sellAmountCryptoBaseUnit,
   minBuyAmountCryptoBaseUnit,
-  to,
+  recipient,
   slippageTolerancePercentageDecimal,
+  deadline,
 }: BuildSunioSwapCalldataArgs): string => {
   const amountOutMin = bn(minBuyAmountCryptoBaseUnit)
     .times(bn(1).minus(slippageTolerancePercentageDecimal))
@@ -41,8 +44,8 @@ export const buildSunioSwapCalldata = ({
   const swapData = [
     BigInt(sellAmountCryptoBaseUnit),
     BigInt(amountOutMin),
-    tron.toTronHex(to) as Address,
-    BigInt(Math.floor(Date.now() / 1000) + 60 * 20),
+    tron.toTronHex(recipient) as Address,
+    BigInt(Math.floor(deadline / 1000)),
   ] as const
 
   return encodeFunctionData({

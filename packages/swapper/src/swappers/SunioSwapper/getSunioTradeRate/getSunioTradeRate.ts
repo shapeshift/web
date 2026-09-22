@@ -16,12 +16,12 @@ export const getSunioTradeRate = async (
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
   const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
 
-  // Sun.io is tron-only, so the receive address is the seller's own account to simulate from
+  // Sun.io is tron-only, so the receive address is also the seller's account to simulate from
   const maybeStepData = await getSunioStepData({
     ...stepDataArgs,
     type: 'rate',
     input,
-    from: receiveAddress,
+    from: input.sendAddress ?? receiveAddress,
   })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())

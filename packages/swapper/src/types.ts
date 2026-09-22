@@ -53,7 +53,6 @@ import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
 import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { StonfiMetadata, StonfiTransactionData } from './swappers/StonfiSwapper/types'
-import type { SunioTransactionData } from './swappers/SunioSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 import type { MayachainMetadata, ThorchainMetadata } from './utils/thorchain/types'
 
@@ -452,7 +451,6 @@ export type TradeStepCommon = {
 
   // To be collapsed into transactionData and swapperMetadata
   stonfiTransactionData?: StonfiTransactionData
-  sunioTransactionData?: SunioTransactionData
 
   relayTransactionMetadata?: RelayTransactionMetadata
   butterSwapTransactionMetadata?: ButterSwapTransactionMetadata

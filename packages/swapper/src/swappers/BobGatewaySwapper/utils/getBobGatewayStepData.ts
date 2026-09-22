@@ -1,7 +1,7 @@
 import type { GatewayQuoteV4 } from '@gobob/bob-sdk'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { tron } from '@shapeshiftoss/chain-adapters'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -17,6 +17,8 @@ import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../..
 import {
   BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
   BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,
+  BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES,
+  BOB_GATEWAY_TRON_DEFAULT_ENERGY,
 } from './constants'
 import { createBobGatewayOrder } from './helpers'
 
@@ -202,19 +204,15 @@ export async function getBobGatewayStepData(
       const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
       if (resolved.type === 'rate') {
+        // The gateway call isn't built until an order exists, so rates price a measured default
         const networkFeeCryptoBaseUnit = await (async () => {
           try {
-            if (!('offramp' in quote) && !('tokenSwap' in quote)) return
+            const { energyPrice, bandwidthPrice } = await adapter.httpProvider.getChainPrices()
 
-            const order = 'offramp' in quote ? quote.offramp : quote.tokenSwap
-
-            const { fast } = await adapter.getFeeData({
-              to: tron.toTronBase58(order.txTo),
-              value: order.inputAmount.amount,
-              chainSpecific: { contractAddress },
-            })
-
-            return fast.txFee
+            return bn(BOB_GATEWAY_TRON_DEFAULT_ENERGY)
+              .times(energyPrice)
+              .plus(bn(BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES).times(bandwidthPrice))
+              .toFixed(0)
           } catch {}
         })()
 
@@ -243,8 +241,8 @@ export async function getBobGatewayStepData(
       try {
         const { fast } = await adapter.getFeeData({
           to: tron.toTronBase58(tx.to),
-          value: sellAmountCryptoBaseUnit,
-          chainSpecific: { from, contractAddress },
+          value: tx.value,
+          chainSpecific: { from, contractAddress, data: tx.data },
         })
 
         const stepData: BobGatewayQuoteStepData = {

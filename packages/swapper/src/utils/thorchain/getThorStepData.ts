@@ -379,43 +379,42 @@ export async function getThorStepData({
       }
       case CHAIN_NAMESPACE.Tron: {
         const { vault } = await getThorTxData({ sellAsset, config, swapperName })
+        const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-        const networkFeeCryptoBaseUnit = await (async () => {
-          // Fees are calculated for rates with a wallet connected - quotes calculate them at
-          // execution via getTronTransactionFees
-          if (!(type === 'rate' && input.receiveAddress && vault)) return undefined
+        const estimate = async (txMemo: string | undefined) => {
+          const { fast } = await adapter.getFeeData({
+            to: vault,
+            value: sellAmountCryptoBaseUnit,
+            chainSpecific: { from, contractAddress, memo: txMemo },
+          })
 
-          try {
-            const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
-
-            // Simulate the transfer to the vault from the receive address for an accurate estimate
-            const feeData = await adapter.getFeeData({
-              to: vault,
-              value: sellAmountCryptoBaseUnit,
-              chainSpecific: {
-                from: input.receiveAddress,
-                contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-                memo: rawMemo,
-              },
-            })
-
-            return feeData.fast.txFee
-          } catch {
-            // Leave as undefined if estimation fails
-            return undefined
-          }
-        })()
+          return fast.txFee
+        }
 
         if (type === 'rate') {
+          // Rates size the memo with the raw thornode memo (processed memo is '' for rates)
+          const networkFeeCryptoBaseUnit = await (async () => {
+            try {
+              return await estimate(rawMemo)
+            } catch {}
+          })()
+
           const stepData: ThorRateStepData = { networkFeeCryptoBaseUnit }
 
           return Ok(stepData)
         }
 
-        // Un-migrated - exec builds its tx from the inbound address, so no transactionData is carried
-        const stepData: ThorQuoteStepData = { networkFeeCryptoBaseUnit }
+        try {
+          const stepData: ThorQuoteStepData = {
+            transactionData: { type: 'tron', to: vault, value: sellAmountCryptoBaseUnit, memo },
+            networkFeeCryptoBaseUnit: await estimate(memo),
+          }
 
-        return Ok(stepData)
+          return Ok(stepData)
+        } catch (error) {
+          return Err(makeNetworkFeeEstimationFailedErr('getThorStepData', error))
+        }
       }
       default:
         return Err(

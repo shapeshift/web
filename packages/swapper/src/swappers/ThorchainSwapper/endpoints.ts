@@ -4,7 +4,8 @@ import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '..
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
 import type { ThorTradeQuoteInput, ThorTradeRateInput } from '../../utils/thorchain'
-import { checkTradeStatus, tron } from '../../utils/thorchain'
+import { checkTradeStatus } from '../../utils/thorchain'
+import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -22,8 +23,8 @@ export const thorchainApi: SwapperApi = {
   getCosmosSdkTransactionFees,
   getUnsignedSolanaTransaction,
   getSolanaTransactionFees,
-  getUnsignedTronTransaction: input => tron.getUnsignedTronTransaction(input, swapperName),
-  getTronTransactionFees: input => tron.getTronTransactionFees(input, swapperName),
+  getUnsignedTronTransaction,
+  getTronTransactionFees,
   checkTradeStatus: input => {
     const { config } = input
 

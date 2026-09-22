@@ -331,14 +331,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     accountNumber: number
     data: string
     value: string
-    method?: string
-    args?: { type: string; value: unknown }[]
   }): Promise<TronSignTx> {
     try {
       const { from, to, accountNumber, data, value } = input
 
-      // Always use raw data field instead of method/args to ensure correct method selector
-      // TronWeb's triggerSmartContract computes method selectors differently than expected
       const callData = data.startsWith('0x') ? data.slice(2) : data
       let txData: TronUnsignedTx
 

@@ -43,16 +43,11 @@ const getQuote = async (
       })
 
       return maybeStepData.map(
-        ({
-          transactionData,
-          relayTransactionMetadata,
-          networkFeeCryptoBaseUnit,
-        }): TradeQuoteStep => ({
+        ({ transactionData, networkFeeCryptoBaseUnit }): TradeQuoteStep => ({
           ...stepCommon,
           accountNumber,
           allowanceContract,
           transactionData,
-          relayTransactionMetadata,
           swapperMetadata: {
             name: 'relay',
             relayId,

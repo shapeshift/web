@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -15,7 +16,7 @@ import {
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import { convertRelaySolanaInstruction } from './helpers'
-import type { RelayQuoteItem, RelayTransactionMetadata } from './types'
+import type { RelayQuoteItem } from './types'
 import {
   isRelayQuoteEvmItemData,
   isRelayQuoteSolanaItemData,
@@ -39,8 +40,7 @@ type BaseArgs = {
 
 type RelayRateStepData = { networkFeeCryptoBaseUnit: string }
 type RelayQuoteStepData = {
-  transactionData?: TxBuildData
-  relayTransactionMetadata?: RelayTransactionMetadata
+  transactionData: TxBuildData
   networkFeeCryptoBaseUnit: string
 }
 
@@ -245,13 +245,15 @@ export async function getRelayStepData({
     }
   }
 
+  // Native and token sells alike are a call into relay's depositor contract
   if (isRelayQuoteTronItemData(data)) {
-    const contractAddress = data.parameter?.contract_address
-    const tronCallData = data.parameter?.data
-    const isTronToken = isToken(sellAsset.assetId)
+    const {
+      contract_address: contractAddress,
+      data: callData,
+      call_value: callValue,
+    } = data.parameter ?? {}
 
-    if (isTronToken && !contractAddress) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
-    if (isTronToken && !tronCallData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
+    if (!contractAddress || !callData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
 
     if (type === 'rate') {
       const stepData: RelayRateStepData = {
@@ -261,10 +263,28 @@ export async function getRelayStepData({
       return Ok(stepData)
     }
 
-    const stepData: RelayQuoteStepData = {
-      relayTransactionMetadata: { to: contractAddress, data: tronCallData },
-      networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
+    const transactionData: TxBuildData = {
+      type: 'tron',
+      to: tron.toTronBase58(contractAddress),
+      data: callData,
+      value: String(callValue ?? 0),
     }
+
+    const networkFeeCryptoBaseUnit = await (async () => {
+      try {
+        const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
+          to: transactionData.to,
+          value: transactionData.value,
+          chainSpecific: { from, data: transactionData.data },
+        })
+
+        return fast.txFee
+      } catch {
+        return fallbackNetworkFeeCryptoBaseUnit
+      }
+    })()
+
+    const stepData: RelayQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
 
     return Ok(stepData)
   }

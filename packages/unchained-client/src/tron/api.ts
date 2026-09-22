@@ -173,6 +173,30 @@ export class TronApi {
     }
   }
 
+  async getTrc20Allowance(params: {
+    contractAddress: string
+    owner: string
+    spender: string
+  }): Promise<string> {
+    const tronWeb = this.getTronWeb()
+    const contract = await tronWeb.contract().at(params.contractAddress)
+    const allowance = await contract.allowance(params.owner, params.spender).call()
+    return allowance.toString()
+  }
+
+  // Accounts exist on-chain only once they have received TRX; a fresh address returns {}
+  async isAccountActivated(address: string): Promise<boolean> {
+    const response = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
+      method: 'POST',
+      headers: this.tronGridHeaders,
+      body: JSON.stringify({ address, visible: true }),
+    })
+
+    const data: TronAccount = await response.json()
+
+    return !!data.address
+  }
+
   getTxHistory(_params: { pubkey: string; pageSize?: number; cursor?: string }): Promise<{
     txs: TronTx[]
     cursor?: string

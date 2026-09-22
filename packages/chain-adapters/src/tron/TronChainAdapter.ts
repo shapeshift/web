@@ -614,19 +614,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     if (contractAddress) return 0
 
     try {
-      const response = await this.requestQueue.add(
-        () =>
-          fetch(`${this.rpcUrl}/wallet/getaccount`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
-            body: JSON.stringify({ address: to, visible: true }),
-          }),
+      const isActivated = await this.requestQueue.add(
+        () => this.providers.http.isAccountActivated(to),
         { throwOnTimeout: true },
       )
-      const info = await response.json()
-      const exists = info && Object.keys(info).length > 1
 
-      return exists ? 0 : TRON_ACCOUNT_ACTIVATION_FEE
+      return isActivated ? 0 : TRON_ACCOUNT_ACTIVATION_FEE
     } catch (err) {
       // assume activation is needed rather than risk underestimating by 1 TRX
       return TRON_ACCOUNT_ACTIVATION_FEE

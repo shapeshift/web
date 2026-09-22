@@ -52,6 +52,43 @@ describe('TronApi', () => {
     })
   })
 
+  describe('getTrc20Allowance', () => {
+    it('reads allowance(owner, spender) off the token contract', async () => {
+      const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()
+      const allowance = vi.fn().mockReturnValue({ call: () => Promise.resolve(123n) })
+      vi.spyOn(tronWeb, 'contract').mockReturnValue({ at: () => Promise.resolve({ allowance }) })
+
+      const actual = await api.getTrc20Allowance({
+        contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+        owner: 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N',
+        spender: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
+      })
+
+      expect(actual).toBe('123')
+      expect(allowance).toHaveBeenCalledWith(
+        'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N',
+        'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
+      )
+    })
+  })
+
+  describe('isAccountActivated', () => {
+    it('is true for an account the node knows', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ json: () => ({ address: '41abc', balance: 1 }) }),
+      )
+
+      expect(await api.isAccountActivated('TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N')).toBe(true)
+    })
+
+    it('is false for a fresh address', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: () => ({}) }))
+
+      expect(await api.isAccountActivated('TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N')).toBe(false)
+    })
+  })
+
   describe('estimateTrc20TransferFee', () => {
     const params = {
       contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',

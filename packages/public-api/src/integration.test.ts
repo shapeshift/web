@@ -38,6 +38,7 @@ const ADDRESS = {
   zec: 't1Tcr8tigNAFvjm7tZ2Hq4bkFmsQzhuhUfd',
   maya: 'maya1g98cy3n9mmjrpn0sxmn63lztelera37nu75fmz',
   sol: 'GThUX1Atko4tqhN2NaiTazWSeFWMuiUvfFnyJyUghFMJ',
+  tron: 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N',
 } as const
 
 const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: string }[] = [
@@ -105,12 +106,6 @@ const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: s
 
 // Destination-only chains - rejected as a sell asset, still valid as a buy asset
 const NON_SELLABLE: { label: string; sellAssetId: string; buyAssetId: string; amount: string }[] = [
-  {
-    label: 'Tron',
-    sellAssetId: ASSET_IDS.TRX,
-    buyAssetId: ASSET_IDS.USDC_ETH,
-    amount: '1000000000',
-  },
   {
     label: 'Sui',
     sellAssetId: ASSET_IDS.SUI,
@@ -181,6 +176,15 @@ const QUOTES: {
     sendAddress: ADDRESS.sol,
     receiveAddress: ADDRESS.btc,
     amount: '1000000000',
+  },
+  {
+    label: 'Tron Adapter',
+    sellAssetId: ASSET_IDS.TRX,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    swapperName: 'Relay',
+    sendAddress: ADDRESS.tron,
+    receiveAddress: ADDRESS.evm,
+    amount: '50000000',
   },
 ]
 

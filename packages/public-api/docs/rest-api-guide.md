@@ -58,7 +58,7 @@ X-Partner-Code: your-partner-code
 
 - `swapperName` comes from the rate you chose in step 2.
 - `slippageTolerancePercentageDecimal` is optional; `accountNumber` is optional (defaults to `0`) and is needed for chains that derive addresses per account index (e.g. UTXO/Cosmos).
-- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required, the spender, and ready-to-sign `approvalTxs` when it is), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`) — describing exactly what to sign for that chain.
+- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required, the spender, and ready-to-sign `approvalTxs` when it is), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana_instructions`, `solana_serialized_tx`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`, `tron`) — describing exactly what to sign for that chain.
 - Quotes expire. **Never sign, broadcast, or send a deposit after `expiresAt`** — request a fresh quote instead. `expiresAt` is the swapper's own deadline, not an arbitrary timeout: THORChain rotates its inbound addresses, externally paid swappers close their deposit channels, and funds sent to a closed channel can be lost. Swappers without a deadline of their own get a conservative 60s.
 
 ## 4. Execute the swap
@@ -66,7 +66,7 @@ X-Partner-Code: your-partner-code
 The API does **not** broadcast transactions — your application signs and broadcasts with the user's wallet:
 
 1. If `approval.isRequired` is true, sign and broadcast each transaction in `approval.approvalTxs` in order, waiting for each to confirm. These are **exact approvals** — sized to the step's `sellAmountCryptoBaseUnit` and consumed by the swap's execution, so a later swap needs its own approval unless a sufficient allowance is already in place (`approvalTxs` is empty in that case, with `isRequired: false`). Usually it is a single approve; tokens that require resetting a non-zero allowance before changing it (e.g. USDT) get a preceding `approve(spender, 0)`. Clients preferring an unlimited approval can build their own `approve(approval.spender, amount)` instead. Quotes are issued before approval exists — network fees are estimated as if the approval were already in place.
-2. For each step with `transactionData`, build, sign, and broadcast the transaction according to its `type` (EVM tx, Solana instructions, UTXO PSBT/deposit, or Cosmos message).
+2. For each step with `transactionData`, build, sign, and broadcast the transaction according to its `type` (EVM tx, Solana instructions, UTXO PSBT/deposit, Cosmos message, or Tron call/transfer — a `tron` step with `data` is a `TriggerSmartContract` to `to`, without it a transfer of the sell asset to `to`).
 3. Capture the resulting transaction hash for status tracking.
 
 ### Externally paid quotes

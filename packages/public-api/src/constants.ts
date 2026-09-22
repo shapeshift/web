@@ -49,6 +49,7 @@ const EXECUTABLE_CHAIN_NAMESPACES: ReadonlySet<string> = new Set([
   CHAIN_NAMESPACE.Utxo,
   CHAIN_NAMESPACE.CosmosSdk,
   CHAIN_NAMESPACE.Solana,
+  CHAIN_NAMESPACE.Tron,
 ])
 
 const EXECUTABLE_SELL_CHAIN_IDS: readonly KnownChainIds[] = SUPPORTED_CHAIN_IDS.filter(chainId =>

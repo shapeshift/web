@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 
 import type {
@@ -8,6 +9,7 @@ import type {
   SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
+  TronTransactionData,
   UtxoTransactionData,
 } from '../../types'
 import { getEvmChainIdNumber } from './utils'
@@ -82,6 +84,14 @@ const extractCosmosSdkTransactionData = (
   }
 }
 
+const extractTronTransactionData = (step: TradeQuoteStep): TronTransactionData | undefined => {
+  if (step.transactionData?.type !== 'tron') return
+
+  const { to, value, data, memo } = step.transactionData
+
+  return { type: 'tron', to: tron.toTronBase58(to), value, data, memo }
+}
+
 export const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
@@ -99,5 +109,9 @@ export const extractTransactionData = (step: TradeQuoteStep): TransactionData | 
 
   if (chainNamespace === 'cosmos') {
     return extractCosmosSdkTransactionData(step)
+  }
+
+  if (chainNamespace === 'tron') {
+    return extractTronTransactionData(step)
   }
 }

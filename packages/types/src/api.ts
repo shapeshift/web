@@ -58,6 +58,14 @@ export type CosmosSdkMsgDepositTransactionData = {
   coin: string
 }
 
+export type TronTransactionData = {
+  type: 'tron'
+  to: string
+  value: string
+  data?: string
+  memo?: string
+}
+
 export type TransactionData =
   | EvmTransactionData
   | SolanaTransactionData
@@ -65,3 +73,4 @@ export type TransactionData =
   | UtxoTransactionData
   | CosmosSdkMsgSendTransactionData
   | CosmosSdkMsgDepositTransactionData
+  | TronTransactionData

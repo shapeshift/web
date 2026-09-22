@@ -8,6 +8,9 @@ type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
   transaction?: Partial<Types.TransactionWrapper['transaction']> & { ret?: { ret?: string }[] }
 }
 
+const DEFAULT_ENERGY_PRICE = 100
+const DEFAULT_BANDWIDTH_PRICE = 1000
+
 export interface TronApiConfig {
   rpcUrl: string
   apiKey?: string
@@ -277,11 +280,12 @@ export class TronApi {
     try {
       const tronWeb = this.getTronWeb()
       const params = await tronWeb.trx.getChainParameters()
-      const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-      const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 420
+      const bandwidthPrice =
+        params.find(p => p.key === 'getTransactionFee')?.value ?? DEFAULT_BANDWIDTH_PRICE
+      const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? DEFAULT_ENERGY_PRICE
       return { bandwidthPrice, energyPrice }
     } catch (_err) {
-      return { bandwidthPrice: 1000, energyPrice: 420 }
+      return { bandwidthPrice: DEFAULT_BANDWIDTH_PRICE, energyPrice: DEFAULT_ENERGY_PRICE }
     }
   }
 

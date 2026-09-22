@@ -494,11 +494,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       const { to, value, chainSpecific: { from, contractAddress, memo, data } = {} } = input
 
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
-      const params = await this.requestQueue.add(() => tronWeb.trx.getChainParameters(), {
-        throwOnTimeout: true,
-      })
-      const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-      const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+      const { bandwidthPrice, energyPrice } = await this.providers.http.getChainPrices()
 
       const [energyFee, bandwidthFee, activationFee] = await Promise.all([
         this.estimateEnergyFee({ to, from, value, data, contractAddress, energyPrice }),

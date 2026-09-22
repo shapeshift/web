@@ -3,6 +3,11 @@ import { TronWeb } from 'tronweb'
 
 import type { TronAccount, TronBlock, TronTx } from './types'
 
+// tronweb's TransactionWrapper omits the simulated transaction's ret, which is where a revert is reported
+type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
+  transaction?: Partial<Types.TransactionWrapper['transaction']> & { ret?: { ret?: string }[] }
+}
+
 export interface TronApiConfig {
   rpcUrl: string
   apiKey?: string
@@ -300,13 +305,7 @@ export class TronApi {
       params.from,
     )
 
-    if (result.result?.result !== true || !result.energy_used) {
-      throw new Error(
-        `[tron] trc20 transfer simulation failed: ${result.result?.message ?? 'unknown error'}`,
-      )
-    }
-
-    return String(result.energy_used * energyPrice)
+    return String(this.getSimulatedEnergy(result, 'trc20 transfer') * energyPrice)
   }
 
   async estimateContractCallFee(params: {
@@ -329,17 +328,24 @@ export class TronApi {
       }),
     })
 
-    const result: Types.TransactionWrapper = await response.json()
+    const result: SimulationResult = await response.json()
 
-    // A reverted simulation (e.g. a swap whose TRC20 allowance isn't granted yet) still returns the
-    // partial energy burned up to the revert. Trusting it would underestimate and risk an
-    // OUT_OF_ENERGY revert that burns the user's TRX at execution, so only trust a successful call.
-    if (result.result?.result !== true || !result.energy_used) {
+    return String(this.getSimulatedEnergy(result, 'contract call') * energyPrice)
+  }
+
+  // A reverted simulation (e.g. a swap whose TRC20 allowance isn't granted yet) still returns the
+  // partial energy burned up to the revert, with result.result: true - the failure only shows on
+  // transaction.ret. Trusting it would underestimate and risk an OUT_OF_ENERGY revert that burns
+  // the user's TRX at execution, so only trust a successful call.
+  private getSimulatedEnergy(result: SimulationResult, label: string): number {
+    const isReverted = result.transaction?.ret?.some(ret => ret.ret === 'FAILED')
+
+    if (result.result?.result !== true || isReverted || !result.energy_used) {
       throw new Error(
-        `[tron] contract call simulation failed: ${result.result?.message ?? 'unknown error'}`,
+        `[tron] ${label} simulation failed: ${result.result?.message ?? 'unknown error'}`,
       )
     }
 
-    return String(result.energy_used * energyPrice)
+    return result.energy_used
   }
 }

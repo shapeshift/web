@@ -34,7 +34,7 @@ type BaseArgs = {
 
 export type GetNearIntentsStepDataArgs = StepDataArgs<BaseArgs>
 
-// Un-migrated namespaces (tron/sui/starknet/near/ton) never build transactionData - exec does; a
+// Un-migrated namespaces (sui/starknet/near/ton) never build transactionData - exec does; a
 // walletless rate can also come back without a fee
 type NearIntentsRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
 type NearIntentsQuoteStepData = {
@@ -202,13 +202,21 @@ export async function getNearIntentsStepData(
         const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
           value: sellAmountCryptoBaseUnit,
-          chainSpecific: {
-            from,
-            contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-          },
+          chainSpecific: { from, contractAddress },
         })
 
-        const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+        const networkFeeCryptoBaseUnit = fast.txFee
+
+        if (type === 'rate') {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
+        }
+
+        const stepData: NearIntentsQuoteStepData = {
+          transactionData: { type: 'tron', to: depositAddress, value: sellAmountCryptoBaseUnit },
+          networkFeeCryptoBaseUnit,
+        }
 
         return Ok(stepData)
       }

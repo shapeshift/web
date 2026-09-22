@@ -430,7 +430,7 @@ export type TxBuildData =
     }
   | { type: 'cosmossdk_msg_deposit'; chainId: string; value: string; memo: string; coin: string }
   | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
-  | { type: 'tron'; to: string; data: string; value: string }
+  | { type: 'tron'; to: string; value: string; data?: string; memo?: string }
   // CowSwap signs an off-chain EIP-712 order and posts it to the CoW API - there is nothing to broadcast
   | { type: 'cowswap'; chainId: ChainId; orderToSign: Omit<OrderCreation, 'signature'> }
 

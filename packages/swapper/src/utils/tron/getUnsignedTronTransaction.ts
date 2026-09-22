@@ -1,5 +1,3 @@
-import { tronAssetId } from '@shapeshiftoss/caip'
-import { tron } from '@shapeshiftoss/chain-adapters'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { GetUnsignedTronTransactionArgs } from '../../types'
@@ -11,71 +9,23 @@ export const getUnsignedTronTransaction = ({
   from,
   assertGetTronChainAdapter,
 }: GetUnsignedTronTransactionArgs) => {
-  if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+  if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate')
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
+  const { accountNumber, sellAsset, transactionData } = step
 
-  const { accountNumber, sellAsset, relayTransactionMetadata, butterSwapTransactionMetadata } = step
+  if (transactionData?.type !== 'tron') throw new Error('Missing tron transactionData')
 
   const adapter = assertGetTronChainAdapter(sellAsset.chainId)
+  const { to, value, data, memo } = transactionData
 
-  if (butterSwapTransactionMetadata) {
-    const { to, data, method, args, value: butterValue } = butterSwapTransactionMetadata
-
-    if (!to) throw new Error('Missing Butter swap contract address')
-    if (!data) throw new Error('Missing Butter swap transaction data')
-
-    // Use Butter's value field which includes swap fees for same-chain swaps
-    // For native TRX sells, also include the sell amount
-    const isNativeTron = sellAsset.assetId === tronAssetId
-    const value = isNativeTron ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : butterValue
-
-    return adapter.buildCustomApiTx({
-      from,
-      to,
-      accountNumber,
-      data,
-      value,
-      method,
-      args,
-    })
-  }
-
-  if (relayTransactionMetadata?.data) {
-    if (!relayTransactionMetadata.to) {
-      throw new Error('Missing Relay transaction destination address')
-    }
-
-    const to = tron.toTronBase58(relayTransactionMetadata.to)
-    const isNativeTron = sellAsset.assetId === tronAssetId
-    const value = isNativeTron ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : '0'
-
-    return adapter.buildCustomApiTx({
-      from,
-      to,
-      accountNumber,
-      data: relayTransactionMetadata.data,
-      value,
-    })
-  }
-
-  const nearIntentsDepositAddress =
-    step.swapperMetadata?.name === 'nearIntents' ? step.swapperMetadata.depositAddress : undefined
-
-  const to = relayTransactionMetadata?.to ?? nearIntentsDepositAddress
-  if (!to) throw new Error('Missing transaction destination address')
-
-  const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-
-  const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+  if (data) return adapter.buildCustomApiTx({ from, to, accountNumber, data, value })
 
   return adapter.buildSendApiTransaction({
-    to,
     from,
-    value,
+    to,
     accountNumber,
-    chainSpecific: {
-      contractAddress,
-    },
+    value,
+    chainSpecific: { contractAddress: contractAddressOrUndefined(sellAsset.assetId), memo },
   })
 }

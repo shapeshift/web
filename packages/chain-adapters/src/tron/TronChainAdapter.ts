@@ -484,7 +484,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       const to = toTronBase58(input.to)
 
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
-      const { bandwidthPrice, energyPrice } = await this.providers.http.getChainPrices()
+      const { bandwidthPrice, energyPrice, memoFee } = await this.providers.http.getChainPrices()
 
       const [energyFee, bandwidthFee, activationFee] = await Promise.all([
         this.estimateEnergyFee({ to, from, value, data, contractAddress, energyPrice }),
@@ -502,7 +502,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       ])
 
       const fee = {
-        txFee: String(energyFee + bandwidthFee + activationFee),
+        txFee: String(energyFee + bandwidthFee + activationFee + (memo ? memoFee : 0)),
         chainSpecific: { bandwidth: String(Math.ceil(bandwidthFee / bandwidthPrice)) },
       }
 

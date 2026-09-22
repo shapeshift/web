@@ -24,7 +24,11 @@ describe('TronApi', () => {
   const api = new TronApi({ rpcUrl: 'https://tron.example' })
 
   beforeEach(() => {
-    vi.spyOn(api, 'getChainPrices').mockResolvedValue({ bandwidthPrice: 1000, energyPrice: 100 })
+    vi.spyOn(api, 'getChainPrices').mockResolvedValue({
+      bandwidthPrice: 1000,
+      energyPrice: 100,
+      memoFee: 1_000_000,
+    })
   })
 
   afterEach(() => {
@@ -49,6 +53,24 @@ describe('TronApi', () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: () => revertResponse }))
 
       await expect(api.estimateContractCallFee(params)).rejects.toThrow('REVERT opcode executed')
+    })
+  })
+
+  describe('getChainPrices', () => {
+    it('reads the energy, bandwidth and memo parameters', async () => {
+      vi.restoreAllMocks()
+      const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()
+      vi.spyOn(tronWeb.trx, 'getChainParameters').mockResolvedValue([
+        { key: 'getTransactionFee', value: 1000 },
+        { key: 'getEnergyFee', value: 100 },
+        { key: 'getMemoFee', value: 1_000_000 },
+      ])
+
+      expect(await api.getChainPrices()).toEqual({
+        bandwidthPrice: 1000,
+        energyPrice: 100,
+        memoFee: 1_000_000,
+      })
     })
   })
 

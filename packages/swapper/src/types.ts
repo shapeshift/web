@@ -46,12 +46,11 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { AvnuMetadata } from './swappers/AvnuSwapper/types'
 import type { BebopMetadata } from './swappers/BebopSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
-import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
-import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { RelayMetadata } from './swappers/RelaySwapper/utils/types'
 import type { StonfiMetadata, StonfiTransactionData } from './swappers/StonfiSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 import type { MayachainMetadata, ThorchainMetadata } from './utils/thorchain/types'
@@ -451,9 +450,6 @@ export type TradeStepCommon = {
 
   // To be collapsed into transactionData and swapperMetadata
   stonfiTransactionData?: StonfiTransactionData
-
-  relayTransactionMetadata?: RelayTransactionMetadata
-  butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
 
   chainflipSpecific?: { depositAddress?: string }
 

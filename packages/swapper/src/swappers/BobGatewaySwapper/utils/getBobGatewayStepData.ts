@@ -233,16 +233,16 @@ export async function getBobGatewayStepData(
 
       const transactionData: TxBuildData = {
         type: 'tron',
-        to: tx.to,
+        to: tron.toTronBase58(tx.to),
         data: tx.data,
         value: tx.value,
       }
 
       try {
         const { fast } = await adapter.getFeeData({
-          to: tron.toTronBase58(tx.to),
-          value: tx.value,
-          chainSpecific: { from, contractAddress, data: tx.data },
+          to: transactionData.to,
+          value: transactionData.value,
+          chainSpecific: { from, contractAddress, data: transactionData.data },
         })
 
         const stepData: BobGatewayQuoteStepData = {

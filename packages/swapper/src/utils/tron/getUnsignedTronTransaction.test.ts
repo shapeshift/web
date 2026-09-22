@@ -35,7 +35,12 @@ const makeArgs = (sellAsset: Asset, transactionData: TxBuildData | undefined) =>
 
 describe('getUnsignedTronTransaction', () => {
   it('builds a contract call when data is present', async () => {
-    const { adapter, args } = makeArgs(TRX, { type: 'tron', to: TO, data: '0xdeadbeef', value: '1' })
+    const { adapter, args } = makeArgs(TRX, {
+      type: 'tron',
+      to: TO,
+      data: '0xdeadbeef',
+      value: '1',
+    })
 
     expect(await getUnsignedTronTransaction(args)).toBe('custom')
     expect(adapter.buildCustomApiTx).toHaveBeenCalledWith({
@@ -65,9 +70,9 @@ describe('getUnsignedTronTransaction', () => {
     })
   })
 
-  it('throws without tron transactionData', async () => {
+  it('throws without tron transactionData', () => {
     const { args } = makeArgs(TRX, undefined)
 
-    await expect(getUnsignedTronTransaction(args)).rejects.toThrow('Missing tron transactionData')
+    expect(() => getUnsignedTronTransaction(args)).toThrow('Missing tron transactionData')
   })
 })

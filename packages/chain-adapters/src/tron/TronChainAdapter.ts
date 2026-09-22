@@ -39,8 +39,8 @@ import { toTronBase58 } from './utils'
 // Base58 of 0x41 + 20 zero bytes; the native-TRX sentinel in DEX token paths and the mint/burn party in TRC20 logs
 export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 
-// Covers the dynamic energy penalty drifting between quote and execution - underestimating burns TRX on OUT_OF_ENERGY
-const TRON_ENERGY_SAFETY_MARGIN = 1.5
+// The dynamic energy penalty moves at most +20% per 6h cycle, so this covers a full step inside a quote window
+const TRON_ENERGY_SAFETY_MARGIN = 1.2
 
 // Plain TRC20 transfers are predictable enough for a fixed fallback; contract calls throw instead
 const TRC20_TRANSFER_FALLBACK_ENERGY = 130_000
@@ -49,11 +49,11 @@ const TRC20_TRANSFER_FALLBACK_ENERGY = 130_000
 const TRON_ACCOUNT_ACTIVATION_FEE = 1_000_000 // 1 TRX
 
 // Bandwidth is the signed tx byte size (raw_data + signature), measured on mainnet
-const TX_SIGNATURE_BYTES = 65 // ECDSA recoverable signature
-const TRC20_TRANSFER_BANDWIDTH_BYTES = 276 // measured TRC20 transfer: 211 raw_data + 65 sig
-const CONTRACT_CALL_OVERHEAD_BYTES = 208 // envelope + signature on top of the calldata (measured: 143 + 65)
+const SIGNED_TX_OVERHEAD_BYTES = 134 // billed on top of raw_data: signature (65 + tags) and the node's 64-byte result slot
+const TRC20_TRANSFER_BANDWIDTH_BYTES = 211 + SIGNED_TX_OVERHEAD_BYTES // 345, the standard USDT transfer
+const CONTRACT_CALL_OVERHEAD_BYTES = 145 + SIGNED_TX_OVERHEAD_BYTES // TriggerSmartContract envelope, on top of the calldata
 const NATIVE_TX_DEFAULT_RAW_BYTES = 133 // raw_data fallback when a built tx omits raw_data_hex
-const NATIVE_TX_FALLBACK_BYTES = 198 // full-tx fallback when building the tx to measure it fails
+const NATIVE_TX_FALLBACK_BYTES = NATIVE_TX_DEFAULT_RAW_BYTES + SIGNED_TX_OVERHEAD_BYTES // when building the tx to measure it fails
 
 export interface ChainAdapterArgs {
   providers: {
@@ -588,7 +588,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         ? finalTx.raw_data_hex.length / 2
         : NATIVE_TX_DEFAULT_RAW_BYTES
 
-      return (rawDataBytes + TX_SIGNATURE_BYTES) * bandwidthPrice
+      return (rawDataBytes + SIGNED_TX_OVERHEAD_BYTES) * bandwidthPrice
     } catch (err) {
       const memoBytes = memo ? Buffer.from(memo, 'utf8').length : 0
       return (NATIVE_TX_FALLBACK_BYTES + memoBytes) * bandwidthPrice

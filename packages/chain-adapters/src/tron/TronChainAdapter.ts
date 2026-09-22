@@ -34,24 +34,21 @@ import { toAddressNList } from '../utils'
 import { verifyLedgerAppOpen } from '../utils/ledgerAppGate'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { TronSignTx, TronUnsignedTx } from './types'
+import { toTronBase58 } from './utils'
 
-// Tron zero address (0x41 + 20 zero bytes, base58). Doubles as the native-TRX sentinel in DEX token
-// paths and marks mints/burns in TRC20 transfer logs.
+// Base58 of 0x41 + 20 zero bytes; the native-TRX sentinel in DEX token paths and the mint/burn party in TRC20 logs
 export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 
-// Safety margin over the simulated energy estimate, covering the dynamic energy penalty drifting
-// between quote and execution. Underestimating burns the user's TRX on an OUT_OF_ENERGY revert.
+// Covers the dynamic energy penalty drifting between quote and execution - underestimating burns TRX on OUT_OF_ENERGY
 const TRON_ENERGY_SAFETY_MARGIN = 1.5
 
-// Conservative fallback for a plain TRC20 transfer when estimation fails (transfers are predictable
-// and cheap, so a fixed fallback is safe here - unlike contract calls, which throw instead).
+// Plain TRC20 transfers are predictable enough for a fixed fallback; contract calls throw instead
 const TRC20_TRANSFER_FALLBACK_ENERGY = 130_000
 
 // Cost (in sun) to activate a not-yet-existing recipient account.
 const TRON_ACCOUNT_ACTIVATION_FEE = 1_000_000 // 1 TRX
 
-// Bandwidth is the byte size of the signed tx (raw_data + signature). Values measured from real
-// mainnet txs; it's cheap (~1 sun/byte) and often covered by the free daily allowance regardless.
+// Bandwidth is the signed tx byte size (raw_data + signature), measured on mainnet
 const TX_SIGNATURE_BYTES = 65 // ECDSA recoverable signature
 const TRC20_TRANSFER_BANDWIDTH_BYTES = 276 // measured TRC20 transfer: 211 raw_data + 65 sig
 const CONTRACT_CALL_OVERHEAD_BYTES = 208 // envelope + signature on top of the calldata (measured: 143 + 65)
@@ -211,13 +208,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.TronMainnet>,
   ): Promise<TronSignTx> {
     try {
-      const {
-        from,
-        accountNumber,
-        to,
-        value,
-        chainSpecific: { contractAddress, memo } = {},
-      } = input
+      const { from, accountNumber, value, chainSpecific: { contractAddress, memo } = {} } = input
+      const to = toTronBase58(input.to)
 
       // Create TronWeb instance once and reuse
       const tronWeb = new TronWeb({
@@ -333,7 +325,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     value: string
   }): Promise<TronSignTx> {
     try {
-      const { from, to, accountNumber, data, value } = input
+      const { from, accountNumber, data, value } = input
+      const to = toTronBase58(input.to)
 
       const callData = data.startsWith('0x') ? data.slice(2) : data
       let txData: TronUnsignedTx
@@ -487,7 +480,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
-      const { to, value, chainSpecific: { from, contractAddress, memo, data } = {} } = input
+      const { value, chainSpecific: { from, contractAddress, memo, data } = {} } = input
+      const to = toTronBase58(input.to)
 
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
       const { bandwidthPrice, energyPrice } = await this.providers.http.getChainPrices()
@@ -504,7 +498,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           tronWeb,
           bandwidthPrice,
         }),
-        this.estimateActivationFee({ to, contractAddress }),
+        this.estimateActivationFee({ to, contractAddress, data }),
       ])
 
       const fee = {
@@ -518,8 +512,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
-  // Energy fee (in sun). Native TRX transfers use none. Contract calls simulate their real calldata
-  // (a swap/router call is far more energy-intensive than a transfer); TRC20 sends simulate a transfer.
+  // Energy in sun: none for native transfers, simulated calldata for contract calls, a simulated transfer for TRC20
   private async estimateEnergyFee(params: {
     to: string
     from?: string
@@ -532,7 +525,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
     if (!data && !contractAddress) return 0
 
-    // Contract call: throw rather than guess - underestimating a swap call burns the user's TRX on an OUT_OF_ENERGY revert.
+    // Throw rather than guess - underestimating a call burns the user's TRX on OUT_OF_ENERGY
     if (data) {
       const feeInSun = await this.providers.http.estimateContractCallFee({
         contractAddress: to,
@@ -559,8 +552,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
-  // Bandwidth fee (in sun). Contract calls scale with calldata size, TRC20 transfers are ~fixed, and
-  // native TRX transfers build the actual tx to measure it precisely.
+  // Bandwidth in sun: calldata-sized for contract calls, fixed for TRC20, the built tx's size for native
   private async estimateBandwidthFee(params: {
     to: string
     from?: string
@@ -608,10 +600,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   private async estimateActivationFee(params: {
     to: string
     contractAddress?: string
+    data?: string
   }): Promise<number> {
-    const { to, contractAddress } = params
+    const { to, contractAddress, data } = params
 
-    if (contractAddress) return 0
+    // Only a native transfer can land on a fresh account
+    if (contractAddress || data) return 0
 
     try {
       const isActivated = await this.requestQueue.add(

@@ -1,6 +1,5 @@
 import type { GatewayQuoteV4 } from '@gobob/bob-sdk'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { tron } from '@shapeshiftoss/chain-adapters'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -233,7 +232,7 @@ export async function getBobGatewayStepData(
 
       const transactionData: TxBuildData = {
         type: 'tron',
-        to: tron.toTronBase58(tx.to),
+        to: tx.to,
         data: tx.data,
         value: tx.value,
       }

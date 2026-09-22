@@ -1,5 +1,4 @@
 import type { SwapperApi } from '../../types'
-import { SwapperName } from '../../types'
 import { getCosmosSdkTransactionFees, getUnsignedCosmosSdkTransaction } from '../../utils/cosmossdk'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
@@ -9,8 +8,6 @@ import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
-
-const swapperName = SwapperName.Thorchain
 
 export const thorchainApi: SwapperApi = {
   getTradeRate: (input, deps) => getTradeRate(input as ThorTradeRateInput, deps),

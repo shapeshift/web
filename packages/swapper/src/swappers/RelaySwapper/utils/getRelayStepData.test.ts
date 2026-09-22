@@ -5,13 +5,12 @@ import { describe, expect, it, vi } from 'vitest'
 import type { GetTradeQuoteInput, GetTradeRateInput, SwapperDeps } from '../../../types'
 import { ETH } from '../../../utils/test-data/assets'
 import { getRelayStepData } from './getRelayStepData'
+import { getRelayAllowanceContract } from './helpers'
 import type { RelayQuoteTronItemData } from './types'
 
 const TRX: Asset = { ...ETH, assetId: `${tronChainId}/slip44:195`, chainId: tronChainId }
 const FROM = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N'
-// relay's tron depositor, as relay returns it (41-prefixed hex)
 const DEPOSITOR_HEX = '41f0623e1012177482912fb057e44e1a9769b1f5c2'
-const DEPOSITOR = 'TXtEs6t2oUWQsNos7m68gbHdE9QCMoqLm5'
 
 const tronItem: RelayQuoteTronItemData = {
   type: 'TriggerSmartContract',
@@ -35,6 +34,12 @@ const baseArgs = {
   fallbackNetworkFeeCryptoBaseUnit: '6100715',
 }
 
+describe('getRelayAllowanceContract', () => {
+  it('returns the tron depositor as relay gives it', () => {
+    expect(getRelayAllowanceContract(tronItem)).toBe(DEPOSITOR_HEX)
+  })
+})
+
 describe('getRelayStepData', () => {
   describe('tron', () => {
     it('carries the depositor call as transactionData and simulates it', async () => {
@@ -48,11 +53,16 @@ describe('getRelayStepData', () => {
         deps: makeDeps(adapter),
       })
 
-      const transactionData = { type: 'tron', to: DEPOSITOR, data: '49290c1c', value: '50000000' }
+      const transactionData = {
+        type: 'tron',
+        to: DEPOSITOR_HEX,
+        data: '49290c1c',
+        value: '50000000',
+      }
 
       expect(actual.unwrap()).toEqual({ transactionData, networkFeeCryptoBaseUnit: '9000000' })
       expect(adapter.getFeeData).toHaveBeenCalledWith({
-        to: DEPOSITOR,
+        to: DEPOSITOR_HEX,
         value: '50000000',
         chainSpecific: { from: FROM, data: '49290c1c' },
       })

@@ -3,7 +3,7 @@ import { TronWeb } from 'tronweb'
 
 import type { TronAccount, TronBlock, TronTx } from './types'
 
-// tronweb's TransactionWrapper omits the simulated transaction's ret, which is where a revert is reported
+// tronweb's TransactionWrapper omits transaction.ret, which is where a simulated revert is reported
 type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
   transaction?: Partial<Types.TransactionWrapper['transaction']> & { ret?: { ret?: string }[] }
 }
@@ -173,15 +173,29 @@ export class TronApi {
     }
   }
 
+  // A direct selector call - contract().at() would first fetch the ABI, doubling the requests
   async getTrc20Allowance(params: {
     contractAddress: string
     owner: string
     spender: string
   }): Promise<string> {
     const tronWeb = this.getTronWeb()
-    const contract = await tronWeb.contract().at(params.contractAddress)
-    const allowance = await contract.allowance(params.owner, params.spender).call()
-    return allowance.toString()
+
+    const result = await tronWeb.transactionBuilder.triggerConstantContract(
+      params.contractAddress,
+      'allowance(address,address)',
+      {},
+      [
+        { type: 'address', value: params.owner },
+        { type: 'address', value: params.spender },
+      ],
+      params.owner,
+    )
+
+    const [allowance] = result.constant_result ?? []
+    if (!allowance) throw new Error('[tron] allowance call returned no data')
+
+    return BigInt(`0x${allowance}`).toString()
   }
 
   // Accounts exist on-chain only once they have received TRX; a fresh address returns {}
@@ -191,6 +205,8 @@ export class TronApi {
       headers: this.tronGridHeaders,
       body: JSON.stringify({ address, visible: true }),
     })
+
+    if (!response.ok) throw new Error(`[tron] getaccount failed: ${response.status}`)
 
     const data: TronAccount = await response.json()
 
@@ -361,10 +377,7 @@ export class TronApi {
     return String(this.getSimulatedEnergy(result, 'contract call') * energyPrice)
   }
 
-  // A reverted simulation (e.g. a swap whose TRC20 allowance isn't granted yet) still returns the
-  // partial energy burned up to the revert, with result.result: true - the failure only shows on
-  // transaction.ret. Trusting it would underestimate and risk an OUT_OF_ENERGY revert that burns
-  // the user's TRX at execution, so only trust a successful call.
+  // A revert still reports result.result: true with the partial energy burned - trusting it would underestimate
   private getSimulatedEnergy(result: SimulationResult, label: string): number {
     const isReverted = result.transaction?.ret?.some(ret => ret.ret === 'FAILED')
 

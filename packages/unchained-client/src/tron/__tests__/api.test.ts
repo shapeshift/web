@@ -53,10 +53,14 @@ describe('TronApi', () => {
   })
 
   describe('getTrc20Allowance', () => {
-    it('reads allowance(owner, spender) off the token contract', async () => {
+    it('reads allowance(owner, spender) with a single constant call', async () => {
       const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()
-      const allowance = vi.fn().mockReturnValue({ call: () => Promise.resolve(123n) })
-      vi.spyOn(tronWeb, 'contract').mockReturnValue({ at: () => Promise.resolve({ allowance }) })
+      const trigger = vi
+        .spyOn(tronWeb.transactionBuilder, 'triggerConstantContract')
+        .mockResolvedValue({
+          result: { result: true },
+          constant_result: ['000000000000000000000000000000000000000000000000000000000000007b'],
+        } as any)
 
       const actual = await api.getTrc20Allowance({
         contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
@@ -65,9 +69,15 @@ describe('TronApi', () => {
       })
 
       expect(actual).toBe('123')
-      expect(allowance).toHaveBeenCalledWith(
+      expect(trigger).toHaveBeenCalledWith(
+        'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+        'allowance(address,address)',
+        {},
+        [
+          { type: 'address', value: 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N' },
+          { type: 'address', value: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K' },
+        ],
         'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N',
-        'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
       )
     })
   })
@@ -76,16 +86,27 @@ describe('TronApi', () => {
     it('is true for an account the node knows', async () => {
       vi.stubGlobal(
         'fetch',
-        vi.fn().mockResolvedValue({ json: () => ({ address: '41abc', balance: 1 }) }),
+        vi.fn().mockResolvedValue({ ok: true, json: () => ({ address: '41abc', balance: 1 }) }),
       )
 
       expect(await api.isAccountActivated('TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N')).toBe(true)
     })
 
     it('is false for a fresh address', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: () => ({}) }))
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => ({}) }))
 
       expect(await api.isAccountActivated('TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N')).toBe(false)
+    })
+
+    it('throws on an error response rather than reading it as not activated', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ ok: false, status: 429, json: () => ({ Error: 'throttled' }) }),
+      )
+
+      await expect(api.isAccountActivated('TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N')).rejects.toThrow(
+        '429',
+      )
     })
   })
 

@@ -2,7 +2,7 @@ import { isGatewayError } from '@gobob/bob-sdk'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { SwapperApi } from '../../types'
-import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
+import { getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'

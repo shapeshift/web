@@ -28,6 +28,7 @@ import type { QuoteFeeData, SwapErrorRight, SwapperConfig } from '../../../types
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
+import { TRON_PLACEHOLDER_ADDRESS } from '../../../utils/tron'
 import type { BobGatewayChainName } from './constants'
 import {
   BOB_GATEWAY_BASE_URL,
@@ -36,12 +37,11 @@ import {
   decimalSlippageToBobBps,
   DUMMY_BTC_ADDRESS,
   DUMMY_EVM_ADDRESS,
-  DUMMY_TRON_ADDRESS,
 } from './constants'
 
 export const dummyAddressForChainId = (chainId: ChainId): string => {
   if (chainId === btcChainId) return DUMMY_BTC_ADDRESS
-  if (chainId === tronChainId) return DUMMY_TRON_ADDRESS
+  if (chainId === tronChainId) return TRON_PLACEHOLDER_ADDRESS
   return DUMMY_EVM_ADDRESS
 }
 

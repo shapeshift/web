@@ -19,10 +19,7 @@ type BuildSunioSwapCalldataArgs = {
   deadline: number
 }
 
-// Encodes the SmartExchangeRouter swapExactInput calldata from a Sun.io route, handed to the chain
-// adapter for fee estimation (getFeeData) and tx building (buildCustomApiTx) rather than duplicating
-// Tron fee/build logic here. The TVM ABI is EVM-compatible, so viem encodes it; `path` tokens and
-// the `recipient` are base58 Tron addresses, converted to their 20-byte EVM-hex body.
+// SmartExchangeRouter swapExactInput calldata - the TVM ABI is EVM-compatible, addresses as 20-byte bodies
 export const buildSunioSwapCalldata = ({
   route,
   sellAmountCryptoBaseUnit,

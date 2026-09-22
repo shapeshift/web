@@ -16,6 +16,7 @@ import {
   SOLANA_PLACEHOLDER_ADDRESS,
   withComputeUnitLimit,
 } from '../../../utils/solana'
+import { TRON_PLACEHOLDER_ADDRESS } from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 
 // Deposits are plain transfers - 21k intrinsic for natives, tokens measured ~50-65k to a fresh
@@ -217,13 +218,13 @@ export async function getChainflipStepData(
       const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
       if (args.type === 'rate') {
-        // No deposit address yet - the sender stands in as the recipient to size the transfer
+        // No deposit address yet - a placeholder recipient sizes the transfer
         const networkFeeCryptoBaseUnit = await (async () => {
           if (!from) return
 
           try {
             const { fast } = await adapter.getFeeData({
-              to: from,
+              to: TRON_PLACEHOLDER_ADDRESS,
               value: sellAmountCryptoBaseUnit,
               chainSpecific: { from, contractAddress },
             })

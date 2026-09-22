@@ -1,13 +1,6 @@
-import { tronChainId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TronWeb } from 'tronweb'
 
-export const isTronChainId = (chainId: string): chainId is KnownChainIds.TronMainnet => {
-  return chainId === tronChainId
-}
-
-// Normalizes an address to Tron base58: base58 passes through; a 0x-hex address is either the bare
-// 20-byte body (prepend Tron's 41 prefix) or already 41-prefixed; a raw hex string decodes as-is.
+// Base58 passes through; 0x-hex is either the bare 20-byte body (needs the 41 prefix) or already 41-prefixed
 export const toTronBase58 = (address: string): string => {
   if (address.startsWith('T')) return address
   if (address.startsWith('0x')) {
@@ -17,8 +10,7 @@ export const toTronBase58 = (address: string): string => {
   return TronWeb.address.fromHex(address)
 }
 
-// Normalizes an address to its 0x-hex 20-byte body; base58 converts via
-// TronWeb, a raw 41-prefixed hex swaps its prefix, and a 0x-hex address passes through.
+// The 0x-hex 20-byte body: base58 decodes, 41-prefixed hex swaps its prefix, 0x-hex passes through
 export const toTronHex = (address: string): string => {
   if (address.startsWith('0x')) return address
   const hex = address.startsWith('T') ? TronWeb.address.toHex(address) : address

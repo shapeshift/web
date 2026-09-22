@@ -70,7 +70,7 @@ describe('getBobGatewayStepData', () => {
       })
 
       expect(adapter.getFeeData).toHaveBeenCalledWith({
-        to: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
+        to: ALLOWANCE_HOLDER_HEX,
         value: '0',
         chainSpecific: {
           from: FROM,
@@ -80,12 +80,7 @@ describe('getBobGatewayStepData', () => {
       })
       expect(actual.unwrap()).toEqual({
         orderId: 'order-1',
-        transactionData: {
-          type: 'tron',
-          to: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
-          data: '0x2213bc0b',
-          value: '0',
-        },
+        transactionData: { type: 'tron', to: ALLOWANCE_HOLDER_HEX, data: '0x2213bc0b', value: '0' },
         networkFeeCryptoBaseUnit: '45600000',
       })
     })

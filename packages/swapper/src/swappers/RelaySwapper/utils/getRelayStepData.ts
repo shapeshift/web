@@ -1,5 +1,4 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { tron } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -253,8 +252,6 @@ export async function getRelayStepData({
       call_value: callValue,
     } = data.parameter ?? {}
 
-    if (!contractAddress || !callData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
-
     if (type === 'rate') {
       const stepData: RelayRateStepData = {
         networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
@@ -263,11 +260,14 @@ export async function getRelayStepData({
       return Ok(stepData)
     }
 
+    if (!contractAddress || !callData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
+
+    const isNativeSell = !isToken(sellAsset.assetId)
     const transactionData: TxBuildData = {
       type: 'tron',
-      to: tron.toTronBase58(contractAddress),
+      to: contractAddress,
       data: callData,
-      value: String(callValue ?? 0),
+      value: String(callValue ?? (isNativeSell ? sellAmountCryptoBaseUnit : 0)),
     }
 
     const networkFeeCryptoBaseUnit = await (async () => {

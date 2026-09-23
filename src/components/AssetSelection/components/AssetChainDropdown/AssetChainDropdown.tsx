@@ -43,6 +43,7 @@ type AssetChainDropdownProps = {
   isDisabled?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
+  accountNumber?: number
 }
 
 const flexProps = {
@@ -61,6 +62,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     onlyConnectedChains: _onlyConnectedChains,
     assetFilterPredicate,
     chainIdFilterPredicate,
+    accountNumber,
   }) => {
     const {
       state: { wallet },
@@ -156,13 +158,18 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
           >
             <Tooltip isDisabled={!isDisabled} label={tooltipLabel}>
               <Box width='100%' height='100%'>
-                <AssetChainRow assetId={relatedAssetId} mainImplementationAssetId={assetId} />
+                <AssetChainRow
+                  assetId={relatedAssetId}
+                  mainImplementationAssetId={assetId}
+                  accountNumber={accountNumber}
+                />
               </Box>
             </Tooltip>
           </MenuItemOption>
         )
       })
     }, [
+      accountNumber,
       assetId,
       filteredRelatedAssetIds,
       isAssetChainIdConnected,

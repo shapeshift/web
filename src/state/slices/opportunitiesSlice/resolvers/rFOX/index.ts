@@ -1,9 +1,7 @@
-import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
-import { arbitrum } from 'viem/chains'
 
 import { rFOXStakingIds } from '../../constants'
 import type {
@@ -15,13 +13,14 @@ import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 
-import { selectStakingBalance } from '@/pages/RFOX/helpers'
+import {
+  getRfoxClient,
+  getRfoxStakingConfig,
+  getStakingContract,
+  selectStakingBalance,
+} from '@/pages/RFOX/helpers'
 import { getStakingInfoQueryFn } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
-
-const client = viemClientByNetworkId[arbitrum.id]
-
-const stakingAssetAccountAddress = RFOX_PROXY_CONTRACT
 
 export const rFOXStakingMetadataResolver = async ({
   opportunityId,
@@ -37,11 +36,11 @@ export const rFOXStakingMetadataResolver = async ({
 
   const stakingAssetMarketData = selectMarketDataByAssetIdUserCurrency(state, opportunityId)
 
-  const contractData = await readContract(client, {
+  const contractData = await readContract(getRfoxClient(opportunityId), {
     abi: erc20Abi,
     address: getAddress(fromAssetId(opportunityId).assetReference),
     functionName: 'balanceOf',
-    args: [getAddress(stakingAssetAccountAddress)],
+    args: [getAddress(getStakingContract(opportunityId))],
   })
 
   const tvl = BigAmount.fromBaseUnit({
@@ -72,7 +71,7 @@ export const rFOXStakingMetadataResolver = async ({
         name: 'rFOX',
         apy: undefined,
         tvl,
-        rewardAssetIds: [thorchainAssetId] as const,
+        rewardAssetIds: [getRfoxStakingConfig(opportunityId).rewardAssetId] as const,
         isClaimableRewards: true,
       },
     },

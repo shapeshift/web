@@ -18,6 +18,7 @@ type ClaimRowProps = {
   status: ClaimStatus
   cooldownPeriodHuman: string
   index: number
+  isClaimInProgress?: boolean
   onClaimClick?: () => void
 }
 
@@ -26,6 +27,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   amountCryptoBaseUnit,
   status,
   cooldownPeriodHuman,
+  isClaimInProgress,
   onClaimClick,
 }) => {
   const translate = useTranslate()
@@ -48,6 +50,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   }, [onClaimClick, stakingAssetAccountId])
 
   const statusText = useMemo(() => {
+    if (isClaimInProgress) return translate('RFOX.claimInProgress')
     if (!isLargerThanMd) return cooldownPeriodHuman
 
     if (status === ClaimStatus.Pending) {
@@ -55,7 +58,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     }
 
     return translate('RFOX.tooltips.cooldownComplete', { cooldownPeriodHuman })
-  }, [cooldownPeriodHuman, isLargerThanMd, status, translate])
+  }, [cooldownPeriodHuman, isClaimInProgress, isLargerThanMd, status, translate])
 
   const actionText = useMemo(() => {
     if (!stakingAsset?.symbol) return

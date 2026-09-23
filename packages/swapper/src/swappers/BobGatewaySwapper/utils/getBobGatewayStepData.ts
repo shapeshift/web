@@ -1,4 +1,4 @@
-import type { GatewayQuoteV3 } from '@gobob/bob-sdk'
+import type { GatewayQuoteV4 } from '@gobob/bob-sdk'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -20,7 +20,7 @@ import {
 import { createBobGatewayOrder, toTronBase58 } from './helpers'
 
 type BaseArgs = {
-  quote: GatewayQuoteV3
+  quote: GatewayQuoteV4
   sellAmountCryptoBaseUnit: string
   spenderAddress: string
 }

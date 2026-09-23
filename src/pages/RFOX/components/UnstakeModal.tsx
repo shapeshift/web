@@ -33,7 +33,7 @@ export const UnstakeModal: React.FC<UnstakeModalProps> = ({ isOpen, onClose }) =
       </DialogHeader>
       <DialogBody p={0}>
         <Card bg='transparent'>
-          <Unstake />
+          <Unstake onClose={onClose} />
         </Card>
       </DialogBody>
     </Dialog>

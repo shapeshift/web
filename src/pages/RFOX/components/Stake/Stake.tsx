@@ -53,15 +53,15 @@ const BridgeStatus = makeSuspenseful(
 
 const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm]
 
-export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
+export const Stake: React.FC<StakeRouteProps> = ({ headerComponent, onClose }) => {
   return (
     <MemoryRouter initialEntries={StakeEntries} initialIndex={0}>
-      <StakeRoutes headerComponent={headerComponent} />
+      <StakeRoutes headerComponent={headerComponent} onClose={onClose} />
     </MemoryRouter>
   )
 }
 
-export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
+export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, onClose }) => {
   const location = useLocation()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
@@ -91,9 +91,10 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
         setStakeTxid={setStakeTxid}
         confirmedQuote={confirmedQuote}
         headerComponent={headerComponent}
+        onClose={onClose}
       />
     )
-  }, [confirmedQuote, headerComponent, stakeTxid])
+  }, [confirmedQuote, headerComponent, onClose, stakeTxid])
 
   const renderBridgeConfirm = useCallback(() => {
     if (!maybeBridgeQuote) return null

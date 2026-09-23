@@ -76,6 +76,9 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
     [setShapeShiftRevenue],
   )
 
+  const maxDeposit = bnOrZero(maxDepositAmount).toNumber() || 1
+  const hasEmptyPool = bnOrZero(maxDepositAmount).isZero()
+
   const handleDepositAmountChange = useCallback(
     (values: NumberFormatValues) => {
       setDepositAmount(bnOrZero(values.value).toNumber())
@@ -107,11 +110,12 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
         <Stack width='100%'>
           <Slider
             min={MIN_DEPOSIT_AMOUNT}
-            max={bnOrZero(maxDepositAmount).toNumber()}
+            max={maxDeposit}
             value={depositAmount}
             defaultValue={DEFAULT_DEPOSIT_AMOUNT}
             onChange={setDepositAmount}
             focusThumbOnChange={false}
+            isDisabled={hasEmptyPool}
           >
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />

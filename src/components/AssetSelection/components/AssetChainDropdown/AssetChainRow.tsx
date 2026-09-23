@@ -1,6 +1,7 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -8,10 +9,11 @@ import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
 import {
+  selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByAssetId,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -21,6 +23,7 @@ type AssetChainRowProps = {
   hideBalances?: boolean
   hideSymbol?: boolean
   flexProps?: FlexProps
+  accountNumber?: number
 }
 export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   mainImplementationAssetId,
@@ -28,6 +31,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   hideSymbol,
   hideBalances,
   flexProps,
+  accountNumber,
 }) => {
   const mainImplementationAsset = useAppSelector(state =>
     selectAssetById(state, mainImplementationAssetId),
@@ -35,16 +39,30 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
-  const filter = useMemo(() => ({ assetId }), [assetId])
-  const cryptoPrecisionBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, filter),
-  ).toPrecision()
-
-  const userCurrencyBalance = useAppSelector(
-    state => selectPortfolioUserCurrencyBalanceByAssetId(state, filter) ?? '0',
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdByAccountNumberAndChainId,
   )
 
-  const hideAssetBalance = hideBalances || bnOrZero(cryptoPrecisionBalance).isZero()
+  const accountId = useMemo(() => {
+    if (accountNumber === undefined) return
+    return accountIdsByAccountNumberAndChainId[accountNumber]?.[fromAssetId(assetId).chainId]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, assetId])
+
+  // An unresolved accountId reads as every account in the balance selectors
+  const hasUnresolvedAccountId = accountNumber !== undefined && !accountId
+
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const cryptoPrecisionBalance = useAppSelector(s =>
+    hasUnresolvedAccountId ? '0' : selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision(),
+  )
+
+  const userCurrencyBalance = useAppSelector(state =>
+    hasUnresolvedAccountId ? '0' : selectPortfolioUserCurrencyBalanceByFilter(state, filter),
+  )
+
+  // An account scoped row reports that account's balance as it is, zero included
+  const hideAssetBalance =
+    hideBalances || (accountNumber === undefined && bnOrZero(cryptoPrecisionBalance).isZero())
 
   if (!feeAsset || !asset || !mainImplementationAsset) return null
 

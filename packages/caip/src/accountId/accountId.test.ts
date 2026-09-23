@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ChainNamespace, ChainReference } from '../chainId/chainId'
 import { toChainId } from '../chainId/chainId'
-import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../constants'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE, solanaChainId } from '../constants'
 import { fromAccountId, fromCAIP10, toAccountId, toCAIP10 } from './accountId'
 
 describe('toAccountId', () => {
@@ -116,5 +116,16 @@ describe('fromAccountId', () => {
   it('throws on empty account', () => {
     const accountId = 'eip155:1:'
     expect(() => fromAccountId(accountId)).toThrow()
+  })
+
+  it('reads a superseded CAIP-30 Solana mainnet account as current mainnet', () => {
+    const account = '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV'
+    const accountId = `solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ:${account}`
+    const parsed = fromAccountId(accountId)
+
+    expect(parsed.account).toEqual(account)
+    expect(parsed.chainNamespace).toEqual(CHAIN_NAMESPACE.Solana)
+    expect(parsed.chainReference).toEqual(CHAIN_REFERENCE.SolanaMainnet)
+    expect(parsed.chainId).toEqual(solanaChainId)
   })
 })

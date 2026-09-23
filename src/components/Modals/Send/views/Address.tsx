@@ -19,6 +19,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { AddressBook } from '../AddressBook/AddressBook'
 import { AddressInput } from '../AddressInput/AddressInput'
+import { ContractAddressWarning } from '../components/ContractAddressWarning'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
@@ -239,6 +240,8 @@ export const Address = () => {
               shouldShowSaveButton={showSaveButton}
             />
           </FormControl>
+
+          <ContractAddressWarning address={address} chainId={asset?.chainId} />
 
           <Button
             size='lg'

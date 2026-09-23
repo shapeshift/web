@@ -3,6 +3,7 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import type { Hash } from 'viem'
@@ -116,7 +117,8 @@ export const useAllowanceApproval = (
       if (!tradeQuoteStep?.sellAsset || !sellAssetAccountId) return
 
       if (tradeQuoteStep.sellAsset.chainId === tronChainId) {
-        await waitForTronTransaction(txHash)
+        // A timed-out wait leaves the tx pending; the allowance check completes the step once it lands
+        if ((await waitForTronTransaction(txHash)) !== TxStatus.Confirmed) return
       } else {
         // Handle EVM transaction confirmation
         const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)

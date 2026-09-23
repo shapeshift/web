@@ -20,9 +20,12 @@ export const getTronTransactionStatus = async (txHash: string): Promise<TxStatus
 
 const TRON_TX_POLL_INTERVAL_MS = 1_000
 
-// Resolves once the tx is mined and throws if it failed; gives up silently after the timeout since
-// the tx may still land
-export const waitForTronTransaction = async (txHash: string, timeoutMs = 60_000): Promise<void> => {
+// Resolves Confirmed once the tx is mined and throws if it failed; resolves Unknown after the
+// timeout since the tx may still land
+export const waitForTronTransaction = async (
+  txHash: string,
+  timeoutMs = 60_000,
+): Promise<TxStatus> => {
   const deadline = Date.now() + timeoutMs
 
   while (Date.now() < deadline) {
@@ -35,9 +38,11 @@ export const waitForTronTransaction = async (txHash: string, timeoutMs = 60_000)
       }
     })()
 
-    if (status === TxStatus.Confirmed) return
+    if (status === TxStatus.Confirmed) return status
     if (status === TxStatus.Failed) throw new Error(`Tron transaction failed: ${txHash}`)
 
     await new Promise(resolve => setTimeout(resolve, TRON_TX_POLL_INTERVAL_MS))
   }
+
+  return TxStatus.Unknown
 }

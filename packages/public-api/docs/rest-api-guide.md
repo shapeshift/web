@@ -58,7 +58,7 @@ X-Partner-Code: your-partner-code
 
 - `swapperName` comes from the rate you chose in step 2.
 - `slippageTolerancePercentageDecimal` is optional; `accountNumber` is optional (defaults to `0`) and is needed for chains that derive addresses per account index (e.g. UTXO/Cosmos).
-- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 approval is required, the spender, and ready-to-sign `approvalTxs` when it is), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana_instructions`, `solana_serialized_tx`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`, `tron`) — describing exactly what to sign for that chain.
+- The response includes a `quoteId` (needed for status tracking), an `approval` object (whether an ERC-20 or TRC20 approval is required, the spender, and ready-to-sign `approvalTxs` when it is), and a `steps` array. Each step may include `transactionData` — a discriminated union on `type` (`evm`, `solana_instructions`, `solana_serialized_tx`, `utxo`, `cosmossdk_msg_send`, `cosmossdk_msg_deposit`, `tron`) — describing exactly what to sign for that chain.
 - Quotes expire. **Never sign, broadcast, or send a deposit after `expiresAt`** — request a fresh quote instead. `expiresAt` is the swapper's own deadline, not an arbitrary timeout: THORChain rotates its inbound addresses, externally paid swappers close their deposit channels, and funds sent to a closed channel can be lost. Swappers without a deadline of their own get a conservative 60s.
 
 ## 4. Execute the swap

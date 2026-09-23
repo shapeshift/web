@@ -211,18 +211,18 @@ describe('getButterSwapStepData', () => {
         spenderAddress: '',
       })
 
-      // Native sells carry the sell amount as the call value
+      // Butter's value is the native amount to send: the sell amount for a native sell, 0 for a token
       const transactionData = {
         type: 'tron',
         to: 'TRouterAddress',
         data: evmBuildTx.data,
-        value: '1000000',
+        value: '100000000000000000',
       }
 
       expect(actual.unwrap()).toEqual({ transactionData, networkFeeCryptoBaseUnit: '9000000' })
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: 'TRouterAddress',
-        value: '1000000',
+        value: '100000000000000000',
         chainSpecific: { from: 'TSenderAddress', data: evmBuildTx.data },
       })
     })
@@ -232,7 +232,7 @@ describe('getButterSwapStepData', () => {
         type: 'quote',
         input: {} as GetTradeQuoteInput,
         from: 'TSenderAddress',
-        buildTx: tronBuildTx,
+        buildTx: { ...tronBuildTx, value: '0x00' },
         deps: makeDeps({ tron: tronAdapter() }),
         route,
         sellAsset: USDT_TRON,
@@ -241,7 +241,7 @@ describe('getButterSwapStepData', () => {
         spenderAddress: '',
       })
 
-      expect(actual.unwrap().transactionData).toMatchObject({ value: '100000000000000000' })
+      expect(actual.unwrap().transactionData).toMatchObject({ value: '0' })
     })
 
     it('falls back to the provider fee when simulation fails', async () => {

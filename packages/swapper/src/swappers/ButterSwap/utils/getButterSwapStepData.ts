@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, fromChainId, tronAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -210,15 +210,11 @@ export async function getButterSwapStepData(
 
       const { buildTx, from } = args
 
-      // Butter's value carries the swap fees; a native sell also carries the sell amount
-      const isNativeTron = sellAsset.assetId === tronAssetId
       const transactionData: TxBuildData = {
         type: 'tron',
         to: buildTx.to,
         data: buildTx.data,
-        value: isNativeTron
-          ? sellAmountCryptoBaseUnit
-          : fromHex(buildTx.value, 'bigint').toString(),
+        value: fromHex(buildTx.value, 'bigint').toString(),
       }
 
       const networkFeeCryptoBaseUnit = await (async () => {

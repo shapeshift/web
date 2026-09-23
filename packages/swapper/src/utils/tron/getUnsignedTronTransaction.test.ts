@@ -29,7 +29,7 @@ const makeArgs = (sellAsset: Asset, transactionData: TxBuildData | undefined) =>
       stepIndex: 0 as const,
       from: FROM,
       assertGetTronChainAdapter: () => adapter,
-    } as any,
+    } as unknown as Parameters<typeof getUnsignedTronTransaction>[0],
   }
 }
 

@@ -44,6 +44,7 @@ import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput'
+import { ContractAddressWarning } from '@/components/Modals/Send/components/ContractAddressWarning'
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
@@ -339,6 +340,7 @@ export const SendAmountDetails = () => {
               isReadOnly
               onClick={handleBackClick}
             />
+            <ContractAddressWarning address={to} chainId={asset?.chainId} mt={4} />
           </Box>
           <Flex flex='1' alignItems='center' justifyContent='center' pb={6}>
             {balancesLoading ? (

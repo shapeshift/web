@@ -56,8 +56,10 @@ const toSupportedAccountId = (accountId: string): AccountId | undefined => {
   }
 }
 
-export const extractConnectedAccounts = (session: SessionTypes.Struct): AccountId[] => {
-  const namespaces = session?.namespaces ?? {}
+export const extractConnectedAccounts = (
+  session: Pick<SessionTypes.Struct, 'namespaces'>,
+): AccountId[] => {
+  const namespaces: SessionTypes.Namespaces = session.namespaces ?? {}
   return Object.values(namespaces)
     .flatMap(namespace => namespace.accounts ?? [])
     .map(toSupportedAccountId)

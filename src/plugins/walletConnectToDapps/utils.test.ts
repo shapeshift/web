@@ -9,7 +9,7 @@ const ETH_ACCOUNT_ID = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
 const LEGACY_SOLANA_ACCOUNT_ID = `solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ:${SOLANA_ADDRESS}`
 const UNSUPPORTED_ACCOUNT_ID = 'eip155:999999:0xabc'
 
-const session = {
+const session: Pick<SessionTypes.Struct, 'namespaces'> = {
   namespaces: {
     solana: {
       accounts: [LEGACY_SOLANA_ACCOUNT_ID],
@@ -24,7 +24,7 @@ const session = {
       events: [],
     },
   },
-} as unknown as SessionTypes.Struct
+}
 
 describe('extractConnectedAccounts', () => {
   it('keeps supported accounts and rewrites a superseded Solana mainnet id', () => {

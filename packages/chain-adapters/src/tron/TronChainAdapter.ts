@@ -552,7 +552,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
-  // Bandwidth in sun: calldata-sized for contract calls, fixed for TRC20, the built tx's size for native
+  // Bandwidth in sun: calldata-sized for contract calls, fixed plus memo for TRC20, the built tx's size for native
   private async estimateBandwidthFee(params: {
     to: string
     from?: string
@@ -564,17 +564,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     bandwidthPrice: number
   }): Promise<number> {
     const { to, from, value, memo, data, contractAddress, tronWeb, bandwidthPrice } = params
+    const memoBytes = memo ? Buffer.byteLength(memo, 'utf8') : 0
 
     if (data) {
       const dataBytes = (data.startsWith('0x') ? data.length - 2 : data.length) / 2
       return (dataBytes + CONTRACT_CALL_OVERHEAD_BYTES) * bandwidthPrice
     }
 
-    if (contractAddress) return TRC20_TRANSFER_BANDWIDTH_BYTES * bandwidthPrice
+    if (contractAddress) return (TRC20_TRANSFER_BANDWIDTH_BYTES + memoBytes) * bandwidthPrice
+
+    // tronweb refuses to build a self-transfer, so a walletless estimate can't measure the real tx
+    if (!from || from === to) return (NATIVE_TX_FALLBACK_BYTES + memoBytes) * bandwidthPrice
 
     try {
       const baseTx = await this.requestQueue.add(
-        () => tronWeb.transactionBuilder.sendTrx(to, Number(value), from || to),
+        () => tronWeb.transactionBuilder.sendTrx(to, Number(value), from),
         { throwOnTimeout: true },
       )
       const finalTx = memo
@@ -590,7 +594,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       return (rawDataBytes + SIGNED_TX_OVERHEAD_BYTES) * bandwidthPrice
     } catch (err) {
-      const memoBytes = memo ? Buffer.from(memo, 'utf8').length : 0
       return (NATIVE_TX_FALLBACK_BYTES + memoBytes) * bandwidthPrice
     }
   }

@@ -18,4 +18,6 @@ describe('toTronHex', () => {
     expect(toTronHex(BASE58).toLowerCase()).toBe(HEX_0X))
   it('swaps a 41 prefix for 0x', () => expect(toTronHex(HEX_41).toLowerCase()).toBe(HEX_0X))
   it('passes 0x hex through', () => expect(toTronHex(HEX_0X)).toBe(HEX_0X))
+  it('keeps a bare 20-byte body whose first byte is 0x41', () =>
+    expect(toTronHex(`41${'ab'.repeat(19)}`)).toBe(`0x41${'ab'.repeat(19)}`))
 })

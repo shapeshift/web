@@ -14,5 +14,5 @@ export const toTronBase58 = (address: string): string => {
 export const toTronHex = (address: string): string => {
   if (address.startsWith('0x')) return address
   const hex = address.startsWith('T') ? TronWeb.address.toHex(address) : address
-  return `0x${hex.replace(/^41/, '')}`
+  return `0x${hex.length === 42 ? hex.slice(2) : hex}`
 }

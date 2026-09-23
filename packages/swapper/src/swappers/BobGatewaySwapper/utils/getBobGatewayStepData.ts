@@ -1,6 +1,5 @@
 import type { GatewayQuoteV4 } from '@gobob/bob-sdk'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -13,7 +12,10 @@ import {
 } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { TronContractCall } from '../../../utils/tron'
-import { getTronContractCallNetworkFeeCryptoBaseUnit } from '../../../utils/tron'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+} from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 import {
   BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
@@ -207,12 +209,11 @@ export async function getBobGatewayStepData(
         // The gateway call isn't built until an order exists, so rates price a measured default
         const networkFeeCryptoBaseUnit = await (async () => {
           try {
-            const { energyPrice, bandwidthPrice } = await adapter.httpProvider.getChainPrices()
-
-            return bn(BOB_GATEWAY_TRON_DEFAULT_ENERGY)
-              .times(energyPrice)
-              .plus(bn(BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES).times(bandwidthPrice))
-              .toFixed(0)
+            return await getTronContractCallFallbackFeeCryptoBaseUnit({
+              adapter,
+              energy: BOB_GATEWAY_TRON_DEFAULT_ENERGY,
+              bandwidthBytes: BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES,
+            })
           } catch {}
         })()
 
@@ -243,8 +244,7 @@ export async function getBobGatewayStepData(
             from,
             sellAsset,
             sellAmountCryptoBaseUnit,
-            // the AllowanceHolder the call pulls the sell token through
-            spenderAddress: tx.to,
+            spenderAddress,
             fallbackEnergy: BOB_GATEWAY_TRON_DEFAULT_ENERGY,
           }),
         }

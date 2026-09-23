@@ -15,10 +15,9 @@ export const DEFAULT_SLIPPAGE_PERCENTAGE = '0.005'
 
 export const SUNIO_SWAP_DEADLINE_MS = 20 * 60 * 1000
 
-// Worst-case swap energy (p90 of recent router calls on mainnet), for rates that can't simulate and
-// for token quotes whose allowance isn't granted yet
+// p90 router energy on mainnet, for rates that can't simulate and token quotes without their allowance
 export const SUNIO_FALLBACK_SWAP_ENERGY_NATIVE = '250000'
-export const SUNIO_FALLBACK_SWAP_ENERGY_TRC20 = '500000'
+export const SUNIO_FALLBACK_SWAP_ENERGY_TRC20 = '480000'
 
 export const SUNIO_DEX_TYPES =
   'PSM,CURVE,CURVE_COMBINATION,WTRX,SUNSWAP_V1,SUNSWAP_V2,SUNSWAP_V3' as const

@@ -142,9 +142,8 @@ export const RELAY_SOLANA_TOKEN_ADDRESS = '11111111111111111111111111111111'
 
 export const DEFAULT_RELAY_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 
-// Worst-case depositor energy for a TRC20 deposit (measured ~99k on mainnet), for token quotes
-// whose allowance isn't granted yet
-export const RELAY_TRON_FALLBACK_DEPOSIT_ENERGY = '120000'
+// depositor energy for a TRC20 deposit measured on mainnet, for token quotes without their allowance
+export const RELAY_TRON_FALLBACK_DEPOSIT_ENERGY = '100000'
 export const DEFAULT_RELAY_BTC_USER_ADDRESS = 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa'
 export const DEFAULT_RELAY_SOLANA_USER_ADDRESS = 'CbKGgVKLJFb8bBrf58DnAkdryX6ubewVytn7X957YwNr'
 export const DEFAULT_RELAY_TRON_USER_ADDRESS = 'TLsV52sRDL79HXGGm9yzwKibb6BeruhUzy'

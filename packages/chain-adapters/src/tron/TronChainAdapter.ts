@@ -40,7 +40,10 @@ import { getTronContractCallBandwidthBytes, SIGNED_TX_OVERHEAD_BYTES, toTronBase
 export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 
 // The dynamic energy penalty moves at most +20% per 6h cycle, so this covers a full step inside a quote window
-const TRON_ENERGY_SAFETY_MARGIN = 1.2
+export const TRON_ENERGY_SAFETY_MARGIN = 1.2
+
+// A plain TRC20 transfer at twice USDT's penalised cost, for stand-in senders whose simulation says nothing
+const TRC20_TRANSFER_FALLBACK_ENERGY = 130_000
 
 // Cost (in sun) to activate a not-yet-existing recipient account.
 const TRON_ACCOUNT_ACTIVATION_FEE = 1_000_000 // 1 TRX
@@ -478,10 +481,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       const to = toTronBase58(input.to)
 
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
-      const { bandwidthPrice, memoFee } = await this.providers.http.getChainPrices()
+      const { bandwidthPrice, energyPrice, memoFee } = await this.providers.http.getChainPrices()
 
       const [energyFee, bandwidthFee, activationFee] = await Promise.all([
-        this.estimateEnergyFee({ to, from, value, data, contractAddress }),
+        this.estimateEnergyFee({ to, from, value, data, contractAddress, energyPrice }),
         this.estimateBandwidthFee({
           to,
           from,
@@ -506,17 +509,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
-  // Energy in sun: none for native transfers, simulated calldata for contract calls, a simulated
-  // transfer for TRC20. Throws rather than guesses - underestimating burns the user's TRX on
-  // OUT_OF_ENERGY, and callers that can tolerate a guess (rates, pre-approval token sells) own it
+  // Energy in sun: none for native transfers, simulated calldata for contract calls, a simulated transfer for TRC20
   private async estimateEnergyFee(params: {
     to: string
     from?: string
     value: string
     data?: string
     contractAddress?: string
+    energyPrice: number
   }): Promise<number> {
-    const { to, from, value, data, contractAddress } = params
+    const { to, from, value, data, contractAddress, energyPrice } = params
 
     if (!data && !contractAddress) return 0
 
@@ -531,14 +533,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
     }
 
-    const feeInSun = await this.providers.http.estimateTrc20TransferFee({
-      contractAddress: contractAddress as string,
-      from: from || to,
-      to,
-      amount: value,
-    })
+    try {
+      const feeInSun = await this.providers.http.estimateTrc20TransferFee({
+        contractAddress: contractAddress as string,
+        from: from || to,
+        to,
+        amount: value,
+      })
 
-    return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
+      return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
+    } catch (error) {
+      // a real sender's revert is a real failure; a stand-in's balance is unknown
+      if (from) throw error
+
+      return TRC20_TRANSFER_FALLBACK_ENERGY * energyPrice
+    }
   }
 
   // Bandwidth in sun: calldata-sized for contract calls, fixed plus memo for TRC20, the built tx's size for native
@@ -562,22 +571,27 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     // tronweb refuses to build a self-transfer, so a walletless estimate can't measure the real tx
     if (!from || from === to) return (NATIVE_TX_DEFAULT_BYTES + memoBytes) * bandwidthPrice
 
-    const baseTx = await this.requestQueue.add(
-      () => tronWeb.transactionBuilder.sendTrx(to, Number(value), from),
-      { throwOnTimeout: true },
-    )
-    const finalTx = memo
-      ? await this.requestQueue.add(
-          () => tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
-          { throwOnTimeout: true },
-        )
-      : baseTx
+    try {
+      const baseTx = await this.requestQueue.add(
+        () => tronWeb.transactionBuilder.sendTrx(to, Number(value), from),
+        { throwOnTimeout: true },
+      )
+      const finalTx = memo
+        ? await this.requestQueue.add(
+            () => tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
+            { throwOnTimeout: true },
+          )
+        : baseTx
 
-    const rawDataBytes = finalTx.raw_data_hex
-      ? finalTx.raw_data_hex.length / 2
-      : NATIVE_TX_DEFAULT_RAW_BYTES
+      const rawDataBytes = finalTx.raw_data_hex
+        ? finalTx.raw_data_hex.length / 2
+        : NATIVE_TX_DEFAULT_RAW_BYTES
 
-    return (rawDataBytes + SIGNED_TX_OVERHEAD_BYTES) * bandwidthPrice
+      return (rawDataBytes + SIGNED_TX_OVERHEAD_BYTES) * bandwidthPrice
+    } catch (err) {
+      // the size of a native transfer is arithmetic (send-max estimates with a zero value the builder rejects)
+      return (NATIVE_TX_DEFAULT_BYTES + memoBytes) * bandwidthPrice
+    }
   }
 
   // Activation fee (in sun). Sending to a plain address that doesn't exist yet costs 1 TRX; contract

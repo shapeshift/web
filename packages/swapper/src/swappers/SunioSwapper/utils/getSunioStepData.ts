@@ -1,4 +1,5 @@
 import { tronAssetId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -85,8 +86,10 @@ export async function getSunioStepData(
       try {
         return await getTronContractCallFallbackFeeCryptoBaseUnit({
           adapter,
-          data: buildCall(from ?? TRON_PLACEHOLDER_ADDRESS).data,
           energy: fallbackEnergy,
+          bandwidthBytes: tron.getTronContractCallBandwidthBytes(
+            buildCall(from ?? TRON_PLACEHOLDER_ADDRESS).data,
+          ),
         })
       } catch {}
     })()

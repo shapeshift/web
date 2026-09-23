@@ -28,6 +28,7 @@ const tronAdapter = ({ txFee = '45600000', allowance = '0' } = {}) => ({
   httpProvider: {
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
+    getTRC20Balance: vi.fn().mockResolvedValue('100000000'),
   },
 })
 
@@ -49,8 +50,8 @@ describe('getBobGatewayStepData', () => {
         spenderAddress: '',
       })
 
-      // 450000 energy * 100 sun + 4000 bytes * 1000 sun
-      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '49000000' })
+      // 420000 energy * 1.2 margin * 100 sun + 4000 bytes * 1000 sun
+      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '54400000' })
     })
 
     it('simulates the real gateway call for a quote', async () => {
@@ -96,14 +97,14 @@ describe('getBobGatewayStepData', () => {
         quote,
         sellAsset: USDT_TRON,
         sellAmountCryptoBaseUnit: '100000000',
-        spenderAddress: '',
+        spenderAddress: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
         from: FROM,
       })
 
-      // 450000 energy * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      // 420000 energy * 1.2 margin * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
       expect(actual.unwrap()).toMatchObject({
         orderId: 'order-1',
-        networkFeeCryptoBaseUnit: '45283000',
+        networkFeeCryptoBaseUnit: '50683000',
       })
       expect(adapter.httpProvider.getTrc20Allowance).toHaveBeenCalledWith({
         contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
@@ -126,7 +127,7 @@ describe('getBobGatewayStepData', () => {
         quote,
         sellAsset: USDT_TRON,
         sellAmountCryptoBaseUnit: '100000000',
-        spenderAddress: '',
+        spenderAddress: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
         from: FROM,
       })
 

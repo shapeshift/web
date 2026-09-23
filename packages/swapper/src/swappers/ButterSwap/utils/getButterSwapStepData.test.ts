@@ -196,6 +196,7 @@ describe('getButterSwapStepData', () => {
       httpProvider: {
         getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
         getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
+        getTRC20Balance: vi.fn().mockResolvedValue('100000000'),
       },
     })
 
@@ -285,8 +286,8 @@ describe('getButterSwapStepData', () => {
         spenderAddress: '',
       })
 
-      // 450000 energy * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
-      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('45283000')
+      // 390000 energy * 1.2 margin * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('47083000')
     })
 
     it('rates price the provider fee', async () => {

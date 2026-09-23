@@ -54,10 +54,9 @@ export const DUMMY_BTC_ADDRESS = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
 
 export const BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT = '350000' // EVM→EVM
 export const BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT = '550000' // EVM→BTC
-// Measured AllowanceHolder exec on mainnet (~417k energy, ~3.9KB calldata): rates price it before an
-// order exists, quotes fall back to the energy when the allowance isn't granted yet
-export const BOB_GATEWAY_TRON_DEFAULT_ENERGY = '450000'
-export const BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES = '4000'
+// AllowanceHolder exec measured on mainnet: rates price it before an order exists, token quotes without their allowance fall back to it
+export const BOB_GATEWAY_TRON_DEFAULT_ENERGY = '420000'
+export const BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES = 4000
 
 // https://docs.gobob.xyz/api-reference/v2/get-a-gateway-quote#parameter-slippage
 export const decimalSlippageToBobBps = (slippageDecimal: string): string => {

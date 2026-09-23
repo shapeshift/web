@@ -18,22 +18,33 @@ const SPENDER = 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K'
 
 const transactionData = { to: SPENDER, data: '0x2213bc0b', value: '0' }
 
-const makeAdapter = ({ allowance = '0', simulation = 'ok' as 'ok' | 'revert' } = {}) => {
+const makeAdapter = ({
+  allowance = '0',
+  balance = '100000000',
+  simulation = 'ok' as 'ok' | 'revert',
+} = {}) => {
   const getFeeData =
     simulation === 'ok'
       ? vi.fn().mockResolvedValue({ fast: { txFee: '9000000' } })
       : vi.fn().mockRejectedValue(new Error('REVERT opcode executed'))
   const getTrc20Allowance = vi.fn().mockResolvedValue(allowance)
+  const getTRC20Balance = vi.fn().mockResolvedValue(balance)
 
   const adapter = {
     getFeeData,
     httpProvider: {
       getTrc20Allowance,
+      getTRC20Balance,
       getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     },
   }
 
-  return { adapter: adapter as unknown as tron.ChainAdapter, getFeeData, getTrc20Allowance }
+  return {
+    adapter: adapter as unknown as tron.ChainAdapter,
+    getFeeData,
+    getTrc20Allowance,
+    getTRC20Balance,
+  }
 }
 
 const baseArgs = {
@@ -41,21 +52,23 @@ const baseArgs = {
   from: FROM,
   sellAmountCryptoBaseUnit: '100000000',
   spenderAddress: SPENDER_HEX,
-  fallbackEnergy: '450000',
+  fallbackEnergy: '400000',
 }
 
+// 400000 energy * 1.2 margin * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+const FALLBACK_FEE = '48283000'
+
 describe('getTronContractCallFallbackFeeCryptoBaseUnit', () => {
-  it('prices the energy at live prices and sizes bandwidth from the calldata', async () => {
+  it('prices the energy under the adapter margin at live prices plus the bandwidth', async () => {
     const { adapter } = makeAdapter()
 
-    // 450000 energy * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
     expect(
       await getTronContractCallFallbackFeeCryptoBaseUnit({
         adapter,
-        data: '0x2213bc0b',
-        energy: '450000',
+        energy: '400000',
+        bandwidthBytes: 283,
       }),
-    ).toBe('45283000')
+    ).toBe(FALLBACK_FEE)
   })
 })
 
@@ -78,8 +91,11 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
     expect(getTrc20Allowance).not.toHaveBeenCalled()
   })
 
-  it('prices the measured worst case when a token sell reverts without its allowance', async () => {
-    const { adapter, getTrc20Allowance } = makeAdapter({ simulation: 'revert', allowance: '0' })
+  it('prices the measured worst case when a funded token sell reverts without its allowance', async () => {
+    const { adapter, getTrc20Allowance, getTRC20Balance } = makeAdapter({
+      simulation: 'revert',
+      allowance: '0',
+    })
 
     const actual = await getTronContractCallNetworkFeeCryptoBaseUnit({
       ...baseArgs,
@@ -87,16 +103,25 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
       sellAsset: USDT_TRON,
     })
 
-    expect(actual).toBe('45283000')
+    expect(actual).toBe(FALLBACK_FEE)
     expect(getTrc20Allowance).toHaveBeenCalledWith({
       contractAddress: USDT,
       owner: FROM,
       spender: SPENDER,
     })
+    expect(getTRC20Balance).toHaveBeenCalledWith({ address: FROM, contractAddress: USDT })
   })
 
   it('throws when a token sell reverts with a sufficient allowance', async () => {
     const { adapter } = makeAdapter({ simulation: 'revert', allowance: '100000000' })
+
+    await expect(
+      getTronContractCallNetworkFeeCryptoBaseUnit({ ...baseArgs, adapter, sellAsset: USDT_TRON }),
+    ).rejects.toThrow('REVERT opcode executed')
+  })
+
+  it('throws when the token balance cannot cover the sell', async () => {
+    const { adapter } = makeAdapter({ simulation: 'revert', allowance: '0', balance: '1' })
 
     await expect(
       getTronContractCallNetworkFeeCryptoBaseUnit({ ...baseArgs, adapter, sellAsset: USDT_TRON }),

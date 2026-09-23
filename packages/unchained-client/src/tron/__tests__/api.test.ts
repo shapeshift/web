@@ -44,15 +44,24 @@ describe('TronApi', () => {
     }
 
     it('prices a successful simulation at energy_used * energyPrice', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: () => successResponse }))
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => successResponse }))
 
       expect(await api.estimateContractCallFee(params)).toBe('6428500')
     })
 
     it('throws on a reverted simulation rather than trusting the partial energy', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: () => revertResponse }))
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => revertResponse }))
 
       await expect(api.estimateContractCallFee(params)).rejects.toThrow('REVERT opcode executed')
+    })
+
+    it('reports a failed request as such rather than as a revert', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ ok: false, status: 429, json: () => ({}) }),
+      )
+
+      await expect(api.estimateContractCallFee(params)).rejects.toThrow('request failed: 429')
     })
   })
 

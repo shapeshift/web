@@ -30,6 +30,7 @@ const tronAdapter = ({ txFee = '9000000', allowance = '0' } = {}) => ({
   httpProvider: {
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
+    getTRC20Balance: vi.fn().mockResolvedValue('100000000'),
   },
 })
 
@@ -53,7 +54,8 @@ const calldataBandwidthBytes = tron.getTronContractCallBandwidthBytes(
     deadline: 0,
   }),
 )
-const fallbackFee = (energy: string) => String(Number(energy) * 100 + calldataBandwidthBytes * 1000)
+const fallbackFee = (energy: string) =>
+  String(Number(energy) * 1.2 * 100 + calldataBandwidthBytes * 1000)
 
 describe('getSunioStepData', () => {
   describe('quote', () => {

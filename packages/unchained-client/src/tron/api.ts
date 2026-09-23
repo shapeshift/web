@@ -373,6 +373,10 @@ export class TronApi {
       }),
     })
 
+    if (!response.ok) {
+      throw new Error(`[tron] contract call simulation request failed: ${response.status}`)
+    }
+
     const result: SimulationResult = await response.json()
 
     return String(this.getSimulatedEnergy(result, 'contract call') * energyPrice)

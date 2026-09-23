@@ -3,25 +3,31 @@ import { tron } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, isToken } from '@shapeshiftoss/utils'
 
-export type TronContractCall = { to: string; value: string; data: string }
+import type { TxBuildData } from '../../types'
+
+export type TronContractCall = Omit<
+  Extract<TxBuildData, { type: 'tron' }>,
+  'type' | 'data' | 'memo'
+> & { data: string }
 
 type GetTronContractCallFallbackFeeArgs = {
   adapter: tron.ChainAdapter
-  data: string
   energy: string
+  bandwidthBytes: number
 }
 
-// A measured worst-case energy at live prices, with bandwidth sized from the real calldata
+// A measured worst-case energy under the adapter's margin, at live prices
 export const getTronContractCallFallbackFeeCryptoBaseUnit = async ({
   adapter,
-  data,
   energy,
+  bandwidthBytes,
 }: GetTronContractCallFallbackFeeArgs): Promise<string> => {
   const { energyPrice, bandwidthPrice } = await adapter.httpProvider.getChainPrices()
 
   return bn(energy)
+    .times(tron.TRON_ENERGY_SAFETY_MARGIN)
     .times(energyPrice)
-    .plus(bn(tron.getTronContractCallBandwidthBytes(data)).times(bandwidthPrice))
+    .plus(bn(bandwidthBytes).times(bandwidthPrice))
     .toFixed(0)
 }
 
@@ -37,10 +43,7 @@ type GetTronContractCallNetworkFeeArgs = {
   fallbackEnergy: string
 }
 
-// Quote arm. Tron has no state override, so a token sell can't be simulated before its allowance
-// exists. Energy isn't a tx constraint - feeLimit caps it and the chain charges actual usage - so
-// the estimate only gates balance and display: a revert with an insufficient allowance prices the
-// measured worst case and the quote stays executable. Every other failure throws.
+// Quote arm: a funded token sell that reverts for want of its allowance prices the measured worst case, anything else throws
 export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
   adapter,
   transactionData,
@@ -59,14 +62,25 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
   } catch (error) {
     if (!isToken(sellAsset.assetId)) throw error
 
-    const allowance = await adapter.httpProvider.getTrc20Allowance({
-      contractAddress: fromAssetId(sellAsset.assetId).assetReference,
-      owner: from,
-      spender: tron.toTronBase58(spenderAddress),
+    const contractAddress = fromAssetId(sellAsset.assetId).assetReference
+    const { httpProvider } = adapter
+
+    const [allowance, balance] = await Promise.all([
+      httpProvider.getTrc20Allowance({
+        contractAddress,
+        owner: from,
+        spender: tron.toTronBase58(spenderAddress),
+      }),
+      httpProvider.getTRC20Balance({ address: from, contractAddress }),
+    ])
+
+    const sellAmount = BigInt(sellAmountCryptoBaseUnit)
+    if (BigInt(allowance) >= sellAmount || BigInt(balance) < sellAmount) throw error
+
+    return getTronContractCallFallbackFeeCryptoBaseUnit({
+      adapter,
+      energy: fallbackEnergy,
+      bandwidthBytes: tron.getTronContractCallBandwidthBytes(data),
     })
-
-    if (BigInt(allowance) >= BigInt(sellAmountCryptoBaseUnit)) throw error
-
-    return getTronContractCallFallbackFeeCryptoBaseUnit({ adapter, data, energy: fallbackEnergy })
   }
 }

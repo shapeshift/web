@@ -25,6 +25,7 @@ const tronAdapter = ({ txFee = '9000000', allowance = '0' } = {}) => ({
   httpProvider: {
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
+    getTRC20Balance: vi.fn().mockResolvedValue('100000000'),
   },
 })
 
@@ -104,7 +105,7 @@ describe('getRelayStepData', () => {
         deps: makeDeps(adapter),
       })
 
-      // 120000 energy * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      // 100000 energy * 1.2 margin * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
       expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('12283000')
       expect(adapter.httpProvider.getTrc20Allowance).toHaveBeenCalledWith({
         contractAddress: USDT,

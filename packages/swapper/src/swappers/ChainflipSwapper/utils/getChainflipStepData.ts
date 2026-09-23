@@ -16,6 +16,7 @@ import {
   SOLANA_PLACEHOLDER_ADDRESS,
   withComputeUnitLimit,
 } from '../../../utils/solana'
+import { TRON_PLACEHOLDER_ADDRESS } from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 
 // Deposits are plain transfers - 21k intrinsic for natives, tokens measured ~50-65k to a fresh
@@ -46,9 +47,8 @@ type ChainflipRateStepData = {
   networkFeeCryptoBaseUnit: string | undefined
 }
 
-// transactionData for migrated namespaces; tron is un-migrated (exec builds from the deposit address)
 type ChainflipQuoteStepData = {
-  transactionData?: TxBuildData
+  transactionData: TxBuildData
   networkFeeCryptoBaseUnit: string | undefined
 }
 
@@ -213,26 +213,48 @@ export async function getChainflipStepData(
         return Err(makeNetworkFeeEstimationFailedErr('getChainflipStepData', error))
       }
     }
-    // Un-migrated - exec builds its tx from chainflipSpecific.depositAddress, so no transactionData is carried
     case CHAIN_NAMESPACE.Tron: {
-      const to = depositAddress ?? from
-      if (!to || !from) {
-        const stepData: ChainflipRateStepData = { networkFeeCryptoBaseUnit: undefined }
+      const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+
+      if (args.type === 'rate') {
+        // No deposit address yet - a placeholder recipient sizes the transfer
+        const networkFeeCryptoBaseUnit = await (async () => {
+          if (!from) return
+
+          try {
+            const { fast } = await adapter.getFeeData({
+              to: TRON_PLACEHOLDER_ADDRESS,
+              value: sellAmountCryptoBaseUnit,
+              chainSpecific: { from, contractAddress },
+            })
+
+            return fast.txFee
+          } catch {}
+        })()
+
+        const stepData: ChainflipRateStepData = { networkFeeCryptoBaseUnit }
 
         return Ok(stepData)
       }
 
+      const transactionData: TxBuildData = {
+        type: 'tron',
+        to: args.depositAddress,
+        value: sellAmountCryptoBaseUnit,
+      }
+
       try {
-        const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
-          to,
-          value: sellAmountCryptoBaseUnit,
-          chainSpecific: {
-            from,
-            contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-          },
+        const { fast } = await adapter.getFeeData({
+          to: transactionData.to,
+          value: transactionData.value,
+          chainSpecific: { from, contractAddress },
         })
 
-        const stepData: ChainflipQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+        const stepData: ChainflipQuoteStepData = {
+          transactionData,
+          networkFeeCryptoBaseUnit: fast.txFee,
+        }
 
         return Ok(stepData)
       } catch (error) {

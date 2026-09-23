@@ -36,8 +36,6 @@ export * from './getThorL1TradeQuote'
 export * from './getThorL1TradeRate'
 export * from './getPoolDetails'
 
-export * as tron from './tron'
-
 export const getChainIdBySwapper = (swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:

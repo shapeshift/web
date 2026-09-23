@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -8,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { SUNIO_SUPPORTED_CHAIN_IDS, SUNIO_TRON_NATIVE_ADDRESS } from './constants'
+import { SUNIO_SUPPORTED_CHAIN_IDS } from './constants'
 
 export const isSupportedChainId = (chainId: string): boolean => {
   return SUNIO_SUPPORTED_CHAIN_IDS.includes(chainId as any)
@@ -19,7 +20,7 @@ export const assetIdToTronToken = (assetId: AssetId): string => {
     const { assetReference } = fromAssetId(assetId)
     return assetReference
   }
-  return SUNIO_TRON_NATIVE_ADDRESS
+  return tron.TRON_ZERO_ADDRESS
 }
 
 export const assertValidTrade = ({

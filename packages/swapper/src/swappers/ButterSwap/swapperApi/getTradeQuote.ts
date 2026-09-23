@@ -77,8 +77,7 @@ export const getTradeQuote = async (
   })
 
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
-  const { networkFeeCryptoBaseUnit, transactionData, butterSwapTransactionMetadata } =
-    maybeStepData.unwrap()
+  const { networkFeeCryptoBaseUnit, transactionData } = maybeStepData.unwrap()
 
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
@@ -89,11 +88,10 @@ export const getTradeQuote = async (
       {
         ...stepCommon,
         accountNumber,
-        // Tron exec still builds from legacy metadata whose spender is the buildTx target
+        // Tron routes pull the sell token from the buildTx target
         allowanceContract:
           sellAsset.chainId === tronChainId ? buildTx.to : stepCommon.allowanceContract,
         transactionData,
-        butterSwapTransactionMetadata,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

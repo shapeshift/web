@@ -34,6 +34,23 @@ import { toAddressNList } from '../utils'
 import { verifyLedgerAppOpen } from '../utils/ledgerAppGate'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { TronSignTx, TronUnsignedTx } from './types'
+import { getTronContractCallBandwidthBytes, SIGNED_TX_OVERHEAD_BYTES, toTronBase58 } from './utils'
+
+// Base58 of 0x41 + 20 zero bytes; the native-TRX sentinel in DEX token paths and the mint/burn party in TRC20 logs
+export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
+
+// The dynamic energy penalty moves at most +20% per 6h cycle, so this covers a full step inside a quote window
+export const TRON_ENERGY_SAFETY_MARGIN = 1.2
+
+// A plain TRC20 transfer at twice USDT's penalised cost, for stand-in senders whose simulation says nothing
+const TRC20_TRANSFER_FALLBACK_ENERGY = 130_000
+
+// Cost (in sun) to activate a not-yet-existing recipient account.
+const TRON_ACCOUNT_ACTIVATION_FEE = 1_000_000 // 1 TRX
+
+const TRC20_TRANSFER_BANDWIDTH_BYTES = 211 + SIGNED_TX_OVERHEAD_BYTES // 345, the standard USDT transfer
+const NATIVE_TX_DEFAULT_RAW_BYTES = 133 // raw_data of a plain TransferContract
+const NATIVE_TX_DEFAULT_BYTES = NATIVE_TX_DEFAULT_RAW_BYTES + SIGNED_TX_OVERHEAD_BYTES // when the tx can't be built to measure it
 
 export interface ChainAdapterArgs {
   providers: {
@@ -188,13 +205,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.TronMainnet>,
   ): Promise<TronSignTx> {
     try {
-      const {
-        from,
-        accountNumber,
-        to,
-        value,
-        chainSpecific: { contractAddress, memo } = {},
-      } = input
+      const { from, accountNumber, value, chainSpecific: { contractAddress, memo } = {} } = input
+      const to = toTronBase58(input.to)
 
       // Create TronWeb instance once and reuse
       const tronWeb = new TronWeb({
@@ -308,14 +320,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     accountNumber: number
     data: string
     value: string
-    method?: string
-    args?: { type: string; value: unknown }[]
   }): Promise<TronSignTx> {
     try {
-      const { from, to, accountNumber, data, value } = input
+      const { from, accountNumber, data, value } = input
+      const to = toTronBase58(input.to)
 
-      // Always use raw data field instead of method/args to ensure correct method selector
-      // TronWeb's triggerSmartContract computes method selectors differently than expected
       const callData = data.startsWith('0x') ? data.slice(2) : data
       let txData: TronUnsignedTx
 
@@ -468,123 +477,145 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
-      const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
+      const { value, chainSpecific: { from, contractAddress, memo, data } = {} } = input
+      const to = toTronBase58(input.to)
 
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
-      const params = await this.requestQueue.add(() => tronWeb.trx.getChainParameters(), {
-        throwOnTimeout: true,
+      const { bandwidthPrice, energyPrice, memoFee } = await this.providers.http.getChainPrices()
+
+      const [energyFee, bandwidthFee, activationFee] = await Promise.all([
+        this.estimateEnergyFee({ to, from, value, data, contractAddress, energyPrice }),
+        this.estimateBandwidthFee({
+          to,
+          from,
+          value,
+          memo,
+          data,
+          contractAddress,
+          tronWeb,
+          bandwidthPrice,
+        }),
+        this.estimateActivationFee({ to, contractAddress, data }),
+      ])
+
+      const fee = {
+        txFee: String(energyFee + bandwidthFee + activationFee + (memo ? memoFee : 0)),
+        chainSpecific: { bandwidth: String(Math.ceil(bandwidthFee / bandwidthPrice)) },
+      }
+
+      return { fast: fee, average: fee, slow: fee }
+    } catch (err) {
+      return ErrorHandler(err, { translation: 'chainAdapters.errors.getFeeData' })
+    }
+  }
+
+  // Energy in sun: none for native transfers, simulated calldata for contract calls, a simulated transfer for TRC20
+  private async estimateEnergyFee(params: {
+    to: string
+    from?: string
+    value: string
+    data?: string
+    contractAddress?: string
+    energyPrice: number
+  }): Promise<number> {
+    const { to, from, value, data, contractAddress, energyPrice } = params
+
+    if (!data && !contractAddress) return 0
+
+    if (data) {
+      const feeInSun = await this.providers.http.estimateContractCallFee({
+        contractAddress: to,
+        from: from || to,
+        data,
+        callValue: value,
       })
 
-      const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-      const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+      return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
+    }
 
-      let energyFee = 0
-      let bandwidthFee = 0
+    try {
+      const feeInSun = await this.providers.http.estimateTrc20TransferFee({
+        contractAddress: contractAddress as string,
+        from: from || to,
+        to,
+        amount: value,
+      })
 
-      if (contractAddress) {
-        // TRC20: Estimate energy using existing method
-        try {
-          // Use sender address if available, otherwise use recipient for estimation
-          const estimationFrom = from || to
-          const energyEstimate = await this.providers.http.estimateTRC20TransferFee({
-            contractAddress,
-            from: estimationFrom,
-            to,
-            amount: value,
-          })
-          energyFee = Number(energyEstimate)
+      return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
+    } catch (error) {
+      // a real sender's revert is a real failure; a stand-in's balance is unknown
+      if (from) throw error
 
-          // Apply 1.5x safety margin for dynamic energy spikes
-          energyFee = Math.ceil(energyFee * 1.5)
-        } catch (err) {
-          // Fallback: Conservative estimate for new address (130k energy)
-          energyFee = 130000 * energyPrice
-        }
+      return TRC20_TRANSFER_FALLBACK_ENERGY * energyPrice
+    }
+  }
 
-        // TRC20 transfers use ~276 bytes bandwidth
-        bandwidthFee = 276 * bandwidthPrice
-      } else {
-        // TRX transfer: Build actual transaction to get precise bandwidth
-        try {
-          // Use actual sender if available, otherwise use recipient for estimation
-          const estimationFrom = from || to
-          const baseTx = await this.requestQueue.add(
-            () => tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom),
+  // Bandwidth in sun: calldata-sized for contract calls, fixed plus memo for TRC20, the built tx's size for native
+  private async estimateBandwidthFee(params: {
+    to: string
+    from?: string
+    value: string
+    memo?: string
+    data?: string
+    contractAddress?: string
+    tronWeb: TronWeb
+    bandwidthPrice: number
+  }): Promise<number> {
+    const { to, from, value, memo, data, contractAddress, tronWeb, bandwidthPrice } = params
+    const memoBytes = memo ? Buffer.byteLength(memo, 'utf8') : 0
+
+    if (data) return getTronContractCallBandwidthBytes(data) * bandwidthPrice
+
+    if (contractAddress) return (TRC20_TRANSFER_BANDWIDTH_BYTES + memoBytes) * bandwidthPrice
+
+    // tronweb refuses to build a self-transfer, so a walletless estimate can't measure the real tx
+    if (!from || from === to) return (NATIVE_TX_DEFAULT_BYTES + memoBytes) * bandwidthPrice
+
+    try {
+      const baseTx = await this.requestQueue.add(
+        () => tronWeb.transactionBuilder.sendTrx(to, Number(value), from),
+        { throwOnTimeout: true },
+      )
+      const finalTx = memo
+        ? await this.requestQueue.add(
+            () => tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
             { throwOnTimeout: true },
           )
+        : baseTx
 
-          // Add memo if provided to get accurate size
-          const finalTx = memo
-            ? await this.requestQueue.add(
-                () => tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
-                { throwOnTimeout: true },
-              )
-            : baseTx
+      const rawDataBytes = finalTx.raw_data_hex
+        ? finalTx.raw_data_hex.length / 2
+        : NATIVE_TX_DEFAULT_RAW_BYTES
 
-          // Calculate bandwidth from actual transaction size
-          const rawDataBytes = finalTx.raw_data_hex ? finalTx.raw_data_hex.length / 2 : 133
-          const signatureBytes = 65
-          const totalBytes = rawDataBytes + signatureBytes
-
-          bandwidthFee = totalBytes * bandwidthPrice
-        } catch (err) {
-          // Fallback bandwidth estimate: Base tx + memo bytes
-          const baseBytes = 198
-          const memoBytes = memo ? Buffer.from(memo, 'utf8').length : 0
-          const totalBytes = baseBytes + memoBytes
-          bandwidthFee = totalBytes * bandwidthPrice
-        }
-      }
-
-      // Check if recipient address needs activation (1 TRX cost)
-      let accountActivationFee = 0
-      try {
-        const recipientInfoResponse = await this.requestQueue.add(
-          () =>
-            fetch(`${this.rpcUrl}/wallet/getaccount`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
-              body: JSON.stringify({
-                address: to,
-                visible: true,
-              }),
-            }),
-          { throwOnTimeout: true },
-        )
-        const recipientInfo = await recipientInfoResponse.json()
-        const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
-
-        // If recipient doesn't exist, add 1 TRX activation fee
-        if (!recipientExists && !contractAddress) {
-          accountActivationFee = 1_000_000 // 1 TRX = 1,000,000 sun
-        }
-      } catch (err) {
-        // Don't fail on this check - continue with 0 activation fee
-      }
-
-      const totalFee = energyFee + bandwidthFee + accountActivationFee
-
-      // Calculate bandwidth for display
-      const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))
-
-      return {
-        fast: {
-          txFee: String(totalFee),
-          chainSpecific: { bandwidth: estimatedBandwidth },
-        },
-        average: {
-          txFee: String(totalFee),
-          chainSpecific: { bandwidth: estimatedBandwidth },
-        },
-        slow: {
-          txFee: String(totalFee),
-          chainSpecific: { bandwidth: estimatedBandwidth },
-        },
-      }
+      return (rawDataBytes + SIGNED_TX_OVERHEAD_BYTES) * bandwidthPrice
     } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getFeeData',
-      })
+      // the size of a native transfer is arithmetic (send-max estimates with a zero value the builder rejects)
+      return (NATIVE_TX_DEFAULT_BYTES + memoBytes) * bandwidthPrice
+    }
+  }
+
+  // Activation fee (in sun). Sending to a plain address that doesn't exist yet costs 1 TRX; contract
+  // recipients never need activation.
+  private async estimateActivationFee(params: {
+    to: string
+    contractAddress?: string
+    data?: string
+  }): Promise<number> {
+    const { to, contractAddress, data } = params
+
+    // Only a native transfer can land on a fresh account
+    if (contractAddress || data) return 0
+
+    try {
+      const isActivated = await this.requestQueue.add(
+        () => this.providers.http.isAccountActivated(to),
+        { throwOnTimeout: true },
+      )
+
+      return isActivated ? 0 : TRON_ACCOUNT_ACTIVATION_FEE
+    } catch (err) {
+      // assume activation is needed rather than risk underestimating by 1 TRX
+      return TRON_ACCOUNT_ACTIVATION_FEE
     }
   }
 
@@ -733,7 +764,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
     const TRANSFER_EVENT_SIGNATURE =
       'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
-    const ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
     const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
 
     for (const log of tx.log) {
@@ -748,7 +778,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         // Skip mints (from zero address) but allow burns (to zero address) — a burn is a valid
         // deduction e.g. unstaking sTRX burns the token on behalf of the user
         // https://tronscan.org/#/transaction/1aac271797fe4344ff71f33368085073ea22e560815794811f7336120736d77c
-        if (fromAddress === ZERO_ADDRESS) continue
+        if (fromAddress === TRON_ZERO_ADDRESS) continue
 
         if (fromAddress === toAddress) continue
 

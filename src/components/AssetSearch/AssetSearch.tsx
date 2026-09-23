@@ -28,6 +28,7 @@ export type AssetSearchProps = {
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
   showRelatedAssets?: boolean
+  accountNumber?: number
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
   assets,
@@ -35,6 +36,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   formProps,
   allowWalletUnsupportedAssets,
   showRelatedAssets,
+  accountNumber,
 }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -141,6 +143,8 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           handleClick={handleClick}
           disableUnsupported={!allowWalletUnsupportedAssets}
           showRelatedAssets={showRelatedAssets}
+          accountNumber={accountNumber}
+          hideZeroBalanceAmounts={accountNumber === undefined}
         />
       </Box>
     </>

@@ -1,5 +1,5 @@
 import { CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { arbitrumChainId, foxAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -16,7 +16,10 @@ import { ClaimStatus } from '@/components/ClaimRow/types'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { getRfoxChainId } from '@/pages/RFOX/helpers'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
+import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 type NoClaimsAvailableProps = {
   isError?: boolean
@@ -41,18 +44,30 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError }) => {
 export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
   const navigate = useNavigate()
   const { isConnected } = useWallet().state
-  const { stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetAccountId, stakingAssetId } = useRFOXContext()
 
   const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
 
+  const pendingRfoxClaimActions = useAppSelector(selectPendingRfoxClaimActions)
+
+  const claimingRequestIds = useMemo(
+    () => new Set(pendingRfoxClaimActions.map(action => action.rfoxClaimActionMetadata.request.id)),
+    [pendingRfoxClaimActions],
+  )
+
+  // Scoped to the selected program, matching the claim button that opens this
   const accountUnstakingRequests = useMemo(
-    () => allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? ''],
-    [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId],
+    () =>
+      allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']?.filter(
+        request => request.stakingAssetId === stakingAssetId,
+      ),
+    [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId, stakingAssetId],
   )
 
   const claimBody = useMemo(() => {
     if (!isConnected) return <ConnectWallet />
-    if (!stakingAssetAccountId) return <ChainNotSupported chainId={arbitrumChainId} />
+    if (!stakingAssetAccountId)
+      return <ChainNotSupported chainId={getRfoxChainId(stakingAssetId)} />
     if (!stakingAssetAccountId) return
 
     if (
@@ -71,7 +86,10 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
-      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
+      // A claim that has been broadcast but not yet confirmed is still returned by the contract, so
+      // without this the row stays actionable and the claim can be submitted again
+      const isClaimInProgress = claimingRequestIds.has(unstakingRequest.id)
+      const status = isAvailable && !isClaimInProgress ? ClaimStatus.Available : ClaimStatus.Pending
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
 
@@ -91,6 +109,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
           status={status}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}
+          isClaimInProgress={isClaimInProgress}
           onClaimClick={() => handleClaimClick(unstakingRequest.index)}
         />
       )
@@ -98,8 +117,10 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
   }, [
     isConnected,
     allUnstakingRequestsQuery,
+    claimingRequestIds,
     navigate,
     stakingAssetAccountId,
+    stakingAssetId,
     accountUnstakingRequests,
   ])
 

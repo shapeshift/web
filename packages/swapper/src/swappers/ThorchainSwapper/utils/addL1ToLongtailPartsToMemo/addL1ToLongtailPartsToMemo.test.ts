@@ -50,6 +50,26 @@ describe('addL1ToLongtailPartsToMemo', () => {
     )
   })
 
+  it('should accept a quoted memo with an already shortened native asset name', () => {
+    const finalAssetAmountOut = '9508759019'
+    const quotedMemo = `=:e:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:42:ss:100`
+
+    const modifiedMemo = addL1ToLongtailPartsToMemo({
+      sellAssetChainId: ethChainId,
+      quotedMemo,
+      aggregator: AGGREGATOR_ADDRESS,
+      finalAssetAssetId: FINAL_ASSET_ASSETID,
+      finalAssetAmountOut,
+      slippageBps,
+      longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+      affiliate: THORCHAIN_AFFILIATE_NAME,
+    })
+
+    expect(modifiedMemo).toBe(
+      `=:e:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:42:ss:100:d2:a6df4741:94136714201`,
+    )
+  })
+
   it('should throw if chainId is BCH and initial memo length is > 220', () => {
     const finalAssetAmountOut = '2083854765519275828179229'
     const memoOver220Bytes = `=:ETH.ETH:${REALLY_BIG_ADDRESS}:42:ss:100`

@@ -1,6 +1,6 @@
 import type { ChainId, ChainNamespace, ChainReference } from '../chainId/chainId'
 import { fromChainId, toChainId } from '../chainId/chainId'
-import { CHAIN_NAMESPACE } from '../constants'
+import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../constants'
 import { assertIsChainId, assertIsChainNamespace, assertIsChainReference } from '../typeGuards'
 import type { Nominal } from '../utils'
 
@@ -55,6 +55,9 @@ type FromAccountIdReturn = {
 
 type FromAccountId = (accountId: AccountId) => FromAccountIdReturn
 
+// CAIP-30 Solana mainnet genesis hash. WalletConnect sessions stored before the CAIP-2 id still use it.
+const SUPERSEDED_SOLANA_MAINNET_CHAIN_REFERENCE = '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ'
+
 export const fromAccountId: FromAccountId = accountId => {
   const parts = accountId.split(':')
 
@@ -63,9 +66,14 @@ export const fromAccountId: FromAccountId = accountId => {
   }
 
   const chainNamespace = parts[0]
-  const chainReference = parts[1]
-  const chainId = parts.slice(0, 2).join(':')
   assertIsChainNamespace(chainNamespace)
+
+  const chainReference =
+    chainNamespace === CHAIN_NAMESPACE.Solana &&
+    parts[1] === SUPERSEDED_SOLANA_MAINNET_CHAIN_REFERENCE
+      ? CHAIN_REFERENCE.SolanaMainnet
+      : parts[1]
+  const chainId = `${chainNamespace}:${chainReference}`
   assertIsChainReference(chainReference)
   assertIsChainId(chainId)
 

@@ -1,4 +1,4 @@
-export { approveTron } from './approve'
+export { approveTron, getTronApproveContractData } from './approve'
 export { getTrc20Allowance, getAllowance } from './getAllowance'
 export type {
   ApproveTronInputWithWallet,

@@ -6,6 +6,20 @@ import { encodeFunctionData, erc20Abi } from 'viem'
 import { assertGetTronChainAdapter } from '..'
 import type { ApproveTronInputWithWallet } from './types'
 
+// The TVM ABI is EVM-compatible; the spender is a base58 address encoded as its 20-byte body
+export const getTronApproveContractData = ({
+  spender,
+  amountCryptoBaseUnit,
+}: {
+  spender: string
+  amountCryptoBaseUnit: string
+}): string =>
+  encodeFunctionData({
+    abi: erc20Abi,
+    functionName: 'approve',
+    args: [tron.toTronHex(spender) as Address, BigInt(amountCryptoBaseUnit)],
+  })
+
 export const approveTron = async ({
   assetId,
   spender,
@@ -17,13 +31,7 @@ export const approveTron = async ({
   const { assetReference: to, chainId } = fromAssetId(assetId)
 
   const adapter = assertGetTronChainAdapter(chainId)
-
-  // The TVM ABI is EVM-compatible; the spender is a base58 address encoded as its 20-byte body
-  const data = encodeFunctionData({
-    abi: erc20Abi,
-    functionName: 'approve',
-    args: [tron.toTronHex(spender) as Address, BigInt(amountCryptoBaseUnit)],
-  })
+  const data = getTronApproveContractData({ spender, amountCryptoBaseUnit })
 
   const txToSign = await adapter.buildCustomApiTx({ from, to, accountNumber, data, value: '0' })
 

@@ -26,6 +26,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import { useLongPress } from 'use-long-press'
 
+import { ContractAddressWarning } from '../components/ContractAddressWarning'
 import { SendGasSelection } from '../components/SendGasSelection'
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
@@ -504,6 +505,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
         borderTopRadius='20'
       >
         <SendGasSelection />
+        <ContractAddressWarning address={to} chainId={asset?.chainId} mt={4} />
         <Button
           colorScheme='blue'
           isDisabled={!fees || isSubmitting || isLoading}

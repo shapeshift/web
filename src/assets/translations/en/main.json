@@ -1317,6 +1317,7 @@
       "qrCode": "QR Code",
       "addressBook": "Address Book",
       "noEntries": "No address found.",
+      "contractAddressWarning": "This is a contract address. Double-check that sending here is intentional. Funds sent to the wrong contract can be lost.",
       "yourWallets": "Your Wallets",
       "noInternalAccounts": "No accounts found.",
       "addNewAddress": "Add New Address",

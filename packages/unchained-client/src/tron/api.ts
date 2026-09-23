@@ -137,8 +137,11 @@ export class TronApi {
             MAX_FALLBACK_CONTRACTS,
           )) {
             await this.throttle()
-            const balance = await this.getTRC20Balance({ address: params.pubkey, contractAddress })
-            if (balance !== '0') tokens.push({ contractAddress, balance })
+            await this.getTrc20Balance({ contractAddress, address: params.pubkey })
+              .then(balance => {
+                if (balance !== '0') tokens.push({ contractAddress, balance })
+              })
+              .catch(() => undefined)
           }
         } catch (fallbackErr) {
           console.error('Failed TRC20 fallback discovery for non-activated TRON account', {
@@ -159,15 +162,19 @@ export class TronApi {
     }
   }
 
-  async getTRC20Balance(params: { address: string; contractAddress: string }): Promise<string> {
-    try {
-      const tronWeb = this.getTronWeb()
-      const contract = await tronWeb.contract().at(params.contractAddress)
-      const balance = await contract.balanceOf(params.address).call()
-      return balance.toString()
-    } catch (_err) {
-      return '0'
-    }
+  async getTrc20Balance(params: { contractAddress: string; address: string }): Promise<string> {
+    const result = await this.getTronWeb().transactionBuilder.triggerConstantContract(
+      params.contractAddress,
+      'balanceOf(address)',
+      {},
+      [{ type: 'address', value: params.address }],
+      params.address,
+    )
+
+    const [balance] = result.constant_result ?? []
+    if (!balance) throw new Error('[tron] balanceOf call returned no data')
+
+    return BigInt(`0x${balance}`).toString()
   }
 
   // A direct selector call - contract().at() would first fetch the ABI, doubling the requests

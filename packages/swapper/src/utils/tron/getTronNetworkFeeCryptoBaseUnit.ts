@@ -71,7 +71,7 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
         owner: from,
         spender: tron.toTronBase58(spenderAddress),
       }),
-      httpProvider.getTRC20Balance({ address: from, contractAddress }),
+      httpProvider.getTrc20Balance({ contractAddress, address: from }),
     ])
 
     const sellAmount = BigInt(sellAmountCryptoBaseUnit)

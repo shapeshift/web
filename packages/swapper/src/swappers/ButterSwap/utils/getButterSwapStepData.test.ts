@@ -196,7 +196,7 @@ describe('getButterSwapStepData', () => {
       httpProvider: {
         getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
         getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
-        getTRC20Balance: vi.fn().mockResolvedValue('100000000'),
+        getTrc20Balance: vi.fn().mockResolvedValue('100000000'),
       },
     })
 

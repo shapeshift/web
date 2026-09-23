@@ -91,6 +91,32 @@ describe('TronApi', () => {
     })
   })
 
+  describe('getTrc20Balance', () => {
+    it('reads balanceOf(address) with a single constant call', async () => {
+      const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()
+      const trigger = vi
+        .spyOn(tronWeb.transactionBuilder, 'triggerConstantContract')
+        .mockResolvedValue({
+          result: { result: true },
+          constant_result: ['00000000000000000000000000000000000000000000000000000000028e6fb0'],
+        } as any)
+
+      const actual = await api.getTrc20Balance({
+        contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+        address: 'TE6oHVdTbcp1Q9XBYx5VzjWbZEg3t3Jrnc',
+      })
+
+      expect(actual).toBe('42889136')
+      expect(trigger).toHaveBeenCalledWith(
+        'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+        'balanceOf(address)',
+        {},
+        [{ type: 'address', value: 'TE6oHVdTbcp1Q9XBYx5VzjWbZEg3t3Jrnc' }],
+        'TE6oHVdTbcp1Q9XBYx5VzjWbZEg3t3Jrnc',
+      )
+    })
+  })
+
   describe('getTrc20Allowance', () => {
     it('reads allowance(owner, spender) with a single constant call', async () => {
       const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()

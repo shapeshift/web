@@ -28,13 +28,13 @@ const makeAdapter = ({
       ? vi.fn().mockResolvedValue({ fast: { txFee: '9000000' } })
       : vi.fn().mockRejectedValue(new Error('REVERT opcode executed'))
   const getTrc20Allowance = vi.fn().mockResolvedValue(allowance)
-  const getTRC20Balance = vi.fn().mockResolvedValue(balance)
+  const getTrc20Balance = vi.fn().mockResolvedValue(balance)
 
   const adapter = {
     getFeeData,
     httpProvider: {
       getTrc20Allowance,
-      getTRC20Balance,
+      getTrc20Balance,
       getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     },
   }
@@ -43,7 +43,7 @@ const makeAdapter = ({
     adapter: adapter as unknown as tron.ChainAdapter,
     getFeeData,
     getTrc20Allowance,
-    getTRC20Balance,
+    getTrc20Balance,
   }
 }
 
@@ -92,7 +92,7 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
   })
 
   it('prices the measured worst case when a funded token sell reverts without its allowance', async () => {
-    const { adapter, getTrc20Allowance, getTRC20Balance } = makeAdapter({
+    const { adapter, getTrc20Allowance, getTrc20Balance } = makeAdapter({
       simulation: 'revert',
       allowance: '0',
     })
@@ -109,7 +109,7 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
       owner: FROM,
       spender: SPENDER,
     })
-    expect(getTRC20Balance).toHaveBeenCalledWith({ address: FROM, contractAddress: USDT })
+    expect(getTrc20Balance).toHaveBeenCalledWith({ contractAddress: USDT, address: FROM })
   })
 
   it('throws when a token sell reverts with a sufficient allowance', async () => {

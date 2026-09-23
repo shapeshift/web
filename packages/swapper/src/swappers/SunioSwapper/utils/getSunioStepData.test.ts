@@ -1,11 +1,17 @@
 import { tronChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetTradeQuoteInput, GetTradeRateInput, SwapperDeps } from '../../../types'
 import { ETH } from '../../../utils/test-data/assets'
 import type { SunioRoute } from '../types'
-import { SUNIO_SMART_ROUTER_CONTRACT } from './constants'
+import { buildSunioSwapCalldata } from './buildSwapContractCall'
+import {
+  SUNIO_FALLBACK_SWAP_ENERGY_NATIVE,
+  SUNIO_FALLBACK_SWAP_ENERGY_TRC20,
+  SUNIO_SMART_ROUTER_CONTRACT,
+} from './constants'
 import { getSunioStepData } from './getSunioStepData'
 
 const USDT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
@@ -19,10 +25,11 @@ const route = {
   poolFees: ['0'],
 } as SunioRoute
 
-const tronAdapter = (txFee = '9000000') => ({
+const tronAdapter = ({ txFee = '9000000', allowance = '0' } = {}) => ({
   getFeeData: vi.fn().mockResolvedValue({ fast: { txFee } }),
   httpProvider: {
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
+    getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
   },
 })
 
@@ -34,6 +41,19 @@ const baseArgs = {
   sellAmountCryptoBaseUnit: '100000000',
   buyAmountCryptoBaseUnit: '30000000',
 }
+
+// The calldata is fixed-width ABI, so its size doesn't depend on the recipient or deadline
+const calldataBandwidthBytes = tron.getTronContractCallBandwidthBytes(
+  buildSunioSwapCalldata({
+    route,
+    sellAmountCryptoBaseUnit: '100000000',
+    minBuyAmountCryptoBaseUnit: '30000000',
+    recipient: FROM,
+    slippageTolerancePercentageDecimal: '0.005',
+    deadline: 0,
+  }),
+)
+const fallbackFee = (energy: string) => String(Number(energy) * 100 + calldataBandwidthBytes * 1000)
 
 describe('getSunioStepData', () => {
   describe('quote', () => {
@@ -83,7 +103,7 @@ describe('getSunioStepData', () => {
       expect(actual.unwrap().transactionData.value).toBe('0')
     })
 
-    it('fails the quote when the simulation fails', async () => {
+    it('fails a native quote when the simulation fails', async () => {
       const adapter = tronAdapter()
       adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
 
@@ -93,6 +113,46 @@ describe('getSunioStepData', () => {
         input: { receiveAddress: FROM } as GetTradeQuoteInput,
         deps: makeDeps(adapter),
         sellAsset: TRX,
+        from: FROM,
+      })
+
+      expect(actual.isErr()).toBe(true)
+    })
+
+    it('prices the token worst case when the allowance is not granted yet', async () => {
+      const adapter = tronAdapter({ allowance: '0' })
+      adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
+
+      const actual = await getSunioStepData({
+        ...baseArgs,
+        type: 'quote',
+        input: { receiveAddress: FROM } as GetTradeQuoteInput,
+        deps: makeDeps(adapter),
+        sellAsset: USDT_TRON,
+        from: FROM,
+      })
+
+      const { transactionData, networkFeeCryptoBaseUnit } = actual.unwrap()
+
+      expect(transactionData.to).toBe(SUNIO_SMART_ROUTER_CONTRACT)
+      expect(networkFeeCryptoBaseUnit).toBe(fallbackFee(SUNIO_FALLBACK_SWAP_ENERGY_TRC20))
+      expect(adapter.httpProvider.getTrc20Allowance).toHaveBeenCalledWith({
+        contractAddress: USDT,
+        owner: FROM,
+        spender: SUNIO_SMART_ROUTER_CONTRACT,
+      })
+    })
+
+    it('fails a token quote that reverts with its allowance in place', async () => {
+      const adapter = tronAdapter({ allowance: '100000000' })
+      adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
+
+      const actual = await getSunioStepData({
+        ...baseArgs,
+        type: 'quote',
+        input: { receiveAddress: FROM } as GetTradeQuoteInput,
+        deps: makeDeps(adapter),
+        sellAsset: USDT_TRON,
         from: FROM,
       })
 
@@ -123,8 +183,9 @@ describe('getSunioStepData', () => {
         sellAsset: TRX,
       })
 
-      // 250000 energy * 100 sun + 1100 bytes * 1000 sun
-      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '26100000' })
+      expect(actual.unwrap()).toEqual({
+        networkFeeCryptoBaseUnit: fallbackFee(SUNIO_FALLBACK_SWAP_ENERGY_NATIVE),
+      })
     })
 
     it('prices the token worst case when a pre-approval simulation reverts', async () => {
@@ -140,8 +201,9 @@ describe('getSunioStepData', () => {
         from: FROM,
       })
 
-      // 420000 energy * 100 sun + 1100 bytes * 1000 sun
-      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '43100000' })
+      expect(actual.unwrap()).toEqual({
+        networkFeeCryptoBaseUnit: fallbackFee(SUNIO_FALLBACK_SWAP_ENERGY_TRC20),
+      })
     })
   })
 })

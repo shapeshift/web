@@ -12,7 +12,10 @@ import {
   omitComputeBudgetInstructions,
   withComputeUnitLimit,
 } from '../../../utils/solana'
+import type { TronContractCall } from '../../../utils/tron'
+import { getTronContractCallNetworkFeeCryptoBaseUnit } from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
+import { RELAY_TRON_FALLBACK_DEPOSIT_ENERGY } from '../constant'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import { convertRelaySolanaInstruction } from './helpers'
 import type { RelayQuoteItem } from './types'
@@ -263,30 +266,30 @@ export async function getRelayStepData({
     if (!contractAddress || !callData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
 
     const isNativeSell = !isToken(sellAsset.assetId)
-    const transactionData: TxBuildData = {
-      type: 'tron',
+    const call: TronContractCall = {
       to: contractAddress,
       data: callData,
       value: String(callValue ?? (isNativeSell ? sellAmountCryptoBaseUnit : 0)),
     }
 
-    const networkFeeCryptoBaseUnit = await (async () => {
-      try {
-        const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
-          to: transactionData.to,
-          value: transactionData.value,
-          chainSpecific: { from, data: transactionData.data },
-        })
-
-        return fast.txFee
-      } catch {
-        return fallbackNetworkFeeCryptoBaseUnit
+    try {
+      const stepData: RelayQuoteStepData = {
+        transactionData: { type: 'tron', ...call },
+        networkFeeCryptoBaseUnit: await getTronContractCallNetworkFeeCryptoBaseUnit({
+          adapter: deps.assertGetTronChainAdapter(sellAsset.chainId),
+          transactionData: call,
+          from,
+          sellAsset,
+          sellAmountCryptoBaseUnit,
+          spenderAddress: contractAddress,
+          fallbackEnergy: RELAY_TRON_FALLBACK_DEPOSIT_ENERGY,
+        }),
       }
-    })()
 
-    const stepData: RelayQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
-
-    return Ok(stepData)
+      return Ok(stepData)
+    } catch (error) {
+      return Err(makeNetworkFeeEstimationFailedErr('getRelayStepData', error))
+    }
   }
 
   return Err(makeTradeStepBuildFailedErr('getRelayStepData'))

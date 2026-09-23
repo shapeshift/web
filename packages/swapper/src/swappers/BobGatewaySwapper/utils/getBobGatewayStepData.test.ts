@@ -23,10 +23,11 @@ const ALLOWANCE_HOLDER_HEX = '0x4107a39ae4c49dee86e892450b20881f32cd5d500d'
 
 const tronTx = { type: 'tron' as const, to: ALLOWANCE_HOLDER_HEX, data: '0x2213bc0b', value: '0' }
 
-const tronAdapter = (txFee = '45600000') => ({
+const tronAdapter = ({ txFee = '45600000', allowance = '0' } = {}) => ({
   getFeeData: vi.fn().mockResolvedValue({ fast: { txFee } }),
   httpProvider: {
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
+    getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
   },
 })
 
@@ -72,11 +73,7 @@ describe('getBobGatewayStepData', () => {
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: ALLOWANCE_HOLDER_HEX,
         value: '0',
-        chainSpecific: {
-          from: FROM,
-          contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
-          data: '0x2213bc0b',
-        },
+        chainSpecific: { from: FROM, data: '0x2213bc0b' },
       })
       expect(actual.unwrap()).toEqual({
         orderId: 'order-1',
@@ -85,11 +82,41 @@ describe('getBobGatewayStepData', () => {
       })
     })
 
-    it('fails the quote when the simulation reverts', async () => {
+    it('prices the measured worst case when the allowance is not granted yet', async () => {
       vi.mocked(createBobGatewayOrder).mockResolvedValue(
         Ok({ offramp: { orderId: 'order-1', tx: tronTx } }) as any,
       )
-      const adapter = tronAdapter()
+      const adapter = tronAdapter({ allowance: '0' })
+      adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
+
+      const actual = await getBobGatewayStepData({
+        type: 'quote',
+        input: {} as GetTradeQuoteInput,
+        deps: makeDeps(adapter),
+        quote,
+        sellAsset: USDT_TRON,
+        sellAmountCryptoBaseUnit: '100000000',
+        spenderAddress: '',
+        from: FROM,
+      })
+
+      // 450000 energy * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      expect(actual.unwrap()).toMatchObject({
+        orderId: 'order-1',
+        networkFeeCryptoBaseUnit: '45283000',
+      })
+      expect(adapter.httpProvider.getTrc20Allowance).toHaveBeenCalledWith({
+        contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+        owner: FROM,
+        spender: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
+      })
+    })
+
+    it('fails the quote when the simulation reverts with the allowance in place', async () => {
+      vi.mocked(createBobGatewayOrder).mockResolvedValue(
+        Ok({ offramp: { orderId: 'order-1', tx: tronTx } }) as any,
+      )
+      const adapter = tronAdapter({ allowance: '100000000' })
       adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
 
       const actual = await getBobGatewayStepData({

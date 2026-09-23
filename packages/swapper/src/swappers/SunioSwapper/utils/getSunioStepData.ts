@@ -1,15 +1,19 @@
 import { tronAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
+import type { TronContractCall } from '../../../utils/tron'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+  TRON_PLACEHOLDER_ADDRESS,
+} from '../../../utils/tron'
 import type { SunioRoute } from '../types'
 import { buildSunioSwapCalldata } from './buildSwapContractCall'
 import {
   DEFAULT_SLIPPAGE_PERCENTAGE,
-  SUNIO_FALLBACK_SWAP_BANDWIDTH_BYTES,
   SUNIO_FALLBACK_SWAP_ENERGY_NATIVE,
   SUNIO_FALLBACK_SWAP_ENERGY_TRC20,
   SUNIO_SMART_ROUTER_CONTRACT,
@@ -47,14 +51,15 @@ export async function getSunioStepData(
 
   const adapter = args.deps.assertGetTronChainAdapter(sellAsset.chainId)
   const isNativeSell = sellAsset.assetId === tronAssetId
-  const value = isNativeSell ? sellAmountCryptoBaseUnit : '0'
+  const fallbackEnergy = isNativeSell
+    ? SUNIO_FALLBACK_SWAP_ENERGY_NATIVE
+    : SUNIO_FALLBACK_SWAP_ENERGY_TRC20
   // The router reverts past this, so the quote expires with it
   const deadline = Date.now() + SUNIO_SWAP_DEADLINE_MS
 
-  const buildTransactionData = (recipient: string): TronTxBuildData => ({
-    type: 'tron',
+  const buildCall = (recipient: string): TronContractCall => ({
     to: SUNIO_SMART_ROUTER_CONTRACT,
-    value,
+    value: isNativeSell ? sellAmountCryptoBaseUnit : '0',
     data: buildSunioSwapCalldata({
       route,
       sellAmountCryptoBaseUnit,
@@ -66,32 +71,23 @@ export async function getSunioStepData(
     }),
   })
 
-  const estimate = async (transactionData: TronTxBuildData) => {
-    const { fast } = await adapter.getFeeData({
-      to: transactionData.to,
-      value: transactionData.value,
-      chainSpecific: { from, data: transactionData.data },
-    })
-
-    return fast.txFee
-  }
-
   if (type === 'rate') {
     const networkFeeCryptoBaseUnit = await (async () => {
       try {
-        if (from) return await estimate(buildTransactionData(from))
+        if (from) {
+          const { to, value, data } = buildCall(from)
+          const { fast } = await adapter.getFeeData({ to, value, chainSpecific: { from, data } })
+
+          return fast.txFee
+        }
       } catch {}
 
       try {
-        const { energyPrice, bandwidthPrice } = await adapter.httpProvider.getChainPrices()
-        const energy = isNativeSell
-          ? SUNIO_FALLBACK_SWAP_ENERGY_NATIVE
-          : SUNIO_FALLBACK_SWAP_ENERGY_TRC20
-
-        return bn(energy)
-          .times(energyPrice)
-          .plus(bn(SUNIO_FALLBACK_SWAP_BANDWIDTH_BYTES).times(bandwidthPrice))
-          .toFixed(0)
+        return await getTronContractCallFallbackFeeCryptoBaseUnit({
+          adapter,
+          data: buildCall(from ?? TRON_PLACEHOLDER_ADDRESS).data,
+          energy: fallbackEnergy,
+        })
       } catch {}
     })()
 
@@ -100,12 +96,20 @@ export async function getSunioStepData(
     return Ok(stepData)
   }
 
-  const transactionData = buildTransactionData(input.receiveAddress)
+  const call = buildCall(input.receiveAddress)
 
   try {
     const stepData: SunioQuoteStepData = {
-      transactionData,
-      networkFeeCryptoBaseUnit: await estimate(transactionData),
+      transactionData: { type: 'tron', ...call },
+      networkFeeCryptoBaseUnit: await getTronContractCallNetworkFeeCryptoBaseUnit({
+        adapter,
+        transactionData: call,
+        from,
+        sellAsset,
+        sellAmountCryptoBaseUnit,
+        spenderAddress: SUNIO_SMART_ROUTER_CONTRACT,
+        fallbackEnergy,
+      }),
       deadline,
     }
 

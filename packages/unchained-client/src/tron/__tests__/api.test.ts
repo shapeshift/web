@@ -72,6 +72,14 @@ describe('TronApi', () => {
         memoFee: 1_000_000,
       })
     })
+
+    it('throws rather than defaulting when the node is unreachable', async () => {
+      vi.restoreAllMocks()
+      const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()
+      vi.spyOn(tronWeb.trx, 'getChainParameters').mockRejectedValue(new Error('ECONNREFUSED'))
+
+      await expect(api.getChainPrices()).rejects.toThrow('ECONNREFUSED')
+    })
   })
 
   describe('getTrc20Allowance', () => {

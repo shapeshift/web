@@ -8,10 +8,6 @@ type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
   transaction?: Partial<Types.TransactionWrapper['transaction']> & { ret?: { ret?: string }[] }
 }
 
-const DEFAULT_ENERGY_PRICE = 100
-const DEFAULT_BANDWIDTH_PRICE = 1000
-const DEFAULT_MEMO_FEE = 1_000_000
-
 export interface TronApiConfig {
   rpcUrl: string
   apiKey?: string
@@ -319,22 +315,18 @@ export class TronApi {
     energyPrice: number
     memoFee: number
   }> {
-    try {
-      const tronWeb = this.getTronWeb()
-      const params = await tronWeb.trx.getChainParameters()
-      const param = (key: string) => params.find(p => p.key === key)?.value
+    const params = await this.getTronWeb().trx.getChainParameters()
 
-      return {
-        bandwidthPrice: param('getTransactionFee') ?? DEFAULT_BANDWIDTH_PRICE,
-        energyPrice: param('getEnergyFee') ?? DEFAULT_ENERGY_PRICE,
-        memoFee: param('getMemoFee') ?? DEFAULT_MEMO_FEE,
-      }
-    } catch (_err) {
-      return {
-        bandwidthPrice: DEFAULT_BANDWIDTH_PRICE,
-        energyPrice: DEFAULT_ENERGY_PRICE,
-        memoFee: DEFAULT_MEMO_FEE,
-      }
+    const param = (key: string): number => {
+      const value = params.find(p => p.key === key)?.value
+      if (value === undefined) throw new Error(`[tron] chain parameter ${key} missing`)
+      return value
+    }
+
+    return {
+      bandwidthPrice: param('getTransactionFee'),
+      energyPrice: param('getEnergyFee'),
+      memoFee: param('getMemoFee'),
     }
   }
 

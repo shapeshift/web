@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { toTronBase58, toTronHex } from './utils'
+import { getTronContractCallBandwidthBytes, toTronBase58, toTronHex } from './utils'
 
 const BASE58 = 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K'
 const HEX_41 = '4107a39ae4c49dee86e892450b20881f32cd5d500d'
@@ -20,4 +20,11 @@ describe('toTronHex', () => {
   it('passes 0x hex through', () => expect(toTronHex(HEX_0X)).toBe(HEX_0X))
   it('keeps a bare 20-byte body whose first byte is 0x41', () =>
     expect(toTronHex(`41${'ab'.repeat(19)}`)).toBe(`0x41${'ab'.repeat(19)}`))
+})
+
+describe('getTronContractCallBandwidthBytes', () => {
+  it('sizes the calldata plus the signed TriggerSmartContract envelope', () => {
+    expect(getTronContractCallBandwidthBytes('0x2213bc0b')).toBe(4 + 279)
+    expect(getTronContractCallBandwidthBytes('2213bc0b')).toBe(4 + 279)
+  })
 })

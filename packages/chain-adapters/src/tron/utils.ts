@@ -1,5 +1,12 @@
 import { TronWeb } from 'tronweb'
 
+// Bandwidth is the signed tx byte size (raw_data + signature), measured on mainnet
+export const SIGNED_TX_OVERHEAD_BYTES = 134 // billed on top of raw_data: signature (65 + tags) and the node's 64-byte result slot
+export const CONTRACT_CALL_OVERHEAD_BYTES = 145 + SIGNED_TX_OVERHEAD_BYTES // TriggerSmartContract envelope, on top of the calldata
+
+export const getTronContractCallBandwidthBytes = (data: string): number =>
+  (data.startsWith('0x') ? data.length - 2 : data.length) / 2 + CONTRACT_CALL_OVERHEAD_BYTES
+
 // Base58 passes through; 0x-hex is either the bare 20-byte body (needs the 41 prefix) or already 41-prefixed
 export const toTronBase58 = (address: string): string => {
   if (address.startsWith('T')) return address

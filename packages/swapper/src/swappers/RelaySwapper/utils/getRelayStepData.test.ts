@@ -8,17 +8,24 @@ import { getRelayStepData } from './getRelayStepData'
 import { getRelayAllowanceContract } from './helpers'
 import type { RelayQuoteTronItemData } from './types'
 
+const USDT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
 const TRX: Asset = { ...ETH, assetId: `${tronChainId}/slip44:195`, chainId: tronChainId }
+const USDT_TRON: Asset = { ...ETH, assetId: `${tronChainId}/trc20:${USDT}`, chainId: tronChainId }
 const FROM = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N'
-const DEPOSITOR_HEX = '41f0623e1012177482912fb057e44e1a9769b1f5c2'
+const DEPOSITOR_HEX = '41f0623e1012177482912fb057e44e1a9769b1f588'
+const DEPOSITOR = 'TXtEs6t2oUWQsNos7m68gbHdE9Q5n6x2oN'
 
 const tronItem: RelayQuoteTronItemData = {
   type: 'TriggerSmartContract',
   parameter: { contract_address: DEPOSITOR_HEX, data: '49290c1c', call_value: 50000000 },
 }
 
-const tronAdapter = (txFee = '9000000') => ({
+const tronAdapter = ({ txFee = '9000000', allowance = '0' } = {}) => ({
   getFeeData: vi.fn().mockResolvedValue({ fast: { txFee } }),
+  httpProvider: {
+    getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
+    getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
+  },
 })
 
 const makeDeps = (tron: ReturnType<typeof tronAdapter>): SwapperDeps =>
@@ -68,7 +75,7 @@ describe('getRelayStepData', () => {
       })
     })
 
-    it('falls back to the relay fee when simulation fails', async () => {
+    it('fails a native quote when the simulation fails', async () => {
       const adapter = tronAdapter()
       adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
 
@@ -80,7 +87,30 @@ describe('getRelayStepData', () => {
         deps: makeDeps(adapter),
       })
 
-      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('6100715')
+      expect(actual.isErr()).toBe(true)
+    })
+
+    it('prices the measured worst case when a token allowance is not granted yet', async () => {
+      const adapter = tronAdapter({ allowance: '0' })
+      adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
+
+      const actual = await getRelayStepData({
+        ...baseArgs,
+        data: { type: 'TriggerSmartContract', parameter: { ...tronItem.parameter, call_value: 0 } },
+        sellAsset: USDT_TRON,
+        type: 'quote',
+        input: {} as GetTradeQuoteInput,
+        from: FROM,
+        deps: makeDeps(adapter),
+      })
+
+      // 120000 energy * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('12283000')
+      expect(adapter.httpProvider.getTrc20Allowance).toHaveBeenCalledWith({
+        contractAddress: USDT,
+        owner: FROM,
+        spender: DEPOSITOR,
+      })
     })
 
     it('prices a rate from the relay fee', async () => {

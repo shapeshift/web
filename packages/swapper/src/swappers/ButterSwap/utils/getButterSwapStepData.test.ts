@@ -191,8 +191,12 @@ describe('getButterSwapStepData', () => {
 
   describe('tron', () => {
     const tronBuildTx: BuildTxSuccessItem = { ...evmBuildTx, to: 'TRouterAddress' }
-    const tronAdapter = (txFee = '9000000') => ({
+    const tronAdapter = ({ txFee = '9000000', allowance = '0' } = {}) => ({
       getFeeData: vi.fn().mockResolvedValue({ fast: { txFee } }),
+      httpProvider: {
+        getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
+        getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
+      },
     })
 
     it('carries the router call as transactionData and simulates it', async () => {
@@ -244,7 +248,7 @@ describe('getButterSwapStepData', () => {
       expect(actual.unwrap().transactionData).toMatchObject({ value: '0' })
     })
 
-    it('falls back to the provider fee when simulation fails', async () => {
+    it('fails a native quote when the simulation fails', async () => {
       const adapter = tronAdapter()
       adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
 
@@ -261,7 +265,43 @@ describe('getButterSwapStepData', () => {
         spenderAddress: '',
       })
 
-      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe(PROVIDER_GAS_FEE_BASE_UNIT)
+      expect(actual.isErr()).toBe(true)
+    })
+
+    it('prices the measured worst case when a token allowance is not granted yet', async () => {
+      const adapter = tronAdapter({ allowance: '0' })
+      adapter.getFeeData.mockRejectedValue(new Error('REVERT opcode executed'))
+
+      const actual = await getButterSwapStepData({
+        type: 'quote',
+        input: {} as GetTradeQuoteInput,
+        from: 'TSenderAddress',
+        buildTx: { ...tronBuildTx, value: '0x00' },
+        deps: makeDeps({ tron: adapter }),
+        route,
+        sellAsset: USDT_TRON,
+        feeAsset: TRX,
+        sellAmountCryptoBaseUnit: '1000000',
+        spenderAddress: '',
+      })
+
+      // 450000 energy * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('45283000')
+    })
+
+    it('rates price the provider fee', async () => {
+      const actual = await getButterSwapStepData({
+        type: 'rate',
+        input: {} as GetTradeRateInput,
+        deps: makeDeps({ tron: tronAdapter() }),
+        route,
+        sellAsset: TRX,
+        feeAsset: TRX,
+        sellAmountCryptoBaseUnit: '1000000',
+        spenderAddress: '',
+      })
+
+      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: PROVIDER_GAS_FEE_BASE_UNIT })
     })
   })
 

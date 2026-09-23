@@ -15,7 +15,7 @@ const deps = {
 const USDT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
 const OWNER = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N'
 const SPENDER = 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K'
-// approve(address,uint256) with the spender's 20-byte body
+// approve(address,uint256)
 const APPROVE_SELECTOR = '0x095ea7b3'
 
 const usdtStep = {

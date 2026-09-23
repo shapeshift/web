@@ -27,6 +27,20 @@ describe('extractTransactionData', () => {
       })
     })
 
+    it('prefixes bare calldata hex', () => {
+      const step = tronStep({
+        type: 'tron',
+        to: '41f0623e1012177482912fb057e44e1a9769b1f5c2',
+        data: '49290c1c',
+        value: '50000000',
+      })
+
+      expect(extractTransactionData(step)).toMatchObject({
+        to: 'TXtEs6t2oUWQsNos7m68gbHdE9QCMoqLm5',
+        data: '0x49290c1c',
+      })
+    })
+
     it('serializes a transfer with memo', () => {
       const step = tronStep({
         type: 'tron',

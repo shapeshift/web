@@ -89,7 +89,13 @@ const extractTronTransactionData = (step: TradeQuoteStep): TronTransactionData |
 
   const { to, value, data, memo } = step.transactionData
 
-  return { type: 'tron', to: tron.toTronBase58(to), value, data, memo }
+  return {
+    type: 'tron',
+    to: tron.toTronBase58(to),
+    value,
+    data: data && (data.startsWith('0x') ? data : `0x${data}`),
+    memo,
+  }
 }
 
 export const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {

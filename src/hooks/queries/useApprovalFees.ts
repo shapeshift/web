@@ -9,7 +9,7 @@ import { useEvmFees } from './useEvmFees'
 
 import { assertUnreachable } from '@/lib/utils'
 import { getApproveContractData } from '@/lib/utils/evm'
-import { getTronApproveContractData } from '@/lib/utils/tron/approve'
+import { getTronApproveContractData } from '@/lib/utils/tron'
 import { reactQueries } from '@/react-queries'
 
 export enum AllowanceType {

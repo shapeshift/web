@@ -12,7 +12,7 @@ import type { PartialFields } from '@/lib/types'
 import { assertGetChainAdapter, assertGetTronChainAdapter } from '@/lib/utils'
 import type { GetFeesWithWalletEip1559SupportArgs } from '@/lib/utils/evm'
 import { getErc20Allowance } from '@/lib/utils/evm'
-import { getTrc20Allowance } from '@/lib/utils/tron/getAllowance'
+import { getTrc20Allowance } from '@/lib/utils/tron'
 
 export const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (

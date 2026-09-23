@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 
-import { assertGetTronChainAdapter } from '..'
+import { assertGetTronChainAdapter } from './adapter'
 
 type GetTrc20AllowanceArgs = {
   address: string

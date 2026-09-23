@@ -3,7 +3,7 @@ import { CONTRACT_INTERACTION, tron } from '@shapeshiftoss/chain-adapters'
 import type { Address } from 'viem'
 import { encodeFunctionData, erc20Abi } from 'viem'
 
-import { assertGetTronChainAdapter } from '..'
+import { assertGetTronChainAdapter } from './adapter'
 import type { ApproveTronInputWithWallet } from './types'
 
 // The TVM ABI is EVM-compatible; the spender is a base58 address encoded as its 20-byte body

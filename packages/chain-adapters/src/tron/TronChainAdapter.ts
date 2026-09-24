@@ -662,6 +662,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       value: string
     }[] = []
 
+    const isSuccess = tx.ret?.[0]?.contractRet === 'SUCCESS'
+
     if (tx.raw_data?.contract) {
       for (const contract of tx.raw_data.contract) {
         if (contract.type === 'TransferContract') {
@@ -691,10 +693,26 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
             })
           }
         }
+
+        // TRX sent along with a contract call (a stake deposit, a swap sell) leaves the caller only if the call succeeds
+        if (contract.type === 'TriggerSmartContract' && isSuccess) {
+          const { owner_address, contract_address, call_value } = contract.parameter.value
+
+          if (owner_address !== pubkey || !contract_address || !call_value) continue
+
+          nativeTransfers.push({
+            assetId: this.assetId,
+            from: [owner_address],
+            to: [contract_address],
+            type: TransferType.Send,
+            value: String(call_value),
+          })
+        }
       }
     }
 
-    const isSend = nativeTransfers.some(transfer => transfer.type === TransferType.Send)
+    // the initiator pays the fee whether or not TRX moved - a contract call burns energy even when it fails
+    const isFeePayer = tx.raw_data?.contract?.[0]?.parameter?.value?.owner_address === pubkey
 
     return {
       blockHash: tx.blockHash || '',
@@ -706,7 +724,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       transfers: nativeTransfers,
       txid: tx.txid,
       pubkey,
-      ...(isSend && { fee: { assetId: this.assetId, value: tx.fee || '0' } }),
+      ...(isFeePayer && { fee: { assetId: this.assetId, value: tx.fee || '0' } }),
     }
   }
 
@@ -726,10 +744,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       const parsedTx = this.parse(tx, pubkey)
 
-      const txInitiator = tx.raw_data?.contract?.[0]?.parameter?.value?.owner_address
-
       const trc20Transfers = this.parseTRC20Transfers(tx, pubkey)
-      const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey, txInitiator)
+      const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey)
 
       return {
         ...parsedTx,
@@ -775,11 +791,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const fromAddress = tronWeb.address.fromHex('41' + log.topics[1].slice(-40))
         const toAddress = tronWeb.address.fromHex('41' + log.topics[2].slice(-40))
 
-        // Skip mints (from zero address) but allow burns (to zero address) — a burn is a valid
-        // deduction e.g. unstaking sTRX burns the token on behalf of the user
-        // https://tronscan.org/#/transaction/1aac271797fe4344ff71f33368085073ea22e560815794811f7336120736d77c
-        if (fromAddress === TRON_ZERO_ADDRESS) continue
-
+        // mints and burns are the user's receipt and deduction of a liquid staking token
         if (fromAddress === toAddress) continue
 
         const isSend = fromAddress === pubkey
@@ -817,10 +829,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     return transfers
   }
 
+  // Only TRX that reaches or leaves the user counts; contracts moving TRX between themselves inside the user's call are not the user's transfers
   private parseInternalTrxTransfers(
     tx: unchained.tron.TronTx,
     pubkey: string,
-    txInitiator?: string,
   ): {
     assetId: AssetId
     from: string[]
@@ -861,20 +873,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
           const isDirectSend = caller_address === pubkey
           const isDirectReceive = transferTo_address === pubkey
-          const isInitiatedByUser = txInitiator === pubkey && caller_address !== pubkey
 
           if (isDirectSend) {
             transfers.push({
               assetId: this.assetId,
               from: [caller_address],
-              to: [transferTo_address],
-              type: TransferType.Send,
-              value,
-            })
-          } else if (isInitiatedByUser) {
-            transfers.push({
-              assetId: this.assetId,
-              from: [txInitiator],
               to: [transferTo_address],
               type: TransferType.Send,
               value,

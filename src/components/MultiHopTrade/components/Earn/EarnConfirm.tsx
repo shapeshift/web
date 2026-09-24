@@ -25,6 +25,7 @@ import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldVal
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
+  selectFeeAssetByChainId,
   selectMarketDataByFilter,
 } from '@/state/slices/selectors'
 import {
@@ -65,6 +66,9 @@ export const EarnConfirm = memo(() => {
 
   // Fallback to account 0 if no account selected
   const yieldChainId = selectedYield?.chainId
+  const feeAsset = useAppSelector(state =>
+    yieldChainId ? selectFeeAssetByChainId(state, yieldChainId) : undefined,
+  )
   const fallbackAccountId = useAppSelector(state => {
     if (sellAccountId) return undefined
     if (!yieldChainId) return undefined
@@ -123,7 +127,6 @@ export const EarnConfirm = memo(() => {
   const {
     step,
     transactionSteps,
-    displaySteps,
     isSubmitting,
     activeStepIndex,
     canSubmit,
@@ -132,6 +135,9 @@ export const EarnConfirm = memo(() => {
     quoteData,
     isAllowanceCheckPending,
     isUsdtResetRequired,
+    isNetworkFeeLoading,
+    isNetworkFeeError,
+    isInsufficientFeeAssetBalance,
   } = useYieldTransactionFlow({
     yieldItem: selectedYield,
     action: 'enter',
@@ -161,9 +167,15 @@ export const EarnConfirm = memo(() => {
   const isLoading = isLoadingYields || isQuoteActive
 
   // Use stepsToShow pattern from YieldEnterModal - show transactionSteps once execution starts
-  const stepsToShow = activeStepIndex >= 0 ? transactionSteps : displaySteps
+  const stepsToShow = activeStepIndex >= 0 ? transactionSteps : []
 
   const confirmButtonText = useMemo(() => {
+    if (isNetworkFeeError) return translate('trade.errors.networkFeeEstimateFailed')
+    if (isInsufficientFeeAssetBalance) {
+      return translate('yieldXYZ.errors.insufficientAssetForGas', {
+        symbol: feeAsset?.symbol ?? '',
+      })
+    }
     // Use the current step's type/title for a clean button label (e.g., "Enter", "Approve")
     if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
       const currentStep = transactionSteps[activeStepIndex]
@@ -192,6 +204,9 @@ export const EarnConfirm = memo(() => {
     isLoading,
     translate,
     selectedYield?.mechanics.type,
+    isNetworkFeeError,
+    isInsufficientFeeAssetBalance,
+    feeAsset?.symbol,
   ])
 
   const providerInfo = useMemo(() => {
@@ -392,7 +407,13 @@ export const EarnConfirm = memo(() => {
         width='full'
         onClick={handleConfirm}
         isLoading={isSubmitting || (isQuoteActive && Boolean(sellAmountCryptoPrecision))}
-        isDisabled={!canSubmit || isLoading}
+        isDisabled={
+          !canSubmit ||
+          isLoading ||
+          isNetworkFeeLoading ||
+          isNetworkFeeError ||
+          isInsufficientFeeAssetBalance
+        }
       >
         {confirmButtonText}
       </Button>

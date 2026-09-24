@@ -3510,6 +3510,7 @@
       "quoteFailedTitle": "Quote Failed",
       "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again.",
       "insufficientAssetForGas": "Insufficient %{symbol} for Gas",
+      "tronFeeLimitBelowEstimate": "The provider's fee limit is below the estimated network fee. Please try again later.",
       "rateLimited": "Too Many Requests"
     },
     "underMaintenance": "Under Maintenance",

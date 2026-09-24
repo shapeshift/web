@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
@@ -164,8 +164,18 @@ BigAmount.configure({
   },
 })
 
-// dev QoL to access the store in the console
-if (window && getConfig().VITE_REDUX_WINDOW) window.store = store
+// dev QoL to access the store in the console, and to re-parse a second-class chain tx into history
+if (window && getConfig().VITE_REDUX_WINDOW) {
+  window.store = store
+  window.reparseSecondClassChainTx = async (args: {
+    chainId: ChainId
+    txHash: string
+    accountId: AccountId
+  }) => {
+    const { parseAndUpsertSecondClassChainTx } = await import('@/lib/utils/secondClassChainTx')
+    await parseAndUpsertSecondClassChainTx({ ...args, dispatch: store.dispatch })
+  }
+}
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
 export const useSelectorWithArgs = <Args extends unknown[], TSelected>(

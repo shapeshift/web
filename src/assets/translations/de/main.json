@@ -3007,7 +3007,8 @@
         "body": "rFOX ist ein Begriff, der die Vorteile und Belohnungen beschreibt, die Sie erhalten, wenn Sie Ihre FOX-Token auf Arbitrum einsetzen. Derzeit sperren und entsperren Sie Vanilla-FOX-Token (auf Arbitrum) für das Einsetzen von Emissionen."
       },
       "why": {
-        "title": "Warum sollten Sie Ihren FOX staken?"
+        "title": "Warum sollten Sie Ihren FOX staken?",
+        "body": "Durch das Staken Ihrer FOX erhalten Sie regelmäßige USDC-Auszahlungen aus der DAO-Finanzierungskasse und damit ein stetiges passives Einkommen in USDC pro Epoche. Zusätzlich wird ein Teil der DAO-Einnahmen für den Rückkauf von FOX am freien Markt verwendet. Die Freigabe unterliegt einer Wartezeit, während der Ihre FOX gesperrt bleiben und keine weiteren Erträge generieren."
       },
       "stake": {
         "title": "Wie stake ich meinen FOX?",
@@ -3025,7 +3026,10 @@
         "title": "Kann ich mehrere Beträge zum Aufheben des Stakings haben?",
         "body": "Ja, Sie können mehrere Beträge aufheben. Für jede Aufhebungsaktion gilt eine Abkühlungsphase von 28 Tagen."
       },
-      "connect": {}
+      "connect": {
+        "title": "Wie hängen die gesamten eingenommenen Gebühren, das gesamte FOX-Staking, der Emissionspool und der FOX-Rückkaufbetrag zusammen?",
+        "body": "Die von der DAO erhobenen Gebühren werden in nativen Vermögenswerten pro Nutzer angegeben. Ein Teil dieser Einnahmen wird umgewandelt und als Belohnung an FOX-Staker ausgeschüttet, während ein anderer Teil für den Rückkauf von FOX am freien Markt verwendet wird. Die Gesamtmenge der gestakten FOX beeinflusst die Belohnungsverteilung, da die Belohnungen proportional zur Menge der gestakten FOX verteilt werden. Der Emissionspool repräsentiert die Menge an FOX, die für Staking-Belohnungen zur Verfügung steht, und der FOX-Rückkaufbetrag ist der Anteil der Einnahmen, der für den Rückkauf von FOX verwendet wird."
+      }
     },
     "totals": "rFOX Summen",
     "totalStaked": "gestaketer Gesamtbetrag %{symbol} ",
@@ -3033,11 +3037,19 @@
     "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
     "emissionsPool": "%{symbol} Emissionspool (diese Epoche)",
     "emissionsPoolHelper": "Die Gesamtsumme der zu verteilenden Belohnungen %{symbol} stakers",
-    "foxBurnAmount": "FOX-Verbrennungsmenge (diese Epoche)",
+    "foxBuybackAmount": "Rückkaufbetrag von FOX (Diese Epoche)",
     "pendingDistribution": "Ausstehende Verteilung",
     "selectRuneAddress": "Wählen Sie eine RUNE Adresse",
+    "unstakeDisabledMigrationTooltip": "Die Freigabe ist bis zum %{migrationDate} deaktiviert, da an diesem Tag die Abkühlzeit aufgehoben wird.",
     "lpSunsetWarningTitle": "Programm beendet",
-    "lpSunsetWarningDescription": "Das Arbitrum WETH/FOX Reward Programm wurde eingestellt. Bitte lösen Sie Ihre Stakebestände auf und fordern Sie Ihr Guthaben so bald wie möglich zurück."
+    "lpSunsetWarningDescription": "Das Arbitrum WETH/FOX Reward Programm wurde eingestellt. Bitte lösen Sie Ihre Stakebestände auf und fordern Sie Ihr Guthaben so bald wie möglich zurück.",
+    "claimInProgress": "Beanspruchen in Bearbeitung",
+    "migrationBannerTitle": "rFOX wechselt zu Ethereum",
+    "migrationBannerDescription": "Das rFOX-Staken wird am %{migrationDate} von Arbitrum zu Ethereum migriert. Bis dahin erhalten Sie weiterhin Belohnungen auf Arbitrum. Anschließend können Sie Ihre FOX-Bestände abheben und übertragen.",
+    "migrationBannerCta": "FOX zu Ethereum verschieben",
+    "stakingPausedTooltip": "Das Staken ist für dieses Programm pausiert.",
+    "unstakingPausedTooltip": "Die Freigabe von Positionen ist für dieses Programm pausiert.",
+    "withdrawalsPausedTooltip": "Beanspruchen ist für dieses Programm vorübergehend ausgesetzt."
   },
   "TCY": {
     "stake": "Stake",
@@ -3153,7 +3165,7 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Preisänderung",
     "rfox": {
-      "totalBurn": "Gesamt Verbrannt",
+      "totalBuyback": "Gesamtrückkauf",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Simulieren Sie Ihre rFOX Staking Rendite",
       "estimatedRewards": "Geschätzte Belohnungen",
@@ -3375,7 +3387,8 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",

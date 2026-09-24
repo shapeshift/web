@@ -77,7 +77,7 @@ describe('getRelayStepData', () => {
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: DEPOSITOR_HEX,
         value: '50000000',
-        chainSpecific: { from: FROM, data: '49290c1c' },
+        chainSpecific: { from: FROM, data: '49290c1c', requireEnergyShare: true },
       })
     })
 

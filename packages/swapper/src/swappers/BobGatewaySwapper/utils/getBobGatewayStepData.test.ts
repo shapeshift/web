@@ -83,7 +83,7 @@ describe('getBobGatewayStepData', () => {
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: ALLOWANCE_HOLDER_HEX,
         value: '0',
-        chainSpecific: { from: FROM, data: '0x2213bc0b' },
+        chainSpecific: { from: FROM, data: '0x2213bc0b', requireEnergyShare: true },
       })
       expect(actual.unwrap()).toEqual({
         orderId: 'order-1',

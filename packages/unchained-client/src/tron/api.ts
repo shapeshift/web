@@ -420,11 +420,13 @@ export class TronApi {
     return contract
   }
 
-  // a failed share lookup prices the simulation as if the caller paid in full
-  private async getPricingContext(contractAddress: string) {
+  // A failed share lookup prices the simulation as if the caller paid in full, unless the caller must not guess
+  private async getPricingContext(contractAddress: string, requireEnergyShare = false) {
     const [{ energyPrice }, share] = await Promise.all([
       this.getChainPrices(),
       this.getContractEnergyShare(contractAddress).catch((error: unknown) => {
+        if (requireEnergyShare) throw error
+
         console.warn(
           `[tron] energy share lookup failed for ${contractAddress}, pricing in full`,
           error,
@@ -477,9 +479,13 @@ export class TronApi {
     from: string
     to: string
     amount: string
+    requireEnergyShare?: boolean
   }): Promise<string> {
     const tronWeb = this.getTronWeb()
-    const { energyPrice, share } = await this.getPricingContext(params.contractAddress)
+    const { energyPrice, share } = await this.getPricingContext(
+      params.contractAddress,
+      params.requireEnergyShare,
+    )
 
     const result = await tronWeb.transactionBuilder.triggerConstantContract(
       params.contractAddress,
@@ -502,8 +508,12 @@ export class TronApi {
     from: string
     data: string
     callValue?: string
+    requireEnergyShare?: boolean
   }): Promise<string> {
-    const { energyPrice, share } = await this.getPricingContext(params.contractAddress)
+    const { energyPrice, share } = await this.getPricingContext(
+      params.contractAddress,
+      params.requireEnergyShare,
+    )
 
     const response = await fetch(`${this.rpcUrl}/wallet/triggerconstantcontract`, {
       method: 'POST',

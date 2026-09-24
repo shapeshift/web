@@ -247,7 +247,7 @@ export async function getChainflipStepData(
         const { fast } = await adapter.getFeeData({
           to: transactionData.to,
           value: transactionData.value,
-          chainSpecific: { from, contractAddress },
+          chainSpecific: { from, contractAddress, requireEnergyShare: true },
         })
 
         const stepData: ChainflipQuoteStepData = {

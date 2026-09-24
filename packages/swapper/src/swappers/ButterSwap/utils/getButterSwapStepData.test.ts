@@ -233,7 +233,7 @@ describe('getButterSwapStepData', () => {
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: 'TRouterAddress',
         value: '100000000000000000',
-        chainSpecific: { from: 'TSenderAddress', data: evmBuildTx.data },
+        chainSpecific: { from: 'TSenderAddress', data: evmBuildTx.data, requireEnergyShare: true },
       })
     })
 

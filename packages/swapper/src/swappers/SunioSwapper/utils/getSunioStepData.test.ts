@@ -93,7 +93,7 @@ describe('getSunioStepData', () => {
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: SUNIO_SMART_ROUTER_CONTRACT,
         value: '100000000',
-        chainSpecific: { from: FROM, data: transactionData.data },
+        chainSpecific: { from: FROM, data: transactionData.data, requireEnergyShare: true },
       })
     })
 

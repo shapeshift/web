@@ -202,7 +202,7 @@ export async function getNearIntentsStepData(
         const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
           value: sellAmountCryptoBaseUnit,
-          chainSpecific: { from, contractAddress },
+          chainSpecific: { from, contractAddress, requireEnergyShare: type === 'quote' },
         })
 
         const networkFeeCryptoBaseUnit = fast.txFee

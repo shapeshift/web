@@ -488,14 +488,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
-      const { value, chainSpecific: { from, contractAddress, memo, data } = {} } = input
+      const {
+        value,
+        chainSpecific: { from, contractAddress, memo, data, requireEnergyShare } = {},
+      } = input
       const to = toTronBase58(input.to)
 
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
       const { bandwidthPrice, energyPrice, memoFee } = await this.providers.http.getChainPrices()
 
       const [energyFee, bandwidthFee, activationFee] = await Promise.all([
-        this.estimateEnergyFee({ to, from, value, data, contractAddress, energyPrice }),
+        this.estimateEnergyFee({
+          to,
+          from,
+          value,
+          data,
+          contractAddress,
+          energyPrice,
+          requireEnergyShare,
+        }),
         this.estimateBandwidthFee({
           to,
           from,
@@ -528,8 +539,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     data?: string
     contractAddress?: string
     energyPrice: number
+    requireEnergyShare?: boolean
   }): Promise<number> {
-    const { to, from, value, data, contractAddress, energyPrice } = params
+    const { to, from, value, data, contractAddress, energyPrice, requireEnergyShare } = params
 
     if (!data && !contractAddress) return 0
 
@@ -539,6 +551,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         from: from || to,
         data,
         callValue: value,
+        requireEnergyShare,
       })
 
       return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
@@ -550,6 +563,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         from: from || to,
         to,
         amount: value,
+        requireEnergyShare,
       })
 
       return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)

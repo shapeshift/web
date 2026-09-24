@@ -61,6 +61,15 @@ describe('TronApi', () => {
       expect(await api.estimateContractCallFee(params)).toBe('6428500')
     })
 
+    it('fails instead when the caller requires the share', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => successResponse }))
+      vi.mocked(api.getContractEnergyShare).mockRejectedValue(new Error('429'))
+
+      await expect(
+        api.estimateContractCallFee({ ...params, requireEnergyShare: true }),
+      ).rejects.toThrow('429')
+    })
+
     it('bills the caller only their share when the deployer covers the rest', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => successResponse }))
       vi.mocked(api.getContractEnergyShare).mockResolvedValue({

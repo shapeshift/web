@@ -74,7 +74,11 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
   const { to, value, data } = transactionData
 
   try {
-    const { fast } = await adapter.getFeeData({ to, value, chainSpecific: { from, data } })
+    const { fast } = await adapter.getFeeData({
+      to,
+      value,
+      chainSpecific: { from, data, requireEnergyShare: true },
+    })
 
     return fast.txFee
   } catch (error) {
@@ -100,8 +104,6 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
       energy: fallbackEnergy,
       bandwidthBytes: tron.getTronContractCallBandwidthBytes(data),
       contractAddress: to,
-      // the same policy as the simulation it stands in for
-      fullEnergyOnShareLookupFailure: true,
     })
   }
 }

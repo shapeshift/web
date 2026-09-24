@@ -431,11 +431,10 @@ export const useYieldTransactionFlow = ({
     : undefined
   const networkFeeCryptoPrecision = hasNetworkFee ? tronNetworkFeeCryptoPrecision : undefined
 
-  // a probe disabled mid-fetch keeps resolving, so its loading only counts while it is the fee source
+  // Nothing loads before an amount exists, and a probe disabled mid-fetch keeps resolving, so it counts only as the fee source
   const isNetworkFeeLoading =
-    (usesProbeFee && hasAmount && isTronFeeProbeLoading) ||
-    isTronNetworkFeeLoading ||
-    isTronQuotePending
+    hasAmount &&
+    ((usesProbeFee && isTronFeeProbeLoading) || isTronNetworkFeeLoading || isTronQuotePending)
 
   // later steps are priced again right before they are signed, so a failed refetch must not stall a started flow
   const isNetworkFeeError = !isAmountLocked && isNetworkFeeQueryError

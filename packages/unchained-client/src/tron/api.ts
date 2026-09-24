@@ -39,8 +39,8 @@ type TronContract = {
 const TRON_CREATOR_DEFAULT_ENERGY_LIMIT = 10_000_000
 // A deployer's unspent energy moves slowly next to how often the swappers re-estimate
 const TRON_ORIGIN_ENERGY_TTL_MS = 15_000
-// A deployer can raise the caller's share after deployment, so the split is re-read within the hour
-const TRON_CONTRACT_TTL_MS = 60 * 60 * 1000
+// A deployer can raise the caller's share after deployment, so the split is re-read within the minute
+const TRON_CONTRACT_TTL_MS = 60_000
 
 // The deployer covers the rest only out of what they have staked, so a dry deployer (Tether) leaves the caller paying in full
 export const getCallerEnergy = (energyUsed: number, share: TronContractEnergyShare): number => {

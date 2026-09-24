@@ -243,7 +243,7 @@ describe('TronApi', () => {
       vi.useRealTimers()
     })
 
-    it('re-reads the contract after an hour, since its split can change', async () => {
+    it('re-reads the contract after a minute, since its split can change', async () => {
       vi.useFakeTimers()
       const fetchMock = respond(
         contractResponse,
@@ -254,7 +254,7 @@ describe('TronApi', () => {
       const api = freshApi()
 
       await api.getContractEnergyShare('TRouter')
-      vi.advanceTimersByTime(61 * 60 * 1000)
+      vi.advanceTimersByTime(61_000)
       await api.getContractEnergyShare('TRouter')
 
       const contractReads = fetchMock.mock.calls.filter(([url]) =>

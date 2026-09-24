@@ -1,27 +1,18 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ChainAdapterError, tron } from '@shapeshiftoss/chain-adapters'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 
 export type TronContractCall = { to: string; value: string; data: string; feeLimit?: string }
 
-type TronRawTransaction = {
-  raw_data?: {
-    fee_limit?: number
-    contract?: {
-      type?: string
-      parameter?: { value?: { contract_address?: string; data?: string; call_value?: number } }
-    }[]
-  }
-}
-
 // yield.xyz hands tron stakes back as a raw TriggerSmartContract; its call is what a fee simulation needs
 export const getTronContractCallFromUnsignedTransaction = (
   unsignedTransaction: string,
 ): TronContractCall | undefined => {
   try {
-    const rawData = (JSON.parse(unsignedTransaction) as TronRawTransaction).raw_data
+    const rawData = (JSON.parse(unsignedTransaction) as Partial<unchained.tron.TronTx>).raw_data
     const contract = rawData?.contract?.[0]
     if (contract?.type !== 'TriggerSmartContract') return
 
@@ -32,7 +23,7 @@ export const getTronContractCallFromUnsignedTransaction = (
       to: tron.toTronBase58(contract_address),
       data,
       value: String(call_value ?? 0),
-      feeLimit: rawData?.fee_limit === undefined ? undefined : String(rawData.fee_limit),
+      feeLimit: rawData?.fee_limit?.toString(),
     }
   } catch {
     return
@@ -69,8 +60,9 @@ export const assertTronYieldFeeCovered = async ({
   ])
 
   if (call.feeLimit && bnOrZero(fast.txFee).gt(call.feeLimit)) {
-    throw new Error(
-      `[yield] tron fee_limit ${call.feeLimit} is below the simulated fee ${fast.txFee}`,
+    throw new ChainAdapterError(
+      `tron fee_limit ${call.feeLimit} is below the simulated fee ${fast.txFee}`,
+      { translation: 'yieldXYZ.errors.tronFeeLimitBelowEstimate' },
     )
   }
 

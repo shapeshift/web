@@ -43,6 +43,7 @@ export interface TronTx {
     ref_block_hash: string
     expiration: number
     timestamp: number
+    fee_limit?: number
   }
   raw_data_hex: string
   txID: string

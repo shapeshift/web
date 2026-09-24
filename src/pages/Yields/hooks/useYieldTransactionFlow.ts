@@ -381,8 +381,9 @@ export const useYieldTransactionFlow = ({
   const usesProbeFee = action === 'enter' && (!bnOrZero(amount).gt(0) || isInsufficientBalance)
 
   const {
-    networkFeeCryptoBaseUnit,
-    networkFeeCryptoPrecision,
+    hasContractCall: hasTronContractCall,
+    networkFeeCryptoBaseUnit: tronNetworkFeeCryptoBaseUnit,
+    networkFeeCryptoPrecision: tronNetworkFeeCryptoPrecision,
     isLoading: isTronNetworkFeeLoading,
     isError: isNetworkFeeQueryError,
   } = useYieldTronNetworkFee({
@@ -391,7 +392,13 @@ export const useYieldTransactionFlow = ({
     from: userAddress,
   })
 
-  const isNetworkFeeLoading = isTronFeeProbeLoading || isTronNetworkFeeLoading
+  // The last priced fee is held while the next quote is fetched, and dropped once there is no call to price at all
+  const isTronQuotePending = yieldChainId === tronChainId && isQuoteLoading
+  const hasNetworkFee = hasTronContractCall || isTronQuotePending
+  const networkFeeCryptoBaseUnit = hasNetworkFee ? tronNetworkFeeCryptoBaseUnit : undefined
+  const networkFeeCryptoPrecision = hasNetworkFee ? tronNetworkFeeCryptoPrecision : undefined
+
+  const isNetworkFeeLoading = isTronFeeProbeLoading || isTronNetworkFeeLoading || isTronQuotePending
 
   // later steps are priced again right before they are signed, so a failed refetch must not stall a started flow
   const isNetworkFeeError = !isAmountLocked && isNetworkFeeQueryError

@@ -405,21 +405,19 @@ export const YieldEnterModal = memo(
     // balances refetch mid-execution, so validation only colors the button before anything is signed
     const hasValidationError =
       !isAmountLocked &&
-      !isQuoteActive &&
-      !isNetworkFeeLoading &&
-      (isBelowMinimum ||
-        isInsufficientBalance ||
-        isInsufficientFeeAssetBalance ||
-        isNetworkFeeError)
+      (isInsufficientBalance ||
+        (!isQuoteActive &&
+          !isNetworkFeeLoading &&
+          (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)))
 
     const enterButtonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
+      if (isInsufficientBalance) return translate('common.insufficientFunds')
       if (isQuoteActive || isNetworkFeeLoading) return translate('yieldXYZ.loadingQuote')
       if (quoteError && cryptoAmount) {
         const { key, params } = getYieldQuoteErrorTranslation(quoteError)
         return translate(key, params)
       }
-      if (isInsufficientBalance) return translate('common.insufficientFunds')
       if (isNetworkFeeError) return translate('trade.errors.networkFeeEstimateFailed')
       if (isInsufficientFeeAssetBalance) {
         return translate('yieldXYZ.errors.insufficientAssetForGas', {

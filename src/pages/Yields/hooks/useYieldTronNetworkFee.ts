@@ -67,7 +67,7 @@ export const useYieldTronNetworkFee = ({
     hasContractCall: Boolean(call),
     networkFeeCryptoBaseUnit,
     networkFeeCryptoPrecision,
-    isLoading: (isEnabled && isLoading) || isPlaceholderData,
+    isLoading: isEnabled && (isLoading || isPlaceholderData),
     isError: isEnabled && isError,
   }
 }

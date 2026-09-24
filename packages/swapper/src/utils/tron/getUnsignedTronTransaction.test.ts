@@ -25,9 +25,7 @@ const makeArgs = (
   }
   const tradeQuote = {
     quoteOrRate: 'quote',
-    steps: [
-      { accountNumber: 0, sellAsset, transactionData, feeData },
-    ],
+    steps: [{ accountNumber: 0, sellAsset, transactionData, feeData }],
   } as unknown as TradeQuote
 
   return {
@@ -61,7 +59,7 @@ describe('getUnsignedTronTransaction', () => {
     })
   })
 
-  it('bounds the fee limit by the standard limit when the step carries no estimate', async () => {
+  it('uses the standard fee limit when the step carries no estimate', async () => {
     const { adapter, args } = makeArgs(
       TRX,
       { type: 'tron', to: TO, data: '0xdeadbeef', value: '1' },

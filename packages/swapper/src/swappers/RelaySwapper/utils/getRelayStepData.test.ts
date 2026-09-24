@@ -119,7 +119,7 @@ describe('getRelayStepData', () => {
       })
     })
 
-    it('prices a rate from the measured deposit rather than the relay fee', async () => {
+    it('prices a rate from the measured deposit', async () => {
       const adapter = tronAdapter()
 
       const actual = await getRelayStepData({

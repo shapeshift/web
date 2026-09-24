@@ -295,7 +295,7 @@ describe('getButterSwapStepData', () => {
       expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('120283000')
     })
 
-    it('rates price the measured swap at the router share rather than the provider fee', async () => {
+    it('rates price the measured swap at the router share', async () => {
       const adapter = tronAdapter()
       adapter.httpProvider.getContractEnergyShare.mockResolvedValue({
         callerPercent: 5,

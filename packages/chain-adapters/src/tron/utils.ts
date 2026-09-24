@@ -7,8 +7,7 @@ export const CONTRACT_CALL_OVERHEAD_BYTES = 145 + SIGNED_TX_OVERHEAD_BYTES // Tr
 export const getTronContractCallBandwidthBytes = (data: string): number =>
   (data.startsWith('0x') ? data.length - 2 : data.length) / 2 + CONTRACT_CALL_OVERHEAD_BYTES
 
-// Energy burned past fee_limit fails the call and is lost, so the limit is what a user can lose: 3x the estimate
-// clears every drift measured past the energy margin, and a lapsed deployer subsidy fails cheaply
+// What a call can burn before it fails: 3x clears every measured drift while a lapsed deployer subsidy fails cheaply
 export const TRON_FEE_LIMIT_HEADROOM = 3
 // Near-free calls get a limit a single state-dependent branch can't exhaust
 export const TRON_MIN_FEE_LIMIT_SUN = 10_000_000

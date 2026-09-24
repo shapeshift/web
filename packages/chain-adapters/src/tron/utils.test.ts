@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { getTronContractCallBandwidthBytes, toTronBase58, toTronHex } from './utils'
+import {
+  getTronContractCallBandwidthBytes,
+  getTronFeeLimit,
+  toTronBase58,
+  toTronHex,
+} from './utils'
 
 const BASE58 = 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K'
 const HEX_41 = '4107a39ae4c49dee86e892450b20881f32cd5d500d'
@@ -20,6 +25,17 @@ describe('toTronHex', () => {
   it('passes 0x hex through', () => expect(toTronHex(HEX_0X)).toBe(HEX_0X))
   it('keeps a bare 20-byte body whose first byte is 0x41', () =>
     expect(toTronHex(`41${'ab'.repeat(19)}`)).toBe(`0x41${'ab'.repeat(19)}`))
+})
+
+describe('getTronFeeLimit', () => {
+  it('doubles the estimate', () => expect(getTronFeeLimit('8059200')).toBe('16118400'))
+  it('falls back to the standard limit without an estimate', () => {
+    expect(getTronFeeLimit(undefined)).toBe('100000000')
+    expect(getTronFeeLimit('0')).toBe('100000000')
+    expect(getTronFeeLimit('nope')).toBe('100000000')
+  })
+  it('never exceeds the chain ceiling', () =>
+    expect(getTronFeeLimit('10000000000000')).toBe('15000000000'))
 })
 
 describe('getTronContractCallBandwidthBytes', () => {

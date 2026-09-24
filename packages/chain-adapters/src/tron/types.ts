@@ -19,6 +19,8 @@ export type FeeData = {
 export type BuildTxInput = {
   contractAddress?: string
   memo?: string
+  // in sun, for TRC20 transfers; the standard 100 TRX when absent
+  feeLimit?: string
 }
 
 export type GetFeeDataInput = {

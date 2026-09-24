@@ -34,7 +34,12 @@ import { toAddressNList } from '../utils'
 import { verifyLedgerAppOpen } from '../utils/ledgerAppGate'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { TronSignTx, TronUnsignedTx } from './types'
-import { getTronContractCallBandwidthBytes, SIGNED_TX_OVERHEAD_BYTES, toTronBase58 } from './utils'
+import {
+  getTronContractCallBandwidthBytes,
+  SIGNED_TX_OVERHEAD_BYTES,
+  toTronBase58,
+  TRON_DEFAULT_FEE_LIMIT_SUN,
+} from './utils'
 
 // Base58 of 0x41 + 20 zero bytes; the native-TRX sentinel in DEX token paths and the mint/burn party in TRC20 logs
 export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
@@ -205,7 +210,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.TronMainnet>,
   ): Promise<TronSignTx> {
     try {
-      const { from, accountNumber, value, chainSpecific: { contractAddress, memo } = {} } = input
+      const {
+        from,
+        accountNumber,
+        value,
+        chainSpecific: { contractAddress, memo, feeLimit } = {},
+      } = input
       const to = toTronBase58(input.to)
 
       // Create TronWeb instance once and reuse
@@ -226,7 +236,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const functionSelector = 'transfer(address,uint256)'
 
         const options = {
-          feeLimit: 100_000_000, // 100 TRX standard limit
+          feeLimit: Number(feeLimit) || TRON_DEFAULT_FEE_LIMIT_SUN,
           callValue: 0,
         }
 
@@ -320,9 +330,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     accountNumber: number
     data: string
     value: string
+    // in sun; the standard 100 TRX when the caller has no estimate to bound it with
+    feeLimit?: string
   }): Promise<TronSignTx> {
     try {
-      const { from, accountNumber, data, value } = input
+      const { from, accountNumber, data, value, feeLimit } = input
       const to = toTronBase58(input.to)
 
       const callData = data.startsWith('0x') ? data.slice(2) : data
@@ -332,7 +344,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         owner_address: from,
         contract_address: to,
         data: callData,
-        fee_limit: 100_000_000,
+        fee_limit: Number(feeLimit) || TRON_DEFAULT_FEE_LIMIT_SUN,
         call_value: Number(value) || 0,
         visible: true,
       }

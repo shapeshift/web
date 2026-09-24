@@ -7,6 +7,22 @@ export const CONTRACT_CALL_OVERHEAD_BYTES = 145 + SIGNED_TX_OVERHEAD_BYTES // Tr
 export const getTronContractCallBandwidthBytes = (data: string): number =>
   (data.startsWith('0x') ? data.length - 2 : data.length) / 2 + CONTRACT_CALL_OVERHEAD_BYTES
 
+// The chain's ceiling on a single call's fee_limit
+const TRON_MAX_FEE_LIMIT_SUN = 15_000_000_000
+export const TRON_DEFAULT_FEE_LIMIT_SUN = 100_000_000
+
+// Energy burns up to fee_limit and is lost when a call runs out, so the limit is what a user can lose. Twice the
+// estimate clears drift past the energy margin, while a lapse in a deployer's energy subsidy fails cheaply instead
+// of paying the full call
+export const TRON_FEE_LIMIT_HEADROOM = 2
+
+export const getTronFeeLimit = (networkFeeCryptoBaseUnit: string | undefined): string => {
+  const estimate = Number(networkFeeCryptoBaseUnit)
+  if (!Number.isFinite(estimate) || estimate <= 0) return String(TRON_DEFAULT_FEE_LIMIT_SUN)
+
+  return String(Math.min(Math.ceil(estimate * TRON_FEE_LIMIT_HEADROOM), TRON_MAX_FEE_LIMIT_SUN))
+}
+
 // A recipient nobody has touched, for pricing transfers that always land on a fresh address (a fresh
 // TRC20 balance slot costs ~66k more energy than topping up an existing holder)
 export const generateFreshTronAddress = (): string => {

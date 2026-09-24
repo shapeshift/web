@@ -242,6 +242,27 @@ describe('TronApi', () => {
       expect(contractReads).toHaveLength(1)
       vi.useRealTimers()
     })
+
+    it('re-reads the contract after an hour, since its split can change', async () => {
+      vi.useFakeTimers()
+      const fetchMock = respond(
+        contractResponse,
+        resourceResponse,
+        contractResponse,
+        resourceResponse,
+      )
+      const api = freshApi()
+
+      await api.getContractEnergyShare('TRouter')
+      vi.advanceTimersByTime(61 * 60 * 1000)
+      await api.getContractEnergyShare('TRouter')
+
+      const contractReads = fetchMock.mock.calls.filter(([url]) =>
+        String(url).endsWith('/wallet/getcontract'),
+      )
+      expect(contractReads).toHaveLength(2)
+      vi.useRealTimers()
+    })
   })
 
   describe('getChainPrices', () => {

@@ -39,6 +39,8 @@ type TronContract = {
 const TRON_CREATOR_DEFAULT_ENERGY_LIMIT = 10_000_000
 // A deployer's unspent energy moves slowly next to how often the swappers re-estimate
 const TRON_ORIGIN_ENERGY_TTL_MS = 15_000
+// A deployer can raise the caller's share after deployment, so the split is re-read within the hour
+const TRON_CONTRACT_TTL_MS = 60 * 60 * 1000
 
 // The deployer covers the rest only out of what they have staked, so a dry deployer (Tether) leaves the caller paying in full
 export const getCallerEnergy = (energyUsed: number, share: TronContractEnergyShare): number => {
@@ -55,7 +57,7 @@ export class TronApi {
   private readonly rpcUrl: string
   private readonly apiKey: string
   private tronWeb: TronWeb | null = null
-  private readonly contracts = new Map<string, Promise<TronContract>>()
+  private readonly contracts = new Map<string, { readAt: number; value: Promise<TronContract> }>()
   private readonly originEnergy = new Map<string, { readAt: number; value: Promise<number> }>()
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
@@ -393,31 +395,32 @@ export class TronApi {
     }
   }
 
-  // The split is fixed at deployment, so each contract is read once per session
   private getContract(contractAddress: string): Promise<TronContract> {
     const cached = this.contracts.get(contractAddress)
-    if (cached) return cached
+    if (cached && Date.now() - cached.readAt < TRON_CONTRACT_TTL_MS) return cached.value
 
-    const contract = this.post<TronContract & { Error?: string }>('/wallet/getcontract', {
+    const value = this.post<TronContract & { Error?: string }>('/wallet/getcontract', {
       value: contractAddress,
       visible: true,
     })
       .then(body => {
         if (body.Error) throw new Error(`[tron] getcontract failed: ${body.Error}`)
         // only a contract record is worth keeping; an empty body is re-read next time
-        if (!body.origin_address && this.contracts.get(contractAddress) === contract) {
+        if (!body.origin_address && this.contracts.get(contractAddress)?.value === value) {
           this.contracts.delete(contractAddress)
         }
         return body
       })
       .catch(err => {
-        if (this.contracts.get(contractAddress) === contract) this.contracts.delete(contractAddress)
+        if (this.contracts.get(contractAddress)?.value === value) {
+          this.contracts.delete(contractAddress)
+        }
         throw err
       })
 
-    this.contracts.set(contractAddress, contract)
+    this.contracts.set(contractAddress, { readAt: Date.now(), value })
 
-    return contract
+    return value
   }
 
   // A failed share lookup prices the simulation as if the caller paid in full, unless the caller must not guess

@@ -29,12 +29,18 @@ const makeAdapter = ({
       : vi.fn().mockRejectedValue(new Error('REVERT opcode executed'))
   const getTrc20Allowance = vi.fn().mockResolvedValue(allowance)
   const getTrc20Balance = vi.fn().mockResolvedValue(balance)
+  const getContractEnergyShare = vi.fn().mockResolvedValue({
+    callerPercent: 100,
+    originEnergyLimit: 0,
+    originEnergyAvailable: 0,
+  })
 
   const adapter = {
     getFeeData,
     httpProvider: {
       getTrc20Allowance,
       getTrc20Balance,
+      getContractEnergyShare,
       getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     },
   }
@@ -44,6 +50,7 @@ const makeAdapter = ({
     getFeeData,
     getTrc20Allowance,
     getTrc20Balance,
+    getContractEnergyShare,
   }
 }
 
@@ -60,13 +67,65 @@ const FALLBACK_FEE = '48283000'
 
 describe('getTronContractCallFallbackFeeCryptoBaseUnit', () => {
   it('prices the energy under the adapter margin at live prices plus the bandwidth', async () => {
-    const { adapter } = makeAdapter()
+    const { adapter, getContractEnergyShare } = makeAdapter()
 
     expect(
       await getTronContractCallFallbackFeeCryptoBaseUnit({
         adapter,
         energy: '400000',
         bandwidthBytes: 283,
+      }),
+    ).toBe(FALLBACK_FEE)
+    expect(getContractEnergyShare).not.toHaveBeenCalled()
+  })
+
+  it('bills the caller only their share of a contract whose deployer covers the rest', async () => {
+    const { adapter, getContractEnergyShare } = makeAdapter()
+    getContractEnergyShare.mockResolvedValue({
+      callerPercent: 5,
+      originEnergyLimit: 10_000_000,
+      originEnergyAvailable: 5_000_000,
+    })
+
+    // 20000 caller energy * 1.2 margin * 100 sun + 283 bytes * 1000 sun
+    expect(
+      await getTronContractCallFallbackFeeCryptoBaseUnit({
+        adapter,
+        energy: '400000',
+        bandwidthBytes: 283,
+        contractAddress: SPENDER,
+      }),
+    ).toBe('2683000')
+    expect(getContractEnergyShare).toHaveBeenCalledWith(SPENDER)
+  })
+})
+
+describe('getTronContractCallFallbackFeeCryptoBaseUnit share lookup failure', () => {
+  it('rejects by default', async () => {
+    const { adapter, getContractEnergyShare } = makeAdapter()
+    getContractEnergyShare.mockRejectedValue(new Error('429'))
+
+    await expect(
+      getTronContractCallFallbackFeeCryptoBaseUnit({
+        adapter,
+        energy: '400000',
+        bandwidthBytes: 283,
+        contractAddress: SPENDER,
+      }),
+    ).rejects.toThrow('429')
+  })
+
+  it('prices the caller in full when the caller opts in', async () => {
+    const { adapter, getContractEnergyShare } = makeAdapter()
+    getContractEnergyShare.mockRejectedValue(new Error('429'))
+
+    expect(
+      await getTronContractCallFallbackFeeCryptoBaseUnit({
+        adapter,
+        energy: '400000',
+        bandwidthBytes: 283,
+        contractAddress: SPENDER,
+        fullEnergyOnShareLookupFailure: true,
       }),
     ).toBe(FALLBACK_FEE)
   })
@@ -86,13 +145,13 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
     expect(getFeeData).toHaveBeenCalledWith({
       to: SPENDER,
       value: '0',
-      chainSpecific: { from: FROM, data: '0x2213bc0b' },
+      chainSpecific: { from: FROM, data: '0x2213bc0b', requireEnergyShare: true },
     })
     expect(getTrc20Allowance).not.toHaveBeenCalled()
   })
 
   it('prices the measured worst case when a funded token sell reverts without its allowance', async () => {
-    const { adapter, getTrc20Allowance, getTrc20Balance } = makeAdapter({
+    const { adapter, getTrc20Allowance, getTrc20Balance, getContractEnergyShare } = makeAdapter({
       simulation: 'revert',
       allowance: '0',
     })
@@ -110,6 +169,19 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
       spender: SPENDER,
     })
     expect(getTrc20Balance).toHaveBeenCalledWith({ contractAddress: USDT, address: FROM })
+    expect(getContractEnergyShare).toHaveBeenCalledWith(SPENDER)
+  })
+
+  it('fails the quote rather than guessing when the share lookup fails', async () => {
+    const { adapter, getContractEnergyShare } = makeAdapter({
+      simulation: 'revert',
+      allowance: '0',
+    })
+    getContractEnergyShare.mockRejectedValue(new Error('429'))
+
+    await expect(
+      getTronContractCallNetworkFeeCryptoBaseUnit({ ...baseArgs, adapter, sellAsset: USDT_TRON }),
+    ).rejects.toThrow('429')
   })
 
   it('throws when a token sell reverts with a sufficient allowance', async () => {

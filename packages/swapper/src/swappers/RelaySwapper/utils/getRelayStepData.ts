@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -13,7 +14,10 @@ import {
   withComputeUnitLimit,
 } from '../../../utils/solana'
 import type { TronContractCall } from '../../../utils/tron'
-import { getTronContractCallNetworkFeeCryptoBaseUnit } from '../../../utils/tron'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+} from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
 import { RELAY_TRON_FALLBACK_DEPOSIT_ENERGY } from '../constant'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
@@ -256,9 +260,23 @@ export async function getRelayStepData({
     } = data.parameter ?? {}
 
     if (type === 'rate') {
-      const stepData: RelayRateStepData = {
-        networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
-      }
+      // Relay's gas figure runs ~35% under the deposit's measured energy, so rates price the measured call
+      const networkFeeCryptoBaseUnit = await (async () => {
+        if (!contractAddress || !callData) return fallbackNetworkFeeCryptoBaseUnit
+
+        try {
+          return await getTronContractCallFallbackFeeCryptoBaseUnit({
+            adapter: deps.assertGetTronChainAdapter(sellAsset.chainId),
+            energy: RELAY_TRON_FALLBACK_DEPOSIT_ENERGY,
+            bandwidthBytes: tron.getTronContractCallBandwidthBytes(callData),
+            contractAddress,
+          })
+        } catch {
+          return fallbackNetworkFeeCryptoBaseUnit
+        }
+      })()
+
+      const stepData: RelayRateStepData = { networkFeeCryptoBaseUnit }
 
       return Ok(stepData)
     }

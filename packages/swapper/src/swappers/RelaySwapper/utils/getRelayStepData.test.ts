@@ -26,6 +26,11 @@ const tronAdapter = ({ txFee = '9000000', allowance = '0' } = {}) => ({
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
     getTrc20Balance: vi.fn().mockResolvedValue('100000000'),
+    getContractEnergyShare: vi.fn().mockResolvedValue({
+      callerPercent: 100,
+      originEnergyLimit: 0,
+      originEnergyAvailable: 0,
+    }),
   },
 })
 
@@ -72,7 +77,7 @@ describe('getRelayStepData', () => {
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: DEPOSITOR_HEX,
         value: '50000000',
-        chainSpecific: { from: FROM, data: '49290c1c' },
+        chainSpecific: { from: FROM, data: '49290c1c', requireEnergyShare: true },
       })
     })
 
@@ -114,13 +119,32 @@ describe('getRelayStepData', () => {
       })
     })
 
-    it('prices a rate from the relay fee', async () => {
+    it('prices a rate from the measured deposit', async () => {
+      const adapter = tronAdapter()
+
       const actual = await getRelayStepData({
         ...baseArgs,
         type: 'rate',
         input: {} as GetTradeRateInput,
         from: FROM,
-        deps: makeDeps(tronAdapter()),
+        deps: makeDeps(adapter),
+      })
+
+      // 100000 energy * 1.2 margin * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '12283000' })
+      expect(adapter.httpProvider.getContractEnergyShare).toHaveBeenCalledWith(DEPOSITOR)
+    })
+
+    it('falls back to the relay fee when the measured deposit cannot be priced', async () => {
+      const adapter = tronAdapter()
+      adapter.httpProvider.getChainPrices = () => Promise.reject(new Error('429'))
+
+      const actual = await getRelayStepData({
+        ...baseArgs,
+        type: 'rate',
+        input: {} as GetTradeRateInput,
+        from: FROM,
+        deps: makeDeps(adapter),
       })
 
       expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '6100715' })

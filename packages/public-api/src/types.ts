@@ -5,6 +5,7 @@ import type {
   SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
+  TronTransactionData,
   UtxoTransactionData,
   ZrxPermit2SignatureRequired,
 } from '@shapeshiftoss/types'
@@ -20,6 +21,7 @@ export type {
   SolanaSerializedTxTransactionData,
   SolanaTransactionData,
   TransactionData,
+  TronTransactionData,
   UtxoTransactionData,
   ZrxPermit2SignatureRequired,
 }

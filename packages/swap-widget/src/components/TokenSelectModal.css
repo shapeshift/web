@@ -303,13 +303,19 @@
 
 .ssw-token-chain-badge {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
+  bottom: -4px;
+  right: -4px;
+  box-sizing: content-box;
   width: 16px;
   height: 16px;
-  border-radius: var(--ssw-radius-2xs);
-  border: 2px solid var(--ssw-bg-secondary);
+  padding: 2px;
+  border-radius: 50%;
+  object-fit: cover;
   background: var(--ssw-bg-secondary);
+}
+
+.ssw-token-item:hover .ssw-token-chain-badge {
+  background: linear-gradient(var(--ssw-bg-hover), var(--ssw-bg-hover)) var(--ssw-bg-secondary);
 }
 
 .ssw-token-info {

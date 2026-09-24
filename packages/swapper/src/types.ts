@@ -46,14 +46,12 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { AvnuMetadata } from './swappers/AvnuSwapper/types'
 import type { BebopMetadata } from './swappers/BebopSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
-import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
-import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { RelayMetadata } from './swappers/RelaySwapper/utils/types'
 import type { StonfiMetadata, StonfiTransactionData } from './swappers/StonfiSwapper/types'
-import type { SunioTransactionData } from './swappers/SunioSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 import type { MayachainMetadata, ThorchainMetadata } from './utils/thorchain/types'
 
@@ -430,7 +428,7 @@ export type TxBuildData =
     }
   | { type: 'cosmossdk_msg_deposit'; chainId: string; value: string; memo: string; coin: string }
   | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
-  | { type: 'tron'; to: string; data: string; value: string }
+  | { type: 'tron'; to: string; value: string; data?: string; memo?: string }
   // CowSwap signs an off-chain EIP-712 order and posts it to the CoW API - there is nothing to broadcast
   | { type: 'cowswap'; chainId: ChainId; orderToSign: Omit<OrderCreation, 'signature'> }
 
@@ -452,10 +450,6 @@ export type TradeStepCommon = {
 
   // To be collapsed into transactionData and swapperMetadata
   stonfiTransactionData?: StonfiTransactionData
-  sunioTransactionData?: SunioTransactionData
-
-  relayTransactionMetadata?: RelayTransactionMetadata
-  butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
 
   chainflipSpecific?: { depositAddress?: string }
 
@@ -633,6 +627,12 @@ export type EvmMessageExecutionProps = {
 
 export type UtxoTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SignTx<UtxoChainId>) => Promise<string>
+  signTransaction?: (txToSign: SignTx<UtxoChainId>) => Promise<string>
+}
+
+export type UtxoTransactionExecutionContext = {
+  config: SwapperConfig
+  swapperMetadata: SwapperMetadata | undefined
 }
 
 export type CosmosSdkTransactionExecutionProps = {
@@ -798,6 +798,7 @@ export type Swapper = {
   executeUtxoTransaction?: (
     txToSign: SignTx<UtxoChainId>,
     callbacks: UtxoTransactionExecutionProps,
+    context?: UtxoTransactionExecutionContext,
   ) => Promise<string>
   executeCosmosSdkTransaction?: (
     txToSign: SignTx<CosmosSdkChainId>,

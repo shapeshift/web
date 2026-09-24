@@ -12,10 +12,13 @@ import {
   omitComputeBudgetInstructions,
   withComputeUnitLimit,
 } from '../../../utils/solana'
+import type { TronContractCall } from '../../../utils/tron'
+import { getTronContractCallNetworkFeeCryptoBaseUnit } from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
+import { RELAY_TRON_FALLBACK_DEPOSIT_ENERGY } from '../constant'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import { convertRelaySolanaInstruction } from './helpers'
-import type { RelayQuoteItem, RelayTransactionMetadata } from './types'
+import type { RelayQuoteItem } from './types'
 import {
   isRelayQuoteEvmItemData,
   isRelayQuoteSolanaItemData,
@@ -39,8 +42,7 @@ type BaseArgs = {
 
 type RelayRateStepData = { networkFeeCryptoBaseUnit: string }
 type RelayQuoteStepData = {
-  transactionData?: TxBuildData
-  relayTransactionMetadata?: RelayTransactionMetadata
+  transactionData: TxBuildData
   networkFeeCryptoBaseUnit: string
 }
 
@@ -245,13 +247,13 @@ export async function getRelayStepData({
     }
   }
 
+  // Native and token sells alike are a call into relay's depositor contract
   if (isRelayQuoteTronItemData(data)) {
-    const contractAddress = data.parameter?.contract_address
-    const tronCallData = data.parameter?.data
-    const isTronToken = isToken(sellAsset.assetId)
-
-    if (isTronToken && !contractAddress) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
-    if (isTronToken && !tronCallData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
+    const {
+      contract_address: contractAddress,
+      data: callData,
+      call_value: callValue,
+    } = data.parameter ?? {}
 
     if (type === 'rate') {
       const stepData: RelayRateStepData = {
@@ -261,12 +263,33 @@ export async function getRelayStepData({
       return Ok(stepData)
     }
 
-    const stepData: RelayQuoteStepData = {
-      relayTransactionMetadata: { to: contractAddress, data: tronCallData },
-      networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
+    if (!contractAddress || !callData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
+
+    const isNativeSell = !isToken(sellAsset.assetId)
+    const call: TronContractCall = {
+      to: contractAddress,
+      data: callData,
+      value: String(callValue ?? (isNativeSell ? sellAmountCryptoBaseUnit : 0)),
     }
 
-    return Ok(stepData)
+    try {
+      const stepData: RelayQuoteStepData = {
+        transactionData: { type: 'tron', ...call },
+        networkFeeCryptoBaseUnit: await getTronContractCallNetworkFeeCryptoBaseUnit({
+          adapter: deps.assertGetTronChainAdapter(sellAsset.chainId),
+          transactionData: call,
+          from,
+          sellAsset,
+          sellAmountCryptoBaseUnit,
+          spenderAddress: contractAddress,
+          fallbackEnergy: RELAY_TRON_FALLBACK_DEPOSIT_ENERGY,
+        }),
+      }
+
+      return Ok(stepData)
+    } catch (error) {
+      return Err(makeNetworkFeeEstimationFailedErr('getRelayStepData', error))
+    }
   }
 
   return Err(makeTradeStepBuildFailedErr('getRelayStepData'))

@@ -5,3 +5,6 @@ export const DEFAULT_SLIPPAGE_BPS = 50
 // 1Click refunds a deposit it cannot settle by the requested deadline, and prices a quote the same at any length
 export const DEFAULT_QUOTE_DEADLINE_MS = 60 * 60 * 1000
 export const UTXO_QUOTE_DEADLINE_MS = 4 * 60 * 60 * 1000
+
+// 1Click pays half of the requested appFee to its own account, so request double to receive affiliateBps
+export const APP_FEE_SPLIT_MULTIPLIER = 2

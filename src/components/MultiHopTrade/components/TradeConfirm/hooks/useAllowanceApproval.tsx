@@ -3,16 +3,17 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import type { Hash } from 'viem'
 
-import { getConfig } from '@/config'
 import type { AllowanceType } from '@/hooks/queries/useApprovalFees'
 import { getApprovalAmountCryptoBaseUnit, useApprovalFees } from '@/hooks/queries/useApprovalFees'
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { waitForTronTransaction } from '@/lib/utils/tron'
 import { reactQueries } from '@/react-queries'
 import { selectHopSellAccountId } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -115,63 +116,9 @@ export const useAllowanceApproval = (
 
       if (!tradeQuoteStep?.sellAsset || !sellAssetAccountId) return
 
-      // Handle TRON transaction confirmation
       if (tradeQuoteStep.sellAsset.chainId === tronChainId) {
-        const adapter = await import('@/lib/utils').then(m =>
-          m.assertGetTronChainAdapter(tronChainId),
-        )
-        const rpcUrl = adapter.httpProvider.getRpcUrl()
-        const apiKey = getConfig().VITE_TRON_GRID_API_KEY
-
-        // Poll for transaction confirmation (TRON doesn't have waitForTransactionReceipt)
-        let confirmed = false
-        let attempts = 0
-        const maxAttempts = 60 // 60 seconds max (TRON can be slow)
-
-        while (!confirmed && attempts < maxAttempts) {
-          try {
-            // Try wallet first (recent txs), then walletsolidity (confirmed txs)
-            const endpoint =
-              attempts < 20 ? '/wallet/gettransactionbyid' : '/walletsolidity/gettransactionbyid'
-            const response = await fetch(`${rpcUrl}${endpoint}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                ...(apiKey ? { 'TRON-PRO-API-KEY': apiKey } : {}),
-              },
-              body: JSON.stringify({ value: txHash }),
-            })
-
-            if (response.ok) {
-              const tx = await response.json()
-              const contractRet = tx?.ret?.[0]?.contractRet
-
-              if (contractRet === 'SUCCESS') {
-                confirmed = true
-              } else if (contractRet === 'REVERT' || contractRet === 'OUT_OF_ENERGY') {
-                throw new Error(`Transaction failed: ${contractRet}`)
-              }
-              // If no contractRet yet, continue polling
-            }
-            // Non-OK responses (incl. 403/429 rate-limit, which TronGrid also uses for auth) are
-            // intentionally swallowed so transient throttling keeps polling rather than failing.
-          } catch (err) {
-            // Continue polling on errors unless it's a failure
-            if (err instanceof Error && err.message.includes('Transaction failed')) {
-              throw err
-            }
-          }
-
-          if (!confirmed) {
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            attempts++
-          }
-        }
-
-        if (!confirmed) {
-          // Don't throw - approval might have succeeded even if we couldn't confirm
-          // Transaction polling timed out but the approval likely succeeded on-chain
-        }
+        // A timed-out wait leaves the tx pending; the allowance check completes the step once it lands
+        if ((await waitForTronTransaction(txHash)) !== TxStatus.Confirmed) return
       } else {
         // Handle EVM transaction confirmation
         const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)

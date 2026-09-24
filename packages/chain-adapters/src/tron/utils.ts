@@ -7,6 +7,15 @@ export const CONTRACT_CALL_OVERHEAD_BYTES = 145 + SIGNED_TX_OVERHEAD_BYTES // Tr
 export const getTronContractCallBandwidthBytes = (data: string): number =>
   (data.startsWith('0x') ? data.length - 2 : data.length) / 2 + CONTRACT_CALL_OVERHEAD_BYTES
 
+// A recipient nobody has touched, for pricing transfers that always land on a fresh address (a fresh
+// TRC20 balance slot costs ~66k more energy than topping up an existing holder)
+export const generateFreshTronAddress = (): string => {
+  const bytes = globalThis.crypto.getRandomValues(new Uint8Array(20))
+  const body = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+
+  return TronWeb.address.fromHex(`41${body}`)
+}
+
 // Base58 passes through; 0x-hex is either the bare 20-byte body (needs the 41 prefix) or already 41-prefixed
 export const toTronBase58 = (address: string): string => {
   if (address.startsWith('T')) return address

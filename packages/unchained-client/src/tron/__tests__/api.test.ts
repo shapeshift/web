@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { TronApi } from '../api'
+import { getCallerEnergy, TronApi } from '../api'
 
 const successResponse = {
   result: { result: true },
@@ -29,6 +29,11 @@ describe('TronApi', () => {
       energyPrice: 100,
       memoFee: 1_000_000,
     })
+    vi.spyOn(api, 'getContractEnergyShare').mockResolvedValue({
+      callerPercent: 100,
+      originEnergyLimit: 0,
+      originEnergyAvailable: 0,
+    })
   })
 
   afterEach(() => {
@@ -49,6 +54,18 @@ describe('TronApi', () => {
       expect(await api.estimateContractCallFee(params)).toBe('6428500')
     })
 
+    it('bills the caller only their share when the deployer covers the rest', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => successResponse }))
+      vi.mocked(api.getContractEnergyShare).mockResolvedValue({
+        callerPercent: 5,
+        originEnergyLimit: 10_000_000,
+        originEnergyAvailable: 5_000_000,
+      })
+
+      // 64285 - floor(64285 * 0.95) = 3215
+      expect(await api.estimateContractCallFee(params)).toBe('321500')
+    })
+
     it('throws on a reverted simulation rather than trusting the partial energy', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => revertResponse }))
 
@@ -62,6 +79,97 @@ describe('TronApi', () => {
       )
 
       await expect(api.estimateContractCallFee(params)).rejects.toThrow('request failed: 429')
+    })
+  })
+
+  describe('getCallerEnergy', () => {
+    it('charges the caller in full when the contract sets no deployer share', () => {
+      const share = {
+        callerPercent: 100,
+        originEnergyLimit: 0,
+        originEnergyAvailable: 0,
+      }
+      expect(getCallerEnergy(901_682, share)).toBe(901_682)
+    })
+
+    it('charges the caller their percent when the deployer has the energy staked', () => {
+      const share = {
+        callerPercent: 5,
+        originEnergyLimit: 10_000_000,
+        originEnergyAvailable: 5_000_000,
+      }
+      expect(getCallerEnergy(901_682, share)).toBe(45_085)
+    })
+
+    it('charges the caller in full when the deployer has nothing staked', () => {
+      const share = {
+        callerPercent: 30,
+        originEnergyLimit: 10_000_000,
+        originEnergyAvailable: 0,
+      }
+      expect(getCallerEnergy(130_285, share)).toBe(130_285)
+    })
+
+    it('caps the deployer share at their per-call limit', () => {
+      const share = {
+        callerPercent: 0,
+        originEnergyLimit: 100_000,
+        originEnergyAvailable: 5_000_000,
+      }
+      expect(getCallerEnergy(300_000, share)).toBe(200_000)
+    })
+
+    it('caps the deployer share at what they have left', () => {
+      const share = {
+        callerPercent: 0,
+        originEnergyLimit: 10_000_000,
+        originEnergyAvailable: 40_000,
+      }
+      expect(getCallerEnergy(300_000, share)).toBe(260_000)
+    })
+  })
+
+  describe('getContractEnergyShare', () => {
+    beforeEach(() => {
+      vi.mocked(api.getContractEnergyShare).mockRestore()
+    })
+
+    it('reads the caller percent, per-call limit and the unspent deployer energy', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi
+          .fn()
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => ({
+              consume_user_resource_percent: 5,
+              origin_energy_limit: 10_000_000,
+              origin_address: 'TDeployer',
+            }),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => ({ EnergyLimit: 6_000_000, EnergyUsed: 1_000_000 }),
+          }),
+      )
+
+      expect(await api.getContractEnergyShare('TRXHvKozuwbyRZLyPShscieHfGduwvsBFo')).toEqual({
+        callerPercent: 5,
+        originEnergyLimit: 10_000_000,
+        originEnergyAvailable: 5_000_000,
+      })
+    })
+
+    it('reads a plain address as a call the caller pays in full without a resource lookup', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => ({}) })
+      vi.stubGlobal('fetch', fetchMock)
+
+      expect(await api.getContractEnergyShare('TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N')).toEqual({
+        callerPercent: 100,
+        originEnergyLimit: 0,
+        originEnergyAvailable: 0,
+      })
+      expect(fetchMock).toHaveBeenCalledTimes(1)
     })
   })
 

@@ -13,6 +13,27 @@ export interface TronApiConfig {
   apiKey?: string
 }
 
+// How a contract's energy is split between the caller and its deployer
+export type TronContractEnergyShare = {
+  // consume_user_resource_percent: the slice the caller always pays
+  callerPercent: number
+  // origin_energy_limit: the most the deployer covers on a single call
+  originEnergyLimit: number
+  // energy the deployer currently has staked and unspent
+  originEnergyAvailable: number
+}
+
+// The deployer covers the rest only out of what they have staked, so a dry deployer (Tether) leaves the caller paying in full
+export const getCallerEnergy = (energyUsed: number, share: TronContractEnergyShare): number => {
+  const originShare = Math.floor((energyUsed * (100 - share.callerPercent)) / 100)
+  const originCovered = Math.max(
+    0,
+    Math.min(originShare, share.originEnergyLimit, share.originEnergyAvailable),
+  )
+
+  return energyUsed - originCovered
+}
+
 export class TronApi {
   private readonly rpcUrl: string
   private readonly apiKey: string
@@ -337,6 +358,48 @@ export class TronApi {
     }
   }
 
+  // A plain address answers getcontract with {}, which reads as a call the caller pays in full
+  async getContractEnergyShare(contractAddress: string): Promise<TronContractEnergyShare> {
+    const contract = await this.post<{
+      consume_user_resource_percent?: number
+      origin_energy_limit?: number
+      origin_address?: string
+    }>('/wallet/getcontract', { value: contractAddress, visible: true })
+
+    const callerPercent = contract.consume_user_resource_percent ?? 100
+    const originEnergyLimit = contract.origin_energy_limit ?? 0
+
+    if (callerPercent >= 100 || !originEnergyLimit || !contract.origin_address) {
+      return { callerPercent: 100, originEnergyLimit: 0, originEnergyAvailable: 0 }
+    }
+
+    const resource = await this.post<{ EnergyLimit?: number; EnergyUsed?: number }>(
+      '/wallet/getaccountresource',
+      { address: contract.origin_address, visible: true },
+    )
+
+    return {
+      callerPercent,
+      originEnergyLimit,
+      originEnergyAvailable: Math.max(
+        0,
+        (resource.EnergyLimit ?? 0) - (resource.EnergyUsed ?? 0),
+      ),
+    }
+  }
+
+  private async post<T>(path: string, body: unknown): Promise<T> {
+    const response = await fetch(`${this.rpcUrl}${path}`, {
+      method: 'POST',
+      headers: this.tronGridHeaders,
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) throw new Error(`[tron] ${path} failed: ${response.status}`)
+
+    return response.json()
+  }
+
   async estimateTrc20TransferFee(params: {
     contractAddress: string
     from: string
@@ -344,7 +407,10 @@ export class TronApi {
     amount: string
   }): Promise<string> {
     const tronWeb = this.getTronWeb()
-    const { energyPrice } = await this.getChainPrices()
+    const [{ energyPrice }, share] = await Promise.all([
+      this.getChainPrices(),
+      this.getContractEnergyShare(params.contractAddress),
+    ])
 
     const result = await tronWeb.transactionBuilder.triggerConstantContract(
       params.contractAddress,
@@ -357,7 +423,9 @@ export class TronApi {
       params.from,
     )
 
-    return String(this.getSimulatedEnergy(result, 'trc20 transfer') * energyPrice)
+    const energy = this.getSimulatedEnergy(result, 'trc20 transfer')
+
+    return String(getCallerEnergy(energy, share) * energyPrice)
   }
 
   async estimateContractCallFee(params: {
@@ -366,7 +434,10 @@ export class TronApi {
     data: string
     callValue?: string
   }): Promise<string> {
-    const { energyPrice } = await this.getChainPrices()
+    const [{ energyPrice }, share] = await Promise.all([
+      this.getChainPrices(),
+      this.getContractEnergyShare(params.contractAddress),
+    ])
 
     const response = await fetch(`${this.rpcUrl}/wallet/triggerconstantcontract`, {
       method: 'POST',
@@ -385,8 +456,9 @@ export class TronApi {
     }
 
     const result: SimulationResult = await response.json()
+    const energy = this.getSimulatedEnergy(result, 'contract call')
 
-    return String(this.getSimulatedEnergy(result, 'contract call') * energyPrice)
+    return String(getCallerEnergy(energy, share) * energyPrice)
   }
 
   // A revert still reports result.result: true with the partial energy burned - trusting it would underestimate

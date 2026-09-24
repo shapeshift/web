@@ -30,7 +30,9 @@ export const getTronContractCallFallbackFeeCryptoBaseUnit = async ({
   const { httpProvider } = adapter
   const [{ energyPrice, bandwidthPrice }, share] = await Promise.all([
     httpProvider.getChainPrices(),
-    contractAddress ? httpProvider.getContractEnergyShare(contractAddress) : undefined,
+    contractAddress
+      ? httpProvider.getContractEnergyShare(tron.toTronBase58(contractAddress))
+      : undefined,
   ])
 
   const callerEnergy = share ? unchainedTron.getCallerEnergy(Number(energy), share) : energy

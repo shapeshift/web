@@ -29,6 +29,11 @@ const tronAdapter = ({ txFee = '45600000', allowance = '0' } = {}) => ({
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
     getTrc20Balance: vi.fn().mockResolvedValue('100000000'),
+    getContractEnergyShare: vi.fn().mockResolvedValue({
+      callerPercent: 100,
+      originEnergyLimit: 0,
+      originEnergyAvailable: 0,
+    }),
   },
 })
 

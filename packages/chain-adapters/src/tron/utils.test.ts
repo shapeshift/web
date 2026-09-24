@@ -28,14 +28,15 @@ describe('toTronHex', () => {
 })
 
 describe('getTronFeeLimit', () => {
-  it('doubles the estimate', () => expect(getTronFeeLimit('8059200')).toBe('16118400'))
+  it('triples the estimate', () => expect(getTronFeeLimit('8059200')).toBe('24177600'))
+  it('floors a near-free call at 10 TRX', () => expect(getTronFeeLimit('636000')).toBe('10000000'))
+  it('caps at the standard 100 TRX limit', () =>
+    expect(getTronFeeLimit('54100000')).toBe('100000000'))
   it('falls back to the standard limit without an estimate', () => {
     expect(getTronFeeLimit(undefined)).toBe('100000000')
     expect(getTronFeeLimit('0')).toBe('100000000')
     expect(getTronFeeLimit('nope')).toBe('100000000')
   })
-  it('never exceeds the chain ceiling', () =>
-    expect(getTronFeeLimit('10000000000000')).toBe('15000000000'))
 })
 
 describe('getTronContractCallBandwidthBytes', () => {

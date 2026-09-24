@@ -370,6 +370,9 @@ export const useYieldTransactionFlow = ({
     retry: false,
   })
 
+  // Once an amount exists the quote prices the fee; keying on the quote's presence would flash the probe fee on every refetch
+  const usesProbeFee = action === 'enter' && (!bnOrZero(amount).gt(0) || isInsufficientBalance)
+
   const {
     networkFeeCryptoBaseUnit,
     networkFeeCryptoPrecision,
@@ -377,8 +380,7 @@ export const useYieldTransactionFlow = ({
     isError: isNetworkFeeQueryError,
   } = useYieldTronNetworkFee({
     chainId: yieldChainId,
-    transactions:
-      quoteData && !isInsufficientBalance ? quoteData.transactions : tronFeeProbe?.transactions,
+    transactions: usesProbeFee ? tronFeeProbe?.transactions : quoteData?.transactions,
     from: userAddress,
   })
 

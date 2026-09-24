@@ -46,7 +46,7 @@ export const useYieldTronNetworkFee = ({
     enabled: isEnabled,
     staleTime: 30_000,
     retry: false,
-    // the last fee stays on screen while the next amount's call is priced
+    // the last fee stays on screen while the next amount's quote and call are priced
     placeholderData: keepPreviousData,
   })
 
@@ -67,7 +67,7 @@ export const useYieldTronNetworkFee = ({
     hasContractCall: Boolean(call),
     networkFeeCryptoBaseUnit,
     networkFeeCryptoPrecision,
-    isLoading: isEnabled && (isLoading || isPlaceholderData),
+    isLoading: (isEnabled && isLoading) || isPlaceholderData,
     isError: isEnabled && isError,
   }
 }

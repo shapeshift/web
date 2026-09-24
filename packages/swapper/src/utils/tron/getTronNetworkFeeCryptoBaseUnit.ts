@@ -36,6 +36,7 @@ export const getTronContractCallFallbackFeeCryptoBaseUnit = async ({
     contractAddress
       ? httpProvider.getContractEnergyShare(tron.toTronBase58(contractAddress)).catch(error => {
           if (!fullEnergyOnShareLookupFailure) throw error
+          return undefined
         })
       : undefined,
   ])

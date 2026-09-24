@@ -39,6 +39,7 @@ export const approveTron = async ({
     .then(({ fast }) => fast.txFee)
     .catch((error: unknown) => {
       console.warn('[approveTron] fee estimate failed, keeping the standard fee limit', error)
+      return undefined
     })
 
   const txToSign = await adapter.buildCustomApiTx({

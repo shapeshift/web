@@ -568,8 +568,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
     } catch (error) {
-      // a real sender's revert is a real failure; a stand-in's balance is unknown
-      if (from) throw error
+      // a real sender's revert is a real failure, and a quote never guesses; only a stand-in's balance is unknown
+      if (from || requireEnergyShare) throw error
 
       return TRC20_TRANSFER_FALLBACK_ENERGY * energyPrice
     }

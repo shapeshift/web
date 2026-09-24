@@ -549,6 +549,8 @@ export const YieldForm = memo(
     // balances refetch mid-execution, so validation only colors the button before anything is signed
     const hasValidationError =
       !isAmountLocked &&
+      !isQuoteActive &&
+      !isNetworkFeeLoading &&
       (isBelowMinimum ||
         isInsufficientBalance ||
         isInsufficientFeeAssetBalance ||

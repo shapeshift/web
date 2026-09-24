@@ -404,6 +404,8 @@ export class TronApi {
     })
       .then(body => {
         if (body.Error) throw new Error(`[tron] getcontract failed: ${body.Error}`)
+        // only a contract record is worth keeping; an empty body is re-read next time
+        if (!body.origin_address) this.contracts.delete(contractAddress)
         return body
       })
       .catch(err => {
@@ -414,6 +416,16 @@ export class TronApi {
     this.contracts.set(contractAddress, contract)
 
     return contract
+  }
+
+  // a failed share lookup prices the simulation as if the caller paid in full
+  private async getPricingContext(contractAddress: string) {
+    const [{ energyPrice }, share] = await Promise.all([
+      this.getChainPrices(),
+      this.getContractEnergyShare(contractAddress).catch(() => TRON_CALLER_PAYS_ALL),
+    ])
+
+    return { energyPrice, share }
   }
 
   private getOriginEnergyAvailable(originAddress: string): Promise<number> {
@@ -457,10 +469,7 @@ export class TronApi {
     amount: string
   }): Promise<string> {
     const tronWeb = this.getTronWeb()
-    const [{ energyPrice }, share] = await Promise.all([
-      this.getChainPrices(),
-      this.getContractEnergyShare(params.contractAddress).catch(() => TRON_CALLER_PAYS_ALL),
-    ])
+    const { energyPrice, share } = await this.getPricingContext(params.contractAddress)
 
     const result = await tronWeb.transactionBuilder.triggerConstantContract(
       params.contractAddress,
@@ -484,11 +493,7 @@ export class TronApi {
     data: string
     callValue?: string
   }): Promise<string> {
-    // a failed lookup prices the simulation as if the caller paid in full
-    const [{ energyPrice }, share] = await Promise.all([
-      this.getChainPrices(),
-      this.getContractEnergyShare(params.contractAddress).catch(() => TRON_CALLER_PAYS_ALL),
-    ])
+    const { energyPrice, share } = await this.getPricingContext(params.contractAddress)
 
     const response = await fetch(`${this.rpcUrl}/wallet/triggerconstantcontract`, {
       method: 'POST',

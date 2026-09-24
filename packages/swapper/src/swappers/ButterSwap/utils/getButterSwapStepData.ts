@@ -209,6 +209,8 @@ export async function getButterSwapStepData(
       if (args.type === 'rate') {
         // Butter's gasFee is a fraction of what the router burns, so rates price the measured swap at the router's share
         const networkFeeCryptoBaseUnit = await (async () => {
+          if (!route.contract) return getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
+
           try {
             return await getTronContractCallFallbackFeeCryptoBaseUnit({
               adapter,

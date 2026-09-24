@@ -187,6 +187,15 @@ describe('TronApi', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 
+    it('re-reads an empty body rather than caching it as a plain address', async () => {
+      const fetchMock = respond({}, contractResponse, resourceResponse)
+      const api = freshApi()
+
+      await api.getContractEnergyShare('TRouter')
+      expect(await api.getContractEnergyShare('TRouter')).toMatchObject({ callerPercent: 5 })
+      expect(fetchMock).toHaveBeenCalledTimes(3)
+    })
+
     it('rejects a failed lookup rather than guessing the split', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 429 }))
 

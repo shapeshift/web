@@ -172,20 +172,16 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
     expect(getContractEnergyShare).toHaveBeenCalledWith(SPENDER)
   })
 
-  it('still prices the measured worst case when the share lookup fails', async () => {
+  it('fails the quote rather than guessing when the share lookup fails', async () => {
     const { adapter, getContractEnergyShare } = makeAdapter({
       simulation: 'revert',
       allowance: '0',
     })
     getContractEnergyShare.mockRejectedValue(new Error('429'))
 
-    const actual = await getTronContractCallNetworkFeeCryptoBaseUnit({
-      ...baseArgs,
-      adapter,
-      sellAsset: USDT_TRON,
-    })
-
-    expect(actual).toBe(FALLBACK_FEE)
+    await expect(
+      getTronContractCallNetworkFeeCryptoBaseUnit({ ...baseArgs, adapter, sellAsset: USDT_TRON }),
+    ).rejects.toThrow('429')
   })
 
   it('throws when a token sell reverts with a sufficient allowance', async () => {

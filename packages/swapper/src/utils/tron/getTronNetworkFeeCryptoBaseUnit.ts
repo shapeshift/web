@@ -1,6 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { tron } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
+import { tron as unchainedTron } from '@shapeshiftoss/unchained-client'
 import { bn, isToken } from '@shapeshiftoss/utils'
 
 import type { TxBuildData } from '../../types'
@@ -12,8 +13,13 @@ export type TronContractCall = Omit<
 
 type GetTronContractCallFallbackFeeArgs = {
   adapter: tron.ChainAdapter
+  // the call's total energy, before the contract's deployer covers their share
   energy: string
   bandwidthBytes: number
+  // the contract called, when known, so its deployer's share comes off the caller's bill
+  contractAddress?: string
+  // a failed share lookup prices the caller in full instead of rejecting, for callers with no better fallback
+  fullEnergyOnShareLookupFailure?: boolean
 }
 
 // A measured worst-case energy under the adapter's margin, at live prices
@@ -21,10 +27,23 @@ export const getTronContractCallFallbackFeeCryptoBaseUnit = async ({
   adapter,
   energy,
   bandwidthBytes,
+  contractAddress,
+  fullEnergyOnShareLookupFailure = false,
 }: GetTronContractCallFallbackFeeArgs): Promise<string> => {
-  const { energyPrice, bandwidthPrice } = await adapter.httpProvider.getChainPrices()
+  const { httpProvider } = adapter
+  const [{ energyPrice, bandwidthPrice }, share] = await Promise.all([
+    httpProvider.getChainPrices(),
+    contractAddress
+      ? httpProvider.getContractEnergyShare(tron.toTronBase58(contractAddress)).catch(error => {
+          if (!fullEnergyOnShareLookupFailure) throw error
+          return undefined
+        })
+      : undefined,
+  ])
 
-  return bn(energy)
+  const callerEnergy = share ? unchainedTron.getCallerEnergy(Number(energy), share) : energy
+
+  return bn(callerEnergy)
     .times(tron.TRON_ENERGY_SAFETY_MARGIN)
     .times(energyPrice)
     .plus(bn(bandwidthBytes).times(bandwidthPrice))
@@ -56,7 +75,11 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
   const { to, value, data } = transactionData
 
   try {
-    const { fast } = await adapter.getFeeData({ to, value, chainSpecific: { from, data } })
+    const { fast } = await adapter.getFeeData({
+      to,
+      value,
+      chainSpecific: { from, data, requireEnergyShare: true },
+    })
 
     return fast.txFee
   } catch (error) {
@@ -81,6 +104,7 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
       adapter,
       energy: fallbackEnergy,
       bandwidthBytes: tron.getTronContractCallBandwidthBytes(data),
+      contractAddress: to,
     })
   }
 }

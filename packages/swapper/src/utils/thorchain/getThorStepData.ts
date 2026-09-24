@@ -386,7 +386,12 @@ export async function getThorStepData({
           const { fast } = await adapter.getFeeData({
             to: vault,
             value: sellAmountCryptoBaseUnit,
-            chainSpecific: { from, contractAddress, memo: txMemo },
+            chainSpecific: {
+              from,
+              contractAddress,
+              memo: txMemo,
+              requireEnergyShare: type === 'quote',
+            },
           })
 
           return fast.txFee

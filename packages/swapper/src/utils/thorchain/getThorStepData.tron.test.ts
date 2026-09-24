@@ -58,7 +58,12 @@ describe('getThorStepData tron', () => {
     expect(adapter.getFeeData).toHaveBeenCalledWith({
       to: 'TVault',
       value: '100000000',
-      chainSpecific: { from: FROM, contractAddress: USDT, memo: '=:ETH.ETH:0xabc:1/1/0:ss:55' },
+      chainSpecific: {
+        from: FROM,
+        contractAddress: USDT,
+        memo: '=:ETH.ETH:0xabc:1/1/0:ss:55',
+        requireEnergyShare: true,
+      },
     })
   })
 
@@ -93,7 +98,12 @@ describe('getThorStepData tron', () => {
     expect(adapter.getFeeData).toHaveBeenCalledWith({
       to: 'TVault',
       value: '100000000',
-      chainSpecific: { from: undefined, contractAddress: USDT, memo: '=:ETH.ETH:0xabc:1' },
+      chainSpecific: {
+        from: undefined,
+        contractAddress: USDT,
+        memo: '=:ETH.ETH:0xabc:1',
+        requireEnergyShare: false,
+      },
     })
   })
 })

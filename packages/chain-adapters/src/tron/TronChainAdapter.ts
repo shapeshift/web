@@ -34,7 +34,12 @@ import { toAddressNList } from '../utils'
 import { verifyLedgerAppOpen } from '../utils/ledgerAppGate'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { TronSignTx, TronUnsignedTx } from './types'
-import { getTronContractCallBandwidthBytes, SIGNED_TX_OVERHEAD_BYTES, toTronBase58 } from './utils'
+import {
+  getTronContractCallBandwidthBytes,
+  SIGNED_TX_OVERHEAD_BYTES,
+  toTronBase58,
+  TRON_DEFAULT_FEE_LIMIT_SUN,
+} from './utils'
 
 // Base58 of 0x41 + 20 zero bytes; the native-TRX sentinel in DEX token paths and the mint/burn party in TRC20 logs
 export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
@@ -205,7 +210,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.TronMainnet>,
   ): Promise<TronSignTx> {
     try {
-      const { from, accountNumber, value, chainSpecific: { contractAddress, memo } = {} } = input
+      const {
+        from,
+        accountNumber,
+        value,
+        chainSpecific: { contractAddress, memo, feeLimit = TRON_DEFAULT_FEE_LIMIT_SUN } = {},
+      } = input
       const to = toTronBase58(input.to)
 
       // Create TronWeb instance once and reuse
@@ -226,7 +236,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const functionSelector = 'transfer(address,uint256)'
 
         const options = {
-          feeLimit: 100_000_000, // 100 TRX standard limit
+          feeLimit,
           callValue: 0,
         }
 
@@ -320,9 +330,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     accountNumber: number
     data: string
     value: string
+    feeLimit?: number
   }): Promise<TronSignTx> {
     try {
-      const { from, accountNumber, data, value } = input
+      const { from, accountNumber, data, value, feeLimit = TRON_DEFAULT_FEE_LIMIT_SUN } = input
       const to = toTronBase58(input.to)
 
       const callData = data.startsWith('0x') ? data.slice(2) : data
@@ -332,7 +343,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         owner_address: from,
         contract_address: to,
         data: callData,
-        fee_limit: 100_000_000,
+        fee_limit: feeLimit,
         call_value: Number(value) || 0,
         visible: true,
       }
@@ -477,14 +488,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
-      const { value, chainSpecific: { from, contractAddress, memo, data } = {} } = input
+      const {
+        value,
+        chainSpecific: { from, contractAddress, memo, data, requireEnergyShare } = {},
+      } = input
       const to = toTronBase58(input.to)
 
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
       const { bandwidthPrice, energyPrice, memoFee } = await this.providers.http.getChainPrices()
 
       const [energyFee, bandwidthFee, activationFee] = await Promise.all([
-        this.estimateEnergyFee({ to, from, value, data, contractAddress, energyPrice }),
+        this.estimateEnergyFee({
+          to,
+          from,
+          value,
+          data,
+          contractAddress,
+          energyPrice,
+          requireEnergyShare,
+        }),
         this.estimateBandwidthFee({
           to,
           from,
@@ -517,8 +539,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     data?: string
     contractAddress?: string
     energyPrice: number
+    requireEnergyShare?: boolean
   }): Promise<number> {
-    const { to, from, value, data, contractAddress, energyPrice } = params
+    const { to, from, value, data, contractAddress, energyPrice, requireEnergyShare } = params
 
     if (!data && !contractAddress) return 0
 
@@ -528,6 +551,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         from: from || to,
         data,
         callValue: value,
+        requireEnergyShare,
       })
 
       return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
@@ -539,12 +563,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         from: from || to,
         to,
         amount: value,
+        requireEnergyShare,
       })
 
       return Math.ceil(Number(feeInSun) * TRON_ENERGY_SAFETY_MARGIN)
     } catch (error) {
-      // a real sender's revert is a real failure; a stand-in's balance is unknown
-      if (from) throw error
+      // a real sender's revert is a real failure, and a quote never guesses; only a stand-in's balance is unknown
+      if (from || requireEnergyShare) throw error
 
       return TRC20_TRANSFER_FALLBACK_ENERGY * energyPrice
     }

@@ -12,14 +12,20 @@ const USDT_TRON: Asset = { ...ETH, assetId: `${tronChainId}/trc20:${USDT}`, chai
 const FROM = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N'
 const TO = 'TCFNp179Lg46D16zKoumd4Poa2WFFdtqYj'
 
-const makeArgs = (sellAsset: Asset, transactionData: TxBuildData | undefined) => {
+const makeArgs = (
+  sellAsset: Asset,
+  transactionData: TxBuildData | undefined,
+  feeData: { networkFeeCryptoBaseUnit: string | undefined } = {
+    networkFeeCryptoBaseUnit: '9000000',
+  },
+) => {
   const adapter = {
     buildCustomApiTx: vi.fn().mockResolvedValue('custom'),
     buildSendApiTransaction: vi.fn().mockResolvedValue('send'),
   }
   const tradeQuote = {
     quoteOrRate: 'quote',
-    steps: [{ accountNumber: 0, sellAsset, transactionData }],
+    steps: [{ accountNumber: 0, sellAsset, transactionData, feeData }],
   } as unknown as TradeQuote
 
   return {
@@ -49,7 +55,21 @@ describe('getUnsignedTronTransaction', () => {
       accountNumber: 0,
       data: '0xdeadbeef',
       value: '1',
+      feeLimit: 27_000_000,
     })
+  })
+
+  it('uses the standard fee limit when the step carries no estimate', async () => {
+    const { adapter, args } = makeArgs(
+      TRX,
+      { type: 'tron', to: TO, data: '0xdeadbeef', value: '1' },
+      { networkFeeCryptoBaseUnit: undefined },
+    )
+
+    await getUnsignedTronTransaction(args)
+    expect(adapter.buildCustomApiTx).toHaveBeenCalledWith(
+      expect.objectContaining({ feeLimit: 100_000_000 }),
+    )
   })
 
   it('builds a send of the sell asset when data is absent', async () => {
@@ -66,7 +86,7 @@ describe('getUnsignedTronTransaction', () => {
       to: TO,
       accountNumber: 0,
       value: '1',
-      chainSpecific: { contractAddress: USDT, memo: '=:ETH.ETH:0xabc' },
+      chainSpecific: { contractAddress: USDT, memo: '=:ETH.ETH:0xabc', feeLimit: 27_000_000 },
     })
   })
 

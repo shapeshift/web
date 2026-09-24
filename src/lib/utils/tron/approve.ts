@@ -33,7 +33,23 @@ export const approveTron = async ({
   const adapter = assertGetTronChainAdapter(chainId)
   const data = getTronApproveContractData({ spender, amountCryptoBaseUnit })
 
-  const txToSign = await adapter.buildCustomApiTx({ from, to, accountNumber, data, value: '0' })
+  // an estimate failure keeps the standard limit rather than blocking the approval
+  const txFee = await adapter
+    .getFeeData({ to, value: '0', chainSpecific: { from, data } })
+    .then(({ fast }) => fast.txFee)
+    .catch((error: unknown) => {
+      console.warn('[approveTron] fee estimate failed, keeping the standard fee limit', error)
+      return undefined
+    })
+
+  const txToSign = await adapter.buildCustomApiTx({
+    from,
+    to,
+    accountNumber,
+    data,
+    value: '0',
+    feeLimit: tron.getTronFeeLimit(txFee),
+  })
 
   return adapter.signAndBroadcastTransaction({
     senderAddress: from,

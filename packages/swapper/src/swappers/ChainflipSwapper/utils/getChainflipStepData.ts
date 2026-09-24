@@ -1,5 +1,5 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { evm, tron } from '@shapeshiftoss/chain-adapters'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -16,7 +16,6 @@ import {
   SOLANA_PLACEHOLDER_ADDRESS,
   withComputeUnitLimit,
 } from '../../../utils/solana'
-import { TRON_PLACEHOLDER_ADDRESS } from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 
 // Deposits are plain transfers - 21k intrinsic for natives, tokens measured ~50-65k to a fresh
@@ -218,13 +217,13 @@ export async function getChainflipStepData(
       const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
       if (args.type === 'rate') {
-        // No deposit address yet - a placeholder recipient sizes the transfer
+        // No deposit channel yet, but every channel is a fresh address, so a fresh recipient prices the transfer
         const networkFeeCryptoBaseUnit = await (async () => {
           if (!from) return
 
           try {
             const { fast } = await adapter.getFeeData({
-              to: TRON_PLACEHOLDER_ADDRESS,
+              to: tron.generateFreshTronAddress(),
               value: sellAmountCryptoBaseUnit,
               chainSpecific: { from, contractAddress },
             })
@@ -248,7 +247,7 @@ export async function getChainflipStepData(
         const { fast } = await adapter.getFeeData({
           to: transactionData.to,
           value: transactionData.value,
-          chainSpecific: { from, contractAddress },
+          chainSpecific: { from, contractAddress, requireEnergyShare: true },
         })
 
         const stepData: ChainflipQuoteStepData = {

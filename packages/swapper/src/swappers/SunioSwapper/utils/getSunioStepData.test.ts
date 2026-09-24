@@ -31,6 +31,11 @@ const tronAdapter = ({ txFee = '9000000', allowance = '0' } = {}) => ({
     getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
     getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
     getTrc20Balance: vi.fn().mockResolvedValue('100000000'),
+    getContractEnergyShare: vi.fn().mockResolvedValue({
+      callerPercent: 100,
+      originEnergyLimit: 0,
+      originEnergyAvailable: 0,
+    }),
   },
 })
 
@@ -88,7 +93,7 @@ describe('getSunioStepData', () => {
       expect(adapter.getFeeData).toHaveBeenCalledWith({
         to: SUNIO_SMART_ROUTER_CONTRACT,
         value: '100000000',
-        chainSpecific: { from: FROM, data: transactionData.data },
+        chainSpecific: { from: FROM, data: transactionData.data, requireEnergyShare: true },
       })
     })
 

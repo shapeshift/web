@@ -100,6 +100,8 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
       energy: fallbackEnergy,
       bandwidthBytes: tron.getTronContractCallBandwidthBytes(data),
       contractAddress: to,
+      // the same policy as the simulation it stands in for
+      fullEnergyOnShareLookupFailure: true,
     })
   }
 }

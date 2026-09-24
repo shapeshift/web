@@ -405,11 +405,13 @@ export class TronApi {
       .then(body => {
         if (body.Error) throw new Error(`[tron] getcontract failed: ${body.Error}`)
         // only a contract record is worth keeping; an empty body is re-read next time
-        if (!body.origin_address) this.contracts.delete(contractAddress)
+        if (!body.origin_address && this.contracts.get(contractAddress) === contract) {
+          this.contracts.delete(contractAddress)
+        }
         return body
       })
       .catch(err => {
-        this.contracts.delete(contractAddress)
+        if (this.contracts.get(contractAddress) === contract) this.contracts.delete(contractAddress)
         throw err
       })
 
@@ -422,7 +424,13 @@ export class TronApi {
   private async getPricingContext(contractAddress: string) {
     const [{ energyPrice }, share] = await Promise.all([
       this.getChainPrices(),
-      this.getContractEnergyShare(contractAddress).catch(() => TRON_CALLER_PAYS_ALL),
+      this.getContractEnergyShare(contractAddress).catch((error: unknown) => {
+        console.warn(
+          `[tron] energy share lookup failed for ${contractAddress}, pricing in full`,
+          error,
+        )
+        return TRON_CALLER_PAYS_ALL
+      }),
     ])
 
     return { energyPrice, share }
@@ -441,7 +449,9 @@ export class TronApi {
         return Math.max(0, (body.EnergyLimit ?? 0) - (body.EnergyUsed ?? 0))
       })
       .catch(err => {
-        this.originEnergy.delete(originAddress)
+        if (this.originEnergy.get(originAddress)?.value === value) {
+          this.originEnergy.delete(originAddress)
+        }
         throw err
       })
 

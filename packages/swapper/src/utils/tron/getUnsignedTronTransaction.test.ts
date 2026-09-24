@@ -57,7 +57,7 @@ describe('getUnsignedTronTransaction', () => {
       accountNumber: 0,
       data: '0xdeadbeef',
       value: '1',
-      feeLimit: '27000000',
+      feeLimit: 27_000_000,
     })
   })
 
@@ -70,7 +70,7 @@ describe('getUnsignedTronTransaction', () => {
 
     await getUnsignedTronTransaction(args)
     expect(adapter.buildCustomApiTx).toHaveBeenCalledWith(
-      expect.objectContaining({ feeLimit: '100000000' }),
+      expect.objectContaining({ feeLimit: 100_000_000 }),
     )
   })
 
@@ -88,7 +88,7 @@ describe('getUnsignedTronTransaction', () => {
       to: TO,
       accountNumber: 0,
       value: '1',
-      chainSpecific: { contractAddress: USDT, memo: '=:ETH.ETH:0xabc', feeLimit: '27000000' },
+      chainSpecific: { contractAddress: USDT, memo: '=:ETH.ETH:0xabc', feeLimit: 27_000_000 },
     })
   })
 

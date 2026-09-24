@@ -28,14 +28,16 @@ describe('toTronHex', () => {
 })
 
 describe('getTronFeeLimit', () => {
-  it('triples the estimate', () => expect(getTronFeeLimit('8059200')).toBe('24177600'))
-  it('floors a near-free call at 10 TRX', () => expect(getTronFeeLimit('636000')).toBe('10000000'))
+  it('triples the estimate', () => expect(getTronFeeLimit('8059200')).toBe(24_177_600))
+  it('floors a near-free call at 10 TRX', () => expect(getTronFeeLimit('636000')).toBe(10_000_000))
   it('caps at the standard 100 TRX limit', () =>
-    expect(getTronFeeLimit('54100000')).toBe('100000000'))
+    expect(getTronFeeLimit('54100000')).toBe(100_000_000))
+  it('never caps below the estimate itself', () =>
+    expect(getTronFeeLimit('252000000')).toBe(252_000_000))
   it('falls back to the standard limit without an estimate', () => {
-    expect(getTronFeeLimit(undefined)).toBe('100000000')
-    expect(getTronFeeLimit('0')).toBe('100000000')
-    expect(getTronFeeLimit('nope')).toBe('100000000')
+    expect(getTronFeeLimit(undefined)).toBe(100_000_000)
+    expect(getTronFeeLimit('0')).toBe(100_000_000)
+    expect(getTronFeeLimit('nope')).toBe(100_000_000)
   })
 })
 

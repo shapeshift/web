@@ -130,46 +130,70 @@ describe('TronApi', () => {
   })
 
   describe('getContractEnergyShare', () => {
-    beforeEach(() => {
-      vi.mocked(api.getContractEnergyShare).mockRestore()
-    })
+    const contractResponse = {
+      consume_user_resource_percent: 5,
+      origin_energy_limit: 10_000_000,
+      origin_address: 'TDeployer',
+    }
+    const resourceResponse = { EnergyLimit: 6_000_000, EnergyUsed: 1_000_000 }
+    const respond = (...bodies: unknown[]) => {
+      const fetchMock = vi.fn()
+      bodies.forEach(body => fetchMock.mockResolvedValueOnce({ ok: true, json: () => body }))
+      vi.stubGlobal('fetch', fetchMock)
+      return fetchMock
+    }
+    // the contract record is cached per instance, so each case gets its own
+    const freshApi = () => new TronApi({ rpcUrl: 'https://tron.example' })
 
     it('reads the caller percent, per-call limit and the unspent deployer energy', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi
-          .fn()
-          .mockResolvedValueOnce({
-            ok: true,
-            json: () => ({
-              consume_user_resource_percent: 5,
-              origin_energy_limit: 10_000_000,
-              origin_address: 'TDeployer',
-            }),
-          })
-          .mockResolvedValueOnce({
-            ok: true,
-            json: () => ({ EnergyLimit: 6_000_000, EnergyUsed: 1_000_000 }),
-          }),
-      )
+      respond(contractResponse, resourceResponse)
 
-      expect(await api.getContractEnergyShare('TRXHvKozuwbyRZLyPShscieHfGduwvsBFo')).toEqual({
+      expect(await freshApi().getContractEnergyShare('TRouter')).toEqual({
         callerPercent: 5,
         originEnergyLimit: 10_000_000,
         originEnergyAvailable: 5_000_000,
       })
     })
 
-    it('reads a plain address as a call the caller pays in full without a resource lookup', async () => {
-      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => ({}) })
-      vi.stubGlobal('fetch', fetchMock)
+    it('reads an omitted percent as the deployer paying everything', async () => {
+      respond({ origin_energy_limit: 10_000_000, origin_address: 'TDeployer' }, resourceResponse)
 
-      expect(await api.getContractEnergyShare('TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N')).toEqual({
+      expect(await freshApi().getContractEnergyShare('TRouter')).toMatchObject({ callerPercent: 0 })
+    })
+
+    it('reads a plain address as a call the caller pays in full without a resource lookup', async () => {
+      const fetchMock = respond({})
+
+      expect(await freshApi().getContractEnergyShare('TPlain')).toEqual({
         callerPercent: 100,
         originEnergyLimit: 0,
         originEnergyAvailable: 0,
       })
       expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('prices the caller in full when the lookup fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 429 }))
+
+      expect(await freshApi().getContractEnergyShare('TRouter')).toEqual({
+        callerPercent: 100,
+        originEnergyLimit: 0,
+        originEnergyAvailable: 0,
+      })
+    })
+
+    it('reads the contract once and the deployer energy every time', async () => {
+      const fetchMock = respond(contractResponse, resourceResponse, resourceResponse)
+      const api = freshApi()
+
+      await api.getContractEnergyShare('TRouter')
+      await api.getContractEnergyShare('TRouter')
+
+      expect(fetchMock).toHaveBeenCalledTimes(3)
+      const contractReads = fetchMock.mock.calls.filter(([url]) =>
+        String(url).endsWith('/wallet/getcontract'),
+      )
+      expect(contractReads).toHaveLength(1)
     })
   })
 

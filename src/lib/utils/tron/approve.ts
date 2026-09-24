@@ -33,10 +33,7 @@ export const approveTron = async ({
   const adapter = assertGetTronChainAdapter(chainId)
   const data = getTronApproveContractData({ spender, amountCryptoBaseUnit })
 
-  const feeLimit = await adapter
-    .getFeeData({ to, value: '0', chainSpecific: { from, data } })
-    .then(({ fast }) => tron.getTronFeeLimit(fast.txFee))
-    .catch(() => tron.getTronFeeLimit(undefined))
+  const { fast } = await adapter.getFeeData({ to, value: '0', chainSpecific: { from, data } })
 
   const txToSign = await adapter.buildCustomApiTx({
     from,
@@ -44,7 +41,7 @@ export const approveTron = async ({
     accountNumber,
     data,
     value: '0',
-    feeLimit,
+    feeLimit: tron.getTronFeeLimit(fast.txFee),
   })
 
   return adapter.signAndBroadcastTransaction({

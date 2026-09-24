@@ -214,7 +214,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         from,
         accountNumber,
         value,
-        chainSpecific: { contractAddress, memo, feeLimit } = {},
+        chainSpecific: { contractAddress, memo, feeLimit = TRON_DEFAULT_FEE_LIMIT_SUN } = {},
       } = input
       const to = toTronBase58(input.to)
 
@@ -236,7 +236,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const functionSelector = 'transfer(address,uint256)'
 
         const options = {
-          feeLimit: Number(feeLimit) || TRON_DEFAULT_FEE_LIMIT_SUN,
+          feeLimit,
           callValue: 0,
         }
 
@@ -330,11 +330,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     accountNumber: number
     data: string
     value: string
-    // in sun; the standard 100 TRX when the caller has no estimate to bound it with
-    feeLimit?: string
+    feeLimit?: number
   }): Promise<TronSignTx> {
     try {
-      const { from, accountNumber, data, value, feeLimit } = input
+      const { from, accountNumber, data, value, feeLimit = TRON_DEFAULT_FEE_LIMIT_SUN } = input
       const to = toTronBase58(input.to)
 
       const callData = data.startsWith('0x') ? data.slice(2) : data
@@ -344,7 +343,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         owner_address: from,
         contract_address: to,
         data: callData,
-        fee_limit: Number(feeLimit) || TRON_DEFAULT_FEE_LIMIT_SUN,
+        fee_limit: feeLimit,
         call_value: Number(value) || 0,
         visible: true,
       }

@@ -23,6 +23,18 @@ export type TronContractEnergyShare = {
   originEnergyAvailable: number
 }
 
+const TRON_CALLER_PAYS_ALL: TronContractEnergyShare = {
+  callerPercent: 100,
+  originEnergyLimit: 0,
+  originEnergyAvailable: 0,
+}
+
+type TronContract = {
+  consume_user_resource_percent?: number
+  origin_energy_limit?: number
+  origin_address?: string
+}
+
 // The deployer covers the rest only out of what they have staked, so a dry deployer (Tether) leaves the caller paying in full
 export const getCallerEnergy = (energyUsed: number, share: TronContractEnergyShare): number => {
   const originShare = Math.floor((energyUsed * (100 - share.callerPercent)) / 100)
@@ -38,6 +50,7 @@ export class TronApi {
   private readonly rpcUrl: string
   private readonly apiKey: string
   private tronWeb: TronWeb | null = null
+  private readonly contracts = new Map<string, Promise<TronContract>>()
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
@@ -358,34 +371,52 @@ export class TronApi {
     }
   }
 
-  // A plain address answers getcontract with {}, which reads as a call the caller pays in full
+  // A plain address answers getcontract with {}; a failed lookup prices the call as if the caller paid in full
   async getContractEnergyShare(contractAddress: string): Promise<TronContractEnergyShare> {
-    const contract = await this.post<{
-      consume_user_resource_percent?: number
-      origin_energy_limit?: number
-      origin_address?: string
-    }>('/wallet/getcontract', { value: contractAddress, visible: true })
+    try {
+      const contract = await this.getContract(contractAddress)
+      if (!contract.origin_address) return TRON_CALLER_PAYS_ALL
 
-    const callerPercent = contract.consume_user_resource_percent ?? 100
-    const originEnergyLimit = contract.origin_energy_limit ?? 0
+      // TronGrid omits zero-valued fields, so a contract whose deployer pays everything carries no percent at all
+      const callerPercent = contract.consume_user_resource_percent ?? 0
+      const originEnergyLimit = contract.origin_energy_limit ?? 0
 
-    if (callerPercent >= 100 || !originEnergyLimit || !contract.origin_address) {
-      return { callerPercent: 100, originEnergyLimit: 0, originEnergyAvailable: 0 }
+      if (callerPercent >= 100 || !originEnergyLimit) return TRON_CALLER_PAYS_ALL
+
+      const resource = await this.post<{ EnergyLimit?: number; EnergyUsed?: number }>(
+        '/wallet/getaccountresource',
+        { address: contract.origin_address, visible: true },
+      )
+
+      return {
+        callerPercent,
+        originEnergyLimit,
+        originEnergyAvailable: Math.max(
+          0,
+          (resource.EnergyLimit ?? 0) - (resource.EnergyUsed ?? 0),
+        ),
+      }
+    } catch {
+      return TRON_CALLER_PAYS_ALL
     }
+  }
 
-    const resource = await this.post<{ EnergyLimit?: number; EnergyUsed?: number }>(
-      '/wallet/getaccountresource',
-      { address: contract.origin_address, visible: true },
-    )
+  // The split is fixed at deployment, so each contract is read once per session
+  private getContract(contractAddress: string): Promise<TronContract> {
+    const cached = this.contracts.get(contractAddress)
+    if (cached) return cached
 
-    return {
-      callerPercent,
-      originEnergyLimit,
-      originEnergyAvailable: Math.max(
-        0,
-        (resource.EnergyLimit ?? 0) - (resource.EnergyUsed ?? 0),
-      ),
-    }
+    const contract = this.post<TronContract>('/wallet/getcontract', {
+      value: contractAddress,
+      visible: true,
+    }).catch(err => {
+      this.contracts.delete(contractAddress)
+      throw err
+    })
+
+    this.contracts.set(contractAddress, contract)
+
+    return contract
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {

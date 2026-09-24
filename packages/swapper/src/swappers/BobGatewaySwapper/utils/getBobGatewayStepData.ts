@@ -213,6 +213,7 @@ export async function getBobGatewayStepData(
               adapter,
               energy: BOB_GATEWAY_TRON_DEFAULT_ENERGY,
               bandwidthBytes: BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES,
+              contractAddress: spenderAddress,
             })
           } catch {}
         })()

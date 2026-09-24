@@ -397,7 +397,9 @@ export const YieldEnterModal = memo(
       ],
     )
 
-    const hasValidationError = isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError
+    // balances refetch mid-execution, so validation only colors the button before anything is signed
+    const hasValidationError =
+      !isAmountLocked && (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)
 
     const enterButtonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')

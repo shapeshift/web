@@ -542,7 +542,9 @@ export const YieldForm = memo(
       isInsufficientFeeAssetBalance,
     ])
 
-    const hasValidationError = isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError
+    // balances refetch mid-execution, so validation only colors the button before anything is signed
+    const hasValidationError =
+      !isAmountLocked && (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)
 
     const buttonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')

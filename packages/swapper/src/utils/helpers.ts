@@ -121,15 +121,18 @@ export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {
   return treasuryAddress
 }
 
-export type DepositAddressStep = Pick<TradeStepCommon, 'chainflipSpecific' | 'swapperMetadata'>
+export type DepositAddressStep = Pick<TradeStepCommon, 'swapperMetadata'>
 
 export const getDepositAddress = (
   step: DepositAddressStep,
   swapperName: SwapperName,
 ): string | undefined => {
   switch (swapperName) {
-    case SwapperName.Chainflip:
-      return step.chainflipSpecific?.depositAddress || undefined
+    case SwapperName.Chainflip: {
+      if (step.swapperMetadata?.name !== 'chainflip') return
+
+      return step.swapperMetadata.depositAddress || undefined
+    }
     case SwapperName.NearIntents: {
       if (step.swapperMetadata?.name !== 'nearIntents') return
 

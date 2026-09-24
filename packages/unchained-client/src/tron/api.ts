@@ -1,6 +1,12 @@
+import type { Types } from 'tronweb'
 import { TronWeb } from 'tronweb'
 
 import type { TronAccount, TronBlock, TronTx } from './types'
+
+// tronweb's TransactionWrapper omits transaction.ret, which is where a simulated revert is reported
+type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
+  transaction?: Partial<Types.TransactionWrapper['transaction']> & { ret?: { ret?: string }[] }
+}
 
 export interface TronApiConfig {
   rpcUrl: string
@@ -131,8 +137,11 @@ export class TronApi {
             MAX_FALLBACK_CONTRACTS,
           )) {
             await this.throttle()
-            const balance = await this.getTRC20Balance({ address: params.pubkey, contractAddress })
-            if (balance !== '0') tokens.push({ contractAddress, balance })
+            await this.getTrc20Balance({ contractAddress, address: params.pubkey })
+              .then(balance => {
+                if (balance !== '0') tokens.push({ contractAddress, balance })
+              })
+              .catch(() => undefined)
           }
         } catch (fallbackErr) {
           console.error('Failed TRC20 fallback discovery for non-activated TRON account', {
@@ -153,15 +162,59 @@ export class TronApi {
     }
   }
 
-  async getTRC20Balance(params: { address: string; contractAddress: string }): Promise<string> {
-    try {
-      const tronWeb = await this.getTronWeb()
-      const contract = await tronWeb.contract().at(params.contractAddress)
-      const balance = await contract.balanceOf(params.address).call()
-      return balance.toString()
-    } catch (_err) {
-      return '0'
-    }
+  async getTrc20Balance(params: { contractAddress: string; address: string }): Promise<string> {
+    const result = await this.getTronWeb().transactionBuilder.triggerConstantContract(
+      params.contractAddress,
+      'balanceOf(address)',
+      {},
+      [{ type: 'address', value: params.address }],
+      params.address,
+    )
+
+    const [balance] = result.constant_result ?? []
+    if (!balance) throw new Error('[tron] balanceOf call returned no data')
+
+    return BigInt(`0x${balance}`).toString()
+  }
+
+  // A direct selector call - contract().at() would first fetch the ABI, doubling the requests
+  async getTrc20Allowance(params: {
+    contractAddress: string
+    owner: string
+    spender: string
+  }): Promise<string> {
+    const tronWeb = this.getTronWeb()
+
+    const result = await tronWeb.transactionBuilder.triggerConstantContract(
+      params.contractAddress,
+      'allowance(address,address)',
+      {},
+      [
+        { type: 'address', value: params.owner },
+        { type: 'address', value: params.spender },
+      ],
+      params.owner,
+    )
+
+    const [allowance] = result.constant_result ?? []
+    if (!allowance) throw new Error('[tron] allowance call returned no data')
+
+    return BigInt(`0x${allowance}`).toString()
+  }
+
+  // Accounts exist on-chain only once they have received TRX; a fresh address returns {}
+  async isAccountActivated(address: string): Promise<boolean> {
+    const response = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
+      method: 'POST',
+      headers: this.tronGridHeaders,
+      body: JSON.stringify({ address, visible: true }),
+    })
+
+    if (!response.ok) throw new Error(`[tron] getaccount failed: ${response.status}`)
+
+    const data: TronAccount = await response.json()
+
+    return !!data.address
   }
 
   getTxHistory(_params: { pubkey: string; pageSize?: number; cursor?: string }): Promise<{
@@ -187,15 +240,10 @@ export class TronApi {
       }),
     ])
 
-    if (!txResponse.ok) {
-      return null
-    }
+    if (!txResponse.ok) return null
 
     const tx = await txResponse.json()
-
-    if (!tx || !tx.txID) {
-      return null
-    }
+    if (!tx || !tx.txID) return null
 
     let blockNumber = 0
     let blockTimeStamp = 0
@@ -242,9 +290,7 @@ export class TronApi {
       body: JSON.stringify({ num: params.height }),
     })
 
-    if (!response.ok) {
-      return null
-    }
+    if (!response.ok) return null
 
     return await response.json()
   }
@@ -256,7 +302,6 @@ export class TronApi {
       const signedTxJson = JSON.parse(params.sendTxBody.hex)
 
       const result = await tronWeb.trx.sendRawTransaction(signedTxJson)
-
       if (!result.result) {
         throw new Error(
           result.message || JSON.stringify(result) || 'Failed to broadcast transaction',
@@ -264,10 +309,7 @@ export class TronApi {
       }
 
       const txid = result.txid || result.transaction?.txID
-
-      if (!txid) {
-        throw new Error('Transaction ID not found in broadcast result')
-      }
+      if (!txid) throw new Error('Transaction ID not found in broadcast result')
 
       return txid
     } catch (error) {
@@ -275,94 +317,88 @@ export class TronApi {
     }
   }
 
-  private async getChainPrices(): Promise<{
+  async getChainPrices(): Promise<{
     bandwidthPrice: number
     energyPrice: number
+    memoFee: number
   }> {
-    try {
-      const tronWeb = await this.getTronWeb()
-      const params = await tronWeb.trx.getChainParameters()
-      const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-      const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 420
-      return { bandwidthPrice, energyPrice }
-    } catch (_err) {
-      return { bandwidthPrice: 1000, energyPrice: 420 }
+    const params = await this.getTronWeb().trx.getChainParameters()
+
+    const param = (key: string): number => {
+      const value = params.find(p => p.key === key)?.value
+      if (value === undefined) throw new Error(`[tron] chain parameter ${key} missing`)
+      return value
+    }
+
+    return {
+      bandwidthPrice: param('getTransactionFee'),
+      energyPrice: param('getEnergyFee'),
+      memoFee: param('getMemoFee'),
     }
   }
 
-  async estimateFees(params: { estimateFeesBody: { serializedTx: string } }): Promise<string> {
-    try {
-      const { bandwidthPrice } = await this.getChainPrices()
-      const rawDataBytes = Buffer.from(params.estimateFeesBody.serializedTx, 'hex').length
-      const signatureBytes = 65
-      const totalBytes = rawDataBytes + signatureBytes
-
-      const feeInSun = totalBytes * bandwidthPrice
-      return String(feeInSun)
-    } catch (err) {
-      throw new Error(`Failed to estimate fees: ${err}`)
-    }
-  }
-
-  async estimateTRC20TransferFee(params: {
+  async estimateTrc20TransferFee(params: {
     contractAddress: string
     from: string
     to: string
     amount: string
   }): Promise<string> {
-    try {
-      const tronWeb = await this.getTronWeb()
-      const { energyPrice } = await this.getChainPrices()
+    const tronWeb = this.getTronWeb()
+    const { energyPrice } = await this.getChainPrices()
 
-      const result = await tronWeb.transactionBuilder.triggerConstantContract(
-        params.contractAddress,
-        'transfer(address,uint256)',
-        {},
-        [
-          { type: 'address', value: params.to },
-          { type: 'uint256', value: params.amount },
-        ],
-        params.from,
-      )
+    const result = await tronWeb.transactionBuilder.triggerConstantContract(
+      params.contractAddress,
+      'transfer(address,uint256)',
+      {},
+      [
+        { type: 'address', value: params.to },
+        { type: 'uint256', value: params.amount },
+      ],
+      params.from,
+    )
 
-      const energyUsed = result.energy_used ?? 0
-      const feeInSun = energyUsed * energyPrice
-
-      return String(feeInSun)
-    } catch (_err) {
-      // Fallback: Worst case 130k energy at current 100 sun/energy
-      return '13000000' // 13 TRX (more realistic than 31 TRX)
-    }
+    return String(this.getSimulatedEnergy(result, 'trc20 transfer') * energyPrice)
   }
 
-  async getPriorityFees(): Promise<{
-    baseFee: string
-    fast: string
-    average: string
-    slow: string
-    estimatedBandwidth: string
-  }> {
-    try {
-      const { bandwidthPrice } = await this.getChainPrices()
-      const estimatedBytes = 268
-      const baseFee = String(estimatedBytes * bandwidthPrice)
+  async estimateContractCallFee(params: {
+    contractAddress: string
+    from: string
+    data: string
+    callValue?: string
+  }): Promise<string> {
+    const { energyPrice } = await this.getChainPrices()
 
-      return {
-        baseFee,
-        fast: baseFee,
-        average: baseFee,
-        slow: baseFee,
-        estimatedBandwidth: String(estimatedBytes),
-      }
-    } catch (_err) {
-      const defaultFee = '268000'
-      return {
-        baseFee: defaultFee,
-        fast: defaultFee,
-        average: defaultFee,
-        slow: defaultFee,
-        estimatedBandwidth: '268',
-      }
+    const response = await fetch(`${this.rpcUrl}/wallet/triggerconstantcontract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
+      body: JSON.stringify({
+        owner_address: params.from,
+        contract_address: params.contractAddress,
+        data: params.data.startsWith('0x') ? params.data.slice(2) : params.data,
+        call_value: Number(params.callValue) || 0,
+        visible: true,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`[tron] contract call simulation request failed: ${response.status}`)
     }
+
+    const result: SimulationResult = await response.json()
+
+    return String(this.getSimulatedEnergy(result, 'contract call') * energyPrice)
+  }
+
+  // A revert still reports result.result: true with the partial energy burned - trusting it would underestimate
+  private getSimulatedEnergy(result: SimulationResult, label: string): number {
+    const isReverted = result.transaction?.ret?.some(ret => ret.ret === 'FAILED')
+
+    if (result.result?.result !== true || isReverted || !result.energy_used) {
+      throw new Error(
+        `[tron] ${label} simulation failed: ${result.result?.message ?? 'unknown error'}`,
+      )
+    }
+
+    return result.energy_used
   }
 }

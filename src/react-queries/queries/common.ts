@@ -9,10 +9,10 @@ import { Err, Ok } from '@sniptt/monads'
 import { GetAllowanceErr } from '../types'
 
 import type { PartialFields } from '@/lib/types'
-import { assertGetChainAdapter } from '@/lib/utils'
+import { assertGetChainAdapter, assertGetTronChainAdapter } from '@/lib/utils'
 import type { GetFeesWithWalletEip1559SupportArgs } from '@/lib/utils/evm'
 import { getErc20Allowance } from '@/lib/utils/evm'
-import { getTrc20Allowance } from '@/lib/utils/tron/getAllowance'
+import { getTrc20Allowance } from '@/lib/utils/tron'
 
 export const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -76,6 +76,33 @@ export const common = createQueryKeys('common', {
     chainId: ChainId | undefined
   }) => ({
     queryKey: ['evmFees', to, chainId, data, value, from],
+  }),
+  tronFees: ({
+    chainId,
+    to,
+    from,
+    value,
+    data,
+  }: {
+    chainId: ChainId | undefined
+    to: string | undefined
+    from: string | undefined
+    value: string
+    data: string | undefined
+  }) => ({
+    queryKey: ['tronFees', chainId, to, from, value, data],
+    queryFn: async () => {
+      if (!chainId || !to || !from || !data) throw new Error('Missing tron fee parameters')
+
+      const { fast } = await assertGetTronChainAdapter(chainId).getFeeData({
+        to,
+        value,
+        sendMax: false,
+        chainSpecific: { from, data },
+      })
+
+      return { networkFeeCryptoBaseUnit: fast.txFee }
+    },
   }),
   hdwalletNativeVaultsList: () => ({
     queryKey: ['hdwalletNativeVaultsList'],

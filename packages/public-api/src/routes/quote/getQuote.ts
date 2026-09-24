@@ -223,7 +223,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       rate: quote.rate,
     }
 
-    const approval = await buildApprovalInfo(step, sendAddress)
+    const approval = await buildApprovalInfo(step, sendAddress, deps)
 
     // taken after the allowance rpc reads so a slow check can't sneak an expired quote through
     const now = Date.now()

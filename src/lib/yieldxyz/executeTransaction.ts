@@ -494,14 +494,10 @@ const executeTronTransaction = async ({
 
   const from = await adapter.getAddress({ accountNumber, wallet })
 
-  const signedTx = await adapter.signTransaction({ txToSign, wallet })
-
-  if (!signedTx) throw new Error('Failed to sign Tron transaction')
-
-  const txHash = await adapter.broadcastTransaction({
+  const txHash = await adapter.signAndBroadcastTransaction({
     senderAddress: from,
     receiverAddress: CONTRACT_INTERACTION,
-    hex: signedTx,
+    signTxInput: { txToSign, wallet },
   })
 
   if (!txHash) throw new Error('Failed to broadcast Tron transaction')

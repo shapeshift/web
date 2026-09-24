@@ -3007,7 +3007,8 @@
         "body": "rFOX é um termo usado para descrever os benefícios e recompensas que você recebe ao fazer stake dos seus tokens FOX no Arbitrum. Atualmente, você os trava e desbloqueia tokens vanilla FOX (no Arbitrum) para emissões de staking."
       },
       "why": {
-        "title": "Por que fazer o stake de FOX?"
+        "title": "Por que fazer o stake de FOX?",
+        "body": "Ao fazer staking de seus FOX, você recebe pagamentos regulares em USDC do tesouro da DAO, o que proporciona um fluxo constante de renda passiva em USDC por época. Além disso, uma parte da receita da DAO é destinada à recompra de FOX no mercado aberto. O desbloqueio (unstaking) está sujeito a um período de espera, durante o qual seus FOX permanecem bloqueados e param de gerar rendimentos."
       },
       "stake": {
         "title": "Como faço para realizar stake de FOX?",
@@ -3025,7 +3026,10 @@
         "title": "Posso ter vários valores em unstaking?",
         "body": "Sim, você pode ter vários valores em unstaking. Cada ação terá seu próprio período de espera de 28 dias."
       },
-      "connect": {}
+      "connect": {
+        "title": "Como se relacionam o total de taxas arrecadadas, o total de FOX em staking, o fundo de emissões e o valor de recompra de FOX?",
+        "body": "As taxas cobradas pela DAO são em ativos nativos por usuário. Uma parte dessa receita é convertida e distribuída aos participantes do staking de FOX como recompensas, enquanto outra parte é destinada à recompra de FOX no mercado aberto. O total de FOX em staking influencia a distribuição das recompensas, já que estas são distribuídas proporcionalmente à quantidade de FOX em staking. O pool de emissões representa a quantidade de FOX disponível para recompensas de staking, e o valor de recompra de FOX é a parcela da receita utilizada para recomprar FOX."
+      }
     },
     "totals": "Totais de rFOX",
     "totalStaked": "Total %{symbol} em stake",
@@ -3033,11 +3037,19 @@
     "totalFeesCollected": "Total de taxas coletadas (esta época)",
     "emissionsPool": "%{symbol} Emissões da Pool (Nesta Época)",
     "emissionsPoolHelper": "O valor total de recompensas a serem distribuídas %{symbol} stakers",
-    "foxBurnAmount": "Quantidade de queima da FOX (nesta época)",
+    "foxBuybackAmount": "Valor de recompra da FOX (nesta época)",
     "pendingDistribution": "Distribuição pendente",
     "selectRuneAddress": "Selecione um endereço RUNE",
+    "unstakeDisabledMigrationTooltip": "O unstaking será desativado até %{migrationDate}, quando o período de espera for removido.",
     "lpSunsetWarningTitle": "Programa encerrado",
-    "lpSunsetWarningDescription": "O programa de recompensas Arbitrum WETH/FOX foi descontinuado. Por favor, retire seus ativos (unstaking) e resgate seu saldo assim que possível."
+    "lpSunsetWarningDescription": "O programa de recompensas Arbitrum WETH/FOX foi descontinuado. Por favor, retire seus ativos (unstaking) e resgate seu saldo assim que possível.",
+    "claimInProgress": "Resgate em andamento",
+    "migrationBannerTitle": "rFOX está migrando para a Ethereum.",
+    "migrationBannerDescription": "O staking de rFOX será migrado da Arbitrum para a Ethereum em %{migrationDate}. Você continuará ganhando recompensas na Arbitrum até lá, quando o unstaking será liberado para que você possa transferir seus FOX.",
+    "migrationBannerCta": "Migrar FOX para Ethereum",
+    "stakingPausedTooltip": "O staking está pausado para este programa.",
+    "unstakingPausedTooltip": "O unstaking está pausado para este programa.",
+    "withdrawalsPausedTooltip": "O resgate de tokens para este programa está pausado."
   },
   "TCY": {
     "stake": "Stake",
@@ -3153,7 +3165,7 @@
     "foxToken": "Token FOX",
     "24hrPriceChange": "Alteração de preço 24h",
     "rfox": {
-      "totalBurn": "Total Queimado",
+      "totalBuyback": "Recompra Total",
       "simulateTitle": "Simulador rFOX",
       "simulateSubtle": "Simule seu rendimento de staking rFOX",
       "estimatedRewards": "Recompensas estimadas",
@@ -3375,7 +3387,8 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

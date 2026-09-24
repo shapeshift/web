@@ -161,8 +161,8 @@ type UseYieldTransactionFlowProps = {
   passthrough?: string
   manageActionType?: string
   accountId?: string
-  // what the action can spend: the wallet balance to enter, the staked balance to exit
-  availableBalanceCryptoPrecision?: string
+  // the stake an exit can draw on, once known; a deposit reads the wallet balance itself
+  stakedBalanceCryptoPrecision?: string
 }
 
 export const useYieldTransactionFlow = ({
@@ -176,7 +176,7 @@ export const useYieldTransactionFlow = ({
   passthrough,
   manageActionType,
   accountId: accountIdProp,
-  availableBalanceCryptoPrecision,
+  stakedBalanceCryptoPrecision,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -288,14 +288,15 @@ export const useYieldTransactionFlow = ({
           assetId: inputTokenAssetId,
           accountId,
         }).toPrecision()
-      : '0',
+      : undefined,
   )
 
-  const spendableCryptoPrecision =
-    availableBalanceCryptoPrecision ??
-    (action === 'enter' ? inputTokenBalanceCryptoPrecision : undefined)
+  const spendableCryptoPrecision = (() => {
+    if (action === 'enter') return inputTokenBalanceCryptoPrecision
+    if (action === 'exit') return stakedBalanceCryptoPrecision
+  })()
 
-  // An amount over what the action can spend is neither quoted nor simulated; the fee falls back to the probe until it is corrected
+  // An amount over what the action can spend is neither quoted nor simulated
   const isInsufficientBalance =
     action !== 'manage' &&
     !isAmountLocked &&
@@ -362,7 +363,7 @@ export const useYieldTransactionFlow = ({
 
   // Prices the call before an amount exists: a native deposit of the whole fee asset balance, or an exit of the whole stake
   const probeAmountCryptoPrecision =
-    action === 'enter' ? feeAssetBalanceCryptoPrecision : availableBalanceCryptoPrecision
+    action === 'enter' ? feeAssetBalanceCryptoPrecision : stakedBalanceCryptoPrecision
   const isProbeAction = isNativeEnter || action === 'exit'
 
   const { data: tronFeeProbe, isLoading: isTronFeeProbeLoading } = useQuery({
@@ -372,6 +373,7 @@ export const useYieldTransactionFlow = ({
       action,
       yieldItem?.id,
       userAddress,
+      validatorAddress,
       probeAmountCryptoPrecision,
     ],
     queryFn: () => {
@@ -394,7 +396,7 @@ export const useYieldTransactionFlow = ({
     retry: false,
   })
 
-  // Once an amount exists the quote prices the fee; keying on the quote's presence would flash the probe fee on every refetch
+  // The probe prices the fee only while there is no quotable amount
   const usesProbeFee = action !== 'manage' && (!bnOrZero(amount).gt(0) || isInsufficientBalance)
 
   const {
@@ -409,13 +411,15 @@ export const useYieldTransactionFlow = ({
     from: userAddress,
   })
 
-  // The last priced fee is held while the next quote is fetched, and dropped once there is no call to price at all
+  // A held fee outlives its call only while the next quote is fetched
   const isTronQuotePending = yieldChainId === tronChainId && isQuoteLoading
   const hasNetworkFee = hasTronContractCall || isTronQuotePending
   const networkFeeCryptoBaseUnit = hasNetworkFee ? tronNetworkFeeCryptoBaseUnit : undefined
   const networkFeeCryptoPrecision = hasNetworkFee ? tronNetworkFeeCryptoPrecision : undefined
 
-  const isNetworkFeeLoading = isTronFeeProbeLoading || isTronNetworkFeeLoading || isTronQuotePending
+  // a probe disabled mid-fetch keeps resolving, so its loading only counts while it is the fee source
+  const isNetworkFeeLoading =
+    (usesProbeFee && isTronFeeProbeLoading) || isTronNetworkFeeLoading || isTronQuotePending
 
   // later steps are priced again right before they are signed, so a failed refetch must not stall a started flow
   const isNetworkFeeError = !isAmountLocked && isNetworkFeeQueryError
@@ -451,6 +455,12 @@ export const useYieldTransactionFlow = ({
     amount,
     feeAssetBalanceCryptoBaseUnit,
   ])
+
+  // The tron fee row always renders: a dash stands in without a quotable amount or with nothing to price
+  const isNetworkFeePlaceholder =
+    yieldChainId === tronChainId &&
+    !isInsufficientFeeAssetBalance &&
+    (!bnOrZero(amount).gt(0) || (!hasNetworkFee && !isNetworkFeeLoading))
 
   const assertTronFeeCovered = useCallback(
     async (tx: TransactionDto) => {
@@ -1255,6 +1265,7 @@ export const useYieldTransactionFlow = ({
       isAmountLocked,
       networkFeeCryptoPrecision,
       isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
       isNetworkFeeError,
       isInsufficientBalance,
       isInsufficientFeeAssetBalance,
@@ -1277,6 +1288,7 @@ export const useYieldTransactionFlow = ({
       isAmountLocked,
       networkFeeCryptoPrecision,
       isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
       isNetworkFeeError,
       isInsufficientBalance,
       isInsufficientFeeAssetBalance,

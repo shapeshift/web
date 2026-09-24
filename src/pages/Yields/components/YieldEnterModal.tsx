@@ -1,6 +1,5 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { tronChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -258,7 +257,6 @@ export const YieldEnterModal = memo(
     )
 
     const hasAmount = bnOrZero(cryptoAmount).gt(0)
-    const isTronYield = yieldItem.chainId === tronChainId
 
     const displayPlaceholder = useMemo(
       () => (isFiat ? `${localeParts.prefix}0` : '0'),
@@ -327,6 +325,7 @@ export const YieldEnterModal = memo(
       isAmountLocked,
       networkFeeCryptoPrecision,
       isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
       isNetworkFeeError,
       isInsufficientBalance,
       isInsufficientFeeAssetBalance,
@@ -584,7 +583,7 @@ export const YieldEnterModal = memo(
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
             isLoading={isNetworkFeeLoading}
-            isPlaceholder={isTronYield && !hasAmount}
+            isPlaceholder={isNetworkFeePlaceholder}
             mt={3}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && (
@@ -606,7 +605,6 @@ export const YieldEnterModal = memo(
       [
         translate,
         apyDisplay,
-        hasAmount,
         estimatedYearlyEarnings,
         inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
@@ -620,7 +618,7 @@ export const YieldEnterModal = memo(
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
         isNetworkFeeLoading,
-        isTronYield,
+        isNetworkFeePlaceholder,
       ],
     )
 

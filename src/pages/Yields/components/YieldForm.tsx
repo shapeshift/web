@@ -13,7 +13,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { tronChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import dayjsDuration from 'dayjs/plugin/duration'
@@ -311,14 +310,8 @@ export const YieldForm = memo(
       if (action === 'enter' && minDeposit) {
         return bnOrZero(cryptoAmount).lt(minDeposit)
       }
-      if (action === 'exit') {
-        // For exit, maybe ensure they don't exit more than they have?
-        // Though the transaction flow usually simulates and fails.
-        // But UI check is nice.
-        return bnOrZero(cryptoAmount).gt(availableBalance)
-      }
       return false
-    }, [cryptoAmount, minDeposit, action, availableBalance])
+    }, [cryptoAmount, minDeposit, action])
 
     const isLoading = isValidatorsLoading || !inputTokenAsset
 
@@ -341,7 +334,6 @@ export const YieldForm = memo(
     )
 
     const hasAmount = bnOrZero(cryptoAmount).gt(0)
-    const isTronYield = yieldItem.chainId === tronChainId
 
     const displayPlaceholder = useMemo(
       () => (isFiat ? `${localeParts.prefix}0` : '0'),
@@ -443,6 +435,7 @@ export const YieldForm = memo(
       isAmountLocked,
       networkFeeCryptoPrecision,
       isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
       isNetworkFeeError,
       isInsufficientBalance,
       isInsufficientFeeAssetBalance,
@@ -458,7 +451,8 @@ export const YieldForm = memo(
       accountId,
       passthrough: activeManageAction?.passthrough,
       manageActionType: activeManageAction?.type,
-      availableBalanceCryptoPrecision: availableBalance,
+      stakedBalanceCryptoPrecision:
+        flowAction === 'exit' && balances ? availableBalance : undefined,
     })
 
     useTrimDepositToNetworkFee({
@@ -748,7 +742,7 @@ export const YieldForm = memo(
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
             isLoading={isNetworkFeeLoading}
-            isPlaceholder={isTronYield && !hasAmount}
+            isPlaceholder={isNetworkFeePlaceholder}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center'>
@@ -769,7 +763,6 @@ export const YieldForm = memo(
       [
         translate,
         apyDisplay,
-        hasAmount,
         estimatedYearlyEarnings,
         inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
@@ -784,7 +777,7 @@ export const YieldForm = memo(
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
         isNetworkFeeLoading,
-        isTronYield,
+        isNetworkFeePlaceholder,
       ],
     )
 

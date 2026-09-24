@@ -14,6 +14,7 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
+import { BigNumber } from 'bignumber.js'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
@@ -296,12 +297,16 @@ export const useYieldTransactionFlow = ({
     if (action === 'exit') return stakedBalanceCryptoPrecision
   })()
 
-  // An amount over what the action can spend is neither quoted nor simulated
-  const isInsufficientBalance =
-    action !== 'manage' &&
-    !isAmountLocked &&
-    spendableCryptoPrecision !== undefined &&
-    bnOrZero(amount).gt(spendableCryptoPrecision)
+  const hasAmount = useMemo(() => bnOrZero(amount).gt(0), [amount])
+
+  const isInsufficientBalance = useMemo(
+    () =>
+      action !== 'manage' &&
+      !isAmountLocked &&
+      spendableCryptoPrecision !== undefined &&
+      bnOrZero(amount).gt(spendableCryptoPrecision),
+    [action, isAmountLocked, spendableCryptoPrecision, amount],
+  )
 
   const {
     data: quoteData,
@@ -361,9 +366,18 @@ export const useYieldTransactionFlow = ({
 
   const isNativeEnter = action === 'enter' && inputTokenAssetId === feeAsset?.assetId
 
+  // The probe prices the fee only while there is no quotable amount
+  const usesProbeFee = action !== 'manage' && (!hasAmount || isInsufficientBalance)
+
   // Prices the call before an amount exists: a native deposit of the whole fee asset balance, or an exit of the whole stake
-  const probeAmountCryptoPrecision =
-    action === 'enter' ? feeAssetBalanceCryptoPrecision : stakedBalanceCryptoPrecision
+  const probeAmountCryptoPrecision = useMemo(() => {
+    const balance =
+      action === 'enter' ? feeAssetBalanceCryptoPrecision : stakedBalanceCryptoPrecision
+    if (!balance) return
+
+    // the fee barely moves with the amount, so dust ticks in the balance must not re-price it
+    return bnOrZero(balance).decimalPlaces(2, BigNumber.ROUND_DOWN).toFixed()
+  }, [action, feeAssetBalanceCryptoPrecision, stakedBalanceCryptoPrecision])
   const isProbeAction = isNativeEnter || action === 'exit'
 
   const { data: tronFeeProbe, isLoading: isTronFeeProbeLoading } = useQuery({
@@ -388,16 +402,13 @@ export const useYieldTransactionFlow = ({
       !isAmountLocked &&
       isProbeAction &&
       yieldChainId === tronChainId &&
-      !quoteData &&
+      usesProbeFee &&
       !!yieldItem &&
       !!userAddress &&
       bnOrZero(probeAmountCryptoPrecision).gt(0),
     staleTime: 60_000,
     retry: false,
   })
-
-  // The probe prices the fee only while there is no quotable amount
-  const usesProbeFee = action !== 'manage' && (!bnOrZero(amount).gt(0) || isInsufficientBalance)
 
   const {
     hasContractCall: hasTronContractCall,
@@ -411,25 +422,30 @@ export const useYieldTransactionFlow = ({
     from: userAddress,
   })
 
-  // A held fee outlives its call only while the next quote is fetched
+  // Gating reads only a fee priced for the current call; the display also holds the last fee while the next quote is fetched
   const isTronQuotePending = yieldChainId === tronChainId && isQuoteLoading
   const hasNetworkFee = hasTronContractCall || isTronQuotePending
-  const networkFeeCryptoBaseUnit = hasNetworkFee ? tronNetworkFeeCryptoBaseUnit : undefined
+  const networkFeeCryptoBaseUnit = hasTronContractCall ? tronNetworkFeeCryptoBaseUnit : undefined
+  const pricedNetworkFeeCryptoPrecision = hasTronContractCall
+    ? tronNetworkFeeCryptoPrecision
+    : undefined
   const networkFeeCryptoPrecision = hasNetworkFee ? tronNetworkFeeCryptoPrecision : undefined
 
   // a probe disabled mid-fetch keeps resolving, so its loading only counts while it is the fee source
   const isNetworkFeeLoading =
-    (usesProbeFee && isTronFeeProbeLoading) || isTronNetworkFeeLoading || isTronQuotePending
+    (usesProbeFee && hasAmount && isTronFeeProbeLoading) ||
+    isTronNetworkFeeLoading ||
+    isTronQuotePending
 
   // later steps are priced again right before they are signed, so a failed refetch must not stall a started flow
   const isNetworkFeeError = !isAmountLocked && isNetworkFeeQueryError
 
   // What a native deposit can spend once the fee is priced
   const maxEnterAmountCryptoPrecision = useMemo(() => {
-    if (!isNativeEnter || !networkFeeCryptoPrecision) return
-    const max = bnOrZero(feeAssetBalanceCryptoPrecision).minus(networkFeeCryptoPrecision)
+    if (!isNativeEnter || !pricedNetworkFeeCryptoPrecision) return
+    const max = bnOrZero(feeAssetBalanceCryptoPrecision).minus(pricedNetworkFeeCryptoPrecision)
     return max.isPositive() ? max.toFixed() : '0'
-  }, [isNativeEnter, networkFeeCryptoPrecision, feeAssetBalanceCryptoPrecision])
+  }, [isNativeEnter, pricedNetworkFeeCryptoPrecision, feeAssetBalanceCryptoPrecision])
 
   // Gates the first step before anything is signed; a native deposit spends the fee asset on top of the fee
   const isInsufficientFeeAssetBalance = useMemo(() => {
@@ -456,11 +472,10 @@ export const useYieldTransactionFlow = ({
     feeAssetBalanceCryptoBaseUnit,
   ])
 
-  // The tron fee row always renders: a dash stands in without a quotable amount or with nothing to price
   const isNetworkFeePlaceholder =
     yieldChainId === tronChainId &&
     !isInsufficientFeeAssetBalance &&
-    (!bnOrZero(amount).gt(0) || (!hasNetworkFee && !isNetworkFeeLoading))
+    (!hasAmount || isNetworkFeeError || (!hasNetworkFee && !isNetworkFeeLoading))
 
   const assertTronFeeCovered = useCallback(
     async (tx: TransactionDto) => {

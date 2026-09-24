@@ -9,7 +9,6 @@ type YieldNetworkFeeRowProps = {
   symbol: string | undefined
   isInsufficient: boolean
   isLoading: boolean
-  // there is no transaction to price yet, so the row holds its place with a dash
   isPlaceholder?: boolean
 } & Pick<FlexProps, 'mt'>
 

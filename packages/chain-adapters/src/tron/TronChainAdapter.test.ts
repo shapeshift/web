@@ -185,7 +185,7 @@ describe('TronChainAdapter.parseTx', () => {
           value: { owner_address: POOL, to_address: USER, amount: 71874100 },
         },
       },
-      fee: '0',
+      fee: '270000',
     })
 
     const parsed = await adapter.parseTx(tx, USER)

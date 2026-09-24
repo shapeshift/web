@@ -508,6 +508,7 @@ export const YieldForm = memo(
       if (!isConnected) return false
       if (isLoading) return true
       if (isActionDisabled) return true
+      if (isNetworkFeeLoading || isNetworkFeeError || isInsufficientFeeAssetBalance) return true
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
@@ -518,14 +519,7 @@ export const YieldForm = memo(
           bnOrZero(withdrawableAmountFromPassthrough).lte(0)
         )
       }
-      return (
-        !cryptoAmount ||
-        isBelowMinimum ||
-        !quoteData ||
-        isNetworkFeeLoading ||
-        isNetworkFeeError ||
-        isInsufficientFeeAssetBalance
-      )
+      return !cryptoAmount || isBelowMinimum || !quoteData
     }, [
       isConnected,
       isLoading,

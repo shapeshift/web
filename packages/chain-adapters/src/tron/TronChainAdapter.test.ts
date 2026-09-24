@@ -13,8 +13,8 @@ const STRX_ASSET_ID = `tron:0x2b6653dc/trc20:${STRX}`
 
 const TRANSFER_TOPIC = 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 
-const topic = (address: string) => TronWeb.address.toHex(address).slice(2).padStart(64, '0')
-const word = (value: bigint) => value.toString(16).padStart(64, '0')
+const topic = (address: string): string => TronWeb.address.toHex(address).slice(2).padStart(64, '0')
+const word = (value: bigint): string => value.toString(16).padStart(64, '0')
 
 const transferLog = (from: string, to: string, value: bigint): unchained.tron.TronTxLog => ({
   address: STRX,
@@ -68,7 +68,9 @@ const makeTx = ({
   internal_transactions,
 })
 
-const triggerSmartContract = (callValue: number) => ({
+const triggerSmartContract = (
+  callValue: number,
+): unchained.tron.TronTx['raw_data']['contract'][number] => ({
   type: 'TriggerSmartContract',
   parameter: {
     type_url: 'type.googleapis.com/protocol.TriggerSmartContract',

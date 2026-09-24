@@ -361,12 +361,15 @@ export const useYieldTransactionFlow = ({
     networkFeeCryptoBaseUnit,
     networkFeeCryptoPrecision,
     isLoading: isNetworkFeeLoading,
-    isError: isNetworkFeeError,
+    isError: isNetworkFeeQueryError,
   } = useYieldTronNetworkFee({
     chainId: yieldChainId,
     transactions: quoteData?.transactions ?? tronFeeProbe?.transactions,
     from: userAddress,
   })
+
+  // later steps are priced again right before they are signed, so a failed refetch must not stall a started flow
+  const isNetworkFeeError = !isAmountLocked && isNetworkFeeQueryError
 
   // What a native deposit can spend once the fee is priced
   const maxEnterAmountCryptoPrecision = useMemo(() => {

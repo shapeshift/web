@@ -260,7 +260,9 @@ export const YieldForm = memo(
     }, [providers, yieldItem.providerId])
 
     const inputTokenAsset = useAppSelector(state => selectAssetById(state, inputTokenAssetId ?? ''))
-    const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, yieldItem.chainId))
+    const feeAsset = useAppSelector(state =>
+      yieldItem.chainId ? selectFeeAssetByChainId(state, yieldItem.chainId) : undefined,
+    )
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId

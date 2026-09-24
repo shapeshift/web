@@ -20,7 +20,7 @@ type ExplainerItem = {
 
 const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] => {
   // a withdraw with a cooldown is an unbonding period whatever the yield type calls itself
-  const withdrawKey = (immediateKey: string) =>
+  const withdrawKey = (immediateKey: string): string =>
     selectedYield.mechanics.cooldownPeriod?.seconds
       ? 'earn.explainers.stakingUnbonding'
       : immediateKey

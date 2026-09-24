@@ -274,6 +274,24 @@ export const useYieldTransactionFlow = ({
 
   const txArguments = useMemo(() => buildTxArguments(amount), [buildTxArguments, amount])
 
+  const isAmountLocked = useMemo(
+    () => transactionSteps.some(step => Boolean(step.txHash)),
+    [transactionSteps],
+  )
+
+  const inputTokenBalanceCryptoPrecision = useAppSelector(state =>
+    inputTokenAssetId && accountId
+      ? selectPortfolioCryptoBalanceByFilter(state, {
+          assetId: inputTokenAssetId,
+          accountId,
+        }).toPrecision()
+      : '0',
+  )
+
+  // An amount over the balance is neither quoted nor simulated; the fee falls back to the probe until it is corrected
+  const isInsufficientBalance =
+    action === 'enter' && !isAmountLocked && bnOrZero(amount).gt(inputTokenBalanceCryptoPrecision)
+
   const {
     data: quoteData,
     isLoading: isQuoteLoading,
@@ -297,16 +315,18 @@ export const useYieldTransactionFlow = ({
       const fn = action === 'enter' ? enterYield : exitYield
       return fn({ yieldId: yieldItem.id, address: userAddress, arguments: txArguments })
     },
-    enabled: !!txArguments && !!wallet && !!accountId && !!yieldItem && canSubmit && isOpen,
+    enabled:
+      !!txArguments &&
+      !!wallet &&
+      !!accountId &&
+      !!yieldItem &&
+      canSubmit &&
+      isOpen &&
+      !isInsufficientBalance,
     staleTime: 0,
     gcTime: 0,
     retry: false,
   })
-
-  const isAmountLocked = useMemo(
-    () => transactionSteps.some(step => Boolean(step.txHash)),
-    [transactionSteps],
-  )
 
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     feeAsset && accountId
@@ -328,20 +348,7 @@ export const useYieldTransactionFlow = ({
     [feeAsset, feeAssetBalanceCryptoBaseUnit],
   )
 
-  const inputTokenBalanceCryptoPrecision = useAppSelector(state =>
-    inputTokenAssetId && accountId
-      ? selectPortfolioCryptoBalanceByFilter(state, {
-          assetId: inputTokenAssetId,
-          accountId,
-        }).toPrecision()
-      : '0',
-  )
-
   const isNativeEnter = action === 'enter' && inputTokenAssetId === feeAsset?.assetId
-
-  // An amount over the balance can't be simulated, so the fee falls back to the probe until it is corrected
-  const isInsufficientBalance =
-    action === 'enter' && !isAmountLocked && bnOrZero(amount).gt(inputTokenBalanceCryptoPrecision)
 
   // Prices the deposit before an amount exists so percent buttons can leave room for the fee, which barely moves with the amount
   const { data: tronFeeProbe, isLoading: isTronFeeProbeLoading } = useQuery({
@@ -362,7 +369,7 @@ export const useYieldTransactionFlow = ({
       !isAmountLocked &&
       isNativeEnter &&
       yieldChainId === tronChainId &&
-      (!quoteData || isInsufficientBalance) &&
+      !quoteData &&
       !!yieldItem &&
       !!userAddress &&
       bnOrZero(feeAssetBalanceCryptoPrecision).gt(0),

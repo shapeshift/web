@@ -35,6 +35,11 @@ type TronContract = {
   origin_address?: string
 }
 
+// java-tron reads a stored zero, which TronGrid omits, as this creator default
+const TRON_CREATOR_DEFAULT_ENERGY_LIMIT = 10_000_000
+// A deployer's unspent energy moves slowly next to how often the swappers re-estimate
+const TRON_ORIGIN_ENERGY_TTL_MS = 15_000
+
 // The deployer covers the rest only out of what they have staked, so a dry deployer (Tether) leaves the caller paying in full
 export const getCallerEnergy = (energyUsed: number, share: TronContractEnergyShare): number => {
   const originShare = Math.floor((energyUsed * (100 - share.callerPercent)) / 100)
@@ -51,6 +56,7 @@ export class TronApi {
   private readonly apiKey: string
   private tronWeb: TronWeb | null = null
   private readonly contracts = new Map<string, Promise<TronContract>>()
+  private readonly originEnergy = new Map<string, { readAt: number; value: Promise<number> }>()
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
@@ -371,33 +377,19 @@ export class TronApi {
     }
   }
 
-  // A plain address answers getcontract with {}; a failed lookup prices the call as if the caller paid in full
+  // A plain address answers getcontract with {} and pays in full
   async getContractEnergyShare(contractAddress: string): Promise<TronContractEnergyShare> {
-    try {
-      const contract = await this.getContract(contractAddress)
-      if (!contract.origin_address) return TRON_CALLER_PAYS_ALL
+    const contract = await this.getContract(contractAddress)
+    if (!contract.origin_address) return TRON_CALLER_PAYS_ALL
 
-      // TronGrid omits zero-valued fields, so a contract whose deployer pays everything carries no percent at all
-      const callerPercent = contract.consume_user_resource_percent ?? 0
-      const originEnergyLimit = contract.origin_energy_limit ?? 0
+    // TronGrid omits zero-valued fields, so a contract whose deployer pays everything carries no percent at all
+    const callerPercent = contract.consume_user_resource_percent ?? 0
+    if (callerPercent >= 100) return TRON_CALLER_PAYS_ALL
 
-      if (callerPercent >= 100 || !originEnergyLimit) return TRON_CALLER_PAYS_ALL
-
-      const resource = await this.post<{ EnergyLimit?: number; EnergyUsed?: number }>(
-        '/wallet/getaccountresource',
-        { address: contract.origin_address, visible: true },
-      )
-
-      return {
-        callerPercent,
-        originEnergyLimit,
-        originEnergyAvailable: Math.max(
-          0,
-          (resource.EnergyLimit ?? 0) - (resource.EnergyUsed ?? 0),
-        ),
-      }
-    } catch {
-      return TRON_CALLER_PAYS_ALL
+    return {
+      callerPercent,
+      originEnergyLimit: contract.origin_energy_limit || TRON_CREATOR_DEFAULT_ENERGY_LIMIT,
+      originEnergyAvailable: await this.getOriginEnergyAvailable(contract.origin_address),
     }
   }
 
@@ -406,17 +398,44 @@ export class TronApi {
     const cached = this.contracts.get(contractAddress)
     if (cached) return cached
 
-    const contract = this.post<TronContract>('/wallet/getcontract', {
+    const contract = this.post<TronContract & { Error?: string }>('/wallet/getcontract', {
       value: contractAddress,
       visible: true,
-    }).catch(err => {
-      this.contracts.delete(contractAddress)
-      throw err
     })
+      .then(body => {
+        if (body.Error) throw new Error(`[tron] getcontract failed: ${body.Error}`)
+        return body
+      })
+      .catch(err => {
+        this.contracts.delete(contractAddress)
+        throw err
+      })
 
     this.contracts.set(contractAddress, contract)
 
     return contract
+  }
+
+  private getOriginEnergyAvailable(originAddress: string): Promise<number> {
+    const cached = this.originEnergy.get(originAddress)
+    if (cached && Date.now() - cached.readAt < TRON_ORIGIN_ENERGY_TTL_MS) return cached.value
+
+    const value = this.post<{ EnergyLimit?: number; EnergyUsed?: number; Error?: string }>(
+      '/wallet/getaccountresource',
+      { address: originAddress, visible: true },
+    )
+      .then(body => {
+        if (body.Error) throw new Error(`[tron] getaccountresource failed: ${body.Error}`)
+        return Math.max(0, (body.EnergyLimit ?? 0) - (body.EnergyUsed ?? 0))
+      })
+      .catch(err => {
+        this.originEnergy.delete(originAddress)
+        throw err
+      })
+
+    this.originEnergy.set(originAddress, { readAt: Date.now(), value })
+
+    return value
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
@@ -440,7 +459,7 @@ export class TronApi {
     const tronWeb = this.getTronWeb()
     const [{ energyPrice }, share] = await Promise.all([
       this.getChainPrices(),
-      this.getContractEnergyShare(params.contractAddress),
+      this.getContractEnergyShare(params.contractAddress).catch(() => TRON_CALLER_PAYS_ALL),
     ])
 
     const result = await tronWeb.transactionBuilder.triggerConstantContract(
@@ -465,9 +484,10 @@ export class TronApi {
     data: string
     callValue?: string
   }): Promise<string> {
+    // a failed lookup prices the simulation as if the caller paid in full
     const [{ energyPrice }, share] = await Promise.all([
       this.getChainPrices(),
-      this.getContractEnergyShare(params.contractAddress),
+      this.getContractEnergyShare(params.contractAddress).catch(() => TRON_CALLER_PAYS_ALL),
     ])
 
     const response = await fetch(`${this.rpcUrl}/wallet/triggerconstantcontract`, {

@@ -32,8 +32,8 @@ describe('getTronFeeLimit', () => {
   it('floors a near-free call at 10 TRX', () => expect(getTronFeeLimit('636000')).toBe(10_000_000))
   it('caps at the standard 100 TRX limit', () =>
     expect(getTronFeeLimit('54100000')).toBe(100_000_000))
-  it('never caps below the estimate itself', () =>
-    expect(getTronFeeLimit('252000000')).toBe(252_000_000))
+  it('keeps 1.5x headroom past the standard limit', () =>
+    expect(getTronFeeLimit('252000000')).toBe(378_000_000))
   it('falls back to the standard limit without an estimate', () => {
     expect(getTronFeeLimit(undefined)).toBe(100_000_000)
     expect(getTronFeeLimit('0')).toBe(100_000_000)

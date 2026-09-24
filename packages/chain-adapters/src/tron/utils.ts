@@ -9,6 +9,8 @@ export const getTronContractCallBandwidthBytes = (data: string): number =>
 
 // What a call can burn before it fails: 3x clears every measured drift while a lapsed deployer subsidy fails cheaply
 export const TRON_FEE_LIMIT_HEADROOM = 3
+// Past the standard limit the ceiling scales with the estimate rather than capping a call it can't cover
+export const TRON_LARGE_ESTIMATE_HEADROOM = 1.5
 // Near-free calls get a limit a single state-dependent branch can't exhaust
 export const TRON_MIN_FEE_LIMIT_SUN = 10_000_000
 export const TRON_DEFAULT_FEE_LIMIT_SUN = 100_000_000
@@ -18,8 +20,10 @@ export const getTronFeeLimit = (networkFeeCryptoBaseUnit: string | undefined): n
   if (!Number.isFinite(estimate) || estimate <= 0) return TRON_DEFAULT_FEE_LIMIT_SUN
 
   const headroom = Math.ceil(estimate * TRON_FEE_LIMIT_HEADROOM)
-  // a ceiling under the estimate could only ever run the call out of energy
-  const ceiling = Math.max(TRON_DEFAULT_FEE_LIMIT_SUN, Math.ceil(estimate))
+  const ceiling = Math.max(
+    TRON_DEFAULT_FEE_LIMIT_SUN,
+    Math.ceil(estimate * TRON_LARGE_ESTIMATE_HEADROOM),
+  )
 
   return Math.min(Math.max(headroom, TRON_MIN_FEE_LIMIT_SUN), ceiling)
 }

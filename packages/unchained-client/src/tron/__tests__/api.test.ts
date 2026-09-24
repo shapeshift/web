@@ -54,6 +54,13 @@ describe('TronApi', () => {
       expect(await api.estimateContractCallFee(params)).toBe('6428500')
     })
 
+    it('prices the caller in full when the share lookup fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => successResponse }))
+      vi.mocked(api.getContractEnergyShare).mockRejectedValue(new Error('429'))
+
+      expect(await api.estimateContractCallFee(params)).toBe('6428500')
+    })
+
     it('bills the caller only their share when the deployer covers the rest', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => successResponse }))
       vi.mocked(api.getContractEnergyShare).mockResolvedValue({
@@ -161,6 +168,14 @@ describe('TronApi', () => {
       expect(await freshApi().getContractEnergyShare('TRouter')).toMatchObject({ callerPercent: 0 })
     })
 
+    it('reads an omitted per-call limit as the creator default', async () => {
+      respond({ consume_user_resource_percent: 5, origin_address: 'TDeployer' }, resourceResponse)
+
+      expect(await freshApi().getContractEnergyShare('TRouter')).toMatchObject({
+        originEnergyLimit: 10_000_000,
+      })
+    })
+
     it('reads a plain address as a call the caller pays in full without a resource lookup', async () => {
       const fetchMock = respond({})
 
@@ -172,28 +187,42 @@ describe('TronApi', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 
-    it('prices the caller in full when the lookup fails', async () => {
+    it('rejects a failed lookup rather than guessing the split', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 429 }))
 
-      expect(await freshApi().getContractEnergyShare('TRouter')).toEqual({
-        callerPercent: 100,
-        originEnergyLimit: 0,
-        originEnergyAvailable: 0,
-      })
+      await expect(freshApi().getContractEnergyShare('TRouter')).rejects.toThrow('429')
     })
 
-    it('reads the contract once and the deployer energy every time', async () => {
+    it('does not cache an error body the node returns with a 200', async () => {
+      const fetchMock = respond(
+        { Error: 'class org.tron.core.exception' },
+        contractResponse,
+        resourceResponse,
+      )
+      const api = freshApi()
+
+      await expect(api.getContractEnergyShare('TRouter')).rejects.toThrow('getcontract failed')
+      expect(await api.getContractEnergyShare('TRouter')).toMatchObject({ callerPercent: 5 })
+      expect(fetchMock).toHaveBeenCalledTimes(3)
+    })
+
+    it('reads the contract once and the deployer energy once per refresh window', async () => {
+      vi.useFakeTimers()
       const fetchMock = respond(contractResponse, resourceResponse, resourceResponse)
       const api = freshApi()
 
       await api.getContractEnergyShare('TRouter')
       await api.getContractEnergyShare('TRouter')
+      expect(fetchMock).toHaveBeenCalledTimes(2)
 
+      vi.advanceTimersByTime(16_000)
+      await api.getContractEnergyShare('TRouter')
       expect(fetchMock).toHaveBeenCalledTimes(3)
       const contractReads = fetchMock.mock.calls.filter(([url]) =>
         String(url).endsWith('/wallet/getcontract'),
       )
       expect(contractReads).toHaveLength(1)
+      vi.useRealTimers()
     })
   })
 

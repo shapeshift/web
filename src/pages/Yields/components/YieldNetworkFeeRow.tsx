@@ -9,6 +9,8 @@ type YieldNetworkFeeRowProps = {
   symbol: string | undefined
   isInsufficient: boolean
   isLoading: boolean
+  // there is no transaction to price yet, so the row holds its place with a dash
+  isPlaceholder?: boolean
 } & Pick<FlexProps, 'mt'>
 
 export const YieldNetworkFeeRow = ({
@@ -16,13 +18,27 @@ export const YieldNetworkFeeRow = ({
   symbol,
   isInsufficient,
   isLoading,
+  isPlaceholder,
   mt,
 }: YieldNetworkFeeRowProps) => {
   const translate = useTranslate()
 
   const hasFee = Boolean(networkFeeCryptoPrecision && symbol)
 
-  if (!hasFee && !isLoading) return null
+  if (!hasFee && !isLoading && !isPlaceholder) return null
+
+  if (isPlaceholder) {
+    return (
+      <Flex justify='space-between' align='center' mt={mt}>
+        <Text fontSize='sm' color='text.subtle'>
+          {translate('trade.networkFee')}
+        </Text>
+        <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+          —
+        </Text>
+      </Flex>
+    )
+  }
 
   return (
     <Flex justify='space-between' align='center' mt={mt}>

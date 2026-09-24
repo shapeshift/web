@@ -161,6 +161,8 @@ type UseYieldTransactionFlowProps = {
   passthrough?: string
   manageActionType?: string
   accountId?: string
+  // what the action can spend: the wallet balance to enter, the staked balance to exit
+  availableBalanceCryptoPrecision?: string
 }
 
 export const useYieldTransactionFlow = ({
@@ -174,6 +176,7 @@ export const useYieldTransactionFlow = ({
   passthrough,
   manageActionType,
   accountId: accountIdProp,
+  availableBalanceCryptoPrecision,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -288,9 +291,16 @@ export const useYieldTransactionFlow = ({
       : '0',
   )
 
-  // An amount over the balance is neither quoted nor simulated; the fee falls back to the probe until it is corrected
+  const spendableCryptoPrecision =
+    availableBalanceCryptoPrecision ??
+    (action === 'enter' ? inputTokenBalanceCryptoPrecision : undefined)
+
+  // An amount over what the action can spend is neither quoted nor simulated; the fee falls back to the probe until it is corrected
   const isInsufficientBalance =
-    action === 'enter' && !isAmountLocked && bnOrZero(amount).gt(inputTokenBalanceCryptoPrecision)
+    action !== 'manage' &&
+    !isAmountLocked &&
+    spendableCryptoPrecision !== undefined &&
+    bnOrZero(amount).gt(spendableCryptoPrecision)
 
   const {
     data: quoteData,
@@ -350,35 +360,42 @@ export const useYieldTransactionFlow = ({
 
   const isNativeEnter = action === 'enter' && inputTokenAssetId === feeAsset?.assetId
 
-  // Prices the deposit before an amount exists so percent buttons can leave room for the fee, which barely moves with the amount
+  // Prices the call before an amount exists: a native deposit of the whole fee asset balance, or an exit of the whole stake
+  const probeAmountCryptoPrecision =
+    action === 'enter' ? feeAssetBalanceCryptoPrecision : availableBalanceCryptoPrecision
+  const isProbeAction = isNativeEnter || action === 'exit'
+
   const { data: tronFeeProbe, isLoading: isTronFeeProbeLoading } = useQuery({
     queryKey: [
       'yieldxyz',
       'tronFeeProbe',
+      action,
       yieldItem?.id,
       userAddress,
-      feeAssetBalanceCryptoPrecision,
+      probeAmountCryptoPrecision,
     ],
     queryFn: () => {
-      const args = buildTxArguments(feeAssetBalanceCryptoPrecision)
+      const args = probeAmountCryptoPrecision && buildTxArguments(probeAmountCryptoPrecision)
       if (!args || !yieldItem) throw new Error('Missing arguments')
-      return enterYield({ yieldId: yieldItem.id, address: userAddress, arguments: args })
+
+      const fn = action === 'enter' ? enterYield : exitYield
+      return fn({ yieldId: yieldItem.id, address: userAddress, arguments: args })
     },
     enabled:
       isOpen &&
       !isAmountLocked &&
-      isNativeEnter &&
+      isProbeAction &&
       yieldChainId === tronChainId &&
       !quoteData &&
       !!yieldItem &&
       !!userAddress &&
-      bnOrZero(feeAssetBalanceCryptoPrecision).gt(0),
+      bnOrZero(probeAmountCryptoPrecision).gt(0),
     staleTime: 60_000,
     retry: false,
   })
 
   // Once an amount exists the quote prices the fee; keying on the quote's presence would flash the probe fee on every refetch
-  const usesProbeFee = action === 'enter' && (!bnOrZero(amount).gt(0) || isInsufficientBalance)
+  const usesProbeFee = action !== 'manage' && (!bnOrZero(amount).gt(0) || isInsufficientBalance)
 
   const {
     hasContractCall: hasTronContractCall,

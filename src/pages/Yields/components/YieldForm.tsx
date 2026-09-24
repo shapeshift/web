@@ -13,6 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { tronChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import dayjsDuration from 'dayjs/plugin/duration'
@@ -340,6 +341,7 @@ export const YieldForm = memo(
     )
 
     const hasAmount = bnOrZero(cryptoAmount).gt(0)
+    const isTronYield = yieldItem.chainId === tronChainId
 
     const displayPlaceholder = useMemo(
       () => (isFiat ? `${localeParts.prefix}0` : '0'),
@@ -456,6 +458,7 @@ export const YieldForm = memo(
       accountId,
       passthrough: activeManageAction?.passthrough,
       manageActionType: activeManageAction?.type,
+      availableBalanceCryptoPrecision: availableBalance,
     })
 
     useTrimDepositToNetworkFee({
@@ -691,7 +694,7 @@ export const YieldForm = memo(
               </GradientApy>
             </Flex>
           )}
-          {action === 'enter' && hasAmount && (
+          {action === 'enter' && (
             <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.estYearlyEarnings')}
@@ -745,6 +748,7 @@ export const YieldForm = memo(
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
             isLoading={isNetworkFeeLoading}
+            isPlaceholder={isTronYield && !hasAmount}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center'>
@@ -780,6 +784,7 @@ export const YieldForm = memo(
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
         isNetworkFeeLoading,
+        isTronYield,
       ],
     )
 

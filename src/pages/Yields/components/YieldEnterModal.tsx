@@ -1,5 +1,6 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { tronChainId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -257,6 +258,7 @@ export const YieldEnterModal = memo(
     )
 
     const hasAmount = bnOrZero(cryptoAmount).gt(0)
+    const isTronYield = yieldItem.chainId === tronChainId
 
     const displayPlaceholder = useMemo(
       () => (isFiat ? `${localeParts.prefix}0` : '0'),
@@ -534,21 +536,19 @@ export const YieldEnterModal = memo(
               {apyDisplay}
             </GradientApy>
           </Flex>
-          {hasAmount && (
-            <Flex justify='space-between' align='center' mt={3}>
-              <Text fontSize='sm' color='text.subtle'>
-                {translate('yieldXYZ.estYearlyEarnings')}
+          <Flex justify='space-between' align='center' mt={3}>
+            <Text fontSize='sm' color='text.subtle'>
+              {translate('yieldXYZ.estYearlyEarnings')}
+            </Text>
+            <Flex direction='column' align='flex-end'>
+              <GradientApy fontSize='sm' fontWeight='bold'>
+                {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
+              </GradientApy>
+              <Text fontSize='xs' color='text.subtle'>
+                <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
               </Text>
-              <Flex direction='column' align='flex-end'>
-                <GradientApy fontSize='sm' fontWeight='bold'>
-                  {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
-                </GradientApy>
-                <Text fontSize='xs' color='text.subtle'>
-                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
-                </Text>
-              </Flex>
             </Flex>
-          )}
+          </Flex>
           {isStaking && selectedValidatorMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
@@ -584,6 +584,7 @@ export const YieldEnterModal = memo(
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
             isLoading={isNetworkFeeLoading}
+            isPlaceholder={isTronYield && !hasAmount}
             mt={3}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && (
@@ -619,6 +620,7 @@ export const YieldEnterModal = memo(
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
         isNetworkFeeLoading,
+        isTronYield,
       ],
     )
 

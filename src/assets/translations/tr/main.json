@@ -3008,7 +3008,7 @@
       },
       "why": {
         "title": "Neden FOX'unuzu stake etmelisiniz?",
-        "body": "FOX'unuzu stake etmek, DAO'nun hazinesinden dönem başına USDC cinsinden düzenli ödemeler kazanmanıza olanak tanır ve dönem başına USDC'de istikrarlı bir pasif gelir akışı sağlar. Ayrıca, DAO gelirinin bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilecektir. Staking süreci, topluluk içinde bağlılığı ve istikrarı teşvik eden minimum 28 günlük bir stake kaldırma süresini gerektirir."
+        "body": "FOX'larınızı stake etmek, DAO hazinesinden düzenli USDC ödemeleri kazanmanıza olanak tanır ve her dönemde USDC cinsinden istikrarlı bir pasif gelir akışı sağlar. Ek olarak, DAO gelirinin bir kısmı açık piyasadan FOX geri satın almak için kullanılır. Stake'i geri çekme işlemi, FOX'larınızın kilitli kaldığı ve kazanç sağlamayı durdurduğu bir bekleme süresine tabidir."
       },
       "stake": {
         "title": "FOX'umu nasıl stake ederim?",
@@ -3027,8 +3027,8 @@
         "body": "Evet, birden fazla stake etme tutarınız olabilir. Her bir stake kaldırma eyleminin kendine ait 28 günlük bekleme süresi olacaktır."
       },
       "connect": {
-        "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?",
-        "body": "DAO tarafından toplanan ücretler, takas başına yerel varlıklar cinsindedir. Bu gelirin bir kısmı dönüştürülerek FOX staker'larına ödül olarak dağıtılırken, bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilir. Stake edilen toplam FOX, ödüllerin dağıtımını etkiler; ödüller, stake edilen FOX miktarına göre orantılı olarak dağıtılır. Emisyon havuzu, staking ödülleri için mevcut FOX miktarını temsil eder ve FOX yakma miktarı, satın alınıp yakılan FOX miktarıdır."
+        "title": "Toplanan tüm ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX geri alım miktarı arasında nasıl bir bağlantı var?",
+        "body": "DAO tarafından toplanan ücretler, her bir takasçı için yerel varlıklar cinsindendir. Bu gelirin bir kısmı FOX stake edenlere ödül olarak dağıtılırken, diğer bir kısmı açık piyasadan FOX geri satın almak için tahsis edilir. Stake edilen toplam FOX miktarı, ödüllerin dağıtımını etkiler; çünkü ödüller, stake edilen FOX miktarına göre orantılı olarak dağıtılır. Emisyon havuzu, stake ödülleri için mevcut FOX miktarını temsil eder ve FOX geri alım miktarı, FOX geri satın almak için kullanılan gelir payını gösterir."
       }
     },
     "totals": "rFOX Toplamı",
@@ -3037,12 +3037,19 @@
     "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
     "emissionsPool": "%{symbol} Emisyon Havuzu (Bu Dönem)",
     "emissionsPoolHelper": "Dağıtılacak toplam ödül miktarı %{symbol} staker",
-    "foxBurnAmount": "FOX Yakma Miktarı (Bu Dönem)",
+    "foxBuybackAmount": "FOX Geri Alım Miktarı (Bu Dönem)",
     "pendingDistribution": "Bekleyen Dağıtım",
     "selectRuneAddress": "Bir RUNE adresi seçin",
-    "unstakeDisabledMigrationTooltip": "Stake kaldırma işlemi, bekleme süresi olan 1 Ekim'e kadar devre dışı bırakılmıştır.",
+    "unstakeDisabledMigrationTooltip": "Stake kaldırma işlemi, bekleme süresi kaldırılana kadar (%{migrationDate}) devre dışı bırakılmıştır.",
     "lpSunsetWarningTitle": "Program Sona Erdi",
-    "lpSunsetWarningDescription": "Arbitrum WETH/FOX Ödül programı sona ermiştir. Lütfen en kısa sürede stake'lerinizi geri çekin ve bakiyenizi talep edin."
+    "lpSunsetWarningDescription": "Arbitrum WETH/FOX Ödül programı sona ermiştir. Lütfen en kısa sürede stake'lerinizi geri çekin ve bakiyenizi talep edin.",
+    "claimInProgress": "Başvuru süreci devam ediyor.",
+    "migrationBannerTitle": "rFOX Ethereum'a geçiyor",
+    "migrationBannerDescription": "rFOX staking işlemi %{migrationDate} tarihinde Arbitrum'dan Ethereum'a taşınıyor. FOX'larınızı taşıyabilmeniz için staking işleminin açılmasına kadar Arbitrum'da ödül kazanmaya devam edeceksiniz.",
+    "migrationBannerCta": "FOX'u Ethereum'a taşıyın",
+    "stakingPausedTooltip": "Bu program süresince stake işlemleri durdurulmuştur.",
+    "unstakingPausedTooltip": "Bu program için hisse geri alma işlemi durduruldu.",
+    "withdrawalsPausedTooltip": "Bu program için başvuru işlemleri geçici olarak durdurulmuştur."
   },
   "TCY": {
     "stake": "Stake",
@@ -3158,7 +3165,7 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24sa Fiyat Değişimi",
     "rfox": {
-      "totalBurn": "Toplam Yakılan",
+      "totalBuyback": "Toplam Geri Alım",
       "simulateTitle": "rFOX Simülatörü",
       "simulateSubtle": "rFOX staking getirilerinizi simüle edin",
       "estimatedRewards": "Tahmini Ödüller",

@@ -197,6 +197,11 @@ describe('getButterSwapStepData', () => {
         getChainPrices: () => Promise.resolve({ energyPrice: 100, bandwidthPrice: 1000 }),
         getTrc20Allowance: vi.fn().mockResolvedValue(allowance),
         getTrc20Balance: vi.fn().mockResolvedValue('100000000'),
+        getContractEnergyShare: vi.fn().mockResolvedValue({
+          callerPercent: 100,
+          originEnergyLimit: 0,
+          originEnergyAvailable: 0,
+        }),
       },
     })
 
@@ -286,16 +291,43 @@ describe('getButterSwapStepData', () => {
         spenderAddress: '',
       })
 
-      // 390000 energy * 1.2 margin * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
-      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('47083000')
+      // 1000000 energy * 1.2 margin * 100 sun + (4 calldata + 279 envelope) bytes * 1000 sun
+      expect(actual.unwrap().networkFeeCryptoBaseUnit).toBe('120283000')
     })
 
-    it('rates price the provider fee', async () => {
+    it('rates price the measured swap at the router share rather than the provider fee', async () => {
+      const adapter = tronAdapter()
+      adapter.httpProvider.getContractEnergyShare.mockResolvedValue({
+        callerPercent: 5,
+        originEnergyLimit: 10_000_000,
+        originEnergyAvailable: 5_000_000,
+      })
+
       const actual = await getButterSwapStepData({
         type: 'rate',
         input: {} as GetTradeRateInput,
-        deps: makeDeps({ tron: tronAdapter() }),
-        route,
+        deps: makeDeps({ tron: adapter }),
+        route: { ...route, contract: 'TRouterAddress' },
+        sellAsset: TRX,
+        feeAsset: TRX,
+        sellAmountCryptoBaseUnit: '1000000',
+        spenderAddress: '',
+      })
+
+      // 1000000 * 5% caller energy * 1.2 margin * 100 sun + 2400 bytes * 1000 sun
+      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '8400000' })
+      expect(adapter.httpProvider.getContractEnergyShare).toHaveBeenCalledWith('TRouterAddress')
+    })
+
+    it('rates fall back to the provider fee when the worst case cannot be priced', async () => {
+      const adapter = tronAdapter()
+      adapter.httpProvider.getContractEnergyShare.mockRejectedValue(new Error('429'))
+
+      const actual = await getButterSwapStepData({
+        type: 'rate',
+        input: {} as GetTradeRateInput,
+        deps: makeDeps({ tron: adapter }),
+        route: { ...route, contract: 'TRouterAddress' },
         sellAsset: TRX,
         feeAsset: TRX,
         sellAmountCryptoBaseUnit: '1000000',

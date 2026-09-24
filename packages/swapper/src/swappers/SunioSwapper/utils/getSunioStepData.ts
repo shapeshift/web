@@ -90,6 +90,7 @@ export async function getSunioStepData(
           bandwidthBytes: tron.getTronContractCallBandwidthBytes(
             buildCall(from ?? TRON_PLACEHOLDER_ADDRESS).data,
           ),
+          contractAddress: SUNIO_SMART_ROUTER_CONTRACT,
         })
       } catch {}
     })()

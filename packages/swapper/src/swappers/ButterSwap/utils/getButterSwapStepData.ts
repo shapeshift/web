@@ -26,9 +26,15 @@ import {
   withComputeUnitLimit,
 } from '../../../utils/solana'
 import type { TronContractCall } from '../../../utils/tron'
-import { getTronContractCallNetworkFeeCryptoBaseUnit } from '../../../utils/tron'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+} from '../../../utils/tron'
 import type { BuildTxSuccessItem, RouteSuccessItem } from '../types'
-import { BUTTERSWAP_TRON_FALLBACK_SWAP_ENERGY } from './constants'
+import {
+  BUTTERSWAP_TRON_DEFAULT_BANDWIDTH_BYTES,
+  BUTTERSWAP_TRON_FALLBACK_SWAP_ENERGY,
+} from './constants'
 import { getProviderNetworkFeeCryptoBaseUnit } from './helpers'
 
 // Jupiter swap legs can consume more units than simulated when pool state moves between
@@ -198,10 +204,24 @@ export async function getButterSwapStepData(
       }
     }
     case CHAIN_NAMESPACE.Tron: {
+      const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+
       if (args.type === 'rate') {
-        const stepData: ButterSwapRateStepData = {
-          networkFeeCryptoBaseUnit: getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset }),
-        }
+        // Butter's gasFee is a fraction of what the router burns, so rates price the measured swap at the router's share
+        const networkFeeCryptoBaseUnit = await (async () => {
+          try {
+            return await getTronContractCallFallbackFeeCryptoBaseUnit({
+              adapter,
+              energy: BUTTERSWAP_TRON_FALLBACK_SWAP_ENERGY,
+              bandwidthBytes: BUTTERSWAP_TRON_DEFAULT_BANDWIDTH_BYTES,
+              contractAddress: route.contract,
+            })
+          } catch {
+            return getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
+          }
+        })()
+
+        const stepData: ButterSwapRateStepData = { networkFeeCryptoBaseUnit }
 
         return Ok(stepData)
       }
@@ -218,7 +238,7 @@ export async function getButterSwapStepData(
         const stepData: ButterSwapQuoteStepData = {
           transactionData: { type: 'tron', ...call },
           networkFeeCryptoBaseUnit: await getTronContractCallNetworkFeeCryptoBaseUnit({
-            adapter: deps.assertGetTronChainAdapter(sellAsset.chainId),
+            adapter,
             transactionData: call,
             from,
             sellAsset,

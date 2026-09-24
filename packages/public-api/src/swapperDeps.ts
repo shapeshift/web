@@ -123,6 +123,10 @@ const evmAdapters: Record<ChainId, adapters.EvmChainAdapter> = {
     rpcUrl: env.VITE_BASE_NODE_URL,
   }),
   // Second-class EVM chains — rpcUrl + lazily-resolved known tokens, no unchained http/ws.
+  [KnownChainIds.BobMainnet]: new adapters.bob.ChainAdapter({
+    rpcUrl: env.VITE_BOB_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.BobMainnet, 'erc20'),
+  }),
   [KnownChainIds.HyperEvmMainnet]: new adapters.hyperevm.ChainAdapter({
     rpcUrl: env.VITE_HYPEREVM_NODE_URL,
     getKnownTokens: makeGetKnownTokens(KnownChainIds.HyperEvmMainnet, 'erc20'),

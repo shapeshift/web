@@ -14,7 +14,9 @@ const VULTISIG_PARTNER_CODE = 'vultisig'
 const ASSET_IDS = {
   ETH: 'eip155:1/slip44:60',
   USDC_ETH: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  USDT_ETH: 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
   BTC: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  BOB: 'eip155:60808/slip44:60',
   HYPEREVM: 'eip155:999/slip44:60',
   KATANA: 'eip155:747474/slip44:60',
   MEGAETH: 'eip155:4326/slip44:60',
@@ -26,6 +28,7 @@ const ASSET_IDS = {
   CACAO: 'cosmos:mayachain-mainnet-v1/slip44:931',
   SOL: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501',
   TRX: 'tron:0x2b6653dc/slip44:195',
+  USDT_TRON: 'tron:0x2b6653dc/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
   SUI: 'sui:35834a8a/slip44:784',
   TON: 'ton:mainnet/slip44:607',
   NEAR: 'near:mainnet/slip44:397',
@@ -41,7 +44,21 @@ const ADDRESS = {
   tron: 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N',
 } as const
 
+// BOB Gateway compliance-screens both parties at order creation and flags the addresses above.
+// Tron senders must also hold the sell amount, or fee estimation refuses to fall back.
+const BOB_GATEWAY_ADDRESS = {
+  evm: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
+  btc: 'bc1q9xrjfet2a05r3jvsxx66rru7pysevk5dvqasdw9eeea3rfqlk33qr4hghh',
+  tron: 'TV6MuMXfmLbBqPZvBHdwFsDnQeVfnmiuSi',
+} as const
+
 const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: string }[] = [
+  {
+    label: 'BOB Chain',
+    sellAssetId: ASSET_IDS.BOB,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    amount: '1000000000000000000',
+  },
   {
     label: 'HyperEVM Chain',
     sellAssetId: ASSET_IDS.HYPEREVM,
@@ -184,6 +201,42 @@ const QUOTES: {
     swapperName: 'Relay',
     sendAddress: ADDRESS.tron,
     receiveAddress: ADDRESS.evm,
+    amount: '50000000',
+  },
+  {
+    label: 'Second-Class EVM Adapter (BOB)',
+    sellAssetId: ASSET_IDS.BOB,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    swapperName: 'Relay',
+    sendAddress: ADDRESS.evm,
+    receiveAddress: ADDRESS.evm,
+    amount: '1000000000000000000',
+  },
+  {
+    label: 'BOB Gateway UTXO leg (BTC -> Ethereum)',
+    sellAssetId: ASSET_IDS.BTC,
+    buyAssetId: ASSET_IDS.USDT_ETH,
+    swapperName: 'BOB Gateway',
+    sendAddress: BOB_GATEWAY_ADDRESS.btc,
+    receiveAddress: BOB_GATEWAY_ADDRESS.evm,
+    amount: '1000000',
+  },
+  {
+    label: 'BOB Gateway EVM leg (Ethereum -> BTC)',
+    sellAssetId: ASSET_IDS.USDT_ETH,
+    buyAssetId: ASSET_IDS.BTC,
+    swapperName: 'BOB Gateway',
+    sendAddress: BOB_GATEWAY_ADDRESS.evm,
+    receiveAddress: BOB_GATEWAY_ADDRESS.btc,
+    amount: '50000000',
+  },
+  {
+    label: 'BOB Gateway Tron leg (Tron -> BTC)',
+    sellAssetId: ASSET_IDS.USDT_TRON,
+    buyAssetId: ASSET_IDS.BTC,
+    swapperName: 'BOB Gateway',
+    sendAddress: BOB_GATEWAY_ADDRESS.tron,
+    receiveAddress: BOB_GATEWAY_ADDRESS.btc,
     amount: '50000000',
   },
 ]

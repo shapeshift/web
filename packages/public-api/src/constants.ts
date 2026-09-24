@@ -8,6 +8,7 @@ export const SUPPORTED_CHAIN_IDS: readonly KnownChainIds[] = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.BobMainnet,
   KnownChainIds.EthereumMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.HyperEvmMainnet,
@@ -63,6 +64,7 @@ export const isExecutableSellChainId = (chainId: string): boolean =>
 
 export const ENABLED_SWAPPER_NAMES: readonly SwapperName[] = [
   SwapperName.Bebop,
+  SwapperName.BobGateway,
   SwapperName.ButterSwap,
   SwapperName.Chainflip,
   SwapperName.Mayachain,

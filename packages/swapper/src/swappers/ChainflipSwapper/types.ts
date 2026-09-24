@@ -26,6 +26,7 @@ export type ChainflipTradeRateInput =
 export type ChainflipMetadata = {
   name: 'chainflip'
   swapId: number | string
+  depositAddress: string
 }
 
 // Non-exhaustive

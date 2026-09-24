@@ -6,7 +6,7 @@ import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
 import { CHAINFLIP_CHANNEL_DEADLINE_MS } from '../constants'
-import type { ChainflipMetadata, ChainflipTradeQuoteInput } from '../types'
+import type { ChainflipTradeQuoteInput } from '../types'
 import { getChainflipStepData } from '../utils/getChainflipStepData'
 import { getChainflipTradeContexts } from '../utils/getChainflipTradeContexts'
 import { calculateChainflipMinPrice, getChainFlipSwap } from '../utils/helpers'
@@ -104,8 +104,7 @@ export const getTradeQuote = async (
         {
           ...stepCommon,
           accountNumber,
-          chainflipSpecific: { depositAddress },
-          swapperMetadata: { name: 'chainflip', swapId } satisfies ChainflipMetadata,
+          swapperMetadata: { name: 'chainflip', swapId, depositAddress },
           transactionData,
           feeData: { networkFeeCryptoBaseUnit, protocolFees },
         },

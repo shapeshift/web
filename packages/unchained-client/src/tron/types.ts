@@ -31,6 +31,9 @@ export interface TronTx {
           amount?: number
           owner_address?: string
           to_address?: string
+          contract_address?: string
+          call_value?: number
+          data?: string
         }
         type_url: string
       }

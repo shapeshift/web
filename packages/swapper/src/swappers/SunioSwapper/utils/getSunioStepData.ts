@@ -91,6 +91,7 @@ export async function getSunioStepData(
             buildCall(from ?? TRON_PLACEHOLDER_ADDRESS).data,
           ),
           contractAddress: SUNIO_SMART_ROUTER_CONTRACT,
+          fullEnergyOnShareLookupFailure: true,
         })
       } catch {}
     })()

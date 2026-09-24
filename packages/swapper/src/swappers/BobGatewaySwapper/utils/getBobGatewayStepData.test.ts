@@ -44,19 +44,23 @@ const quote = {} as GatewayQuoteV4
 
 describe('getBobGatewayStepData', () => {
   describe('tron', () => {
-    it('prices a rate from the measured default energy and bandwidth', async () => {
+    it('prices a rate from the measured default energy and bandwidth at the gateway share', async () => {
+      const adapter = tronAdapter()
       const actual = await getBobGatewayStepData({
         type: 'rate',
         input: {} as GetTradeRateInput,
-        deps: makeDeps(tronAdapter()),
+        deps: makeDeps(adapter),
         quote,
         sellAsset: USDT_TRON,
         sellAmountCryptoBaseUnit: '100000000',
-        spenderAddress: '',
+        spenderAddress: 'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
       })
 
       // 420000 energy * 1.2 margin * 100 sun + 4000 bytes * 1000 sun
       expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '54400000' })
+      expect(adapter.httpProvider.getContractEnergyShare).toHaveBeenCalledWith(
+        'TAfbit1ENsRmtZbPQfYU3srURpfYuWYS7K',
+      )
     })
 
     it('simulates the real gateway call for a quote', async () => {

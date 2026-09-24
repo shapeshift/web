@@ -18,6 +18,8 @@ type GetTronContractCallFallbackFeeArgs = {
   bandwidthBytes: number
   // the contract called, when known, so its deployer's share comes off the caller's bill
   contractAddress?: string
+  // a failed share lookup prices the caller in full instead of rejecting, for callers with no better fallback
+  fullEnergyOnShareLookupFailure?: boolean
 }
 
 // A measured worst-case energy under the adapter's margin, at live prices
@@ -26,12 +28,15 @@ export const getTronContractCallFallbackFeeCryptoBaseUnit = async ({
   energy,
   bandwidthBytes,
   contractAddress,
+  fullEnergyOnShareLookupFailure = false,
 }: GetTronContractCallFallbackFeeArgs): Promise<string> => {
   const { httpProvider } = adapter
   const [{ energyPrice, bandwidthPrice }, share] = await Promise.all([
     httpProvider.getChainPrices(),
     contractAddress
-      ? httpProvider.getContractEnergyShare(tron.toTronBase58(contractAddress))
+      ? httpProvider.getContractEnergyShare(tron.toTronBase58(contractAddress)).catch(error => {
+          if (!fullEnergyOnShareLookupFailure) throw error
+        })
       : undefined,
   ])
 
@@ -95,6 +100,7 @@ export const getTronContractCallNetworkFeeCryptoBaseUnit = async ({
       energy: fallbackEnergy,
       bandwidthBytes: tron.getTronContractCallBandwidthBytes(data),
       contractAddress: to,
+      fullEnergyOnShareLookupFailure: true,
     })
   }
 }

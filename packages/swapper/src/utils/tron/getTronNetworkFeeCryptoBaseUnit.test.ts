@@ -100,6 +100,37 @@ describe('getTronContractCallFallbackFeeCryptoBaseUnit', () => {
   })
 })
 
+describe('getTronContractCallFallbackFeeCryptoBaseUnit share lookup failure', () => {
+  it('rejects by default', async () => {
+    const { adapter, getContractEnergyShare } = makeAdapter()
+    getContractEnergyShare.mockRejectedValue(new Error('429'))
+
+    await expect(
+      getTronContractCallFallbackFeeCryptoBaseUnit({
+        adapter,
+        energy: '400000',
+        bandwidthBytes: 283,
+        contractAddress: SPENDER,
+      }),
+    ).rejects.toThrow('429')
+  })
+
+  it('prices the caller in full when the caller opts in', async () => {
+    const { adapter, getContractEnergyShare } = makeAdapter()
+    getContractEnergyShare.mockRejectedValue(new Error('429'))
+
+    expect(
+      await getTronContractCallFallbackFeeCryptoBaseUnit({
+        adapter,
+        energy: '400000',
+        bandwidthBytes: 283,
+        contractAddress: SPENDER,
+        fullEnergyOnShareLookupFailure: true,
+      }),
+    ).toBe(FALLBACK_FEE)
+  })
+})
+
 describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
   it('prices a successful simulation without reading the allowance', async () => {
     const { adapter, getFeeData, getTrc20Allowance } = makeAdapter()
@@ -139,6 +170,22 @@ describe('getTronContractCallNetworkFeeCryptoBaseUnit', () => {
     })
     expect(getTrc20Balance).toHaveBeenCalledWith({ contractAddress: USDT, address: FROM })
     expect(getContractEnergyShare).toHaveBeenCalledWith(SPENDER)
+  })
+
+  it('still prices the measured worst case when the share lookup fails', async () => {
+    const { adapter, getContractEnergyShare } = makeAdapter({
+      simulation: 'revert',
+      allowance: '0',
+    })
+    getContractEnergyShare.mockRejectedValue(new Error('429'))
+
+    const actual = await getTronContractCallNetworkFeeCryptoBaseUnit({
+      ...baseArgs,
+      adapter,
+      sellAsset: USDT_TRON,
+    })
+
+    expect(actual).toBe(FALLBACK_FEE)
   })
 
   it('throws when a token sell reverts with a sufficient allowance', async () => {

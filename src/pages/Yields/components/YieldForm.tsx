@@ -730,6 +730,7 @@ export const YieldForm = memo(
             networkFeeCryptoPrecision={networkFeeCryptoPrecision}
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
+            isLoading={isNetworkFeeLoading}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center'>
@@ -764,6 +765,7 @@ export const YieldForm = memo(
         networkFeeCryptoPrecision,
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
+        isNetworkFeeLoading,
       ],
     )
 

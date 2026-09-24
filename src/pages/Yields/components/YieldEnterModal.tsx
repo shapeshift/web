@@ -574,6 +574,7 @@ export const YieldEnterModal = memo(
             networkFeeCryptoPrecision={networkFeeCryptoPrecision}
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
+            isLoading={isNetworkFeeLoading}
             mt={3}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && (
@@ -608,6 +609,7 @@ export const YieldEnterModal = memo(
         networkFeeCryptoPrecision,
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
+        isNetworkFeeLoading,
       ],
     )
 

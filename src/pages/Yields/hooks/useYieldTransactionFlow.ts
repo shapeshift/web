@@ -331,7 +331,7 @@ export const useYieldTransactionFlow = ({
   const isNativeEnter = action === 'enter' && inputTokenAssetId === feeAsset?.assetId
 
   // Prices the deposit before an amount exists so percent buttons can leave room for the fee, which barely moves with the amount
-  const { data: tronFeeProbe } = useQuery({
+  const { data: tronFeeProbe, isLoading: isTronFeeProbeLoading } = useQuery({
     queryKey: [
       'yieldxyz',
       'tronFeeProbe',
@@ -360,13 +360,15 @@ export const useYieldTransactionFlow = ({
   const {
     networkFeeCryptoBaseUnit,
     networkFeeCryptoPrecision,
-    isLoading: isNetworkFeeLoading,
+    isLoading: isTronNetworkFeeLoading,
     isError: isNetworkFeeQueryError,
   } = useYieldTronNetworkFee({
     chainId: yieldChainId,
     transactions: quoteData?.transactions ?? tronFeeProbe?.transactions,
     from: userAddress,
   })
+
+  const isNetworkFeeLoading = isTronFeeProbeLoading || isTronNetworkFeeLoading
 
   // later steps are priced again right before they are signed, so a failed refetch must not stall a started flow
   const isNetworkFeeError = !isAmountLocked && isNetworkFeeQueryError

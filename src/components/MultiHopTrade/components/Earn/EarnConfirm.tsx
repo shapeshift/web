@@ -137,6 +137,7 @@ export const EarnConfirm = memo(() => {
     isUsdtResetRequired,
     isNetworkFeeLoading,
     isNetworkFeeError,
+    isInsufficientBalance,
     isInsufficientFeeAssetBalance,
   } = useYieldTransactionFlow({
     yieldItem: selectedYield,
@@ -170,6 +171,7 @@ export const EarnConfirm = memo(() => {
   const stepsToShow = activeStepIndex >= 0 ? transactionSteps : []
 
   const confirmButtonText = useMemo(() => {
+    if (isInsufficientBalance) return translate('common.insufficientFunds')
     if (isNetworkFeeError) return translate('trade.errors.networkFeeEstimateFailed')
     if (isInsufficientFeeAssetBalance) {
       return translate('yieldXYZ.errors.insufficientAssetForGas', {
@@ -205,6 +207,7 @@ export const EarnConfirm = memo(() => {
     translate,
     selectedYield?.mechanics.type,
     isNetworkFeeError,
+    isInsufficientBalance,
     isInsufficientFeeAssetBalance,
     feeAsset?.symbol,
   ])
@@ -412,6 +415,7 @@ export const EarnConfirm = memo(() => {
           isLoading ||
           isNetworkFeeLoading ||
           isNetworkFeeError ||
+          isInsufficientBalance ||
           isInsufficientFeeAssetBalance
         }
       >

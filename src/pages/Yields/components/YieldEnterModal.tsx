@@ -325,7 +325,9 @@ export const YieldEnterModal = memo(
       isAmountLocked,
       networkFeeCryptoPrecision,
       isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
       maxEnterAmountCryptoPrecision,
     } = useYieldTransactionFlow({
@@ -385,6 +387,7 @@ export const YieldEnterModal = memo(
           !quoteData ||
           isNetworkFeeLoading ||
           isNetworkFeeError ||
+          isInsufficientBalance ||
           isInsufficientFeeAssetBalance),
       [
         isConnected,
@@ -395,16 +398,22 @@ export const YieldEnterModal = memo(
         quoteData,
         isNetworkFeeLoading,
         isNetworkFeeError,
+        isInsufficientBalance,
         isInsufficientFeeAssetBalance,
       ],
     )
 
     // balances refetch mid-execution, so validation only colors the button before anything is signed
     const hasValidationError =
-      !isAmountLocked && (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)
+      !isAmountLocked &&
+      (isInsufficientBalance ||
+        (!isQuoteActive &&
+          !isNetworkFeeLoading &&
+          (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)))
 
     const enterButtonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
+      if (isInsufficientBalance) return translate('common.insufficientFunds')
       if (isQuoteActive || isNetworkFeeLoading) return translate('yieldXYZ.loadingQuote')
       if (quoteError && cryptoAmount) {
         const { key, params } = getYieldQuoteErrorTranslation(quoteError)
@@ -464,6 +473,7 @@ export const YieldEnterModal = memo(
       translate,
       isNetworkFeeLoading,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
       feeAsset?.symbol,
       isBelowMinimum,
@@ -525,21 +535,19 @@ export const YieldEnterModal = memo(
               {apyDisplay}
             </GradientApy>
           </Flex>
-          {hasAmount && (
-            <Flex justify='space-between' align='center' mt={3}>
-              <Text fontSize='sm' color='text.subtle'>
-                {translate('yieldXYZ.estYearlyEarnings')}
+          <Flex justify='space-between' align='center' mt={3}>
+            <Text fontSize='sm' color='text.subtle'>
+              {translate('yieldXYZ.estYearlyEarnings')}
+            </Text>
+            <Flex direction='column' align='flex-end'>
+              <GradientApy fontSize='sm' fontWeight='bold'>
+                {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
+              </GradientApy>
+              <Text fontSize='xs' color='text.subtle'>
+                <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
               </Text>
-              <Flex direction='column' align='flex-end'>
-                <GradientApy fontSize='sm' fontWeight='bold'>
-                  {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
-                </GradientApy>
-                <Text fontSize='xs' color='text.subtle'>
-                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
-                </Text>
-              </Flex>
             </Flex>
-          )}
+          </Flex>
           {isStaking && selectedValidatorMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
@@ -574,6 +582,8 @@ export const YieldEnterModal = memo(
             networkFeeCryptoPrecision={networkFeeCryptoPrecision}
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
+            isLoading={isNetworkFeeLoading}
+            isPlaceholder={isNetworkFeePlaceholder}
             mt={3}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && (
@@ -595,7 +605,6 @@ export const YieldEnterModal = memo(
       [
         translate,
         apyDisplay,
-        hasAmount,
         estimatedYearlyEarnings,
         inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
@@ -608,6 +617,8 @@ export const YieldEnterModal = memo(
         networkFeeCryptoPrecision,
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
+        isNetworkFeeLoading,
+        isNetworkFeePlaceholder,
       ],
     )
 

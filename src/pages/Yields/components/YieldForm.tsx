@@ -310,14 +310,8 @@ export const YieldForm = memo(
       if (action === 'enter' && minDeposit) {
         return bnOrZero(cryptoAmount).lt(minDeposit)
       }
-      if (action === 'exit') {
-        // For exit, maybe ensure they don't exit more than they have?
-        // Though the transaction flow usually simulates and fails.
-        // But UI check is nice.
-        return bnOrZero(cryptoAmount).gt(availableBalance)
-      }
       return false
-    }, [cryptoAmount, minDeposit, action, availableBalance])
+    }, [cryptoAmount, minDeposit, action])
 
     const isLoading = isValidatorsLoading || !inputTokenAsset
 
@@ -441,7 +435,9 @@ export const YieldForm = memo(
       isAmountLocked,
       networkFeeCryptoPrecision,
       isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
       maxEnterAmountCryptoPrecision,
     } = useYieldTransactionFlow({
@@ -455,6 +451,8 @@ export const YieldForm = memo(
       accountId,
       passthrough: activeManageAction?.passthrough,
       manageActionType: activeManageAction?.type,
+      stakedBalanceCryptoPrecision:
+        flowAction === 'exit' && balances ? availableBalance : undefined,
     })
 
     useTrimDepositToNetworkFee({
@@ -508,7 +506,13 @@ export const YieldForm = memo(
       if (!isConnected) return false
       if (isLoading) return true
       if (isActionDisabled) return true
-      if (isNetworkFeeLoading || isNetworkFeeError || isInsufficientFeeAssetBalance) return true
+      if (
+        isNetworkFeeLoading ||
+        isNetworkFeeError ||
+        isInsufficientBalance ||
+        isInsufficientFeeAssetBalance
+      )
+        return true
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
@@ -535,15 +539,21 @@ export const YieldForm = memo(
       quoteData,
       isNetworkFeeLoading,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
     ])
 
     // balances refetch mid-execution, so validation only colors the button before anything is signed
     const hasValidationError =
-      !isAmountLocked && (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)
+      !isAmountLocked &&
+      (isInsufficientBalance ||
+        (!isQuoteActive &&
+          !isNetworkFeeLoading &&
+          (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)))
 
     const buttonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
+      if (isInsufficientBalance) return translate('common.insufficientFunds')
       if (isQuoteActive || isNetworkFeeLoading) return translate('yieldXYZ.loadingQuote')
       if (quoteError && cryptoAmount) {
         const { key, params } = getYieldQuoteErrorTranslation(quoteError)
@@ -615,6 +625,7 @@ export const YieldForm = memo(
       translate,
       isNetworkFeeLoading,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
       feeAsset?.symbol,
       isBelowMinimum,
@@ -677,7 +688,7 @@ export const YieldForm = memo(
               </GradientApy>
             </Flex>
           )}
-          {action === 'enter' && hasAmount && (
+          {action === 'enter' && (
             <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.estYearlyEarnings')}
@@ -730,6 +741,8 @@ export const YieldForm = memo(
             networkFeeCryptoPrecision={networkFeeCryptoPrecision}
             symbol={feeAsset?.symbol}
             isInsufficient={isInsufficientFeeAssetBalance}
+            isLoading={isNetworkFeeLoading}
+            isPlaceholder={isNetworkFeePlaceholder}
           />
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center'>
@@ -750,7 +763,6 @@ export const YieldForm = memo(
       [
         translate,
         apyDisplay,
-        hasAmount,
         estimatedYearlyEarnings,
         inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
@@ -764,6 +776,8 @@ export const YieldForm = memo(
         networkFeeCryptoPrecision,
         feeAsset?.symbol,
         isInsufficientFeeAssetBalance,
+        isNetworkFeeLoading,
+        isNetworkFeePlaceholder,
       ],
     )
 

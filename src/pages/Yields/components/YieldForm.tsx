@@ -442,6 +442,7 @@ export const YieldForm = memo(
       networkFeeCryptoPrecision,
       isNetworkFeeLoading,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
       maxEnterAmountCryptoPrecision,
     } = useYieldTransactionFlow({
@@ -508,7 +509,13 @@ export const YieldForm = memo(
       if (!isConnected) return false
       if (isLoading) return true
       if (isActionDisabled) return true
-      if (isNetworkFeeLoading || isNetworkFeeError || isInsufficientFeeAssetBalance) return true
+      if (
+        isNetworkFeeLoading ||
+        isNetworkFeeError ||
+        isInsufficientBalance ||
+        isInsufficientFeeAssetBalance
+      )
+        return true
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
@@ -535,12 +542,17 @@ export const YieldForm = memo(
       quoteData,
       isNetworkFeeLoading,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
     ])
 
     // balances refetch mid-execution, so validation only colors the button before anything is signed
     const hasValidationError =
-      !isAmountLocked && (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)
+      !isAmountLocked &&
+      (isBelowMinimum ||
+        isInsufficientBalance ||
+        isInsufficientFeeAssetBalance ||
+        isNetworkFeeError)
 
     const buttonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
@@ -549,6 +561,7 @@ export const YieldForm = memo(
         const { key, params } = getYieldQuoteErrorTranslation(quoteError)
         return translate(key, params)
       }
+      if (isInsufficientBalance) return translate('common.insufficientFunds')
       if (isNetworkFeeError) return translate('trade.errors.networkFeeEstimateFailed')
       if (isInsufficientFeeAssetBalance) {
         return translate('yieldXYZ.errors.insufficientAssetForGas', {
@@ -615,6 +628,7 @@ export const YieldForm = memo(
       translate,
       isNetworkFeeLoading,
       isNetworkFeeError,
+      isInsufficientBalance,
       isInsufficientFeeAssetBalance,
       feeAsset?.symbol,
       isBelowMinimum,

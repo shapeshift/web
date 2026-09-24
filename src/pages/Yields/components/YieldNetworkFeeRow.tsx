@@ -29,7 +29,7 @@ export const YieldNetworkFeeRow = ({
       <Text fontSize='sm' color='text.subtle'>
         {translate('trade.networkFee')}
       </Text>
-      <Skeleton isLoaded={hasFee}>
+      <Skeleton isLoaded={hasFee} minW={hasFee ? undefined : '80px'}>
         <Text fontSize='sm' color={isInsufficient ? 'red.500' : 'text.base'} fontWeight='medium'>
           <Amount.Crypto value={networkFeeCryptoPrecision} symbol={symbol ?? ''} />
         </Text>

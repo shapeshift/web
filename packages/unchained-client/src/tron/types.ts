@@ -31,6 +31,9 @@ export interface TronTx {
           amount?: number
           owner_address?: string
           to_address?: string
+          contract_address?: string
+          call_value?: number
+          data?: string
         }
         type_url: string
       }
@@ -40,6 +43,7 @@ export interface TronTx {
     ref_block_hash: string
     expiration: number
     timestamp: number
+    fee_limit?: number
   }
   raw_data_hex: string
   txID: string

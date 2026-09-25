@@ -19,7 +19,7 @@ import dayjsDuration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
-import type { NumberFormatValues } from 'react-number-format'
+import type { NumberFormatValues, SourceInfo } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
@@ -50,8 +50,10 @@ import {
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
+import { YieldNetworkFeeRow } from '@/pages/Yields/components/YieldNetworkFeeRow'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { getYieldQuoteErrorTranslation } from '@/pages/Yields/hooks/getYieldQuoteErrorTranslation'
+import { useTrimDepositToNetworkFee } from '@/pages/Yields/hooks/useTrimDepositToNetworkFee'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -61,6 +63,7 @@ import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioCryptoBalanceByFilter,
@@ -257,6 +260,9 @@ export const YieldForm = memo(
     }, [providers, yieldItem.providerId])
 
     const inputTokenAsset = useAppSelector(state => selectAssetById(state, inputTokenAssetId ?? ''))
+    const feeAsset = useAppSelector(state =>
+      yieldItem.chainId ? selectFeeAssetByChainId(state, yieldItem.chainId) : undefined,
+    )
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
@@ -304,14 +310,8 @@ export const YieldForm = memo(
       if (action === 'enter' && minDeposit) {
         return bnOrZero(cryptoAmount).lt(minDeposit)
       }
-      if (action === 'exit') {
-        // For exit, maybe ensure they don't exit more than they have?
-        // Though the transaction flow usually simulates and fails.
-        // But UI check is nice.
-        return bnOrZero(cryptoAmount).gt(availableBalance)
-      }
       return false
-    }, [cryptoAmount, minDeposit, action, availableBalance])
+    }, [cryptoAmount, minDeposit, action])
 
     const isLoading = isValidatorsLoading || !inputTokenAsset
 
@@ -341,7 +341,9 @@ export const YieldForm = memo(
     )
 
     const handleInputChange = useCallback(
-      (values: NumberFormatValues) => {
+      (values: NumberFormatValues, sourceInfo: SourceInfo) => {
+        // a percent button setting the value is not the user typing
+        if (sourceInfo.source === 'prop') return
         setSelectedPercent(null)
         if (isFiat) {
           const crypto = bnOrZero(values.value)
@@ -364,15 +366,6 @@ export const YieldForm = memo(
     }, [isFiat, fiatAmount, cryptoAmount])
 
     const toggleIsFiat = useCallback(() => setIsFiat(prev => !prev), [])
-
-    const handlePercentClick = useCallback(
-      (percent: number) => {
-        const percentAmount = bnOrZero(availableBalance).times(percent).toFixed()
-        setCryptoAmount(percentAmount)
-        setSelectedPercent(percent)
-      },
-      [availableBalance],
-    )
 
     const handleConnectWallet = useCallback(
       () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
@@ -431,7 +424,6 @@ export const YieldForm = memo(
     const {
       step,
       transactionSteps,
-      displaySteps,
       isSubmitting,
       activeStepIndex,
       handleConfirm,
@@ -441,6 +433,13 @@ export const YieldForm = memo(
       isAllowanceCheckPending,
       isUsdtResetRequired,
       isAmountLocked,
+      networkFeeCryptoPrecision,
+      isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
+      isNetworkFeeError,
+      isInsufficientBalance,
+      isInsufficientFeeAssetBalance,
+      maxEnterAmountCryptoPrecision,
     } = useYieldTransactionFlow({
       yieldItem,
       action: flowAction,
@@ -452,7 +451,27 @@ export const YieldForm = memo(
       accountId,
       passthrough: activeManageAction?.passthrough,
       manageActionType: activeManageAction?.type,
+      stakedBalanceCryptoPrecision:
+        flowAction === 'exit' && balances ? availableBalance : undefined,
     })
+
+    useTrimDepositToNetworkFee({
+      isEnabled: selectedPercent === 1 && !isAmountLocked,
+      maxAmountCryptoPrecision: maxEnterAmountCryptoPrecision,
+      cryptoAmount,
+      setCryptoAmount,
+    })
+
+    const handlePercentClick = useCallback(
+      (percent: number) => {
+        const percentAmount = bnOrZero(maxEnterAmountCryptoPrecision ?? availableBalance)
+          .times(percent)
+          .toFixed()
+        setCryptoAmount(percentAmount)
+        setSelectedPercent(percent)
+      },
+      [maxEnterAmountCryptoPrecision, availableBalance],
+    )
 
     if (!isSubmitting && step !== ModalStep.Success) {
       withdrawableAmountRef.current = withdrawableAmountFromPassthrough
@@ -487,6 +506,13 @@ export const YieldForm = memo(
       if (!isConnected) return false
       if (isLoading) return true
       if (isActionDisabled) return true
+      if (
+        isNetworkFeeLoading ||
+        isNetworkFeeError ||
+        isInsufficientBalance ||
+        isInsufficientFeeAssetBalance
+      )
+        return true
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
@@ -511,15 +537,35 @@ export const YieldForm = memo(
       cryptoAmount,
       isBelowMinimum,
       quoteData,
+      isNetworkFeeLoading,
+      isNetworkFeeError,
+      isInsufficientBalance,
+      isInsufficientFeeAssetBalance,
     ])
+
+    // balances refetch mid-execution, so validation only colors the button before anything is signed
+    const hasValidationError =
+      !isAmountLocked &&
+      (isInsufficientBalance ||
+        (!isQuoteActive &&
+          !isNetworkFeeLoading &&
+          (isBelowMinimum || isInsufficientFeeAssetBalance || isNetworkFeeError)))
 
     const buttonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
-      if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
+      if (isInsufficientBalance) return translate('common.insufficientFunds')
+      if (isQuoteActive || isNetworkFeeLoading) return translate('yieldXYZ.loadingQuote')
       if (quoteError && cryptoAmount) {
         const { key, params } = getYieldQuoteErrorTranslation(quoteError)
         return translate(key, params)
       }
+      if (isNetworkFeeError) return translate('trade.errors.networkFeeEstimateFailed')
+      if (isInsufficientFeeAssetBalance) {
+        return translate('yieldXYZ.errors.insufficientAssetForGas', {
+          symbol: feeAsset?.symbol ?? '',
+        })
+      }
+      if (isBelowMinimum && action === 'enter') return translate('earn.belowMinimum')
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
@@ -577,6 +623,12 @@ export const YieldForm = memo(
       isUsdtResetRequired,
       quoteData,
       translate,
+      isNetworkFeeLoading,
+      isNetworkFeeError,
+      isInsufficientBalance,
+      isInsufficientFeeAssetBalance,
+      feeAsset?.symbol,
+      isBelowMinimum,
       inputTokenAsset?.symbol,
       action,
       yieldItem.mechanics.type,
@@ -636,7 +688,7 @@ export const YieldForm = memo(
               </GradientApy>
             </Flex>
           )}
-          {action === 'enter' && hasAmount && (
+          {action === 'enter' && (
             <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.estYearlyEarnings')}
@@ -685,6 +737,13 @@ export const YieldForm = memo(
               </Flex>
             </Flex>
           )}
+          <YieldNetworkFeeRow
+            networkFeeCryptoPrecision={networkFeeCryptoPrecision}
+            symbol={feeAsset?.symbol}
+            isInsufficient={isInsufficientFeeAssetBalance}
+            isLoading={isNetworkFeeLoading}
+            isPlaceholder={isNetworkFeePlaceholder}
+          />
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
@@ -704,7 +763,6 @@ export const YieldForm = memo(
       [
         translate,
         apyDisplay,
-        hasAmount,
         estimatedYearlyEarnings,
         inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
@@ -715,6 +773,11 @@ export const YieldForm = memo(
         isBelowMinimum,
         action,
         yieldItem.mechanics.type,
+        networkFeeCryptoPrecision,
+        feeAsset?.symbol,
+        isInsufficientFeeAssetBalance,
+        isNetworkFeeLoading,
+        isNetworkFeePlaceholder,
       ],
     )
 
@@ -829,7 +892,7 @@ export const YieldForm = memo(
 
     const isSuccess = step === ModalStep.Success
 
-    const stepsToShow = activeStepIndex >= 0 ? transactionSteps : displaySteps
+    const stepsToShow = activeStepIndex >= 0 ? transactionSteps : []
 
     const maybeActionDisabledAlert = useMemo(() => {
       if (!isActionDisabled) return null
@@ -906,7 +969,7 @@ export const YieldForm = memo(
 
         <Box pt={4} pb={4}>
           <Button
-            colorScheme='blue'
+            colorScheme={hasValidationError ? 'red' : 'blue'}
             size='lg'
             width='full'
             height='56px'

@@ -108,8 +108,7 @@ export const resolveRelayAddresses = ({
   return { sendAddress, recipient, refundTo }
 }
 
-// The spender to approve: EVM routes approve the router (data.to); Tron approves the token contract;
-// UTXO/Solana need no allowance. Derived from the provider route, not the built transactionData.
+// The spender to approve is the call target: EVM data.to, tron the depositor; UTXO/Solana need none
 export const getRelayAllowanceContract = (data: RelayQuoteItem['data']): string => {
   if (!data) return ''
   if (isRelayQuoteEvmItemData(data)) return data.to ?? ''

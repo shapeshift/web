@@ -19,15 +19,6 @@ export type ButterSwapTradeRateInput =
   | GetSolanaTradeRateInput
   | GetTronTradeRateInput
 
-export type ButterSwapTransactionMetadata = {
-  to: string
-  data: string
-  value: Hex
-  method?: string
-  args?: { type: string; value: unknown }[]
-  memo?: string
-}
-
 export type ErrorType = {
   errno: number
   message: string

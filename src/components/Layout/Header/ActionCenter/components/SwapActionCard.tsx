@@ -22,7 +22,11 @@ import { Text } from '@/components/Text/Text'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  GenericTransactionDisplayType,
+  getActionTimestamp,
+} from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -37,8 +41,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
   const formattedDate = useMemo(() => {
-    return formatSmartDate(action.updatedAt)
-  }, [action.updatedAt])
+    return formatSmartDate(getActionTimestamp(action))
+  }, [action])
 
   const swap = useMemo(() => {
     return swapsById[action.swapMetadata.swapId]

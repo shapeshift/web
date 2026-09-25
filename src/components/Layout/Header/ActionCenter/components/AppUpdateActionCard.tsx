@@ -10,6 +10,7 @@ import UpdateIcon from '@/assets/update-icon.svg?url'
 import { Text } from '@/components/Text/Text'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { AppUpdateAction } from '@/state/slices/actionSlice/types'
+import { getActionTimestamp } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
 
@@ -23,8 +24,8 @@ export const AppUpdateActionCard = ({ action }: AppUpdateActionCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
 
   const formattedDate = useMemo(() => {
-    return formatSmartDate(action.updatedAt)
-  }, [action.updatedAt])
+    return formatSmartDate(getActionTimestamp(action))
+  }, [action])
 
   const handleUpdate = useCallback(() => {
     window.location.reload()

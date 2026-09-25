@@ -295,6 +295,23 @@ export const isPendingSendAction = (action: Action): action is GenericTransactio
   return Boolean(isSendAction(action) && action.status === ActionStatus.Pending)
 }
 
+const ACTIVE_ACTION_STATUSES = new Set([
+  ActionStatus.AwaitingApproval,
+  ActionStatus.AwaitingSwap,
+  ActionStatus.Pending,
+  ActionStatus.Initiated,
+  ActionStatus.ClaimAvailable,
+  ActionStatus.Open,
+])
+
+export const isActiveActionStatus = (status: ActionStatus): boolean =>
+  ACTIVE_ACTION_STATUSES.has(status)
+
+// An action in flight is dated from when it started, since its updates only track polling;
+// a settled one from when it settled
+export const getActionTimestamp = (action: Action): number =>
+  isActiveActionStatus(action.status) ? action.createdAt : action.updatedAt
+
 export const isArbitrumBridgeWithdrawAction = (
   action: Action,
 ): action is ArbitrumBridgeWithdrawAction => {

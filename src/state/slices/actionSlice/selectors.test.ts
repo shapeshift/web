@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { selectYieldActionsByTxHash } from './selectors'
-import type { ActionState, GenericTransactionAction } from './types'
+import {
+  selectWalletActions,
+  selectWalletActionsSorted,
+  selectYieldActionsByTxHash,
+} from './selectors'
+import type { ActionState, ArbitrumBridgeWithdrawAction, GenericTransactionAction } from './types'
 import { ActionStatus, ActionType, GenericTransactionDisplayType } from './types'
 
 const mockYieldDepositAction: GenericTransactionAction = {
@@ -106,5 +110,73 @@ describe('selectYieldActionsByTxHash', () => {
 
     const result = selectYieldActionsByTxHash.resultFunc(state.byId, state.ids)
     expect(result).toEqual({})
+  })
+})
+
+describe('selectWalletActions', () => {
+  const arbitrumWithdrawAction: ArbitrumBridgeWithdrawAction = {
+    id: 'arbitrum-bridge-withdraw-0xwithdraw',
+    type: ActionType.ArbitrumBridgeWithdraw,
+    status: ActionStatus.ClaimAvailable,
+    createdAt: 1700000000000,
+    updatedAt: 1700000000000,
+    arbitrumBridgeMetadata: {
+      withdrawTxHash: '0xwithdraw',
+      amountCryptoBaseUnit: '1000',
+      assetId: 'eip155:42161/slip44:60',
+      destinationAssetId: 'eip155:1/slip44:60',
+      accountId: 'eip155:42161:0xarb',
+      destinationAccountId: 'eip155:1:0xarb',
+    },
+  }
+
+  it('shows an arbitrum withdraw only to the wallet that made it', () => {
+    expect(
+      selectWalletActions.resultFunc([arbitrumWithdrawAction], ['eip155:42161:0xarb'], {}),
+    ).toEqual([arbitrumWithdrawAction])
+    expect(
+      selectWalletActions.resultFunc([arbitrumWithdrawAction], ['eip155:42161:0xother'], {}),
+    ).toEqual([])
+  })
+})
+
+describe('selectWalletActionsSorted', () => {
+  const action = (
+    id: string,
+    status: ActionStatus,
+    createdAt: number,
+    updatedAt: number,
+  ): GenericTransactionAction => ({
+    ...mockSendAction,
+    id,
+    status,
+    createdAt,
+    updatedAt,
+  })
+
+  it('anchors in-flight actions on top by start time, then settled ones by last update', () => {
+    const oldPending = action('old-pending', ActionStatus.Pending, 100, 900)
+    const newPending = action('new-pending', ActionStatus.Initiated, 300, 300)
+    const claimable = action('claimable', ActionStatus.ClaimAvailable, 200, 950)
+    const recentlyDone = action('recently-done', ActionStatus.Complete, 150, 800)
+    const longDone = action('long-done', ActionStatus.Claimed, 400, 500)
+    const abandoned = action('abandoned', ActionStatus.Abandoned, 999, 999)
+
+    const sorted = selectWalletActionsSorted.resultFunc([
+      recentlyDone,
+      oldPending,
+      abandoned,
+      longDone,
+      claimable,
+      newPending,
+    ])
+
+    expect(sorted.map(a => a.id)).toEqual([
+      'new-pending',
+      'claimable',
+      'old-pending',
+      'recently-done',
+      'long-done',
+    ])
   })
 })

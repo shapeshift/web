@@ -19,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimTx'
 import { Row } from '@/components/Row/Row'
 import { useModalRegistration } from '@/context/ModalStackProvider'
@@ -48,7 +49,7 @@ export const ArbitrumBridgeClaimModal = ({
 }: ArbitrumBridgeClaimModalProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
-  const claimDetails = action.arbitrumBridgeMetadata.claimDetails
+  const { withdrawTxHash, destinationAccountId } = action.arbitrumBridgeMetadata
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable
   const isClaimCompleted = action.status === ActionStatus.Claimed
 
@@ -67,7 +68,19 @@ export const ArbitrumBridgeClaimModal = ({
     selectMarketDataByAssetIdUserCurrency(state, action.arbitrumBridgeMetadata.destinationAssetId),
   )
 
-  const destinationAccountId = action.arbitrumBridgeMetadata.destinationAccountId
+  // The stored claim is plain JSON after a reload, so the SDK message that builds the outbox proof
+  // has to come from the live poll
+  const { claimsByStatus } = useArbitrumClaimsByStatus()
+  const claimDetails = useMemo(
+    () => claimsByStatus.Available.find(claim => claim.tx.txid === withdrawTxHash),
+    [claimsByStatus.Available, withdrawTxHash],
+  )
+
+  // The claim may be paid for by any of our ethereum accounts, but the funds land at the withdrawal's destination
+  const destinationAddress =
+    claimDetails?.destinationAddress ??
+    action.arbitrumBridgeMetadata.claimDetails?.destinationAddress ??
+    fromAccountId(destinationAccountId).account
 
   const destinationFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(
@@ -209,11 +222,7 @@ export const ArbitrumBridgeClaimModal = ({
             <Stack spacing={4} width='full'>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
-                <Row.Value>
-                  {middleEllipsis(
-                    fromAccountId(action.arbitrumBridgeMetadata.destinationAccountId).account,
-                  )}
-                </Row.Value>
+                <Row.Value>{middleEllipsis(destinationAddress)}</Row.Value>
               </Row>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('common.gasFee')}</Row.Label>

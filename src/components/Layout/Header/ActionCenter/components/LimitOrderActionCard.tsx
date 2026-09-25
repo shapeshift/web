@@ -16,7 +16,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, getActionTimestamp } from '@/state/slices/actionSlice/types'
 
 dayjs.extend(relativeTime)
 
@@ -36,11 +36,11 @@ export const LimitOrderActionCard = ({
   action,
 }: NotificationCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
-  const { updatedAt, status, type } = action
+  const { status, type } = action
 
   const formattedDate = useMemo(() => {
-    return formatSmartDate(updatedAt)
-  }, [updatedAt])
+    return formatSmartDate(getActionTimestamp(action))
+  }, [action])
 
   const limitOrderActionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!action) return

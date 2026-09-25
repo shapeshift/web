@@ -18,7 +18,11 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  GenericTransactionDisplayType,
+  getActionTimestamp,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -52,12 +56,10 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     ),
   )
 
-  const formattedDate = useMemo(() => formatSmartDate(action.updatedAt), [action.updatedAt])
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
   const isCollapsable =
     action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
-  const { isOpen, onToggle } = useDisclosure({
-    defaultIsOpen: action.status === ActionStatus.ClaimAvailable,
-  })
+  const { isOpen, onToggle } = useDisclosure()
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {
@@ -154,14 +156,24 @@ export const ArbitrumBridgeWithdrawActionCard = ({
           </Row>
         )}
         {action.status === ActionStatus.ClaimAvailable && (
-          <Row fontSize='sm' alignItems='center'>
-            <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
-            <Row.Value>
-              <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
-                {translate('common.claim')}
-              </Button>
-            </Row.Value>
-          </Row>
+          <>
+            <Row fontSize='sm' alignItems='center'>
+              <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
+              <Row.Value>
+                <Link isExternal href={withdrawTxLink} color='text.link'>
+                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
+                </Link>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' alignItems='center'>
+              <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
+              <Row.Value>
+                <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
+                  {translate('common.claim')}
+                </Button>
+              </Row.Value>
+            </Row>
+          </>
         )}
         {action.status === ActionStatus.Claimed && (
           <>

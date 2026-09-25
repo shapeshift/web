@@ -18,7 +18,7 @@ import type {
   RfoxClaimAction,
   TcyClaimAction,
 } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, getActionTimestamp } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -68,14 +68,14 @@ export const ClaimActionCard = ({
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
-    const notificationDate = dayjs(action.updatedAt)
+    const notificationDate = dayjs(getActionTimestamp(action))
     const sevenDaysAgo = now.subtract(7, 'day')
     if (notificationDate.isAfter(sevenDaysAgo)) {
       return notificationDate.fromNow()
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  }, [action.updatedAt])
+  }, [action])
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 

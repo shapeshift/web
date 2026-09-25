@@ -15,6 +15,8 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  getActionTimestamp,
+  isActiveActionStatus,
   isArbitrumBridgeWithdrawAction,
   isChainflipLendingAction,
   isGenericTransactionAction,
@@ -86,11 +88,17 @@ export const selectWalletActions = createDeepEqualOutputSelector(
         return enabledWalletAccountIds.includes(action.chainflipLendingMetadata.accountId)
       }
 
+      if (isArbitrumBridgeWithdrawAction(action)) {
+        return enabledWalletAccountIds.includes(action.arbitrumBridgeMetadata.accountId)
+      }
+
       return action
     })
   },
 )
 
+// Anything still in flight stays on top, in the order it was started, since its updates only track
+// polling. Settled actions follow, most recently settled first.
 export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
@@ -98,7 +106,12 @@ export const selectWalletActionsSorted = createDeepEqualOutputSelector(
       .filter(
         action => action.status !== ActionStatus.Idle && action.status !== ActionStatus.Abandoned,
       )
-      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .sort((a, b) => {
+        const aIsActive = isActiveActionStatus(a.status)
+        const bIsActive = isActiveActionStatus(b.status)
+        if (aIsActive !== bIsActive) return aIsActive ? -1 : 1
+        return getActionTimestamp(b) - getActionTimestamp(a)
+      })
   },
 )
 

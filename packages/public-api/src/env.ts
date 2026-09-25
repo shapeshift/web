@@ -44,6 +44,7 @@ const envSchema = z.object({
   VITE_BASE_NODE_URL: url,
 
   // Second-class EVM node URLs — same VITE_*_NODE_URL contract as first-class.
+  VITE_BOB_NODE_URL: url,
   VITE_HYPEREVM_NODE_URL: url,
   VITE_KATANA_NODE_URL: url,
   VITE_MEGAETH_NODE_URL: url,

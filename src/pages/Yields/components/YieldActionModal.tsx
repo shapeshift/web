@@ -91,6 +91,9 @@ export const YieldActionModal = memo(function YieldActionModal({
     quoteError,
     isAllowanceCheckPending,
     isUsdtResetRequired,
+    isNetworkFeeLoading,
+    isNetworkFeeError,
+    isInsufficientFeeAssetBalance,
   } = useYieldTransactionFlow({
     yieldItem,
     action,
@@ -183,8 +186,21 @@ export const YieldActionModal = memo(function YieldActionModal({
   )
 
   const isButtonDisabled = useMemo(
-    () => !canSubmit || isSubmitting || isQuoteLoading,
-    [canSubmit, isSubmitting, isQuoteLoading],
+    () =>
+      !canSubmit ||
+      isSubmitting ||
+      isQuoteLoading ||
+      isNetworkFeeLoading ||
+      isNetworkFeeError ||
+      isInsufficientFeeAssetBalance,
+    [
+      canSubmit,
+      isSubmitting,
+      isQuoteLoading,
+      isNetworkFeeLoading,
+      isNetworkFeeError,
+      isInsufficientFeeAssetBalance,
+    ],
   )
 
   const isButtonLoading = useMemo(
@@ -214,6 +230,12 @@ export const YieldActionModal = memo(function YieldActionModal({
     if (quoteError && amount) {
       const { key, params } = getYieldQuoteErrorTranslation(quoteError)
       return translate(key, params)
+    }
+    if (isNetworkFeeError) return translate('trade.errors.networkFeeEstimateFailed')
+    if (isInsufficientFeeAssetBalance) {
+      return translate('yieldXYZ.errors.insufficientAssetForGas', {
+        symbol: feeAsset?.symbol ?? '',
+      })
     }
     const yieldType = yieldItem.mechanics.type
     // Use the current step's type/title for a clean button label (e.g., "Stake", "Unstake", "Approve")
@@ -245,6 +267,9 @@ export const YieldActionModal = memo(function YieldActionModal({
     quoteData,
     isUsdtResetRequired,
     yieldItem.mechanics.type,
+    isNetworkFeeError,
+    isInsufficientFeeAssetBalance,
+    feeAsset?.symbol,
   ])
 
   const modalHeading = useMemo(() => {
@@ -438,7 +463,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       {isInProgress && (
         <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
           <Button
-            colorScheme='blue'
+            colorScheme={isNetworkFeeError || isInsufficientFeeAssetBalance ? 'red' : 'blue'}
             size='lg'
             width='full'
             height='56px'

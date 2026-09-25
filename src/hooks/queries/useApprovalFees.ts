@@ -1,13 +1,16 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { maxUint256 } from 'viem'
 
 import { useEvmFees } from './useEvmFees'
 
-import { assertGetTronChainAdapter, assertUnreachable } from '@/lib/utils'
+import { assertUnreachable } from '@/lib/utils'
 import { getApproveContractData } from '@/lib/utils/evm'
+import { getTronApproveContractData } from '@/lib/utils/tron'
+import { reactQueries } from '@/react-queries'
 
 export enum AllowanceType {
   Exact,
@@ -40,49 +43,32 @@ export const useApprovalFees = ({
     return fromAssetId(assetId)
   }, [assetId])
 
+  const approvalAmountCryptoBaseUnit = useMemo(
+    () =>
+      amountCryptoBaseUnit
+        ? getApprovalAmountCryptoBaseUnit(amountCryptoBaseUnit, allowanceType)
+        : undefined,
+    [allowanceType, amountCryptoBaseUnit],
+  )
+
   const approveContractData = useMemo(() => {
-    if (!amountCryptoBaseUnit || !spender || !to || !chainId || !enabled) return
+    if (!approvalAmountCryptoBaseUnit || !spender || !to || !chainId || !enabled) return
 
-    // Only generate contract data for EVM chains (TRON doesn't use this)
-    if (chainId === tronChainId) return undefined
-
-    return getApproveContractData({
-      approvalAmountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
-        amountCryptoBaseUnit,
-        allowanceType,
-      ),
-      chainId,
-      spender,
-      to,
-    })
-  }, [allowanceType, amountCryptoBaseUnit, chainId, enabled, spender, to])
-
-  // For TRON, estimate approval fees directly
-  const tronFeesResult = useQuery({
-    queryKey: ['tronApprovalFees', assetId, spender, from],
-    queryFn: async () => {
-      if (!assetId || !to || !from || !chainId) {
-        throw new Error('Missing required parameters for TRON fee estimation')
-      }
-
-      const adapter = assertGetTronChainAdapter(chainId)
-
-      // Estimate fees for approval transaction
-      const feeData = await adapter.getFeeData({
-        to: spender,
-        value: '0',
-        sendMax: false,
-        chainSpecific: {
-          from,
-          contractAddress: to,
-        },
+    if (chainId === tronChainId) {
+      return getTronApproveContractData({
+        spender,
+        amountCryptoBaseUnit: approvalAmountCryptoBaseUnit,
       })
+    }
 
-      return {
-        networkFeeCryptoBaseUnit: feeData.fast.txFee,
-      }
-    },
-    enabled: Boolean(enabled && chainId === tronChainId && assetId && to && from),
+    if (isEvmChainId(chainId)) {
+      return getApproveContractData({ approvalAmountCryptoBaseUnit, chainId, spender, to })
+    }
+  }, [approvalAmountCryptoBaseUnit, chainId, enabled, spender, to])
+
+  const tronFeesResult = useQuery({
+    ...reactQueries.common.tronFees({ chainId, to, from, value: '0', data: approveContractData }),
+    enabled: Boolean(enabled && chainId === tronChainId && approveContractData && to && from),
     refetchInterval: isRefetchEnabled ? 15_000 : false,
   })
 
@@ -92,7 +78,7 @@ export const useApprovalFees = ({
     value: '0',
     chainId,
     data: approveContractData,
-    enabled: Boolean(enabled && chainId !== tronChainId),
+    enabled: Boolean(enabled && chainId && isEvmChainId(chainId)),
     refetchIntervalInBackground: isRefetchEnabled ? true : false,
     refetchInterval: isRefetchEnabled ? 15_000 : false,
   })

@@ -1,11 +1,10 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { SwapperApi } from '../../types'
-import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
+import { getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
-import { getTronTransactionFees } from '../../utils/tron'
+import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
 import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/utxo'
 import { ChainflipStatusMessage } from './constants'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
@@ -23,25 +22,7 @@ export const chainflipApi: SwapperApi = {
   getUtxoTransactionFees,
   getUnsignedSolanaTransaction,
   getSolanaTransactionFees,
-  getUnsignedTronTransaction: ({ stepIndex, tradeQuote, from, assertGetTronChainAdapter }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, chainflipSpecific, sellAsset } = step
-
-    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
-
-    const adapter = assertGetTronChainAdapter(sellAsset.chainId)
-
-    return adapter.buildSendApiTransaction({
-      to: chainflipSpecific.depositAddress,
-      from,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      accountNumber,
-      chainSpecific: { contractAddress: contractAddressOrUndefined(sellAsset.assetId) },
-    })
-  },
+  getUnsignedTronTransaction,
   getTronTransactionFees,
   checkTradeStatus: async ({ config, swap }) => {
     if (!swap) throw new Error('Missing swap')

@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -12,10 +13,16 @@ import {
   omitComputeBudgetInstructions,
   withComputeUnitLimit,
 } from '../../../utils/solana'
+import type { TronContractCall } from '../../../utils/tron'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+} from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit } from '../../../utils/utxo'
+import { RELAY_TRON_FALLBACK_DEPOSIT_ENERGY } from '../constant'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 import { convertRelaySolanaInstruction } from './helpers'
-import type { RelayQuoteItem, RelayTransactionMetadata } from './types'
+import type { RelayQuoteItem } from './types'
 import {
   isRelayQuoteEvmItemData,
   isRelayQuoteSolanaItemData,
@@ -39,8 +46,7 @@ type BaseArgs = {
 
 type RelayRateStepData = { networkFeeCryptoBaseUnit: string }
 type RelayQuoteStepData = {
-  transactionData?: TxBuildData
-  relayTransactionMetadata?: RelayTransactionMetadata
+  transactionData: TxBuildData
   networkFeeCryptoBaseUnit: string
 }
 
@@ -245,28 +251,63 @@ export async function getRelayStepData({
     }
   }
 
+  // Native and token sells alike are a call into relay's depositor contract
   if (isRelayQuoteTronItemData(data)) {
-    const contractAddress = data.parameter?.contract_address
-    const tronCallData = data.parameter?.data
-    const isTronToken = isToken(sellAsset.assetId)
-
-    if (isTronToken && !contractAddress) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
-    if (isTronToken && !tronCallData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
+    const {
+      contract_address: contractAddress,
+      data: callData,
+      call_value: callValue,
+    } = data.parameter ?? {}
 
     if (type === 'rate') {
-      const stepData: RelayRateStepData = {
-        networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
-      }
+      // Relay's gas figure runs ~35% under the deposit's measured energy, so rates price the measured call
+      const networkFeeCryptoBaseUnit = await (async () => {
+        if (!contractAddress || !callData) return fallbackNetworkFeeCryptoBaseUnit
+
+        try {
+          return await getTronContractCallFallbackFeeCryptoBaseUnit({
+            adapter: deps.assertGetTronChainAdapter(sellAsset.chainId),
+            energy: RELAY_TRON_FALLBACK_DEPOSIT_ENERGY,
+            bandwidthBytes: tron.getTronContractCallBandwidthBytes(callData),
+            contractAddress,
+          })
+        } catch {
+          return fallbackNetworkFeeCryptoBaseUnit
+        }
+      })()
+
+      const stepData: RelayRateStepData = { networkFeeCryptoBaseUnit }
 
       return Ok(stepData)
     }
 
-    const stepData: RelayQuoteStepData = {
-      relayTransactionMetadata: { to: contractAddress, data: tronCallData },
-      networkFeeCryptoBaseUnit: fallbackNetworkFeeCryptoBaseUnit,
+    if (!contractAddress || !callData) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
+
+    const isNativeSell = !isToken(sellAsset.assetId)
+    const call: TronContractCall = {
+      to: contractAddress,
+      data: callData,
+      value: String(callValue ?? (isNativeSell ? sellAmountCryptoBaseUnit : 0)),
     }
 
-    return Ok(stepData)
+    try {
+      const stepData: RelayQuoteStepData = {
+        transactionData: { type: 'tron', ...call },
+        networkFeeCryptoBaseUnit: await getTronContractCallNetworkFeeCryptoBaseUnit({
+          adapter: deps.assertGetTronChainAdapter(sellAsset.chainId),
+          transactionData: call,
+          from,
+          sellAsset,
+          sellAmountCryptoBaseUnit,
+          spenderAddress: contractAddress,
+          fallbackEnergy: RELAY_TRON_FALLBACK_DEPOSIT_ENERGY,
+        }),
+      }
+
+      return Ok(stepData)
+    } catch (error) {
+      return Err(makeNetworkFeeEstimationFailedErr('getRelayStepData', error))
+    }
   }
 
   return Err(makeTradeStepBuildFailedErr('getRelayStepData'))

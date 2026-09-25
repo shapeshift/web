@@ -51,19 +51,23 @@ export const AddressLinks: React.FC<AddressAndChainProps> = ({ accountIds }) => 
   // This allows us to only display a single row per many ChainIds, if an address exists over multiple ones
   const addressesWithChainIdsSorted = useMemo(() => {
     const chainIdsByAddress = accountIds.reduce<Record<string, AssetId[]>>((acc, accountId) => {
-      const feeAssetId = accountIdToFeeAssetId(accountId)
-      if (!feeAssetId) return acc
+      try {
+        const feeAssetId = accountIdToFeeAssetId(accountId)
+        if (!feeAssetId) return acc
 
-      const { account: address } = fromAccountId(accountId)
+        const { account: address } = fromAccountId(accountId)
 
-      if (!acc[address]) {
-        acc[address] = [feeAssetId]
+        if (!acc[address]) {
+          acc[address] = [feeAssetId]
+          return acc
+        }
+
+        acc[address].push(feeAssetId)
+
+        return acc
+      } catch {
         return acc
       }
-
-      acc[address].push(feeAssetId)
-
-      return acc
     }, {})
 
     return Object.entries(chainIdsByAddress).map(([address, chainIds]) => ({

@@ -162,7 +162,6 @@
   height: 36px;
   border-radius: var(--ssw-radius-sm);
   object-fit: contain;
-  background: var(--ssw-bg-secondary, #12121c);
   flex-shrink: 0;
 }
 

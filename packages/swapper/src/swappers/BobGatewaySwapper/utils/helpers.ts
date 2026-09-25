@@ -10,7 +10,7 @@ import {
   toAssetId,
   tronChainId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId, tron } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import {
@@ -21,7 +21,6 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { TronWeb } from 'tronweb'
 import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -29,6 +28,7 @@ import type { QuoteFeeData, SwapErrorRight, SwapperConfig } from '../../../types
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
+import { TRON_PLACEHOLDER_ADDRESS } from '../../../utils/tron'
 import type { BobGatewayChainName } from './constants'
 import {
   BOB_GATEWAY_BASE_URL,
@@ -37,23 +37,16 @@ import {
   decimalSlippageToBobBps,
   DUMMY_BTC_ADDRESS,
   DUMMY_EVM_ADDRESS,
-  DUMMY_TRON_ADDRESS,
 } from './constants'
 
 export const dummyAddressForChainId = (chainId: ChainId): string => {
   if (chainId === btcChainId) return DUMMY_BTC_ADDRESS
-  if (chainId === tronChainId) return DUMMY_TRON_ADDRESS
+  if (chainId === tronChainId) return TRON_PLACEHOLDER_ADDRESS
   return DUMMY_EVM_ADDRESS
 }
 
 export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK => {
   return new GatewaySDK({ basePath: BOB_GATEWAY_BASE_URL, apiKey: config.VITE_BOB_GATEWAY_API_KEY })
-}
-
-export const toTronBase58 = (address: string): string => {
-  if (address.startsWith('T')) return address
-  if (address.startsWith('0x')) return TronWeb.address.fromHex(address.slice(2))
-  return TronWeb.address.fromHex(address)
 }
 
 export const assetIdToBobGatewayToken = (assetId: string): string => {
@@ -224,7 +217,7 @@ const bobGatewayFeeToAssetId = (fee: { address: string; chain: string }): AssetI
     return toAssetId({
       chainId,
       assetNamespace: ASSET_NAMESPACE.trc20,
-      assetReference: toTronBase58(fee.address),
+      assetReference: tron.toTronBase58(fee.address),
     })
   }
 
@@ -307,7 +300,7 @@ export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV4, sellAsset:
   })()
   if (!txTo) return ''
 
-  if (isTron) return toTronBase58(txTo)
+  if (isTron) return tron.toTronBase58(txTo)
   return txTo
 }
 

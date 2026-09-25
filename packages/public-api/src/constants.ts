@@ -8,6 +8,7 @@ export const SUPPORTED_CHAIN_IDS: readonly KnownChainIds[] = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.BobMainnet,
   KnownChainIds.EthereumMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.HyperEvmMainnet,
@@ -49,6 +50,7 @@ const EXECUTABLE_CHAIN_NAMESPACES: ReadonlySet<string> = new Set([
   CHAIN_NAMESPACE.Utxo,
   CHAIN_NAMESPACE.CosmosSdk,
   CHAIN_NAMESPACE.Solana,
+  CHAIN_NAMESPACE.Tron,
 ])
 
 const EXECUTABLE_SELL_CHAIN_IDS: readonly KnownChainIds[] = SUPPORTED_CHAIN_IDS.filter(chainId =>
@@ -62,6 +64,7 @@ export const isExecutableSellChainId = (chainId: string): boolean =>
 
 export const ENABLED_SWAPPER_NAMES: readonly SwapperName[] = [
   SwapperName.Bebop,
+  SwapperName.BobGateway,
   SwapperName.ButterSwap,
   SwapperName.Chainflip,
   SwapperName.Mayachain,

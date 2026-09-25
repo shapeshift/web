@@ -3,8 +3,8 @@ import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
 
 import { approve } from '@/lib/utils/evm/approve'
 import type { MaybeApproveInputWithWallet } from '@/lib/utils/evm/types'
-import { approveTron } from '@/lib/utils/tron/approve'
-import type { MaybeApproveTronInputWithWallet } from '@/lib/utils/tron/types'
+import type { MaybeApproveTronInputWithWallet } from '@/lib/utils/tron'
+import { approveTron } from '@/lib/utils/tron'
 
 export const mutations = createMutationKeys('mutations', {
   approve: ({

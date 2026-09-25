@@ -1317,6 +1317,7 @@
       "qrCode": "QR Code",
       "addressBook": "Address Book",
       "noEntries": "No address found.",
+      "contractAddressWarning": "This is a contract address. Double-check that sending here is intentional. Funds sent to the wrong contract can be lost.",
       "yourWallets": "Your Wallets",
       "noInternalAccounts": "No accounts found.",
       "addNewAddress": "Add New Address",
@@ -3509,6 +3510,7 @@
       "quoteFailedTitle": "Quote Failed",
       "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again.",
       "insufficientAssetForGas": "Insufficient %{symbol} for Gas",
+      "tronFeeLimitBelowEstimate": "The provider's fee limit is below the estimated network fee. Please try again later.",
       "rateLimited": "Too Many Requests"
     },
     "underMaintenance": "Under Maintenance",

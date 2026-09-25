@@ -1,6 +1,6 @@
 import { Box, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { cosmosChainId, ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { cosmosChainId, ethAssetId, fromAccountId, tronChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
@@ -26,6 +26,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
 import { enterYield } from '@/lib/yieldxyz/api'
 import { getDefaultValidatorForYield, isYieldDisabled } from '@/lib/yieldxyz/utils'
+import { useYieldTronNetworkFee } from '@/pages/Yields/hooks/useYieldTronNetworkFee'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -243,10 +244,20 @@ export const EarnInput = memo(
       retry: false,
     })
 
-    const networkFeeFiatUserCurrency = useMemo(() => {
-      if (!quoteData?.transactions?.length || !feeAssetMarketData?.price) {
-        return undefined
-      }
+    const {
+      hasContractCall: hasTronContractCall,
+      networkFeeCryptoPrecision: tronNetworkFeeCryptoPrecision,
+      isLoading: isTronNetworkFeeLoading,
+    } = useYieldTronNetworkFee({
+      chainId: yieldChainId,
+      transactions: quoteData?.transactions,
+      from: userAddress,
+    })
+
+    // yield.xyz's tron gasEstimate covers bandwidth only, so tron waits for the simulation
+    const networkFeeCryptoPrecision = useMemo(() => {
+      if (!quoteData?.transactions?.length) return undefined
+      if (yieldChainId === tronChainId && hasTronContractCall) return tronNetworkFeeCryptoPrecision
 
       const totalGasCryptoPrecision = quoteData.transactions.reduce((acc, tx) => {
         if (!tx.gasEstimate) return acc
@@ -258,9 +269,16 @@ export const EarnInput = memo(
         }
       }, bnOrZero(0))
 
-      if (totalGasCryptoPrecision.isZero()) return undefined
-      return totalGasCryptoPrecision.times(feeAssetMarketData.price).toFixed(2)
-    }, [quoteData?.transactions, feeAssetMarketData?.price])
+      return totalGasCryptoPrecision.isZero() ? undefined : totalGasCryptoPrecision.toFixed()
+    }, [quoteData?.transactions, yieldChainId, hasTronContractCall, tronNetworkFeeCryptoPrecision])
+
+    const networkFeeFiatUserCurrency = useMemo(
+      () =>
+        networkFeeCryptoPrecision && feeAssetMarketData?.price
+          ? bnOrZero(networkFeeCryptoPrecision).times(feeAssetMarketData.price).toFixed(2)
+          : undefined,
+      [networkFeeCryptoPrecision, feeAssetMarketData?.price],
+    )
 
     const { price: sellAssetUserCurrencyRate } =
       useAppSelector(state => selectMarketDataByFilter(state, { assetId: sellAsset?.assetId })) ||
@@ -287,10 +305,21 @@ export const EarnInput = memo(
       )
     }, [sellAmountCryptoPrecision, minDeposit])
 
+    // A native deposit spends the fee asset on top of its priced fee
     const isInsufficientBalance = useMemo(() => {
       if (!sellAmountCryptoPrecision || !sellAssetBalanceCryptoPrecision) return false
-      return bnOrZero(sellAmountCryptoPrecision).gt(sellAssetBalanceCryptoPrecision)
-    }, [sellAmountCryptoPrecision, sellAssetBalanceCryptoPrecision])
+      const feeCryptoPrecision =
+        sellAsset?.assetId === feeAsset?.assetId ? networkFeeCryptoPrecision ?? '0' : '0'
+      return bnOrZero(sellAmountCryptoPrecision)
+        .plus(feeCryptoPrecision)
+        .gt(sellAssetBalanceCryptoPrecision)
+    }, [
+      sellAmountCryptoPrecision,
+      sellAssetBalanceCryptoPrecision,
+      sellAsset?.assetId,
+      feeAsset?.assetId,
+      networkFeeCryptoPrecision,
+    ])
 
     const sellAssetSearch = useModal('sellTradeAssetSearch')
 
@@ -514,7 +543,7 @@ export const EarnInput = memo(
           isBelowMinimum={isBelowMinimum}
           isInsufficientBalance={isInsufficientBalance}
           networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
-          isQuoteLoading={isQuoteLoading}
+          isQuoteLoading={isQuoteLoading || isTronNetworkFeeLoading}
         />
       ),
       [
@@ -529,6 +558,7 @@ export const EarnInput = memo(
         isInsufficientBalance,
         networkFeeFiatUserCurrency,
         isQuoteLoading,
+        isTronNetworkFeeLoading,
       ],
     )
 

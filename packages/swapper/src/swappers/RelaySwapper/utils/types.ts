@@ -25,13 +25,6 @@ export type RelayTradeRateInput =
 export type RelayExactOutputTradeQuoteInput = WithExactBuyAmount<RelayTradeQuoteInput>
 export type RelayExactOutputTradeRateInput = WithExactBuyAmount<RelayTradeRateInput>
 
-// Only the Tron unsigned-tx builder consumes this (to + calldata); every other
-// ecosystem's build data lives on transactionData
-export type RelayTransactionMetadata = {
-  to?: string
-  data?: string
-}
-
 export type RelayMetadata = {
   name: 'relay'
   relayId: string
@@ -168,6 +161,7 @@ export type RelayQuoteTronItemData = {
     owner_address?: string
     contract_address?: string
     data?: string
+    call_value?: number
   }
 }
 

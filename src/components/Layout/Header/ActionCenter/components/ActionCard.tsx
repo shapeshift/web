@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Card, CardBody, Collapse, Flex, HStack, Icon, Stack } from '@chakra-ui/react'
+import { Box, Collapse, Flex, HStack, Icon, Stack } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
@@ -97,11 +97,9 @@ export const ActionCard = ({
           </HStack>
           {isCollapsable && (
             <Collapse in={isOpen}>
-              <Card bg='transparent' mt={4}>
-                <CardBody px={0} pt={4} pb={0}>
-                  {children}
-                </CardBody>
-              </Card>
+              <Box mt={4} pt={4} borderTopWidth={1} borderColor='border.base'>
+                {children}
+              </Box>
             </Collapse>
           )}
         </Stack>

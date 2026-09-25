@@ -18,7 +18,11 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  GenericTransactionDisplayType,
+  getActionTimestamp,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -52,7 +56,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     ),
   )
 
-  const formattedDate = useMemo(() => formatSmartDate(action.createdAt), [action.createdAt])
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
   const isCollapsable =
     action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
   const { isOpen, onToggle } = useDisclosure()

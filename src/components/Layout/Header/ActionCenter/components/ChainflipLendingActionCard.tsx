@@ -16,7 +16,11 @@ import { Text } from '@/components/Text/Text'
 import { middleEllipsis } from '@/lib/utils'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { ChainflipLendingAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, ChainflipLendingOperationType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ChainflipLendingOperationType,
+  getActionTimestamp,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -34,8 +38,8 @@ export const ChainflipLendingActionCard = ({ action }: ChainflipLendingActionCar
   const asset = useAppSelector(state => selectAssetById(state, chainflipLendingMetadata.assetId))
 
   const formattedDate = useMemo(() => {
-    return formatSmartDate(action.updatedAt)
-  }, [action.updatedAt])
+    return formatSmartDate(getActionTimestamp(action))
+  }, [action])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen: action.status === ActionStatus.Pending,

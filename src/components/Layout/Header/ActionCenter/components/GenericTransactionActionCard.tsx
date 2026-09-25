@@ -21,6 +21,7 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  getActionTimestamp,
 } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -67,14 +68,14 @@ export const GenericTransactionActionCard = ({
 
   const formattedDate = useMemo(() => {
     const now = dayjs()
-    const notificationDate = dayjs(action.updatedAt)
+    const notificationDate = dayjs(getActionTimestamp(action))
     const sevenDaysAgo = now.subtract(7, 'day')
     if (notificationDate.isAfter(sevenDaysAgo)) {
       return notificationDate.fromNow()
     } else {
       return notificationDate.toDate().toLocaleString()
     }
-  }, [action.updatedAt])
+  }, [action])
 
   const txLink = useMemo(() => {
     if (!feeAsset) return

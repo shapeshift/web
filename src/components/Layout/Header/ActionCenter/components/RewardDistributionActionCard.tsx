@@ -14,7 +14,11 @@ import { Text } from '@/components/Text/Text'
 import { getTxLink } from '@/lib/getTxLink'
 import { getRewardAssetId, maybeGetStakingAssetId } from '@/pages/RFOX/helpers'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  GenericTransactionDisplayType,
+  getActionTimestamp,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -35,8 +39,8 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId ?? ''))
 
   const formattedDate = useMemo(() => {
-    return dayjs(action.updatedAt).fromNow()
-  }, [action.updatedAt])
+    return dayjs(getActionTimestamp(action)).fromNow()
+  }, [action])
 
   const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!rewardAsset) return

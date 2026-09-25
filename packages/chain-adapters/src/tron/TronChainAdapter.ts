@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, tronAssetId, tronChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAssetId, tronAssetId, tronChainId } from '@shapeshiftoss/caip'
 import type { HDWallet, TronWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsTron } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
@@ -37,6 +37,7 @@ import type { TronSignTx, TronUnsignedTx } from './types'
 import {
   getTronContractCallBandwidthBytes,
   SIGNED_TX_OVERHEAD_BYTES,
+  toJsonInt,
   toTronBase58,
   TRON_DEFAULT_FEE_LIMIT_SUN,
 } from './utils'
@@ -182,7 +183,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
             balance: token.balance,
             symbol: '',
             name: '',
-            precision: 6,
           }
         })
 
@@ -261,7 +261,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const requestBody = {
           owner_address: from,
           to_address: to,
-          amount: Number(value),
+          amount: toJsonInt(value),
           visible: true,
         }
 
@@ -344,7 +344,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         contract_address: to,
         data: callData,
         fee_limit: feeLimit,
-        call_value: Number(value) || 0,
+        call_value: toJsonInt(value),
         visible: true,
       }
 
@@ -644,17 +644,22 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
+  getTokenPrecision(assetId: AssetId): Promise<number | undefined> {
+    const { assetNamespace, assetReference } = fromAssetId(assetId)
+    return assetNamespace === 'trc10'
+      ? this.providers.http.getTrc10Precision({ id: assetReference })
+      : this.providers.http.getTrc20Decimals({ contractAddress: assetReference })
+  }
+
   validateAddress(address: string): Promise<ValidAddressResult> {
     try {
-      if (!address.startsWith('T')) {
-        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-      }
-
-      if (address.length !== 34) {
-        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-      }
-
-      return Promise.resolve({ valid: true, result: ValidAddressResultType.Valid })
+      // isAddress also takes the 41-prefixed hex form, which is not an address a user should paste
+      const valid = address.startsWith('T') && TronWeb.isAddress(address)
+      return Promise.resolve(
+        valid
+          ? { valid: true, result: ValidAddressResultType.Valid }
+          : { valid: false, result: ValidAddressResultType.Invalid },
+      )
     } catch (err) {
       return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
     }

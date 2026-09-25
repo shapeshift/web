@@ -317,6 +317,165 @@ describe('TronApi', () => {
     })
   })
 
+  describe('getTrc20Decimals', () => {
+    const USDT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+    const eighteen = '0000000000000000000000000000000000000000000000000000000000000012'
+
+    it('reads decimals() with a single constant call', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
+      const trigger = vi
+        .spyOn(tronWeb.transactionBuilder, 'triggerConstantContract')
+        .mockResolvedValue({ result: { result: true }, constant_result: [eighteen] } as any)
+
+      expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBe(18)
+      expect(trigger).toHaveBeenCalledWith(USDT, 'decimals()', {}, [], USDT)
+    })
+
+    it('reads a reverted decimals() as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
+      const trigger = vi
+        .spyOn(tronWeb.transactionBuilder, 'triggerConstantContract')
+        .mockResolvedValueOnce({
+          result: { result: true, message: 'REVERT opcode executed' },
+          constant_result: ['08c379a0' + '0'.repeat(56)],
+          transaction: { ret: [{ ret: 'FAILED' }] },
+        } as any)
+        .mockResolvedValue({ result: { result: true }, constant_result: [eighteen] } as any)
+
+      expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBeUndefined()
+      expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBe(18)
+      expect(trigger).toHaveBeenCalledTimes(2)
+    })
+
+    it('reads a value outside a uint8 as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
+      vi.spyOn(tronWeb.transactionBuilder, 'triggerConstantContract').mockResolvedValue({
+        result: { result: true },
+        constant_result: ['0'.repeat(61) + '100'],
+      } as any)
+
+      expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBeUndefined()
+    })
+
+    it('gives up on a call that hangs', async () => {
+      vi.useFakeTimers()
+      try {
+        const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+        const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
+        vi.spyOn(tronWeb.transactionBuilder, 'triggerConstantContract').mockReturnValue(
+          new Promise(() => undefined),
+        )
+
+        const pending = freshApi.getTrc20Decimals({ contractAddress: USDT })
+        await vi.runAllTimersAsync()
+
+        expect(await pending).toBeUndefined()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('reads a failed call as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
+      const trigger = vi
+        .spyOn(tronWeb.transactionBuilder, 'triggerConstantContract')
+        .mockRejectedValueOnce(new Error('429'))
+        .mockResolvedValue({ result: { result: true }, constant_result: [eighteen] } as any)
+
+      expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBeUndefined()
+      expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBe(18)
+      expect(trigger).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('getTrc10Precision', () => {
+    const respond = (body: object): ReturnType<typeof vi.fn> => {
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => body })
+      vi.stubGlobal('fetch', fetchMock)
+      return fetchMock
+    }
+
+    it('reads the precision of an issued token', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const fetchMock = respond({ success: true, data: [{ id: '1002000', precision: 6 }] })
+
+      expect(await freshApi.getTrc10Precision({ id: '1002000' })).toBe(6)
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://tron.example/v1/assets/1002000',
+        expect.objectContaining({ headers: expect.anything() }),
+      )
+    })
+
+    it('reads a zero precision as issued', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      respond({ success: true, data: [{ id: '1000001', precision: 0 }] })
+
+      expect(await freshApi.getTrc10Precision({ id: '1000001' })).toBe(0)
+    })
+
+    it('reads an unknown id as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      respond({ success: false, error: 'A valid account address or asset id is required.' })
+
+      expect(await freshApi.getTrc10Precision({ id: '9999999' })).toBeUndefined()
+    })
+
+    it('reads an empty listing as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      respond({ success: true, data: [] })
+
+      expect(await freshApi.getTrc10Precision({ id: '1009999' })).toBeUndefined()
+    })
+
+    it('gives up on a request that hangs', async () => {
+      vi.useFakeTimers()
+      try {
+        const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+        vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(() => undefined)))
+
+        const pending = freshApi.getTrc10Precision({ id: '1002000' })
+        await vi.runAllTimersAsync()
+
+        expect(await pending).toBeUndefined()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('gives up on a response whose body stalls', async () => {
+      vi.useFakeTimers()
+      try {
+        const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+        const fetchMock = vi
+          .fn()
+          .mockResolvedValue({ ok: true, json: () => new Promise(() => undefined) })
+        vi.stubGlobal('fetch', fetchMock)
+
+        const pending = freshApi.getTrc10Precision({ id: '1002000' })
+        await vi.runAllTimersAsync()
+
+        expect(await pending).toBeUndefined()
+        expect(fetchMock).toHaveBeenCalledWith(
+          'https://tron.example/v1/assets/1002000',
+          expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('reads a failed request as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('429')))
+
+      expect(await freshApi.getTrc10Precision({ id: '1002000' })).toBeUndefined()
+    })
+  })
+
   describe('getTrc20Allowance', () => {
     it('reads allowance(owner, spender) with a single constant call', async () => {
       const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()

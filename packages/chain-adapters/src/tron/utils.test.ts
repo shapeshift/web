@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getTronContractCallBandwidthBytes,
   getTronFeeLimit,
+  toJsonInt,
   toTronBase58,
   toTronHex,
 } from './utils'
@@ -45,5 +46,29 @@ describe('getTronContractCallBandwidthBytes', () => {
   it('sizes the calldata plus the signed TriggerSmartContract envelope', () => {
     expect(getTronContractCallBandwidthBytes('0x2213bc0b')).toBe(4 + 279)
     expect(getTronContractCallBandwidthBytes('2213bc0b')).toBe(4 + 279)
+  })
+})
+
+describe('toJsonInt', () => {
+  it('serializes the amount as a bare integer', () => {
+    expect(JSON.stringify({ amount: toJsonInt('1000000') })).toBe('{"amount":1000000}')
+  })
+
+  it('rejects text that is not a bare integer', () => {
+    expect(() => toJsonInt('1e3')).toThrow('1e3')
+    expect(() => toJsonInt('9007199254740990.2')).toThrow('9007199254740990.2')
+    expect(() => toJsonInt('-1')).toThrow('-1')
+  })
+
+  it('treats an empty value as zero', () => {
+    expect(JSON.stringify({ amount: toJsonInt('') })).toBe('{"amount":0}')
+  })
+
+  it('drops leading zeros, which the node would read as octal', () => {
+    expect(JSON.stringify({ amount: toJsonInt('007') })).toBe('{"amount":7}')
+  })
+
+  it('throws rather than round beyond the safe integer range', () => {
+    expect(() => toJsonInt('9007199254740993')).toThrow('9007199254740993')
   })
 })

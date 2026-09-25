@@ -61,7 +61,7 @@ export class TronApi {
   private tronWeb: TronWeb | null = null
   private readonly contracts = new Map<string, { readAt: number; value: Promise<TronContract> }>()
   private readonly originEnergy = new Map<string, { readAt: number; value: Promise<number> }>()
-  private readonly decimals = new Map<string, Promise<number>>()
+  private readonly decimals = new Map<string, number>()
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
@@ -217,30 +217,24 @@ export class TronApi {
   }
 
   // Decimals never change, so a successful read is kept for the life of the client
-  getTrc20Decimals(params: { contractAddress: string }): Promise<number> {
+  async getTrc20Decimals(params: { contractAddress: string }): Promise<number> {
     const cached = this.decimals.get(params.contractAddress)
-    if (cached) return cached
+    if (cached !== undefined) return cached
 
-    const pending = this.getTronWeb()
-      .transactionBuilder.triggerConstantContract(
-        params.contractAddress,
-        'decimals()',
-        {},
-        [],
-        params.contractAddress,
-      )
-      .then(result => {
-        const [decimals] = result.constant_result ?? []
-        if (!decimals) throw new Error('[tron] decimals call returned no data')
-        return Number(BigInt(`0x${decimals}`))
-      })
-      .catch(err => {
-        this.decimals.delete(params.contractAddress)
-        throw err
-      })
+    const result = await this.getTronWeb().transactionBuilder.triggerConstantContract(
+      params.contractAddress,
+      'decimals()',
+      {},
+      [],
+      params.contractAddress,
+    )
 
-    this.decimals.set(params.contractAddress, pending)
-    return pending
+    const [word] = result.constant_result ?? []
+    if (!word) throw new Error('[tron] decimals call returned no data')
+
+    const decimals = Number(BigInt(`0x${word}`))
+    this.decimals.set(params.contractAddress, decimals)
+    return decimals
   }
 
   async getTrc20Balance(params: { contractAddress: string; address: string }): Promise<string> {

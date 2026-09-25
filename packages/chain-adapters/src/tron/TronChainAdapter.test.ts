@@ -225,6 +225,7 @@ describe('TronChainAdapter.buildSendApiTransaction', () => {
       to: POOL,
       accountNumber: 0,
       value: BEYOND_SAFE_INTEGER,
+      chainSpecific: {},
     })
 
     expect(requestBody(fetchMock)).toContain(`"amount":${BEYOND_SAFE_INTEGER}`)

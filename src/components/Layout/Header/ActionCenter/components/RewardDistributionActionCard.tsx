@@ -28,7 +28,7 @@ type RewardDistributionActionCardProps = {
 
 export const RewardDistributionActionCard = ({ action }: RewardDistributionActionCardProps) => {
   const translate = useTranslate()
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
+  const { isOpen, onToggle } = useDisclosure()
   const { distribution } = action.rewardDistributionMetadata
 
   const rewardAssetId = useMemo(() => {

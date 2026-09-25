@@ -110,7 +110,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { isSome, makeAsset } from '@shapeshiftoss/utils'
+import { makeAsset } from '@shapeshiftoss/utils'
 import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
@@ -873,15 +873,15 @@ export const makeAssets = async ({
       token => !state.assets.byId[token.assetId],
     )
 
-    const assets = await Promise.all(
-      unknownTokens.map(async token => {
-        const precision = await adapter?.getTokenPrecision(token.assetId)
-        if (precision === undefined) return
-        return makeAsset(state.assets.byId, { ...token, precision })
-      }),
-    )
+    // One read at a time: unknown tokens are rare and TronGrid rate-limits bursts
+    const assets: Asset[] = []
+    for (const token of unknownTokens) {
+      const precision = await adapter?.getTokenPrecision(token.assetId)
+      if (precision === undefined) continue
+      assets.push(makeAsset(state.assets.byId, { ...token, precision }))
+    }
 
-    return assets.filter(isSome).reduce<UpsertAssetsPayload>(
+    return assets.reduce<UpsertAssetsPayload>(
       (prev, asset) => {
         prev.byId[asset.assetId] = asset
         prev.ids.push(asset.assetId)

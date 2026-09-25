@@ -276,6 +276,26 @@ describe('makeAssets', () => {
     expect(result?.byId[trc10AssetId]?.precision).toBe(0)
   })
 
+  it('reads unknown tokens one at a time', async () => {
+    const resolvers: ((precision: number) => void)[] = []
+    const getTokenPrecision = vi.fn(
+      () => new Promise<number>(resolve => resolvers.push(resolve)),
+    )
+
+    const pending = makeTronAssets(
+      [tronToken(jstAssetId), tronToken(trc10AssetId)],
+      getTokenPrecision,
+    )
+    await vi.waitFor(() => expect(getTokenPrecision).toHaveBeenCalledTimes(1))
+    expect(getTokenPrecision).toHaveBeenCalledTimes(1)
+
+    resolvers[0](18)
+    await vi.waitFor(() => expect(getTokenPrecision).toHaveBeenCalledTimes(2))
+    resolvers[1](6)
+
+    expect((await pending)?.ids).toEqual([jstAssetId, trc10AssetId])
+  })
+
   it('leaves out a tron token whose precision could not be read', async () => {
     const result = await makeTronAssets(
       [tronToken(jstAssetId), tronToken(trc10AssetId)],

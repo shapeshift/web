@@ -8,6 +8,8 @@ type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
   transaction?: Partial<Types.TransactionWrapper['transaction']> & { ret?: { ret?: string }[] }
 }
 
+const PRECISION_READ_TIMEOUT_MS = 10_000
+
 export interface TronApiConfig {
   rpcUrl: string
   apiKey?: string
@@ -212,7 +214,8 @@ export class TronApi {
     if (cached !== undefined) return cached
 
     try {
-      const result = await this.getTronWeb().transactionBuilder.triggerConstantContract(
+      const tronWeb = this.getTronWeb()
+      const result: SimulationResult = await tronWeb.transactionBuilder.triggerConstantContract(
         params.contractAddress,
         'decimals()',
         {},
@@ -221,12 +224,16 @@ export class TronApi {
       )
 
       const [decimalsHex] = result.constant_result ?? []
-      if (!decimalsHex) return
+      if (this.isReverted(result) || !decimalsHex) return
 
+      // decimals() is a uint8; anything larger is a contract answering something else
       const decimals = Number(BigInt(`0x${decimalsHex}`))
+      if (decimals > 255) return
+
       this.trc20Decimals.set(params.contractAddress, decimals)
       return decimals
-    } catch {
+    } catch (err) {
+      console.error(`[tron] failed to read decimals of ${params.contractAddress}`, err)
       return
     }
   }
@@ -236,11 +243,15 @@ export class TronApi {
     const cached = this.trc10Precision.get(params.id)
     if (cached !== undefined) return cached
 
+    const abort = new AbortController()
+    const timer = setTimeout(() => abort.abort(), PRECISION_READ_TIMEOUT_MS)
+
     try {
       const response = await fetch(`${this.rpcUrl}/wallet/getassetissuebyid`, {
         method: 'POST',
         headers: this.tronGridHeaders,
         body: JSON.stringify({ value: Number(params.id) }),
+        signal: abort.signal,
       })
 
       const data: { id?: string; precision?: number } = await response.json()
@@ -250,8 +261,11 @@ export class TronApi {
       const precision = data.precision ?? 0
       this.trc10Precision.set(params.id, precision)
       return precision
-    } catch {
+    } catch (err) {
+      console.error(`[tron] failed to read precision of trc10 ${params.id}`, err)
       return
+    } finally {
+      clearTimeout(timer)
     }
   }
 
@@ -591,11 +605,15 @@ export class TronApi {
     return String(getCallerEnergy(energy, share) * energyPrice)
   }
 
-  // A revert still reports result.result: true with the partial energy burned - trusting it would underestimate
-  private getSimulatedEnergy(result: SimulationResult, label: string): number {
-    const isReverted = result.transaction?.ret?.some(ret => ret.ret === 'FAILED')
+  // A revert still reports result.result: true - the failure is only visible on the transaction's ret
+  private isReverted(result: SimulationResult): boolean {
+    const failed = result.transaction?.ret?.some(ret => ret.ret === 'FAILED')
+    return result.result?.result !== true || Boolean(failed)
+  }
 
-    if (result.result?.result !== true || isReverted || !result.energy_used) {
+  // Trusting a revert's partial energy would underestimate
+  private getSimulatedEnergy(result: SimulationResult, label: string): number {
+    if (this.isReverted(result) || !result.energy_used) {
       throw new Error(
         `[tron] ${label} simulation failed: ${result.result?.message ?? 'unknown error'}`,
       )

@@ -55,9 +55,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   const formattedDate = useMemo(() => formatSmartDate(action.createdAt), [action.createdAt])
   const isCollapsable =
     action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
-  const { isOpen, onToggle } = useDisclosure({
-    defaultIsOpen: action.status === ActionStatus.ClaimAvailable,
-  })
+  const { isOpen, onToggle } = useDisclosure()
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {

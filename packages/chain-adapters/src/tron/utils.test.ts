@@ -67,6 +67,12 @@ describe('toRawJsonInt', () => {
     )
   })
 
+  it('rejects text that is not a bare integer', () => {
+    expect(() => toRawJsonInt('1e3')).toThrow('1e3')
+    expect(() => toRawJsonInt('9007199254740990.2')).toThrow('9007199254740990.2')
+    expect(() => toRawJsonInt('-1')).toThrow('-1')
+  })
+
   it('treats an empty value as zero', () => {
     expect(JSON.stringify({ amount: toRawJsonInt('') })).toBe('{"amount":0}')
   })

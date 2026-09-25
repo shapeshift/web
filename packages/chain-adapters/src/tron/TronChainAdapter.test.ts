@@ -205,7 +205,7 @@ describe('TronChainAdapter.parseTx', () => {
 
 const BEYOND_SAFE_INTEGER = '9007199254740993'
 
-const mockTronGrid = (payload: object) => {
+const mockTronGrid = (payload: object): ReturnType<typeof vi.fn> => {
   const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(payload) })
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
@@ -289,7 +289,7 @@ describe('TronChainAdapter.getAccount', () => {
 })
 
 describe('TronChainAdapter.getTokenPrecision', () => {
-  const withClient = (http: object) =>
+  const withClient = (http: object): ChainAdapter =>
     new ChainAdapter({
       providers: { http: http as unchained.tron.TronApi },
       rpcUrl: 'https://tron.example',

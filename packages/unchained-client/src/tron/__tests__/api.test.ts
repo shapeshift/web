@@ -375,7 +375,7 @@ describe('TronApi', () => {
   })
 
   describe('getTrc10Precision', () => {
-    const respond = (body: object) => {
+    const respond = (body: object): ReturnType<typeof vi.fn> => {
       const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => body })
       vi.stubGlobal('fetch', fetchMock)
       return fetchMock

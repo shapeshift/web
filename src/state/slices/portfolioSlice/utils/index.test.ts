@@ -226,13 +226,19 @@ describe('makeAssets', () => {
   const jstAssetId = `${tronChainId}/trc20:TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9`
   const trc10AssetId = `${tronChainId}/trc10:1002000`
 
-  const tronToken = (assetId: string) => ({ assetId, balance: '1', symbol: '', name: '' })
+  type TronToken = { assetId: string; balance: string; symbol: string; name: string }
+  const tronToken = (assetId: string): TronToken => ({
+    assetId,
+    balance: '1',
+    symbol: '',
+    name: '',
+  })
 
   const makeTronAssets = (
-    tokens: ReturnType<typeof tronToken>[],
+    tokens: TronToken[],
     getTokenPrecision: ReturnType<typeof vi.fn>,
     knownAssetIds: string[] = [],
-  ) => {
+  ): ReturnType<typeof makeAssets> => {
     mockChainAdapters.set(KnownChainIds.TronMainnet, { getTokenPrecision } as any)
     const state = {
       assets: { byId: Object.fromEntries(knownAssetIds.map(id => [id, {}])) },

@@ -10,6 +10,14 @@ type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
 
 const PRECISION_READ_TIMEOUT_MS = 10_000
 
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(`[tron] timed out after ${timeoutMs}ms`)), timeoutMs)
+  })
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
+}
+
 export interface TronApiConfig {
   rpcUrl: string
   apiKey?: string
@@ -208,13 +216,15 @@ export class TronApi {
 
   async getTrc20Decimals(params: { contractAddress: string }): Promise<number | undefined> {
     try {
-      const tronWeb = this.getTronWeb()
-      const result: SimulationResult = await tronWeb.transactionBuilder.triggerConstantContract(
-        params.contractAddress,
-        'decimals()',
-        {},
-        [],
-        params.contractAddress,
+      const result: SimulationResult = await withTimeout(
+        this.getTronWeb().transactionBuilder.triggerConstantContract(
+          params.contractAddress,
+          'decimals()',
+          {},
+          [],
+          params.contractAddress,
+        ),
+        PRECISION_READ_TIMEOUT_MS,
       )
 
       const [decimalsHex] = result.constant_result ?? []

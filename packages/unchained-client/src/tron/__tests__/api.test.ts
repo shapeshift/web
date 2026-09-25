@@ -360,6 +360,24 @@ describe('TronApi', () => {
       expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBeUndefined()
     })
 
+    it('gives up on a call that hangs', async () => {
+      vi.useFakeTimers()
+      try {
+        const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+        const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
+        vi.spyOn(tronWeb.transactionBuilder, 'triggerConstantContract').mockReturnValue(
+          new Promise(() => undefined),
+        )
+
+        const pending = freshApi.getTrc20Decimals({ contractAddress: USDT })
+        await vi.runAllTimersAsync()
+
+        expect(await pending).toBeUndefined()
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
     it('reads a failed call as unknown', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
       const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()

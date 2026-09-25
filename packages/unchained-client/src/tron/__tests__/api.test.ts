@@ -345,7 +345,7 @@ describe('TronApi', () => {
       expect(trigger).toHaveBeenCalledTimes(1)
     })
 
-    it('does not cache a failed read', async () => {
+    it('reads a failed call as unknown and retries it next time', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
       const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
       const trigger = vi
@@ -353,7 +353,7 @@ describe('TronApi', () => {
         .mockRejectedValueOnce(new Error('429'))
         .mockResolvedValue({ result: { result: true }, constant_result: [eighteen] } as any)
 
-      await expect(freshApi.getTrc20Decimals({ contractAddress: USDT })).rejects.toThrow('429')
+      expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBeUndefined()
       expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBe(18)
       expect(trigger).toHaveBeenCalledTimes(2)
     })
@@ -398,7 +398,7 @@ describe('TronApi', () => {
     it('still returns a trc20 token whose decimals could not be read', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
       respondAccount()
-      vi.spyOn(freshApi, 'getTrc20Decimals').mockRejectedValue(new Error('429'))
+      vi.spyOn(freshApi, 'getTrc20Decimals').mockResolvedValue(undefined)
 
       const account = await getAccount(freshApi)
 

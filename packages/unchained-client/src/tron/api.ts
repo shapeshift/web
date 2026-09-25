@@ -200,11 +200,10 @@ export class TronApi {
       console.error('Failed to fetch TRC20 tokens:', err)
     }
 
-    // Best effort: a token whose decimals cannot be read is still a balance worth showing
     const tokensWithDecimals = await Promise.all(
       tokens.map(async (token): Promise<TronAccountToken> => {
         if (!token.contractAddress.startsWith('T')) return token
-        const decimals = await this.getTrc20Decimals(token).catch(() => undefined)
+        const decimals = await this.getTrc20Decimals(token)
         return decimals === undefined ? token : { ...token, decimals }
       }),
     )
@@ -216,25 +215,29 @@ export class TronApi {
     }
   }
 
-  // Decimals never change, so a successful read is kept for the life of the client
-  async getTrc20Decimals(params: { contractAddress: string }): Promise<number> {
+  // Best effort: decimals never change, so a successful read is kept for the life of the client
+  async getTrc20Decimals(params: { contractAddress: string }): Promise<number | undefined> {
     const cached = this.decimals.get(params.contractAddress)
     if (cached !== undefined) return cached
 
-    const result = await this.getTronWeb().transactionBuilder.triggerConstantContract(
-      params.contractAddress,
-      'decimals()',
-      {},
-      [],
-      params.contractAddress,
-    )
+    try {
+      const result = await this.getTronWeb().transactionBuilder.triggerConstantContract(
+        params.contractAddress,
+        'decimals()',
+        {},
+        [],
+        params.contractAddress,
+      )
 
-    const [word] = result.constant_result ?? []
-    if (!word) throw new Error('[tron] decimals call returned no data')
+      const [word] = result.constant_result ?? []
+      if (!word) return
 
-    const decimals = Number(BigInt(`0x${word}`))
-    this.decimals.set(params.contractAddress, decimals)
-    return decimals
+      const decimals = Number(BigInt(`0x${word}`))
+      this.decimals.set(params.contractAddress, decimals)
+      return decimals
+    } catch {
+      return
+    }
   }
 
   async getTrc20Balance(params: { contractAddress: string; address: string }): Promise<string> {

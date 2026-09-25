@@ -77,6 +77,11 @@ describe('toRawJsonInt', () => {
     expect(JSON.stringify({ amount: toRawJsonInt('') })).toBe('{"amount":0}')
   })
 
+  it('drops leading zeros, which JSON numbers cannot carry', () => {
+    expect(JSON.stringify({ amount: toRawJsonInt('007') })).toBe('{"amount":7}')
+    expect(JSON.stringify({ amount: toRawJsonInt('000') })).toBe('{"amount":0}')
+  })
+
   describe('without JSON.rawJSON', () => {
     beforeEach(() => {
       Object.defineProperty(JSON, 'rawJSON', {
@@ -88,6 +93,10 @@ describe('toRawJsonInt', () => {
 
     it('falls back to a number inside the safe integer range', () => {
       expect(JSON.stringify({ amount: toRawJsonInt('1000000') })).toBe('{"amount":1000000}')
+    })
+
+    it('drops leading zeros', () => {
+      expect(JSON.stringify({ amount: toRawJsonInt('007') })).toBe('{"amount":7}')
     })
 
     it('throws rather than truncate beyond the safe integer range', () => {

@@ -55,8 +55,11 @@ export const toTronHex = (address: string): string => {
 
 // TronGrid only parses amounts as bare JSON integers, as int64, which is more than a JS number carries
 export const toRawJsonInt = (value: string): unknown => {
-  const digits = value || '0'
-  if (!/^\d+$/.test(digits)) throw new Error(`[tron] amount ${digits} is not a base unit integer`)
+  const text = value || '0'
+  if (!/^\d+$/.test(text)) throw new Error(`[tron] amount ${text} is not a base unit integer`)
+
+  // JSON numbers carry no leading zeros: 007 → 7
+  const digits = BigInt(text).toString()
 
   const json = JSON as { rawJSON?: (text: string) => unknown }
   if (json.rawJSON) return json.rawJSON(digits)

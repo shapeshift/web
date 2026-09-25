@@ -183,7 +183,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
             balance: token.balance,
             symbol: '',
             name: '',
-            precision: 6,
+            precision: token.decimals ?? 6,
           }
         })
 

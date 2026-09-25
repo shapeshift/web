@@ -263,3 +263,29 @@ describe('TronChainAdapter.validateAddress', () => {
     expect((await adapter.validateAddress(TronWeb.address.toHex(USER))).valid).toBe(false)
   })
 })
+
+describe('TronChainAdapter.getAccount', () => {
+  const withTokens = (tokens: { contractAddress: string; balance: string; decimals?: number }[]) =>
+    new ChainAdapter({
+      providers: {
+        http: {
+          getAccount: vi.fn().mockResolvedValue({ balance: '0', unconfirmedBalance: '0', tokens }),
+        } as unknown as unchained.tron.TronApi,
+      },
+      rpcUrl: 'https://tron.example',
+    })
+
+  it('uses the decimals read on chain as the token precision', async () => {
+    const account = await withTokens([
+      { contractAddress: STRX, balance: '1', decimals: 18 },
+    ]).getAccount(USER)
+
+    expect(account.chainSpecific.tokens?.[0]?.precision).toBe(18)
+  })
+
+  it('assumes 6 when the decimals are unknown', async () => {
+    const account = await withTokens([{ contractAddress: STRX, balance: '1' }]).getAccount(USER)
+
+    expect(account.chainSpecific.tokens?.[0]?.precision).toBe(6)
+  })
+})

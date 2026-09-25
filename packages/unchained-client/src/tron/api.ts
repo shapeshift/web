@@ -53,12 +53,15 @@ export const getCallerEnergy = (energyUsed: number, share: TronContractEnergySha
   return energyUsed - originCovered
 }
 
+export type TronAccountToken = { contractAddress: string; balance: string; decimals?: number }
+
 export class TronApi {
   private readonly rpcUrl: string
   private readonly apiKey: string
   private tronWeb: TronWeb | null = null
   private readonly contracts = new Map<string, { readAt: number; value: Promise<TronContract> }>()
   private readonly originEnergy = new Map<string, { readAt: number; value: Promise<number> }>()
+  private readonly decimals = new Map<string, Promise<number>>()
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
@@ -101,7 +104,7 @@ export class TronApi {
   async getAccount(params: { pubkey: string }): Promise<{
     balance: string
     unconfirmedBalance: string
-    tokens?: { contractAddress: string; balance: string }[]
+    tokens?: TronAccountToken[]
   }> {
     await this.throttle()
 
@@ -197,11 +200,47 @@ export class TronApi {
       console.error('Failed to fetch TRC20 tokens:', err)
     }
 
+    // Best effort: a token whose decimals cannot be read is still a balance worth showing
+    const tokensWithDecimals = await Promise.all(
+      tokens.map(async (token): Promise<TronAccountToken> => {
+        if (!token.contractAddress.startsWith('T')) return token
+        const decimals = await this.getTrc20Decimals(token).catch(() => undefined)
+        return decimals === undefined ? token : { ...token, decimals }
+      }),
+    )
+
     return {
       balance: data.balance ? String(data.balance) : '0',
       unconfirmedBalance: '0',
-      tokens,
+      tokens: tokensWithDecimals,
     }
+  }
+
+  // Decimals never change, so a successful read is kept for the life of the client
+  getTrc20Decimals(params: { contractAddress: string }): Promise<number> {
+    const cached = this.decimals.get(params.contractAddress)
+    if (cached) return cached
+
+    const pending = this.getTronWeb()
+      .transactionBuilder.triggerConstantContract(
+        params.contractAddress,
+        'decimals()',
+        {},
+        [],
+        params.contractAddress,
+      )
+      .then(result => {
+        const [decimals] = result.constant_result ?? []
+        if (!decimals) throw new Error('[tron] decimals call returned no data')
+        return Number(BigInt(`0x${decimals}`))
+      })
+      .catch(err => {
+        this.decimals.delete(params.contractAddress)
+        throw err
+      })
+
+    this.decimals.set(params.contractAddress, pending)
+    return pending
   }
 
   async getTrc20Balance(params: { contractAddress: string; address: string }): Promise<string> {

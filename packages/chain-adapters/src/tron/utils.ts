@@ -53,20 +53,15 @@ export const toTronHex = (address: string): string => {
   return `0x${hex.length === 42 ? hex.slice(2) : hex}`
 }
 
-// TronGrid only parses amounts as bare JSON integers, as int64, which is more than a JS number carries
-export const toRawJsonInt = (value: string): unknown => {
+// TronGrid parses amounts as bare JSON integers. A JS number holds them exactly up to 2^53 sun,
+// far past any real transfer, so anything larger is rejected rather than rounded.
+export const toJsonInt = (value: string): number => {
   const text = value || '0'
   if (!/^\d+$/.test(text)) throw new Error(`[tron] amount ${text} is not a base unit integer`)
 
-  // JSON numbers carry no leading zeros: 007 → 7
-  const digits = BigInt(text).toString()
-
-  const json = JSON as { rawJSON?: (text: string) => unknown }
-  if (json.rawJSON) return json.rawJSON(digits)
-
-  const amount = Number(digits)
+  const amount = Number(text)
   if (!Number.isSafeInteger(amount)) {
-    throw new Error(`[tron] amount ${digits} exceeds the safe integer range in this environment`)
+    throw new Error(`[tron] amount ${text} exceeds the safe integer range`)
   }
   return amount
 }

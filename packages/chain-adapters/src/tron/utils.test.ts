@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   getTronContractCallBandwidthBytes,
   getTronFeeLimit,
-  toRawJsonInt,
+  toJsonInt,
   toTronBase58,
   toTronHex,
 } from './utils'
@@ -49,58 +49,26 @@ describe('getTronContractCallBandwidthBytes', () => {
   })
 })
 
-describe('toRawJsonInt', () => {
-  const json = JSON as { rawJSON?: (text: string) => unknown }
-  const rawJSON = json.rawJSON
-
-  afterEach(() => {
-    Object.defineProperty(JSON, 'rawJSON', {
-      value: rawJSON,
-      configurable: true,
-      writable: true,
-    })
-  })
-
-  it('serializes digits beyond the safe integer range untouched', () => {
-    expect(JSON.stringify({ amount: toRawJsonInt('9007199254740993') })).toBe(
-      '{"amount":9007199254740993}',
-    )
+describe('toJsonInt', () => {
+  it('serializes the amount as a bare integer', () => {
+    expect(JSON.stringify({ amount: toJsonInt('1000000') })).toBe('{"amount":1000000}')
   })
 
   it('rejects text that is not a bare integer', () => {
-    expect(() => toRawJsonInt('1e3')).toThrow('1e3')
-    expect(() => toRawJsonInt('9007199254740990.2')).toThrow('9007199254740990.2')
-    expect(() => toRawJsonInt('-1')).toThrow('-1')
+    expect(() => toJsonInt('1e3')).toThrow('1e3')
+    expect(() => toJsonInt('9007199254740990.2')).toThrow('9007199254740990.2')
+    expect(() => toJsonInt('-1')).toThrow('-1')
   })
 
   it('treats an empty value as zero', () => {
-    expect(JSON.stringify({ amount: toRawJsonInt('') })).toBe('{"amount":0}')
+    expect(JSON.stringify({ amount: toJsonInt('') })).toBe('{"amount":0}')
   })
 
-  it('drops leading zeros, which JSON numbers cannot carry', () => {
-    expect(JSON.stringify({ amount: toRawJsonInt('007') })).toBe('{"amount":7}')
-    expect(JSON.stringify({ amount: toRawJsonInt('000') })).toBe('{"amount":0}')
+  it('drops leading zeros, which the node would read as octal', () => {
+    expect(JSON.stringify({ amount: toJsonInt('007') })).toBe('{"amount":7}')
   })
 
-  describe('without JSON.rawJSON', () => {
-    beforeEach(() => {
-      Object.defineProperty(JSON, 'rawJSON', {
-        value: undefined,
-        configurable: true,
-        writable: true,
-      })
-    })
-
-    it('falls back to a number inside the safe integer range', () => {
-      expect(JSON.stringify({ amount: toRawJsonInt('1000000') })).toBe('{"amount":1000000}')
-    })
-
-    it('drops leading zeros', () => {
-      expect(JSON.stringify({ amount: toRawJsonInt('007') })).toBe('{"amount":7}')
-    })
-
-    it('throws rather than truncate beyond the safe integer range', () => {
-      expect(() => toRawJsonInt('9007199254740993')).toThrow('9007199254740993')
-    })
+  it('throws rather than round beyond the safe integer range', () => {
+    expect(() => toJsonInt('9007199254740993')).toThrow('9007199254740993')
   })
 })

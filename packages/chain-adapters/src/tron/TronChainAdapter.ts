@@ -37,7 +37,7 @@ import type { TronSignTx, TronUnsignedTx } from './types'
 import {
   getTronContractCallBandwidthBytes,
   SIGNED_TX_OVERHEAD_BYTES,
-  toRawJsonInt,
+  toJsonInt,
   toTronBase58,
   TRON_DEFAULT_FEE_LIMIT_SUN,
 } from './utils'
@@ -261,7 +261,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const requestBody = {
           owner_address: from,
           to_address: to,
-          amount: toRawJsonInt(value),
+          amount: toJsonInt(value),
           visible: true,
         }
 
@@ -344,7 +344,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         contract_address: to,
         data: callData,
         fee_limit: feeLimit,
-        call_value: toRawJsonInt(value),
+        call_value: toJsonInt(value),
         visible: true,
       }
 

@@ -446,6 +446,28 @@ describe('TronApi', () => {
       }
     })
 
+    it('gives up on a response whose body stalls', async () => {
+      vi.useFakeTimers()
+      try {
+        const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+        const fetchMock = vi
+          .fn()
+          .mockResolvedValue({ ok: true, json: () => new Promise(() => undefined) })
+        vi.stubGlobal('fetch', fetchMock)
+
+        const pending = freshApi.getTrc10Precision({ id: '1002000' })
+        await vi.runAllTimersAsync()
+
+        expect(await pending).toBeUndefined()
+        expect(fetchMock).toHaveBeenCalledWith(
+          'https://tron.example/v1/assets/1002000',
+          expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
     it('reads a failed request as unknown', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('429')))

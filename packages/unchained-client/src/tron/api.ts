@@ -236,15 +236,16 @@ export class TronApi {
 
   async getTrc10Precision(params: { id: string }): Promise<number | undefined> {
     try {
-      const response = await timeout(
-        fetch(`${this.rpcUrl}/v1/assets/${params.id}`, { headers: this.tronGridHeaders }),
+      const data: { data?: { precision?: number }[] } | undefined = await timeout(
+        fetch(`${this.rpcUrl}/v1/assets/${params.id}`, {
+          headers: this.tronGridHeaders,
+          signal: AbortSignal.timeout(PRECISION_READ_TIMEOUT_MS),
+        }).then(response => response.json()),
         PRECISION_READ_TIMEOUT_MS,
         undefined,
       )
-      if (!response) return
 
-      const data: { data?: { precision?: number }[] } = await response.json()
-      return data.data?.[0]?.precision
+      return data?.data?.[0]?.precision
     } catch (err) {
       console.error(`[tron] failed to read precision of trc10 ${params.id}`, err)
       return

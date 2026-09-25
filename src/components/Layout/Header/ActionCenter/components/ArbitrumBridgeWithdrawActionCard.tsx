@@ -52,7 +52,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     ),
   )
 
-  const formattedDate = useMemo(() => formatSmartDate(action.updatedAt), [action.updatedAt])
+  const formattedDate = useMemo(() => formatSmartDate(action.createdAt), [action.createdAt])
   const isCollapsable =
     action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
   const { isOpen, onToggle } = useDisclosure({

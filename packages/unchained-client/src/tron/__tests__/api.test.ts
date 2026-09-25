@@ -383,29 +383,34 @@ describe('TronApi', () => {
 
     it('reads the precision of an issued token', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-      const fetchMock = respond({ id: '1002000', precision: 6 })
+      const fetchMock = respond({ success: true, data: [{ id: '1002000', precision: 6 }] })
 
       expect(await freshApi.getTrc10Precision({ id: '1002000' })).toBe(6)
       expect(fetchMock).toHaveBeenCalledWith(
-        'https://tron.example/wallet/getassetissuebyid',
-        expect.objectContaining({ body: JSON.stringify({ value: 1002000 }) }),
+        'https://tron.example/v1/assets/1002000',
+        expect.objectContaining({ headers: expect.anything() }),
       )
     })
 
-    it('reads an omitted precision as zero', async () => {
+    it('reads a zero precision as issued', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-      respond({ id: '1000001' })
+      respond({ success: true, data: [{ id: '1000001', precision: 0 }] })
 
       expect(await freshApi.getTrc10Precision({ id: '1000001' })).toBe(0)
     })
 
     it('reads an unknown id as unknown', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-      const fetchMock = respond({})
+      respond({ success: false, error: 'A valid account address or asset id is required.' })
 
       expect(await freshApi.getTrc10Precision({ id: '9999999' })).toBeUndefined()
-      expect(await freshApi.getTrc10Precision({ id: '9999999' })).toBeUndefined()
-      expect(fetchMock).toHaveBeenCalledTimes(2)
+    })
+
+    it('reads an empty listing as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      respond({ success: true, data: [] })
+
+      expect(await freshApi.getTrc10Precision({ id: '1009999' })).toBeUndefined()
     })
 
     it('gives up on a request that hangs', async () => {

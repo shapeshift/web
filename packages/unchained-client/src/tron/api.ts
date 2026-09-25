@@ -206,7 +206,6 @@ export class TronApi {
     }
   }
 
-  // Best effort: an unreadable precision is left for the caller to retry
   async getTrc20Decimals(params: { contractAddress: string }): Promise<number | undefined> {
     try {
       const tronWeb = this.getTronWeb()
@@ -230,24 +229,18 @@ export class TronApi {
     }
   }
 
-  // Best effort: an unreadable precision is left for the caller to retry
   async getTrc10Precision(params: { id: string }): Promise<number | undefined> {
     const abort = new AbortController()
     const timer = setTimeout(() => abort.abort(), PRECISION_READ_TIMEOUT_MS)
 
     try {
-      const response = await fetch(`${this.rpcUrl}/wallet/getassetissuebyid`, {
-        method: 'POST',
+      const response = await fetch(`${this.rpcUrl}/v1/assets/${params.id}`, {
         headers: this.tronGridHeaders,
-        body: JSON.stringify({ value: Number(params.id) }),
         signal: abort.signal,
       })
 
-      const data: { id?: string; precision?: number } = await response.json()
-      if (!data.id) return
-
-      // TronGrid leaves a zero precision out of the response
-      return data.precision ?? 0
+      const data: { data?: { precision?: number }[] } = await response.json()
+      return data.data?.[0]?.precision
     } catch (err) {
       console.error(`[tron] failed to read precision of trc10 ${params.id}`, err)
       return

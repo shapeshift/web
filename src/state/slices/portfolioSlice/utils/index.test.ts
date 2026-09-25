@@ -278,9 +278,7 @@ describe('makeAssets', () => {
 
   it('reads unknown tokens one at a time', async () => {
     const resolvers: ((precision: number) => void)[] = []
-    const getTokenPrecision = vi.fn(
-      () => new Promise<number>(resolve => resolvers.push(resolve)),
-    )
+    const getTokenPrecision = vi.fn(() => new Promise<number>(resolve => resolvers.push(resolve)))
 
     const pending = makeTronAssets(
       [tronToken(jstAssetId), tronToken(trc10AssetId)],

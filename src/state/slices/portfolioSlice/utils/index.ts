@@ -873,7 +873,6 @@ export const makeAssets = async ({
       token => !state.assets.byId[token.assetId],
     )
 
-    // One read at a time: unknown tokens are rare and TronGrid rate-limits bursts
     const assets: Asset[] = []
     for (const token of unknownTokens) {
       const precision = await adapter?.getTokenPrecision(token.assetId)

@@ -154,14 +154,24 @@ export const ArbitrumBridgeWithdrawActionCard = ({
           </Row>
         )}
         {action.status === ActionStatus.ClaimAvailable && (
-          <Row fontSize='sm' alignItems='center'>
-            <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
-            <Row.Value>
-              <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
-                {translate('common.claim')}
-              </Button>
-            </Row.Value>
-          </Row>
+          <>
+            <Row fontSize='sm' alignItems='center'>
+              <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
+              <Row.Value>
+                <Link isExternal href={withdrawTxLink} color='text.link'>
+                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
+                </Link>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' alignItems='center'>
+              <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
+              <Row.Value>
+                <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
+                  {translate('common.claim')}
+                </Button>
+              </Row.Value>
+            </Row>
+          </>
         )}
         {action.status === ActionStatus.Claimed && (
           <>

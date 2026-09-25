@@ -13,7 +13,10 @@ import {
 
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
+import {
+  ARBITRUM_WITHDRAW_ETA_SECONDS,
+  useArbitrumClaimsByStatus,
+} from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import {
@@ -103,7 +106,8 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               destinationAssetId: swap.buyAsset.assetId,
               accountId: swap.sellAccountId ?? '',
               destinationAccountId: swap.buyAccountId ?? '',
-              timeRemainingSeconds: claimDetails?.timeRemainingSeconds ?? 6.4 * 24 * 60 * 60,
+              timeRemainingSeconds:
+                claimDetails?.timeRemainingSeconds ?? ARBITRUM_WITHDRAW_ETA_SECONDS,
               claimDetails,
             },
           }),

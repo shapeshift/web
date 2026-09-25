@@ -98,7 +98,7 @@ export const ActionCard = ({
           {isCollapsable && (
             <Collapse in={isOpen}>
               <Card bg='transparent' mt={4}>
-                <CardBody px={0} py={0}>
+                <CardBody px={0} pt={4} pb={0}>
                   {children}
                 </CardBody>
               </Card>

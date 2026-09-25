@@ -86,6 +86,10 @@ export const selectWalletActions = createDeepEqualOutputSelector(
         return enabledWalletAccountIds.includes(action.chainflipLendingMetadata.accountId)
       }
 
+      if (isArbitrumBridgeWithdrawAction(action)) {
+        return enabledWalletAccountIds.includes(action.arbitrumBridgeMetadata.accountId)
+      }
+
       return action
     })
   },

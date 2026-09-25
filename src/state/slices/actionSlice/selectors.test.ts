@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { selectYieldActionsByTxHash } from './selectors'
-import type { ActionState, GenericTransactionAction } from './types'
+import { selectWalletActions, selectYieldActionsByTxHash } from './selectors'
+import type { ActionState, ArbitrumBridgeWithdrawAction, GenericTransactionAction } from './types'
 import { ActionStatus, ActionType, GenericTransactionDisplayType } from './types'
 
 const mockYieldDepositAction: GenericTransactionAction = {
@@ -106,5 +106,32 @@ describe('selectYieldActionsByTxHash', () => {
 
     const result = selectYieldActionsByTxHash.resultFunc(state.byId, state.ids)
     expect(result).toEqual({})
+  })
+})
+
+describe('selectWalletActions', () => {
+  const arbitrumWithdrawAction: ArbitrumBridgeWithdrawAction = {
+    id: 'arbitrum-bridge-withdraw-0xwithdraw',
+    type: ActionType.ArbitrumBridgeWithdraw,
+    status: ActionStatus.ClaimAvailable,
+    createdAt: 1700000000000,
+    updatedAt: 1700000000000,
+    arbitrumBridgeMetadata: {
+      withdrawTxHash: '0xwithdraw',
+      amountCryptoBaseUnit: '1000',
+      assetId: 'eip155:42161/slip44:60',
+      destinationAssetId: 'eip155:1/slip44:60',
+      accountId: 'eip155:42161:0xarb',
+      destinationAccountId: 'eip155:1:0xarb',
+    },
+  }
+
+  it('shows an arbitrum withdraw only to the wallet that made it', () => {
+    expect(
+      selectWalletActions.resultFunc([arbitrumWithdrawAction], ['eip155:42161:0xarb'], {}),
+    ).toEqual([arbitrumWithdrawAction])
+    expect(
+      selectWalletActions.resultFunc([arbitrumWithdrawAction], ['eip155:42161:0xother'], {}),
+    ).toEqual([])
   })
 })

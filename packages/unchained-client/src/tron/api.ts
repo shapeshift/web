@@ -59,7 +59,8 @@ export class TronApi {
   private tronWeb: TronWeb | null = null
   private readonly contracts = new Map<string, { readAt: number; value: Promise<TronContract> }>()
   private readonly originEnergy = new Map<string, { readAt: number; value: Promise<number> }>()
-  private readonly decimals = new Map<string, number>()
+  private readonly trc20Decimals = new Map<string, number>()
+  private readonly trc10Precision = new Map<string, number>()
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
@@ -207,7 +208,7 @@ export class TronApi {
 
   // Best effort: decimals never change, so a successful read is kept for the life of the client
   async getTrc20Decimals(params: { contractAddress: string }): Promise<number | undefined> {
-    const cached = this.decimals.get(params.contractAddress)
+    const cached = this.trc20Decimals.get(params.contractAddress)
     if (cached !== undefined) return cached
 
     try {
@@ -223,8 +224,32 @@ export class TronApi {
       if (!decimalsHex) return
 
       const decimals = Number(BigInt(`0x${decimalsHex}`))
-      this.decimals.set(params.contractAddress, decimals)
+      this.trc20Decimals.set(params.contractAddress, decimals)
       return decimals
+    } catch {
+      return
+    }
+  }
+
+  // Best effort: an issued token's precision never changes, so a successful read is kept
+  async getTrc10Precision(params: { id: string }): Promise<number | undefined> {
+    const cached = this.trc10Precision.get(params.id)
+    if (cached !== undefined) return cached
+
+    try {
+      const response = await fetch(`${this.rpcUrl}/wallet/getassetissuebyid`, {
+        method: 'POST',
+        headers: this.tronGridHeaders,
+        body: JSON.stringify({ value: Number(params.id) }),
+      })
+
+      const data: { id?: string; precision?: number } = await response.json()
+      if (!data.id) return
+
+      // TronGrid leaves a zero precision out of the response
+      const precision = data.precision ?? 0
+      this.trc10Precision.set(params.id, precision)
+      return precision
     } catch {
       return
     }

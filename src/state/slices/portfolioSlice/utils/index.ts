@@ -110,7 +110,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { makeAsset } from '@shapeshiftoss/utils'
+import { isSome, makeAsset } from '@shapeshiftoss/utils'
 import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
@@ -875,15 +875,13 @@ export const makeAssets = async ({
 
     const assets = await Promise.all(
       unknownTokens.map(async token => {
-        const { assetNamespace, assetReference } = fromAssetId(token.assetId)
-        const decimals =
-          assetNamespace === 'trc20' ? await adapter?.getTrc20Decimals(assetReference) : undefined
-
-        return makeAsset(state.assets.byId, { ...token, precision: decimals ?? 6 })
+        const precision = await adapter?.getTokenPrecision(token.assetId)
+        if (precision === undefined) return
+        return makeAsset(state.assets.byId, { ...token, precision })
       }),
     )
 
-    return assets.reduce<UpsertAssetsPayload>(
+    return assets.filter(isSome).reduce<UpsertAssetsPayload>(
       (prev, asset) => {
         prev.byId[asset.assetId] = asset
         prev.ids.push(asset.assetId)

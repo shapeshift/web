@@ -359,6 +359,58 @@ describe('TronApi', () => {
     })
   })
 
+  describe('getTrc10Precision', () => {
+    const respond = (body: object) => {
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => body })
+      vi.stubGlobal('fetch', fetchMock)
+      return fetchMock
+    }
+
+    it('reads the precision of an issued token', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const fetchMock = respond({ id: '1002000', precision: 6 })
+
+      expect(await freshApi.getTrc10Precision({ id: '1002000' })).toBe(6)
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://tron.example/wallet/getassetissuebyid',
+        expect.objectContaining({ body: JSON.stringify({ value: 1002000 }) }),
+      )
+    })
+
+    it('reads an omitted precision as zero', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      respond({ id: '1000001' })
+
+      expect(await freshApi.getTrc10Precision({ id: '1000001' })).toBe(0)
+    })
+
+    it('reads each token once', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const fetchMock = respond({ id: '1002000', precision: 6 })
+
+      await freshApi.getTrc10Precision({ id: '1002000' })
+      await freshApi.getTrc10Precision({ id: '1002000' })
+
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('reads an unknown id as unknown without caching it', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      const fetchMock = respond({})
+
+      expect(await freshApi.getTrc10Precision({ id: '9999999' })).toBeUndefined()
+      expect(await freshApi.getTrc10Precision({ id: '9999999' })).toBeUndefined()
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+    })
+
+    it('reads a failed request as unknown', async () => {
+      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('429')))
+
+      expect(await freshApi.getTrc10Precision({ id: '1002000' })).toBeUndefined()
+    })
+  })
+
   describe('getTrc20Allowance', () => {
     it('reads allowance(owner, spender) with a single constant call', async () => {
       const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()

@@ -222,20 +222,18 @@ describe('accountToPortfolio', () => {
 describe('makeAssets', () => {
   const tronChainId = 'tron:0x2b6653dc'
   const tronPubkey = 'TE6oHVdTbcp1Q9XBYx5VzjWbZEg3t3Jrnc'
-  const USDT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
-  const JST = 'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9'
-  const usdtAssetId = `${tronChainId}/trc20:${USDT}`
-  const jstAssetId = `${tronChainId}/trc20:${JST}`
+  const usdtAssetId = `${tronChainId}/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t`
+  const jstAssetId = `${tronChainId}/trc20:TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9`
   const trc10AssetId = `${tronChainId}/trc10:1002000`
 
   const tronToken = (assetId: string) => ({ assetId, balance: '1', symbol: '', name: '' })
 
   const makeTronAssets = (
     tokens: ReturnType<typeof tronToken>[],
-    getTrc20Decimals: ReturnType<typeof vi.fn>,
+    getTokenPrecision: ReturnType<typeof vi.fn>,
     knownAssetIds: string[] = [],
   ) => {
-    mockChainAdapters.set(KnownChainIds.TronMainnet, { getTrc20Decimals } as any)
+    mockChainAdapters.set(KnownChainIds.TronMainnet, { getTokenPrecision } as any)
     const state = {
       assets: { byId: Object.fromEntries(knownAssetIds.map(id => [id, {}])) },
     } as unknown as Parameters<typeof makeAssets>[0]['state']
@@ -257,36 +255,34 @@ describe('makeAssets', () => {
     mockChainAdapters.delete(KnownChainIds.TronMainnet)
   })
 
-  it('reads decimals on chain only for tron tokens the store does not know', async () => {
-    const getTrc20Decimals = vi.fn().mockResolvedValue(18)
+  it('reads the precision on chain only for tron tokens the store does not know', async () => {
+    const getTokenPrecision = vi.fn().mockResolvedValue(18)
 
     const result = await makeTronAssets(
       [tronToken(usdtAssetId), tronToken(jstAssetId)],
-      getTrc20Decimals,
+      getTokenPrecision,
       [usdtAssetId],
     )
 
     expect(result?.ids).toEqual([jstAssetId])
     expect(result?.byId[jstAssetId]?.precision).toBe(18)
-    expect(getTrc20Decimals).toHaveBeenCalledTimes(1)
-    expect(getTrc20Decimals).toHaveBeenCalledWith(JST)
+    expect(getTokenPrecision).toHaveBeenCalledTimes(1)
+    expect(getTokenPrecision).toHaveBeenCalledWith(jstAssetId)
   })
 
-  it('assumes 6 for a tron token whose decimals could not be read', async () => {
+  it('keeps a trc10 token at the precision it was issued with', async () => {
+    const result = await makeTronAssets([tronToken(trc10AssetId)], vi.fn().mockResolvedValue(0))
+
+    expect(result?.byId[trc10AssetId]?.precision).toBe(0)
+  })
+
+  it('leaves out a tron token whose precision could not be read', async () => {
     const result = await makeTronAssets(
-      [tronToken(jstAssetId)],
-      vi.fn().mockResolvedValue(undefined),
+      [tronToken(jstAssetId), tronToken(trc10AssetId)],
+      vi.fn().mockResolvedValueOnce(undefined).mockResolvedValueOnce(6),
     )
 
-    expect(result?.byId[jstAssetId]?.precision).toBe(6)
-  })
-
-  it('assumes 6 for a trc10 token without reading the chain', async () => {
-    const getTrc20Decimals = vi.fn()
-
-    const result = await makeTronAssets([tronToken(trc10AssetId)], getTrc20Decimals)
-
-    expect(result?.byId[trc10AssetId]?.precision).toBe(6)
-    expect(getTrc20Decimals).not.toHaveBeenCalled()
+    expect(result?.ids).toEqual([trc10AssetId])
+    expect(result?.byId[jstAssetId]).toBeUndefined()
   })
 })

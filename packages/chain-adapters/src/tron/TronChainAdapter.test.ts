@@ -288,15 +288,26 @@ describe('TronChainAdapter.getAccount', () => {
   })
 })
 
-describe('TronChainAdapter.getTrc20Decimals', () => {
-  it('reads through the unchained client', async () => {
-    const getTrc20Decimals = vi.fn().mockResolvedValue(18)
-    const withDecimals = new ChainAdapter({
-      providers: { http: { getTrc20Decimals } as unknown as unchained.tron.TronApi },
+describe('TronChainAdapter.getTokenPrecision', () => {
+  const withClient = (http: object) =>
+    new ChainAdapter({
+      providers: { http: http as unchained.tron.TronApi },
       rpcUrl: 'https://tron.example',
     })
 
-    expect(await withDecimals.getTrc20Decimals(STRX)).toBe(18)
+  it('reads a trc20 token through decimals()', async () => {
+    const getTrc20Decimals = vi.fn().mockResolvedValue(18)
+
+    expect(await withClient({ getTrc20Decimals }).getTokenPrecision(STRX_ASSET_ID)).toBe(18)
     expect(getTrc20Decimals).toHaveBeenCalledWith({ contractAddress: STRX })
+  })
+
+  it('reads a trc10 token through its asset issue', async () => {
+    const getTrc10Precision = vi.fn().mockResolvedValue(6)
+
+    expect(
+      await withClient({ getTrc10Precision }).getTokenPrecision('tron:0x2b6653dc/trc10:1002000'),
+    ).toBe(6)
+    expect(getTrc10Precision).toHaveBeenCalledWith({ id: '1002000' })
   })
 })

@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, tronAssetId, tronChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAssetId, tronAssetId, tronChainId } from '@shapeshiftoss/caip'
 import type { HDWallet, TronWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsTron } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
@@ -644,8 +644,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
-  getTrc20Decimals(contractAddress: string): Promise<number | undefined> {
-    return this.providers.http.getTrc20Decimals({ contractAddress })
+  getTokenPrecision(assetId: AssetId): Promise<number | undefined> {
+    const { assetNamespace, assetReference } = fromAssetId(assetId)
+    return assetNamespace === 'trc10'
+      ? this.providers.http.getTrc10Precision({ id: assetReference })
+      : this.providers.http.getTrc20Decimals({ contractAddress: assetReference })
   }
 
   validateAddress(address: string): Promise<ValidAddressResult> {

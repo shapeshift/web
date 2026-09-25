@@ -61,8 +61,6 @@ export class TronApi {
   private tronWeb: TronWeb | null = null
   private readonly contracts = new Map<string, { readAt: number; value: Promise<TronContract> }>()
   private readonly originEnergy = new Map<string, { readAt: number; value: Promise<number> }>()
-  private readonly trc20Decimals = new Map<string, number>()
-  private readonly trc10Precision = new Map<string, number>()
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
@@ -208,11 +206,8 @@ export class TronApi {
     }
   }
 
-  // Best effort: decimals never change, so a successful read is kept for the life of the client
+  // Best effort: an unreadable precision is left for the caller to retry
   async getTrc20Decimals(params: { contractAddress: string }): Promise<number | undefined> {
-    const cached = this.trc20Decimals.get(params.contractAddress)
-    if (cached !== undefined) return cached
-
     try {
       const tronWeb = this.getTronWeb()
       const result: SimulationResult = await tronWeb.transactionBuilder.triggerConstantContract(
@@ -228,21 +223,15 @@ export class TronApi {
 
       // decimals() is a uint8; anything larger is a contract answering something else
       const decimals = Number(BigInt(`0x${decimalsHex}`))
-      if (decimals > 255) return
-
-      this.trc20Decimals.set(params.contractAddress, decimals)
-      return decimals
+      return decimals > 255 ? undefined : decimals
     } catch (err) {
       console.error(`[tron] failed to read decimals of ${params.contractAddress}`, err)
       return
     }
   }
 
-  // Best effort: an issued token's precision never changes, so a successful read is kept
+  // Best effort: an unreadable precision is left for the caller to retry
   async getTrc10Precision(params: { id: string }): Promise<number | undefined> {
-    const cached = this.trc10Precision.get(params.id)
-    if (cached !== undefined) return cached
-
     const abort = new AbortController()
     const timer = setTimeout(() => abort.abort(), PRECISION_READ_TIMEOUT_MS)
 
@@ -258,9 +247,7 @@ export class TronApi {
       if (!data.id) return
 
       // TronGrid leaves a zero precision out of the response
-      const precision = data.precision ?? 0
-      this.trc10Precision.set(params.id, precision)
-      return precision
+      return data.precision ?? 0
     } catch (err) {
       console.error(`[tron] failed to read precision of trc10 ${params.id}`, err)
       return

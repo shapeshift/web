@@ -332,20 +332,7 @@ describe('TronApi', () => {
       expect(trigger).toHaveBeenCalledWith(USDT, 'decimals()', {}, [], USDT)
     })
 
-    it('reads each contract once', async () => {
-      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-      const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
-      const trigger = vi
-        .spyOn(tronWeb.transactionBuilder, 'triggerConstantContract')
-        .mockResolvedValue({ result: { result: true }, constant_result: [eighteen] } as any)
-
-      await freshApi.getTrc20Decimals({ contractAddress: USDT })
-      await freshApi.getTrc20Decimals({ contractAddress: USDT })
-
-      expect(trigger).toHaveBeenCalledTimes(1)
-    })
-
-    it('reads a reverted decimals() as unknown without caching it', async () => {
+    it('reads a reverted decimals() as unknown', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
       const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
       const trigger = vi
@@ -373,7 +360,7 @@ describe('TronApi', () => {
       expect(await freshApi.getTrc20Decimals({ contractAddress: USDT })).toBeUndefined()
     })
 
-    it('reads a failed call as unknown and retries it next time', async () => {
+    it('reads a failed call as unknown', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
       const tronWeb = (freshApi as unknown as { getTronWeb: () => any }).getTronWeb()
       const trigger = vi
@@ -412,17 +399,7 @@ describe('TronApi', () => {
       expect(await freshApi.getTrc10Precision({ id: '1000001' })).toBe(0)
     })
 
-    it('reads each token once', async () => {
-      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-      const fetchMock = respond({ id: '1002000', precision: 6 })
-
-      await freshApi.getTrc10Precision({ id: '1002000' })
-      await freshApi.getTrc10Precision({ id: '1002000' })
-
-      expect(fetchMock).toHaveBeenCalledTimes(1)
-    })
-
-    it('reads an unknown id as unknown without caching it', async () => {
+    it('reads an unknown id as unknown', async () => {
       const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
       const fetchMock = respond({})
 
@@ -437,10 +414,11 @@ describe('TronApi', () => {
         const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
         vi.stubGlobal(
           'fetch',
-          vi.fn((_url: string, init: RequestInit) =>
-            new Promise((_resolve, reject) => {
-              init.signal?.addEventListener('abort', () => reject(new Error('aborted')))
-            }),
+          vi.fn(
+            (_url: string, init: RequestInit) =>
+              new Promise((_resolve, reject) => {
+                init.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+              }),
           ),
         )
 

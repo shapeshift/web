@@ -214,6 +214,7 @@ export const useSwapExecution = () => {
               return executeSolanaSerializedTx(txData, solana)
             case 'cosmossdk_msg_send':
             case 'cosmossdk_msg_deposit':
+            case 'tron':
               throw new Error('This swap is not yet supported — please try a different route')
             default: {
               const _exhaustive: never = txData

@@ -19,12 +19,19 @@ export type FeeData = {
 export type BuildTxInput = {
   contractAddress?: string
   memo?: string
+  // fee_limit in sun, for TRC20 transfers
+  feeLimit?: number
 }
 
 export type GetFeeDataInput = {
   from?: string
   contractAddress?: string
   memo?: string
+  // raw calldata for a contract call - when present, the fee is estimated by simulating this call
+  // rather than assuming a plain transfer (swap/router calls are far more energy-intensive)
+  data?: string
+  // a quote must not guess: fail if the contract's energy share cannot be read instead of pricing in full
+  requireEnergyShare?: boolean
 }
 
 export interface TronUnsignedTx {

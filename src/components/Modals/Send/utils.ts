@@ -15,7 +15,7 @@ import type {
   FeeDataEstimate,
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
-import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
+import { tron, utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -413,6 +413,7 @@ export const handleSendWithMetadata = async ({
       const { accountNumber } = bip44Params
       const adapter = assertGetChainAdapter(chainId)
       const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.TronMainnet>
       return adapter.buildSendTransaction({
         to,
         value,
@@ -422,6 +423,7 @@ export const handleSendWithMetadata = async ({
         chainSpecific: {
           contractAddress,
           memo,
+          feeLimit: tron.getTronFeeLimit(fees.txFee),
         },
       } as BuildSendTxInput<KnownChainIds.TronMainnet>)
     }

@@ -1,6 +1,5 @@
 import type { GatewayQuoteV4 } from '@gobob/bob-sdk'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -12,12 +11,19 @@ import {
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import type { TronContractCall } from '../../../utils/tron'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+} from '../../../utils/tron'
 import { getUtxoNetworkFeeCryptoBaseUnit, UTXO_PLACEHOLDER_ADDRESS } from '../../../utils/utxo'
 import {
   BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
   BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,
+  BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES,
+  BOB_GATEWAY_TRON_DEFAULT_ENERGY,
 } from './constants'
-import { createBobGatewayOrder, toTronBase58 } from './helpers'
+import { createBobGatewayOrder } from './helpers'
 
 type BaseArgs = {
   quote: GatewayQuoteV4
@@ -198,22 +204,18 @@ export async function getBobGatewayStepData(
     // Tron sells (offramp Tron → BTC, or tokenSwap TRON → EVM)
     case CHAIN_NAMESPACE.Tron: {
       const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
-      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
       if (resolved.type === 'rate') {
+        // The gateway call isn't built until an order exists, so rates price a measured default
         const networkFeeCryptoBaseUnit = await (async () => {
           try {
-            if (!('offramp' in quote) && !('tokenSwap' in quote)) return
-
-            const order = 'offramp' in quote ? quote.offramp : quote.tokenSwap
-
-            const { fast } = await adapter.getFeeData({
-              to: toTronBase58(order.txTo),
-              value: order.inputAmount.amount,
-              chainSpecific: { contractAddress },
+            return await getTronContractCallFallbackFeeCryptoBaseUnit({
+              adapter,
+              energy: BOB_GATEWAY_TRON_DEFAULT_ENERGY,
+              bandwidthBytes: BOB_GATEWAY_TRON_DEFAULT_BANDWIDTH_BYTES,
+              contractAddress: spenderAddress,
+              fullEnergyOnShareLookupFailure: true,
             })
-
-            return fast.txFee
           } catch {}
         })()
 
@@ -232,24 +234,21 @@ export async function getBobGatewayStepData(
       if (order.tx.type !== 'tron') return Err(makeTradeStepBuildFailedErr('getBobGatewayStepData'))
       const { tx, orderId } = order
 
-      const transactionData: TxBuildData = {
-        type: 'tron',
-        to: tx.to,
-        data: tx.data,
-        value: tx.value,
-      }
+      const call: TronContractCall = { to: tx.to, data: tx.data, value: tx.value }
 
       try {
-        const { fast } = await adapter.getFeeData({
-          to: toTronBase58(tx.to),
-          value: sellAmountCryptoBaseUnit,
-          chainSpecific: { from, contractAddress },
-        })
-
         const stepData: BobGatewayQuoteStepData = {
           orderId,
-          transactionData,
-          networkFeeCryptoBaseUnit: fast.txFee,
+          transactionData: { type: 'tron', ...call },
+          networkFeeCryptoBaseUnit: await getTronContractCallNetworkFeeCryptoBaseUnit({
+            adapter,
+            transactionData: call,
+            from,
+            sellAsset,
+            sellAmountCryptoBaseUnit,
+            spenderAddress,
+            fallbackEnergy: BOB_GATEWAY_TRON_DEFAULT_ENERGY,
+          }),
         }
 
         return Ok(stepData)

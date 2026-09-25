@@ -76,8 +76,7 @@ export const assertValidTrade = ({
   return Ok(undefined)
 }
 
-// Provider reported network fee - the rate fallback when estimation fails, and the fee for the
-// un-migrated tron quote path (exec computes the real fee at execution)
+// Provider reported network fee - the fallback when estimation fails
 export const getProviderNetworkFeeCryptoBaseUnit = ({
   route,
   feeAsset,

@@ -6,6 +6,7 @@ import {
   ethChainId,
   fromAccountId,
   fromChainId,
+  tronChainId,
   usdtAssetId,
 } from '@shapeshiftoss/caip'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
@@ -13,6 +14,7 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
+import { BigNumber } from 'bignumber.js'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
@@ -27,6 +29,7 @@ import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/
 import { YIELD_MAX_POLL_ATTEMPTS, YIELD_POLL_INTERVAL_MS } from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
+import { assertTronYieldFeeCovered } from '@/lib/yieldxyz/tron'
 import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { ActionStatus as YieldActionStatus, TransactionStatus } from '@/lib/yieldxyz/types'
 import {
@@ -34,6 +37,7 @@ import {
   getDefaultValidatorForYield,
   resolveAssetSymbolForTx,
 } from '@/lib/yieldxyz/utils'
+import { useYieldTronNetworkFee } from '@/pages/Yields/hooks/useYieldTronNetworkFee'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
@@ -49,6 +53,7 @@ import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfo
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectFeeAssetByChainId,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -157,6 +162,8 @@ type UseYieldTransactionFlowProps = {
   passthrough?: string
   manageActionType?: string
   accountId?: string
+  // the stake an exit can draw on, once known; a deposit reads the wallet balance itself
+  stakedBalanceCryptoPrecision?: string
 }
 
 export const useYieldTransactionFlow = ({
@@ -170,6 +177,7 @@ export const useYieldTransactionFlow = ({
   passthrough,
   manageActionType,
   accountId: accountIdProp,
+  stakedBalanceCryptoPrecision,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -231,39 +239,74 @@ export const useYieldTransactionFlow = ({
     [wallet, accountId, yieldChainId, action, amount],
   )
 
-  const txArguments = useMemo(() => {
-    if (!yieldItem || !userAddress || !yieldChainId) return null
-    if (action !== 'manage' && !amount) return null
+  const buildTxArguments = useCallback(
+    (amountArg: string) => {
+      if (!yieldItem || !userAddress || !yieldChainId) return null
+      if (action !== 'manage' && !amountArg) return null
 
-    const getFields = () => {
-      if (action === 'enter') return yieldItem.mechanics.arguments.enter.fields
-      if (action === 'exit') return yieldItem.mechanics.arguments.exit.fields
-      return []
-    }
-    const fields = getFields()
+      const getFields = () => {
+        if (action === 'enter') return yieldItem.mechanics.arguments.enter.fields
+        if (action === 'exit') return yieldItem.mechanics.arguments.exit.fields
+        return []
+      }
+      const fields = getFields()
 
-    const fieldNames = new Set(fields.map(field => field.name))
-    const args: Record<string, unknown> = {}
+      const fieldNames = new Set(fields.map(field => field.name))
+      const args: Record<string, unknown> = {}
 
-    if (action !== 'manage' && amount) {
-      args.amount = amount
-    }
+      if (action !== 'manage' && amountArg) {
+        args.amount = amountArg
+      }
 
-    if (fieldNames.has('receiverAddress')) {
-      args.receiverAddress = userAddress
-    }
+      if (fieldNames.has('receiverAddress')) {
+        args.receiverAddress = userAddress
+      }
 
-    const validatorField = fields.find(f => f.name === 'validatorAddress')
-    if (validatorField && yieldItem) {
-      args.validatorAddress = validatorAddress || getDefaultValidatorForYield(yieldItem.id)
-    }
+      const validatorField = fields.find(f => f.name === 'validatorAddress')
+      if (validatorField && yieldItem) {
+        args.validatorAddress = validatorAddress || getDefaultValidatorForYield(yieldItem.id)
+      }
 
-    if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
-      args.cosmosPubKey = userAddress
-    }
+      if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
+        args.cosmosPubKey = userAddress
+      }
 
-    return args
-  }, [yieldItem, action, amount, userAddress, yieldChainId, validatorAddress])
+      return args
+    },
+    [yieldItem, action, userAddress, yieldChainId, validatorAddress],
+  )
+
+  const txArguments = useMemo(() => buildTxArguments(amount), [buildTxArguments, amount])
+
+  const isAmountLocked = useMemo(
+    () => transactionSteps.some(step => Boolean(step.txHash)),
+    [transactionSteps],
+  )
+
+  const inputTokenBalanceCryptoPrecision = useAppSelector(state =>
+    inputTokenAssetId && accountId
+      ? selectPortfolioCryptoBalanceByFilter(state, {
+          assetId: inputTokenAssetId,
+          accountId,
+        }).toPrecision()
+      : undefined,
+  )
+
+  const spendableCryptoPrecision = (() => {
+    if (action === 'enter') return inputTokenBalanceCryptoPrecision
+    if (action === 'exit') return stakedBalanceCryptoPrecision
+  })()
+
+  const hasAmount = useMemo(() => bnOrZero(amount).gt(0), [amount])
+
+  const isInsufficientBalance = useMemo(
+    () =>
+      action !== 'manage' &&
+      !isAmountLocked &&
+      spendableCryptoPrecision !== undefined &&
+      bnOrZero(amount).gt(spendableCryptoPrecision),
+    [action, isAmountLocked, spendableCryptoPrecision, amount],
+  )
 
   const {
     data: quoteData,
@@ -288,11 +331,164 @@ export const useYieldTransactionFlow = ({
       const fn = action === 'enter' ? enterYield : exitYield
       return fn({ yieldId: yieldItem.id, address: userAddress, arguments: txArguments })
     },
-    enabled: !!txArguments && !!wallet && !!accountId && !!yieldItem && canSubmit && isOpen,
+    enabled:
+      !!txArguments &&
+      !!wallet &&
+      !!accountId &&
+      !!yieldItem &&
+      canSubmit &&
+      isOpen &&
+      !isInsufficientBalance,
     staleTime: 0,
     gcTime: 0,
     retry: false,
   })
+
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    feeAsset && accountId
+      ? selectPortfolioCryptoBalanceByFilter(state, {
+          assetId: feeAsset.assetId,
+          accountId,
+        }).toBaseUnit()
+      : '0',
+  )
+
+  const feeAssetBalanceCryptoPrecision = useMemo(
+    () =>
+      feeAsset
+        ? BigAmount.fromBaseUnit({
+            value: feeAssetBalanceCryptoBaseUnit,
+            precision: feeAsset.precision,
+          }).toPrecision()
+        : '0',
+    [feeAsset, feeAssetBalanceCryptoBaseUnit],
+  )
+
+  const isNativeEnter = action === 'enter' && inputTokenAssetId === feeAsset?.assetId
+
+  // The probe prices the fee only while there is no quotable amount
+  const usesProbeFee = action !== 'manage' && (!hasAmount || isInsufficientBalance)
+
+  // Prices the call before an amount exists: a native deposit of the whole fee asset balance, or an exit of the whole stake
+  const probeAmountCryptoPrecision = useMemo(() => {
+    const balance =
+      action === 'enter' ? feeAssetBalanceCryptoPrecision : stakedBalanceCryptoPrecision
+    if (!balance) return
+
+    // the fee barely moves with the amount, so dust ticks in the balance must not re-price it
+    return bnOrZero(balance).decimalPlaces(2, BigNumber.ROUND_DOWN).toFixed()
+  }, [action, feeAssetBalanceCryptoPrecision, stakedBalanceCryptoPrecision])
+  const isProbeAction = isNativeEnter || action === 'exit'
+
+  const { data: tronFeeProbe, isLoading: isTronFeeProbeLoading } = useQuery({
+    queryKey: [
+      'yieldxyz',
+      'tronFeeProbe',
+      action,
+      yieldItem?.id,
+      userAddress,
+      validatorAddress,
+      probeAmountCryptoPrecision,
+    ],
+    queryFn: () => {
+      const args = probeAmountCryptoPrecision && buildTxArguments(probeAmountCryptoPrecision)
+      if (!args || !yieldItem) throw new Error('Missing arguments')
+
+      const fn = action === 'enter' ? enterYield : exitYield
+      return fn({ yieldId: yieldItem.id, address: userAddress, arguments: args })
+    },
+    enabled:
+      isOpen &&
+      !isAmountLocked &&
+      isProbeAction &&
+      yieldChainId === tronChainId &&
+      usesProbeFee &&
+      !!yieldItem &&
+      !!userAddress &&
+      bnOrZero(probeAmountCryptoPrecision).gt(0),
+    staleTime: 60_000,
+    retry: false,
+  })
+
+  const {
+    hasContractCall: hasTronContractCall,
+    networkFeeCryptoBaseUnit: tronNetworkFeeCryptoBaseUnit,
+    networkFeeCryptoPrecision: tronNetworkFeeCryptoPrecision,
+    isLoading: isTronNetworkFeeLoading,
+    isError: isNetworkFeeQueryError,
+  } = useYieldTronNetworkFee({
+    chainId: yieldChainId,
+    transactions: usesProbeFee ? tronFeeProbe?.transactions : quoteData?.transactions,
+    from: userAddress,
+  })
+
+  // Gating reads only a fee priced for the current call; the display also holds the last fee while the next quote is fetched
+  const isTronQuotePending = yieldChainId === tronChainId && isQuoteLoading
+  const hasNetworkFee = hasTronContractCall || isTronQuotePending
+  const networkFeeCryptoBaseUnit = hasTronContractCall ? tronNetworkFeeCryptoBaseUnit : undefined
+  const pricedNetworkFeeCryptoPrecision = hasTronContractCall
+    ? tronNetworkFeeCryptoPrecision
+    : undefined
+  const networkFeeCryptoPrecision = hasNetworkFee ? tronNetworkFeeCryptoPrecision : undefined
+
+  // Nothing loads before an amount exists, and a probe disabled mid-fetch keeps resolving, so it counts only as the fee source
+  const isNetworkFeeLoading =
+    hasAmount &&
+    ((usesProbeFee && isTronFeeProbeLoading) || isTronNetworkFeeLoading || isTronQuotePending)
+
+  // later steps are priced again right before they are signed, so a failed refetch must not stall a started flow
+  const isNetworkFeeError = !isAmountLocked && isNetworkFeeQueryError
+
+  // What a native deposit can spend once the fee is priced
+  const maxEnterAmountCryptoPrecision = useMemo(() => {
+    if (!isNativeEnter || !pricedNetworkFeeCryptoPrecision) return
+    const max = bnOrZero(feeAssetBalanceCryptoPrecision).minus(pricedNetworkFeeCryptoPrecision)
+    return max.isPositive() ? max.toFixed() : '0'
+  }, [isNativeEnter, pricedNetworkFeeCryptoPrecision, feeAssetBalanceCryptoPrecision])
+
+  // Gates the first step before anything is signed; a native deposit spends the fee asset on top of the fee
+  const isInsufficientFeeAssetBalance = useMemo(() => {
+    if (isAmountLocked || isInsufficientBalance || !networkFeeCryptoBaseUnit || !feeAsset)
+      return false
+
+    const spendCryptoBaseUnit = isNativeEnter
+      ? BigAmount.fromPrecision({
+          value: bnOrZero(amount).toFixed(),
+          precision: feeAsset.precision,
+        }).toBaseUnit()
+      : '0'
+
+    return bnOrZero(spendCryptoBaseUnit)
+      .plus(networkFeeCryptoBaseUnit)
+      .gt(feeAssetBalanceCryptoBaseUnit)
+  }, [
+    isAmountLocked,
+    isInsufficientBalance,
+    networkFeeCryptoBaseUnit,
+    feeAsset,
+    isNativeEnter,
+    amount,
+    feeAssetBalanceCryptoBaseUnit,
+  ])
+
+  const isNetworkFeePlaceholder =
+    yieldChainId === tronChainId &&
+    !isInsufficientFeeAssetBalance &&
+    (!hasAmount || isNetworkFeeError || (!hasNetworkFee && !isNetworkFeeLoading))
+
+  const assertTronFeeCovered = useCallback(
+    async (tx: TransactionDto) => {
+      if (yieldChainId !== tronChainId || !feeAsset) return
+
+      await assertTronYieldFeeCovered({
+        chainId: yieldChainId,
+        unsignedTransaction: tx.unsignedTransaction,
+        from: userAddress,
+        symbol: feeAsset.symbol,
+      })
+    },
+    [yieldChainId, feeAsset, userAddress],
+  )
 
   // USDT reset logic - only for enter action on USDT/ETH
   const approvalSpender = useMemo(() => {
@@ -625,6 +821,8 @@ export const useYieldTransactionFlow = ({
       setIsSubmitting(true)
 
       try {
+        await assertTronFeeCovered(tx)
+
         const txHash = await executeTransaction({
           tx,
           chainId: yieldChainId,
@@ -868,6 +1066,7 @@ export const useYieldTransactionFlow = ({
       translate,
       updateStepStatus,
       buildCosmosStakeArgs,
+      assertTronFeeCovered,
       submitHashMutation,
       queryClient,
       dispatchNotification,
@@ -890,6 +1089,8 @@ export const useYieldTransactionFlow = ({
   }, [isSubmitting, onClose, queryClient])
 
   const handleConfirm = useCallback(async () => {
+    if (isInsufficientBalance || isInsufficientFeeAssetBalance || isNetworkFeeError) return
+
     // Handle USDT reset step if required and not yet done
     const shouldExecuteReset = isUsdtResetRequired && activeStepIndex === 0 && !resetTxHash
 
@@ -1055,12 +1256,10 @@ export const useYieldTransactionFlow = ({
     translate,
     showErrorToast,
     yieldItem,
+    isInsufficientBalance,
+    isInsufficientFeeAssetBalance,
+    isNetworkFeeError,
   ])
-
-  const isAmountLocked = useMemo(
-    () => transactionSteps.some(step => Boolean(step.txHash)),
-    [transactionSteps],
-  )
 
   return useMemo(
     () => ({
@@ -1078,6 +1277,13 @@ export const useYieldTransactionFlow = ({
       isAllowanceCheckPending,
       isUsdtResetRequired,
       isAmountLocked,
+      networkFeeCryptoPrecision,
+      isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
+      isNetworkFeeError,
+      isInsufficientBalance,
+      isInsufficientFeeAssetBalance,
+      maxEnterAmountCryptoPrecision,
     }),
     [
       step,
@@ -1094,6 +1300,13 @@ export const useYieldTransactionFlow = ({
       isAllowanceCheckPending,
       isUsdtResetRequired,
       isAmountLocked,
+      networkFeeCryptoPrecision,
+      isNetworkFeeLoading,
+      isNetworkFeePlaceholder,
+      isNetworkFeeError,
+      isInsufficientBalance,
+      isInsufficientFeeAssetBalance,
+      maxEnterAmountCryptoPrecision,
     ],
   )
 }

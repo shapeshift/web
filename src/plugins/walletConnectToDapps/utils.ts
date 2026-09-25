@@ -1,5 +1,5 @@
 import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, toAccountId, toChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
 import { hexToBigInt, hexToString, isAddress, isHex, validateTypedData } from 'viem'
 
@@ -47,10 +47,23 @@ export const getSignParamsMessage = (params: [string, string], toUtf8: boolean) 
   return toUtf8 ? maybeConvertHexEncodedMessageToUtf8(message) : message
 }
 
-export const extractConnectedAccounts = (session: SessionTypes.Struct): AccountId[] => {
-  const namespaces = session?.namespaces ?? []
-  const requiredNamespacesValues = Object.values(namespaces)
-  return requiredNamespacesValues.map(v => v.accounts).flat()
+const toSupportedAccountId = (accountId: string): AccountId | undefined => {
+  try {
+    const { chainNamespace, chainReference, account } = fromAccountId(accountId as AccountId)
+    return toAccountId({ chainNamespace, chainReference, account })
+  } catch {
+    return undefined
+  }
+}
+
+export const extractConnectedAccounts = (
+  session: Pick<SessionTypes.Struct, 'namespaces'>,
+): AccountId[] => {
+  const namespaces: SessionTypes.Namespaces = session.namespaces ?? {}
+  return Object.values(namespaces)
+    .flatMap(namespace => namespace.accounts ?? [])
+    .map(toSupportedAccountId)
+    .filter(isSome)
 }
 
 export const extractAllConnectedAccounts = (

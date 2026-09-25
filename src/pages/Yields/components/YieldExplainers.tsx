@@ -19,6 +19,12 @@ type ExplainerItem = {
 }
 
 const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] => {
+  // a withdraw with a cooldown is an unbonding period whatever the yield type calls itself
+  const withdrawKey = (immediateKey: string): string =>
+    selectedYield.mechanics.cooldownPeriod?.seconds
+      ? 'earn.explainers.stakingUnbonding'
+      : immediateKey
+
   const yieldType = selectedYield.mechanics.type
   const outputTokenSymbol = selectedYield.outputToken?.symbol
 
@@ -35,7 +41,7 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
         { icon: giftIcon, textKey: 'earn.explainers.rewardsSchedule', relevance: 'enter' as const },
         {
           icon: infoIcon,
-          textKey: 'earn.explainers.liquidStakingWithdraw',
+          textKey: withdrawKey('earn.explainers.liquidStakingWithdraw'),
           relevance: 'both' as const,
         },
       ]
@@ -58,12 +64,20 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
     case 'vault':
       return [
         { icon: giftIcon, textKey: 'earn.explainers.vaultYield', relevance: 'enter' as const },
-        { icon: infoIcon, textKey: 'earn.explainers.vaultWithdraw', relevance: 'both' as const },
+        {
+          icon: infoIcon,
+          textKey: withdrawKey('earn.explainers.vaultWithdraw'),
+          relevance: 'both' as const,
+        },
       ]
     case 'lending':
       return [
         { icon: giftIcon, textKey: 'earn.explainers.lendingYield', relevance: 'enter' as const },
-        { icon: infoIcon, textKey: 'earn.explainers.lendingWithdraw', relevance: 'both' as const },
+        {
+          icon: infoIcon,
+          textKey: withdrawKey('earn.explainers.lendingWithdraw'),
+          relevance: 'both' as const,
+        },
       ]
     default:
       return []

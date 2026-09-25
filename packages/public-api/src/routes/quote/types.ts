@@ -73,6 +73,17 @@ const CosmosSdkMsgDepositTransactionDataSchema = z.object({
   coin: z.string().openapi({ example: 'THOR.RUNE' }),
 })
 
+const TronTransactionDataSchema = z.object({
+  type: z.literal('tron').openapi({ example: 'tron' }),
+  to: z.string().openapi({ example: 'TCFNp179Lg46D16zKoumd4Poa2WFFdtqYj' }),
+  value: z.string().openapi({ example: '1000000' }),
+  data: z
+    .string()
+    .optional()
+    .openapi({ description: 'Contract call data; absent for a plain transfer of the sell asset' }),
+  memo: z.string().optional(),
+})
+
 const TransactionDataSchema = z.discriminatedUnion('type', [
   EvmTransactionDataSchema,
   SolanaTransactionDataSchema,
@@ -80,6 +91,7 @@ const TransactionDataSchema = z.discriminatedUnion('type', [
   UtxoTransactionDataSchema,
   CosmosSdkMsgSendTransactionDataSchema,
   CosmosSdkMsgDepositTransactionDataSchema,
+  TronTransactionDataSchema,
 ])
 
 export const ApprovalInfoSchema = z.object({

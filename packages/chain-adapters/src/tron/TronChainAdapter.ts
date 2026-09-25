@@ -183,7 +183,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
             balance: token.balance,
             symbol: '',
             name: '',
-            precision: token.decimals ?? 6,
           }
         })
 
@@ -643,6 +642,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // assume activation is needed rather than risk underestimating by 1 TRX
       return TRON_ACCOUNT_ACTIVATION_FEE
     }
+  }
+
+  getTrc20Decimals(contractAddress: string): Promise<number | undefined> {
+    return this.providers.http.getTrc20Decimals({ contractAddress })
   }
 
   validateAddress(address: string): Promise<ValidAddressResult> {

@@ -359,56 +359,6 @@ describe('TronApi', () => {
     })
   })
 
-  describe('getAccount', () => {
-    const USDT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
-    const PUBKEY = 'TE6oHVdTbcp1Q9XBYx5VzjWbZEg3t3Jrnc'
-
-    const respondAccount = () => {
-      const fetchMock = vi
-        .fn()
-        .mockResolvedValueOnce({ json: () => ({ balance: 5, assetV2: [{ key: '1002000', value: 7 }] }) })
-        .mockResolvedValueOnce({ json: () => ({ data: [{ trc20: [{ [USDT]: '100' }] }] }) })
-      vi.stubGlobal('fetch', fetchMock)
-    }
-
-    const getAccount = async (freshApi: TronApi) => {
-      vi.useFakeTimers()
-      try {
-        const pending = freshApi.getAccount({ pubkey: PUBKEY })
-        await vi.runAllTimersAsync()
-        return await pending
-      } finally {
-        vi.useRealTimers()
-      }
-    }
-
-    it('attaches on-chain decimals to trc20 tokens and leaves trc10 tokens alone', async () => {
-      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-      respondAccount()
-      vi.spyOn(freshApi, 'getTrc20Decimals').mockResolvedValue(18)
-
-      const account = await getAccount(freshApi)
-
-      expect(account.tokens).toEqual([
-        { contractAddress: '1002000', balance: '7' },
-        { contractAddress: USDT, balance: '100', decimals: 18 },
-      ])
-    })
-
-    it('still returns a trc20 token whose decimals could not be read', async () => {
-      const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-      respondAccount()
-      vi.spyOn(freshApi, 'getTrc20Decimals').mockResolvedValue(undefined)
-
-      const account = await getAccount(freshApi)
-
-      expect(account.tokens).toEqual([
-        { contractAddress: '1002000', balance: '7' },
-        { contractAddress: USDT, balance: '100' },
-      ])
-    })
-  })
-
   describe('getTrc20Allowance', () => {
     it('reads allowance(owner, spender) with a single constant call', async () => {
       const tronWeb = (api as unknown as { getTronWeb: () => any }).getTronWeb()

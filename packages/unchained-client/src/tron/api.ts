@@ -53,8 +53,6 @@ export const getCallerEnergy = (energyUsed: number, share: TronContractEnergySha
   return energyUsed - originCovered
 }
 
-export type TronAccountToken = { contractAddress: string; balance: string; decimals?: number }
-
 export class TronApi {
   private readonly rpcUrl: string
   private readonly apiKey: string
@@ -104,7 +102,7 @@ export class TronApi {
   async getAccount(params: { pubkey: string }): Promise<{
     balance: string
     unconfirmedBalance: string
-    tokens?: TronAccountToken[]
+    tokens?: { contractAddress: string; balance: string }[]
   }> {
     await this.throttle()
 
@@ -200,18 +198,10 @@ export class TronApi {
       console.error('Failed to fetch TRC20 tokens:', err)
     }
 
-    const tokensWithDecimals = await Promise.all(
-      tokens.map(async (token): Promise<TronAccountToken> => {
-        if (!token.contractAddress.startsWith('T')) return token
-        const decimals = await this.getTrc20Decimals(token)
-        return decimals === undefined ? token : { ...token, decimals }
-      }),
-    )
-
     return {
       balance: data.balance ? String(data.balance) : '0',
       unconfirmedBalance: '0',
-      tokens: tokensWithDecimals,
+      tokens,
     }
   }
 

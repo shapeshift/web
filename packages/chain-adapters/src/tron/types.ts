@@ -5,7 +5,6 @@ import type * as types from '../types'
 export type Token = types.AssetBalance & {
   symbol: string
   name: string
-  precision: number
 }
 
 export type Account = {

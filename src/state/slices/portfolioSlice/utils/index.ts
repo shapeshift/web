@@ -58,7 +58,7 @@ import {
   zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
-import type { Account } from '@shapeshiftoss/chain-adapters'
+import type { Account, tron } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -122,6 +122,7 @@ import type {
 } from '../portfolioSliceCommon'
 import { initialState } from '../portfolioSliceCommon'
 
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
@@ -867,13 +868,25 @@ export const makeAssets = async ({
 
   if (chainId === tronChainId) {
     const account = portfolioAccounts[pubkey] as Account<KnownChainIds.TronMainnet>
+    const adapter = getChainAdapterManager().get(tronChainId) as tron.ChainAdapter | undefined
+    const unknownTokens = (account.chainSpecific.tokens ?? []).filter(
+      token => !state.assets.byId[token.assetId],
+    )
 
-    return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
-      (prev, token) => {
-        if (state.assets.byId[token.assetId]) return prev
+    const assets = await Promise.all(
+      unknownTokens.map(async token => {
+        const { assetNamespace, assetReference } = fromAssetId(token.assetId)
+        const decimals =
+          assetNamespace === 'trc20' ? await adapter?.getTrc20Decimals(assetReference) : undefined
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
-        prev.ids.push(token.assetId)
+        return makeAsset(state.assets.byId, { ...token, precision: decimals ?? 6 })
+      }),
+    )
+
+    return assets.reduce<UpsertAssetsPayload>(
+      (prev, asset) => {
+        prev.byId[asset.assetId] = asset
+        prev.ids.push(asset.assetId)
 
         return prev
       },

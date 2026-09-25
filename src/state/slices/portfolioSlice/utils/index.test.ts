@@ -14,9 +14,9 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { accountIdToLabel, accountToPortfolio, findAccountsByAssetId } from '.'
+import { accountIdToLabel, accountToPortfolio, findAccountsByAssetId, makeAssets } from '.'
 
 import { trimWithEndEllipsis } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
@@ -216,5 +216,77 @@ describe('accountToPortfolio', () => {
 
     expect(portfolio.accounts.byId[monadAccountId].isDegraded).toBe(false)
     expect(portfolio.accounts.byId[btcAccountId].isDegraded).toBe(false)
+  })
+})
+
+describe('makeAssets', () => {
+  const tronChainId = 'tron:0x2b6653dc'
+  const tronPubkey = 'TE6oHVdTbcp1Q9XBYx5VzjWbZEg3t3Jrnc'
+  const USDT = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+  const JST = 'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9'
+  const usdtAssetId = `${tronChainId}/trc20:${USDT}`
+  const jstAssetId = `${tronChainId}/trc20:${JST}`
+  const trc10AssetId = `${tronChainId}/trc10:1002000`
+
+  const tronToken = (assetId: string) => ({ assetId, balance: '1', symbol: '', name: '' })
+
+  const makeTronAssets = (
+    tokens: ReturnType<typeof tronToken>[],
+    getTrc20Decimals: ReturnType<typeof vi.fn>,
+    knownAssetIds: string[] = [],
+  ) => {
+    mockChainAdapters.set(KnownChainIds.TronMainnet, { getTrc20Decimals } as any)
+    const state = {
+      assets: { byId: Object.fromEntries(knownAssetIds.map(id => [id, {}])) },
+    } as unknown as Parameters<typeof makeAssets>[0]['state']
+    const portfolioAccounts = {
+      [tronPubkey]: {
+        balance: '0',
+        chainId: tronChainId,
+        assetId: `${tronChainId}/slip44:195`,
+        chain: KnownChainIds.TronMainnet,
+        pubkey: tronPubkey,
+        chainSpecific: { tokens },
+      },
+    } as unknown as Parameters<typeof makeAssets>[0]['portfolioAccounts']
+
+    return makeAssets({ chainId: tronChainId, pubkey: tronPubkey, state, portfolioAccounts })
+  }
+
+  afterEach(() => {
+    mockChainAdapters.delete(KnownChainIds.TronMainnet)
+  })
+
+  it('reads decimals on chain only for tron tokens the store does not know', async () => {
+    const getTrc20Decimals = vi.fn().mockResolvedValue(18)
+
+    const result = await makeTronAssets(
+      [tronToken(usdtAssetId), tronToken(jstAssetId)],
+      getTrc20Decimals,
+      [usdtAssetId],
+    )
+
+    expect(result?.ids).toEqual([jstAssetId])
+    expect(result?.byId[jstAssetId]?.precision).toBe(18)
+    expect(getTrc20Decimals).toHaveBeenCalledTimes(1)
+    expect(getTrc20Decimals).toHaveBeenCalledWith(JST)
+  })
+
+  it('assumes 6 for a tron token whose decimals could not be read', async () => {
+    const result = await makeTronAssets(
+      [tronToken(jstAssetId)],
+      vi.fn().mockResolvedValue(undefined),
+    )
+
+    expect(result?.byId[jstAssetId]?.precision).toBe(6)
+  })
+
+  it('assumes 6 for a trc10 token without reading the chain', async () => {
+    const getTrc20Decimals = vi.fn()
+
+    const result = await makeTronAssets([tronToken(trc10AssetId)], getTrc20Decimals)
+
+    expect(result?.byId[trc10AssetId]?.precision).toBe(6)
+    expect(getTrc20Decimals).not.toHaveBeenCalled()
   })
 })

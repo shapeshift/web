@@ -265,27 +265,38 @@ describe('TronChainAdapter.validateAddress', () => {
 })
 
 describe('TronChainAdapter.getAccount', () => {
-  const withTokens = (tokens: { contractAddress: string; balance: string; decimals?: number }[]) =>
-    new ChainAdapter({
+  it('reports token balances without guessing a precision', async () => {
+    const account = await new ChainAdapter({
       providers: {
         http: {
-          getAccount: vi.fn().mockResolvedValue({ balance: '0', unconfirmedBalance: '0', tokens }),
+          getAccount: vi.fn().mockResolvedValue({
+            balance: '0',
+            unconfirmedBalance: '0',
+            tokens: [{ contractAddress: STRX, balance: '1' }],
+          }),
         } as unknown as unchained.tron.TronApi,
       },
       rpcUrl: 'https://tron.example',
+    }).getAccount(USER)
+
+    expect(account.chainSpecific.tokens?.[0]).toEqual({
+      assetId: STRX_ASSET_ID,
+      balance: '1',
+      symbol: '',
+      name: '',
+    })
+  })
+})
+
+describe('TronChainAdapter.getTrc20Decimals', () => {
+  it('reads through the unchained client', async () => {
+    const getTrc20Decimals = vi.fn().mockResolvedValue(18)
+    const withDecimals = new ChainAdapter({
+      providers: { http: { getTrc20Decimals } as unknown as unchained.tron.TronApi },
+      rpcUrl: 'https://tron.example',
     })
 
-  it('uses the decimals read on chain as the token precision', async () => {
-    const account = await withTokens([
-      { contractAddress: STRX, balance: '1', decimals: 18 },
-    ]).getAccount(USER)
-
-    expect(account.chainSpecific.tokens?.[0]?.precision).toBe(18)
-  })
-
-  it('assumes 6 when the decimals are unknown', async () => {
-    const account = await withTokens([{ contractAddress: STRX, balance: '1' }]).getAccount(USER)
-
-    expect(account.chainSpecific.tokens?.[0]?.precision).toBe(6)
+    expect(await withDecimals.getTrc20Decimals(STRX)).toBe(18)
+    expect(getTrc20Decimals).toHaveBeenCalledWith({ contractAddress: STRX })
   })
 })

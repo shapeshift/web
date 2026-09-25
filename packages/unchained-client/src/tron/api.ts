@@ -1,3 +1,4 @@
+import { timeout } from '@shapeshiftoss/utils'
 import type { Types } from 'tronweb'
 import { TronWeb } from 'tronweb'
 
@@ -9,14 +10,6 @@ type SimulationResult = Omit<Types.TransactionWrapper, 'transaction'> & {
 }
 
 const PRECISION_READ_TIMEOUT_MS = 10_000
-
-const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
-  let timer: ReturnType<typeof setTimeout> | undefined
-  const timeout = new Promise<never>((_resolve, reject) => {
-    timer = setTimeout(() => reject(new Error(`[tron] timed out after ${timeoutMs}ms`)), timeoutMs)
-  })
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
-}
 
 export interface TronApiConfig {
   rpcUrl: string
@@ -216,7 +209,7 @@ export class TronApi {
 
   async getTrc20Decimals(params: { contractAddress: string }): Promise<number | undefined> {
     try {
-      const result: SimulationResult = await withTimeout(
+      const result: SimulationResult | undefined = await timeout(
         this.getTronWeb().transactionBuilder.triggerConstantContract(
           params.contractAddress,
           'decimals()',
@@ -225,7 +218,9 @@ export class TronApi {
           params.contractAddress,
         ),
         PRECISION_READ_TIMEOUT_MS,
+        undefined,
       )
+      if (!result) return
 
       const [decimalsHex] = result.constant_result ?? []
       if (this.isReverted(result) || !decimalsHex) return
@@ -240,22 +235,19 @@ export class TronApi {
   }
 
   async getTrc10Precision(params: { id: string }): Promise<number | undefined> {
-    const abort = new AbortController()
-    const timer = setTimeout(() => abort.abort(), PRECISION_READ_TIMEOUT_MS)
-
     try {
-      const response = await fetch(`${this.rpcUrl}/v1/assets/${params.id}`, {
-        headers: this.tronGridHeaders,
-        signal: abort.signal,
-      })
+      const response = await timeout(
+        fetch(`${this.rpcUrl}/v1/assets/${params.id}`, { headers: this.tronGridHeaders }),
+        PRECISION_READ_TIMEOUT_MS,
+        undefined,
+      )
+      if (!response) return
 
       const data: { data?: { precision?: number }[] } = await response.json()
       return data.data?.[0]?.precision
     } catch (err) {
       console.error(`[tron] failed to read precision of trc10 ${params.id}`, err)
       return
-    } finally {
-      clearTimeout(timer)
     }
   }
 

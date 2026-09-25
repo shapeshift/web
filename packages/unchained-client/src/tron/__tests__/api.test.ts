@@ -435,15 +435,7 @@ describe('TronApi', () => {
       vi.useFakeTimers()
       try {
         const freshApi = new TronApi({ rpcUrl: 'https://tron.example' })
-        vi.stubGlobal(
-          'fetch',
-          vi.fn(
-            (_url: string, init: RequestInit) =>
-              new Promise((_resolve, reject) => {
-                init.signal?.addEventListener('abort', () => reject(new Error('aborted')))
-              }),
-          ),
-        )
+        vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(() => undefined)))
 
         const pending = freshApi.getTrc10Precision({ id: '1002000' })
         await vi.runAllTimersAsync()

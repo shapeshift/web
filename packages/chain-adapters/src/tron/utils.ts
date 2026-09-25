@@ -52,3 +52,16 @@ export const toTronHex = (address: string): string => {
   const hex = address.startsWith('T') ? TronWeb.address.toHex(address) : address
   return `0x${hex.length === 42 ? hex.slice(2) : hex}`
 }
+
+// TronGrid only parses amounts as bare JSON integers, as int64, which is more than a JS number carries
+export const toRawJsonInt = (value: string): unknown => {
+  const digits = value || '0'
+  const json = JSON as { rawJSON?: (text: string) => unknown }
+  if (json.rawJSON) return json.rawJSON(digits)
+
+  const amount = Number(digits)
+  if (!Number.isSafeInteger(amount)) {
+    throw new Error(`[tron] amount ${digits} exceeds the safe integer range in this environment`)
+  }
+  return amount
+}

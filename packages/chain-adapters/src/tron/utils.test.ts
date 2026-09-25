@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import {
   getTronContractCallBandwidthBytes,
   getTronFeeLimit,
+  toRawJsonInt,
   toTronBase58,
   toTronHex,
 } from './utils'
@@ -45,5 +46,46 @@ describe('getTronContractCallBandwidthBytes', () => {
   it('sizes the calldata plus the signed TriggerSmartContract envelope', () => {
     expect(getTronContractCallBandwidthBytes('0x2213bc0b')).toBe(4 + 279)
     expect(getTronContractCallBandwidthBytes('2213bc0b')).toBe(4 + 279)
+  })
+})
+
+describe('toRawJsonInt', () => {
+  const json = JSON as { rawJSON?: (text: string) => unknown }
+  const rawJSON = json.rawJSON
+
+  afterEach(() => {
+    Object.defineProperty(JSON, 'rawJSON', {
+      value: rawJSON,
+      configurable: true,
+      writable: true,
+    })
+  })
+
+  it('serializes digits beyond the safe integer range untouched', () => {
+    expect(JSON.stringify({ amount: toRawJsonInt('9007199254740993') })).toBe(
+      '{"amount":9007199254740993}',
+    )
+  })
+
+  it('treats an empty value as zero', () => {
+    expect(JSON.stringify({ amount: toRawJsonInt('') })).toBe('{"amount":0}')
+  })
+
+  describe('without JSON.rawJSON', () => {
+    beforeEach(() => {
+      Object.defineProperty(JSON, 'rawJSON', {
+        value: undefined,
+        configurable: true,
+        writable: true,
+      })
+    })
+
+    it('falls back to a number inside the safe integer range', () => {
+      expect(JSON.stringify({ amount: toRawJsonInt('1000000') })).toBe('{"amount":1000000}')
+    })
+
+    it('throws rather than truncate beyond the safe integer range', () => {
+      expect(() => toRawJsonInt('9007199254740993')).toThrow('9007199254740993')
+    })
   })
 })

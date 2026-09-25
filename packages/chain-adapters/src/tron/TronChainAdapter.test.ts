@@ -1,7 +1,7 @@
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ChainAdapter, TRON_ZERO_ADDRESS } from './TronChainAdapter'
 
@@ -200,5 +200,66 @@ describe('TronChainAdapter.parseTx', () => {
       },
     ])
     expect(parsed.fee).toBeUndefined()
+  })
+})
+
+const BEYOND_SAFE_INTEGER = '9007199254740993'
+
+const mockTronGrid = (payload: object) => {
+  const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(payload) })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
+}
+
+const requestBody = (fetchMock: ReturnType<typeof vi.fn>): string =>
+  (fetchMock.mock.calls[0][1] as RequestInit).body as string
+
+describe('TronChainAdapter.buildSendApiTransaction', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('sends the native amount as bare digits beyond the safe integer range', async () => {
+    const fetchMock = mockTronGrid({ raw_data_hex: 'ab', raw_data: {} })
+
+    await adapter.buildSendApiTransaction({
+      from: USER,
+      to: POOL,
+      accountNumber: 0,
+      value: BEYOND_SAFE_INTEGER,
+    })
+
+    expect(requestBody(fetchMock)).toContain(`"amount":${BEYOND_SAFE_INTEGER}`)
+  })
+})
+
+describe('TronChainAdapter.buildCustomApiTx', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('sends the call value as bare digits beyond the safe integer range', async () => {
+    const fetchMock = mockTronGrid({ transaction: { raw_data_hex: 'ab', raw_data: {} } })
+
+    await adapter.buildCustomApiTx({
+      from: USER,
+      to: STRX,
+      accountNumber: 0,
+      data: '0xd0e30db0',
+      value: BEYOND_SAFE_INTEGER,
+    })
+
+    expect(requestBody(fetchMock)).toContain(`"call_value":${BEYOND_SAFE_INTEGER}`)
+  })
+})
+
+describe('TronChainAdapter.validateAddress', () => {
+  it('accepts a base58check address', async () => {
+    expect((await adapter.validateAddress(USER)).valid).toBe(true)
+  })
+
+  it('rejects an address whose checksum does not match', async () => {
+    const corrupted = `${USER.slice(0, -1)}${USER.endsWith('f') ? 'g' : 'f'}`
+    expect((await adapter.validateAddress(corrupted)).valid).toBe(false)
+  })
+
+  it('rejects the hex form', async () => {
+    expect((await adapter.validateAddress(TronWeb.address.toHex(USER))).valid).toBe(false)
   })
 })

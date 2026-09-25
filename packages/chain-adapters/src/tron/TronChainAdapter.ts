@@ -37,6 +37,7 @@ import type { TronSignTx, TronUnsignedTx } from './types'
 import {
   getTronContractCallBandwidthBytes,
   SIGNED_TX_OVERHEAD_BYTES,
+  toRawJsonInt,
   toTronBase58,
   TRON_DEFAULT_FEE_LIMIT_SUN,
 } from './utils'
@@ -261,7 +262,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const requestBody = {
           owner_address: from,
           to_address: to,
-          amount: Number(value),
+          amount: toRawJsonInt(value),
           visible: true,
         }
 
@@ -344,7 +345,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         contract_address: to,
         data: callData,
         fee_limit: feeLimit,
-        call_value: Number(value) || 0,
+        call_value: toRawJsonInt(value),
         visible: true,
       }
 
@@ -646,15 +647,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
   validateAddress(address: string): Promise<ValidAddressResult> {
     try {
-      if (!address.startsWith('T')) {
-        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-      }
-
-      if (address.length !== 34) {
-        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-      }
-
-      return Promise.resolve({ valid: true, result: ValidAddressResultType.Valid })
+      // isAddress also takes the 41-prefixed hex form, which is not an address a user should paste
+      const valid = address.startsWith('T') && TronWeb.isAddress(address)
+      return Promise.resolve(
+        valid
+          ? { valid: true, result: ValidAddressResultType.Valid }
+          : { valid: false, result: ValidAddressResultType.Invalid },
+      )
     } catch (err) {
       return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
     }

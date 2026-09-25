@@ -229,10 +229,10 @@ export class TronApi {
         params.contractAddress,
       )
 
-      const [word] = result.constant_result ?? []
-      if (!word) return
+      const [decimalsHex] = result.constant_result ?? []
+      if (!decimalsHex) return
 
-      const decimals = Number(BigInt(`0x${word}`))
+      const decimals = Number(BigInt(`0x${decimalsHex}`))
       this.decimals.set(params.contractAddress, decimals)
       return decimals
     } catch {

@@ -86,35 +86,42 @@ export const useSimulateEvmTransaction = ({
           const gasFeeData = await chainAdapter.getGasFeeData()
           const feeData = gasFeeData[speed]
 
-          const simulation = await simulateTransaction({
-            chainId,
-            from: transaction.from,
-            to: transaction.to,
-            gas: Number(transaction.gas),
-            data: transaction.data,
-            value: transaction.value,
-            feeData,
-          })
+          const [simulation, networkFeeData] = await Promise.all([
+            simulateTransaction({
+              chainId,
+              from: transaction.from,
+              to: transaction.to,
+              gas: Number(transaction.gas),
+              data: transaction.data,
+              value: transaction.value,
+              feeData,
+            }),
+            chainAdapter
+              .getFeeData({
+                to: transaction.to,
+                value: BigInt(transaction.value ?? 0).toString(),
+                chainSpecific: {
+                  from: transaction.from,
+                  data: transaction.data,
+                },
+              })
+              .catch(() => undefined),
+          ])
+
+          // Tenderly's gas_used is net of refunds (up to 20% of gas spent), but refunds are only
+          // credited after execution, so the gas limit must come from eth_estimateGas instead.
+          const estimatedGasLimit = networkFeeData?.[speed].chainSpecific.gasLimit
 
           // For optimistic rollups (Arb/Base), also fetch L1 gasLimit to ensure we get accurate calcs taking it into account
-          const l1GasLimit =
-            supportsL1Gas(chainId) && simulation
-              ? (
-                  await chainAdapter.getFeeData({
-                    to: transaction.to,
-                    value: BigInt(transaction.value ?? 0).toString(),
-                    chainSpecific: {
-                      from: transaction.from,
-                      data: transaction.data,
-                    },
-                  })
-                )?.[speed].chainSpecific.l1GasLimit
-              : undefined
+          const l1GasLimit = supportsL1Gas(chainId)
+            ? networkFeeData?.[speed].chainSpecific.l1GasLimit
+            : undefined
 
           return {
             simulation,
             feeData,
             gasFeeData,
+            estimatedGasLimit,
             l1GasLimit,
           }
         }

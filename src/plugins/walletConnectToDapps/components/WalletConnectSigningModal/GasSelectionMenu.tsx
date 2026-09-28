@@ -34,7 +34,7 @@ const SPEED_OPTIONS = [
   { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast' },
 ]
 
-// 20% headroom on simulated gas to cover state drift between sim and broadcast.
+// 20% headroom on estimated gas to cover state drift between estimation and broadcast.
 const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
 
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
@@ -55,18 +55,25 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   })
 
   useEffect(() => {
-    // Defer to the dApp / user value when one is already set; Tenderly only fills the gap.
+    // Defer to the dApp / user value when one is already set; our estimate only fills the gap.
     if (gasLimit) return
 
-    const maybeGasUsed = gasEstimateQuery.data?.simulation?.transaction?.gas_used
-    if (!maybeGasUsed) return
+    const maybeBaseGasLimit =
+      gasEstimateQuery.data?.estimatedGasLimit ??
+      gasEstimateQuery.data?.simulation?.transaction?.gas_used
+    if (!maybeBaseGasLimit) return
 
-    const bufferedGas = bnOrZero(maybeGasUsed)
+    const bufferedGas = bnOrZero(maybeBaseGasLimit)
       .times(GAS_LIMIT_BUFFER_MULTIPLIER)
       .integerValue(BigNumber.ROUND_CEIL)
 
     setValue('gasLimit', bufferedGas.toString())
-  }, [gasEstimateQuery.data?.simulation?.transaction?.gas_used, setValue, gasLimit])
+  }, [
+    gasEstimateQuery.data?.estimatedGasLimit,
+    gasEstimateQuery.data?.simulation?.transaction?.gas_used,
+    setValue,
+    gasLimit,
+  ])
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {

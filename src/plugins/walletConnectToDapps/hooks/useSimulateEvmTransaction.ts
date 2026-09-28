@@ -12,11 +12,20 @@ import type { TransactionParams } from '../types'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { simulateTransaction } from '@/plugins/walletConnectToDapps/utils/tenderly'
+import type { TenderlySimulationResponse } from '@/plugins/walletConnectToDapps/utils/tenderly/types'
 import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+type TenderlyGasEstimateQueryData = {
+  simulation: TenderlySimulationResponse | null
+  feeData: adapters.evm.GasFeeData
+  gasFeeData: adapters.evm.GasFeeDataEstimate
+  estimatedGasLimit: adapters.evm.EvmGasLimitEstimate['gasLimit'] | undefined
+  l1GasLimit: adapters.evm.EvmGasLimitEstimate['l1GasLimit']
+}
 
 const OPTIMISTIC_ROLLUP_CHAIN_IDS = [KnownChainIds.OptimismMainnet, KnownChainIds.BaseMainnet]
 
@@ -79,14 +88,17 @@ export const useSimulateEvmTransaction = ({
       speed,
     ],
     queryFn: transaction
-      ? async () => {
+      ? async (): Promise<TenderlyGasEstimateQueryData | null> => {
           const chainAdapter = getChainAdapterManager().get(chainId) as EvmChainAdapter
           if (!chainAdapter) return null
 
           const gasFeeData = await chainAdapter.getGasFeeData()
           const feeData = gasFeeData[speed]
 
-          const [simulation, networkFeeData] = await Promise.all([
+          // Gas limit comes from eth_estimateGas, not getFeeData. getFeeData estimates gas and
+          // then fetches prices again; a price failure there would discard a good estimate and
+          // fall back to Tenderly gas_used, which can be too low once refunds are applied.
+          const [simulation, gasLimitEstimate] = await Promise.all([
             simulateTransaction({
               chainId,
               from: transaction.from,
@@ -97,7 +109,7 @@ export const useSimulateEvmTransaction = ({
               feeData,
             }),
             chainAdapter
-              .getFeeData({
+              .getGasLimitEstimate({
                 to: transaction.to,
                 value: BigInt(transaction.value ?? 0).toString(),
                 chainSpecific: {
@@ -110,11 +122,12 @@ export const useSimulateEvmTransaction = ({
 
           // Tenderly's gas_used is net of refunds (up to 20% of gas spent), but refunds are only
           // credited after execution, so the gas limit must come from eth_estimateGas instead.
-          const estimatedGasLimit = networkFeeData?.[speed].chainSpecific.gasLimit
+          const estimatedGasLimit: TenderlyGasEstimateQueryData['estimatedGasLimit'] =
+            gasLimitEstimate?.gasLimit
 
           // For optimistic rollups (Arb/Base), also fetch L1 gasLimit to ensure we get accurate calcs taking it into account
-          const l1GasLimit = supportsL1Gas(chainId)
-            ? networkFeeData?.[speed].chainSpecific.l1GasLimit
+          const l1GasLimit: TenderlyGasEstimateQueryData['l1GasLimit'] = supportsL1Gas(chainId)
+            ? gasLimitEstimate?.l1GasLimit
             : undefined
 
           return {

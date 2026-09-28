@@ -11,6 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import BigNumber from 'bignumber.js'
 import type { FC } from 'react'
@@ -22,6 +23,7 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText } from '@/components/Text'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
+import type { TenderlySimulationResponse } from '@/plugins/walletConnectToDapps/utils/tenderly/types'
 
 type GasSelectionMenuProps = {
   transaction: TransactionParams
@@ -58,12 +60,15 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     // Defer to the dApp / user value when one is already set; our estimate only fills the gap.
     if (gasLimit) return
 
-    const maybeBaseGasLimit =
+    const maybeBaseGasLimit:
+      | evm.EvmGasLimitEstimate['gasLimit']
+      | TenderlySimulationResponse['transaction']['gas_used']
+      | undefined =
       gasEstimateQuery.data?.estimatedGasLimit ??
       gasEstimateQuery.data?.simulation?.transaction?.gas_used
     if (!maybeBaseGasLimit) return
 
-    const bufferedGas = bnOrZero(maybeBaseGasLimit)
+    const bufferedGas: BigNumber = bnOrZero(maybeBaseGasLimit)
       .times(GAS_LIMIT_BUFFER_MULTIPLIER)
       .integerValue(BigNumber.ROUND_CEIL)
 

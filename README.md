@@ -140,9 +140,9 @@ MODE=production pnpm run build:web
 
 ## Releases
 
-The command `pnpm run release` helps to automate the release process.
+The command `pnpm run release` automates the release process. Run it and follow the prompts.
 
-Run the command and follow the prompts.
+See [RELEASE.md](RELEASE.md) for the full flow, including which merge method to use for each PR type.
 
 ## MixPanel
 

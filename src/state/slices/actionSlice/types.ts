@@ -83,7 +83,7 @@ type ActionArbitrumBridgeWithdrawMetadata = {
   destinationAssetId: AssetId
   accountId: AccountId
   destinationAccountId: AccountId
-  timeRemainingSeconds?: number
+  claimableAt?: number
   claimDetails?: ClaimDetails
 }
 

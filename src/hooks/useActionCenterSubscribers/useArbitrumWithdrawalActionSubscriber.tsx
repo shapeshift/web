@@ -14,7 +14,7 @@ import {
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import {
-  ARBITRUM_WITHDRAW_ETA_SECONDS,
+  getArbitrumClaimableAt,
   useArbitrumClaimsByStatus,
 } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -89,8 +89,6 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
         // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
         if (arbitrumActionsByWithdrawTxHash[swap.sellTxHash]) return
 
-        // Get real-time ETA from claims hook - use fallback if not available yet
-        // Chicken and egg: we need an ETA to upsert the action, but we need an action to check the ETA
         const claimDetails = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
 
         dispatch(
@@ -107,8 +105,9 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               destinationAssetId: swap.buyAsset.assetId,
               accountId: swap.sellAccountId,
               destinationAccountId: swap.buyAccountId,
-              timeRemainingSeconds:
-                claimDetails?.timeRemainingSeconds ?? ARBITRUM_WITHDRAW_ETA_SECONDS,
+              claimableAt: getArbitrumClaimableAt(
+                claimDetails ? claimDetails.tx.blockTime * 1000 : Date.now(),
+              ),
               claimDetails,
             },
           }),
@@ -190,44 +189,22 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
           )
 
           const currentMetadata = action.arbitrumBridgeMetadata
+          const matchedClaim = completedClaim ?? availableClaim ?? pendingClaim
 
           // Determine new action state from claim data
-          const newState = (() => {
-            if (completedClaim) {
-              return {
-                newStatus: ActionStatus.Claimed,
-                claimDetails: completedClaim,
-                timeRemainingSeconds: currentMetadata.timeRemainingSeconds,
-                claimTxHash: currentMetadata.claimTxHash,
-              }
-            }
-
-            if (availableClaim) {
-              return {
-                newStatus: ActionStatus.ClaimAvailable,
-                claimDetails: availableClaim,
-                timeRemainingSeconds: availableClaim.timeRemainingSeconds,
-                claimTxHash: currentMetadata.claimTxHash,
-              }
-            }
-
-            if (pendingClaim) {
-              return {
-                newStatus: ActionStatus.Initiated,
-                claimDetails: pendingClaim,
-                timeRemainingSeconds: pendingClaim.timeRemainingSeconds,
-                claimTxHash: currentMetadata.claimTxHash,
-              }
-            }
-
-            // No changes - return current state
-            return {
-              newStatus: action.status,
-              claimDetails: currentMetadata.claimDetails,
-              timeRemainingSeconds: currentMetadata.timeRemainingSeconds,
-              claimTxHash: currentMetadata.claimTxHash,
-            }
-          })()
+          const newState = {
+            newStatus: (() => {
+              if (completedClaim) return ActionStatus.Claimed
+              if (availableClaim) return ActionStatus.ClaimAvailable
+              if (pendingClaim) return ActionStatus.Initiated
+              return action.status
+            })(),
+            claimDetails: matchedClaim ?? currentMetadata.claimDetails,
+            claimableAt: matchedClaim
+              ? getArbitrumClaimableAt(matchedClaim.tx.blockTime * 1000)
+              : currentMetadata.claimableAt,
+            claimTxHash: currentMetadata.claimTxHash,
+          }
 
           // Check if action state changed - use deep comparison for objects
           // once again, paranoia against this bad boi https://github.com/shapeshift/web/pull/10556
@@ -236,7 +213,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
             newState.newStatus !== action.status ||
             JSON.stringify(newState.claimDetails) !==
               JSON.stringify(currentMetadata.claimDetails) ||
-            newState.timeRemainingSeconds !== currentMetadata.timeRemainingSeconds ||
+            newState.claimableAt !== currentMetadata.claimableAt ||
             newState.claimTxHash !== currentMetadata.claimTxHash
 
           return hasChanges ? { action, ...newState } : null
@@ -254,7 +231,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               arbitrumBridgeMetadata: {
                 ...update.action.arbitrumBridgeMetadata,
                 claimDetails: update.claimDetails,
-                timeRemainingSeconds: update.timeRemainingSeconds,
+                claimableAt: update.claimableAt,
                 claimTxHash: update.claimTxHash ?? update.action.arbitrumBridgeMetadata.claimTxHash,
               },
             }),

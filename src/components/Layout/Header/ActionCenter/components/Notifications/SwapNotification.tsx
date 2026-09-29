@@ -88,12 +88,10 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     }
 
     if (isArbitrumBridgeWithdraw) {
-      const timeRemaining =
-        action.arbitrumBridgeMetadata.claimDetails?.timeRemainingSeconds ??
-        action.arbitrumBridgeMetadata.timeRemainingSeconds
-      const timeDisplay =
-        timeRemaining && timeRemaining > 0 ? formatSecondsToDuration(timeRemaining) : null
-      const timeText = timeDisplay ? `in ${timeDisplay}` : 'Available'
+      const { claimableAt } = action.arbitrumBridgeMetadata
+      const secondsUntilClaimable = claimableAt ? (claimableAt - Date.now()) / 1000 : 0
+      const timeText =
+        secondsUntilClaimable > 0 ? `in ${formatSecondsToDuration(secondsUntilClaimable)}` : 'soon'
 
       const buyAmountCryptoPrecision = bnOrZero(
         actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision,

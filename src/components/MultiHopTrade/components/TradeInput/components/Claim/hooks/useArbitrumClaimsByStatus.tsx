@@ -20,15 +20,16 @@ import {
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 
-const AVERAGE_BLOCK_TIME_BLOCKS = 1000
-// The rollup's challenge period, what a withdrawal waits when nothing better is known
-export const ARBITRUM_WITHDRAW_ETA_SECONDS = 6.4 * 24 * 60 * 60
+// Challenge period from the withdrawal; the assertion that includes it can add up to an hour
+const ARBITRUM_CHALLENGE_PERIOD_MS = 6.4 * 24 * 60 * 60 * 1000
+
+export const getArbitrumClaimableAt = (withdrawTimeMs: number): number =>
+  withdrawTimeMs + ARBITRUM_CHALLENGE_PERIOD_MS
 
 type ClaimStatusResult = {
   event: ChildToParentTransactionEvent
   message: ChildToParentMessageReader
   status: ChildToParentMessageStatus
-  timeRemainingSeconds: number | undefined
 }
 
 export type ClaimDetails = Omit<ClaimStatusResult, 'status'> & {
@@ -78,34 +79,13 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
           const event = events[0]
           const message = messages[0]
           const status = await message.status(l2Provider)
-          // The ETA scans a challenge period of L1 logs, which public RPCs can refuse; a claim
-          // must not disappear because its estimate failed
-          const timeRemainingSeconds = await (async () => {
-            if (status !== ChildToParentMessageStatus.UNCONFIRMED) return
-            try {
-              const block = (await message.getFirstExecutableBlock(l2Provider))?.toNumber()
-              if (!block) return
-              const latestBlock = await l1Provider.getBlock('latest')
-              const historicalBlock = await l1Provider.getBlock(
-                latestBlock.number - AVERAGE_BLOCK_TIME_BLOCKS,
-              )
-              const averageBlockTimeSeconds =
-                (latestBlock.timestamp - historicalBlock.timestamp) / AVERAGE_BLOCK_TIME_BLOCKS
-              const remainingBlocks = block - latestBlock.number
-              return remainingBlocks * averageBlockTimeSeconds
-            } catch (err) {
-              console.error(`[arbitrum] failed to estimate the claim time of ${tx.txid}`, err)
-              return ARBITRUM_WITHDRAW_ETA_SECONDS
-            }
-          })()
           return {
             event,
             message,
             status,
-            timeRemainingSeconds,
           }
         },
-        select: ({ event, message, status, timeRemainingSeconds }: ClaimStatusResult) => {
+        select: ({ event, message, status }: ClaimStatusResult) => {
           const claimStatus = (() => {
             switch (status) {
               case ChildToParentMessageStatus.CONFIRMED:
@@ -123,7 +103,6 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
             event,
             message,
             claimStatus,
-            timeRemainingSeconds,
           }
         },
         // Periodically refetch until the status is known to be ChildToParentMessageStatus.EXECUTED
@@ -160,7 +139,6 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
             assetId: data.tx.transfers[0].assetId,
             event: data.event,
             message: data.message,
-            timeRemainingSeconds: data.timeRemainingSeconds,
             description: translate('bridge.arbitrum.description'),
           })
         }

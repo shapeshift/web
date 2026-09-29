@@ -80,6 +80,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
         const swap = swapsById[swapAction.swapMetadata.swapId]
         if (
           !swap?.sellTxHash ||
+          !swap.buyAccountId ||
           swap.swapperName !== SwapperName.ArbitrumBridge ||
           swap.buyAsset.chainId !== ethChainId
         )
@@ -104,8 +105,8 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
               assetId: swap.sellAsset.assetId,
               destinationAssetId: swap.buyAsset.assetId,
-              accountId: swap.sellAccountId ?? '',
-              destinationAccountId: swap.buyAccountId ?? '',
+              accountId: swap.sellAccountId,
+              destinationAccountId: swap.buyAccountId,
               timeRemainingSeconds:
                 claimDetails?.timeRemainingSeconds ?? ARBITRUM_WITHDRAW_ETA_SECONDS,
               claimDetails,
@@ -141,30 +142,12 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     ]
 
     claims.forEach(({ claim, claimStatus }) => {
-      const existingAction = arbitrumActionsByWithdrawTxHash[claim.tx.txid]
-
-      if (existingAction) {
-        // Swap-created actions predating the wallet filter may carry an empty account
-        if (existingAction.arbitrumBridgeMetadata.accountId) return
-
-        dispatch(
-          actionSlice.actions.upsertAction({
-            ...existingAction,
-            arbitrumBridgeMetadata: {
-              ...existingAction.arbitrumBridgeMetadata,
-              accountId: claim.accountId,
-            },
-          }),
-        )
-        return
-      }
+      if (arbitrumActionsByWithdrawTxHash[claim.tx.txid]) return
 
       const action = buildArbitrumBridgeWithdrawActionFromClaim(claim, claimStatus, ethAccountIds)
       if (!action) return
 
       dispatch(actionSlice.actions.upsertAction(action))
-
-      if (action.status === ActionStatus.ClaimAvailable) notifyClaimAvailable(action.id)
     })
     // claimsByStatus arrays are recreated on every render, use length for stable references
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,7 +155,6 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     dispatch,
     ethAccountIds,
     arbitrumActionsByWithdrawTxHash,
-    notifyClaimAvailable,
     claimsByStatus.Pending.length,
     claimsByStatus.Available.length,
   ])

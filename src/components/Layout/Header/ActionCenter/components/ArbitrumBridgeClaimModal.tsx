@@ -227,7 +227,7 @@ export const ArbitrumBridgeClaimModal = ({
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('common.gasFee')}</Row.Label>
                 <Row.Value>
-                  <Skeleton isLoaded={!evmFeesResult?.isFetching}>
+                  <Skeleton isLoaded={Boolean(claimDetails) && !evmFeesResult?.isFetching}>
                     <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat ?? '0'} />
                   </Skeleton>
                 </Row.Value>
@@ -250,7 +250,7 @@ export const ArbitrumBridgeClaimModal = ({
               claimMutation?.isPending ||
               !hasEnoughDestinationFeeBalance
             }
-            isLoading={evmFeesResult?.isFetching || claimMutation?.isPending}
+            isLoading={!claimDetails || evmFeesResult?.isFetching || claimMutation?.isPending}
             onClick={onConfirm}
           >
             {confirmCopy}

@@ -142,58 +142,42 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     return (
       <Stack gap={4}>
-        {action.status === ActionStatus.Initiated && (
+        <Row fontSize='sm' alignItems='center'>
+          <Row.Label>
+            {translate(
+              action.status === ActionStatus.Initiated
+                ? 'actionCenter.bridge.transactionInitiated'
+                : 'actionCenter.bridge.withdrawTx',
+            )}
+          </Row.Label>
+          <Row.Value>
+            <Link isExternal href={withdrawTxLink} color='text.link'>
+              <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
+            </Link>
+          </Row.Value>
+        </Row>
+        {action.status === ActionStatus.ClaimAvailable && (
           <Row fontSize='sm' alignItems='center'>
-            <Row.Label>{translate('actionCenter.bridge.transactionInitiated')}</Row.Label>
+            <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
             <Row.Value>
-              <Link isExternal href={withdrawTxLink} color='text.link'>
-                <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
-              </Link>
+              <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
+                {translate('common.claim')}
+              </Button>
             </Row.Value>
           </Row>
         )}
-        {action.status === ActionStatus.ClaimAvailable && (
-          <>
+        {action.status === ActionStatus.Claimed &&
+          action.arbitrumBridgeMetadata.claimTxHash &&
+          claimTxLink && (
             <Row fontSize='sm' alignItems='center'>
-              <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
+              <Row.Label>{translate('actionCenter.bridge.claimTx')}</Row.Label>
               <Row.Value>
-                <Link isExternal href={withdrawTxLink} color='text.link'>
-                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
+                <Link isExternal href={claimTxLink} color='text.link'>
+                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash} />
                 </Link>
               </Row.Value>
             </Row>
-            <Row fontSize='sm' alignItems='center'>
-              <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
-              <Row.Value>
-                <Button size='sm' colorScheme='green' onClick={handleClaimClick}>
-                  {translate('common.claim')}
-                </Button>
-              </Row.Value>
-            </Row>
-          </>
-        )}
-        {action.status === ActionStatus.Claimed && (
-          <>
-            <Row fontSize='sm' alignItems='center'>
-              <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
-              <Row.Value>
-                <Link isExternal href={withdrawTxLink} color='text.link'>
-                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
-                </Link>
-              </Row.Value>
-            </Row>
-            {action.arbitrumBridgeMetadata.claimTxHash && claimTxLink && (
-              <Row fontSize='sm' alignItems='center'>
-                <Row.Label>{translate('actionCenter.bridge.claimTx')}</Row.Label>
-                <Row.Value>
-                  <Link isExternal href={claimTxLink} color='text.link'>
-                    <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash} />
-                  </Link>
-                </Row.Value>
-              </Row>
-            )}
-          </>
-        )}
+          )}
       </Stack>
     )
   }, [

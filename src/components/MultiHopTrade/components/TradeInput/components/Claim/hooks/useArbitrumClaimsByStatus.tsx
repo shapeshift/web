@@ -20,7 +20,7 @@ import {
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 
-// Challenge period from the withdrawal; the assertion that includes it can add up to an hour
+// Arbitrum's challenge period; the claim can open up to an hour later while an assertion posts
 const ARBITRUM_CHALLENGE_PERIOD_MS = 6.4 * 24 * 60 * 60 * 1000
 
 export const getArbitrumClaimableAt = (withdrawTimeMs: number): number =>

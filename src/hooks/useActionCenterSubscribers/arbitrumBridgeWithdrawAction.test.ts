@@ -49,7 +49,6 @@ describe('buildArbitrumBridgeWithdrawActionFromClaim', () => {
       accountId: 'eip155:42161:0xarb',
       destinationAccountId,
       claimableAt: 1_700_000_000_000 + 6.4 * 24 * 60 * 60 * 1000,
-      claimDetails: claim,
     })
   })
 

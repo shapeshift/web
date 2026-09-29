@@ -1,7 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
-import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -84,7 +83,6 @@ type ActionArbitrumBridgeWithdrawMetadata = {
   accountId: AccountId
   destinationAccountId: AccountId
   claimableAt?: number
-  claimDetails?: ClaimDetails
 }
 
 export enum ChainflipLendingOperationType {
@@ -307,8 +305,7 @@ const ACTIVE_ACTION_STATUSES = new Set([
 export const isActiveActionStatus = (status: ActionStatus): boolean =>
   ACTIVE_ACTION_STATUSES.has(status)
 
-// An action in flight is dated from when it started, since its updates only track polling;
-// a settled one from when it settled
+// In-flight actions are dated by when they started, settled ones by when they settled
 export const getActionTimestamp = (action: Action): number =>
   isActiveActionStatus(action.status) ? action.createdAt : action.updatedAt
 

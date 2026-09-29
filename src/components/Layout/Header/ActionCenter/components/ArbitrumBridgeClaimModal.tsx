@@ -68,19 +68,11 @@ export const ArbitrumBridgeClaimModal = ({
     selectMarketDataByAssetIdUserCurrency(state, action.arbitrumBridgeMetadata.destinationAssetId),
   )
 
-  // The stored claim is plain JSON after a reload, so the SDK message that builds the outbox proof
-  // has to come from the live poll
   const { claimsByStatus } = useArbitrumClaimsByStatus()
   const claimDetails = useMemo(
     () => claimsByStatus.Available.find(claim => claim.tx.txid === withdrawTxHash),
     [claimsByStatus.Available, withdrawTxHash],
   )
-
-  // The claim may be paid for by any of our ethereum accounts, but the funds land at the withdrawal's destination
-  const destinationAddress =
-    claimDetails?.destinationAddress ??
-    action.arbitrumBridgeMetadata.claimDetails?.destinationAddress ??
-    fromAccountId(destinationAccountId).account
 
   const destinationFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(
@@ -222,7 +214,11 @@ export const ArbitrumBridgeClaimModal = ({
             <Stack spacing={4} width='full'>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
-                <Row.Value>{middleEllipsis(destinationAddress)}</Row.Value>
+                <Row.Value>
+                  <Skeleton isLoaded={Boolean(claimDetails)}>
+                    {middleEllipsis(claimDetails?.destinationAddress ?? '')}
+                  </Skeleton>
+                </Row.Value>
               </Row>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('common.gasFee')}</Row.Label>

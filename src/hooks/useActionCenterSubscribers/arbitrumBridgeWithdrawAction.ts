@@ -10,7 +10,7 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 export const getArbitrumBridgeWithdrawActionId = (withdrawTxHash: string): string =>
   `arbitrum-bridge-withdraw-${withdrawTxHash}`
 
-// The outbox call is permissionless, so any ethereum account can execute it when the destination is not ours
+// The outbox call is permissionless, so any of our ethereum accounts can pay for the claim
 const getClaimDestinationAccountId = (
   destinationAddress: string,
   ethAccountIds: AccountId[],
@@ -45,7 +45,6 @@ export const buildArbitrumBridgeWithdrawActionFromClaim = (
       accountId: claim.accountId,
       destinationAccountId,
       claimableAt: getArbitrumClaimableAt(createdAt),
-      claimDetails: claim,
     },
   }
 }

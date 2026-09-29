@@ -97,8 +97,7 @@ export const selectWalletActions = createDeepEqualOutputSelector(
   },
 )
 
-// Anything still in flight stays on top, in the order it was started, since its updates only track
-// polling. Settled actions follow, most recently settled first.
+// In-flight actions first, newest started first, then settled actions, newest settled first
 export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {

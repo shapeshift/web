@@ -89,7 +89,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
         // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
         if (arbitrumActionsByWithdrawTxHash[swap.sellTxHash]) return
 
-        const claimDetails = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
+        const claim = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
 
         dispatch(
           actionSlice.actions.upsertAction({
@@ -105,10 +105,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               destinationAssetId: swap.buyAsset.assetId,
               accountId: swap.sellAccountId,
               destinationAccountId: swap.buyAccountId,
-              claimableAt: getArbitrumClaimableAt(
-                claimDetails ? claimDetails.tx.blockTime * 1000 : Date.now(),
-              ),
-              claimDetails,
+              claimableAt: getArbitrumClaimableAt(claim ? claim.tx.blockTime * 1000 : Date.now()),
             },
           }),
         )
@@ -130,8 +127,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     [toast, translate],
   )
 
-  // Recreate withdraw actions from the claims tx history knows about, so a wiped store, another browser,
-  // or a withdrawal made outside the app still surfaces here. Completed claims have nothing left to do.
+  // Rebuild missing actions from tx history, e.g. after a wiped store or an outside withdrawal
   useEffect(() => {
     if (!ethAccountIds.length) return
 
@@ -188,35 +184,21 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
             claim => claim.tx.txid === withdrawTxHash,
           )
 
-          const currentMetadata = action.arbitrumBridgeMetadata
           const matchedClaim = completedClaim ?? availableClaim ?? pendingClaim
+          if (!matchedClaim) return null
 
-          // Determine new action state from claim data
-          const newState = {
-            newStatus: (() => {
-              if (completedClaim) return ActionStatus.Claimed
-              if (availableClaim) return ActionStatus.ClaimAvailable
-              if (pendingClaim) return ActionStatus.Initiated
-              return action.status
-            })(),
-            claimDetails: matchedClaim ?? currentMetadata.claimDetails,
-            claimableAt: matchedClaim
-              ? getArbitrumClaimableAt(matchedClaim.tx.blockTime * 1000)
-              : currentMetadata.claimableAt,
-            claimTxHash: currentMetadata.claimTxHash,
-          }
+          const newStatus = (() => {
+            if (completedClaim) return ActionStatus.Claimed
+            if (availableClaim) return ActionStatus.ClaimAvailable
+            return ActionStatus.Initiated
+          })()
+          const claimableAt = getArbitrumClaimableAt(matchedClaim.tx.blockTime * 1000)
 
-          // Check if action state changed - use deep comparison for objects
-          // once again, paranoia against this bad boi https://github.com/shapeshift/web/pull/10556
-
+          // Only write on a real change, see https://github.com/shapeshift/web/pull/10556
           const hasChanges =
-            newState.newStatus !== action.status ||
-            JSON.stringify(newState.claimDetails) !==
-              JSON.stringify(currentMetadata.claimDetails) ||
-            newState.claimableAt !== currentMetadata.claimableAt ||
-            newState.claimTxHash !== currentMetadata.claimTxHash
+            newStatus !== action.status || claimableAt !== action.arbitrumBridgeMetadata.claimableAt
 
-          return hasChanges ? { action, ...newState } : null
+          return hasChanges ? { action, newStatus, claimableAt } : null
         })
         .filter(isSome)
         .forEach(update => {
@@ -230,9 +212,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               status: update.newStatus,
               arbitrumBridgeMetadata: {
                 ...update.action.arbitrumBridgeMetadata,
-                claimDetails: update.claimDetails,
                 claimableAt: update.claimableAt,
-                claimTxHash: update.claimTxHash ?? update.action.arbitrumBridgeMetadata.claimTxHash,
               },
             }),
           )

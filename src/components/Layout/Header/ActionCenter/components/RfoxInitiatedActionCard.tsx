@@ -12,8 +12,9 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import { middleEllipsis } from '@/lib/utils'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionType } from '@/state/slices/actionSlice/types'
+import { ActionType, getActionTimestamp } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
@@ -33,16 +34,7 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
     selectAssetById(state, action.transactionMetadata.assetId ?? ''),
   )
 
-  const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(action.updatedAt)
-    const sevenDaysAgo = now.subtract(7, 'day')
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
-  }, [action.updatedAt])
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
 
   const txLink = useMemo(() => {
     if (!feeAsset) return

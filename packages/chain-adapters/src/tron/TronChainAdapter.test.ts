@@ -1,7 +1,7 @@
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ChainAdapter, TRON_ZERO_ADDRESS } from './TronChainAdapter'
 
@@ -200,5 +200,114 @@ describe('TronChainAdapter.parseTx', () => {
       },
     ])
     expect(parsed.fee).toBeUndefined()
+  })
+})
+
+const BEYOND_SAFE_INTEGER = '9007199254740993'
+
+const mockTronGrid = (payload: object): ReturnType<typeof vi.fn> => {
+  const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(payload) })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
+}
+
+describe('TronChainAdapter.buildSendApiTransaction', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('rejects a native amount beyond the safe integer range instead of rounding it', async () => {
+    const fetchMock = mockTronGrid({ raw_data_hex: 'ab', raw_data: {} })
+
+    await expect(
+      adapter.buildSendApiTransaction({
+        from: USER,
+        to: POOL,
+        accountNumber: 0,
+        value: BEYOND_SAFE_INTEGER,
+        chainSpecific: {},
+      }),
+    ).rejects.toThrow()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('TronChainAdapter.buildCustomApiTx', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('rejects a call value beyond the safe integer range instead of rounding it', async () => {
+    const fetchMock = mockTronGrid({ transaction: { raw_data_hex: 'ab', raw_data: {} } })
+
+    await expect(
+      adapter.buildCustomApiTx({
+        from: USER,
+        to: STRX,
+        accountNumber: 0,
+        data: '0xd0e30db0',
+        value: BEYOND_SAFE_INTEGER,
+      }),
+    ).rejects.toThrow()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('TronChainAdapter.validateAddress', () => {
+  it('accepts a base58check address', async () => {
+    expect((await adapter.validateAddress(USER)).valid).toBe(true)
+  })
+
+  it('rejects an address whose checksum does not match', async () => {
+    const corrupted = `${USER.slice(0, -1)}${USER.endsWith('f') ? 'g' : 'f'}`
+    expect((await adapter.validateAddress(corrupted)).valid).toBe(false)
+  })
+
+  it('rejects the hex form', async () => {
+    expect((await adapter.validateAddress(TronWeb.address.toHex(USER))).valid).toBe(false)
+  })
+})
+
+describe('TronChainAdapter.getAccount', () => {
+  it('reports token balances without guessing a precision', async () => {
+    const account = await new ChainAdapter({
+      providers: {
+        http: {
+          getAccount: vi.fn().mockResolvedValue({
+            balance: '0',
+            unconfirmedBalance: '0',
+            tokens: [{ contractAddress: STRX, balance: '1' }],
+          }),
+        } as unknown as unchained.tron.TronApi,
+      },
+      rpcUrl: 'https://tron.example',
+    }).getAccount(USER)
+
+    expect(account.chainSpecific.tokens?.[0]).toEqual({
+      assetId: STRX_ASSET_ID,
+      balance: '1',
+      symbol: '',
+      name: '',
+    })
+  })
+})
+
+describe('TronChainAdapter.getTokenPrecision', () => {
+  const withClient = (http: object): ChainAdapter =>
+    new ChainAdapter({
+      providers: { http: http as unchained.tron.TronApi },
+      rpcUrl: 'https://tron.example',
+    })
+
+  it('reads a trc20 token through decimals()', async () => {
+    const getTrc20Decimals = vi.fn().mockResolvedValue(18)
+
+    expect(await withClient({ getTrc20Decimals }).getTokenPrecision(STRX_ASSET_ID)).toBe(18)
+    expect(getTrc20Decimals).toHaveBeenCalledWith({ contractAddress: STRX })
+  })
+
+  it('reads a trc10 token through its asset issue', async () => {
+    const getTrc10Precision = vi.fn().mockResolvedValue(6)
+
+    expect(
+      await withClient({ getTrc10Precision }).getTokenPrecision('tron:0x2b6653dc/trc10:1002000'),
+    ).toBe(6)
+    expect(getTrc10Precision).toHaveBeenCalledWith({ id: '1002000' })
   })
 })

@@ -3008,7 +3008,7 @@
       },
       "why": {
         "title": "Pourquoi staker vos FOX ?",
-        "body": "Staker votre FOX vous permet de percevoir des versements réguliers en USDC depuis la trésorerie de la DAO, vous offrant un flux constant de revenus passifs en USDC par époque. De plus, une partie des revenus de la DAO sera allouée à la réduction de l'offre globale de FOX par le biais de brûlages de jetons. Le processus de staking requiert une période minimale de déstaking de 28 jours, ce qui encourage l'engagement et la stabilité au sein de la communauté."
+        "body": "Le staking de vos FOX vous permet de percevoir des versements réguliers en USDC provenant de la trésorerie de la DAO, vous assurant ainsi un revenu passif stable en USDC à chaque époque. De plus, une partie des revenus de la DAO est allouée au rachat de FOX sur le marché libre. Le déverrouillage de vos FOX est soumis à une période de repos durant laquelle ils restent verrouillés et cessent de générer des revenus."
       },
       "stake": {
         "title": "Comment staker mes FOX ?",
@@ -3027,8 +3027,8 @@
         "body": "Oui, vous pouvez avoir plusieurs montants en cours de déstaking. Chaque action de déstaking aura sa propre période de repos de 28 jours."
       },
       "connect": {
-        "title": "Quel est le rapport entre le total de frais collectés, le total staké en FOX, le pool d'émissions et le montant de FOX brûlés ?",
-        "body": "Les frais collectés par la DAO sont exprimés en actifs natifs par swapper. Une partie de ces revenus est convertie et distribuée aux stakers de FOX sous forme de récompenses, tandis qu'une autre partie est allouée à la réduction de l'offre globale de FOX par le biais de brûlages de jetons. Le total de FOX staké influence la distribution des récompenses, celles-ci étant distribuées au prorata du montant de FOX staké. Le pool d'émissions représente la quantité de FOX disponible pour les récompenses de staking, et le montant de FOX brûlés correspond à la part de FOX achetée et brûlée."
+        "title": "Quel est le lien entre le total des frais perçus, le total des FOX stakés, le pool d'émissions et le total des rachats FOX ?",
+        "body": "Les frais collectés par la DAO sont exprimés en actifs natifs par swapper. Une partie de ces revenus est convertie et distribuée aux détenteurs de FOX sous forme de récompenses, tandis qu'une autre partie est allouée au rachat de FOX sur le marché. Le total des FOX stakés influe sur la distribution des récompenses, celles-ci étant distribuées au prorata de votre montant de FOX stakés. Le pool d'émissions représente la quantité de FOX disponibles pour les récompenses de staking, et le montant du rachat de FOX correspond à la part des revenus utilisée pour racheter des FOX."
       }
     },
     "totals": "Totaux rFOX",
@@ -3037,12 +3037,19 @@
     "totalFeesCollected": "Total des frais collectés (cette époque)",
     "emissionsPool": "Pool d'émissions %{symbol} (cette époque)",
     "emissionsPoolHelper": "Le montant total des récompenses à distribuer aux stakeurs %{symbol}",
-    "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
+    "foxBuybackAmount": "Montant  du rachat de FOX (cette époque)",
     "pendingDistribution": "Distribution en attente",
     "selectRuneAddress": "Sélectionnez une adresse RUNE",
-    "unstakeDisabledMigrationTooltip": "Le déstaking est désactivé jusqu'au 1er octobre, date à laquelle la période de repos sera supprimée.",
+    "unstakeDisabledMigrationTooltip": "Le déstaking est désactivé jusqu'au %{migrationDate}, date à laquelle la période de repos sera retirée.",
     "lpSunsetWarningTitle": "Le programme est terminé",
-    "lpSunsetWarningDescription": "Le programme de récompenses pour WETH/FOX sur Arbitrum est désormais terminé. Veuillez unstaker et réclamer vos fonds à votre plus proche convenance."
+    "lpSunsetWarningDescription": "Le programme de récompenses pour WETH/FOX sur Arbitrum est désormais terminé. Veuillez unstaker et réclamer vos fonds à votre plus proche convenance.",
+    "claimInProgress": "Réclamation en cours",
+    "migrationBannerTitle": "rFOX migre vers Ethereum",
+    "migrationBannerDescription": "Le staking rFOX migre d'Arbitrum vers Ethereum le %{migrationDate}. Vous continuerez à percevoir des récompenses sur Arbitrum jusqu'à cette date, après quoi le déstaking ouvre afin que vous puissiez déplacer vos FOX.",
+    "migrationBannerCta": "Déplacer des FOX vers Ethereum",
+    "stakingPausedTooltip": "Le staking est suspendu pour ce programme.",
+    "unstakingPausedTooltip": "Le déstaking est suspendu pour ce programme.",
+    "withdrawalsPausedTooltip": "Les réclamations sont suspendues pour ce programme."
   },
   "TCY": {
     "stake": "Staker",
@@ -3158,7 +3165,7 @@
     "foxToken": "Jeton FOX",
     "24hrPriceChange": "Évolution du prix sur 24h",
     "rfox": {
-      "totalBurn": "Total brûlé",
+      "totalBuyback": "Total des rachats",
       "simulateTitle": "Simulateur rFOX",
       "simulateSubtle": "Simulez le rendement de votre staking rFOX",
       "estimatedRewards": "Récompenses estimées",

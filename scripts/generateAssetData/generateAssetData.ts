@@ -244,7 +244,7 @@ const generateAssetData = async () => {
   const sortedAssetIds = await getSortedAssetIds(assetsWithOverridesApplied)
 
   const outputData = { byId: assetsWithOverridesApplied, ids: sortedAssetIds }
-  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(outputData, null, 2))
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(outputData))
 
   return { sortedAssetIds, assetData: assetsWithOverridesApplied }
 }
@@ -259,7 +259,7 @@ const writeRelatedAssetIndex = (relatedAssetIndex: Record<AssetId, AssetId[]>) =
     Object.entries(relatedAssetIndex).filter(([_, value]) => value !== undefined),
   )
 
-  fs.writeFileSync(RELATED_ASSET_INDEX_PATH, JSON.stringify(filteredOutputData, null, 2))
+  fs.writeFileSync(RELATED_ASSET_INDEX_PATH, JSON.stringify(filteredOutputData))
 }
 
 const generateManifest = async () => {

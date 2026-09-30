@@ -3297,7 +3297,6 @@
       "pendingWithdraw": "%{amountAndSymbol} tutarındaki çekim işleminiz %{timeText} tarihinde gerçekleştirilebilecek.",
       "claimAvailable": "%{amountAndSymbol} köprünüz talep edilebilir.",
       "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu.",
-      "transactionInitiated": "İşlem Başlatıldı",
       "claimWithdraw": "Talep Geri Çekme",
       "withdrawTx": "Tx'i Çek",
       "claimTx": "Talep Tx"

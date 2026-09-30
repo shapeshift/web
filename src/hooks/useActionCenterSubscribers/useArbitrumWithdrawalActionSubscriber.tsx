@@ -65,7 +65,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Create ArbitrumBridge withdraw actions from completed swap actions
+  // Create ArbitrumBridge withdraw actions from initiated swap actions, completing the swap once claimed
   useEffect(() => {
     const allClaims = [
       ...claimsByStatus.Pending,
@@ -86,8 +86,18 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
         )
           return
 
+        const withdrawAction = arbitrumActionsByWithdrawTxHash[swap.sellTxHash]
+
+        // The swap stays in flight until its withdraw is claimed
+        if (withdrawAction?.status === ActionStatus.Claimed) {
+          dispatch(
+            actionSlice.actions.upsertAction({ ...swapAction, status: ActionStatus.Complete }),
+          )
+          return
+        }
+
         // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
-        if (arbitrumActionsByWithdrawTxHash[swap.sellTxHash]) return
+        if (withdrawAction) return
 
         const claim = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
 
@@ -105,7 +115,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               destinationAssetId: swap.buyAsset.assetId,
               accountId: swap.sellAccountId,
               destinationAccountId: swap.buyAccountId,
-              claimableAt: getArbitrumClaimableAt(claim ? claim.tx.blockTime * 1000 : Date.now()),
+              claimableAt: claim?.claimableAt ?? getArbitrumClaimableAt(Date.now()),
             },
           }),
         )
@@ -167,6 +177,8 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
       })
   }, [actionsById])
 
+  const pendingClaimableAts = claimsByStatus.Pending.map(claim => claim.claimableAt).join()
+
   useEffect(() => {
     try {
       pendingArbitrumBridgeActions
@@ -192,7 +204,11 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
             if (availableClaim) return ActionStatus.ClaimAvailable
             return ActionStatus.Initiated
           })()
-          const claimableAt = getArbitrumClaimableAt(matchedClaim.tx.blockTime * 1000)
+          // Only a pending claim's estimate still matters
+          const claimableAt =
+            newStatus === ActionStatus.Initiated
+              ? matchedClaim.claimableAt
+              : action.arbitrumBridgeMetadata.claimableAt
 
           // Only write on a real change, see https://github.com/shapeshift/web/pull/10556
           const hasChanges =
@@ -233,5 +249,6 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     claimsByStatus.Available.length,
     claimsByStatus.Complete.length,
     claimsByStatus.Pending.length,
+    pendingClaimableAts,
   ])
 }

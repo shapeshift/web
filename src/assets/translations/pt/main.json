@@ -3297,7 +3297,6 @@
       "pendingWithdraw": "Seu saque de %{amountAndSymbol} estará disponível em %{timeText}.",
       "claimAvailable": "Sua ponte de %{amountAndSymbol} está disponível para ser resgatada.",
       "failed": "Sua ponte de %{sellAmountAndSymbol}.%{sellChainShortName} para %{buyAmountAndSymbol}.%{buyChainShortName} falhou.",
-      "transactionInitiated": "Transação iniciada",
       "claimWithdraw": "Resgate seu saque",
       "withdrawTx": "Saque Tx",
       "claimTx": "Resgate Tx"

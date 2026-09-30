@@ -883,6 +883,7 @@
     },
     "claimReceiveAddress": "Claim Receive Address",
     "confirmAndClaim": "Confirm & Claim",
+    "claimTxDataFailed": "Couldn't prepare the claim transaction",
     "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
     "checkActionCenterNotification": "Check Action Center for details"
   },
@@ -3295,11 +3296,11 @@
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
       "initiated": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has been initiated.",
       "pendingWithdraw": "Your withdraw of %{amountAndSymbol} will be available %{timeText}.",
+      "availableSoon": "within the hour",
       "claimAvailable": "Your bridge of %{amountAndSymbol} is available to claim.",
       "withdrawComplete": "Your bridge of %{amountAndSymbol} is complete.",
       "withdrawProcessing": "Your bridge of %{amountAndSymbol} is being processed.",
       "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed.",
-      "transactionInitiated": "Transaction Initiated",
       "claimWithdraw": "Claim Withdraw",
       "withdrawTx": "Withdraw Tx",
       "claimTx": "Claim Tx"

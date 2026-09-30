@@ -9,12 +9,12 @@ import { store } from '@/state/store'
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
-export const formatSecondsToDuration = (seconds: number) => {
+export const formatSecondsToDuration = (seconds: number, withSuffix = false) => {
   const selectedLocale = preferences.selectors.selectSelectedLocale(store.getState())
   const locale = selectedLocale in LanguageTypeEnum ? selectedLocale : 'en'
   void import(`dayjs/locale/${locale}.js`)
 
-  return dayjs.duration(seconds, 'seconds').locale(locale).humanize()
+  return dayjs.duration(seconds, 'seconds').locale(locale).humanize(withSuffix)
 }
 
 /**

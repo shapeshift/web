@@ -3297,7 +3297,6 @@
       "pendingWithdraw": "Ihre Auszahlung von %{amountAndSymbol} wird %{timeText} verfügbar sein.",
       "claimAvailable": "Ihr Wechsel von %{amountAndSymbol} kann beansprucht werden.",
       "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen.",
-      "transactionInitiated": "Transaktion eingeleitet",
       "claimWithdraw": "Auszahlung beanspruchen",
       "withdrawTx": "Tx abheben",
       "claimTx": "Anspruch Tx"

@@ -126,10 +126,8 @@ export const useArbitrumClaimTx = (
         const { status } = await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
         switch (status) {
-          case 'success': {
-            queryClient.setQueryData(['claimStatus', { txid: claim.tx.txid }], () => null)
+          case 'success':
             return setClaimTxStatus(TxStatus.Confirmed)
-          }
           case 'reverted':
           default:
             return setClaimTxStatus(TxStatus.Failed)
@@ -150,6 +148,7 @@ export const useArbitrumClaimTx = (
   })
 
   return {
+    executeTransactionDataResult,
     evmFeesResult,
     claimMutation,
   }

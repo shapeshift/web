@@ -22,6 +22,7 @@ const claim = {
   destinationAddress,
   destinationAssetId: ethAssetId,
   destinationChainId: ethChainId,
+  claimableAt: 1_700_600_000_000,
 } as unknown as ClaimDetails
 
 describe('buildArbitrumBridgeWithdrawActionFromClaim', () => {
@@ -34,7 +35,7 @@ describe('buildArbitrumBridgeWithdrawActionFromClaim', () => {
     expect(action?.type).toBe(ActionType.ArbitrumBridgeWithdraw)
   })
 
-  it('maps a pending claim to an initiated action dated and timed from the withdraw block', () => {
+  it('maps a pending claim to an initiated action dated from the withdraw block', () => {
     const action = buildArbitrumBridgeWithdrawActionFromClaim(claim, ClaimStatus.Pending, [
       destinationAccountId,
     ])
@@ -48,7 +49,7 @@ describe('buildArbitrumBridgeWithdrawActionFromClaim', () => {
       destinationAssetId: ethAssetId,
       accountId: 'eip155:42161:0xarb',
       destinationAccountId,
-      claimableAt: 1_700_000_000_000 + 6.4 * 24 * 60 * 60 * 1000,
+      claimableAt: 1_700_600_000_000,
     })
   })
 

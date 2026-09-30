@@ -3297,7 +3297,6 @@
       "pendingWithdraw": "Su retiro de %{amountAndSymbol} estará disponible %{timeText}.",
       "claimAvailable": "Su bridge de %{amountAndSymbol} está disponible para reclamar.",
       "failed": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} ha fallado.",
-      "transactionInitiated": "Transacción Iniciada",
       "claimWithdraw": "Reclamar Retiro",
       "withdrawTx": "Retirar Tx",
       "claimTx": "Reclamar Tx"

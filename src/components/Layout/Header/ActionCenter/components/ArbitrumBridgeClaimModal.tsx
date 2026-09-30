@@ -12,10 +12,12 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { zeroAddress } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -29,12 +31,13 @@ import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import {
+  selectArbitrumBridgeWithdrawActionById,
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type ArbitrumBridgeClaimModalProps = {
   action: ArbitrumBridgeWithdrawAction
@@ -114,30 +117,58 @@ export const ArbitrumBridgeClaimModal = ({
     amountCryptoPrecision,
   ])
 
-  const handleClaimSuccess = useCallback(
+  // Stays claimable until the claim confirms, so a dropped or reverted claim can be retried
+  const handleClaimBroadcast = useCallback(
     (claimTxHash: string) => {
       dispatch(
         actionSlice.actions.upsertAction({
           ...action,
-          updatedAt: Date.now(),
-          status: ActionStatus.Claimed,
-          arbitrumBridgeMetadata: {
-            ...action.arbitrumBridgeMetadata,
-            claimTxHash,
-          },
+          arbitrumBridgeMetadata: { ...action.arbitrumBridgeMetadata, claimTxHash },
         }),
       )
     },
     [dispatch, action],
   )
 
+  // Runs after the claim receipt resolves, possibly after the modal closed
+  const handleClaimTxStatus = useCallback(
+    (txStatus: TxStatus) => {
+      const latestAction = selectArbitrumBridgeWithdrawActionById(store.getState(), action.id)
+      if (!latestAction || latestAction.status === ActionStatus.Claimed) return
+
+      switch (txStatus) {
+        case TxStatus.Confirmed:
+          dispatch(
+            actionSlice.actions.upsertAction({ ...latestAction, status: ActionStatus.Claimed }),
+          )
+          return
+        case TxStatus.Failed:
+          dispatch(
+            actionSlice.actions.upsertAction({
+              ...latestAction,
+              arbitrumBridgeMetadata: {
+                ...latestAction.arbitrumBridgeMetadata,
+                claimTxHash: undefined,
+              },
+            }),
+          )
+          return
+        default:
+          return
+      }
+    },
+    [dispatch, action.id],
+  )
+
   const claimTxResult = useArbitrumClaimTx(
     claimDetails,
     destinationAccountId,
     noop,
-    noop,
-    handleClaimSuccess,
+    handleClaimTxStatus,
+    handleClaimBroadcast,
   )
+
+  const executeTransactionDataResult = claimTxResult?.executeTransactionDataResult
 
   const evmFeesResult = claimTxResult?.evmFeesResult
 
@@ -162,6 +193,8 @@ export const ArbitrumBridgeClaimModal = ({
   }, [claimMutation, onClose])
 
   const confirmCopy = useMemo(() => {
+    if (executeTransactionDataResult?.isError) return translate('bridge.claimTxDataFailed')
+
     if (claimMutation?.isError) return translate('trade.errors.title')
 
     if (evmFeesResult?.isError) return translate('trade.errors.networkFeeEstimateFailed')
@@ -173,7 +206,14 @@ export const ArbitrumBridgeClaimModal = ({
       })
 
     return translate('bridge.confirmAndClaim')
-  }, [claimMutation, destinationFeeAsset, evmFeesResult, hasEnoughDestinationFeeBalance, translate])
+  }, [
+    claimMutation,
+    destinationFeeAsset,
+    evmFeesResult?.isError,
+    executeTransactionDataResult?.isError,
+    hasEnoughDestinationFeeBalance,
+    translate,
+  ])
 
   useEffect(() => {
     if (!isClaimCompleted) return
@@ -216,14 +256,20 @@ export const ArbitrumBridgeClaimModal = ({
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
                 <Row.Value>
                   <Skeleton isLoaded={Boolean(claimDetails)}>
-                    {middleEllipsis(claimDetails?.destinationAddress ?? '')}
+                    {middleEllipsis(claimDetails?.destinationAddress ?? zeroAddress)}
                   </Skeleton>
                 </Row.Value>
               </Row>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('common.gasFee')}</Row.Label>
                 <Row.Value>
-                  <Skeleton isLoaded={Boolean(claimDetails) && !evmFeesResult?.isFetching}>
+                  <Skeleton
+                    isLoaded={
+                      Boolean(claimDetails) &&
+                      !executeTransactionDataResult?.isFetching &&
+                      !evmFeesResult?.isFetching
+                    }
+                  >
                     <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat ?? '0'} />
                   </Skeleton>
                 </Row.Value>
@@ -236,7 +282,10 @@ export const ArbitrumBridgeClaimModal = ({
             width='full'
             size='lg'
             colorScheme={
-              !hasEnoughDestinationFeeBalance || claimMutation?.isError || evmFeesResult?.isError
+              !hasEnoughDestinationFeeBalance ||
+              executeTransactionDataResult?.isError ||
+              claimMutation?.isError ||
+              evmFeesResult?.isError
                 ? 'red'
                 : 'blue'
             }
@@ -246,7 +295,13 @@ export const ArbitrumBridgeClaimModal = ({
               claimMutation?.isPending ||
               !hasEnoughDestinationFeeBalance
             }
-            isLoading={!claimDetails || evmFeesResult?.isFetching || claimMutation?.isPending}
+            isLoading={
+              // The claim status poll keeps refetching, so a missing claim resolves on its own
+              !claimDetails ||
+              executeTransactionDataResult?.isFetching ||
+              evmFeesResult?.isFetching ||
+              claimMutation?.isPending
+            }
             onClick={onConfirm}
           >
             {confirmCopy}

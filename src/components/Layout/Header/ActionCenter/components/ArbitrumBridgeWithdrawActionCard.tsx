@@ -14,9 +14,10 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
+import { useArbitrumClaimTimeText } from '@/hooks/useArbitrumClaimTimeText/useArbitrumClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
-import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import {
   ActionStatus,
@@ -56,10 +57,19 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     ),
   )
 
+  const timeText = useArbitrumClaimTimeText(action.arbitrumBridgeMetadata.claimableAt)
+
   const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
   const isCollapsable =
-    action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
+    action.status === ActionStatus.Initiated ||
+    action.status === ActionStatus.ClaimAvailable ||
+    action.status === ActionStatus.Claimed
   const { isOpen, onToggle } = useDisclosure()
+
+  const isClaiming =
+    action.status === ActionStatus.ClaimAvailable &&
+    Boolean(action.arbitrumBridgeMetadata.claimTxHash)
+  const displayStatus = isClaiming ? ActionStatus.Pending : action.status
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {
@@ -84,15 +94,11 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
 
-    const { claimableAt } = action.arbitrumBridgeMetadata
-    const secondsUntilClaimable = claimableAt ? (claimableAt - Date.now()) / 1000 : 0
-    const timeText =
-      secondsUntilClaimable > 0 ? `in ${formatSecondsToDuration(secondsUntilClaimable)}` : 'soon'
-
     switch (action.status) {
       case ActionStatus.Initiated:
         return translate('actionCenter.bridge.pendingWithdraw', { amountAndSymbol, timeText })
       case ActionStatus.ClaimAvailable:
+        if (isClaiming) return translate('actionCenter.bridge.processing', bridgeArgs)
         return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
       case ActionStatus.Claimed:
         return translate('actionCenter.bridge.withdrawComplete', { amountAndSymbol })
@@ -103,21 +109,22 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     action.status,
     buyAmountCryptoPrecision,
     buyAsset,
+    isClaiming,
     sellAsset,
+    timeText,
     translate,
-    action.arbitrumBridgeMetadata,
   ])
 
   const icon = useMemo(() => {
     if (!sellAsset) return null
     return (
       <AssetIconWithBadge assetId={sellAsset.assetId} size='md'>
-        <ActionStatusIcon status={action.status} />
+        <ActionStatusIcon status={displayStatus} />
       </AssetIconWithBadge>
     )
-  }, [sellAsset, action.status])
+  }, [sellAsset, displayStatus])
 
-  const footer = useMemo(() => <ActionStatusTag status={action.status} />, [action.status])
+  const footer = useMemo(() => <ActionStatusTag status={displayStatus} />, [displayStatus])
 
   const details = useMemo(() => {
     if (!(sellAsset && buyAsset && sellFeeAsset && destinationFeeAsset)) return null
@@ -143,20 +150,14 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     return (
       <Stack gap={4}>
         <Row fontSize='sm' alignItems='center'>
-          <Row.Label>
-            {translate(
-              action.status === ActionStatus.Initiated
-                ? 'actionCenter.bridge.transactionInitiated'
-                : 'actionCenter.bridge.withdrawTx',
-            )}
-          </Row.Label>
+          <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
           <Row.Value>
             <Link isExternal href={withdrawTxLink} color='text.link'>
               <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
             </Link>
           </Row.Value>
         </Row>
-        {action.status === ActionStatus.ClaimAvailable && (
+        {action.status === ActionStatus.ClaimAvailable && !isClaiming && (
           <Row fontSize='sm' alignItems='center'>
             <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
             <Row.Value>
@@ -166,18 +167,16 @@ export const ArbitrumBridgeWithdrawActionCard = ({
             </Row.Value>
           </Row>
         )}
-        {action.status === ActionStatus.Claimed &&
-          action.arbitrumBridgeMetadata.claimTxHash &&
-          claimTxLink && (
-            <Row fontSize='sm' alignItems='center'>
-              <Row.Label>{translate('actionCenter.bridge.claimTx')}</Row.Label>
-              <Row.Value>
-                <Link isExternal href={claimTxLink} color='text.link'>
-                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash} />
-                </Link>
-              </Row.Value>
-            </Row>
-          )}
+        {action.arbitrumBridgeMetadata.claimTxHash && claimTxLink && (
+          <Row fontSize='sm' alignItems='center'>
+            <Row.Label>{translate('actionCenter.bridge.claimTx')}</Row.Label>
+            <Row.Value>
+              <Link isExternal href={claimTxLink} color='text.link'>
+                <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash} />
+              </Link>
+            </Row.Value>
+          </Row>
+        )}
       </Stack>
     )
   }, [
@@ -188,6 +187,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     action.arbitrumBridgeMetadata.withdrawTxHash,
     action.arbitrumBridgeMetadata.claimTxHash,
     action.status,
+    isClaiming,
     translate,
     handleClaimClick,
   ])

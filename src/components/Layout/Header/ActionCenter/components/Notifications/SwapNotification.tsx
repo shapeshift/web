@@ -13,8 +13,8 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
+import { useArbitrumClaimTimeText } from '@/hooks/useArbitrumClaimTimeText/useArbitrumClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatSecondsToDuration } from '@/lib/utils/time'
 import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import {
   selectArbitrumBridgeWithdrawActionByWithdrawTxHash,
@@ -54,6 +54,12 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   const action =
     swap?.swapperName === SwapperName.ArbitrumBridge ? maybeArbitrumBridgeAction : swapAction
 
+  const timeText = useArbitrumClaimTimeText(
+    maybeArbitrumBridgeAction && isArbitrumBridgeWithdrawAction(maybeArbitrumBridgeAction)
+      ? maybeArbitrumBridgeAction.arbitrumBridgeMetadata.claimableAt
+      : undefined,
+  )
+
   const swapNotificationComponents = useMemo((): TextPropTypes['components'] | undefined => {
     if (!swap) return undefined
 
@@ -88,11 +94,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     }
 
     if (isArbitrumBridgeWithdraw) {
-      const { claimableAt } = action.arbitrumBridgeMetadata
-      const secondsUntilClaimable = claimableAt ? (claimableAt - Date.now()) / 1000 : 0
-      const timeText =
-        secondsUntilClaimable > 0 ? `in ${formatSecondsToDuration(secondsUntilClaimable)}` : 'soon'
-
       const buyAmountCryptoPrecision = bnOrZero(
         actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision,
       )
@@ -118,7 +119,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     }
 
     return components
-  }, [swap, actualBuyAmountCryptoPrecision, action])
+  }, [swap, actualBuyAmountCryptoPrecision, action, timeText])
 
   const swapTitleTranslation = useMemo(() => {
     if (!action || !swap) return 'actionCenter.swap.processing'

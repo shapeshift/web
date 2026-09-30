@@ -3,7 +3,6 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 
 import { ClaimStatus } from '@/components/ClaimRow/types'
 import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
-import { getArbitrumClaimableAt } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 
@@ -44,7 +43,7 @@ export const buildArbitrumBridgeWithdrawActionFromClaim = (
       destinationAssetId: claim.destinationAssetId,
       accountId: claim.accountId,
       destinationAccountId,
-      claimableAt: getArbitrumClaimableAt(createdAt),
+      claimableAt: claim.claimableAt,
     },
   }
 }

@@ -170,11 +170,16 @@ For each commit below, check if it relates to a flagged-off-in-prod feature by m
 ${commitList}`
 }
 
+export const getReleaseCliEnv = (): NodeJS.ProcessEnv => ({ ...process.env, MISE_QUIET: '1' })
+
+const execGh = (args: string[]): Promise<string> =>
+  pify(execFile)('gh', args, { env: getReleaseCliEnv() })
+
 const spawnClaude = (cmd: string, args: string[], promptPath: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const promptStream = fs.createReadStream(promptPath)
     promptStream.on('error', err => reject(new Error(`Failed to read prompt file: ${err.message}`)))
-    const env = { ...process.env }
+    const env = getReleaseCliEnv()
     delete env.CLAUDECODE
     delete env.CLAUDE_CODE_ENTRYPOINT
     delete env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
@@ -290,7 +295,7 @@ const assertGhInstalled = async () => {
 
 const assertGhAuth = async () => {
   try {
-    await pify(exec)('gh auth status')
+    await execGh(['auth', 'status'])
   } catch (e) {
     exit(chalk.red((e as Error).message))
   }
@@ -316,9 +321,7 @@ const fetchPrBodies = async (prNumbers: number[]): Promise<Map<number, string>> 
   const results = new Map<number, string>()
   const settled = await Promise.allSettled(
     prNumbers.map(async prNum => {
-      const stdout = (await pify(exec)(
-        `gh api repos/{owner}/{repo}/pulls/${prNum} --jq '.body'`,
-      )) as string
+      const stdout = await execGh(['api', `repos/shapeshift/web/pulls/${prNum}`, '--jq', '.body'])
       return { prNum, body: stdout.trim() }
     }),
   )
@@ -399,17 +402,56 @@ const getNextVersion = async (bump: WebReleaseType): Promise<string> => {
   return `v${nextVersion}`
 }
 
-const findOpenPr = async (head: string, base: string): Promise<GitHubPr | undefined> => {
-  const result = await pify(exec)(
-    `gh pr list --repo shapeshift/web --head ${head} --base ${base} --state open --json number,title --jq '.[0]'`,
-  )
-  const trimmed = result.trim()
-  if (!trimmed) return undefined
-  try {
-    return JSON.parse(trimmed) as GitHubPr
-  } catch {
-    return undefined
+export const parseOpenPr = (output: string): GitHubPr | undefined => {
+  const json = output.trim().split('\n').pop() ?? ''
+  const prs: unknown = JSON.parse(json)
+  if (
+    !Array.isArray(prs) ||
+    !prs.every(
+      pr =>
+        pr !== null &&
+        typeof pr === 'object' &&
+        Number.isInteger(pr.number) &&
+        typeof pr.title === 'string',
+    )
+  ) {
+    throw new Error('Invalid GitHub PR list response')
   }
+  return prs[0]
+}
+
+export const findOpenPr = async (head: string, base: string): Promise<GitHubPr | undefined> => {
+  const result = await execGh([
+    'pr',
+    'list',
+    '--repo',
+    'shapeshift/web',
+    '--head',
+    head,
+    '--base',
+    base,
+    '--state',
+    'open',
+    '--json',
+    'number,title',
+  ])
+  try {
+    return parseOpenPr(result)
+  } catch {
+    throw new Error(`Could not parse open PRs for ${head} -> ${base}. Refusing to continue.`)
+  }
+}
+
+export const parseCreatedPrUrl = (output: string): string => {
+  const url = output.trim().split('\n').pop()?.trim()
+  if (!url || !/^https:\/\/github\.com\/shapeshift\/web\/pull\/[1-9]\d*$/.test(url)) {
+    throw new Error('Could not parse created PR URL. Check GitHub before retrying.')
+  }
+  return url
+}
+
+const enablePrivateSyncAutoMerge = async (pr: string | number): Promise<void> => {
+  await execGh(['pr', 'merge', '--repo', 'shapeshift/web', '--auto', '--squash', String(pr)])
 }
 
 const createPr = async ({
@@ -428,7 +470,7 @@ const createPr = async ({
 
   try {
     fs.writeFileSync(bodyPath, body, 'utf-8')
-    const result = await pify(execFile)('gh', [
+    const result = await execGh([
       'pr',
       'create',
       '--repo',
@@ -442,7 +484,7 @@ const createPr = async ({
       '--body-file',
       bodyPath,
     ])
-    return result.trim()
+    return parseCreatedPrUrl(result)
   } catch (err) {
     if (String(err).includes('No commits between')) return null
     throw err
@@ -525,7 +567,7 @@ const handleSyncPending = async (version: string): Promise<void> => {
         `Private sync PR already open: #${existingPrivatePr.number}. Enabling auto-merge...`,
       ),
     )
-    await pify(exec)(`gh pr merge --auto --squash ${existingPrivatePr.number}`)
+    await enablePrivateSyncAutoMerge(existingPrivatePr.number)
     console.log(chalk.green('Auto-merge enabled. PR will merge once status checks pass.'))
   } else {
     console.log(chalk.green('Creating PR to sync private to main...'))
@@ -536,7 +578,7 @@ const handleSyncPending = async (version: string): Promise<void> => {
     })
     if (privatePrUrl) {
       console.log(chalk.green(`Private sync PR created: ${privatePrUrl}. Enabling auto-merge...`))
-      await pify(exec)(`gh pr merge --auto --squash ${privatePrUrl}`)
+      await enablePrivateSyncAutoMerge(privatePrUrl)
       console.log(chalk.green('Auto-merge enabled. PR will merge once status checks pass.'))
     }
   }
@@ -960,4 +1002,9 @@ const main = async () => {
   }
 }
 
-main()
+if (require.main === module) {
+  main().catch(err => {
+    console.error(err instanceof Error ? err.message : String(err))
+    process.exitCode = 1
+  })
+}

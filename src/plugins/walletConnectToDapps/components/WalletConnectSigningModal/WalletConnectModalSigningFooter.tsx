@@ -143,6 +143,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const translate = useTranslate()
 
   const speed = formContext?.watch('speed')
+  const gasLimit = formContext?.watch('gasLimit')
 
   const { simulationQuery } = useSimulateEvmTransaction({
     transaction,
@@ -151,6 +152,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   })
 
   const isSimulationLoading = simulationQuery.isLoading
+  const isGasLimitMissing = !!transaction && !gasLimit
 
   const handleSubmit = useCallback(() => {
     if (!formContext?.handleSubmit) return onConfirm()
@@ -184,7 +186,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
             type='submit'
             onClick={handleSubmit}
             isLoading={isSubmitting || isSimulationLoading}
-            isDisabled={isSubmitting || isSimulationLoading}
+            isDisabled={isSubmitting || isSimulationLoading || isGasLimitMissing}
             _disabled={disabledProp}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}

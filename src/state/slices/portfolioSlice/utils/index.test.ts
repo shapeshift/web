@@ -14,9 +14,9 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { accountIdToLabel, accountToPortfolio, findAccountsByAssetId } from '.'
+import { accountIdToLabel, accountToPortfolio, findAccountsByAssetId, makeAssets } from '.'
 
 import { trimWithEndEllipsis } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
@@ -216,5 +216,97 @@ describe('accountToPortfolio', () => {
 
     expect(portfolio.accounts.byId[monadAccountId].isDegraded).toBe(false)
     expect(portfolio.accounts.byId[btcAccountId].isDegraded).toBe(false)
+  })
+})
+
+describe('makeAssets', () => {
+  const tronChainId = 'tron:0x2b6653dc'
+  const tronPubkey = 'TE6oHVdTbcp1Q9XBYx5VzjWbZEg3t3Jrnc'
+  const usdtAssetId = `${tronChainId}/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t`
+  const jstAssetId = `${tronChainId}/trc20:TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9`
+  const trc10AssetId = `${tronChainId}/trc10:1002000`
+
+  type TronToken = { assetId: string; balance: string; symbol: string; name: string }
+  const tronToken = (assetId: string): TronToken => ({
+    assetId,
+    balance: '1',
+    symbol: '',
+    name: '',
+  })
+
+  const makeTronAssets = (
+    tokens: TronToken[],
+    getTokenPrecision: ReturnType<typeof vi.fn>,
+    knownAssetIds: string[] = [],
+  ): ReturnType<typeof makeAssets> => {
+    mockChainAdapters.set(KnownChainIds.TronMainnet, { getTokenPrecision } as any)
+    const state = {
+      assets: { byId: Object.fromEntries(knownAssetIds.map(id => [id, {}])) },
+    } as unknown as Parameters<typeof makeAssets>[0]['state']
+    const portfolioAccounts = {
+      [tronPubkey]: {
+        balance: '0',
+        chainId: tronChainId,
+        assetId: `${tronChainId}/slip44:195`,
+        chain: KnownChainIds.TronMainnet,
+        pubkey: tronPubkey,
+        chainSpecific: { tokens },
+      },
+    } as unknown as Parameters<typeof makeAssets>[0]['portfolioAccounts']
+
+    return makeAssets({ chainId: tronChainId, pubkey: tronPubkey, state, portfolioAccounts })
+  }
+
+  afterEach(() => {
+    mockChainAdapters.delete(KnownChainIds.TronMainnet)
+  })
+
+  it('reads the precision on chain only for tron tokens the store does not know', async () => {
+    const getTokenPrecision = vi.fn().mockResolvedValue(18)
+
+    const result = await makeTronAssets(
+      [tronToken(usdtAssetId), tronToken(jstAssetId)],
+      getTokenPrecision,
+      [usdtAssetId],
+    )
+
+    expect(result?.ids).toEqual([jstAssetId])
+    expect(result?.byId[jstAssetId]?.precision).toBe(18)
+    expect(getTokenPrecision).toHaveBeenCalledTimes(1)
+    expect(getTokenPrecision).toHaveBeenCalledWith(jstAssetId)
+  })
+
+  it('keeps a trc10 token at the precision it was issued with', async () => {
+    const result = await makeTronAssets([tronToken(trc10AssetId)], vi.fn().mockResolvedValue(0))
+
+    expect(result?.byId[trc10AssetId]?.precision).toBe(0)
+  })
+
+  it('reads unknown tokens one at a time', async () => {
+    const resolvers: ((precision: number) => void)[] = []
+    const getTokenPrecision = vi.fn(() => new Promise<number>(resolve => resolvers.push(resolve)))
+
+    const pending = makeTronAssets(
+      [tronToken(jstAssetId), tronToken(trc10AssetId)],
+      getTokenPrecision,
+    )
+    await vi.waitFor(() => expect(getTokenPrecision).toHaveBeenCalledTimes(1))
+    expect(getTokenPrecision).toHaveBeenCalledTimes(1)
+
+    resolvers[0](18)
+    await vi.waitFor(() => expect(getTokenPrecision).toHaveBeenCalledTimes(2))
+    resolvers[1](6)
+
+    expect((await pending)?.ids).toEqual([jstAssetId, trc10AssetId])
+  })
+
+  it('leaves out a tron token whose precision could not be read', async () => {
+    const result = await makeTronAssets(
+      [tronToken(jstAssetId), tronToken(trc10AssetId)],
+      vi.fn().mockResolvedValueOnce(undefined).mockResolvedValueOnce(6),
+    )
+
+    expect(result?.ids).toEqual([trc10AssetId])
+    expect(result?.byId[jstAssetId]).toBeUndefined()
   })
 })

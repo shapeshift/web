@@ -451,8 +451,6 @@ export type TradeStepCommon = {
   // To be collapsed into transactionData and swapperMetadata
   stonfiTransactionData?: StonfiTransactionData
 
-  chainflipSpecific?: { depositAddress?: string }
-
   affiliateFee?: AffiliateFee
 }
 

@@ -22,7 +22,7 @@ import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { Virtuoso } from 'react-virtuoso'
 
-import { ActionCenterTab, useActionCenterContext } from './ActionCenterContext'
+import { ActionCenterTab, useActionCenterContext, useActionCenterTab } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { ArbitrumBridgeClaimModal } from './components/ArbitrumBridgeClaimModal'
 import { ArbitrumBridgeWithdrawActionCard } from './components/ArbitrumBridgeWithdrawActionCard'
@@ -46,9 +46,9 @@ import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
-  selectWalletActionsSorted,
   selectWalletClaimActions,
   selectWalletPendingActions,
+  selectWalletRecentActions,
 } from '@/state/slices/actionSlice/selectors'
 import type {
   Action,
@@ -56,10 +56,10 @@ import type {
   GenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
 import {
+  ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
   isArbitrumBridgeWithdrawAction,
-  isClaimReadyAction,
   isGenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
@@ -85,8 +85,8 @@ const tabs = [ActionCenterTab.Recent, ActionCenterTab.Claims]
 
 export const ActionCenter = memo(() => {
   'use no memo'
-  const { isDrawerOpen, activeTab, setActiveTab, openActionCenter, closeDrawer } =
-    useActionCenterContext()
+  const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
+  const { activeTab, setActiveTab } = useActionCenterTab()
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: isDrawerOpen,
     onClose: closeDrawer,
@@ -127,7 +127,7 @@ export const ActionCenter = memo(() => {
 
   const handleCloseArbitrumClaim = useCallback(() => setArbitrumClaimActionId(undefined), [])
 
-  const actions = useAppSelector(state => (isConnected ? selectWalletActionsSorted(state) : []))
+  const actions = useAppSelector(state => (isConnected ? selectWalletRecentActions(state) : []))
   const claimActions = useAppSelector(state => (isConnected ? selectWalletClaimActions(state) : []))
 
   const pendingActions = useAppSelector(state =>
@@ -275,7 +275,7 @@ export const ActionCenter = memo(() => {
   }, [openActionCenter, translate, pendingActions])
 
   const readyClaimCount = useMemo(
-    () => claimActions.filter(isClaimReadyAction).length,
+    () => claimActions.filter(action => action.status === ActionStatus.ClaimAvailable).length,
     [claimActions],
   )
 

@@ -4,6 +4,7 @@ import {
   selectWalletActions,
   selectWalletActionsSorted,
   selectWalletClaimActions,
+  selectWalletRecentActions,
   selectYieldActionsByTxHash,
 } from './selectors'
 import type { ActionState, ArbitrumBridgeWithdrawAction, GenericTransactionAction } from './types'
@@ -154,6 +155,16 @@ const action = (
   updatedAt,
 })
 
+const claimAction = (
+  id: string,
+  status: ActionStatus,
+  createdAt: number,
+  updatedAt: number,
+): GenericTransactionAction => ({
+  ...action(id, status, createdAt, updatedAt),
+  type: ActionType.Claim,
+})
+
 const arbitrumWithdraw = (
   id: string,
   status: ActionStatus,
@@ -179,7 +190,7 @@ const arbitrumWithdraw = (
 })
 
 describe('selectWalletActionsSorted', () => {
-  it('lists the feed newest first, dating in-flight actions by start and settled ones by last update', () => {
+  it('lists actions newest first, dating in-flight actions by start and settled ones by last update', () => {
     const oldPending = action('old-pending', ActionStatus.Pending, 100, 900)
     const newPending = action('new-pending', ActionStatus.Pending, 300, 300)
     const recentlyDone = action('recently-done', ActionStatus.Complete, 150, 800)
@@ -202,20 +213,28 @@ describe('selectWalletActionsSorted', () => {
     ])
   })
 
-  it('leaves claims to the claims section, but keeps settled claims in the feed', () => {
-    const claimable = action('claimable', ActionStatus.ClaimAvailable, 200, 950)
+  it('keeps claims in the full list subscribers read', () => {
+    const claimable = claimAction('claimable', ActionStatus.ClaimAvailable, 200, 950)
+
+    expect(selectWalletActionsSorted.resultFunc([claimable]).map(a => a.id)).toEqual(['claimable'])
+  })
+})
+
+describe('selectWalletRecentActions', () => {
+  it('leaves claims to the claims tab, but keeps settled claims', () => {
+    const claimable = claimAction('claimable', ActionStatus.ClaimAvailable, 200, 950)
     const pendingWithdraw = arbitrumWithdraw('pending-withdraw', ActionStatus.Initiated, 300, 900)
     const claimed = arbitrumWithdraw('claimed', ActionStatus.Claimed, 100, 100)
 
-    const sorted = selectWalletActionsSorted.resultFunc([claimable, pendingWithdraw, claimed])
+    const recent = selectWalletRecentActions.resultFunc([claimed, pendingWithdraw, claimable])
 
-    expect(sorted.map(a => a.id)).toEqual(['claimed'])
+    expect(recent.map(a => a.id)).toEqual(['claimed'])
   })
 })
 
 describe('selectWalletClaimActions', () => {
   it('lists claims newest first by the same timestamps as the feed', () => {
-    const oldReady = action('old-ready', ActionStatus.ClaimAvailable, 100, 100)
+    const oldReady = claimAction('old-ready', ActionStatus.ClaimAvailable, 100, 100)
     const newReady = arbitrumWithdraw('new-ready', ActionStatus.ClaimAvailable, 200, 200)
     const claiming = arbitrumWithdraw('claiming', ActionStatus.ClaimAvailable, 50, 60, '0xclaim')
     const pending = arbitrumWithdraw('pending', ActionStatus.Initiated, 300, 1_000)

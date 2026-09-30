@@ -1,8 +1,6 @@
 import { Button, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -13,6 +11,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
+import { formatSmartDate } from '@/lib/utils/time'
 import type {
   GenericTransactionDisplayType,
   RfoxClaimAction,
@@ -21,8 +20,6 @@ import type {
 import { ActionStatus, getActionTimestamp } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
-dayjs.extend(relativeTime)
 
 type ClaimActionCardProps = {
   action: RfoxClaimAction | TcyClaimAction
@@ -66,16 +63,7 @@ export const ClaimActionCard = ({
     [onClaimClick, closeDrawer],
   )
 
-  const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(getActionTimestamp(action))
-    const sevenDaysAgo = now.subtract(7, 'day')
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
-  }, [action])
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 

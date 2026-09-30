@@ -1,9 +1,6 @@
 import { Button, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -26,9 +23,6 @@ import {
 } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
-dayjs.extend(relativeTime)
-dayjs.extend(duration)
 
 type ArbitrumBridgeWithdrawActionCardProps = {
   action: ArbitrumBridgeWithdrawAction
@@ -63,13 +57,9 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   const isCollapsable =
     action.status === ActionStatus.Initiated ||
     action.status === ActionStatus.ClaimAvailable ||
+    action.status === ActionStatus.Pending ||
     action.status === ActionStatus.Claimed
   const { isOpen, onToggle } = useDisclosure()
-
-  const isClaiming =
-    action.status === ActionStatus.ClaimAvailable &&
-    Boolean(action.arbitrumBridgeMetadata.claimTxHash)
-  const displayStatus = isClaiming ? ActionStatus.Pending : action.status
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {
@@ -98,33 +88,24 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       case ActionStatus.Initiated:
         return translate('actionCenter.bridge.pendingWithdraw', { amountAndSymbol, timeText })
       case ActionStatus.ClaimAvailable:
-        if (isClaiming) return translate('actionCenter.bridge.processing', bridgeArgs)
         return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
       case ActionStatus.Claimed:
         return translate('actionCenter.bridge.withdrawComplete', { amountAndSymbol })
       default:
         return translate('actionCenter.bridge.withdrawProcessing', { amountAndSymbol })
     }
-  }, [
-    action.status,
-    buyAmountCryptoPrecision,
-    buyAsset,
-    isClaiming,
-    sellAsset,
-    timeText,
-    translate,
-  ])
+  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeText, translate])
 
   const icon = useMemo(() => {
     if (!sellAsset) return null
     return (
       <AssetIconWithBadge assetId={sellAsset.assetId} size='md'>
-        <ActionStatusIcon status={displayStatus} />
+        <ActionStatusIcon status={action.status} />
       </AssetIconWithBadge>
     )
-  }, [sellAsset, displayStatus])
+  }, [sellAsset, action.status])
 
-  const footer = useMemo(() => <ActionStatusTag status={displayStatus} />, [displayStatus])
+  const footer = useMemo(() => <ActionStatusTag status={action.status} />, [action.status])
 
   const details = useMemo(() => {
     if (!(sellAsset && buyAsset && sellFeeAsset && destinationFeeAsset)) return null
@@ -157,7 +138,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
             </Link>
           </Row.Value>
         </Row>
-        {action.status === ActionStatus.ClaimAvailable && !isClaiming && (
+        {action.status === ActionStatus.ClaimAvailable && (
           <Row fontSize='sm' alignItems='center'>
             <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
             <Row.Value>
@@ -187,7 +168,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     action.arbitrumBridgeMetadata.withdrawTxHash,
     action.arbitrumBridgeMetadata.claimTxHash,
     action.status,
-    isClaiming,
     translate,
     handleClaimClick,
   ])

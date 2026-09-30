@@ -19,10 +19,10 @@ import { zeroAddress } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
-import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimTx'
 import { Row } from '@/components/Row/Row'
 import { useModalRegistration } from '@/context/ModalStackProvider'
+import { useArbitrumClaims } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
+import { useArbitrumClaimTx } from '@/hooks/useArbitrumClaims/useArbitrumClaimTx'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -69,11 +69,11 @@ export const ArbitrumBridgeClaimModal = ({
     selectMarketDataByAssetIdUserCurrency(state, action.arbitrumBridgeMetadata.destinationAssetId),
   )
 
-  const { claimsByStatus } = useArbitrumClaimsByStatus()
-  const claimDetails = useMemo(
-    () => claimsByStatus.Available.find(claim => claim.tx.txid === withdrawTxHash),
-    [claimsByStatus.Available, withdrawTxHash],
-  )
+  const { claimsByTxid } = useArbitrumClaims()
+  const claimDetails = useMemo(() => {
+    const claim = claimsByTxid[withdrawTxHash]
+    return claim?.status === ActionStatus.ClaimAvailable ? claim : undefined
+  }, [claimsByTxid, withdrawTxHash])
 
   const destinationFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(
@@ -115,7 +115,7 @@ export const ArbitrumBridgeClaimModal = ({
     amountCryptoPrecision,
   ])
 
-  // Stays claimable until the subscriber sees the claim confirm, revert or drop
+  // Pending until the subscriber sees the claim confirm, or revert or drop back to claimable
   const handleClaimBroadcast = useCallback(
     (claimTxHash: string) => {
       const latestAction = selectArbitrumBridgeWithdrawActionById(store.getState(), action.id)
@@ -124,6 +124,7 @@ export const ArbitrumBridgeClaimModal = ({
       dispatch(
         actionSlice.actions.upsertAction({
           ...latestAction,
+          status: ActionStatus.Pending,
           arbitrumBridgeMetadata: { ...latestAction.arbitrumBridgeMetadata, claimTxHash },
         }),
       )

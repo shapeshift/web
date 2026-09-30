@@ -2,7 +2,6 @@ import { Button, ButtonGroup, HStack, Link, Stack, useDisclosure } from '@chakra
 import { btcChainId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
@@ -16,6 +15,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { RawText } from '@/components/Text'
 import { getTxLink } from '@/lib/getTxLink'
 import { middleEllipsis } from '@/lib/utils'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import {
   ActionStatus,
@@ -27,7 +27,6 @@ import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsS
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(duration)
-dayjs.extend(relativeTime)
 
 type GenericTransactionActionCardProps = {
   action: GenericTransactionAction
@@ -66,16 +65,7 @@ export const GenericTransactionActionCard = ({
     [closeDrawer, navigate, action.transactionMetadata.yieldId],
   )
 
-  const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(getActionTimestamp(action))
-    const sevenDaysAgo = now.subtract(7, 'day')
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
-  }, [action])
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
 
   const txLink = useMemo(() => {
     if (!feeAsset) return

@@ -14,6 +14,7 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { detectIncognito } from 'detectincognitojs'
 import { useCallback, useEffect, useMemo } from 'react'
+import type { Hash } from 'viem'
 
 import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
@@ -21,6 +22,11 @@ import { MobileFeature, useMobileFeaturesCompatibility } from '../useMobileFeatu
 import { useModal } from '../useModal/useModal'
 import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
+import {
+  buildArbitrumBridgeWithdrawActionFromSwap,
+  getArbitrumWithdrawTimeMs,
+  isArbitrumBridgeWithdrawSwap,
+} from './arbitrumBridgeWithdrawAction'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
@@ -270,6 +276,20 @@ export const useSwapActionSubscriber = () => {
             actualBuyAmountCryptoBaseUnit,
           }),
         )
+
+        // Tx history only recovers withdraws this missed, e.g. after a wiped store
+        if (isArbitrumBridgeWithdrawSwap(swap)) {
+          const withdrawTimeMs = await getArbitrumWithdrawTimeMs(swap.sellTxHash as Hash).catch(
+            () => Date.now(),
+          )
+          const withdrawAction = buildArbitrumBridgeWithdrawActionFromSwap(swap, withdrawTimeMs)
+          if (
+            withdrawAction &&
+            !actionSlice.selectors.selectActionsById(store.getState())[withdrawAction.id]
+          ) {
+            dispatch(actionSlice.actions.upsertAction(withdrawAction))
+          }
+        }
 
         const { getAccount } = portfolioApi.endpoints
 

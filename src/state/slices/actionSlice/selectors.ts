@@ -111,13 +111,16 @@ export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   actions => {
     return actions
       .filter(
-        action =>
-          action.status !== ActionStatus.Idle &&
-          action.status !== ActionStatus.Abandoned &&
-          !isClaimSectionAction(action),
+        action => action.status !== ActionStatus.Idle && action.status !== ActionStatus.Abandoned,
       )
       .sort((a, b) => getActionTimestamp(b) - getActionTimestamp(a))
   },
+)
+
+// Subscribers read the full list above, only the recent tab leaves claims to the claims tab
+export const selectWalletRecentActions = createDeepEqualOutputSelector(
+  selectWalletActionsSorted,
+  actions => actions.filter(action => !isClaimSectionAction(action)),
 )
 
 export const selectWalletPendingActions = createDeepEqualOutputSelector(

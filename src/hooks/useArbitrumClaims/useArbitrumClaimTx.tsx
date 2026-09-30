@@ -8,8 +8,8 @@ import { useMemo } from 'react'
 import type { Address, Hex } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 
-import type { ClaimDetails } from './useArbitrumClaimsByStatus'
-import { arbitrumNetwork } from './useArbitrumClaimsByStatus'
+import type { ClaimDetails } from './useArbitrumClaims'
+import { arbitrumNetwork } from './useArbitrumClaims'
 
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useWallet } from '@/hooks/useWallet/useWallet'

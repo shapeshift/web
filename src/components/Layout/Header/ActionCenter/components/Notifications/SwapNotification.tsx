@@ -50,9 +50,11 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
       : undefined,
   )
 
-  // Use ArbitrumBridge action for ArbitrumBridge swaps, otherwise use swap action
+  // Bridge swaps show their withdraw action once history creates it, the swap action until then
   const action =
-    swap?.swapperName === SwapperName.ArbitrumBridge ? maybeArbitrumBridgeAction : swapAction
+    swap?.swapperName === SwapperName.ArbitrumBridge
+      ? maybeArbitrumBridgeAction ?? swapAction
+      : swapAction
 
   const timeText = useArbitrumClaimTimeText(
     maybeArbitrumBridgeAction && isArbitrumBridgeWithdrawAction(maybeArbitrumBridgeAction)

@@ -1,7 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
 import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName, SwapStatus } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isSome } from '@shapeshiftoss/utils'
 import { useQueries } from '@tanstack/react-query'
@@ -92,7 +92,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Create ArbitrumBridge withdraw actions from initiated swap actions, completing the swap once claimed
+  // Create ArbitrumBridge withdraw actions from successful withdraw swaps
   useEffect(() => {
     const allClaims = [
       ...claimsByStatus.Pending,
@@ -102,29 +102,19 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
 
     Object.values(actionsById)
       .filter(isSwapAction)
-      .filter(action => action.status === ActionStatus.Initiated)
       .forEach(swapAction => {
         const swap = swapsById[swapAction.swapMetadata.swapId]
         if (
-          !swap?.sellTxHash ||
+          swap?.status !== SwapStatus.Success ||
+          !swap.sellTxHash ||
           !swap.buyAccountId ||
           swap.swapperName !== SwapperName.ArbitrumBridge ||
           swap.buyAsset.chainId !== ethChainId
         )
           return
 
-        const withdrawAction = arbitrumActionsByWithdrawTxHash[swap.sellTxHash]
-
-        // The swap stays in flight until its withdraw is claimed
-        if (withdrawAction?.status === ActionStatus.Claimed) {
-          dispatch(
-            actionSlice.actions.upsertAction({ ...swapAction, status: ActionStatus.Complete }),
-          )
-          return
-        }
-
         // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
-        if (withdrawAction) return
+        if (arbitrumActionsByWithdrawTxHash[swap.sellTxHash]) return
 
         const claim = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
 

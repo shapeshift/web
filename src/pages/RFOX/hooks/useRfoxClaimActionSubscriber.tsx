@@ -112,4 +112,25 @@ export const useRfoxClaimActionSubscriber = () => {
     // We definitely don't want to react on assets here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds])
+
+  // A claimable request missing from its account's fresh requests was claimed elsewhere
+  useEffect(() => {
+    if (!allUnstakingRequests.isSuccess) return
+
+    const { byAccountId } = allUnstakingRequests.data
+
+    Object.values(actions)
+      .filter(isRfoxClaimAction)
+      .filter(action => action.status === ActionStatus.ClaimAvailable)
+      .forEach(action => {
+        const accountRequests =
+          byAccountId[action.rfoxClaimActionMetadata.request.stakingAssetAccountId]
+        if (!accountRequests) return
+        if (accountRequests.some(request => request.id === action.id)) return
+
+        dispatch(actionSlice.actions.deleteAction(action.id))
+      })
+    // Only react to fresh requests, not to our own deletes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch])
 }

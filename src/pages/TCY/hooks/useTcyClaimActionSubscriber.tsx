@@ -37,6 +37,15 @@ export const useTcyClaimActionSubscriber = () => {
     allClaims.forEach(claim => {
       const maybeStoreAction = actions[claim.accountId]
 
+      // A claim in flight or already claimed shares this action, leave it to the claim flow
+      if (
+        maybeStoreAction &&
+        isTcyClaimAction(maybeStoreAction) &&
+        (maybeStoreAction.status === ActionStatus.Pending ||
+          maybeStoreAction.status === ActionStatus.Claimed)
+      )
+        return
+
       // If this claim is already available and still available, no-op
       if (
         maybeStoreAction &&

@@ -1,9 +1,8 @@
 import { usePrevious } from '@chakra-ui/react'
-import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
-  SwapperName,
   swappers,
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
@@ -58,15 +57,6 @@ const getActionStatusFromSwap = (
   isApprovalRequired?: boolean,
   isActiveSwap: boolean = true,
 ): ActionStatus => {
-  // Special handling for ArbitrumBridge - Success means withdrawal initiated, not complete
-  if (
-    swap.status === SwapStatus.Success &&
-    swap.swapperName === SwapperName.ArbitrumBridge &&
-    swap.buyAsset.chainId === ethChainId
-  ) {
-    return ActionStatus.Initiated
-  }
-
   // If swap is pending/success/failed, use direct mapping
   if (swap.status !== SwapStatus.Idle) {
     return swapStatusToActionStatus[swap.status]

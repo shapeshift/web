@@ -159,16 +159,13 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         ? tradeQuoteStep.transactionData.to
         : undefined
 
-    const nearIntentsDepositAddress =
+    const swapperMetadataDepositAddress =
+      tradeQuoteStep.swapperMetadata?.name === 'chainflip' ||
       tradeQuoteStep.swapperMetadata?.name === 'nearIntents'
         ? tradeQuoteStep.swapperMetadata.depositAddress
         : undefined
 
-    return (
-      tradeQuoteStep.chainflipSpecific?.depositAddress ??
-      nearIntentsDepositAddress ??
-      transactionDataAddress
-    )
+    return swapperMetadataDepositAddress ?? transactionDataAddress
   }, [isHardwareWallet, tradeQuoteStep, hopExecutionMetadata?.swap?.inboundAddress])
 
   const {

@@ -3008,7 +3008,7 @@
       },
       "why": {
         "title": "¿Por qué hacer Staking de FOX?",
-        "body": "Hacer staking de tus FOX te permite ganar pagos regulares de USDC del tesoro de la DAO, proporcionando un flujo constante de ingresos pasivos en USDC por época. Además, una parte de los ingresos de la DAO se destinará a reducir el suministro total de FOX mediante quema de tokens. El proceso de staking requiere un período mínimo de 28 días para retirar del staking, fomentando el compromiso y la estabilidad dentro de la comunidad."
+        "body": "Al hacer Staking de tus FOX, obtienes pagos regulares en USDC de la tesoreria DAO, proporcionando  flujo constante de ingresos pasivos USDC por época. Además, parte de ingresos del DAO se destinan a recomprar FOX en el mercado abierto. Al retirar tus FOX del staking, se aplica un período de espera durante el cual tus FOX permanecen bloqueados y dejan de generar ingresos."
       },
       "stake": {
         "title": "¿Cómo hago Staking FOX?",
@@ -3027,8 +3027,8 @@
         "body": "Sí, puedes tener múltiples cantidades en recuperación. Cada acción tendrá su propio período de 28 días."
       },
       "connect": {
-        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemada?",
-        "body": "Las tarifas recaudadas por la DAO están en activos nativos por swapper. Una parte de estos ingresos se convierte y distribuye a los que tienen FOX en staking como recompensas, mientras que otra parte se destina a reducir el suministro total de FOX mediante quema de tokens. El total de FOX en staking influye en la distribución de recompensas, ya que se distribuyen de forma proporcional según la cantidad de FOX en staking. El pool de emisiones representa la cantidad de FOX disponible para recompensas de staking, y la cantidad de quema de FOX es la porción de FOX comprada y quemada."
+        "title": "¿Cómo se relacionan el total de comisiones recaudadas, el total de FOX en Staking, el fondo de emisiones y el monto de recompra FOX?",
+        "body": "Las comisiones que cobra el DAO se expresan en activos nativos por cada participante. Una parte de estos ingresos se convierten y distribuyen a poseedores FOX como recompensas, mientras otra parte se destina recomprar FOX en el mercado abierto. La cantidad total de FOX en staking influye en la distribución de recompensas, ya que estas se distribuyen proporcionalmente según la cantidad de FOX en Staking. El fondo de emisiones representa la cantidad de FOX disponible para las recompensas por staking, y la cantidad destinada a la recompra de FOX es la porción de los ingresos utilizada para dicha recompra."
       }
     },
     "totals": "rFOX Totales",
@@ -3037,12 +3037,19 @@
     "totalFeesCollected": "Tarifas totales cobradas (esta época)",
     "emissionsPool": "Fondo de Emisiones %{symbol} (esta época)",
     "emissionsPoolHelper": "Cantidad total de recompensas que se distribuirán a %{symbol} participantes",
-    "foxBurnAmount": "Cantidad FOX quemados (esta época)",
+    "foxBuybackAmount": "Recompra de FOX (en esta época)",
     "pendingDistribution": "Distribución Pendiente",
     "selectRuneAddress": "Seleccione una dirección RUNE",
-    "unstakeDisabledMigrationTooltip": "La opción de retirar staking estará deshabilitada hasta 1 de octubre, en dicha fecha se eliminará el período de espera.",
+    "unstakeDisabledMigrationTooltip": "La retirada de Staking estará deshabilitada hasta el %{migrationDate}, momento en el que se eliminará el período de espera.",
     "lpSunsetWarningTitle": "Programa Finalizado",
-    "lpSunsetWarningDescription": "El programa de recompensas WETH/FOX de Arbitrum ha finalizado. Por favor, cancele su staking y reclame su saldo lo antes posible."
+    "lpSunsetWarningDescription": "El programa de recompensas WETH/FOX de Arbitrum ha finalizado. Por favor, cancele su staking y reclame su saldo lo antes posible.",
+    "claimInProgress": "Reclamo en curso",
+    "migrationBannerTitle": "rFOX se está migrando a Ethereum.",
+    "migrationBannerDescription": "Staking de rFOX se trasladará de Arbitrum a Ethereum el %{migrationDate}. Seguirás obteniendo recompensas en Arbitrum hasta entonces, una vez se habilite el unstaking podras transferir tus FOX.",
+    "migrationBannerCta": "Trasladar FOX a Ethereum",
+    "stakingPausedTooltip": "Staking suspendido para este programa.",
+    "unstakingPausedTooltip": "Retirar staking está en pausa para este programa.",
+    "withdrawalsPausedTooltip": "Reclamar está suspendida para este programa."
   },
   "TCY": {
     "stake": "Stake",
@@ -3158,7 +3165,7 @@
     "foxToken": "Token FOX",
     "24hrPriceChange": "Cambio de precio 24 horas",
     "rfox": {
-      "totalBurn": "Total Quemado",
+      "totalBuyback": "Recompra Total",
       "simulateTitle": "Simulador rFOX",
       "simulateSubtle": "Simule el rendimiento de staking rFOX",
       "estimatedRewards": "Recompensas Estimadas",

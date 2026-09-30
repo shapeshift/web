@@ -72,7 +72,9 @@ const makeStep = (step: DepositAddressStep): DepositAddressStep => step
 
 describe('getDepositAddress', () => {
   it('reads the chainflip deposit address', () => {
-    const step = makeStep({ chainflipSpecific: { depositAddress: 'bc1qdeposit' } })
+    const step = makeStep({
+      swapperMetadata: { name: 'chainflip', swapId: 1, depositAddress: 'bc1qdeposit' },
+    })
     expect(getDepositAddress(step, SwapperName.Chainflip)).toBe('bc1qdeposit')
   })
 
@@ -100,7 +102,9 @@ describe('getDepositAddress', () => {
   })
 
   it('returns undefined for swappers that do not use deposit addresses', () => {
-    const step = makeStep({ chainflipSpecific: { depositAddress: 'bc1qdeposit' } })
+    const step = makeStep({
+      swapperMetadata: { name: 'chainflip', swapId: 1, depositAddress: 'bc1qdeposit' },
+    })
     expect(getDepositAddress(step, SwapperName.Relay)).toBeUndefined()
   })
 })

@@ -56,7 +56,7 @@ import { CONTRACT_INTERACTION } from '../types'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { EvmBaseAdapter } from './EvmBaseAdapter'
-import type { GasFeeDataEstimate } from './types'
+import type { EvmGasLimitEstimate, GasFeeDataEstimate } from './types'
 
 const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [berachainChainId]: '0x6969696969696969696969696969696969696969',
@@ -325,24 +325,30 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     return this.getGasFeeDataFallback(this.viemClient)
   }
 
+  async getGasLimitEstimate(input: GetFeeDataInput<T>): Promise<EvmGasLimitEstimate> {
+    const estimateGasBody = this.buildEstimateGasBody(input)
+
+    const gasLimit = await this.requestQueue.add(
+      () =>
+        this.viemClient.estimateGas({
+          account: getAddress(estimateGasBody.from),
+          to: getAddress(estimateGasBody.to),
+          value: parseUnits(estimateGasBody.value, 0),
+          data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
+        }),
+      { throwOnTimeout: true },
+    )
+
+    if (gasLimit === undefined) throw new Error('Failed to estimate gas')
+
+    return { gasLimit: gasLimit.toString() }
+  }
+
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const estimateGasBody = this.buildEstimateGasBody(input)
-
-      const gasLimit = await this.requestQueue.add(
-        () =>
-          this.viemClient.estimateGas({
-            account: getAddress(estimateGasBody.from),
-            to: getAddress(estimateGasBody.to),
-            value: parseUnits(estimateGasBody.value, 0),
-            data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
-          }),
-        { throwOnTimeout: true },
-      )
+      const { gasLimit: gasLimitString } = await this.getGasLimitEstimate(input)
 
       const { fast, average, slow } = await this.getGasFeeData()
-
-      const gasLimitString = gasLimit.toString()
 
       return {
         fast: {

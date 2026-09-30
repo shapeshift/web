@@ -94,6 +94,7 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
+  EvmGasLimitEstimate,
   GasFeeData,
   GasFeeDataEstimate,
   NetworkFees,
@@ -162,6 +163,11 @@ export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   rootBip44Params: RootBip44Params
   supportedChainIds: ChainId[]
   parser: unchained.evm.BaseTransactionParser<unchained.evm.types.Tx>
+}
+
+const getL1GasLimit = (estimate: { gasLimit: string }): string | undefined => {
+  if (!('l1GasLimit' in estimate) || typeof estimate.l1GasLimit !== 'string') return undefined
+  return estimate.l1GasLimit
 }
 
 export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
@@ -1042,32 +1048,34 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  async getGasLimitEstimate(input: GetFeeDataInput<T>): Promise<EvmGasLimitEstimate> {
+    const estimateGasBody = this.buildEstimateGasBody(input)
+
+    try {
+      const estimated = await this.providers.http.estimateGas({ estimateGasBody })
+      const l1GasLimit = getL1GasLimit(estimated)
+
+      return { gasLimit: estimated.gasLimit, l1GasLimit }
+    } catch (err) {
+      const viemClient = viemClientByChainId[this.chainId]
+      if (!viemClient) throw err
+
+      console.warn(`Unchained estimateGas failed for ${this.chainId}, falling back to direct RPC`)
+
+      const gasLimit = await viemClient.estimateGas({
+        account: getAddress(estimateGasBody.from),
+        to: getAddress(estimateGasBody.to),
+        value: parseUnits(estimateGasBody.value, 0),
+        data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
+      })
+
+      return { gasLimit: gasLimit.toString() }
+    }
+  }
+
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const gasLimit = await (async () => {
-        const estimateGasBody = this.buildEstimateGasBody(input)
-
-        try {
-          const { gasLimit } = await this.providers.http.estimateGas({ estimateGasBody })
-          return gasLimit
-        } catch (err) {
-          const viemClient = viemClientByChainId[this.chainId]
-          if (!viemClient) throw err
-
-          console.warn(
-            `Unchained estimateGas failed for ${this.chainId}, falling back to direct RPC`,
-          )
-
-          const gasLimit = await viemClient.estimateGas({
-            account: getAddress(estimateGasBody.from),
-            to: getAddress(estimateGasBody.to),
-            value: parseUnits(estimateGasBody.value, 0),
-            data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
-          })
-
-          return gasLimit.toString()
-        }
-      })()
+      const { gasLimit } = await this.getGasLimitEstimate(input)
 
       const { fast, average, slow } = await this.getGasFeeData()
 

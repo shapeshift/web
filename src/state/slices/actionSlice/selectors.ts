@@ -16,9 +16,9 @@ import {
   ActionType,
   GenericTransactionDisplayType,
   getActionTimestamp,
-  isActiveActionStatus,
   isArbitrumBridgeWithdrawAction,
   isChainflipLendingAction,
+  isClaimSectionAction,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
@@ -97,20 +97,26 @@ export const selectWalletActions = createDeepEqualOutputSelector(
   },
 )
 
-// In-flight actions first, newest started first, then settled actions, newest settled first
+export const selectWalletClaimActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions
+      .filter(isClaimSectionAction)
+      .sort((a, b) => getActionTimestamp(b) - getActionTimestamp(a))
+  },
+)
+
 export const selectWalletActionsSorted = createDeepEqualOutputSelector(
   selectWalletActions,
   actions => {
     return actions
       .filter(
-        action => action.status !== ActionStatus.Idle && action.status !== ActionStatus.Abandoned,
+        action =>
+          action.status !== ActionStatus.Idle &&
+          action.status !== ActionStatus.Abandoned &&
+          !isClaimSectionAction(action),
       )
-      .sort((a, b) => {
-        const aIsActive = isActiveActionStatus(a.status)
-        const bIsActive = isActiveActionStatus(b.status)
-        if (aIsActive !== bIsActive) return aIsActive ? -1 : 1
-        return getActionTimestamp(b) - getActionTimestamp(a)
-      })
+      .sort((a, b) => getActionTimestamp(b) - getActionTimestamp(a))
   },
 )
 

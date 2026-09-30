@@ -7,7 +7,13 @@ import {
 import { Outbox__factory } from '@arbitrum/sdk/dist/lib/abi/factories/Outbox__factory'
 import { BoldRollupUserLogic__factory } from '@arbitrum/sdk/dist/lib/abi-bold/factories/BoldRollupUserLogic__factory'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  ethAssetId,
+  ethChainId,
+  fromChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Query } from '@tanstack/react-query'
@@ -29,7 +35,7 @@ import { useAppSelector } from '@/state/store'
 // Arbitrum's challenge period; the claim can open up to an hour later while an assertion posts
 const ARBITRUM_CHALLENGE_PERIOD_MS = 6.4 * 24 * 60 * 60 * 1000
 
-// Confirmations can run behind the challenge period, so the observed lag extends the estimate
+// Confirmations running past the challenge period extend the estimate by the observed lag
 export const getArbitrumClaimableAt = (withdrawTimeMs: number, confirmationLagMs = 0): number =>
   withdrawTimeMs + Math.max(ARBITRUM_CHALLENGE_PERIOD_MS, confirmationLagMs)
 
@@ -40,15 +46,19 @@ type ConfirmedChildBlock = {
 
 type EthersV5Provider = ReturnType<typeof getEthersV5Provider>
 
-// Every withdraw at or below the latest confirmed assertion's child block is claimable. Reading it
-// directly avoids the sdk's status scan, which walks every assertion since the last confirmation
-// and exceeds our rpc's eth_getLogs block range for unconfirmed withdraws.
+export const arbitrumNetwork = getArbitrumNetwork(
+  Number(fromChainId(arbitrumChainId).chainReference),
+)
+
+const CONFIRMED_CHILD_BLOCK_QUERY_KEY = ['arbitrumConfirmedChildBlock']
+
+// Withdraws at or below this block are claimable; the sdk's own status scan exceeds our rpc's log range
 const getConfirmedChildBlock = async (
   l1Provider: EthersV5Provider,
   l2Provider: EthersV5Provider,
+  previous: ConfirmedChildBlock | undefined,
 ): Promise<ConfirmedChildBlock> => {
-  const network = await getArbitrumNetwork(l2Provider)
-  const rollup = BoldRollupUserLogic__factory.connect(network.ethBridge.rollup, l1Provider)
+  const rollup = BoldRollupUserLogic__factory.connect(arbitrumNetwork.ethBridge.rollup, l1Provider)
   const latestConfirmed = await rollup.latestConfirmed()
   const createdAtBlock = (await rollup.getAssertion(latestConfirmed)).createdAtBlock.toNumber()
 
@@ -61,6 +71,10 @@ const getConfirmedChildBlock = async (
 
   const [blockHash] = assertionCreated.args.assertion.afterState.globalState.bytes32Vals
   const block = await l2Provider.getBlock(blockHash)
+  if (!block) throw new Error(`Confirmed child block ${blockHash} not found`)
+
+  // Lag is measured when a confirmation is first seen so the estimate holds until the next one
+  if (previous?.number === block.number) return previous
 
   return { number: block.number, confirmationLagMs: Date.now() - block.timestamp * 1000 }
 }
@@ -130,12 +144,29 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
   const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
+  // Shared by every withdraw in the same poll, falling back to the last good block on a failed refresh
+  const fetchConfirmedChildBlock = async (): Promise<ConfirmedChildBlock> => {
+    const previous = queryClient.getQueryData<ConfirmedChildBlock>(CONFIRMED_CHILD_BLOCK_QUERY_KEY)
+
+    try {
+      return await queryClient.fetchQuery({
+        queryKey: CONFIRMED_CHILD_BLOCK_QUERY_KEY,
+        queryFn: () => getConfirmedChildBlock(l1Provider, l2Provider, previous),
+        staleTime: 30_000,
+        gcTime: Infinity,
+      })
+    } catch (error) {
+      if (previous) return previous
+      throw error
+    }
+  }
+
   const claimStatuses = useQueries({
     queries: arbitrumWithdrawTxs.map(tx => {
       return {
         queryKey: ['claimStatus', { txid: tx.txid }],
         queryFn: async (): Promise<ClaimStatusResult> => {
-          // A withdraw's message never changes, so it is fetched once
+          // Fetched once, a withdraw's message never changes
           const { blockNumber, event, message } = await queryClient.fetchQuery({
             queryKey: ['arbitrumClaimMessage', { txid: tx.txid }],
             queryFn: () => getClaimMessage(tx.txid, l1Provider, l2Provider),
@@ -143,20 +174,14 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
             gcTime: Infinity,
           })
 
-          // Shared by every withdraw in the same poll
-          const confirmedChildBlock = await queryClient.fetchQuery({
-            queryKey: ['arbitrumConfirmedChildBlock'],
-            queryFn: () => getConfirmedChildBlock(l1Provider, l2Provider),
-            staleTime: 30_000,
-          })
+          const confirmedChildBlock = await fetchConfirmedChildBlock()
 
           const status = await (async () => {
             if (blockNumber > confirmedChildBlock.number) {
               return ChildToParentMessageStatus.UNCONFIRMED
             }
 
-            const network = await getArbitrumNetwork(l2Provider)
-            const outbox = Outbox__factory.connect(network.ethBridge.outbox, l1Provider)
+            const outbox = Outbox__factory.connect(arbitrumNetwork.ethBridge.outbox, l1Provider)
             const isSpent = await outbox.isSpent(event.position)
 
             return isSpent

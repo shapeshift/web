@@ -3297,6 +3297,7 @@
       "pendingWithdraw": "%{amountAndSymbol} の出金は %{timeText} から可能になります。",
       "claimAvailable": "ブリッジした %{amountAndSymbol} を受け取れます",
       "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが失敗しました。",
+      "transactionInitiated": "取引開始",
       "claimWithdraw": "引き出しを請求",
       "withdrawTx": "出金トランザクション",
       "claimTx": "請求トランザクション"

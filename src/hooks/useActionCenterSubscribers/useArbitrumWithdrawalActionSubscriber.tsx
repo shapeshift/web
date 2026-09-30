@@ -1,9 +1,14 @@
 import { usePrevious } from '@chakra-ui/react'
 import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isSome } from '@shapeshiftoss/utils'
+import { useQueries } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { Hash } from 'viem'
+import { TransactionNotFoundError, TransactionReceiptNotFoundError } from 'viem'
 
 import { useNotificationToast } from '../useNotificationToast'
 import {
@@ -28,6 +33,28 @@ import {
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+// A node can briefly miss a fresh broadcast, so only a long-unknown claim counts as dropped
+const CLAIM_TX_DROPPED_AFTER_MS = 10 * 60 * 1000
+
+const getClaimTxStatus = async (claimTxHash: Hash, broadcastAt: number): Promise<TxStatus> => {
+  const client = assertGetViemClient(ethChainId)
+
+  try {
+    const { status } = await client.getTransactionReceipt({ hash: claimTxHash })
+    return status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
+  } catch (error) {
+    if (!(error instanceof TransactionReceiptNotFoundError)) throw error
+  }
+
+  try {
+    await client.getTransaction({ hash: claimTxHash })
+    return TxStatus.Pending
+  } catch (error) {
+    if (!(error instanceof TransactionNotFoundError)) throw error
+    return Date.now() - broadcastAt > CLAIM_TX_DROPPED_AFTER_MS ? TxStatus.Failed : TxStatus.Pending
+  }
+}
 
 export const useArbitrumWithdrawalActionSubscriber = () => {
   const dispatch = useAppDispatch()
@@ -54,7 +81,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     [actionsById],
   )
 
-  const { isDrawerOpen } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenterClaims } = useActionCenterContext()
   const toastOptions = useMemo(() => ({ duration: isDrawerOpen ? 5000 : null }), [isDrawerOpen])
   const toast = useNotificationToast(toastOptions)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
@@ -132,9 +159,13 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
         title: translate('bridge.bridgeWithdrawalReadyNotification'),
         description: translate('bridge.checkActionCenterNotification'),
         position: 'bottom-right',
+        onClick: () => {
+          toast.close(actionId)
+          openActionCenterClaims()
+        },
       })
     },
-    [toast, translate],
+    [openActionCenterClaims, toast, translate],
   )
 
   // Rebuild missing actions from tx history, e.g. after a wiped store or an outside withdrawal
@@ -251,4 +282,54 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     claimsByStatus.Pending.length,
     pendingClaimableAts,
   ])
+
+  // Resolves in-flight claims, including ones broadcast before a reload
+  const claimingActions = useMemo(
+    () =>
+      Object.values(actionsById)
+        .filter(isArbitrumBridgeWithdrawAction)
+        .filter(
+          action =>
+            action.status === ActionStatus.ClaimAvailable &&
+            Boolean(action.arbitrumBridgeMetadata.claimTxHash),
+        ),
+    [actionsById],
+  )
+
+  const claimTxStatuses = useQueries({
+    queries: claimingActions.map(action => {
+      const claimTxHash = action.arbitrumBridgeMetadata.claimTxHash as Hash
+
+      return {
+        queryKey: ['arbitrumClaimTxStatus', { claimTxHash }],
+        // updatedAt is the broadcast time, a claiming action isn't written again until it resolves
+        queryFn: () => getClaimTxStatus(claimTxHash, action.updatedAt),
+        refetchInterval: 15_000,
+      }
+    }),
+  })
+
+  const claimTxStatusKey = claimTxStatuses.map(({ data }) => data).join()
+
+  useEffect(() => {
+    claimingActions.forEach((action, i) => {
+      switch (claimTxStatuses[i]?.data) {
+        case TxStatus.Confirmed:
+          dispatch(actionSlice.actions.upsertAction({ ...action, status: ActionStatus.Claimed }))
+          return
+        case TxStatus.Failed:
+          dispatch(
+            actionSlice.actions.upsertAction({
+              ...action,
+              arbitrumBridgeMetadata: { ...action.arbitrumBridgeMetadata, claimTxHash: undefined },
+            }),
+          )
+          return
+        default:
+          return
+      }
+    })
+    // claimTxStatuses is recreated on every render, use its statuses for a stable reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, claimingActions, claimTxStatusKey])
 }

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   selectWalletActions,
   selectWalletActionsSorted,
+  selectWalletClaimActions,
   selectYieldActionsByTxHash,
 } from './selectors'
 import type { ActionState, ArbitrumBridgeWithdrawAction, GenericTransactionAction } from './types'
@@ -140,26 +141,49 @@ describe('selectWalletActions', () => {
   })
 })
 
-describe('selectWalletActionsSorted', () => {
-  const action = (
-    id: string,
-    status: ActionStatus,
-    createdAt: number,
-    updatedAt: number,
-  ): GenericTransactionAction => ({
-    ...mockSendAction,
-    id,
-    status,
-    createdAt,
-    updatedAt,
-  })
+const action = (
+  id: string,
+  status: ActionStatus,
+  createdAt: number,
+  updatedAt: number,
+): GenericTransactionAction => ({
+  ...mockSendAction,
+  id,
+  status,
+  createdAt,
+  updatedAt,
+})
 
-  it('anchors in-flight actions on top by start time, then settled ones by last update', () => {
+const arbitrumWithdraw = (
+  id: string,
+  status: ActionStatus,
+  createdAt: number,
+  claimableAt: number,
+  claimTxHash?: string,
+): ArbitrumBridgeWithdrawAction => ({
+  id,
+  type: ActionType.ArbitrumBridgeWithdraw,
+  status,
+  createdAt,
+  updatedAt: createdAt,
+  arbitrumBridgeMetadata: {
+    withdrawTxHash: id,
+    amountCryptoBaseUnit: '1000',
+    assetId: 'eip155:42161/slip44:60',
+    destinationAssetId: 'eip155:1/slip44:60',
+    accountId: 'eip155:42161:0xarb',
+    destinationAccountId: 'eip155:1:0xarb',
+    claimableAt,
+    claimTxHash,
+  },
+})
+
+describe('selectWalletActionsSorted', () => {
+  it('lists the feed newest first, dating in-flight actions by start and settled ones by last update', () => {
     const oldPending = action('old-pending', ActionStatus.Pending, 100, 900)
-    const newPending = action('new-pending', ActionStatus.Initiated, 300, 300)
-    const claimable = action('claimable', ActionStatus.ClaimAvailable, 200, 950)
+    const newPending = action('new-pending', ActionStatus.Pending, 300, 300)
     const recentlyDone = action('recently-done', ActionStatus.Complete, 150, 800)
-    const longDone = action('long-done', ActionStatus.Claimed, 400, 500)
+    const longDone = action('long-done', ActionStatus.Complete, 400, 500)
     const abandoned = action('abandoned', ActionStatus.Abandoned, 999, 999)
 
     const sorted = selectWalletActionsSorted.resultFunc([
@@ -167,16 +191,44 @@ describe('selectWalletActionsSorted', () => {
       oldPending,
       abandoned,
       longDone,
-      claimable,
       newPending,
     ])
 
     expect(sorted.map(a => a.id)).toEqual([
-      'new-pending',
-      'claimable',
-      'old-pending',
       'recently-done',
       'long-done',
+      'new-pending',
+      'old-pending',
     ])
+  })
+
+  it('leaves claims to the claims section, but keeps settled claims in the feed', () => {
+    const claimable = action('claimable', ActionStatus.ClaimAvailable, 200, 950)
+    const pendingWithdraw = arbitrumWithdraw('pending-withdraw', ActionStatus.Initiated, 300, 900)
+    const claimed = arbitrumWithdraw('claimed', ActionStatus.Claimed, 100, 100)
+
+    const sorted = selectWalletActionsSorted.resultFunc([claimable, pendingWithdraw, claimed])
+
+    expect(sorted.map(a => a.id)).toEqual(['claimed'])
+  })
+})
+
+describe('selectWalletClaimActions', () => {
+  it('lists claims newest first by the same timestamps as the feed', () => {
+    const oldReady = action('old-ready', ActionStatus.ClaimAvailable, 100, 100)
+    const newReady = arbitrumWithdraw('new-ready', ActionStatus.ClaimAvailable, 200, 200)
+    const claiming = arbitrumWithdraw('claiming', ActionStatus.ClaimAvailable, 50, 60, '0xclaim')
+    const pending = arbitrumWithdraw('pending', ActionStatus.Initiated, 300, 1_000)
+    const swap = action('swap', ActionStatus.Pending, 500, 500)
+
+    const claims = selectWalletClaimActions.resultFunc([
+      claiming,
+      swap,
+      oldReady,
+      pending,
+      newReady,
+    ])
+
+    expect(claims.map(a => a.id)).toEqual(['pending', 'new-ready', 'old-ready', 'claiming'])
   })
 })

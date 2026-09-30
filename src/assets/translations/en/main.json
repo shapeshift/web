@@ -3219,6 +3219,9 @@
   },
   "actionCenter": {
     "title": "Notifications",
+    "claims": "Claims",
+    "recent": "Recent",
+    "nothingToClaim": "Nothing to claim",
     "viewTransaction": "View Transaction",
     "originalTransaction": "Original Transaction",
     "replacementTransaction": "Replacement Transaction",

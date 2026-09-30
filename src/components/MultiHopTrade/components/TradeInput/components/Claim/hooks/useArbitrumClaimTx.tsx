@@ -1,15 +1,15 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { ARB_OUTBOX_ABI, assertGetViemClient, getEthersV5Provider } from '@shapeshiftoss/contracts'
+import { ARB_OUTBOX_ABI, getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { Address, Hash, Hex } from 'viem'
+import type { Address, Hex } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 
 import type { ClaimDetails } from './useArbitrumClaimsByStatus'
+import { arbitrumNetwork } from './useArbitrumClaimsByStatus'
 
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -21,14 +21,10 @@ import {
 import { selectBip44ParamsByAccountId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const ARBITRUM_OUTBOX = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
-
 export const useArbitrumClaimTx = (
   claim: ClaimDetails | undefined,
   destinationAccountId: AccountId | undefined,
-  setClaimTxHash: (txHash: string) => void,
-  setClaimTxStatus: (txStatus: TxStatus) => void,
-  onClaimSuccess?: (claimTxHash: string) => void,
+  onClaimBroadcast: (claimTxHash: string) => void,
 ) => {
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
@@ -75,7 +71,7 @@ export const useArbitrumClaimTx = (
     chainId: claim?.destinationChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
-    to: getAddress(ARBITRUM_OUTBOX),
+    to: getAddress(arbitrumNetwork.ethBridge.outbox),
     value: '0',
   })
 
@@ -95,7 +91,7 @@ export const useArbitrumClaimTx = (
         from: fromAccountId(destinationAccountId).account,
         adapter,
         data: executeTransactionDataResult.data,
-        to: ARBITRUM_OUTBOX,
+        to: arbitrumNetwork.ethBridge.outbox,
         value: '0',
         wallet,
       })
@@ -108,36 +104,8 @@ export const useArbitrumClaimTx = (
 
       return txHash
     },
-    onMutate() {
-      setClaimTxStatus(TxStatus.Pending)
-    },
     onSuccess(txHash) {
-      if (!txHash) {
-        setClaimTxStatus(TxStatus.Failed)
-        return
-      }
-
-      setClaimTxHash(txHash)
-      onClaimSuccess?.(txHash)
-
-      const checkStatus = async () => {
-        if (!claim) return
-        const publicClient = assertGetViemClient(claim.destinationChainId)
-        const { status } = await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
-
-        switch (status) {
-          case 'success':
-            return setClaimTxStatus(TxStatus.Confirmed)
-          case 'reverted':
-          default:
-            return setClaimTxStatus(TxStatus.Failed)
-        }
-      }
-
-      checkStatus()
-    },
-    onError() {
-      setClaimTxStatus(TxStatus.Failed)
+      if (txHash) onClaimBroadcast(txHash)
     },
     onSettled() {
       queryClient.invalidateQueries({

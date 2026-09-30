@@ -12,9 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
-import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { zeroAddress } from 'viem'
@@ -117,56 +115,23 @@ export const ArbitrumBridgeClaimModal = ({
     amountCryptoPrecision,
   ])
 
-  // Stays claimable until the claim confirms, so a dropped or reverted claim can be retried
+  // Stays claimable until the subscriber sees the claim confirm, revert or drop
   const handleClaimBroadcast = useCallback(
     (claimTxHash: string) => {
+      const latestAction = selectArbitrumBridgeWithdrawActionById(store.getState(), action.id)
+      if (!latestAction || latestAction.status !== ActionStatus.ClaimAvailable) return
+
       dispatch(
         actionSlice.actions.upsertAction({
-          ...action,
-          arbitrumBridgeMetadata: { ...action.arbitrumBridgeMetadata, claimTxHash },
+          ...latestAction,
+          arbitrumBridgeMetadata: { ...latestAction.arbitrumBridgeMetadata, claimTxHash },
         }),
       )
-    },
-    [dispatch, action],
-  )
-
-  // Runs after the claim receipt resolves, possibly after the modal closed
-  const handleClaimTxStatus = useCallback(
-    (txStatus: TxStatus) => {
-      const latestAction = selectArbitrumBridgeWithdrawActionById(store.getState(), action.id)
-      if (!latestAction || latestAction.status === ActionStatus.Claimed) return
-
-      switch (txStatus) {
-        case TxStatus.Confirmed:
-          dispatch(
-            actionSlice.actions.upsertAction({ ...latestAction, status: ActionStatus.Claimed }),
-          )
-          return
-        case TxStatus.Failed:
-          dispatch(
-            actionSlice.actions.upsertAction({
-              ...latestAction,
-              arbitrumBridgeMetadata: {
-                ...latestAction.arbitrumBridgeMetadata,
-                claimTxHash: undefined,
-              },
-            }),
-          )
-          return
-        default:
-          return
-      }
     },
     [dispatch, action.id],
   )
 
-  const claimTxResult = useArbitrumClaimTx(
-    claimDetails,
-    destinationAccountId,
-    noop,
-    handleClaimTxStatus,
-    handleClaimBroadcast,
-  )
+  const claimTxResult = useArbitrumClaimTx(claimDetails, destinationAccountId, handleClaimBroadcast)
 
   const executeTransactionDataResult = claimTxResult?.executeTransactionDataResult
 
@@ -296,7 +261,7 @@ export const ArbitrumBridgeClaimModal = ({
               !hasEnoughDestinationFeeBalance
             }
             isLoading={
-              // The claim status poll keeps refetching, so a missing claim resolves on its own
+              // A missing claim resolves on the next status poll
               !claimDetails ||
               executeTransactionDataResult?.isFetching ||
               evmFeesResult?.isFetching ||

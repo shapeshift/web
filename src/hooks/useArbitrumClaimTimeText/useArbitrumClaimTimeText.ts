@@ -10,6 +10,7 @@ export const useArbitrumClaimTimeText = (claimableAt: number | undefined): strin
   const [now, setNow] = useState(Date.now)
 
   useEffect(() => {
+    setNow(Date.now())
     if (!claimableAt || claimableAt <= Date.now()) return
 
     const interval = setInterval(() => {

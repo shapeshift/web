@@ -74,7 +74,7 @@ const YIELD_POLL_INTERVAL_MS = 5000
 
 export const useGenericTransactionSubscriber = () => {
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter, openActionCenterClaims } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const pendingGenericTransactionActions = useAppSelector(selectPendingGenericTransactionActions)
@@ -92,7 +92,11 @@ export const useGenericTransactionSubscriber = () => {
   }, [])
 
   const fireToast = useCallback(
-    (action: (typeof pendingGenericTransactionActions)[number], status: 'success' | 'error') => {
+    (
+      action: (typeof pendingGenericTransactionActions)[number],
+      status: 'success' | 'error',
+      isClaim = false,
+    ) => {
       if (toast.isActive(action.transactionMetadata.txHash)) return
 
       toast({
@@ -102,7 +106,7 @@ export const useGenericTransactionSubscriber = () => {
         render: ({ onClose, ...props }) => {
           const handleClick = () => {
             onClose()
-            openActionCenter()
+            isClaim ? openActionCenterClaims() : openActionCenter()
           }
 
           return (
@@ -116,7 +120,7 @@ export const useGenericTransactionSubscriber = () => {
         },
       })
     },
-    [isDrawerOpen, openActionCenter, toast],
+    [isDrawerOpen, openActionCenter, openActionCenterClaims, toast],
   )
 
   useEffect(() => {
@@ -178,7 +182,7 @@ export const useGenericTransactionSubscriber = () => {
               }),
             )
 
-            fireToast(action, 'success')
+            fireToast(action, 'success', true)
             clearPollingInterval(pollingKey)
           }
         }
@@ -235,7 +239,7 @@ export const useGenericTransactionSubscriber = () => {
                   }),
                 )
 
-                fireToast(action, 'success')
+                fireToast(action, 'success', true)
               } else {
                 const typeMessagesMap = displayTypeMessagesMap[action.type]
                 const message =

@@ -318,3 +318,26 @@ export const isArbitrumBridgeWithdrawAction = (
 export const isChainflipLendingAction = (action: Action): action is ChainflipLendingAction => {
   return Boolean(action.type === ActionType.ChainflipLending && action.chainflipLendingMetadata)
 }
+
+const isYieldCooldownClaimAction = (action: Action): action is GenericTransactionAction =>
+  isGenericTransactionAction(action) &&
+  action.type === ActionType.Claim &&
+  action.transactionMetadata.displayType === GenericTransactionDisplayType.Claim
+
+// Claims live in their own action center section while they are waiting, ready or being claimed
+export const isClaimSectionAction = (action: Action): boolean => {
+  switch (action.status) {
+    case ActionStatus.ClaimAvailable:
+      return true
+    case ActionStatus.Initiated:
+      return isArbitrumBridgeWithdrawAction(action) || isYieldCooldownClaimAction(action)
+    case ActionStatus.Pending:
+      return isRfoxClaimAction(action) || isTcyClaimAction(action)
+    default:
+      return false
+  }
+}
+
+export const isClaimReadyAction = (action: Action): boolean =>
+  action.status === ActionStatus.ClaimAvailable &&
+  !(isArbitrumBridgeWithdrawAction(action) && action.arbitrumBridgeMetadata.claimTxHash)

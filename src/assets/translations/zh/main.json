@@ -3297,6 +3297,7 @@
       "pendingWithdraw": "您提现的 %{amountAndSymbol} 将在 %{timeText} 可用。",
       "claimAvailable": "您桥接的 %{amountAndSymbol} 已可领取。",
       "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。",
+      "transactionInitiated": "交易已发起",
       "claimWithdraw": "领取提现",
       "withdrawTx": "提现交易",
       "claimTx": "领取交易"

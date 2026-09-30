@@ -3297,6 +3297,7 @@
       "pendingWithdraw": "Ваш вывод %{amountAndSymbol} будет доступен %{timeText}.",
       "claimAvailable": "Ваш мост %{amountAndSymbol} доступен для получения.",
       "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу.",
+      "transactionInitiated": "Транзакция инициирована",
       "claimWithdraw": "Заклеймить вывод",
       "withdrawTx": "Тx вывода",
       "claimTx": "Tx клейма"

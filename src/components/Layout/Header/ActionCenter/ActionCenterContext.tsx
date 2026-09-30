@@ -4,9 +4,17 @@ import { useNavigate } from 'react-router'
 
 import { breakpoints } from '@/theme/theme'
 
+export enum ActionCenterTab {
+  Recent = 'recent',
+  Claims = 'claims',
+}
+
 type ActionCenterContextProps = {
   isDrawerOpen: boolean
+  activeTab: ActionCenterTab
+  setActiveTab: (tab: ActionCenterTab) => void
   openActionCenter: () => void
+  openActionCenterClaims: () => void
   closeDrawer: () => void
 }
 
@@ -14,23 +22,41 @@ const ActionCenterContext = createContext<ActionCenterContextProps | undefined>(
 
 export const ActionCenterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState(ActionCenterTab.Recent)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const navigate = useNavigate()
 
-  const openActionCenter = useCallback(() => {
-    if (!isLargerThanMd) return navigate('/history')
+  const openActionCenterOnTab = useCallback(
+    (tab: ActionCenterTab) => {
+      setActiveTab(tab)
+      if (!isLargerThanMd) return navigate('/history')
 
-    setIsDrawerOpen(true)
-  }, [isLargerThanMd, navigate])
+      setIsDrawerOpen(true)
+    },
+    [isLargerThanMd, navigate],
+  )
+
+  const openActionCenter = useCallback(
+    () => openActionCenterOnTab(ActionCenterTab.Recent),
+    [openActionCenterOnTab],
+  )
+
+  const openActionCenterClaims = useCallback(
+    () => openActionCenterOnTab(ActionCenterTab.Claims),
+    [openActionCenterOnTab],
+  )
   const closeDrawer = useCallback(() => setIsDrawerOpen(false), [])
 
   const value = useMemo(
     () => ({
       isDrawerOpen,
+      activeTab,
+      setActiveTab,
       openActionCenter,
+      openActionCenterClaims,
       closeDrawer,
     }),
-    [isDrawerOpen, openActionCenter, closeDrawer],
+    [isDrawerOpen, activeTab, openActionCenter, openActionCenterClaims, closeDrawer],
   )
 
   return <ActionCenterContext.Provider value={value}>{children}</ActionCenterContext.Provider>

@@ -54,11 +54,6 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   const timeText = useArbitrumClaimTimeText(action.arbitrumBridgeMetadata.claimableAt)
 
   const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
-  const isCollapsable =
-    action.status === ActionStatus.Initiated ||
-    action.status === ActionStatus.ClaimAvailable ||
-    action.status === ActionStatus.Pending ||
-    action.status === ActionStatus.Claimed
   const { isOpen, onToggle } = useDisclosure()
 
   const handleClaimClick = useCallback(
@@ -179,7 +174,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       type={action.type}
       displayType={GenericTransactionDisplayType.Bridge}
       formattedDate={formattedDate}
-      isCollapsable={isCollapsable}
+      isCollapsable
       isOpen={isOpen}
       onToggle={onToggle}
       description={description}

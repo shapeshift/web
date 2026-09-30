@@ -136,8 +136,8 @@ export const ActionCenter = memo(() => {
   const { ordersByActionId } = useLimitOrders()
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
-  const renderAction = useCallback(
-    (action: Action) => {
+  const renderActionCard = useCallback(
+    (_index: number, action: Action) => {
       const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
@@ -219,11 +219,6 @@ export const ActionCenter = memo(() => {
     [handleOpenArbitrumClaim, handleOpenSpeedUp, ordersByActionId, swapsById],
   )
 
-  const renderActionCard = useCallback(
-    (_index: number, action: Action) => renderAction(action),
-    [renderAction],
-  )
-
   const renderActionList = useCallback(
     (data: Action[]) => (
       <Virtuoso
@@ -282,7 +277,7 @@ export const ActionCenter = memo(() => {
   const drawerContent = useMemo(() => {
     return (
       <Tabs
-        index={activeTab === ActionCenterTab.Claims ? 1 : 0}
+        index={tabs.indexOf(activeTab)}
         onChange={handleTabChange}
         variant='line'
         isFitted

@@ -17,7 +17,8 @@ const otherEthAccountId = 'eip155:1:0x0000000000000000000000000000000000000002'
 const destinationAccountId = `eip155:1:${destinationAddress.toLowerCase()}`
 
 const claim = {
-  tx: { txid: '0xwithdraw', blockTime: 1_700_000_000 },
+  withdrawTxHash: '0xwithdraw',
+  withdrawTimeMs: 1_700_000_000_000,
   accountId: 'eip155:42161:0xarb',
   amountCryptoBaseUnit: '1000',
   assetId: 'eip155:42161/slip44:60',

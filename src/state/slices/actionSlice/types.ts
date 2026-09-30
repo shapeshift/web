@@ -326,6 +326,19 @@ const CLAIM_ACTION_TYPES = new Set([
   ActionType.ArbitrumBridgeWithdraw,
 ])
 
+export const isClaimAction = (action: Action): boolean => CLAIM_ACTION_TYPES.has(action.type)
+
 // Claims stay in the claims tab until they settle
 export const isClaimSectionAction = (action: Action): boolean =>
-  CLAIM_ACTION_TYPES.has(action.type) && isActiveActionStatus(action.status)
+  isClaimAction(action) && isActiveActionStatus(action.status)
+
+// Every claim moves forward through these, only a failed or dropped claim tx steps back to claimable
+const CLAIM_STATUS_ORDER: Partial<Record<ActionStatus, number>> = {
+  [ActionStatus.Initiated]: 0,
+  [ActionStatus.ClaimAvailable]: 1,
+  [ActionStatus.Pending]: 2,
+  [ActionStatus.Claimed]: 3,
+}
+
+export const isClaimStatusRegression = (from: ActionStatus, to: ActionStatus): boolean =>
+  (CLAIM_STATUS_ORDER[to] ?? 0) < (CLAIM_STATUS_ORDER[from] ?? 0)

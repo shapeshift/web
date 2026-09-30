@@ -10,24 +10,21 @@ import type { Hash } from 'viem'
 import { TransactionNotFoundError, TransactionReceiptNotFoundError } from 'viem'
 
 import { useNotificationToast } from '../useNotificationToast'
-import { buildArbitrumBridgeWithdrawActionFromClaim } from './arbitrumBridgeWithdrawAction'
+import {
+  buildArbitrumBridgeWithdrawActionFromClaim,
+  getArbitrumBridgeWithdrawActionId,
+} from './arbitrumBridgeWithdrawAction'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { useArbitrumClaims } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  isArbitrumBridgeWithdrawAction,
+  isClaimStatusRegression,
+} from '@/state/slices/actionSlice/types'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-const WITHDRAW_STATUS_ORDER: Partial<Record<ActionStatus, number>> = {
-  [ActionStatus.Initiated]: 0,
-  [ActionStatus.ClaimAvailable]: 1,
-  [ActionStatus.Pending]: 2,
-  [ActionStatus.Claimed]: 3,
-}
-
-const getWithdrawStatusOrder = (status: ActionStatus): number => WITHDRAW_STATUS_ORDER[status] ?? 0
 
 // A node can briefly miss a fresh broadcast, so only a long-unknown claim counts as dropped
 const CLAIM_TX_DROPPED_AFTER_MS = 10 * 60 * 1000
@@ -51,28 +48,19 @@ const getClaimTxStatus = async (claimTxHash: Hash, broadcastAt: number): Promise
   }
 }
 
+const selectClaimTxStatuses = (results: { data?: TxStatus }[]) => results.map(({ data }) => data)
+
 export const useArbitrumWithdrawalActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
-  const { claims, claimsByTxid, claimsKey } = useArbitrumClaims()
+  const { claims, claimsByTxid } = useArbitrumClaims()
   const translate = useTranslate()
 
   const ethAccountIds = useMemo(
     () =>
       enabledWalletAccountIds.filter(accountId => fromAccountId(accountId).chainId === ethChainId),
     [enabledWalletAccountIds],
-  )
-
-  const arbitrumActionsByWithdrawTxHash = useMemo(
-    () =>
-      Object.values(actionsById)
-        .filter(isArbitrumBridgeWithdrawAction)
-        .reduce<Record<string, ArbitrumBridgeWithdrawAction>>((acc, action) => {
-          acc[action.arbitrumBridgeMetadata.withdrawTxHash] = action
-          return acc
-        }, {}),
-    [actionsById],
   )
 
   const { isDrawerOpen, openActionCenterClaims } = useActionCenterContext()
@@ -111,28 +99,22 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
 
     claims.forEach(claim => {
       if (claim.status === ActionStatus.Claimed) return
-      if (arbitrumActionsByWithdrawTxHash[claim.tx.txid]) return
+      if (actionsById[getArbitrumBridgeWithdrawActionId(claim.withdrawTxHash)]) return
 
       const action = buildArbitrumBridgeWithdrawActionFromClaim(claim, ethAccountIds)
       if (!action) return
 
       dispatch(actionSlice.actions.upsertAction(action))
     })
-    // claims are recreated on every render, claimsKey tracks what matters
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, ethAccountIds, arbitrumActionsByWithdrawTxHash, claimsKey])
+  }, [dispatch, ethAccountIds, actionsById, claims])
 
   const pendingArbitrumBridgeActions = useMemo(() => {
-    return Object.values(actionsById)
-      .filter(isArbitrumBridgeWithdrawAction)
-      .filter(action => {
-        // Early bailout: if action is already in terminal state, don't process
-        // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
-        if (action.status === ActionStatus.Claimed || action.status === ActionStatus.Failed) {
-          return false
-        }
-        return true
-      })
+    return (
+      Object.values(actionsById)
+        .filter(isArbitrumBridgeWithdrawAction)
+        // Claimed is final, i.e see this bad boi https://github.com/shapeshift/web/pull/10556
+        .filter(action => action.status !== ActionStatus.Claimed)
+    )
   }, [actionsById])
 
   useEffect(() => {
@@ -145,7 +127,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
           const newStatus = claim.status
 
           // A lagging rpc or a claim in flight reads as an earlier status, a withdraw never moves backwards
-          if (getWithdrawStatusOrder(newStatus) < getWithdrawStatusOrder(action.status)) return null
+          if (isClaimStatusRegression(action.status, newStatus)) return null
 
           // Only a pending claim's estimate still matters
           const claimableAt =
@@ -183,9 +165,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-    // claims are recreated on every render, claimsKey tracks what matters
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, notifyClaimAvailable, pendingArbitrumBridgeActions, claimsKey])
+  }, [dispatch, notifyClaimAvailable, pendingArbitrumBridgeActions, claimsByTxid])
 
   // Resolves in-flight claims, including ones broadcast before a reload
   const claimingActions = useMemo(
@@ -211,13 +191,12 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
         refetchInterval: 15_000,
       }
     }),
+    combine: selectClaimTxStatuses,
   })
-
-  const claimTxStatusKey = claimTxStatuses.map(({ data }) => data).join()
 
   useEffect(() => {
     claimingActions.forEach((action, i) => {
-      switch (claimTxStatuses[i]?.data) {
+      switch (claimTxStatuses[i]) {
         case TxStatus.Confirmed:
           dispatch(actionSlice.actions.upsertAction({ ...action, status: ActionStatus.Claimed }))
           return
@@ -234,7 +213,5 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
           return
       }
     })
-    // claimTxStatuses is recreated on every render, use its statuses for a stable reference
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, claimingActions, claimTxStatusKey])
+  }, [dispatch, claimingActions, claimTxStatuses])
 }

@@ -14,7 +14,6 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { detectIncognito } from 'detectincognitojs'
 import { useCallback, useEffect, useMemo } from 'react'
-import type { Hash } from 'viem'
 
 import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
 import { fetchIsSmartContractAddressQuery } from '../useIsSmartContractAddress/useIsSmartContractAddress'
@@ -24,7 +23,6 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
 import {
   buildArbitrumBridgeWithdrawActionFromSwap,
-  getArbitrumWithdrawTimeMs,
   isArbitrumBridgeWithdrawSwap,
 } from './arbitrumBridgeWithdrawAction'
 
@@ -34,6 +32,7 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { fetchArbitrumClaimMessage } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
@@ -277,18 +276,20 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
-        // Tx history only recovers withdraws this missed, e.g. after a wiped store
+        // Tx history only recovers withdraws this missed, e.g. after a wiped store. Not awaited so the
+        // balance refetches below aren't held up by the withdraw block lookup
         if (isArbitrumBridgeWithdrawSwap(swap)) {
-          const withdrawTimeMs = await getArbitrumWithdrawTimeMs(swap.sellTxHash as Hash).catch(
-            () => Date.now(),
-          )
-          const withdrawAction = buildArbitrumBridgeWithdrawActionFromSwap(swap, withdrawTimeMs)
-          if (
-            withdrawAction &&
-            !actionSlice.selectors.selectActionsById(store.getState())[withdrawAction.id]
-          ) {
-            dispatch(actionSlice.actions.upsertAction(withdrawAction))
-          }
+          void fetchArbitrumClaimMessage(swap.sellTxHash)
+            .then(({ withdrawTimeMs }) => withdrawTimeMs)
+            .catch(() => Date.now())
+            .then(withdrawTimeMs => {
+              const withdrawAction = buildArbitrumBridgeWithdrawActionFromSwap(swap, withdrawTimeMs)
+              if (!withdrawAction) return
+              if (actionSlice.selectors.selectActionsById(store.getState())[withdrawAction.id])
+                return
+
+              dispatch(actionSlice.actions.upsertAction(withdrawAction))
+            })
         }
 
         const { getAccount } = portfolioApi.endpoints

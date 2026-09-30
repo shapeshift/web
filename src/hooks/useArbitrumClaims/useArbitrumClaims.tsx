@@ -8,46 +8,51 @@ import { Outbox__factory } from '@arbitrum/sdk/dist/lib/abi/factories/Outbox__fa
 import { BoldRollupUserLogic__factory } from '@arbitrum/sdk/dist/lib/abi-bold/factories/BoldRollupUserLogic__factory'
 import { ARB1_NITRO_GENESIS_L2_BLOCK } from '@arbitrum/sdk/dist/lib/dataEntities/constants'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethChainId, fromChainId, toAccountId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  ethChainId,
+  fromAccountId,
+  fromChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Query } from '@tanstack/react-query'
-import { useQueries, useQueryClient } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
+import keyBy from 'lodash/keyBy'
 import { useMemo } from 'react'
 
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { assertUnreachable } from '@/lib/utils'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { assertUnreachable, isSome } from '@/lib/utils'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { selectArbitrumWithdrawTxs, selectPortfolioLoadingStatus } from '@/state/slices/selectors'
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 
-// Arbitrum's challenge period; the claim can open up to an hour later while an assertion posts
+// Estimate from the withdraw until its covering assertion posts, about an hour in
 const ARBITRUM_CHALLENGE_PERIOD_MS = 6.4 * 24 * 60 * 60 * 1000
 
-// Confirmations running past the challenge period extend the estimate by the observed lag
-export const getArbitrumClaimableAt = (withdrawTimeMs: number, confirmationLagMs = 0): number =>
-  withdrawTimeMs + Math.max(ARBITRUM_CHALLENGE_PERIOD_MS, confirmationLagMs)
+export const getArbitrumClaimableAt = (withdrawTimeMs: number): number =>
+  withdrawTimeMs + ARBITRUM_CHALLENGE_PERIOD_MS
 
 // Assertions post roughly every 300 parent blocks, so the covering one lands well inside this window
 const ASSERTION_SCAN_BLOCKS = 1_200
 const LOG_RANGE_BLOCKS = 100
 const ASSERTION_RETRY_MS = 10 * 60 * 1000
-const FALLBACK_BLOCK_TIME_MS = 12_000
+
+const UNCONFIRMED_POLL_MS = 60_000
 
 type ConfirmedChildBlock = {
+  assertionHash: string
   number: number
-  confirmationLagMs: number
 }
 
-type CoveringAssertion = {
-  blockNumber: number
-  timestampMs: number
-}
-
-// Final once the assertion is found or the whole window has been scanned without it
+// Final once the covering assertion is found or the whole window has been scanned without it
 type AssertionSearch = {
-  assertion: CoveringAssertion | undefined
+  claimableAt: number | undefined
   isFinal: boolean
 }
 
@@ -67,6 +72,10 @@ const getConfirmedChildBlock = async (
 ): Promise<ConfirmedChildBlock> => {
   const rollup = BoldRollupUserLogic__factory.connect(arbitrumNetwork.ethBridge.rollup, l1Provider)
   const latestConfirmed = await rollup.latestConfirmed()
+
+  // Confirmations land about hourly, so most polls stop here
+  if (previous?.assertionHash === latestConfirmed) return previous
+
   const createdAtBlock = (await rollup.getAssertion(latestConfirmed)).createdAtBlock.toNumber()
 
   const [assertionCreated] = await rollup.queryFilter(
@@ -80,14 +89,12 @@ const getConfirmedChildBlock = async (
   const block = await l2Provider.getBlock(blockHash)
   if (!block) throw new Error(`Confirmed child block ${blockHash} not found`)
 
-  // Lag is measured when a confirmation is first seen so the estimate holds until the next one
-  if (previous?.number === block.number) return previous
-
-  return { number: block.number, confirmationLagMs: Date.now() - block.timestamp * 1000 }
+  return { assertionHash: latestConfirmed, number: block.number }
 }
 
-// The first assertion after the withdraw that covers its child block
-const findCoveringAssertion = async (
+// The claim opens a confirm period after the assertion covering the withdraw posts, timed by the
+// parent chain's block rate over the last confirm period
+const findClaimableAt = async (
   parentBlockNumber: number,
   childBlockNumber: number,
   l1Provider: EthersV5Provider,
@@ -95,8 +102,8 @@ const findCoveringAssertion = async (
 ): Promise<AssertionSearch> => {
   const rollup = BoldRollupUserLogic__factory.connect(arbitrumNetwork.ethBridge.rollup, l1Provider)
   const windowEndBlock = parentBlockNumber + ASSERTION_SCAN_BLOCKS
-  const latestBlock = await l1Provider.getBlockNumber()
-  const toBlock = Math.min(windowEndBlock, latestBlock)
+  const latest = await l1Provider.getBlock('latest')
+  const toBlock = Math.min(windowEndBlock, latest.number)
 
   for (let fromBlock = parentBlockNumber; fromBlock <= toBlock; fromBlock += LOG_RANGE_BLOCKS) {
     const logs = await rollup.queryFilter(
@@ -110,37 +117,24 @@ const findCoveringAssertion = async (
       const childBlock = await l2Provider.getBlock(blockHash)
       if (!childBlock || childBlock.number < childBlockNumber) continue
 
-      const { timestamp } = await l1Provider.getBlock(log.blockNumber)
-      return {
-        assertion: { blockNumber: log.blockNumber, timestampMs: timestamp * 1000 },
-        isFinal: true,
-      }
+      const { confirmPeriodBlocks } = arbitrumNetwork
+      const [assertionBlock, periodStartBlock] = await Promise.all([
+        l1Provider.getBlock(log.blockNumber),
+        l1Provider.getBlock(latest.number - confirmPeriodBlocks),
+      ])
+      const confirmPeriodMs = (latest.timestamp - periodStartBlock.timestamp) * 1000
+
+      return { claimableAt: assertionBlock.timestamp * 1000 + confirmPeriodMs, isFinal: true }
     }
   }
 
-  // Past the window the lag estimate stands in rather than rescanning
-  return { assertion: undefined, isFinal: latestBlock >= windowEndBlock }
-}
-
-// The claim opens once the covering assertion's confirm period passes, timed by the observed block rate
-const getAssertionClaimableAt = async (
-  assertion: CoveringAssertion,
-  l1Provider: EthersV5Provider,
-): Promise<number> => {
-  const latest = await l1Provider.getBlock('latest')
-  const elapsedBlocks = latest.number - assertion.blockNumber
-  const blockTimeMs =
-    elapsedBlocks > 0
-      ? (latest.timestamp * 1000 - assertion.timestampMs) / elapsedBlocks
-      : FALLBACK_BLOCK_TIME_MS
-  const claimableAt = assertion.timestampMs + arbitrumNetwork.confirmPeriodBlocks * blockTimeMs
-
-  // Minute precision keeps the stored estimate from rewriting on every poll
-  return Math.round(claimableAt / 60_000) * 60_000
+  // Past the window the estimate stands in rather than rescanning
+  return { claimableAt: undefined, isFinal: latest.number >= windowEndBlock }
 }
 
 type ClaimMessage = {
   blockNumber: number
+  withdrawTimeMs: number
   event: Extract<ChildToParentTransactionEvent, { position: unknown }>
   message: ChildToParentMessageReader
 }
@@ -157,41 +151,126 @@ const getClaimMessage = async (
   if (!event || !message) throw new Error(`No withdraw message found for ${txid}`)
   if (!('position' in event)) throw new Error(`Unsupported classic withdraw ${txid}`)
 
-  return { blockNumber: receipt.blockNumber, event, message }
+  const { timestamp } = await l2Provider.getBlock(receipt.blockNumber)
+
+  return { blockNumber: receipt.blockNumber, withdrawTimeMs: timestamp * 1000, event, message }
 }
+
+// Fetched once and shared with the swap flow, a withdraw's message never changes
+export const fetchArbitrumClaimMessage = (txid: string): Promise<ClaimMessage> =>
+  queryClient.fetchQuery({
+    queryKey: ['arbitrumClaimMessage', { txid }],
+    queryFn: () =>
+      getClaimMessage(
+        txid,
+        getEthersV5Provider(KnownChainIds.EthereumMainnet),
+        getEthersV5Provider(KnownChainIds.ArbitrumMainnet),
+      ),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
 
 type ClaimStatusResult = {
   event: ChildToParentTransactionEvent
   message: ChildToParentMessageReader
+  withdrawTimeMs: number
   status: ChildToParentMessageStatus
-  confirmationLagMs: number
-  assertionClaimableAt: number | undefined
+  claimableAt: number | undefined
 }
 
-// A withdraw's status in action terms: waiting on its challenge period, claimable, or claimed
-export type ClaimDetails = Pick<ClaimStatusResult, 'event' | 'message'> & {
-  status: ActionStatus.Initiated | ActionStatus.ClaimAvailable | ActionStatus.Claimed
+// What a claim needs to know about its withdraw, from tx history or from the stored withdraw action
+type WithdrawSource = {
+  withdrawTxHash: string
   accountId: AccountId
   amountCryptoBaseUnit: string
   assetId: string
-  claimableAt: number
   destinationAddress: string
   destinationAssetId: AssetId
   destinationChainId: ChainId
-  tx: Tx
 }
 
-export const useArbitrumClaims = (props?: { skip?: boolean }) => {
-  const queryClient = useQueryClient()
+// A withdraw's status in action terms: waiting on its challenge period, claimable, or claimed
+export type ClaimDetails = WithdrawSource &
+  Pick<ClaimStatusResult, 'event' | 'message' | 'withdrawTimeMs'> & {
+    status: ActionStatus.Initiated | ActionStatus.ClaimAvailable | ActionStatus.Claimed
+    claimableAt: number
+  }
 
+const toClaimStatus = (status: ChildToParentMessageStatus): ClaimDetails['status'] => {
+  switch (status) {
+    case ChildToParentMessageStatus.UNCONFIRMED:
+      return ActionStatus.Initiated
+    case ChildToParentMessageStatus.CONFIRMED:
+      return ActionStatus.ClaimAvailable
+    case ChildToParentMessageStatus.EXECUTED:
+      return ActionStatus.Claimed
+    default:
+      return assertUnreachable(status)
+  }
+}
+
+const getHistoryWithdrawSource = (tx: Tx): WithdrawSource | undefined => {
+  if (tx.data?.parser !== 'arbitrumBridge') return
+  if (!tx.transfers.length) return
+  if (!tx.data.value || !tx.data.destinationAddress || !tx.data.destinationAssetId) return
+
+  return {
+    withdrawTxHash: tx.txid,
+    accountId: toAccountId({ chainId: arbitrumChainId, account: tx.pubkey }),
+    amountCryptoBaseUnit: tx.data.value,
+    assetId: tx.transfers[0].assetId,
+    destinationAddress: tx.data.destinationAddress,
+    destinationAssetId: tx.data.destinationAssetId,
+    destinationChainId: ethChainId,
+  }
+}
+
+const getActionWithdrawSource = ({
+  arbitrumBridgeMetadata: metadata,
+}: ArbitrumBridgeWithdrawAction): WithdrawSource => ({
+  withdrawTxHash: metadata.withdrawTxHash,
+  accountId: metadata.accountId,
+  amountCryptoBaseUnit: metadata.amountCryptoBaseUnit,
+  assetId: metadata.assetId,
+  destinationAddress: fromAccountId(metadata.destinationAccountId).account,
+  destinationAssetId: metadata.destinationAssetId,
+  destinationChainId: ethChainId,
+})
+
+// Stable and module level so claims only change when a withdraw's query result does
+const combineClaims = (results: { data?: ClaimDetails }[]) => {
+  const claims = results.map(({ data }) => data).filter(isSome)
+  return { claims, claimsByTxid: keyBy(claims, claim => claim.withdrawTxHash) }
+}
+
+// Pollers keep the claims fresh, observers like the claim modal read the shared cache without extra timers
+export const useArbitrumClaims = (props?: { skip?: boolean; isPolling?: boolean }) => {
   const arbitrumWithdrawTxs = useAppSelector(selectArbitrumWithdrawTxs)
+  const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
 
-  // Pre-nitro withdraws use the classic outbox, which we can neither track nor claim
-  const nitroWithdrawTxs = useMemo(
-    () => arbitrumWithdrawTxs.filter(tx => tx.blockHeight >= ARB1_NITRO_GENESIS_L2_BLOCK),
-    [arbitrumWithdrawTxs],
-  )
+  // Stored withdraws are tracked even when tx history isn't loaded, history adds the ones we missed
+  const withdrawSources = useMemo(() => {
+    const sources = new Map<string, WithdrawSource>()
+
+    // Pre-nitro withdraws use the classic outbox, which we can neither track nor claim
+    arbitrumWithdrawTxs
+      .filter(tx => tx.blockHeight >= ARB1_NITRO_GENESIS_L2_BLOCK)
+      .forEach(tx => {
+        const source = getHistoryWithdrawSource(tx)
+        if (source) sources.set(source.withdrawTxHash, source)
+      })
+
+    Object.values(actionsById)
+      .filter(isArbitrumBridgeWithdrawAction)
+      .filter(action => action.status !== ActionStatus.Claimed)
+      .forEach(action => {
+        const source = getActionWithdrawSource(action)
+        if (!sources.has(source.withdrawTxHash)) sources.set(source.withdrawTxHash, source)
+      })
+
+    return [...sources.values()]
+  }, [arbitrumWithdrawTxs, actionsById])
 
   const {
     state: { isLoadingLocalWallet, modal, isConnected },
@@ -224,32 +303,24 @@ export const useArbitrumClaims = (props?: { skip?: boolean }) => {
     }
   }
 
-  const claimStatuses = useQueries({
-    queries: nitroWithdrawTxs.map(tx => {
+  const { claims, claimsByTxid } = useQueries({
+    queries: withdrawSources.map(source => {
+      const txid = source.withdrawTxHash
+
       return {
-        queryKey: ['claimStatus', { txid: tx.txid }],
+        queryKey: ['claimStatus', { txid }],
         queryFn: async (): Promise<ClaimStatusResult> => {
-          // Fetched once, a withdraw's message never changes
-          const { blockNumber, event, message } = await queryClient.fetchQuery({
-            queryKey: ['arbitrumClaimMessage', { txid: tx.txid }],
-            queryFn: () => getClaimMessage(tx.txid, l1Provider, l2Provider),
-            staleTime: Infinity,
-            gcTime: Infinity,
-          })
+          const { blockNumber, withdrawTimeMs, event, message } =
+            await fetchArbitrumClaimMessage(txid)
 
           const confirmedChildBlock = await fetchConfirmedChildBlock()
 
           if (blockNumber > confirmedChildBlock.number) {
             // Kept once final, retried until the covering assertion posts
-            const { assertion } = await queryClient.fetchQuery({
-              queryKey: ['arbitrumClaimAssertion', { txid: tx.txid }],
+            const { claimableAt } = await queryClient.fetchQuery({
+              queryKey: ['arbitrumClaimAssertion', { txid }],
               queryFn: () =>
-                findCoveringAssertion(
-                  event.ethBlockNum.toNumber(),
-                  blockNumber,
-                  l1Provider,
-                  l2Provider,
-                ),
+                findClaimableAt(event.ethBlockNum.toNumber(), blockNumber, l1Provider, l2Provider),
               staleTime: query => (query.state.data?.isFinal ? Infinity : ASSERTION_RETRY_MS),
               gcTime: Infinity,
             })
@@ -257,11 +328,9 @@ export const useArbitrumClaims = (props?: { skip?: boolean }) => {
             return {
               event,
               message,
+              withdrawTimeMs,
               status: ChildToParentMessageStatus.UNCONFIRMED,
-              confirmationLagMs: confirmedChildBlock.confirmationLagMs,
-              assertionClaimableAt: assertion
-                ? await getAssertionClaimableAt(assertion, l1Provider)
-                : undefined,
+              claimableAt,
             }
           }
 
@@ -271,88 +340,44 @@ export const useArbitrumClaims = (props?: { skip?: boolean }) => {
           return {
             event,
             message,
+            withdrawTimeMs,
             status: isSpent
               ? ChildToParentMessageStatus.EXECUTED
               : ChildToParentMessageStatus.CONFIRMED,
-            confirmationLagMs: confirmedChildBlock.confirmationLagMs,
-            assertionClaimableAt: undefined,
+            claimableAt: undefined,
           }
         },
-        select: (result: ClaimStatusResult) => {
-          const status = (() => {
-            switch (result.status) {
-              case ChildToParentMessageStatus.UNCONFIRMED:
-                return ActionStatus.Initiated as const
-              case ChildToParentMessageStatus.CONFIRMED:
-                return ActionStatus.ClaimAvailable as const
-              case ChildToParentMessageStatus.EXECUTED:
-                return ActionStatus.Claimed as const
-              default:
-                assertUnreachable(result.status)
-            }
-          })()
-          return { ...result, tx, status }
+        select: (result: ClaimStatusResult): ClaimDetails => ({
+          ...source,
+          status: toClaimStatus(result.status),
+          withdrawTimeMs: result.withdrawTimeMs,
+          claimableAt: result.claimableAt ?? getArbitrumClaimableAt(result.withdrawTimeMs),
+          event: result.event,
+          message: result.message,
+        }),
+        // Only a pending withdraw changes on its own. A claimable one changes when claimed, which the claim
+        // flow tracks, and claims made elsewhere are caught on load or when the claim modal opens
+        refetchInterval: (latestData: Query<ClaimStatusResult>) => {
+          if (props?.isPolling === false) return false
+
+          const data = latestData?.state?.data
+          if (!data) return UNCONFIRMED_POLL_MS
+          if (data.status !== ChildToParentMessageStatus.UNCONFIRMED) return false
+
+          // Until its assertion posts only the countdown can improve, after that nothing changes before it opens
+          if (data.claimableAt === undefined) return ASSERTION_RETRY_MS
+          return Math.max(data.claimableAt - Date.now(), UNCONFIRMED_POLL_MS)
         },
-        // Periodically refetch until the status is known to be ChildToParentMessageStatus.EXECUTED
-        refetchInterval: (latestData: Query<ClaimStatusResult>) =>
-          latestData?.state?.data?.status === ChildToParentMessageStatus.EXECUTED ? false : 60_000,
         enabled: !skip,
         staleTime: Infinity,
         gcTime: Infinity,
       }
     }),
+    combine: combineClaims,
   })
-
-  const claims = useMemo(
-    () =>
-      claimStatuses.reduce<ClaimDetails[]>((acc, { data }) => {
-        if (!data) return acc
-        if (!data.tx.transfers.length) return acc
-        if (data.tx.data?.parser !== 'arbitrumBridge') return acc
-        if (!data.tx.data.value) return acc
-        if (!data.tx.data.destinationAddress) return acc
-        if (!data.tx.data.destinationAssetId) return acc
-
-        acc.push({
-          status: data.status,
-          tx: data.tx,
-          accountId: toAccountId({
-            chainId: arbitrumChainId,
-            account: data.tx.pubkey,
-          }),
-          amountCryptoBaseUnit: data.tx.data.value,
-          destinationAddress: data.tx.data.destinationAddress,
-          destinationAssetId: data.tx.data.destinationAssetId,
-          destinationChainId: ethChainId,
-          assetId: data.tx.transfers[0].assetId,
-          claimableAt:
-            data.assertionClaimableAt ??
-            getArbitrumClaimableAt(data.tx.blockTime * 1000, data.confirmationLagMs),
-          event: data.event,
-          message: data.message,
-        })
-        return acc
-      }, []),
-    [claimStatuses],
-  )
-
-  const claimsByTxid = useMemo(
-    () =>
-      claims.reduce<Record<string, ClaimDetails>>((acc, claim) => {
-        acc[claim.tx.txid] = claim
-        return acc
-      }, {}),
-    [claims],
-  )
-
-  // Changes only when a claim's status or estimate does, for effects keyed on the claims
-  const claimsKey = claims
-    .map(claim => `${claim.tx.txid}:${claim.status}:${claim.claimableAt}`)
-    .join()
 
   return {
     claims,
     claimsByTxid,
-    claimsKey,
   }
 }

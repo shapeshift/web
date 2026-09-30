@@ -236,7 +236,7 @@ describe('selectWalletClaimActions', () => {
   it('lists claims newest first by the same timestamps as the feed', () => {
     const oldReady = claimAction('old-ready', ActionStatus.ClaimAvailable, 100, 100)
     const newReady = arbitrumWithdraw('new-ready', ActionStatus.ClaimAvailable, 200, 200)
-    const claiming = arbitrumWithdraw('claiming', ActionStatus.ClaimAvailable, 50, 60, '0xclaim')
+    const claiming = arbitrumWithdraw('claiming', ActionStatus.Pending, 50, 60, '0xclaim')
     const pending = arbitrumWithdraw('pending', ActionStatus.Initiated, 300, 1_000)
     const swap = action('swap', ActionStatus.Pending, 500, 500)
 

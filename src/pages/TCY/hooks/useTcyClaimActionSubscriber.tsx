@@ -10,11 +10,19 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getThorchainTransactionStatus } from '@/lib/utils/thorchain'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { ActionStatus, ActionType, isTcyClaimAction } from '@/state/slices/actionSlice/types'
+import { selectPendingTcyClaimActions } from '@/state/slices/actionSlice/selectors'
+import {
+  ActionStatus,
+  ActionType,
+  isClaimStatusRegression,
+  isTcyClaimAction,
+} from '@/state/slices/actionSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const TCY_TOAST_ID = 'tcyClaimAlert'
+
+const selectClaimTxStatuses = (results: { data?: TxStatus }[]) => results.map(({ data }) => data)
 
 export const useTcyClaimActionSubscriber = () => {
   const dispatch = useAppDispatch()
@@ -45,8 +53,7 @@ export const useTcyClaimActionSubscriber = () => {
       if (
         maybeStoreAction &&
         isTcyClaimAction(maybeStoreAction) &&
-        (maybeStoreAction.status === ActionStatus.Pending ||
-          maybeStoreAction.status === ActionStatus.Claimed)
+        isClaimStatusRegression(maybeStoreAction.status, ActionStatus.ClaimAvailable)
       )
         return
 
@@ -105,15 +112,10 @@ export const useTcyClaimActionSubscriber = () => {
   ])
 
   // Resolves sent claims even after leaving the claim status page, sharing its status query
+  const pendingTcyClaimActions = useAppSelector(selectPendingTcyClaimActions)
   const pendingClaimActions = useMemo(
-    () =>
-      Object.values(actions)
-        .filter(isTcyClaimAction)
-        .filter(
-          action =>
-            action.status === ActionStatus.Pending && Boolean(action.tcyClaimActionMetadata.txHash),
-        ),
-    [actions],
+    () => pendingTcyClaimActions.filter(action => Boolean(action.tcyClaimActionMetadata.txHash)),
+    [pendingTcyClaimActions],
   )
 
   const claimTxStatuses = useQueries({
@@ -126,13 +128,12 @@ export const useTcyClaimActionSubscriber = () => {
         refetchInterval: 10_000,
       }
     }),
+    combine: selectClaimTxStatuses,
   })
-
-  const claimTxStatusKey = claimTxStatuses.map(({ data }) => data).join()
 
   useEffect(() => {
     pendingClaimActions.forEach((action, i) => {
-      switch (claimTxStatuses[i]?.data) {
+      switch (claimTxStatuses[i]) {
         case TxStatus.Confirmed:
           dispatch(actionSlice.actions.upsertAction({ ...action, status: ActionStatus.Claimed }))
           queryClient.invalidateQueries({
@@ -152,7 +153,5 @@ export const useTcyClaimActionSubscriber = () => {
           return
       }
     })
-    // claimTxStatuses is recreated on every render, use its statuses for a stable reference
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, pendingClaimActions, claimTxStatusKey, queryClient])
+  }, [dispatch, pendingClaimActions, claimTxStatuses, queryClient])
 }

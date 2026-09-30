@@ -27,6 +27,7 @@ import {
   ActionType,
   GenericTransactionDisplayType,
   GenericTransactionQueryId,
+  isClaimAction,
 } from '@/state/slices/actionSlice/types'
 import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -92,11 +93,7 @@ export const useGenericTransactionSubscriber = () => {
   }, [])
 
   const fireToast = useCallback(
-    (
-      action: (typeof pendingGenericTransactionActions)[number],
-      status: 'success' | 'error',
-      isClaim = false,
-    ) => {
+    (action: (typeof pendingGenericTransactionActions)[number], status: 'success' | 'error') => {
       if (toast.isActive(action.transactionMetadata.txHash)) return
 
       toast({
@@ -106,7 +103,7 @@ export const useGenericTransactionSubscriber = () => {
         render: ({ onClose, ...props }) => {
           const handleClick = () => {
             onClose()
-            isClaim ? openActionCenterClaims() : openActionCenter()
+            isClaimAction(action) ? openActionCenterClaims() : openActionCenter()
           }
 
           return (
@@ -182,7 +179,7 @@ export const useGenericTransactionSubscriber = () => {
               }),
             )
 
-            fireToast(action, 'success', true)
+            fireToast(action, 'success')
             clearPollingInterval(pollingKey)
           }
         }
@@ -239,7 +236,7 @@ export const useGenericTransactionSubscriber = () => {
                   }),
                 )
 
-                fireToast(action, 'success', true)
+                fireToast({ ...action, type: ActionType.Claim }, 'success')
               } else {
                 const typeMessagesMap = displayTypeMessagesMap[action.type]
                 const message =

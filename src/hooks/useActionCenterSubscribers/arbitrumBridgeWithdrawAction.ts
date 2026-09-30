@@ -1,9 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { assertGetViemClient } from '@shapeshiftoss/contracts'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Hash } from 'viem'
 
 import type { ClaimDetails } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { getArbitrumClaimableAt } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
@@ -30,10 +28,10 @@ export const buildArbitrumBridgeWithdrawActionFromClaim = (
   const destinationAccountId = getClaimDestinationAccountId(claim.destinationAddress, ethAccountIds)
   if (!destinationAccountId) return
 
-  const createdAt = claim.tx.blockTime * 1000
+  const createdAt = claim.withdrawTimeMs
 
   return {
-    id: getArbitrumBridgeWithdrawActionId(claim.tx.txid),
+    id: getArbitrumBridgeWithdrawActionId(claim.withdrawTxHash),
     type: ActionType.ArbitrumBridgeWithdraw,
     status:
       claim.status === ActionStatus.ClaimAvailable
@@ -42,7 +40,7 @@ export const buildArbitrumBridgeWithdrawActionFromClaim = (
     createdAt,
     updatedAt: createdAt,
     arbitrumBridgeMetadata: {
-      withdrawTxHash: claim.tx.txid,
+      withdrawTxHash: claim.withdrawTxHash,
       amountCryptoBaseUnit: claim.amountCryptoBaseUnit,
       assetId: claim.assetId,
       destinationAssetId: claim.destinationAssetId,
@@ -79,12 +77,4 @@ export const buildArbitrumBridgeWithdrawActionFromSwap = (
       claimableAt: getArbitrumClaimableAt(withdrawTimeMs),
     },
   }
-}
-
-// Dated by the withdraw block, a swap resumed after a reload can succeed long after it
-export const getArbitrumWithdrawTimeMs = async (withdrawTxHash: Hash): Promise<number> => {
-  const client = assertGetViemClient(arbitrumChainId)
-  const { blockNumber } = await client.getTransactionReceipt({ hash: withdrawTxHash })
-  const { timestamp } = await client.getBlock({ blockNumber })
-  return Number(timestamp) * 1000
 }

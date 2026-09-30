@@ -38,7 +38,7 @@ export const useArbitrumClaimTx = (
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
 
   const executeTransactionDataResult = useQuery({
-    queryKey: ['executeTransactionData', { txid: claim?.tx.txid }],
+    queryKey: ['executeTransactionData', { txid: claim?.withdrawTxHash }],
     queryFn: claim
       ? async () => {
           const { event, message } = claim
@@ -76,7 +76,7 @@ export const useArbitrumClaimTx = (
   })
 
   const claimMutation = useMutation({
-    mutationKey: ['claim', { txid: claim?.tx.txid }],
+    mutationKey: ['claim', { txid: claim?.withdrawTxHash }],
     mutationFn: async () => {
       if (!claim) return
       if (!wallet) return
@@ -109,7 +109,7 @@ export const useArbitrumClaimTx = (
     },
     onSettled() {
       queryClient.invalidateQueries({
-        queryKey: ['claimStatus', { txid: claim?.tx.txid }],
+        queryKey: ['claimStatus', { txid: claim?.withdrawTxHash }],
         refetchType: 'all',
       })
     },

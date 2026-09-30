@@ -12,12 +12,13 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
+import { getArbitrumBridgeWithdrawActionId } from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import { useArbitrumClaimTimeText } from '@/hooks/useArbitrumClaimTimeText/useArbitrumClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import {
-  selectArbitrumBridgeWithdrawActionByWithdrawTxHash,
+  selectArbitrumBridgeWithdrawActionById,
   selectSwapActionBySwapId,
   selectWalletSwapsById,
 } from '@/state/slices/selectors'
@@ -46,20 +47,18 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
   const maybeArbitrumBridgeAction = useAppSelector(state =>
     withdrawTxHash
-      ? selectArbitrumBridgeWithdrawActionByWithdrawTxHash(state, withdrawTxHash)
+      ? selectArbitrumBridgeWithdrawActionById(
+          state,
+          getArbitrumBridgeWithdrawActionId(withdrawTxHash),
+        )
       : undefined,
   )
 
   // Bridge swaps show their withdraw action once history creates it, the swap action until then
-  const action =
-    swap?.swapperName === SwapperName.ArbitrumBridge
-      ? maybeArbitrumBridgeAction ?? swapAction
-      : swapAction
+  const action = maybeArbitrumBridgeAction ?? swapAction
 
   const timeText = useArbitrumClaimTimeText(
-    maybeArbitrumBridgeAction && isArbitrumBridgeWithdrawAction(maybeArbitrumBridgeAction)
-      ? maybeArbitrumBridgeAction.arbitrumBridgeMetadata.claimableAt
-      : undefined,
+    maybeArbitrumBridgeAction?.arbitrumBridgeMetadata.claimableAt,
   )
 
   const swapNotificationComponents = useMemo((): TextPropTypes['components'] | undefined => {

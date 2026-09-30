@@ -21,6 +21,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { Row } from '@/components/Row/Row'
 import { useModalRegistration } from '@/context/ModalStackProvider'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useArbitrumClaims } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { useArbitrumClaimTx } from '@/hooks/useArbitrumClaims/useArbitrumClaimTx'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -69,7 +70,13 @@ export const ArbitrumBridgeClaimModal = ({
     selectMarketDataByAssetIdUserCurrency(state, action.arbitrumBridgeMetadata.destinationAssetId),
   )
 
-  const { claimsByTxid } = useArbitrumClaims()
+  const { claimsByTxid } = useArbitrumClaims({ isPolling: false })
+
+  // Claimable withdraws aren't polled, recheck this one wasn't claimed elsewhere before claiming it
+  useEffect(() => {
+    if (!isOpen) return
+    queryClient.invalidateQueries({ queryKey: ['claimStatus', { txid: withdrawTxHash }] })
+  }, [isOpen, withdrawTxHash])
   const claimDetails = useMemo(() => {
     const claim = claimsByTxid[withdrawTxHash]
     return claim?.status === ActionStatus.ClaimAvailable ? claim : undefined

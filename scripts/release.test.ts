@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   buildReleasePrompt,
@@ -6,7 +6,82 @@ import {
   deriveReleaseState,
   extractDescription,
   extractPrNumbers,
+  getReleaseCliEnv,
+  parseCreatedPrUrl,
+  parseOpenPr,
 } from './release'
+
+describe('getReleaseCliEnv', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('silences mise setup output without changing the parent environment', () => {
+    vi.stubEnv('MISE_QUIET', '0')
+    vi.stubEnv('RELEASE_TEST_ENV', 'preserved')
+    const env = getReleaseCliEnv()
+    expect(env.MISE_QUIET).toBe('1')
+    expect(env.RELEASE_TEST_ENV).toBe('preserved')
+    expect(process.env.MISE_QUIET).toBe('0')
+  })
+})
+
+describe('parseOpenPr', () => {
+  const pr = { number: 12712, title: 'chore: release v1.1052.0' }
+
+  it('detects an open release PR', () => {
+    expect(parseOpenPr(JSON.stringify([pr]))).toEqual(pr)
+  })
+
+  it('resumes the open release despite mise setup output before the JSON', () => {
+    const output = `mise ~/.config/mise/config.toml tools: gh@2.101.0\n${JSON.stringify([pr])}\n`
+    const openReleasePr = parseOpenPr(output)
+    expect(openReleasePr).toEqual(pr)
+    expect(
+      deriveReleaseState({
+        mainSha: 'aaa',
+        latestTagSha: 'aaa',
+        releaseIsAheadOfMain: true,
+        privateContentMatchesMain: true,
+        openReleasePr,
+      }),
+    ).toBe('release_open')
+  })
+
+  it('returns undefined only for a valid empty list', () => {
+    expect(parseOpenPr('[]\n')).toBeUndefined()
+    expect(parseOpenPr('mise setup output\n[]\n')).toBeUndefined()
+  })
+
+  it.each(['', 'mise setup output', 'null', '{}', '[null]', '[{"number":42}]'])(
+    'rejects unexpected output instead of treating it as no open PR: %s',
+    output => {
+      expect(() => parseOpenPr(output)).toThrow()
+    },
+  )
+})
+
+describe('parseCreatedPrUrl', () => {
+  const url = 'https://github.com/shapeshift/web/pull/12716'
+
+  it('returns the created PR URL', () => {
+    expect(parseCreatedPrUrl(`${url}\n`)).toBe(url)
+  })
+
+  it('strips mise setup output from the created PR URL', () => {
+    expect(parseCreatedPrUrl(`mise ~/.config/mise/config.toml tools: gh@2.102.0\n${url}\n`)).toBe(
+      url,
+    )
+  })
+
+  it.each([
+    '',
+    'mise setup output',
+    'https://github.com/another/repo/pull/12716',
+    `${url}; echo unexpected`,
+    `${url}\nunexpected output`,
+  ])('rejects invalid PR output: %s', output => {
+    expect(() => parseCreatedPrUrl(output)).toThrow('Could not parse created PR URL')
+  })
+})
 
 describe('deriveReleaseState', () => {
   const base = {

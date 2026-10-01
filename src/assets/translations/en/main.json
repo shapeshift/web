@@ -3045,10 +3045,10 @@
     "arbitrumSunsetBannerMoveDescription": "rFOX staking has moved to Ethereum. Move your Arbitrum FOX to Ethereum to stake it.",
     "arbitrumSunsetBannerViewCta": "Go to Arbitrum",
     "migrationBannerCta": "Move FOX to Ethereum",
-    "stakingPausedTooltip": "Staking is paused for this program.",
+    "stakingPausedTooltip": "Staking is currently paused.",
     "stakingEndedTooltip": "Staking %{symbol} on Arbitrum has ended.",
-    "unstakingPausedTooltip": "Unstaking is paused for this program.",
-    "withdrawalsPausedTooltip": "Claiming is paused for this program."
+    "unstakingPausedTooltip": "Unstaking is currently paused.",
+    "withdrawalsPausedTooltip": "Claiming is currently paused."
   },
   "TCY": {
     "stake": "Stake",

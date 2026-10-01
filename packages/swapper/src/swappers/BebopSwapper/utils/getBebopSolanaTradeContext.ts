@@ -50,6 +50,7 @@ export const getBebopSolanaTradeContext = async ({
     takerAddress,
     receiverAddress,
     slippageTolerancePercentageDecimal,
+    affiliateBps,
     apiKey: deps.config.VITE_BEBOP_API_KEY,
   })
 

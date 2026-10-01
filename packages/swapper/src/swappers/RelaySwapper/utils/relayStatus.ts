@@ -32,7 +32,7 @@ export const fetchRelayRequestByTxHash = async (
   config: SwapperConfig,
 ): Promise<Result<RelayRequest | undefined, SwapErrorRight>> => {
   const maybeResponse = await relayService.get<{ requests?: RelayRequest[] }>(
-    `${config.VITE_RELAY_API_URL}/requests/v2?hash=${txHash}`,
+    `${config.VITE_RELAY_API_URL}/requests/v3?depositTxHash=${txHash}`,
     getRelayRequestConfig(config),
   )
 
@@ -41,7 +41,7 @@ export const fetchRelayRequestByTxHash = async (
     ({ data }) =>
       data.requests?.find(
         ({ data: request }) =>
-          request?.inTxs?.some(({ hash }) => hash?.toLowerCase() === txHash.toLowerCase()),
+          request?.inTxs?.some(({ txHash: hash }) => hash?.toLowerCase() === txHash.toLowerCase()),
       ),
   )
 }
@@ -49,7 +49,7 @@ export const fetchRelayRequestByTxHash = async (
 export const getRelayRequestFailureMessage = (request: RelayRequest): string => {
   const { failReason, refundFailReason } = request.data ?? {}
 
-  // Relay report 'N/A' rather than omitting the reason when there isn't one
+  // Relay can report 'N/A' rather than null when there isn't one
   const reason = [failReason, refundFailReason].find(value => value && value !== 'N/A')
 
   return reason ?? 'Bridge failed'

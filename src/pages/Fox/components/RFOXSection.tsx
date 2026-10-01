@@ -19,6 +19,7 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import {
+  arbitrumChainId,
   foxAssetId,
   foxOnArbitrumOneAssetId,
   uniV2EthFoxArbitrumAssetId,
@@ -223,8 +224,17 @@ export const RFOXSection = () => {
 
   const hasLpPosition = hasPositionByStakingAssetId[uniV2EthFoxArbitrumAssetId]
   const hasArbitrumPosition = hasPositionByStakingAssetId[foxOnArbitrumOneAssetId]
-  const hasArbitrumFoxBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId: foxOnArbitrumOneAssetId }).gt(0),
+  const arbitrumAccountId =
+    accountIdsByAccountNumberAndChainId[assetAccountNumber]?.[arbitrumChainId]
+  const arbitrumFoxBalanceFilter = useMemo(
+    () => ({ accountId: arbitrumAccountId ?? '', assetId: foxOnArbitrumOneAssetId }),
+    [arbitrumAccountId],
+  )
+  // An empty accountId reads as every account in the balance selector
+  const hasArbitrumFoxBalance = useAppSelector(
+    state =>
+      Boolean(arbitrumAccountId) &&
+      selectPortfolioCryptoBalanceByFilter(state, arbitrumFoxBalanceFilter).gt(0),
   )
 
   const handleViewArbitrumPosition = useCallback(

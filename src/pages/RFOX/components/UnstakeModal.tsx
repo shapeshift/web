@@ -1,5 +1,7 @@
 import { Card } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { Unstake } from './Unstake/Unstake'
 
@@ -12,6 +14,7 @@ import {
   DialogHeaderRight,
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 
 type UnstakeModalProps = {
   isOpen: boolean
@@ -20,6 +23,17 @@ type UnstakeModalProps = {
 
 export const UnstakeModal: React.FC<UnstakeModalProps> = ({ isOpen, onClose }) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
+
+  const handleClaim = useCallback(
+    (unstakingRequest: UnstakingRequest) => {
+      onClose()
+      navigate(`/fox-ecosystem/${unstakingRequest.index}/confirm`, {
+        state: { selectedUnstakingRequest: unstakingRequest },
+      })
+    },
+    [navigate, onClose],
+  )
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
@@ -33,7 +47,7 @@ export const UnstakeModal: React.FC<UnstakeModalProps> = ({ isOpen, onClose }) =
       </DialogHeader>
       <DialogBody p={0}>
         <Card bg='transparent'>
-          <Unstake onClose={onClose} />
+          <Unstake onClose={onClose} onClaim={handleClaim} />
         </Card>
       </DialogBody>
     </Dialog>

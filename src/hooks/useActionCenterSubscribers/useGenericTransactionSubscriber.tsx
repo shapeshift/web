@@ -15,6 +15,7 @@ import { getAffiliateRevenueUsdQueryKey } from '@/pages/RFOX/hooks/useAffiliateR
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
 import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
+import { getUnstakingRequestsQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
@@ -309,7 +310,13 @@ export const useGenericTransactionSubscriber = () => {
       if (tx.status !== TxStatus.Confirmed) return
 
       const typeMessagesMap = displayTypeMessagesMap[action.type]
-      const message = typeMessagesMap?.[action.transactionMetadata.displayType]
+      const isRfoxUnstakeWithoutCooldown =
+        action.type === ActionType.Withdraw &&
+        action.transactionMetadata.displayType === GenericTransactionDisplayType.RFOX &&
+        action.transactionMetadata.cooldownPeriodSeconds === 0
+      const message = isRfoxUnstakeWithoutCooldown
+        ? 'RFOX.unstakeSuccessNoCooldown'
+        : typeMessagesMap?.[action.transactionMetadata.displayType]
 
       if (!message) return
 
@@ -364,7 +371,7 @@ export const useGenericTransactionSubscriber = () => {
         })
 
         queryClient.invalidateQueries({
-          queryKey: ['getUnstakingRequests', { stakingAssetAccountId: accountId }],
+          queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId: accountId }),
         })
       } else if (queryId === GenericTransactionQueryId.TCY) {
         queryClient.invalidateQueries({

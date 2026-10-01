@@ -96,9 +96,9 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       case ActionStatus.ClaimAvailable:
         return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
       case ActionStatus.Claimed:
-        return translate('actionCenter.bridge.complete', { amountAndSymbol })
+        return translate('actionCenter.bridge.withdrawComplete', { amountAndSymbol })
       default:
-        return translate('actionCenter.bridge.processing')
+        return translate('actionCenter.bridge.withdrawProcessing', { amountAndSymbol })
     }
   }, [
     action.status,

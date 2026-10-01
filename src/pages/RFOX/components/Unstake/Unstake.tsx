@@ -34,15 +34,19 @@ const UnstakeConfirm = makeSuspenseful(
 
 const UnstakeEntries = [UnstakeRoutePaths.Input, UnstakeRoutePaths.Confirm]
 
-export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent, onClose }) => {
+export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent, onClose, onClaim }) => {
   return (
     <MemoryRouter initialEntries={UnstakeEntries} initialIndex={0}>
-      <UnstakeRoutes headerComponent={headerComponent} onClose={onClose} />
+      <UnstakeRoutes headerComponent={headerComponent} onClose={onClose} onClaim={onClaim} />
     </MemoryRouter>
   )
 }
 
-export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent, onClose }) => {
+export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({
+  headerComponent,
+  onClose,
+  onClaim,
+}) => {
   const location = useLocation()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
@@ -62,9 +66,10 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent, on
         setUnstakeTxid={setUnstakeTxid}
         headerComponent={headerComponent}
         onClose={onClose}
+        onClaim={onClaim}
       />
     )
-  }, [confirmedQuote, headerComponent, onClose, unstakeTxid])
+  }, [confirmedQuote, headerComponent, onClaim, onClose, unstakeTxid])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

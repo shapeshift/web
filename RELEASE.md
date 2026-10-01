@@ -1,59 +1,48 @@
 # Release process
 
-Single command, idempotent. Run `pnpm release` at any point - it figures out where you are and does the next step.
+> [!WARNING]
+> **Merge release and hotfix PRs into `main` with "Create a merge commit". Never squash.**
+> A squashed release breaks the script's tracking of what has shipped. If it happens, stop and ask in #engineering before running anything else.
+
+Everything goes through `pnpm release`. Run it, pick the release type, and follow the prompts. It works out which step you're on, so re-running it is always safe.
+
+Requires `gh` (authenticated). The `claude` CLI is optional and only used to write the release notes.
 
 ## Regular release
 
-1. Run `pnpm release`, select Regular, confirm -> creates **prerelease PR** (develop -> release)
-2. **Merge prerelease PR on GitHub**
-3. Run `pnpm release` again -> generates AI release notes, creates **release PR** (release -> main)
-4. **Merge release PR on GitHub** when CI passes
-5. Run `pnpm release` again -> tags main with version, creates **private sync PR** (main -> private)
-6. **Merge private sync PR on GitHub**
-7. Run `pnpm release` again -> "done, nothing to do"
+1. Run `pnpm release` and choose **Regular**. Confirm the commit list. The script opens the release PR (`release` -> `main`).
+2. Test the `release` deployment.
+3. Merge the release PR with **"Create a merge commit"**.
+4. Run `pnpm release` and choose **Regular** again. The script tags the version and opens the private sync PR, which merges itself once checks pass.
 
-## Hotfix release
+## Release fix
 
-1. Run `pnpm release`, select Hotfix, pick commits -> creates **hotfix PR** (hotfix/vX.Y.Z -> main)
-2. **Merge hotfix PR on GitHub**
-3. Run `pnpm release` again -> tags, creates **private sync PR** + **backmerge PR** (main -> develop)
-4. **Merge both PRs on GitHub**
+Adds a fix to the release PR that's already open.
 
-## How it works
+1. Merge the fix into `develop` as usual.
+2. Run `pnpm release` and choose **Release fix**. Pick the commits to add.
 
-The script derives its state from observable git/GitHub state (branch SHAs, tags, open PRs) rather than tracking state in a file. This makes it idempotent - you can run it as many times as you want without creating duplicates or re-tagging.
+The next release's notes may list these commits again. Delete those lines from the PR body.
 
-### Regular release states
+## Hotfix
 
-```
-idle (no prerelease)     -> create develop -> release PR
-prerelease_pr_open       -> waiting for merge on GitHub
-idle (prerelease merged) -> create release -> main PR with AI notes
-release_pr_open          -> waiting for merge on GitHub
-merged_untagged          -> tag main, create main -> private PR
-tagged_private_stale     -> waiting for private sync merge on GitHub
-done                     -> nothing to do
-```
+Ships specific commits from `develop` straight to production.
 
-### Hotfix states
+1. Run `pnpm release` and choose **Hotfix**. Pick the commits. The script opens the hotfix PR (`hotfix/vX.Y.Z` -> `main`).
+2. Merge the hotfix PR with **"Create a merge commit"**.
+3. Run `pnpm release` and choose **Hotfix** again. The script tags the version and opens the private sync PR, which merges itself once checks pass.
 
-```
-idle                     -> cherry-pick commits, create hotfix -> main PR
-hotfix_pr_open           -> waiting for merge on GitHub
-merged_untagged          -> tag main, create private sync + backmerge PRs
-tagged_private_stale     -> waiting for PR merges on GitHub
-done                     -> nothing to do
-```
+## Merge methods
 
-## Branch protection
+| PR | Merge with |
+| --- | --- |
+| Feature/fix -> `develop` | Squash |
+| Release -> `main` | **Merge commit** |
+| Hotfix -> `main` | **Merge commit** |
+| Private sync -> `private` | Squash (automatic) |
 
-All four branches are protected - no direct pushes:
+## Rules
 
-- **main**: production
-- **develop**: development
-- **release**: staging between develop and main
-- **private**: tracks main with different env vars (Cloudflare deployment)
-
-## AI release notes
-
-The release PR body is AI-generated using Claude CLI. It groups commits by feature domain, separates production changes from dev-only (feature-flagged) changes, and includes testing notes. Falls back to a raw commit list if Claude is unavailable.
+- Don't push to `release`, `main`, or `private` yourself. Let the script do it.
+- Don't edit the release PR title (`chore: release vX.Y.Z`).
+- Don't create tags by hand. The script tags after each merge.

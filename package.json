@@ -53,7 +53,7 @@
     "postinstall": "[ -d .git ] && git config --local include.path '.gitconfig' || true",
     "release": "pnpm exec tsx ./scripts/release.ts",
     "scrape-walletconnect-dapps": "pnpm exec tsx ./scripts/scrapeWalletConnectRegistry.ts",
-    "test": "pnpm exec vitest run --project packages --project web --project swap-widget",
+    "test": "pnpm exec vitest run --project packages --project web --project swap-widget --project scripts",
     "test:web": "pnpm exec vitest run --project web",
     "test:packages": "pnpm exec vitest run --project packages",
     "translations:count-words-invalidate-since": "pnpm exec tsx ./scripts/translations/countWordsInvalidateSince.ts",

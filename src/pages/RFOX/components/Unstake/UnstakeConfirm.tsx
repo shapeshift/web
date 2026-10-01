@@ -32,9 +32,9 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { sleep } from '@/lib/poll/poll'
 import { getRfoxClient } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
-import { sleep } from '@/lib/poll/poll'
 import {
   getUnstakingRequestsQueryFn,
   getUnstakingRequestsQueryKey,
@@ -157,7 +157,8 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   // With no cooldown the new request is claimable once mined, so hand straight over to claiming
   const claimUnstakingRequest = useCallback(
     async (txId: string) => {
-      const { stakingAssetAccountId, stakingAssetId, unstakingAmountCryptoBaseUnit } = confirmedQuote
+      const { stakingAssetAccountId, stakingAssetId, unstakingAmountCryptoBaseUnit } =
+        confirmedQuote
       const { account, chainId } = fromAccountId(stakingAssetAccountId)
 
       const close = () => {

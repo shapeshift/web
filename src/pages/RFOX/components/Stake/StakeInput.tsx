@@ -180,9 +180,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         .toString()
 
       const hasEnoughBalance = bnOrZero(input).lte(
-        bnOrZero(
-          isFiat ? stakingAssetFiatBalance : stakingAssetBalanceCryptoPrecision,
-        ),
+        bnOrZero(isFiat ? stakingAssetFiatBalance : stakingAssetBalanceCryptoPrecision),
       )
 
       return hasEnoughBalance
@@ -225,14 +223,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   }, [])
 
   const handleSubmit = useCallback(() => {
-    if (
-      !(
-        stakingAssetAccountId &&
-        stakingAsset &&
-        isValidStakingAmount
-      )
-    )
-      return
+    if (!(stakingAssetAccountId && stakingAsset && isValidStakingAmount)) return
 
     const _confirmedQuote = {
       stakingAssetAccountId,

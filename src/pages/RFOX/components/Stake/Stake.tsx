@@ -47,9 +47,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, onClos
   const [stakeTxid, setStakeTxid] = useState<string | undefined>()
 
   const renderStakeInput = useCallback(() => {
-    return (
-      <StakeInput headerComponent={headerComponent} setConfirmedQuote={setConfirmedQuote} />
-    )
+    return <StakeInput headerComponent={headerComponent} setConfirmedQuote={setConfirmedQuote} />
   }, [headerComponent])
 
   const renderStakeConfirm = useCallback(() => {

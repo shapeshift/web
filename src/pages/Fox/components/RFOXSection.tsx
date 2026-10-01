@@ -30,6 +30,7 @@ import { useTranslate } from 'react-polyglot'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
@@ -431,8 +432,11 @@ export const RFOXSection = () => {
           </Tooltip>
         </Box>
         <Tooltip
-          label={translate('RFOX.withdrawalsPausedTooltip')}
-          isDisabled={!pauseState.isWithdrawalsPaused}
+          label={
+            pauseState.isWithdrawalsPaused
+              ? translate('RFOX.withdrawalsPausedTooltip')
+              : translate('RFOX.claimTooltip', { symbol: stakingAsset?.symbol ?? '' })
+          }
           shouldWrapChildren
         >
           <Button
@@ -456,6 +460,7 @@ export const RFOXSection = () => {
     isStakeDisabled,
     pauseState,
     stakingAssetId,
+    stakingAsset?.symbol,
   ])
 
   if (!(stakingAsset && rewardAsset)) return null
@@ -537,7 +542,13 @@ export const RFOXSection = () => {
 
           <Card width='100%' maxWidth='400px'>
             <CardBody py={4} px={4}>
-              <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
+              <HelperTooltip
+                label={translate('RFOX.pendingRewardsBalanceTooltip', {
+                  symbol: stakingAsset.symbol ?? '',
+                })}
+              >
+                <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
+              </HelperTooltip>
 
               <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
                 <Amount.Crypto

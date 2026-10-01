@@ -19,19 +19,19 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import {
+  arbitrumChainId,
   foxAssetId,
   foxOnArbitrumOneAssetId,
   uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
@@ -48,12 +48,10 @@ import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import {
   RFOX_CURRENT_STAKING_ASSET_IDS,
-  RFOX_MIGRATION_TIMESTAMP_MS,
   RFOX_STAKING_ASSET_IDS,
   RFOX_STAKING_CONFIG,
 } from '@/pages/RFOX/constants'
 import { getRfoxChainId, getRfoxStakingConfig, selectStakingBalance } from '@/pages/RFOX/helpers'
-import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
@@ -72,10 +70,9 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-dayjs.extend(utc)
 
 const tooltipWrapperSx = { '& > span': { display: 'block', width: '100%' } }
 
@@ -226,29 +223,31 @@ export const RFOXSection = () => {
   )
 
   const hasLpPosition = hasPositionByStakingAssetId[uniV2EthFoxArbitrumAssetId]
-
-  const isMigrationBannerVisible = useMemo(
-    () => visibleStakingAssetIds.includes(foxOnArbitrumOneAssetId),
-    [visibleStakingAssetIds],
+  const hasArbitrumPosition = hasPositionByStakingAssetId[foxOnArbitrumOneAssetId]
+  const arbitrumAccountId =
+    accountIdsByAccountNumberAndChainId[assetAccountNumber]?.[arbitrumChainId]
+  const arbitrumFoxBalanceFilter = useMemo(
+    () => ({ accountId: arbitrumAccountId ?? '', assetId: foxOnArbitrumOneAssetId }),
+    [arbitrumAccountId],
+  )
+  // An empty accountId reads as every account in the balance selector
+  const hasArbitrumFoxBalance = useAppSelector(
+    state =>
+      Boolean(arbitrumAccountId) &&
+      selectPortfolioCryptoBalanceByFilter(state, arbitrumFoxBalanceFilter).gt(0),
   )
 
-  const migrationDate = useMemo(
-    () => dayjs.utc(RFOX_MIGRATION_TIMESTAMP_MS).format('MMMM D, YYYY'),
-    [],
+  const handleViewArbitrumPosition = useCallback(
+    () => setStakingAssetId(foxOnArbitrumOneAssetId),
+    [setStakingAssetId],
   )
 
-  const migrationBannerDescription = useMemo(
-    () => translate('RFOX.migrationBannerDescription', { migrationDate }),
-    [migrationDate, translate],
-  )
+  const migrationTradeUrl = useMemo(() => {
+    const [buyChainId, buyAssetSubId] = foxAssetId.split('/')
+    const [sellChainId, sellAssetSubId] = foxOnArbitrumOneAssetId.split('/')
 
-  const unstakeDisabledTooltip = useMemo(
-    () =>
-      pauseState.isUnstakingPaused
-        ? translate('RFOX.unstakingPausedTooltip')
-        : translate('RFOX.unstakeDisabledMigrationTooltip', { migrationDate }),
-    [migrationDate, pauseState.isUnstakingPaused, translate],
-  )
+    return `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/0`
+  }, [])
 
   // Everything below is keyed on the selected program, so warm the others up front
   const programPrefetch = useMemo(
@@ -274,24 +273,10 @@ export const RFOXSection = () => {
     ],
   )
 
-  const migrationTradeUrl = useMemo(() => {
-    const [buyChainId, buyAssetSubId] = foxAssetId.split('/')
-    const [sellChainId, sellAssetSubId] = foxOnArbitrumOneAssetId.split('/')
-
-    return `/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/0`
-  }, [])
-
-  const hasClaimableRequests = useMemo(() => {
+  const hasUnstakingRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
-    if (!accountRequests?.length) return false
 
-    return accountRequests.some(request => {
-      if (request.stakingAssetId !== stakingAssetId) return false
-
-      const currentTimestampMs = Date.now()
-      const unstakingTimestampMs = Number(request.cooldownExpiry) * 1000
-      return currentTimestampMs >= unstakingTimestampMs
-    })
+    return Boolean(accountRequests?.some(request => request.stakingAssetId === stakingAssetId))
   }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId, stakingAssetId])
 
   useEffect(() => {
@@ -403,30 +388,20 @@ export const RFOXSection = () => {
     setIsClaimModalOpen(false)
   }, [])
 
-  const cooldownPeriodQuery = useCooldownPeriodQuery(stakingAssetId)
-
-  const isUnstakeDisabledForMigration = useMemo(
-    () =>
-      stakingAssetId === foxOnArbitrumOneAssetId &&
-      cooldownPeriodQuery.data?.cooldownPeriodSeconds !== 0,
-    [cooldownPeriodQuery.data?.cooldownPeriodSeconds, stakingAssetId],
-  )
-
   const isStakeDisabled = useMemo(
     () => pauseState.isStakingPaused || RFOX_STAKING_CONFIG[stakingAssetId].isLegacy,
     [pauseState.isStakingPaused, stakingAssetId],
-  )
-
-  const isUnstakeDisabled = useMemo(
-    () => pauseState.isUnstakingPaused || isUnstakeDisabledForMigration,
-    [isUnstakeDisabledForMigration, pauseState.isUnstakingPaused],
   )
 
   const actionsButtons = useMemo(() => {
     return (
       <Flex flexWrap='wrap' gap={2}>
         <Tooltip
-          label={translate('RFOX.stakingPausedTooltip')}
+          label={
+            RFOX_STAKING_CONFIG[stakingAssetId].isLegacy
+              ? translate('RFOX.stakingEndedTooltip', { symbol: stakingAsset?.symbol ?? '' })
+              : translate('RFOX.stakingPausedTooltip')
+          }
           isDisabled={!isStakeDisabled}
           shouldWrapChildren
         >
@@ -443,8 +418,8 @@ export const RFOXSection = () => {
         </Tooltip>
         <Box flex='1 1 auto' sx={tooltipWrapperSx}>
           <Tooltip
-            label={unstakeDisabledTooltip}
-            isDisabled={!isUnstakeDisabled}
+            label={translate('RFOX.unstakingPausedTooltip')}
+            isDisabled={!pauseState.isUnstakingPaused}
             shouldWrapChildren
           >
             <Button
@@ -453,15 +428,18 @@ export const RFOXSection = () => {
               colorScheme='gray'
               width='full'
               leftIcon={tbArrowDown}
-              isDisabled={isUnstakeDisabled}
+              isDisabled={pauseState.isUnstakingPaused}
             >
               {translate('defi.unstake')}
             </Button>
           </Tooltip>
         </Box>
         <Tooltip
-          label={translate('RFOX.withdrawalsPausedTooltip')}
-          isDisabled={!pauseState.isWithdrawalsPaused}
+          label={
+            pauseState.isWithdrawalsPaused
+              ? translate('RFOX.withdrawalsPausedTooltip')
+              : translate('RFOX.claimTooltip', { symbol: stakingAsset?.symbol ?? '' })
+          }
           shouldWrapChildren
         >
           <Button
@@ -469,7 +447,7 @@ export const RFOXSection = () => {
             onClick={handleClaimClick}
             colorScheme='green'
             flex='1 1 auto'
-            isDisabled={!hasClaimableRequests || pauseState.isWithdrawalsPaused}
+            isDisabled={!hasUnstakingRequests || pauseState.isWithdrawalsPaused}
           >
             {translate('defi.claim')}
           </Button>
@@ -481,11 +459,11 @@ export const RFOXSection = () => {
     handleUnstakeClick,
     handleClaimClick,
     translate,
-    hasClaimableRequests,
+    hasUnstakingRequests,
     isStakeDisabled,
-    isUnstakeDisabled,
     pauseState,
-    unstakeDisabledTooltip,
+    stakingAssetId,
+    stakingAsset?.symbol,
   ])
 
   if (!(stakingAsset && rewardAsset)) return null
@@ -493,20 +471,28 @@ export const RFOXSection = () => {
   return (
     <Box>
       <Divider mt={2} mb={6} />
-      {isMigrationBannerVisible && (
+      {(hasArbitrumPosition || hasArbitrumFoxBalance) && (
         <Card borderColor='blue.500' borderWidth={1} borderRadius='lg' mb={2}>
           <CardBody py={3} px={4}>
             <Flex alignItems='center' gap={3} flexWrap='wrap'>
               <Icon as={TbAlertTriangle} boxSize={6} color='blue.300' />
               <Box flex='1 1 auto'>
-                <CText fontWeight='bold'>{translate('RFOX.migrationBannerTitle')}</CText>
+                <CText fontWeight='bold'>{translate('RFOX.arbitrumSunsetBannerTitle')}</CText>
                 <CText fontSize='sm' color='text.subtle'>
-                  {migrationBannerDescription}
+                  {hasArbitrumPosition
+                    ? translate('RFOX.arbitrumSunsetBannerDescription')
+                    : translate('RFOX.arbitrumSunsetBannerMoveDescription')}
                 </CText>
               </Box>
-              <Button as={RouterLink} to={migrationTradeUrl} colorScheme='blue' size='sm'>
-                {translate('RFOX.migrationBannerCta')}
-              </Button>
+              {hasArbitrumPosition && stakingAssetId !== foxOnArbitrumOneAssetId ? (
+                <Button onClick={handleViewArbitrumPosition} colorScheme='blue' size='sm'>
+                  {translate('RFOX.arbitrumSunsetBannerViewCta')}
+                </Button>
+              ) : (
+                <Button as={RouterLink} to={migrationTradeUrl} colorScheme='blue' size='sm'>
+                  {translate('RFOX.migrationBannerCta')}
+                </Button>
+              )}
             </Flex>
           </CardBody>
         </Card>
@@ -559,7 +545,13 @@ export const RFOXSection = () => {
 
           <Card width='100%' maxWidth='400px'>
             <CardBody py={4} px={4}>
-              <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
+              <HelperTooltip
+                label={translate('RFOX.pendingRewardsBalanceTooltip', {
+                  symbol: stakingAsset.symbol ?? '',
+                })}
+              >
+                <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
+              </HelperTooltip>
 
               <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
                 <Amount.Crypto

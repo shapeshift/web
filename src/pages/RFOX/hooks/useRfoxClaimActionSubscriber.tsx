@@ -1,7 +1,7 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
 import {
@@ -11,14 +11,10 @@ import {
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
-import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType, isRfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-// Long enough for a claim to land, after which one never seen in tx history is treated as dropped
-const CLAIM_IN_FLIGHT_TIMEOUT_MS = 15 * 60 * 1000
 
 export const useRfoxClaimActionSubscriber = () => {
   const queryClient = useQueryClient()
@@ -72,24 +68,6 @@ export const useRfoxClaimActionSubscriber = () => {
     })
   }, [txs, assets, pendingRfoxClaimActions, dispatch, queryClient])
 
-  // A pending claim whose tx failed, or never showed up, leaves its request claimable again
-  const isClaimInFlight = useCallback(
-    (action: RfoxClaimAction, now: number) => {
-      if (action.status !== ActionStatus.Pending) return false
-
-      const { request, txHash } = action.rfoxClaimActionMetadata
-      if (!txHash) return false
-
-      const accountAddress = fromAccountId(request.stakingAssetAccountId).account
-      const tx = txs[serializeTxIndex(request.stakingAssetAccountId, txHash, accountAddress)]
-
-      if (tx) return tx.status !== TxStatus.Failed
-
-      return now - action.updatedAt < CLAIM_IN_FLIGHT_TIMEOUT_MS
-    },
-    [txs],
-  )
-
   useEffect(() => {
     if (!allUnstakingRequests.isSuccess) return
 
@@ -99,15 +77,9 @@ export const useRfoxClaimActionSubscriber = () => {
     all.forEach(request => {
       if (!isUnstakingRequestClaimable(request, now)) return
 
+      // Already available, being claimed, or claimed and waiting on a fresh read
       const action = actions[request.id]
-      if (
-        action &&
-        isRfoxClaimAction(action) &&
-        (action.status === ActionStatus.ClaimAvailable ||
-          action.status === ActionStatus.Claimed ||
-          isClaimInFlight(action, now))
-      )
-        return
+      if (action && isRfoxClaimAction(action)) return
 
       if (!assets[request.stakingAssetId]) return
 
@@ -128,11 +100,7 @@ export const useRfoxClaimActionSubscriber = () => {
     // Ids carry the request's index, which claims reorder, so a missing request was claimed or moved
     Object.values(actions)
       .filter(isRfoxClaimAction)
-      .filter(
-        action =>
-          action.status === ActionStatus.ClaimAvailable ||
-          (action.status === ActionStatus.Pending && !isClaimInFlight(action, now)),
-      )
+      .filter(action => action.status === ActionStatus.ClaimAvailable)
       .forEach(action => {
         const accountRequests =
           byAccountId[action.rfoxClaimActionMetadata.request.stakingAssetAccountId]
@@ -143,5 +111,5 @@ export const useRfoxClaimActionSubscriber = () => {
       })
     // We definitely don't want to react on assets here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds, isClaimInFlight])
+  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds])
 }

@@ -47,6 +47,22 @@ export const useRfoxClaimActionSubscriber = () => {
       const tx = txs[serializedTxIndex]
 
       if (!tx) return
+
+      // A failed claim leaves the request claimable, so offer it again
+      if (tx.status === TxStatus.Failed) {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            id: action.id,
+            status: ActionStatus.ClaimAvailable,
+            type: ActionType.RfoxClaim,
+            createdAt: action.createdAt,
+            updatedAt: now,
+            rfoxClaimActionMetadata: { request: action.rfoxClaimActionMetadata.request },
+          }),
+        )
+        return
+      }
+
       if (tx.status !== TxStatus.Confirmed) return
 
       dispatch(
@@ -76,11 +92,13 @@ export const useRfoxClaimActionSubscriber = () => {
       const maybeStoreAction = actions[request.id]
 
       if (isUnstakingRequestClaimable(request, now)) {
-        // This was available and is still available, no-op.
+        // Already available, or claimed and waiting on the claim to land
         if (
           maybeStoreAction &&
           isRfoxClaimAction(maybeStoreAction) &&
-          maybeStoreAction.status === ActionStatus.ClaimAvailable
+          [ActionStatus.ClaimAvailable, ActionStatus.Pending, ActionStatus.Claimed].includes(
+            maybeStoreAction.status,
+          )
         )
           return
 

@@ -31,6 +31,24 @@ export type UnstakingRequestAccountAssetData = {
   stakingAssetAccountId: AccountId
 }
 
+// Without a staking asset this matches every program's requests for the account, for invalidation
+export const getUnstakingRequestsQueryKey = ({
+  stakingAssetAccountId,
+  stakingAssetId,
+}: {
+  stakingAssetAccountId: AccountId
+  stakingAssetId?: AssetId
+}) =>
+  [
+    'getUnstakingRequests',
+    stakingAssetId ? { stakingAssetAccountId, stakingAssetId } : { stakingAssetAccountId },
+  ] as const
+
+export const isUnstakingRequestClaimable = (
+  unstakingRequest: UnstakingRequest,
+  nowMs: number = Date.now(),
+) => nowMs >= Number(unstakingRequest.cooldownExpiry) * 1000
+
 export const getUnstakingRequestsQueryFn = ({
   stakingAssetAccountId,
   stakingAssetId,

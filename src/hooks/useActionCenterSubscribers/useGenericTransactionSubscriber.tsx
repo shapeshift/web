@@ -15,6 +15,7 @@ import { getAffiliateRevenueUsdQueryKey } from '@/pages/RFOX/hooks/useAffiliateR
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
 import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
+import { getUnstakingRequestsQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
@@ -364,7 +365,7 @@ export const useGenericTransactionSubscriber = () => {
         })
 
         queryClient.invalidateQueries({
-          queryKey: ['getUnstakingRequests', { stakingAssetAccountId: accountId }],
+          queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId: accountId }),
         })
       } else if (queryId === GenericTransactionQueryId.TCY) {
         queryClient.invalidateQueries({

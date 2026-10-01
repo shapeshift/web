@@ -4,6 +4,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
+import {
+  getUnstakingRequestsQueryKey,
+  isUnstakingRequestClaimable,
+} from './useGetUnstakingRequestsQuery/utils'
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
@@ -59,7 +63,7 @@ export const useRfoxClaimActionSubscriber = () => {
       )
 
       queryClient.invalidateQueries({
-        queryKey: ['getUnstakingRequests', { stakingAssetAccountId }],
+        queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId }),
       })
     })
   }, [txs, assets, pendingRfoxClaimActions, dispatch, queryClient])
@@ -69,11 +73,9 @@ export const useRfoxClaimActionSubscriber = () => {
     const now = Date.now()
 
     allUnstakingRequests.data.all.forEach(request => {
-      const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
-
       const maybeStoreAction = actions[request.id]
 
-      if (now >= cooldownExpiryMs) {
+      if (isUnstakingRequestClaimable(request, now)) {
         // This was available and is still available, no-op.
         if (
           maybeStoreAction &&
@@ -90,7 +92,7 @@ export const useRfoxClaimActionSubscriber = () => {
             id: request.id,
             status: ActionStatus.ClaimAvailable,
             type: ActionType.RfoxClaim,
-            createdAt: cooldownExpiryMs,
+            createdAt: Number(request.cooldownExpiry) * 1000,
             updatedAt: now,
             rfoxClaimActionMetadata: {
               request,

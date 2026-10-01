@@ -34,7 +34,11 @@ import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddr
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getRfoxClient } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
-import { getUnstakingRequestsQueryFn } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
+import { sleep } from '@/lib/poll/poll'
+import {
+  getUnstakingRequestsQueryFn,
+  getUnstakingRequestsQueryKey,
+} from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { selectPauseState, useRfoxPauseStateQuery } from '@/pages/RFOX/hooks/useRfoxPauseStateQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -44,6 +48,9 @@ type UnstakeConfirmProps = {
   unstakeTxid: string | undefined
   setUnstakeTxid: (txId: string) => void
 }
+
+const UNSTAKING_REQUEST_READ_ATTEMPTS = 5
+const UNSTAKING_REQUEST_READ_INTERVAL_MS = 2000
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
@@ -153,39 +160,51 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
       const { stakingAssetAccountId, stakingAssetId, unstakingAmountCryptoBaseUnit } = confirmedQuote
       const { account, chainId } = fromAccountId(stakingAssetAccountId)
 
+      // Once the modal is closed this is a stale wait, and must not close or open anything
+      const close = () => {
+        if (isMountedRef.current) onClose?.()
+      }
+
+      // The read can trail the receipt on another node, so retry until the new request shows up
+      const findUnstakingRequest = async () => {
+        for (let attempt = 0; attempt < UNSTAKING_REQUEST_READ_ATTEMPTS; attempt++) {
+          if (attempt) await sleep(UNSTAKING_REQUEST_READ_INTERVAL_MS)
+
+          const { unstakingRequests } = await queryClient.fetchQuery({
+            queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId, stakingAssetId }),
+            queryFn: getUnstakingRequestsQueryFn({ stakingAssetAccountId, stakingAssetId }),
+          })
+
+          const unstakingRequest = maxBy(
+            unstakingRequests.filter(
+              request => request.amountCryptoBaseUnit === unstakingAmountCryptoBaseUnit,
+            ),
+            'index',
+          )
+          if (unstakingRequest) return unstakingRequest
+        }
+      }
+
       try {
         setIsAwaitingUnstakeReceipt(true)
 
         // A smart contract wallet hands back its own tx hash rather than an on-chain one
-        if (await fetchIsSmartContractAddressQuery(account, chainId)) return onClose?.()
+        if (await fetchIsSmartContractAddressQuery(account, chainId)) return close()
 
         const receipt = await waitForTransactionReceipt(getRfoxClient(stakingAssetId), {
           hash: txId as Hash,
         })
-        if (receipt.status !== 'success') return onClose?.()
+        if (receipt.status !== 'success') return close()
 
-        const { unstakingRequests } = await queryClient.fetchQuery({
-          queryKey: ['getUnstakingRequests', { stakingAssetAccountId, stakingAssetId }],
-          queryFn: getUnstakingRequestsQueryFn({ stakingAssetAccountId, stakingAssetId }),
-        })
-
-        // The read can trail the receipt, so only take a claimable request for the amount just unstaked
-        const unstakingRequest = maxBy(
-          unstakingRequests.filter(
-            request =>
-              request.amountCryptoBaseUnit === unstakingAmountCryptoBaseUnit &&
-              Number(request.cooldownExpiry) * 1000 <= Date.now(),
-          ),
-          'index',
-        )
-        if (!unstakingRequest) return onClose?.()
+        const unstakingRequest = await findUnstakingRequest()
+        if (!unstakingRequest) return close()
         if (!isMountedRef.current) return
 
         onClaim?.(unstakingRequest)
       } catch {
-        onClose?.()
+        close()
       } finally {
-        setIsAwaitingUnstakeReceipt(false)
+        if (isMountedRef.current) setIsAwaitingUnstakeReceipt(false)
       }
     },
     [confirmedQuote, onClaim, onClose, queryClient],

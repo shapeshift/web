@@ -263,17 +263,10 @@ export const RFOXSection = () => {
     ],
   )
 
-  const hasClaimableRequests = useMemo(() => {
+  const hasUnstakingRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
-    if (!accountRequests?.length) return false
 
-    return accountRequests.some(request => {
-      if (request.stakingAssetId !== stakingAssetId) return false
-
-      const currentTimestampMs = Date.now()
-      const unstakingTimestampMs = Number(request.cooldownExpiry) * 1000
-      return currentTimestampMs >= unstakingTimestampMs
-    })
+    return Boolean(accountRequests?.some(request => request.stakingAssetId === stakingAssetId))
   }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId, stakingAssetId])
 
   useEffect(() => {
@@ -444,7 +437,7 @@ export const RFOXSection = () => {
             onClick={handleClaimClick}
             colorScheme='green'
             flex='1 1 auto'
-            isDisabled={!hasClaimableRequests || pauseState.isWithdrawalsPaused}
+            isDisabled={!hasUnstakingRequests || pauseState.isWithdrawalsPaused}
           >
             {translate('defi.claim')}
           </Button>
@@ -456,7 +449,7 @@ export const RFOXSection = () => {
     handleUnstakeClick,
     handleClaimClick,
     translate,
-    hasClaimableRequests,
+    hasUnstakingRequests,
     isStakeDisabled,
     pauseState,
     stakingAssetId,

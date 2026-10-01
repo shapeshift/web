@@ -2990,7 +2990,7 @@
     "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
     "pendingRewardsBalance": "Pending Rewards Balance",
     "pendingRewardsBalanceTooltip": "Your rewards at this point in the epoch. This will change as revenue and total %{symbol} staked change. Paid automatically after the epoch ends.",
-    "claimTooltip": "Claim returns your unstaked %{symbol} after the cooldown. Rewards are paid automatically, so there's nothing to claim for them.",
+    "claimTooltip": "View your unstaked %{symbol} and claim it once its cooldown has passed.",
     "lifetimeRewards": "Lifetime Rewards",
     "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
     "timeInPool": "Time in Pool",

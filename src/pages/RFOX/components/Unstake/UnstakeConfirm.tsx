@@ -236,6 +236,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
       txId &&
       onClaim &&
       cooldownPeriodData?.cooldownPeriodSeconds === 0 &&
+      pauseStateData &&
       !selectPauseState(pauseStateData).isWithdrawalsPaused
     ) {
       return claimUnstakingRequest(txId)
@@ -256,7 +257,13 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
         <Flex flex={1}>
-          <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
+          <IconButton
+            onClick={handleGoBack}
+            variant='ghost'
+            aria-label='back'
+            icon={backIcon}
+            isDisabled={isUnstakeTxPending || isAwaitingUnstakeReceipt}
+          />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
         <Flex flex={1} />

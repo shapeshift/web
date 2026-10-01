@@ -11,6 +11,7 @@ import {
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
+import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType, isRfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -47,22 +48,6 @@ export const useRfoxClaimActionSubscriber = () => {
       const tx = txs[serializedTxIndex]
 
       if (!tx) return
-
-      // A failed claim leaves the request claimable, so offer it again
-      if (tx.status === TxStatus.Failed) {
-        dispatch(
-          actionSlice.actions.upsertAction({
-            id: action.id,
-            status: ActionStatus.ClaimAvailable,
-            type: ActionType.RfoxClaim,
-            createdAt: action.createdAt,
-            updatedAt: now,
-            rfoxClaimActionMetadata: { request: action.rfoxClaimActionMetadata.request },
-          }),
-        )
-        return
-      }
-
       if (tx.status !== TxStatus.Confirmed) return
 
       dispatch(
@@ -84,51 +69,55 @@ export const useRfoxClaimActionSubscriber = () => {
     })
   }, [txs, assets, pendingRfoxClaimActions, dispatch, queryClient])
 
+  // A pending claim whose tx failed leaves its request claimable again
+  const isClaimInFlight = (action: RfoxClaimAction) => {
+    if (action.status !== ActionStatus.Pending) return false
+
+    const { request, txHash } = action.rfoxClaimActionMetadata
+    if (!txHash) return true
+
+    const accountAddress = fromAccountId(request.stakingAssetAccountId).account
+    const serializedTxIndex = serializeTxIndex(request.stakingAssetAccountId, txHash, accountAddress)
+
+    return txs[serializedTxIndex]?.status !== TxStatus.Failed
+  }
+
   useEffect(() => {
     if (!allUnstakingRequests.isSuccess) return
+
     const now = Date.now()
+    const { all, byAccountId } = allUnstakingRequests.data
 
-    allUnstakingRequests.data.all.forEach(request => {
-      const maybeStoreAction = actions[request.id]
+    all.forEach(request => {
+      if (!isUnstakingRequestClaimable(request, now)) return
 
-      if (isUnstakingRequestClaimable(request, now)) {
-        // Already available, or claimed and waiting on the claim to land
-        if (
-          maybeStoreAction &&
-          isRfoxClaimAction(maybeStoreAction) &&
-          [ActionStatus.ClaimAvailable, ActionStatus.Pending, ActionStatus.Claimed].includes(
-            maybeStoreAction.status,
-          )
-        )
-          return
+      const action = actions[request.id]
+      if (
+        action &&
+        isRfoxClaimAction(action) &&
+        (action.status === ActionStatus.ClaimAvailable ||
+          action.status === ActionStatus.Claimed ||
+          isClaimInFlight(action))
+      )
+        return
 
-        const asset = assets[request.stakingAssetId]
-        if (!asset) return
+      if (!assets[request.stakingAssetId]) return
 
-        dispatch(
-          actionSlice.actions.upsertAction({
-            id: request.id,
-            status: ActionStatus.ClaimAvailable,
-            type: ActionType.RfoxClaim,
-            createdAt: Number(request.cooldownExpiry) * 1000,
-            updatedAt: now,
-            rfoxClaimActionMetadata: {
-              request,
-            },
-          }),
-        )
-      }
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: request.id,
+          status: ActionStatus.ClaimAvailable,
+          type: ActionType.RfoxClaim,
+          createdAt: Number(request.cooldownExpiry) * 1000,
+          updatedAt: now,
+          rfoxClaimActionMetadata: {
+            request,
+          },
+        }),
+      )
     })
-    // We definitely don't want to react on assets here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds])
 
-  // A claimable request missing from its account's fresh requests was claimed elsewhere
-  useEffect(() => {
-    if (!allUnstakingRequests.isSuccess) return
-
-    const { byAccountId } = allUnstakingRequests.data
-
+    // Ids carry the request's index, which claims reorder, so a missing request was claimed or moved
     Object.values(actions)
       .filter(isRfoxClaimAction)
       .filter(action => action.status === ActionStatus.ClaimAvailable)
@@ -140,7 +129,7 @@ export const useRfoxClaimActionSubscriber = () => {
 
         dispatch(actionSlice.actions.deleteAction(action.id))
       })
-    // Only react to fresh requests, not to our own deletes
+    // We definitely don't want to react on assets here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch])
+  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds, txs])
 }

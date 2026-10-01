@@ -49,7 +49,7 @@ export const fetchRelayRequestByTxHash = async (
 export const getRelayRequestFailureMessage = (request: RelayRequest): string => {
   const { failReason, refundFailReason } = request.data ?? {}
 
-  // Relay may still report the legacy 'N/A' rather than null when there isn't one
+  // Relay can report 'N/A' rather than null when there isn't one
   const reason = [failReason, refundFailReason].find(value => value && value !== 'N/A')
 
   return reason ?? 'Bridge failed'

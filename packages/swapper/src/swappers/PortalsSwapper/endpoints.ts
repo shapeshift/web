@@ -94,6 +94,8 @@ export const portalsApi: SwapperApi = {
               : 'Bridge in progress',
         }
       }
+    } else {
+      console.error('Failed to fetch relay request:', relayResult.unwrapErr())
     }
 
     const axelarscanResult = await fetchAxelarscanBridgeStatus(txHash)

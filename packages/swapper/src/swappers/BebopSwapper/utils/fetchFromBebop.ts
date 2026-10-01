@@ -15,6 +15,12 @@ import { chainIdToBebopChain } from '../types'
 import { bebopServiceFactory } from './bebopService'
 import { assetIdToBebopSolanaToken, assetIdToBebopToken } from './helpers'
 
+// PMM charges the fee set against our api key, which nets exactly this bps
+const BEBOP_PMM_AFFILIATE_BPS = '60'
+
+const isPmmEligible = (affiliateBps: string | undefined) =>
+  bnOrZero(affiliateBps).eq(BEBOP_PMM_AFFILIATE_BPS)
+
 export const fetchBebopQuote = async ({
   buyAsset,
   sellAsset,
@@ -53,31 +59,32 @@ export const fetchBebopQuote = async ({
       approval_type: 'Standard',
       skip_validation: 'true',
       gasless: 'false',
-      // PMM fees are configured against our api key on Bebop's side, not sent per quote
       source: 'shapeshift',
     }
 
     const jamParams = new URLSearchParams(baseParams)
-    const pmmParams = new URLSearchParams(baseParams)
 
-    // JAM settles the fee on-chain, so it still takes our bps and a recipient per quote
-    if (affiliateBps && affiliateBps !== '0') {
-      jamParams.set('fee', affiliateBps)
-      jamParams.set('fee_recipient', getAddress(getTreasuryAddressFromChainId(buyAsset.chainId)))
-    }
+    // Without an explicit fee JAM charges our api key's flat fee, so 1 bps is the lowest it can go
+    jamParams.set('fee', affiliateBps && bnOrZero(affiliateBps).gt(0) ? affiliateBps : '1')
+    jamParams.set('fee_recipient', getAddress(getTreasuryAddressFromChainId(buyAsset.chainId)))
 
     const service = bebopServiceFactory({ apiKey })
 
-    const [maybeJam, maybePmm] = await Promise.all([
+    const requests = [
       service.get<BebopQuoteResponse>(`https://api.bebop.xyz/jam/${chainName}/v2/quote`, {
         params: jamParams,
       }),
-      service.get<BebopQuoteResponse>(`https://api.bebop.xyz/pmm/${chainName}/v3/quote`, {
-        params: pmmParams,
-      }),
-    ])
+    ]
 
-    const maybeResponses = [maybeJam, maybePmm]
+    if (isPmmEligible(affiliateBps)) {
+      requests.push(
+        service.get<BebopQuoteResponse>(`https://api.bebop.xyz/pmm/${chainName}/v3/quote`, {
+          params: new URLSearchParams(baseParams),
+        }),
+      )
+    }
+
+    const maybeResponses = await Promise.all(requests)
 
     if (maybeResponses.every(maybeResponse => maybeResponse.isErr())) {
       return Err(
@@ -129,6 +136,7 @@ export const fetchBebopSolanaQuote = async ({
   takerAddress,
   receiverAddress,
   slippageTolerancePercentageDecimal,
+  affiliateBps,
   apiKey,
 }: {
   buyAsset: Asset
@@ -137,9 +145,19 @@ export const fetchBebopSolanaQuote = async ({
   takerAddress: string
   receiverAddress: string
   slippageTolerancePercentageDecimal: string
+  affiliateBps?: string
   apiKey: string
 }): Promise<Result<BebopSolanaQuoteResponse, SwapErrorRight>> => {
   try {
+    if (!isPmmEligible(affiliateBps)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Bebop Solana is PMM only and cannot take the requested bps',
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
+
     // Bebop's Solana routes don't wrap native SOL on the input side, so selling native SOL
     // always fails on-chain. Reject up front instead of returning an unexecutable quote.
     if (sellAsset.assetId === solAssetId) {
@@ -166,7 +184,6 @@ export const fetchBebopSolanaQuote = async ({
       approval_type: 'Standard',
       skip_validation: 'false',
       gasless: 'true',
-      // Solana is PMM only, so its fees are configured against our api key on Bebop's side
       source: 'shapeshift',
     })
 

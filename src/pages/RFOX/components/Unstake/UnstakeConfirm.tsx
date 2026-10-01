@@ -11,6 +11,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import maxBy from 'lodash/maxBy'
@@ -18,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import type { Hash } from 'viem'
+import { parseEventLogs } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
@@ -157,8 +159,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   // With no cooldown the new request is claimable once mined, so hand straight over to claiming
   const claimUnstakingRequest = useCallback(
     async (txId: string) => {
-      const { stakingAssetAccountId, stakingAssetId, unstakingAmountCryptoBaseUnit } =
-        confirmedQuote
+      const { stakingAssetAccountId, stakingAssetId } = confirmedQuote
       const { account, chainId } = fromAccountId(stakingAssetAccountId)
 
       const close = () => {
@@ -166,18 +167,24 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
       }
 
       // The read can trail the receipt on another node, so retry until the request shows up
-      const findUnstakingRequest = async () => {
+      const findUnstakingRequest = async (amount: string, cooldownExpiry: string) => {
         for (let attempt = 0; attempt < UNSTAKING_REQUEST_READ_ATTEMPTS; attempt++) {
           if (attempt) await sleep(UNSTAKING_REQUEST_READ_INTERVAL_MS)
+          if (!isMountedRef.current) return
 
-          const { unstakingRequests } = await queryClient.fetchQuery({
-            queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId, stakingAssetId }),
-            queryFn: getUnstakingRequestsQueryFn({ stakingAssetAccountId, stakingAssetId }),
-          })
+          // A failed read is retried like a stale one
+          const data = await queryClient
+            .fetchQuery({
+              queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId, stakingAssetId }),
+              queryFn: getUnstakingRequestsQueryFn({ stakingAssetAccountId, stakingAssetId }),
+            })
+            .catch(() => undefined)
 
           const unstakingRequest = maxBy(
-            unstakingRequests.filter(
-              request => request.amountCryptoBaseUnit === unstakingAmountCryptoBaseUnit,
+            data?.unstakingRequests.filter(
+              request =>
+                request.amountCryptoBaseUnit === amount &&
+                request.cooldownExpiry === cooldownExpiry,
             ),
             'index',
           )
@@ -189,14 +196,24 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
         setIsAwaitingUnstakeReceipt(true)
 
         // A smart contract wallet hands back its own tx hash rather than an on-chain one
-        if (await fetchIsSmartContractAddressQuery(account, chainId)) return close()
+        if (await fetchIsSmartContractAddressQuery(account.toLowerCase(), chainId)) return close()
 
         const receipt = await waitForTransactionReceipt(getRfoxClient(stakingAssetId), {
           hash: txId as Hash,
         })
         if (receipt.status !== 'success') return close()
 
-        const unstakingRequest = await findUnstakingRequest()
+        const [unstakeEvent] = parseEventLogs({
+          abi: RFOX_ABI,
+          eventName: 'Unstake',
+          logs: receipt.logs,
+        })
+        if (!unstakeEvent) return close()
+
+        const unstakingRequest = await findUnstakingRequest(
+          unstakeEvent.args.amount.toString(),
+          unstakeEvent.args.cooldownExpiry.toString(),
+        )
         if (!unstakingRequest) return close()
         if (!isMountedRef.current) return
 

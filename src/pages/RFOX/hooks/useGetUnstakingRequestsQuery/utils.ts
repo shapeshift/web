@@ -31,7 +31,7 @@ export type UnstakingRequestAccountAssetData = {
   stakingAssetAccountId: AccountId
 }
 
-// Without a staking asset this matches every program's requests for the account, for invalidation
+// Omitting the staking asset matches every program's requests for the account
 export const getUnstakingRequestsQueryKey = ({
   stakingAssetAccountId,
   stakingAssetId,

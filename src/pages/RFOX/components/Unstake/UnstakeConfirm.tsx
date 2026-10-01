@@ -71,7 +71,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   const { data: cooldownPeriodData } = useCooldownPeriodQuery(confirmedQuote.stakingAssetId)
   const { data: pauseStateData } = useRfoxPauseStateQuery(confirmedQuote.stakingAssetId)
 
-  // The receipt can land after the modal is closed, and claiming should not open on its own then
+  // The receipt can land after the modal is closed, when nothing should open or close
   const isMountedRef = useRef(true)
 
   useEffect(() => {
@@ -154,18 +154,17 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     )
   }, [stakingAsset, unstakingAmountCryptoPrecision, unstakingAmountUserCurrency])
 
-  // With no cooldown the request is claimable as soon as the unstake is mined, so hand straight over to claiming it
+  // With no cooldown the new request is claimable once mined, so hand straight over to claiming
   const claimUnstakingRequest = useCallback(
     async (txId: string) => {
       const { stakingAssetAccountId, stakingAssetId, unstakingAmountCryptoBaseUnit } = confirmedQuote
       const { account, chainId } = fromAccountId(stakingAssetAccountId)
 
-      // Once the modal is closed this is a stale wait, and must not close or open anything
       const close = () => {
         if (isMountedRef.current) onClose?.()
       }
 
-      // The read can trail the receipt on another node, so retry until the new request shows up
+      // The read can trail the receipt on another node, so retry until the request shows up
       const findUnstakingRequest = async () => {
         for (let attempt = 0; attempt < UNSTAKING_REQUEST_READ_ATTEMPTS; attempt++) {
           if (attempt) await sleep(UNSTAKING_REQUEST_READ_INTERVAL_MS)

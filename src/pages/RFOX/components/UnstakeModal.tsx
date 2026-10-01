@@ -16,6 +16,9 @@ import {
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 
+// Handing focus back on close would open the action button's tooltip
+const modalProps = { returnFocusOnClose: false }
+
 type UnstakeModalProps = {
   isOpen: boolean
   onClose: () => void
@@ -36,7 +39,7 @@ export const UnstakeModal: React.FC<UnstakeModalProps> = ({ isOpen, onClose }) =
   )
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+    <Dialog isOpen={isOpen} onClose={onClose} height='auto' modalProps={modalProps}>
       <DialogHeader pl={6} pe={0}>
         <DialogHeaderLeft>
           <DialogTitle>{translate('defi.unstake')}</DialogTitle>

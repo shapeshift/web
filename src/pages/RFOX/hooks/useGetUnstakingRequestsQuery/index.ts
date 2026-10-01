@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { getRfoxChainId } from '../../helpers'
 import { supportedStakingAssetIds } from '../useRfoxContext'
 import type { UnstakingRequestAccountAssetData } from './utils'
-import { getUnstakingRequestsQueryFn } from './utils'
+import { getUnstakingRequestsQueryFn, getUnstakingRequestsQueryKey } from './utils'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
@@ -44,7 +44,7 @@ export const useGetUnstakingRequestsQuery = () => {
     queries: accountIdStakingAssetIdPairs.map(
       ({ stakingAssetAccountId, stakingAssetId }) =>
         ({
-          queryKey: ['getUnstakingRequests', { stakingAssetAccountId, stakingAssetId }],
+          queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId, stakingAssetId }),
           queryFn: getUnstakingRequestsQueryFn({
             stakingAssetAccountId,
             stakingAssetId,

@@ -39,6 +39,15 @@ export default defineConfig({
           ],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'scripts',
+          environment: 'node',
+          include: ['scripts/**/*.test.ts'],
+          clearMocks: true,
+        },
+      },
       './packages/swap-widget/vitest.config.ts',
       {
         extends: true,

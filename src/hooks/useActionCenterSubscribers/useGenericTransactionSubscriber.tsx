@@ -310,7 +310,13 @@ export const useGenericTransactionSubscriber = () => {
       if (tx.status !== TxStatus.Confirmed) return
 
       const typeMessagesMap = displayTypeMessagesMap[action.type]
-      const message = typeMessagesMap?.[action.transactionMetadata.displayType]
+      const isRfoxUnstakeWithoutCooldown =
+        action.type === ActionType.Withdraw &&
+        action.transactionMetadata.displayType === GenericTransactionDisplayType.RFOX &&
+        action.transactionMetadata.cooldownPeriodSeconds === 0
+      const message = isRfoxUnstakeWithoutCooldown
+        ? 'RFOX.unstakeSuccessNoCooldown'
+        : typeMessagesMap?.[action.transactionMetadata.displayType]
 
       if (!message) return
 

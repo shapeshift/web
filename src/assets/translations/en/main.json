@@ -2972,6 +2972,7 @@
     "changeAddressSuccess": "Changed RFOX Reward Address to %{newAddress}",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
     "unstakeSuccess": "Once %{cooldownPeriod} has elapsed you will be able to claim your %{amount} %{symbol}",
+    "unstakeSuccessNoCooldown": "Your %{amount} %{symbol} is unstaked and ready to claim.",
     "currentRewardAddress": "Current Reward Address",
     "newRewardAddress": "New Reward Address",
     "rewardCycleExplainer": "This will update for the next reward cycle.",

@@ -10,10 +10,17 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useCallback, useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import maxBy from 'lodash/maxBy'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+import type { Hash } from 'viem'
+import { parseEventLogs } from 'viem'
+import { waitForTransactionReceipt } from 'viem/actions'
 
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
@@ -25,7 +32,16 @@ import type { RowProps } from '@/components/Row/Row'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { sleep } from '@/lib/poll/poll'
+import { getRfoxClient } from '@/pages/RFOX/helpers'
+import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
+import {
+  getUnstakingRequestsQueryFn,
+  getUnstakingRequestsQueryKey,
+} from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
+import { selectPauseState, useRfoxPauseStateQuery } from '@/pages/RFOX/hooks/useRfoxPauseStateQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -35,6 +51,9 @@ type UnstakeConfirmProps = {
   setUnstakeTxid: (txId: string) => void
 }
 
+const UNSTAKING_REQUEST_READ_ATTEMPTS = 5
+const UNSTAKING_REQUEST_READ_INTERVAL_MS = 2000
+
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
 
@@ -43,9 +62,27 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   unstakeTxid,
   setUnstakeTxid,
   onClose,
+  onClaim,
 }) => {
   const navigate = useNavigate()
   const translate = useTranslate()
+  const queryClient = useQueryClient()
+
+  const [isAwaitingUnstakeReceipt, setIsAwaitingUnstakeReceipt] = useState(false)
+
+  const { data: cooldownPeriodData } = useCooldownPeriodQuery(confirmedQuote.stakingAssetId)
+  const { data: pauseStateData } = useRfoxPauseStateQuery(confirmedQuote.stakingAssetId)
+
+  // The receipt can land after the modal is closed, when nothing should open or close
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    isMountedRef.current = true
+
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
@@ -119,18 +156,114 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     )
   }, [stakingAsset, unstakingAmountCryptoPrecision, unstakingAmountUserCurrency])
 
+  // With no cooldown the new request is claimable once mined, so hand straight over to claiming
+  const claimUnstakingRequest = useCallback(
+    async (txId: string) => {
+      const { stakingAssetAccountId, stakingAssetId } = confirmedQuote
+      const { account, chainId } = fromAccountId(stakingAssetAccountId)
+
+      const close = () => {
+        if (isMountedRef.current) onClose?.()
+      }
+
+      // The read can trail the receipt on another node, so retry until the request shows up
+      const findUnstakingRequest = async (amount: string, cooldownExpiry: string) => {
+        for (let attempt = 0; attempt < UNSTAKING_REQUEST_READ_ATTEMPTS; attempt++) {
+          if (attempt) await sleep(UNSTAKING_REQUEST_READ_INTERVAL_MS)
+          if (!isMountedRef.current) return
+
+          // A failed read is retried like a stale one
+          const data = await queryClient
+            .fetchQuery({
+              queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId, stakingAssetId }),
+              queryFn: getUnstakingRequestsQueryFn({ stakingAssetAccountId, stakingAssetId }),
+            })
+            .catch(() => undefined)
+
+          const unstakingRequest = maxBy(
+            data?.unstakingRequests.filter(
+              request =>
+                request.amountCryptoBaseUnit === amount &&
+                request.cooldownExpiry === cooldownExpiry,
+            ),
+            'index',
+          )
+          if (unstakingRequest) return unstakingRequest
+        }
+      }
+
+      try {
+        setIsAwaitingUnstakeReceipt(true)
+
+        // A smart contract wallet hands back its own tx hash rather than an on-chain one
+        if (await fetchIsSmartContractAddressQuery(account.toLowerCase(), chainId)) return close()
+
+        const receipt = await waitForTransactionReceipt(getRfoxClient(stakingAssetId), {
+          hash: txId as Hash,
+        })
+        if (receipt.status !== 'success') return close()
+
+        const [unstakeEvent] = parseEventLogs({
+          abi: RFOX_ABI,
+          eventName: 'Unstake',
+          logs: receipt.logs,
+        })
+        if (!unstakeEvent) return close()
+
+        const unstakingRequest = await findUnstakingRequest(
+          unstakeEvent.args.amount.toString(),
+          unstakeEvent.args.cooldownExpiry.toString(),
+        )
+        if (!unstakingRequest) return close()
+        if (!isMountedRef.current) return
+
+        onClaim?.(unstakingRequest)
+      } catch {
+        close()
+      } finally {
+        if (isMountedRef.current) setIsAwaitingUnstakeReceipt(false)
+      }
+    },
+    [confirmedQuote, onClaim, onClose, queryClient],
+  )
+
   const handleSubmit = useCallback(async () => {
     if (!stakingAsset) return
 
-    await handleUnstake()
+    const txId = await handleUnstake()
+
+    if (
+      txId &&
+      onClaim &&
+      cooldownPeriodData?.cooldownPeriodSeconds === 0 &&
+      pauseStateData &&
+      !selectPauseState(pauseStateData).isWithdrawalsPaused
+    ) {
+      return claimUnstakingRequest(txId)
+    }
+
     onClose?.()
-  }, [handleUnstake, onClose, stakingAsset])
+  }, [
+    claimUnstakingRequest,
+    cooldownPeriodData?.cooldownPeriodSeconds,
+    handleUnstake,
+    onClaim,
+    onClose,
+    pauseStateData,
+    stakingAsset,
+  ])
 
   return (
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
         <Flex flex={1}>
-          <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
+          <IconButton
+            onClick={handleGoBack}
+            variant='ghost'
+            aria-label='back'
+            icon={backIcon}
+            isDisabled={isUnstakeTxPending || isAwaitingUnstakeReceipt}
+          />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
         <Flex flex={1} />
@@ -189,8 +322,10 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
           size='lg'
           mx={-2}
           colorScheme='blue'
-          isLoading={isUnstakeFeesLoading || isUnstakeTxPending}
-          disabled={Boolean(!isUnstakeFeesSuccess || isUnstakeTxPending)}
+          isLoading={isUnstakeFeesLoading || isUnstakeTxPending || isAwaitingUnstakeReceipt}
+          disabled={Boolean(
+            !isUnstakeFeesSuccess || isUnstakeTxPending || isAwaitingUnstakeReceipt,
+          )}
           onClick={handleSubmit}
         >
           {translate('RFOX.confirmAndUnstake')}

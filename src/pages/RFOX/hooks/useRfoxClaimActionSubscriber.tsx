@@ -4,6 +4,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
+import {
+  getUnstakingRequestsQueryKey,
+  isUnstakingRequestClaimable,
+} from './useGetUnstakingRequestsQuery/utils'
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
@@ -59,46 +63,52 @@ export const useRfoxClaimActionSubscriber = () => {
       )
 
       queryClient.invalidateQueries({
-        queryKey: ['getUnstakingRequests', { stakingAssetAccountId }],
+        queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId }),
       })
     })
   }, [txs, assets, pendingRfoxClaimActions, dispatch, queryClient])
 
   useEffect(() => {
     if (!allUnstakingRequests.isSuccess) return
+
     const now = Date.now()
+    const { all, byAccountId } = allUnstakingRequests.data
 
-    allUnstakingRequests.data.all.forEach(request => {
-      const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
+    all.forEach(request => {
+      if (!isUnstakingRequestClaimable(request, now)) return
 
-      const maybeStoreAction = actions[request.id]
+      // Already available, being claimed, or claimed and waiting on a fresh read
+      const action = actions[request.id]
+      if (action && isRfoxClaimAction(action)) return
 
-      if (now >= cooldownExpiryMs) {
-        // This was available and is still available, no-op.
-        if (
-          maybeStoreAction &&
-          isRfoxClaimAction(maybeStoreAction) &&
-          maybeStoreAction.status === ActionStatus.ClaimAvailable
-        )
-          return
+      if (!assets[request.stakingAssetId]) return
 
-        const asset = assets[request.stakingAssetId]
-        if (!asset) return
-
-        dispatch(
-          actionSlice.actions.upsertAction({
-            id: request.id,
-            status: ActionStatus.ClaimAvailable,
-            type: ActionType.RfoxClaim,
-            createdAt: cooldownExpiryMs,
-            updatedAt: now,
-            rfoxClaimActionMetadata: {
-              request,
-            },
-          }),
-        )
-      }
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: request.id,
+          status: ActionStatus.ClaimAvailable,
+          type: ActionType.RfoxClaim,
+          createdAt: Number(request.cooldownExpiry) * 1000,
+          updatedAt: now,
+          rfoxClaimActionMetadata: {
+            request,
+          },
+        }),
+      )
     })
+
+    // Ids carry the request's index, which claims reorder, so a missing request was claimed or moved
+    Object.values(actions)
+      .filter(isRfoxClaimAction)
+      .filter(action => action.status === ActionStatus.ClaimAvailable)
+      .forEach(action => {
+        const accountRequests =
+          byAccountId[action.rfoxClaimActionMetadata.request.stakingAssetAccountId]
+        if (!accountRequests) return
+        if (accountRequests.some(request => request.id === action.id)) return
+
+        dispatch(actionSlice.actions.deleteAction(action.id))
+      })
     // We definitely don't want to react on assets here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds])

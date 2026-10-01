@@ -29,9 +29,6 @@ export const CURRENT_EPOCH_IPFS_HASH = 'bafkreib3ftdt4rhq4fapplsyesyzyorayvnc3a4
 export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
 export const RFOX_V3_UPGRADE_EPOCH = 18
 
-// Months are 0 indexed, so this is October 1st
-export const RFOX_MIGRATION_TIMESTAMP_MS = Date.UTC(2026, 9, 1)
-
 export type RfoxStakingConfig = {
   stakingContract: Address
   chainId: ChainId
@@ -49,7 +46,7 @@ export const RFOX_STAKING_CONFIG: Record<AssetId, RfoxStakingConfig> = {
     chainId: arbitrumChainId,
     networkId: arbitrum.id,
     rewardAssetId: usdcOnArbitrumOneAssetId,
-    isLegacy: false,
+    isLegacy: true,
   },
   [foxAssetId]: {
     stakingContract: RFOX_ETH_PROXY_CONTRACT,

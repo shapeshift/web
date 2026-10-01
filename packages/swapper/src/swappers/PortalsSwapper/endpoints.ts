@@ -85,7 +85,7 @@ export const portalsApi: SwapperApi = {
 
         return {
           status: txStatus,
-          buyTxHash: relayRequest.data?.outTxs?.[0]?.hash,
+          buyTxHash: relayRequest.data?.outTxs?.[0]?.txHash,
           message:
             txStatus === TxStatus.Failed
               ? getRelayRequestFailureMessage(relayRequest)

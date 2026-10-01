@@ -33,18 +33,18 @@ export type RelayMetadata = {
 }
 
 export type RelayRequestTransaction = {
-  hash?: string
+  txHash?: string
   chainId?: number
 }
 
 export type RelayRequestData = {
-  failReason?: string
-  refundFailReason?: string
+  failReason?: string | null
+  refundFailReason?: string | null
   inTxs?: RelayRequestTransaction[]
   outTxs?: RelayRequestTransaction[]
 }
 
-// A single entry of the /requests/v2 listing, keyed by origin tx hash
+// A single entry of the /requests/v3 listing, keyed by origin tx hash
 export type RelayRequest = {
   status?: RelayStatus['status']
   data?: RelayRequestData

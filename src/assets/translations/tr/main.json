@@ -2929,8 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Stake Başlatıldı",
-    "unstakeInitiated": "Unstake Başlatıldı",
     "staking": "rFOX Stake Etme",
     "bridge": "Köprü",
     "bridgeFunds": "Köprü Fonları",

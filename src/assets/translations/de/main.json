@@ -2929,8 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Staking initiiert",
-    "unstakeInitiated": "Unstake eingeleitet",
     "staking": "rFOX Staking",
     "bridge": "Wechsel",
     "bridgeFunds": "Wechsel Betrag",

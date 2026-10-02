@@ -2929,8 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Инициированный стейкинг",
-    "unstakeInitiated": "Инициированное снятие со стейкинга",
     "staking": "Стейкинг rFOX ",
     "bridge": "Мост",
     "bridgeFunds": "Перевести средства",

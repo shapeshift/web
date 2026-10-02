@@ -2933,8 +2933,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Stake Initiated",
-    "unstakeInitiated": "Unstake Initiated",
     "staking": "rFOX Staking",
     "stake": "Stake",
     "unstake": "Unstake",

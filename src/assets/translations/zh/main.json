@@ -2929,8 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "质押已发起",
-    "unstakeInitiated": "取消质押已发起",
     "staking": "rFOX 质押",
     "bridge": "桥接",
     "bridgeFunds": "桥接资金",

@@ -1,4 +1,4 @@
-import { Card, CardBody, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Button, Link, useDisclosure } from '@chakra-ui/react'
 import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -12,7 +12,7 @@ import { getTxLink } from '@/lib/getTxLink'
 import { middleEllipsis } from '@/lib/utils'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionType, getActionTimestamp } from '@/state/slices/actionSlice/types'
+import { getActionTimestamp } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
@@ -43,8 +43,6 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
       maybeSafeTx: undefined,
     })
   }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
-
-  const isUnstake = action.type === ActionType.Withdraw
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
@@ -85,20 +83,9 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
       footer={footer}
       onToggle={onToggle}
     >
-      <Card>
-        <CardBody>
-          <Stack spacing={4}>
-            <Stack direction='row' justify='space-between' align='center'>
-              <Text fontSize='sm' color='text.primary'>
-                {translate(isUnstake ? 'RFOX.unstakeInitiated' : 'RFOX.stakeInitiated')}
-              </Text>
-              <Link href={txLink} isExternal color='blue.300' fontSize='sm' fontWeight='medium'>
-                {middleEllipsis(action.transactionMetadata.txHash)}
-              </Link>
-            </Stack>
-          </Stack>
-        </CardBody>
-      </Card>
+      <Button width='full' as={Link} isExternal href={txLink}>
+        {translate('actionCenter.viewTransaction')}
+      </Button>
     </ActionCard>
   )
 }

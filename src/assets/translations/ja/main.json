@@ -2929,8 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "ステーク開始",
-    "unstakeInitiated": "ステーク解除開始",
     "staking": "rFOXステーキング",
     "bridge": "ブリッジ",
     "bridgeFunds": "資金のブリッジ",

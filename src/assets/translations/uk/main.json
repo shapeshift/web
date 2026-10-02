@@ -2929,8 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Ініційований стейкінг",
-    "unstakeInitiated": "Ініційовано розблокування",
     "staking": "Стейкінг rFOX ",
     "bridge": "Міст",
     "bridgeFunds": "Перевести кошти",

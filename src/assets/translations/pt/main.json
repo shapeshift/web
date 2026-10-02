@@ -2929,8 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Stake iniciado",
-    "unstakeInitiated": "Unstake iniciado",
     "staking": "rFOX Staking",
     "bridge": "Ponte",
     "bridgeFunds": "Faça a ponte de seus fundos",

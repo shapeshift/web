@@ -2931,7 +2931,6 @@
   "RFOX": {
     "stakeInitiated": "Stake Başlatıldı",
     "unstakeInitiated": "Unstake Başlatıldı",
-    "claimWithdraw": "Talep Geri Çekme",
     "staking": "rFOX Stake Etme",
     "bridge": "Köprü",
     "bridgeFunds": "Köprü Fonları",

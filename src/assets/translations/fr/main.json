@@ -2931,7 +2931,6 @@
   "RFOX": {
     "stakeInitiated": "Staking initié",
     "unstakeInitiated": "Déstaking initié",
-    "claimWithdraw": "Réclamer le retrait",
     "staking": "Staking rFOX",
     "bridge": "Bridger",
     "bridgeFunds": "Bridger des fonds",

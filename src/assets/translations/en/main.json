@@ -2935,7 +2935,6 @@
   "RFOX": {
     "stakeInitiated": "Stake Initiated",
     "unstakeInitiated": "Unstake Initiated",
-    "claimWithdraw": "Claim Withdraw",
     "staking": "rFOX Staking",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -2972,7 +2971,7 @@
     "changeAddressPending": "Changing RFOX Reward Address to %{newAddress}",
     "changeAddressSuccess": "Changed RFOX Reward Address to %{newAddress}",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
-    "unstakeSuccess": "Once %{cooldownPeriod} has elapsed you will be able to claim your %{amount} %{symbol}",
+    "unstakeSuccess": "Your unstake of %{amount} %{symbol} has been initiated.",
     "unstakeSuccessNoCooldown": "Your %{amount} %{symbol} is unstaked and ready to claim.",
     "currentRewardAddress": "Current Reward Address",
     "newRewardAddress": "New Reward Address",
@@ -3290,6 +3289,7 @@
       "failed": "Your claim of %{amount} %{symbol} has failed."
     },
     "availableSoon": "soon",
+    "claimAvailableOn": "Claim Available",
     "yield": {
       "unstakeAvailableIn": "Your %{symbol} unstake will be available in %{duration}.",
       "unstakeReady": "Your %{symbol} unstake is ready to claim.",

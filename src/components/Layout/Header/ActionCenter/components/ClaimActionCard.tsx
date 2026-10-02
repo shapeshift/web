@@ -10,6 +10,7 @@ import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { Row } from '@/components/Row/Row'
 import { getTxLink } from '@/lib/getTxLink'
 import { formatSmartDate } from '@/lib/utils/time'
 import type {
@@ -28,6 +29,8 @@ type ClaimActionCardProps = {
   // Mostly a TCY thing - for most opportunities, that will be the same. It basically means "display asset symbol/amount as one asset (claimAssetId) and icon as another (underlyingAssetId)"
   underlyingAssetId: AssetId
   txHash: string | undefined
+  // A fixed timestamp, shown while the claim is still cooling down
+  claimableAt?: number
   onClaimClick: () => void
   message: string
   displayType: GenericTransactionDisplayType
@@ -37,6 +40,7 @@ export const ClaimActionCard = ({
   underlyingAssetId,
   claimAssetId,
   txHash,
+  claimableAt,
   action,
   onClaimClick,
   message,
@@ -86,6 +90,17 @@ export const ClaimActionCard = ({
   const details = useMemo(() => {
     if (!(claimAsset && claimFeeAsset)) return null
 
+    if (action.status === ActionStatus.Initiated) {
+      if (!claimableAt) return null
+
+      return (
+        <Row fontSize='sm'>
+          <Row.Label>{translate('actionCenter.claimAvailableOn')}</Row.Label>
+          <Row.Value>{new Date(claimableAt).toLocaleString()}</Row.Value>
+        </Row>
+      )
+    }
+
     if (action.status === ActionStatus.ClaimAvailable)
       return (
         <Stack gap={4}>
@@ -110,14 +125,14 @@ export const ClaimActionCard = ({
         {translate('actionCenter.viewTransaction')}
       </Button>
     )
-  }, [txHash, action.status, claimFeeAsset, handleClaimClick, claimAsset, translate])
+  }, [txHash, claimableAt, action.status, claimFeeAsset, handleClaimClick, claimAsset, translate])
 
   return (
     <ActionCard
       type={action.type}
       displayType={displayType}
       formattedDate={formattedDate}
-      isCollapsable={true}
+      isCollapsable={Boolean(details)}
       isOpen={isOpen}
       onToggle={onToggle}
       description={message}

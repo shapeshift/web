@@ -93,6 +93,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       claimAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
       underlyingAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
       txHash={action.rfoxClaimActionMetadata.txHash}
+      claimableAt={Number(action.rfoxClaimActionMetadata.request.cooldownExpiry) * 1000}
       onClaimClick={handleClaimClick}
       message={message ?? ''}
     />

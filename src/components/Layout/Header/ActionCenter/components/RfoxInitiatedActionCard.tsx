@@ -1,7 +1,5 @@
-import { Button, Card, CardBody, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Card, CardBody, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -18,8 +16,6 @@ import { ActionType, getActionTimestamp } from '@/state/slices/actionSlice/types
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
-
-dayjs.extend(relativeTime)
 
 type RfoxInitiatedActionCardProps = {
   action: GenericTransactionAction
@@ -100,29 +96,6 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
                 {middleEllipsis(action.transactionMetadata.txHash)}
               </Link>
             </Stack>
-
-            {isUnstake && action.transactionMetadata.cooldownPeriodSeconds && (
-              <Stack direction='row' justify='space-between' align='center'>
-                <Text fontSize='sm' color='text.primary'>
-                  {translate('RFOX.claimWithdraw')}
-                </Text>
-                <Button
-                  size='sm'
-                  variant='outline'
-                  colorScheme='gray'
-                  borderRadius='md'
-                  px={3}
-                  py={1}
-                  height='auto'
-                  fontSize='sm'
-                  isDisabled
-                >
-                  {dayjs(action.createdAt)
-                    .add(action.transactionMetadata.cooldownPeriodSeconds ?? 0, 'second')
-                    .fromNow()}
-                </Button>
-              </Stack>
-            )}
           </Stack>
         </CardBody>
       </Card>

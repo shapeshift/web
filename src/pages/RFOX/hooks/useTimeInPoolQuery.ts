@@ -32,6 +32,8 @@ export const getTimeInPoolQueryKey = ({
   ]
 }
 
+type RfoxHttpProvider = unchained.evm.ethereum.V1Api | unchained.evm.arbitrum.V1Api
+
 type UseTimeInPoolQueryProps<SelectData = bigint> = {
   stakingAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId
@@ -45,7 +47,7 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
 }: UseTimeInPoolQueryProps<SelectData>) => {
   const provider = useMemo(() => {
     return assertGetEvmChainAdapter(getRfoxChainId(stakingAssetId))
-      .httpProvider as unchained.evm.arbitrum.V1Api
+      .httpProvider as RfoxHttpProvider
   }, [stakingAssetId])
 
   const queryKey = useMemo(() => {
@@ -56,16 +58,11 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
     if (!stakingAssetAccountId) return skipToken
 
     return async () => {
-      try {
-        const stakingDuration = await provider.getRfoxStakingDuration({
-          address: fromAccountId(stakingAssetAccountId).account,
-        })
+      const stakingDuration = await provider.getRfoxStakingDuration({
+        address: fromAccountId(stakingAssetAccountId).account,
+      })
 
-        return BigInt(stakingDuration[getStakingContract(stakingAssetId)] ?? 0)
-      } catch {
-        // Not every chain rFOX stakes on is indexed for it yet - callers render N/A for 0
-        return 0n
-      }
+      return BigInt(stakingDuration[getStakingContract(stakingAssetId)] ?? 0)
     }
   }, [provider, stakingAssetAccountId, stakingAssetId])
 

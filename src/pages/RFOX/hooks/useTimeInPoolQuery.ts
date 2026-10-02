@@ -46,8 +46,7 @@ export const useTimeInPoolQuery = <SelectData = bigint>({
   select,
 }: UseTimeInPoolQueryProps<SelectData>) => {
   const provider = useMemo(() => {
-    return assertGetEvmChainAdapter(getRfoxChainId(stakingAssetId))
-      .httpProvider as RfoxHttpProvider
+    return assertGetEvmChainAdapter(getRfoxChainId(stakingAssetId)).httpProvider as RfoxHttpProvider
   }, [stakingAssetId])
 
   const queryKey = useMemo(() => {

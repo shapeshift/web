@@ -292,7 +292,7 @@ export const selectArbitrumBridgeWithdrawActionById = createDeepEqualOutputSelec
   (_state: any, actionId: string) => actionId,
   (actionsById, actionId) => {
     const action = actionsById[actionId]
-    return isArbitrumBridgeWithdrawAction(action) ? action : undefined
+    return action && isArbitrumBridgeWithdrawAction(action) ? action : undefined
   },
 )
 

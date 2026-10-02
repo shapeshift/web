@@ -135,8 +135,9 @@ export const ArbitrumBridgeClaimModal = ({
           arbitrumBridgeMetadata: { ...latestAction.arbitrumBridgeMetadata, claimTxHash },
         }),
       )
+      onClose()
     },
-    [dispatch, action.id],
+    [dispatch, action.id, onClose],
   )
 
   const claimTxResult = useArbitrumClaimTx(claimDetails, destinationAccountId, handleClaimBroadcast)
@@ -159,11 +160,8 @@ export const ArbitrumBridgeClaimModal = ({
     )
   }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult?.data])
 
-  const onConfirm = useCallback(async () => {
-    if (!claimMutation) return
-    await claimMutation.mutateAsync()
-    onClose()
-  }, [claimMutation, onClose])
+  // A failed broadcast keeps the modal open with the error copy on the button
+  const onConfirm = useCallback(() => claimMutation?.mutate(), [claimMutation])
 
   const confirmCopy = useMemo(() => {
     if (executeTransactionDataResult?.isError) return translate('bridge.claimTxDataFailed')

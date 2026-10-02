@@ -3,9 +3,10 @@ import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
+import type { UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useSuspenseQueries } from '@tanstack/react-query'
 import axios, { isAxiosError } from 'axios'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { Claim, TcyClaimer } from '../components/Claim/types'
 
@@ -51,11 +52,18 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
     [accountNumber, allAccountIds, accountIdsByAccountNumberAndChainId],
   )
 
+  // null is an unknown read, as opposed to an account without claims
+  const combine = useCallback(
+    (results: UseSuspenseQueryResult<Claim[] | null>[]) =>
+      results.map((result, i) => ({ ...result, accountId: accountIds[i] })),
+    [accountIds],
+  )
+
   return useSuspenseQueries({
     queries: accountIds.map(accountId => ({
       queryKey: ['tcy-claims', accountId, isConnected, isLocked, isSnapInstalled],
-      queryFn: async (): Promise<Claim[] | undefined> => {
-        if (!isConnected) return []
+      queryFn: async (): Promise<Claim[] | null> => {
+        if (!isConnected) return null
 
         const activeAddresses = (
           await (() => {
@@ -78,13 +86,13 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
               !isSnapInstalled &&
               !isMetaMaskNativeMultichain(wallet)
             )
-              return []
+              return null
 
             const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
               accountId,
             })
-            if (!accountMetadata) return []
-            if (!wallet) return []
+            if (!accountMetadata) return null
+            if (!wallet) return null
 
             // Introspects THORChain savers to get the active address for a given xpub AccountId
             // Defaults to 0 if none found
@@ -97,13 +105,13 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
               wallet,
             })
           })()
-        ).filter(isSome)
+        )
 
-        if (!activeAddresses) return []
+        if (!activeAddresses) return null
 
         try {
           const tcyClaimers = await Promise.all(
-            activeAddresses.map(async address => {
+            activeAddresses.filter(isSome).map(async address => {
               try {
                 const { data } = await axios.get<{ tcy_claimer: TcyClaimer[] }>(
                   `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${address}`,
@@ -151,11 +159,11 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
               }
             })
         } catch {
-          // Unknown rather than empty, so a failed read never reads as claimed elsewhere
-          return undefined
+          return null
         }
       },
       staleTime: 60_000,
     })),
+    combine,
   })
 }

@@ -45,8 +45,6 @@ export const useArbitrumClaimTx = (
 
           const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
 
-          if (!('position' in event)) return
-          // nitro transaction
           return encodeFunctionData({
             abi: ARB_OUTBOX_ABI,
             functionName: 'executeTransaction',
@@ -78,11 +76,12 @@ export const useArbitrumClaimTx = (
   const claimMutation = useMutation({
     mutationKey: ['claim', { txid: claim?.withdrawTxHash }],
     mutationFn: async () => {
-      if (!claim) return
-      if (!wallet) return
-      if (!bip44Params) return
-      if (!executeTransactionDataResult.data) return
-      if (!destinationAccountId) return
+      if (!claim || !destinationAccountId || !executeTransactionDataResult.data) {
+        throw new Error('Claim not ready')
+      }
+      if (!wallet || !bip44Params) {
+        throw new Error(`Wallet has no account for ${destinationAccountId}`)
+      }
 
       const adapter = assertGetEvmChainAdapter(claim.destinationChainId)
 
@@ -105,7 +104,7 @@ export const useArbitrumClaimTx = (
       return txHash
     },
     onSuccess(txHash) {
-      if (txHash) onClaimBroadcast(txHash)
+      onClaimBroadcast(txHash)
     },
     onSettled() {
       queryClient.invalidateQueries({

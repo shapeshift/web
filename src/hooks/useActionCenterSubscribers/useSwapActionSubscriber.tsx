@@ -276,10 +276,9 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
-        // Tx history only recovers withdraws this missed, e.g. after a wiped store. Not awaited so the
-        // balance refetches below aren't held up by the withdraw block lookup
+        // Not awaited, the withdraw block lookup must not hold up the balance refetches below
         if (isArbitrumBridgeWithdrawSwap(swap)) {
-          void fetchArbitrumClaimMessage(swap.sellTxHash)
+          void fetchArbitrumClaimMessage(swap.sellTxHash.toLowerCase())
             .then(({ withdrawTimeMs }) => withdrawTimeMs)
             .catch(() => Date.now())
             .then(withdrawTimeMs => {

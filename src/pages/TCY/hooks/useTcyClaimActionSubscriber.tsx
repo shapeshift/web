@@ -17,7 +17,6 @@ import {
   isClaimStatusRegression,
   isTcyClaimAction,
 } from '@/state/slices/actionSlice/types'
-import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -35,7 +34,6 @@ export const useTcyClaimActionSubscriber = () => {
   } = useWallet()
 
   const allTcyClaims = useTCYClaims('all')
-  const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
   const hasWalletSeenTcyClaimAlert = useAppSelector(
@@ -113,26 +111,30 @@ export const useTcyClaimActionSubscriber = () => {
     navigate,
   ])
 
-  // A claimable account missing from its fresh read was claimed elsewhere, an unknown read is left alone
+  // A claim missing from its account's fresh read was claimed elsewhere, an unknown read is left alone
   useEffect(() => {
-    allTcyClaims.forEach((queryResult, i) => {
-      if (!queryResult.data) return
+    allTcyClaims.forEach(({ data, accountId }) => {
+      if (!data) return
 
-      // Queries are keyed in wallet account order, see useTCYClaims('all')
-      const accountId = walletAccountIds[i]
       const action = actions[accountId]
       if (!action || !isTcyClaimAction(action)) return
-      if (action.status !== ActionStatus.ClaimAvailable) return
 
       const { asset, l1_address } = action.tcyClaimActionMetadata.claim
-      if (queryResult.data.some(claim => claim.asset === asset && claim.l1_address === l1_address))
-        return
+      const isStoredClaimPresent = data.some(
+        claim => claim.asset === asset && claim.l1_address === l1_address,
+      )
 
-      dispatch(actionSlice.actions.deleteAction(action.id))
+      // One action per account, so a claimed one makes way for the account's next claim
+      const isStale =
+        action.status === ActionStatus.ClaimAvailable
+          ? !isStoredClaimPresent
+          : action.status === ActionStatus.Claimed && !isStoredClaimPresent && data.length > 0
+
+      if (isStale) dispatch(actionSlice.actions.deleteAction(action.id))
     })
     // Only react to fresh reads, not to our own deletes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTcyClaims, walletAccountIds, dispatch])
+  }, [allTcyClaims, dispatch])
 
   // Resolves sent claims even after leaving the claim status page, sharing its status query
   const pendingTcyClaimActions = useAppSelector(selectPendingTcyClaimActions)

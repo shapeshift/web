@@ -92,8 +92,7 @@ const getConfirmedChildBlock = async (
   return { assertionHash: latestConfirmed, number: block.number }
 }
 
-// The claim opens a confirm period after the assertion covering the withdraw posts, timed by the
-// parent chain's block rate over the last confirm period
+// Claimable one confirm period, at the parent chain's recent block rate, after the covering assertion posts
 const findClaimableAt = async (
   parentBlockNumber: number,
   childBlockNumber: number,
@@ -171,7 +170,7 @@ export const fetchArbitrumClaimMessage = (txid: string): Promise<ClaimMessage> =
   })
 
 type ClaimStatusResult = {
-  event: ChildToParentTransactionEvent
+  event: ClaimMessage['event']
   message: ChildToParentMessageReader
   withdrawTimeMs: number
   status: ChildToParentMessageStatus
@@ -355,8 +354,7 @@ export const useArbitrumClaims = (props?: { skip?: boolean; isPolling?: boolean 
           event: result.event,
           message: result.message,
         }),
-        // Only a pending withdraw changes on its own. A claimable one changes when claimed, which the claim
-        // flow tracks, and claims made elsewhere are caught on load or when the claim modal opens
+        // Only a pending withdraw changes on its own, claims made elsewhere are caught on load or in the modal
         refetchInterval: (latestData: Query<ClaimStatusResult>) => {
           if (props?.isPolling === false) return false
 

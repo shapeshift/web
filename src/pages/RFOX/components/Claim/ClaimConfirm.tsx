@@ -154,6 +154,7 @@ export const ClaimConfirm: FC<
     }),
     select: data =>
       data.unstakingRequests.find(request => request.id === selectedUnstakingRequest.id)?.index,
+    refetchOnMount: 'always',
   })
 
   const callData = useMemo(() => {

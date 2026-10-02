@@ -7,8 +7,9 @@ import { getArbitrumClaimableAt } from '@/hooks/useArbitrumClaims/useArbitrumCla
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 
+// Tx history keys withdraws by their lowercase txid, wallets don't promise a casing
 export const getArbitrumBridgeWithdrawActionId = (withdrawTxHash: string): string =>
-  `arbitrum-bridge-withdraw-${withdrawTxHash}`
+  `arbitrum-bridge-withdraw-${withdrawTxHash.toLowerCase()}`
 
 export const buildArbitrumBridgeWithdrawActionFromClaim = (
   claim: ClaimDetails,
@@ -51,14 +52,16 @@ export const buildArbitrumBridgeWithdrawActionFromSwap = (
   if (!isArbitrumBridgeWithdrawSwap(swap)) return
   if (!swap.sellTxHash || !swap.buyAccountId) return
 
+  const withdrawTxHash = swap.sellTxHash.toLowerCase()
+
   return {
-    id: getArbitrumBridgeWithdrawActionId(swap.sellTxHash),
+    id: getArbitrumBridgeWithdrawActionId(withdrawTxHash),
     type: ActionType.ArbitrumBridgeWithdraw,
     status: ActionStatus.Initiated,
     createdAt: withdrawTimeMs,
     updatedAt: withdrawTimeMs,
     arbitrumBridgeMetadata: {
-      withdrawTxHash: swap.sellTxHash,
+      withdrawTxHash,
       amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
       assetId: swap.sellAsset.assetId,
       destinationAssetId: swap.buyAsset.assetId,

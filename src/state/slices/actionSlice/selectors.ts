@@ -30,6 +30,7 @@ import {
   isThorchainLpAction,
 } from './types'
 
+import { isSome } from '@/lib/utils'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectCowSwapQuoteIdParamFromRequiredFilter,
@@ -39,7 +40,8 @@ import {
 export const selectActions = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActionsById,
   actionSlice.selectors.selectActionIds,
-  (actionsById, actionIds) => actionIds.map(id => actionsById[id]),
+  // An id without an action, e.g. a persisted null, must not take every subscriber down
+  (actionsById, actionIds) => actionIds.map(id => actionsById[id]).filter(isSome),
 )
 
 export const selectWalletActions = createDeepEqualOutputSelector(

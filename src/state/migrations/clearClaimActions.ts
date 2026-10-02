@@ -6,6 +6,7 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 const clearClaimAction = (action: Action): Action | undefined => {
   switch (action.type) {
     case ActionType.ArbitrumBridgeWithdraw:
+    case ActionType.RfoxClaim:
     case ActionType.TcyClaim:
       return
     case ActionType.Swap:

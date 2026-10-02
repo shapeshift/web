@@ -15,7 +15,7 @@ import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,6 +23,10 @@ import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData } from 'viem'
 
 import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
+import {
+  getUnstakingRequestsQueryFn,
+  getUnstakingRequestsQueryKey,
+} from '../../hooks/useGetUnstakingRequestsQuery/utils'
 import { useRFOXContext } from '../../hooks/useRfoxContext'
 import type { ClaimRouteProps } from './types'
 
@@ -138,13 +142,29 @@ export const ClaimConfirm: FC<
     [claimAssetMarketDataUserCurrency?.price, stakingAmountCryptoPrecision],
   )
 
+  // Claims reorder the contract's requests, so the selected request is claimed at its current index
+  const { data: claimIndex } = useQuery({
+    queryKey: getUnstakingRequestsQueryKey({
+      stakingAssetAccountId: selectedUnstakingRequest.stakingAssetAccountId,
+      stakingAssetId: selectedUnstakingRequest.stakingAssetId,
+    }),
+    queryFn: getUnstakingRequestsQueryFn({
+      stakingAssetAccountId: selectedUnstakingRequest.stakingAssetAccountId,
+      stakingAssetId: selectedUnstakingRequest.stakingAssetId,
+    }),
+    select: data =>
+      data.unstakingRequests.find(request => request.id === selectedUnstakingRequest.id)?.index,
+  })
+
   const callData = useMemo(() => {
+    if (claimIndex === undefined) return
+
     return encodeFunctionData({
       abi: RFOX_ABI,
       functionName: 'withdraw',
-      args: [BigInt(selectedUnstakingRequest.index)],
+      args: [BigInt(claimIndex)],
     })
-  }, [selectedUnstakingRequest.index])
+  }, [claimIndex])
 
   const {
     mutateAsync: handleClaim,
@@ -153,7 +173,7 @@ export const ClaimConfirm: FC<
     isSuccess: isClaimMutationSuccess,
   } = useMutation({
     mutationFn: async () => {
-      if (!wallet || stakingAssetAccountNumber === undefined) return
+      if (!wallet || stakingAssetAccountNumber === undefined || !callData) return
 
       const adapter = assertGetEvmChainAdapter(
         fromAssetId(selectedUnstakingRequest.stakingAssetId).chainId,

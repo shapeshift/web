@@ -110,7 +110,7 @@ export const useRfoxClaimActionSubscriber = () => {
       )
     })
 
-    // Ids carry the request's index, which claims reorder, so a missing request was claimed or moved
+    // A claimable request missing from its account's fresh requests was claimed elsewhere
     Object.values(actions)
       .filter(isRfoxClaimAction)
       .filter(action => action.status === ActionStatus.ClaimAvailable)

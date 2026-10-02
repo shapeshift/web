@@ -4,7 +4,7 @@ import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-mul
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 import { useMemo } from 'react'
 
 import type { Claim, TcyClaimer } from '../components/Claim/types'
@@ -23,6 +23,12 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+
+// THORNode answers an address without claims with a 400 rather than an empty list
+const isNoTcyClaimsError = (error: unknown): boolean =>
+  isAxiosError(error) &&
+  error.response?.status === 400 &&
+  JSON.stringify(error.response.data).includes("doesn't have any tcy to claim")
 
 export const useTCYClaims = (accountNumber: number | 'all') => {
   const {
@@ -48,7 +54,7 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
   return useSuspenseQueries({
     queries: accountIds.map(accountId => ({
       queryKey: ['tcy-claims', accountId, isConnected, isLocked, isSnapInstalled],
-      queryFn: async (): Promise<Claim[]> => {
+      queryFn: async (): Promise<Claim[] | undefined> => {
         if (!isConnected) return []
 
         const activeAddresses = (
@@ -97,15 +103,20 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
 
         try {
           const tcyClaimers = await Promise.all(
-            activeAddresses.map(address =>
-              axios.get<{ tcy_claimer: TcyClaimer[] }>(
-                `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${address}`,
-              ),
-            ),
+            activeAddresses.map(async address => {
+              try {
+                const { data } = await axios.get<{ tcy_claimer: TcyClaimer[] }>(
+                  `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${address}`,
+                )
+                return data.tcy_claimer
+              } catch (error) {
+                if (isNoTcyClaimsError(error)) return []
+                throw error
+              }
+            }),
           )
 
           return tcyClaimers
-            .map(response => response.data.tcy_claimer)
             .flat()
             .filter(claimer => {
               const assetId = thorPoolAssetIdToAssetId(claimer.asset)
@@ -140,7 +151,8 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
               }
             })
         } catch {
-          return []
+          // Unknown rather than empty, so a failed read never reads as claimed elsewhere
+          return undefined
         }
       },
       staleTime: 60_000,

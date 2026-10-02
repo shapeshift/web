@@ -17,6 +17,7 @@ import {
   isClaimStatusRegression,
   isTcyClaimAction,
 } from '@/state/slices/actionSlice/types'
+import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -34,6 +35,7 @@ export const useTcyClaimActionSubscriber = () => {
   } = useWallet()
 
   const allTcyClaims = useTCYClaims('all')
+  const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const actionIds = useAppSelector(actionSlice.selectors.selectActionIds)
   const hasWalletSeenTcyClaimAlert = useAppSelector(
@@ -44,7 +46,7 @@ export const useTcyClaimActionSubscriber = () => {
     if (!allTcyClaims.length) return
     const now = Date.now()
 
-    const allClaims = allTcyClaims.map(queryResult => queryResult.data).flat()
+    const allClaims = allTcyClaims.flatMap(queryResult => queryResult.data ?? [])
 
     allClaims.forEach(claim => {
       const maybeStoreAction = actions[claim.accountId]
@@ -110,6 +112,27 @@ export const useTcyClaimActionSubscriber = () => {
     toast,
     navigate,
   ])
+
+  // A claimable account missing from its fresh read was claimed elsewhere, an unknown read is left alone
+  useEffect(() => {
+    allTcyClaims.forEach((queryResult, i) => {
+      if (!queryResult.data) return
+
+      // Queries are keyed in wallet account order, see useTCYClaims('all')
+      const accountId = walletAccountIds[i]
+      const action = actions[accountId]
+      if (!action || !isTcyClaimAction(action)) return
+      if (action.status !== ActionStatus.ClaimAvailable) return
+
+      const { asset, l1_address } = action.tcyClaimActionMetadata.claim
+      if (queryResult.data.some(claim => claim.asset === asset && claim.l1_address === l1_address))
+        return
+
+      dispatch(actionSlice.actions.deleteAction(action.id))
+    })
+    // Only react to fresh reads, not to our own deletes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allTcyClaims, walletAccountIds, dispatch])
 
   // Resolves sent claims even after leaving the claim status page, sharing its status query
   const pendingTcyClaimActions = useAppSelector(selectPendingTcyClaimActions)

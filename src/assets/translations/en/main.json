@@ -883,7 +883,10 @@
     },
     "claimReceiveAddress": "Claim Receive Address",
     "confirmAndClaim": "Confirm & Claim",
-    "claimTxDataFailed": "Couldn't prepare the claim transaction"
+    "claimTxDataFailed": "Couldn't prepare the claim transaction",
+    "connectDestinationWallet": "Connect the wallet holding %{address} to claim",
+    "alreadyClaimed": "Already claimed",
+    "alreadyClaimedBody": "This withdraw has already been claimed."
   },
   "trade": {
     "trade": "Trade",

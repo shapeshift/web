@@ -127,14 +127,22 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
     const { status } = action
 
-    if (swap.swapperName === SwapperName.ArbitrumBridge && swap.buyAsset.chainId === ethChainId) {
-      if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
+    if (swap.swapperName === SwapperName.ArbitrumBridge) {
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
-      if (status === ActionStatus.Initiated) {
-        return isArbitrumBridgeWithdrawAction(action)
-          ? 'actionCenter.bridge.pendingWithdraw'
-          : 'actionCenter.bridge.initiated'
+
+      // A withdraw is initiated once its tx lands, the claim is what completes it
+      if (swap.buyAsset.chainId === ethChainId) {
+        if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
+        if (status === ActionStatus.Initiated) {
+          return isArbitrumBridgeWithdrawAction(action)
+            ? 'actionCenter.bridge.pendingWithdraw'
+            : 'actionCenter.bridge.initiated'
+        }
+
+        return 'actionCenter.bridge.processing'
       }
+
+      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
 
       return 'actionCenter.bridge.processing'
     }

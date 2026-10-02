@@ -57,9 +57,16 @@ export const ArbitrumBridgeClaimModal = ({
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable
   const isClaimCompleted = action.status === ActionStatus.Claimed
 
-  // The claim is signed by the destination account, there is no fallback to another one
+  // The outbox call is permissionless, so the destination account pays when the wallet holds it,
+  // otherwise its first ethereum account does, the funds land at the destination either way
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
-  const isDestinationAccountConnected = enabledWalletAccountIds.includes(destinationAccountId)
+  const claimAccountId = useMemo(() => {
+    if (enabledWalletAccountIds.includes(destinationAccountId)) return destinationAccountId
+
+    return enabledWalletAccountIds.find(
+      accountId => fromAccountId(accountId).chainId === fromAccountId(destinationAccountId).chainId,
+    )
+  }, [enabledWalletAccountIds, destinationAccountId])
 
   const asset = useAppSelector(state =>
     selectAssetById(state, action.arbitrumBridgeMetadata.assetId),
@@ -97,10 +104,10 @@ export const ArbitrumBridgeClaimModal = ({
 
   const destinationFeeAssetBalanceFilter = useMemo(
     () => ({
-      accountId: destinationAccountId,
+      accountId: claimAccountId,
       assetId: destinationFeeAsset?.assetId,
     }),
-    [destinationAccountId, destinationFeeAsset],
+    [claimAccountId, destinationFeeAsset],
   )
 
   const destinationFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
@@ -146,7 +153,7 @@ export const ArbitrumBridgeClaimModal = ({
     [dispatch, action.id, onClose],
   )
 
-  const claimTxResult = useArbitrumClaimTx(claimDetails, destinationAccountId, handleClaimBroadcast)
+  const claimTxResult = useArbitrumClaimTx(claimDetails, claimAccountId, handleClaimBroadcast)
 
   const executeTransactionDataResult = claimTxResult?.executeTransactionDataResult
 
@@ -172,11 +179,6 @@ export const ArbitrumBridgeClaimModal = ({
   const confirmCopy = useMemo(() => {
     if (isClaimCompleted) return translate('common.close')
 
-    if (!isDestinationAccountConnected)
-      return translate('bridge.connectDestinationWallet', {
-        address: middleEllipsis(fromAccountId(destinationAccountId).account),
-      })
-
     if (executeTransactionDataResult?.isError) return translate('bridge.claimTxDataFailed')
 
     if (claimMutation?.isError) return translate('trade.errors.title')
@@ -192,8 +194,6 @@ export const ArbitrumBridgeClaimModal = ({
     return translate('bridge.confirmAndClaim')
   }, [
     isClaimCompleted,
-    isDestinationAccountConnected,
-    destinationAccountId,
     claimMutation,
     destinationFeeAsset,
     evmFeesResult?.isError,
@@ -275,8 +275,7 @@ export const ArbitrumBridgeClaimModal = ({
             size='lg'
             colorScheme={
               !isClaimCompleted &&
-              (!isDestinationAccountConnected ||
-                !hasEnoughDestinationFeeBalance ||
+              (!hasEnoughDestinationFeeBalance ||
                 executeTransactionDataResult?.isError ||
                 claimMutation?.isError ||
                 evmFeesResult?.isError)
@@ -285,8 +284,7 @@ export const ArbitrumBridgeClaimModal = ({
             }
             isDisabled={
               !isClaimCompleted &&
-              (!isDestinationAccountConnected ||
-                !hasEnoughDestinationFeeBalance ||
+              (!hasEnoughDestinationFeeBalance ||
                 !evmFeesResult?.isSuccess ||
                 evmFeesResult?.isPending ||
                 claimMutation?.isPending)

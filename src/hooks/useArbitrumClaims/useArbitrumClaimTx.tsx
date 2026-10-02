@@ -23,7 +23,7 @@ import { useAppSelector } from '@/state/store'
 
 export const useArbitrumClaimTx = (
   claim: ClaimDetails | undefined,
-  destinationAccountId: AccountId | undefined,
+  claimAccountId: AccountId | undefined,
   onClaimBroadcast: (claimTxHash: string) => void,
 ) => {
   const wallet = useWallet().state.wallet
@@ -32,8 +32,8 @@ export const useArbitrumClaimTx = (
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
   const accountIdFilter = useMemo(() => {
-    return { accountId: destinationAccountId }
-  }, [destinationAccountId])
+    return { accountId: claimAccountId }
+  }, [claimAccountId])
 
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
 
@@ -65,7 +65,7 @@ export const useArbitrumClaimTx = (
   })
 
   const evmFeesResult = useEvmFees({
-    from: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
+    from: claimAccountId ? fromAccountId(claimAccountId).account : undefined,
     chainId: claim?.destinationChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
@@ -76,18 +76,18 @@ export const useArbitrumClaimTx = (
   const claimMutation = useMutation({
     mutationKey: ['claim', { txid: claim?.withdrawTxHash }],
     mutationFn: async () => {
-      if (!claim || !destinationAccountId || !executeTransactionDataResult.data) {
+      if (!claim || !claimAccountId || !executeTransactionDataResult.data) {
         throw new Error('Claim not ready')
       }
       if (!wallet || !bip44Params) {
-        throw new Error(`Wallet has no account for ${destinationAccountId}`)
+        throw new Error(`Wallet has no account for ${claimAccountId}`)
       }
 
       const adapter = assertGetEvmChainAdapter(claim.destinationChainId)
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: bip44Params.accountNumber,
-        from: fromAccountId(destinationAccountId).account,
+        from: fromAccountId(claimAccountId).account,
         adapter,
         data: executeTransactionDataResult.data,
         to: arbitrumNetwork.ethBridge.outbox,

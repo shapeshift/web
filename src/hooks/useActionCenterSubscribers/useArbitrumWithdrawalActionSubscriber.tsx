@@ -92,7 +92,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     })
   }, [dispatch, actionsById, claims])
 
-  // Claimed is final, i.e see this bad boi https://github.com/shapeshift/web/pull/10556
+  // Claimed is final, nothing below reads or writes it again
   const pendingArbitrumBridgeActions = useAppSelector(selectPendingArbitrumBridgeWithdrawActions)
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               ? claim.claimableAt
               : action.arbitrumBridgeMetadata.claimableAt
 
-          // Only write on a real change, see https://github.com/shapeshift/web/pull/10556
+          // Every upsert bumps updatedAt and re-fires this effect, an unchanged write loops it (#10556)
           const hasChanges =
             newStatus !== action.status || claimableAt !== action.arbitrumBridgeMetadata.claimableAt
 

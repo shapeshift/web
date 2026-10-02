@@ -1,5 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 
@@ -11,22 +10,13 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 export const getArbitrumBridgeWithdrawActionId = (withdrawTxHash: string): string =>
   `arbitrum-bridge-withdraw-${withdrawTxHash}`
 
-// The outbox call is permissionless, so any of our ethereum accounts can pay for the claim
-const getClaimDestinationAccountId = (
-  destinationAddress: string,
-  ethAccountIds: AccountId[],
-): AccountId | undefined =>
-  ethAccountIds.find(
-    accountId =>
-      fromAccountId(accountId).account.toLowerCase() === destinationAddress.toLowerCase(),
-  ) ?? ethAccountIds[0]
-
 export const buildArbitrumBridgeWithdrawActionFromClaim = (
   claim: ClaimDetails,
-  ethAccountIds: AccountId[],
-): ArbitrumBridgeWithdrawAction | undefined => {
-  const destinationAccountId = getClaimDestinationAccountId(claim.destinationAddress, ethAccountIds)
-  if (!destinationAccountId) return
+): ArbitrumBridgeWithdrawAction => {
+  const destinationAccountId = toAccountId({
+    chainId: claim.destinationChainId,
+    account: claim.destinationAddress,
+  })
 
   const createdAt = claim.withdrawTimeMs
 

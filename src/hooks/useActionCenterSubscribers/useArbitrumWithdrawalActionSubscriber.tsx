@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isSome } from '@shapeshiftoss/utils'
@@ -23,7 +23,6 @@ import {
   isArbitrumBridgeWithdrawAction,
   isClaimStatusRegression,
 } from '@/state/slices/actionSlice/types'
-import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 // A node can briefly miss a fresh broadcast, so only a long-unknown claim counts as dropped
@@ -53,15 +52,8 @@ const selectClaimTxStatuses = (results: { data?: TxStatus }[]) => results.map(({
 export const useArbitrumWithdrawalActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
-  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const { claims, claimsByTxid } = useArbitrumClaims()
   const translate = useTranslate()
-
-  const ethAccountIds = useMemo(
-    () =>
-      enabledWalletAccountIds.filter(accountId => fromAccountId(accountId).chainId === ethChainId),
-    [enabledWalletAccountIds],
-  )
 
   const { isDrawerOpen, openActionCenterClaims } = useActionCenterContext()
   const toastOptions = useMemo(() => ({ duration: isDrawerOpen ? 5000 : null }), [isDrawerOpen])
@@ -95,18 +87,13 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
 
   // Recover missing withdraw actions from tx history, e.g. after a wiped store or an outside withdrawal
   useEffect(() => {
-    if (!ethAccountIds.length) return
-
     claims.forEach(claim => {
       if (claim.status === ActionStatus.Claimed) return
       if (actionsById[getArbitrumBridgeWithdrawActionId(claim.withdrawTxHash)]) return
 
-      const action = buildArbitrumBridgeWithdrawActionFromClaim(claim, ethAccountIds)
-      if (!action) return
-
-      dispatch(actionSlice.actions.upsertAction(action))
+      dispatch(actionSlice.actions.upsertAction(buildArbitrumBridgeWithdrawActionFromClaim(claim)))
     })
-  }, [dispatch, ethAccountIds, actionsById, claims])
+  }, [dispatch, actionsById, claims])
 
   const pendingArbitrumBridgeActions = useMemo(() => {
     return (

@@ -13,7 +13,6 @@ import type { ClaimDetails } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 
 const destinationAddress = '0xAbCdEf0000000000000000000000000000000001'
-const otherEthAccountId = 'eip155:1:0x0000000000000000000000000000000000000002'
 const destinationAccountId = `eip155:1:${destinationAddress.toLowerCase()}`
 
 const claim = {
@@ -33,18 +32,18 @@ const pendingClaim = { ...claim, status: ActionStatus.Initiated } as ClaimDetail
 
 describe('buildArbitrumBridgeWithdrawActionFromClaim', () => {
   it('keys the action by the withdraw tx so every path lands on the same action', () => {
-    const action = buildArbitrumBridgeWithdrawActionFromClaim(pendingClaim, [destinationAccountId])
+    const action = buildArbitrumBridgeWithdrawActionFromClaim(pendingClaim)
 
-    expect(action?.id).toBe(getArbitrumBridgeWithdrawActionId('0xwithdraw'))
-    expect(action?.type).toBe(ActionType.ArbitrumBridgeWithdraw)
+    expect(action.id).toBe(getArbitrumBridgeWithdrawActionId('0xwithdraw'))
+    expect(action.type).toBe(ActionType.ArbitrumBridgeWithdraw)
   })
 
   it('maps a pending claim to an initiated action dated from the withdraw block', () => {
-    const action = buildArbitrumBridgeWithdrawActionFromClaim(pendingClaim, [destinationAccountId])
+    const action = buildArbitrumBridgeWithdrawActionFromClaim(pendingClaim)
 
-    expect(action?.status).toBe(ActionStatus.Initiated)
-    expect(action?.createdAt).toBe(1_700_000_000_000)
-    expect(action?.arbitrumBridgeMetadata).toMatchObject({
+    expect(action.status).toBe(ActionStatus.Initiated)
+    expect(action.createdAt).toBe(1_700_000_000_000)
+    expect(action.arbitrumBridgeMetadata).toMatchObject({
       withdrawTxHash: '0xwithdraw',
       amountCryptoBaseUnit: '1000',
       assetId: 'eip155:42161/slip44:60',
@@ -56,28 +55,15 @@ describe('buildArbitrumBridgeWithdrawActionFromClaim', () => {
   })
 
   it('maps an available claim to a claimable action', () => {
-    const action = buildArbitrumBridgeWithdrawActionFromClaim(claim, [destinationAccountId])
+    const action = buildArbitrumBridgeWithdrawActionFromClaim(claim)
 
-    expect(action?.status).toBe(ActionStatus.ClaimAvailable)
+    expect(action.status).toBe(ActionStatus.ClaimAvailable)
   })
 
-  it('signs from the destination account when the wallet holds it, whatever its casing', () => {
-    const action = buildArbitrumBridgeWithdrawActionFromClaim(claim, [
-      otherEthAccountId,
-      destinationAccountId,
-    ])
+  it("claims to the withdraw's destination, whatever its casing", () => {
+    const action = buildArbitrumBridgeWithdrawActionFromClaim(claim)
 
-    expect(action?.arbitrumBridgeMetadata.destinationAccountId).toBe(destinationAccountId)
-  })
-
-  it('falls back to any ethereum account since the outbox call is permissionless', () => {
-    const action = buildArbitrumBridgeWithdrawActionFromClaim(claim, [otherEthAccountId])
-
-    expect(action?.arbitrumBridgeMetadata.destinationAccountId).toBe(otherEthAccountId)
-  })
-
-  it('builds nothing without an ethereum account to claim from', () => {
-    expect(buildArbitrumBridgeWithdrawActionFromClaim(claim, [])).toBeUndefined()
+    expect(action.arbitrumBridgeMetadata.destinationAccountId).toBe(destinationAccountId)
   })
 })
 

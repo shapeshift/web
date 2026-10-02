@@ -3299,7 +3299,7 @@
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
       "initiated": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has been initiated.",
       "pendingWithdraw": "Your withdraw of %{amountAndSymbol} will be available %{timeText}.",
-      "availableSoon": "within the hour",
+      "availableSoon": "soon",
       "claimAvailable": "Your bridge of %{amountAndSymbol} is available to claim.",
       "withdrawComplete": "Your bridge of %{amountAndSymbol} is complete.",
       "withdrawProcessing": "Your bridge of %{amountAndSymbol} is being processed.",

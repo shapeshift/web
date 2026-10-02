@@ -11,6 +11,20 @@ import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 export const getArbitrumBridgeWithdrawActionId = (withdrawTxHash: string): string =>
   `arbitrum-bridge-withdraw-${withdrawTxHash.toLowerCase()}`
 
+// Shared by the card and its toasts, pendingWithdraw also takes timeText
+export const getArbitrumBridgeWithdrawMessageKey = (status: ActionStatus): string => {
+  switch (status) {
+    case ActionStatus.Initiated:
+      return 'actionCenter.bridge.pendingWithdraw'
+    case ActionStatus.ClaimAvailable:
+      return 'actionCenter.bridge.claimAvailable'
+    case ActionStatus.Claimed:
+      return 'actionCenter.bridge.withdrawComplete'
+    default:
+      return 'actionCenter.bridge.withdrawProcessing'
+  }
+}
+
 export const buildArbitrumBridgeWithdrawActionFromClaim = (
   claim: ClaimDetails,
 ): ArbitrumBridgeWithdrawAction => {

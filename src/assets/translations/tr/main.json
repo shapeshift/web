@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "Alıcı Adresi Talep Et",
-    "confirmAndClaim": "Onayla ve Talep Et",
-    "bridgeWithdrawalReadyNotification": "Köprü çekimi talep edilmeye hazır",
-    "checkActionCenterNotification": "Ayrıntılar için Eylem Merkezi'ni kontrol edin"
+    "confirmAndClaim": "Onayla ve Talep Et"
   },
   "trade": {
     "trade": "Takas",

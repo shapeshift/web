@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "Адрес получения клейма",
-    "confirmAndClaim": "Подтвердить и заклеймить",
-    "bridgeWithdrawalReadyNotification": "Мост готов к выводу средств",
-    "checkActionCenterNotification": "Подробности см. в Центре действий."
+    "confirmAndClaim": "Подтвердить и заклеймить"
   },
   "trade": {
     "trade": "Торговля",

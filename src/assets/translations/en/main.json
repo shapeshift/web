@@ -883,10 +883,7 @@
     },
     "claimReceiveAddress": "Claim Receive Address",
     "confirmAndClaim": "Confirm & Claim",
-    "claimTxDataFailed": "Couldn't prepare the claim transaction",
-    "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
-    "bridgeWithdrawalClaimedNotification": "Bridge withdrawal claimed",
-    "checkActionCenterNotification": "Check Action Center for details"
+    "claimTxDataFailed": "Couldn't prepare the claim transaction"
   },
   "trade": {
     "trade": "Trade",

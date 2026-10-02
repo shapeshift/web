@@ -11,6 +11,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
+import { getArbitrumBridgeWithdrawMessageKey } from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
 import { useArbitrumClaimTimeText } from '@/hooks/useArbitrumClaimTimeText/useArbitrumClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
@@ -79,16 +80,10 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
 
-    switch (action.status) {
-      case ActionStatus.Initiated:
-        return translate('actionCenter.bridge.pendingWithdraw', { amountAndSymbol, timeText })
-      case ActionStatus.ClaimAvailable:
-        return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
-      case ActionStatus.Claimed:
-        return translate('actionCenter.bridge.withdrawComplete', { amountAndSymbol })
-      default:
-        return translate('actionCenter.bridge.withdrawProcessing', { amountAndSymbol })
-    }
+    return translate(getArbitrumBridgeWithdrawMessageKey(action.status), {
+      amountAndSymbol,
+      timeText,
+    })
   }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeText, translate])
 
   const icon = useMemo(() => {

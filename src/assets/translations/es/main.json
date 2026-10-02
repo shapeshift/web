@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "Dirección para Reclamar",
-    "confirmAndClaim": "Confirmar y Reclamar",
-    "bridgeWithdrawalReadyNotification": "Retiro de Bridge listo para reclamar",
-    "checkActionCenterNotification": "Consulte el Centro de actividades para más detalles"
+    "confirmAndClaim": "Confirmar y Reclamar"
   },
   "trade": {
     "trade": "Intercambiar",

@@ -5,7 +5,6 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isSome } from '@shapeshiftoss/utils'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 import { TransactionNotFoundError, TransactionReceiptNotFoundError } from 'viem'
 
@@ -16,6 +15,7 @@ import {
 } from './arbitrumBridgeWithdrawAction'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { ArbitrumBridgeWithdrawNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/ArbitrumBridgeWithdrawNotification'
 import { useArbitrumClaims } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, isClaimStatusRegression } from '@/state/slices/actionSlice/types'
@@ -50,7 +50,6 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const { claims, claimsByTxid } = useArbitrumClaims()
-  const translate = useTranslate()
 
   const { isDrawerOpen, openActionCenter, openActionCenterClaims } = useActionCenterContext()
   const toastOptions = useMemo(() => ({ duration: isDrawerOpen ? 5000 : null }), [isDrawerOpen])
@@ -63,44 +62,43 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  const notifyClaimAvailable = useCallback(
-    (actionId: string) => {
-      if (toast.isActive(actionId)) return
-
-      toast({
-        id: actionId,
-        status: 'success',
-        title: translate('bridge.bridgeWithdrawalReadyNotification'),
-        description: translate('bridge.checkActionCenterNotification'),
-        position: 'bottom-right',
-        onClick: () => {
-          toast.close(actionId)
-          openActionCenterClaims()
-        },
-      })
-    },
-    [openActionCenterClaims, toast, translate],
-  )
-
-  // The claimed card leaves the claims tab for recent, say where it went
-  const notifyClaimed = useCallback(
-    (actionId: string) => {
-      const toastId = `${actionId}-claimed`
+  // The toast reads the action from the store, so it follows the card's wording and status
+  const notify = useCallback(
+    (actionId: string, toastId: string, openTab: () => void) => {
       if (toast.isActive(toastId)) return
 
       toast({
         id: toastId,
         status: 'success',
-        title: translate('bridge.bridgeWithdrawalClaimedNotification'),
-        description: translate('bridge.checkActionCenterNotification'),
-        position: 'bottom-right',
-        onClick: () => {
-          toast.close(toastId)
-          openActionCenter()
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openTab()
+          }
+
+          return (
+            <ArbitrumBridgeWithdrawNotification
+              handleClick={handleClick}
+              actionId={actionId}
+              onClose={onClose}
+              {...props}
+            />
+          )
         },
       })
     },
-    [openActionCenter, toast, translate],
+    [toast],
+  )
+
+  const notifyClaimAvailable = useCallback(
+    (actionId: string) => notify(actionId, actionId, openActionCenterClaims),
+    [notify, openActionCenterClaims],
+  )
+
+  // The claimed card leaves the claims tab for recent
+  const notifyClaimed = useCallback(
+    (actionId: string) => notify(actionId, `${actionId}-claimed`, openActionCenter),
+    [notify, openActionCenter],
   )
 
   // Recover missing withdraw actions from tx history, e.g. after a wiped store or an outside withdrawal

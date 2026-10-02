@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
-    "confirmAndClaim": "Bestätigen und Beanspruchen",
-    "bridgeWithdrawalReadyNotification": "Wechsel Abhebung bereit zur Inanspruchnahme",
-    "checkActionCenterNotification": "Weitere Einzelheiten im Action Center"
+    "confirmAndClaim": "Bestätigen und Beanspruchen"
   },
   "trade": {
     "trade": "Handeln",

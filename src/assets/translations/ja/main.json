@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "請求の受取アドレス",
-    "confirmAndClaim": "確認と請求",
-    "bridgeWithdrawalReadyNotification": "ブリッジした資産の受け取り準備ができました",
-    "checkActionCenterNotification": "詳細についてはアクションセンターを確認してください"
+    "confirmAndClaim": "確認と請求"
   },
   "trade": {
     "trade": "取引",

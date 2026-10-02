@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "领取接收地址",
-    "confirmAndClaim": "确认并认领",
-    "bridgeWithdrawalReadyNotification": "链桥提现已可领取",
-    "checkActionCenterNotification": "进入操作中心以查看详情"
+    "confirmAndClaim": "确认并认领"
   },
   "trade": {
     "trade": "交易",

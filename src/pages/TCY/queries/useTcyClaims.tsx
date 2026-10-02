@@ -65,47 +65,41 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
       queryFn: async (): Promise<Claim[] | null> => {
         if (!isConnected) return null
 
-        const activeAddresses = (
-          await (() => {
-            const chainId = fromAccountId(accountId).chainId
-            const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
-            if (!assetId) return []
-            if (!isSupportedThorchainSaversAssetId(assetId)) return []
-            if (isRune(assetId)) return []
+        const activeAddresses = await (() => {
+          const chainId = fromAccountId(accountId).chainId
+          const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+          if (!assetId) return []
+          if (!isSupportedThorchainSaversAssetId(assetId)) return []
+          if (isRune(assetId)) return []
 
-            // UTXO-based chains are the odd ones, for all address-based, we can simply use the `account` caip-10 part
-            if (!isUtxoChainId(fromAccountId(accountId).chainId))
-              return [fromAccountId(accountId).account]
+          // UTXO-based chains are the odd ones, for all address-based, we can simply use the `account` caip-10 part
+          if (!isUtxoChainId(fromAccountId(accountId).chainId))
+            return [fromAccountId(accountId).account]
 
-            const isMetaMaskMultichainWallet = isMetaMask(wallet)
+          const isMetaMaskMultichainWallet = isMetaMask(wallet)
 
-            // Metamask snap might be uninstalled but UTXO accounts not cleared yet because of reactivity
-            // Native multichain wallets don't use snaps, so skip this guard for them
-            if (
-              isMetaMaskMultichainWallet &&
-              !isSnapInstalled &&
-              !isMetaMaskNativeMultichain(wallet)
-            )
-              return null
+          // Metamask snap might be uninstalled but UTXO accounts not cleared yet because of reactivity
+          // Native multichain wallets don't use snaps, so skip this guard for them
+          if (isMetaMaskMultichainWallet && !isSnapInstalled && !isMetaMaskNativeMultichain(wallet))
+            return null
 
-            const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
-              accountId,
-            })
-            if (!accountMetadata) return null
-            if (!wallet) return null
+          const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
+            accountId,
+          })
+          if (!accountMetadata) return null
+          if (!wallet) return null
 
-            // Introspects THORChain savers to get the active address for a given xpub AccountId
-            // Defaults to 0 if none found
-            // We do not duplicate this for LP and Lending, as those users should all be on a 0th account_index, only savers is the exception
-            // as some users may have historical non-zero account_index active address
-            return getThorfiUtxoFromAddresses({
-              accountId,
-              assetId,
-              accountMetadata,
-              wallet,
-            })
-          })()
-        )
+          // Introspects THORChain savers to get the active address for a given xpub AccountId
+          // Defaults to 0 if none found
+          // We do not duplicate this for LP and Lending, as those users should all be on a 0th account_index, only savers is the exception
+          // as some users may have historical non-zero account_index active address
+          return getThorfiUtxoFromAddresses({
+            accountId,
+            assetId,
+            accountMetadata,
+            wallet,
+          })
+        })()
 
         if (!activeAddresses) return null
 

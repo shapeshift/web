@@ -3313,6 +3313,7 @@
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
     },
     "rfox": {
+      "unstakeTx": "Unstake Tx",
       "unstakePending": "Your unstake of %{amount} %{symbol} will be available %{timeText}.",
       "unstakeReady": "Your unstake of %{amount} %{symbol} is ready to claim.",
       "unstakeTxPending": "Your unstake of %{amount} %{symbol} is pending.",

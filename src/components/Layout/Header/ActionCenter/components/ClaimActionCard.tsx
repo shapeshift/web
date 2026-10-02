@@ -10,6 +10,7 @@ import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
 import { getTxLink } from '@/lib/getTxLink'
 import { formatSmartDate } from '@/lib/utils/time'
@@ -29,6 +30,9 @@ type ClaimActionCardProps = {
   // Mostly a TCY thing - for most opportunities, that will be the same. It basically means "display asset symbol/amount as one asset (claimAssetId) and icon as another (underlyingAssetId)"
   underlyingAssetId: AssetId
   txHash: string | undefined
+  // The tx that created the claim, e.g. an unstake, linked like a bridge card's withdraw
+  sourceTxHash?: string
+  sourceTxLabel?: string
   // A fixed timestamp, shown while the claim is still cooling down
   claimableAt?: number
   onClaimClick: () => void
@@ -40,6 +44,8 @@ export const ClaimActionCard = ({
   underlyingAssetId,
   claimAssetId,
   txHash,
+  sourceTxHash,
+  sourceTxLabel,
   claimableAt,
   action,
   onClaimClick,
@@ -90,42 +96,58 @@ export const ClaimActionCard = ({
   const details = useMemo(() => {
     if (!(claimAsset && claimFeeAsset)) return null
 
-    if (action.status === ActionStatus.Initiated) {
-      if (!claimableAt) return null
+    const toTxLink = (txId: string) =>
+      getTxLink({
+        txId,
+        chainId: claimAsset.chainId,
+        explorerBaseUrl: claimFeeAsset.explorerTxLink,
+        address: undefined,
+        maybeSafeTx: undefined,
+      })
 
-      return (
-        <Row fontSize='sm'>
+    const rows = [
+      sourceTxHash && sourceTxLabel && (
+        <Row key='source' fontSize='sm' alignItems='center'>
+          <Row.Label>{sourceTxLabel}</Row.Label>
+          <Row.Value>
+            <Link isExternal href={toTxLink(sourceTxHash)} color='text.link'>
+              <MiddleEllipsis value={sourceTxHash} />
+            </Link>
+          </Row.Value>
+        </Row>
+      ),
+      action.status === ActionStatus.Initiated && claimableAt && (
+        <Row key='claimableAt' fontSize='sm'>
           <Row.Label>{translate('actionCenter.claimAvailableOn')}</Row.Label>
           <Row.Value>{new Date(claimableAt).toLocaleString()}</Row.Value>
         </Row>
-      )
-    }
+      ),
+      action.status === ActionStatus.ClaimAvailable && (
+        <Button key='claim' width='full' colorScheme='green' onClick={handleClaimClick}>
+          {translate('common.claim')}
+        </Button>
+      ),
+      action.status !== ActionStatus.ClaimAvailable && txHash && (
+        <Button key='tx' width='full' as={Link} isExternal href={toTxLink(txHash)}>
+          {translate('actionCenter.viewTransaction')}
+        </Button>
+      ),
+    ].filter(Boolean)
 
-    if (action.status === ActionStatus.ClaimAvailable)
-      return (
-        <Stack gap={4}>
-          <Button width='full' colorScheme='green' onClick={handleClaimClick}>
-            {translate('common.claim')}
-          </Button>
-        </Stack>
-      )
+    if (!rows.length) return null
 
-    if (!txHash) return null
-
-    const txLink = getTxLink({
-      txId: txHash,
-      chainId: claimAsset.chainId,
-      explorerBaseUrl: claimFeeAsset.explorerTxLink,
-      address: undefined,
-      maybeSafeTx: undefined,
-    })
-
-    return (
-      <Button width='full' as={Link} isExternal href={txLink}>
-        {translate('actionCenter.viewTransaction')}
-      </Button>
-    )
-  }, [txHash, claimableAt, action.status, claimFeeAsset, handleClaimClick, claimAsset, translate])
+    return <Stack gap={4}>{rows}</Stack>
+  }, [
+    txHash,
+    sourceTxHash,
+    sourceTxLabel,
+    claimableAt,
+    action.status,
+    claimFeeAsset,
+    handleClaimClick,
+    claimAsset,
+    translate,
+  ])
 
   return (
     <ActionCard

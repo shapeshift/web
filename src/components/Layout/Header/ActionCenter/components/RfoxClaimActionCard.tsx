@@ -10,7 +10,7 @@ import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bn } from '@/lib/bignumber/bignumber'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectTxIdsByFilter, selectTxs } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -28,6 +28,31 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   )
   const timeText = useClaimTimeText(
     Number(action.rfoxClaimActionMetadata.request.cooldownExpiry) * 1000,
+  )
+
+  const { request } = action.rfoxClaimActionMetadata
+  const rfoxTxFilter = useMemo(
+    () => ({ accountId: request.stakingAssetAccountId, parser: 'rfox' }),
+    [request.stakingAssetAccountId],
+  )
+  const rfoxTxIds = useAppSelector(state => selectTxIdsByFilter(state, rfoxTxFilter))
+  const txs = useAppSelector(selectTxs)
+
+  // The contract sets cooldownExpiry = block.timestamp + cooldownPeriod, so the unstake is the account's
+  // unstake of this amount mined at the action's createdAt
+  const unstakeTxHash = useMemo(
+    () =>
+      rfoxTxIds
+        .map(txId => txs[txId])
+        .find(
+          tx =>
+            tx.data?.parser === 'rfox' &&
+            tx.data.method === 'unstakeRequest' &&
+            tx.data.assetId === request.stakingAssetId &&
+            tx.data.value === request.amountCryptoBaseUnit &&
+            tx.blockTime * 1000 === action.createdAt,
+        )?.txid,
+    [rfoxTxIds, txs, request.stakingAssetId, request.amountCryptoBaseUnit, action.createdAt],
   )
 
   const handleClaimClick = useCallback(() => {
@@ -93,7 +118,9 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       claimAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
       underlyingAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
       txHash={action.rfoxClaimActionMetadata.txHash}
-      claimableAt={Number(action.rfoxClaimActionMetadata.request.cooldownExpiry) * 1000}
+      sourceTxHash={unstakeTxHash}
+      sourceTxLabel={translate('actionCenter.rfox.unstakeTx')}
+      claimableAt={Number(request.cooldownExpiry) * 1000}
       onClaimClick={handleClaimClick}
       message={message ?? ''}
     />

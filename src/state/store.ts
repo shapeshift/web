@@ -20,7 +20,6 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSl
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { createSubscriptionMiddleware } from './subscriptionMiddleware'
-import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 import { getConfig } from '@/config'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
@@ -134,8 +133,7 @@ export const createStore = () =>
         },
       })
         .concat(apiMiddleware)
-        .concat(subscriptionMiddleware.middleware)
-        .concat(getConfig().VITE_REDUX_WINDOW ? [updateWindowStoreMiddleware] : []),
+        .concat(subscriptionMiddleware.middleware),
     devTools: {
       actionSanitizer,
       stateSanitizer,

@@ -25,10 +25,13 @@ import { useMemo } from 'react'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable, isSome } from '@/lib/utils'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
-import { selectArbitrumWithdrawTxs, selectPortfolioLoadingStatus } from '@/state/slices/selectors'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
+import {
+  selectArbitrumWithdrawTxs,
+  selectPendingArbitrumBridgeWithdrawActions,
+  selectPortfolioLoadingStatus,
+} from '@/state/slices/selectors'
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 
@@ -245,7 +248,7 @@ const combineClaims = (results: { data?: ClaimDetails }[]) => {
 // Pollers keep the claims fresh, observers like the claim modal read the shared cache without extra timers
 export const useArbitrumClaims = (props?: { skip?: boolean; isPolling?: boolean }) => {
   const arbitrumWithdrawTxs = useAppSelector(selectArbitrumWithdrawTxs)
-  const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
+  const pendingWithdrawActions = useAppSelector(selectPendingArbitrumBridgeWithdrawActions)
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
 
   // Stored withdraws are tracked even when tx history isn't loaded, history adds the ones we missed
@@ -260,16 +263,13 @@ export const useArbitrumClaims = (props?: { skip?: boolean; isPolling?: boolean 
         if (source) sources.set(source.withdrawTxHash, source)
       })
 
-    Object.values(actionsById)
-      .filter(isArbitrumBridgeWithdrawAction)
-      .filter(action => action.status !== ActionStatus.Claimed)
-      .forEach(action => {
-        const source = getActionWithdrawSource(action)
-        if (!sources.has(source.withdrawTxHash)) sources.set(source.withdrawTxHash, source)
-      })
+    pendingWithdrawActions.forEach(action => {
+      const source = getActionWithdrawSource(action)
+      if (!sources.has(source.withdrawTxHash)) sources.set(source.withdrawTxHash, source)
+    })
 
     return [...sources.values()]
-  }, [arbitrumWithdrawTxs, actionsById])
+  }, [arbitrumWithdrawTxs, pendingWithdrawActions])
 
   const {
     state: { isLoadingLocalWallet, modal, isConnected },

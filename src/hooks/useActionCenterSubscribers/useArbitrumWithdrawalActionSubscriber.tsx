@@ -18,11 +18,8 @@ import {
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { useArbitrumClaims } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  isArbitrumBridgeWithdrawAction,
-  isClaimStatusRegression,
-} from '@/state/slices/actionSlice/types'
+import { ActionStatus, isClaimStatusRegression } from '@/state/slices/actionSlice/types'
+import { selectPendingArbitrumBridgeWithdrawActions } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 // A node can briefly miss a fresh broadcast, so only a long-unknown claim counts as dropped
@@ -95,14 +92,8 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     })
   }, [dispatch, actionsById, claims])
 
-  const pendingArbitrumBridgeActions = useMemo(() => {
-    return (
-      Object.values(actionsById)
-        .filter(isArbitrumBridgeWithdrawAction)
-        // Claimed is final, i.e see this bad boi https://github.com/shapeshift/web/pull/10556
-        .filter(action => action.status !== ActionStatus.Claimed)
-    )
-  }, [actionsById])
+  // Claimed is final, i.e see this bad boi https://github.com/shapeshift/web/pull/10556
+  const pendingArbitrumBridgeActions = useAppSelector(selectPendingArbitrumBridgeWithdrawActions)
 
   useEffect(() => {
     try {
@@ -157,14 +148,12 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
   // Resolves in-flight claims, including ones broadcast before a reload
   const claimingActions = useMemo(
     () =>
-      Object.values(actionsById)
-        .filter(isArbitrumBridgeWithdrawAction)
-        .filter(
-          action =>
-            action.status === ActionStatus.Pending &&
-            Boolean(action.arbitrumBridgeMetadata.claimTxHash),
-        ),
-    [actionsById],
+      pendingArbitrumBridgeActions.filter(
+        action =>
+          action.status === ActionStatus.Pending &&
+          Boolean(action.arbitrumBridgeMetadata.claimTxHash),
+      ),
+    [pendingArbitrumBridgeActions],
   )
 
   const claimTxStatuses = useQueries({

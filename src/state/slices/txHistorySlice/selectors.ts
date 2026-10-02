@@ -107,37 +107,32 @@ const selectWalletTxIdsByAccountIdAssetId = createSelector(
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
 
-export const selectArbitrumWithdrawTxs = createSelector(
-  selectTxIds,
-  selectTxs,
+// A withdraw is indexed under every asset it touched, this only changes when a tx id is added
+const selectWalletArbitrumTxIds = createDeepEqualOutputSelector(
   selectWalletTxIdsByAccountIdAssetId,
-  (txIds, txs, data): Tx[] => {
-    const arbitrumData = pickBy(
-      data,
-      (_, accountId) => fromAccountId(accountId).chainId === arbitrumChainId,
-    )
+  (data): TxId[] => {
+    const txIds = new Set<TxId>()
 
-    const arbitrumTxIds = values(arbitrumData)
-      .flatMap(data => values(data).flat())
-      .filter(isSome)
+    Object.entries(data).forEach(([accountId, byAssetId]) => {
+      if (fromAccountId(accountId).chainId !== arbitrumChainId) return
+      values(byAssetId).flat().filter(isSome).forEach(txId => txIds.add(txId))
+    })
 
-    const sortedArbitrumTxIds = uniq(arbitrumTxIds).sort(
-      (a, b) => txIds.indexOf(a) - txIds.indexOf(b),
-    )
-
-    return sortedArbitrumTxIds.reduce<Tx[]>((prev, txid) => {
-      const tx = txs[txid]
-
-      if (
-        tx.data?.parser === 'arbitrumBridge' &&
-        ['outboundTransfer', 'withdrawEth'].includes(tx.data?.method ?? '')
-      ) {
-        prev.push(tx)
-      }
-
-      return prev
-    }, [])
+    return [...txIds]
   },
+)
+
+export const selectArbitrumWithdrawTxs = createDeepEqualOutputSelector(
+  selectWalletArbitrumTxIds,
+  selectTxs,
+  (txIds, txs): Tx[] =>
+    txIds
+      .map(txId => txs[txId])
+      .filter(
+        tx =>
+          tx?.data?.parser === 'arbitrumBridge' &&
+          ['outboundTransfer', 'withdrawEth'].includes(tx.data.method ?? ''),
+      ),
 )
 
 export const selectTxIdsByFilter = createCachedSelector(

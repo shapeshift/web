@@ -10,7 +10,7 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
 import { getArbitrumBridgeWithdrawMessageKey } from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
-import { useArbitrumClaimTimeText } from '@/hooks/useArbitrumClaimTimeText/useArbitrumClaimTimeText'
+import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectArbitrumBridgeWithdrawActionById, selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -29,7 +29,7 @@ export const ArbitrumBridgeWithdrawNotification = ({
   const buyAsset = useAppSelector(state =>
     selectAssetById(state, action?.arbitrumBridgeMetadata.destinationAssetId ?? ''),
   )
-  const timeText = useArbitrumClaimTimeText(action?.arbitrumBridgeMetadata.claimableAt)
+  const timeText = useClaimTimeText(action?.arbitrumBridgeMetadata.claimableAt)
 
   const icon = useMemo(() => {
     if (!action) return undefined

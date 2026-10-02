@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { ClaimActionCard } from './ClaimActionCard'
 
+import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bn } from '@/lib/bignumber/bignumber'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
@@ -24,6 +25,9 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, action.rfoxClaimActionMetadata.request.stakingAssetId),
+  )
+  const timeText = useClaimTimeText(
+    Number(action.rfoxClaimActionMetadata.request.cooldownExpiry) * 1000,
   )
 
   const handleClaimClick = useCallback(() => {
@@ -46,6 +50,13 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     ).toFixed(2)
 
     switch (action.status) {
+      case ActionStatus.Initiated: {
+        return translate('actionCenter.rfox.unstakePending', {
+          amount: amountCryptoPrecision,
+          symbol: stakingAsset.symbol,
+          timeText,
+        })
+      }
       case ActionStatus.ClaimAvailable: {
         return translate('actionCenter.rfox.unstakeReady', {
           amount: amountCryptoPrecision,
@@ -71,6 +82,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     action.rfoxClaimActionMetadata.request.amountCryptoPrecision,
     action.status,
     stakingAsset,
+    timeText,
     translate,
   ])
 

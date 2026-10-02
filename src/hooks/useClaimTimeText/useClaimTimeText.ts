@@ -5,7 +5,7 @@ import { formatSecondsToDuration } from '@/lib/utils/time'
 
 const TICK_INTERVAL_MS = 60_000
 
-export const useArbitrumClaimTimeText = (claimableAt: number | undefined): string => {
+export const useClaimTimeText = (claimableAt: number | undefined): string => {
   const translate = useTranslate()
   const [now, setNow] = useState(Date.now)
 
@@ -26,5 +26,5 @@ export const useArbitrumClaimTimeText = (claimableAt: number | undefined): strin
 
   return secondsUntilClaimable > 0
     ? formatSecondsToDuration(secondsUntilClaimable, true)
-    : translate('actionCenter.bridge.availableSoon')
+    : translate('actionCenter.availableSoon')
 }

@@ -14,7 +14,7 @@ import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
 import { getArbitrumBridgeWithdrawActionId } from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
-import { useArbitrumClaimTimeText } from '@/hooks/useArbitrumClaimTimeText/useArbitrumClaimTimeText'
+import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import {
@@ -57,7 +57,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   // Bridge swaps show their withdraw action once history creates it, the swap action until then
   const action = maybeArbitrumBridgeAction ?? swapAction
 
-  const timeText = useArbitrumClaimTimeText(
+  const timeText = useClaimTimeText(
     maybeArbitrumBridgeAction?.arbitrumBridgeMetadata.claimableAt,
   )
 

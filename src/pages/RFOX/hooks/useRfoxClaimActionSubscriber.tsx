@@ -1,13 +1,14 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useReadContracts } from 'wagmi'
 
+import { getRfoxNetworkId, getStakingContract } from '../helpers'
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
-import {
-  getUnstakingRequestsQueryKey,
-  isUnstakingRequestClaimable,
-} from './useGetUnstakingRequestsQuery/utils'
+import { getUnstakingRequestsQueryKey } from './useGetUnstakingRequestsQuery/utils'
+import { supportedStakingAssetIds } from './useRfoxContext'
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
@@ -81,6 +82,34 @@ export const useRfoxClaimActionSubscriber = () => {
     })
   }, [txs, assets, pendingRfoxClaimActions, dispatch, queryClient])
 
+  // Dates a request from its unstake, the period only changes by governance
+  const cooldownPeriods = useReadContracts({
+    contracts: supportedStakingAssetIds.map(
+      stakingAssetId =>
+        ({
+          abi: RFOX_ABI,
+          address: getStakingContract(stakingAssetId),
+          functionName: 'cooldownPeriod',
+          chainId: getRfoxNetworkId(stakingAssetId),
+        }) as const,
+    ),
+    query: { staleTime: Infinity },
+  })
+
+  const cooldownPeriodByStakingAssetId = useMemo(
+    () =>
+      Object.fromEntries(
+        supportedStakingAssetIds.map((stakingAssetId, i) => [
+          stakingAssetId,
+          cooldownPeriods.data?.[i]?.result,
+        ]),
+      ),
+    [cooldownPeriods.data],
+  )
+
+  // A cooldown outlives any timeout, so the next check is at most a day out
+  const [cooldownTick, setCooldownTick] = useState(0)
+
   useEffect(() => {
     if (!allUnstakingRequests.isSuccess) return
 
@@ -88,20 +117,29 @@ export const useRfoxClaimActionSubscriber = () => {
     const { all, byAccountId } = allUnstakingRequests.data
 
     all.forEach(request => {
-      if (!isUnstakingRequestClaimable(request, now)) return
-
-      // Already available, being claimed, or claimed and waiting on a fresh read
+      const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
+      const isClaimable = now >= cooldownExpiryMs
       const action = actions[request.id]
-      if (action && isRfoxClaimAction(action)) return
+
+      // Only a cooled down request moves forward, the claim flow owns it from there
+      if (action && isRfoxClaimAction(action)) {
+        if (isClaimable && action.status === ActionStatus.Initiated) {
+          dispatch(actionSlice.actions.upsertAction({ ...action, status: ActionStatus.ClaimAvailable }))
+        }
+        return
+      }
 
       if (!assets[request.stakingAssetId]) return
+
+      const cooldownPeriod = cooldownPeriodByStakingAssetId[request.stakingAssetId]
+      if (cooldownPeriod === undefined) return
 
       dispatch(
         actionSlice.actions.upsertAction({
           id: request.id,
-          status: ActionStatus.ClaimAvailable,
+          status: isClaimable ? ActionStatus.ClaimAvailable : ActionStatus.Initiated,
           type: ActionType.RfoxClaim,
-          createdAt: Number(request.cooldownExpiry) * 1000,
+          createdAt: cooldownExpiryMs - Number(cooldownPeriod) * 1000,
           updatedAt: now,
           rfoxClaimActionMetadata: {
             request,
@@ -122,7 +160,26 @@ export const useRfoxClaimActionSubscriber = () => {
 
         dispatch(actionSlice.actions.deleteAction(action.id))
       })
+
+    const nextCooldownExpiryMs = Math.min(
+      ...all.map(request => Number(request.cooldownExpiry) * 1000).filter(ms => ms > now),
+    )
+    if (!Number.isFinite(nextCooldownExpiryMs)) return
+
+    const timeout = setTimeout(
+      () => setCooldownTick(tick => tick + 1),
+      Math.min(nextCooldownExpiryMs - now, 24 * 60 * 60 * 1000),
+    )
+
+    return () => clearTimeout(timeout)
     // We definitely don't want to react on assets here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds])
+  }, [
+    allUnstakingRequests.data,
+    allUnstakingRequests.isSuccess,
+    cooldownPeriodByStakingAssetId,
+    cooldownTick,
+    dispatch,
+    actionIds,
+  ])
 }

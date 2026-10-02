@@ -12,7 +12,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
 import { getArbitrumBridgeWithdrawMessageKey } from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
-import { useArbitrumClaimTimeText } from '@/hooks/useArbitrumClaimTimeText/useArbitrumClaimTimeText'
+import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
 import { formatSmartDate } from '@/lib/utils/time'
@@ -52,7 +52,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     ),
   )
 
-  const timeText = useArbitrumClaimTimeText(action.arbitrumBridgeMetadata.claimableAt)
+  const timeText = useClaimTimeText(action.arbitrumBridgeMetadata.claimableAt)
 
   const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
   const { isOpen, onToggle } = useDisclosure()

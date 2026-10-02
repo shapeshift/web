@@ -57,16 +57,21 @@ export const ArbitrumBridgeClaimModal = ({
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable
   const isClaimCompleted = action.status === ActionStatus.Claimed
 
-  // The outbox call is permissionless, so the destination account pays when the wallet holds it,
-  // otherwise its first ethereum account does, the funds land at the destination either way
+  // The outbox call is permissionless, the account that withdrew pays for the claim when the wallet
+  // holds it on ethereum, otherwise its first ethereum account does. Funds land at the destination either way
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const claimAccountId = useMemo(() => {
-    if (enabledWalletAccountIds.includes(destinationAccountId)) return destinationAccountId
-
-    return enabledWalletAccountIds.find(
-      accountId => fromAccountId(accountId).chainId === fromAccountId(destinationAccountId).chainId,
+    const { chainId } = fromAccountId(destinationAccountId)
+    const withdrawAddress = fromAccountId(action.arbitrumBridgeMetadata.accountId).account
+    const ethAccountIds = enabledWalletAccountIds.filter(
+      accountId => fromAccountId(accountId).chainId === chainId,
     )
-  }, [enabledWalletAccountIds, destinationAccountId])
+
+    return (
+      ethAccountIds.find(accountId => fromAccountId(accountId).account === withdrawAddress) ??
+      ethAccountIds[0]
+    )
+  }, [enabledWalletAccountIds, destinationAccountId, action.arbitrumBridgeMetadata.accountId])
 
   const asset = useAppSelector(state =>
     selectAssetById(state, action.arbitrumBridgeMetadata.assetId),

@@ -52,7 +52,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
   const { claims, claimsByTxid } = useArbitrumClaims()
   const translate = useTranslate()
 
-  const { isDrawerOpen, openActionCenterClaims } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter, openActionCenterClaims } = useActionCenterContext()
   const toastOptions = useMemo(() => ({ duration: isDrawerOpen ? 5000 : null }), [isDrawerOpen])
   const toast = useNotificationToast(toastOptions)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
@@ -80,6 +80,27 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
       })
     },
     [openActionCenterClaims, toast, translate],
+  )
+
+  // The claimed card leaves the claims tab for recent, say where it went
+  const notifyClaimed = useCallback(
+    (actionId: string) => {
+      const toastId = `${actionId}-claimed`
+      if (toast.isActive(toastId)) return
+
+      toast({
+        id: toastId,
+        status: 'success',
+        title: translate('bridge.bridgeWithdrawalClaimedNotification'),
+        description: translate('bridge.checkActionCenterNotification'),
+        position: 'bottom-right',
+        onClick: () => {
+          toast.close(toastId)
+          openActionCenter()
+        },
+      })
+    },
+    [openActionCenter, toast, translate],
   )
 
   // Recover missing withdraw actions from tx history, e.g. after a wiped store or an outside withdrawal
@@ -175,6 +196,7 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
       switch (claimTxStatuses[i]) {
         case TxStatus.Confirmed:
           dispatch(actionSlice.actions.upsertAction({ ...action, status: ActionStatus.Claimed }))
+          notifyClaimed(action.id)
           return
         case TxStatus.Failed:
           dispatch(
@@ -189,5 +211,5 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
           return
       }
     })
-  }, [dispatch, claimingActions, claimTxStatuses])
+  }, [dispatch, notifyClaimed, claimingActions, claimTxStatuses])
 }

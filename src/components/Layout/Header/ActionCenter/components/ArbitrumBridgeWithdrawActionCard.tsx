@@ -1,9 +1,6 @@
 import { Button, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -14,16 +11,19 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
+import { getArbitrumBridgeWithdrawMessageKey } from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
+import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
-import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  GenericTransactionDisplayType,
+  getActionTimestamp,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
-dayjs.extend(relativeTime)
-dayjs.extend(duration)
 
 type ArbitrumBridgeWithdrawActionCardProps = {
   action: ArbitrumBridgeWithdrawAction
@@ -52,12 +52,10 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     ),
   )
 
-  const formattedDate = useMemo(() => formatSmartDate(action.updatedAt), [action.updatedAt])
-  const isCollapsable =
-    action.status === ActionStatus.ClaimAvailable || action.status === ActionStatus.Claimed
-  const { isOpen, onToggle } = useDisclosure({
-    defaultIsOpen: action.status === ActionStatus.ClaimAvailable,
-  })
+  const timeText = useClaimTimeText(action.arbitrumBridgeMetadata.claimableAt)
+
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
+  const { isOpen, onToggle } = useDisclosure()
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {
@@ -82,32 +80,11 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     const amountAndSymbol = `${buyAmountCryptoPrecision} ${buyAsset.symbol}`
 
-    // Calculate time remaining for initiated status
-    const timeRemaining =
-      action.arbitrumBridgeMetadata.claimDetails?.timeRemainingSeconds ??
-      action.arbitrumBridgeMetadata.timeRemainingSeconds
-    const timeDisplay =
-      timeRemaining && timeRemaining > 0 ? formatSecondsToDuration(timeRemaining) : null
-    const timeText = timeDisplay ? `in ${timeDisplay}` : 'Available'
-
-    switch (action.status) {
-      case ActionStatus.Initiated:
-        return translate('actionCenter.bridge.pendingWithdraw', { amountAndSymbol, timeText })
-      case ActionStatus.ClaimAvailable:
-        return translate('actionCenter.bridge.claimAvailable', { amountAndSymbol })
-      case ActionStatus.Claimed:
-        return translate('actionCenter.bridge.withdrawComplete', { amountAndSymbol })
-      default:
-        return translate('actionCenter.bridge.withdrawProcessing', { amountAndSymbol })
-    }
-  }, [
-    action.status,
-    buyAmountCryptoPrecision,
-    buyAsset,
-    sellAsset,
-    translate,
-    action.arbitrumBridgeMetadata,
-  ])
+    return translate(getArbitrumBridgeWithdrawMessageKey(action.status), {
+      amountAndSymbol,
+      timeText,
+    })
+  }, [action.status, buyAmountCryptoPrecision, buyAsset, sellAsset, timeText, translate])
 
   const icon = useMemo(() => {
     if (!sellAsset) return null
@@ -143,16 +120,14 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
     return (
       <Stack gap={4}>
-        {action.status === ActionStatus.Initiated && (
-          <Row fontSize='sm' alignItems='center'>
-            <Row.Label>{translate('actionCenter.bridge.transactionInitiated')}</Row.Label>
-            <Row.Value>
-              <Link isExternal href={withdrawTxLink} color='text.link'>
-                <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
-              </Link>
-            </Row.Value>
-          </Row>
-        )}
+        <Row fontSize='sm' alignItems='center'>
+          <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
+          <Row.Value>
+            <Link isExternal href={withdrawTxLink} color='text.link'>
+              <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
+            </Link>
+          </Row.Value>
+        </Row>
         {action.status === ActionStatus.ClaimAvailable && (
           <Row fontSize='sm' alignItems='center'>
             <Row.Label>{translate('actionCenter.bridge.claimWithdraw')}</Row.Label>
@@ -163,27 +138,15 @@ export const ArbitrumBridgeWithdrawActionCard = ({
             </Row.Value>
           </Row>
         )}
-        {action.status === ActionStatus.Claimed && (
-          <>
-            <Row fontSize='sm' alignItems='center'>
-              <Row.Label>{translate('actionCenter.bridge.withdrawTx')}</Row.Label>
-              <Row.Value>
-                <Link isExternal href={withdrawTxLink} color='text.link'>
-                  <MiddleEllipsis value={action.arbitrumBridgeMetadata.withdrawTxHash} />
-                </Link>
-              </Row.Value>
-            </Row>
-            {action.arbitrumBridgeMetadata.claimTxHash && claimTxLink && (
-              <Row fontSize='sm' alignItems='center'>
-                <Row.Label>{translate('actionCenter.bridge.claimTx')}</Row.Label>
-                <Row.Value>
-                  <Link isExternal href={claimTxLink} color='text.link'>
-                    <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash} />
-                  </Link>
-                </Row.Value>
-              </Row>
-            )}
-          </>
+        {action.arbitrumBridgeMetadata.claimTxHash && claimTxLink && (
+          <Row fontSize='sm' alignItems='center'>
+            <Row.Label>{translate('actionCenter.bridge.claimTx')}</Row.Label>
+            <Row.Value>
+              <Link isExternal href={claimTxLink} color='text.link'>
+                <MiddleEllipsis value={action.arbitrumBridgeMetadata.claimTxHash} />
+              </Link>
+            </Row.Value>
+          </Row>
         )}
       </Stack>
     )
@@ -206,7 +169,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
       type={action.type}
       displayType={GenericTransactionDisplayType.Bridge}
       formattedDate={formattedDate}
-      isCollapsable={isCollapsable}
+      isCollapsable
       isOpen={isOpen}
       onToggle={onToggle}
       description={description}

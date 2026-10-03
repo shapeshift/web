@@ -12,7 +12,7 @@ const top = { base: -1, '2xl': 'auto' }
 
 export const TCYNavIndicator = () => {
   const claimsQuery = useTCYClaims('all')
-  const hasClaims = useMemo(() => claimsQuery.some(query => query.data.length), [claimsQuery])
+  const hasClaims = useMemo(() => claimsQuery.some(query => query.data?.length), [claimsQuery])
 
   if (!hasClaims) return null
 

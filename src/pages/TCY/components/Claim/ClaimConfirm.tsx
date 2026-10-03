@@ -182,7 +182,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
 
       dispatch(
         actionSlice.actions.upsertAction({
-          id: claim.l1_address,
+          id: claim.accountId,
           status: ActionStatus.Pending,
           type: ActionType.TcyClaim,
           createdAt: Date.now(),

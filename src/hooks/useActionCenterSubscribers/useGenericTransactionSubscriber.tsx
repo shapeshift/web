@@ -27,6 +27,7 @@ import {
   ActionType,
   GenericTransactionDisplayType,
   GenericTransactionQueryId,
+  isClaimAction,
 } from '@/state/slices/actionSlice/types'
 import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -74,7 +75,7 @@ const YIELD_POLL_INTERVAL_MS = 5000
 
 export const useGenericTransactionSubscriber = () => {
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter, openActionCenterClaims } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const pendingGenericTransactionActions = useAppSelector(selectPendingGenericTransactionActions)
@@ -102,7 +103,7 @@ export const useGenericTransactionSubscriber = () => {
         render: ({ onClose, ...props }) => {
           const handleClick = () => {
             onClose()
-            openActionCenter()
+            isClaimAction(action) ? openActionCenterClaims() : openActionCenter()
           }
 
           return (
@@ -116,7 +117,7 @@ export const useGenericTransactionSubscriber = () => {
         },
       })
     },
-    [isDrawerOpen, openActionCenter, toast],
+    [isDrawerOpen, openActionCenter, openActionCenterClaims, toast],
   )
 
   useEffect(() => {
@@ -235,7 +236,7 @@ export const useGenericTransactionSubscriber = () => {
                   }),
                 )
 
-                fireToast(action, 'success')
+                fireToast({ ...action, type: ActionType.Claim }, 'success')
               } else {
                 const typeMessagesMap = displayTypeMessagesMap[action.type]
                 const message =

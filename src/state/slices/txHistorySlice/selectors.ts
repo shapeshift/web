@@ -107,37 +107,69 @@ const selectWalletTxIdsByAccountIdAssetId = createSelector(
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
 
-export const selectArbitrumWithdrawTxs = createSelector(
-  selectTxIds,
+// A withdraw is indexed under every asset it touched, this only changes when a tx id is added
+const selectWalletArbitrumTxIds = createDeepEqualOutputSelector(
+  selectWalletTxIdsByAccountIdAssetId,
+  (data): TxId[] => {
+    const txIds = new Set<TxId>()
+
+    Object.entries(data).forEach(([accountId, byAssetId]) => {
+      if (fromAccountId(accountId).chainId !== arbitrumChainId) return
+      values(byAssetId)
+        .flat()
+        .filter(isSome)
+        .forEach(txId => txIds.add(txId))
+    })
+
+    return [...txIds]
+  },
+)
+
+export const selectArbitrumWithdrawTxs = createDeepEqualOutputSelector(
+  selectWalletArbitrumTxIds,
+  selectTxs,
+  (txIds, txs): Tx[] =>
+    txIds
+      .map(txId => txs[txId])
+      .filter(
+        tx =>
+          tx?.data?.parser === 'arbitrumBridge' &&
+          ['outboundTransfer', 'withdrawEth'].includes(tx.data.method ?? ''),
+      ),
+)
+
+type RfoxUnstakeFilter = {
+  accountId: AccountId
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  unstakedAtMs: number
+}
+
+const selectRfoxUnstakeFilter = (_state: ReduxState, filter: RfoxUnstakeFilter) => filter
+
+// The contract sets cooldownExpiry = block.timestamp + cooldownPeriod, so a claim's unstake is the account's
+// unstake of that amount mined at the claim's createdAt
+export const selectRfoxUnstakeTxId = createCachedSelector(
   selectTxs,
   selectWalletTxIdsByAccountIdAssetId,
-  (txIds, txs, data): Tx[] => {
-    const arbitrumData = pickBy(
-      data,
-      (_, accountId) => fromAccountId(accountId).chainId === arbitrumChainId,
-    )
-
-    const arbitrumTxIds = values(arbitrumData)
-      .flatMap(data => values(data).flat())
+  selectRfoxUnstakeFilter,
+  (txs, data, { accountId, assetId, amountCryptoBaseUnit, unstakedAtMs }): string | undefined =>
+    values(data[accountId] ?? {})
+      .flat()
       .filter(isSome)
-
-    const sortedArbitrumTxIds = uniq(arbitrumTxIds).sort(
-      (a, b) => txIds.indexOf(a) - txIds.indexOf(b),
-    )
-
-    return sortedArbitrumTxIds.reduce<Tx[]>((prev, txid) => {
-      const tx = txs[txid]
-
-      if (
-        tx.data?.parser === 'arbitrumBridge' &&
-        ['outboundTransfer', 'withdrawEth'].includes(tx.data?.method ?? '')
-      ) {
-        prev.push(tx)
-      }
-
-      return prev
-    }, [])
-  },
+      .map(txId => txs[txId])
+      .find(
+        tx =>
+          tx?.data?.parser === 'rfox' &&
+          tx.data.type === 'evm' &&
+          tx.data.method === 'unstakeRequest' &&
+          tx.data.assetId === assetId &&
+          tx.data.value === amountCryptoBaseUnit &&
+          tx.blockTime * 1000 === unstakedAtMs,
+      )?.txid,
+)(
+  (_state, { accountId, assetId, amountCryptoBaseUnit, unstakedAtMs }) =>
+    `${accountId}-${assetId}-${amountCryptoBaseUnit}-${unstakedAtMs}`,
 )
 
 export const selectTxIdsByFilter = createCachedSelector(

@@ -13,27 +13,31 @@ import {
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
-import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimTx'
 import { Row } from '@/components/Row/Row'
+import { Text } from '@/components/Text'
 import { useModalRegistration } from '@/context/ModalStackProvider'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { useArbitrumClaims } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
+import { useArbitrumClaimTx } from '@/hooks/useArbitrumClaims/useArbitrumClaimTx'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import {
+  selectArbitrumBridgeWithdrawActionById,
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 type ArbitrumBridgeClaimModalProps = {
   action: ArbitrumBridgeWithdrawAction
@@ -48,9 +52,24 @@ export const ArbitrumBridgeClaimModal = ({
 }: ArbitrumBridgeClaimModalProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
-  const claimDetails = action.arbitrumBridgeMetadata.claimDetails
+  const { withdrawTxHash, destinationAccountId } = action.arbitrumBridgeMetadata
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable
   const isClaimCompleted = action.status === ActionStatus.Claimed
+
+  // Permissionless outbox call, paid by the withdrawing account on ethereum, else the wallet's first
+  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+  const claimAccountId = useMemo(() => {
+    const { chainId } = fromAccountId(destinationAccountId)
+    const withdrawAddress = fromAccountId(action.arbitrumBridgeMetadata.accountId).account
+    const ethAccountIds = enabledWalletAccountIds.filter(
+      accountId => fromAccountId(accountId).chainId === chainId,
+    )
+
+    return (
+      ethAccountIds.find(accountId => fromAccountId(accountId).account === withdrawAddress) ??
+      ethAccountIds[0]
+    )
+  }, [enabledWalletAccountIds, destinationAccountId, action.arbitrumBridgeMetadata.accountId])
 
   const asset = useAppSelector(state =>
     selectAssetById(state, action.arbitrumBridgeMetadata.assetId),
@@ -67,7 +86,17 @@ export const ArbitrumBridgeClaimModal = ({
     selectMarketDataByAssetIdUserCurrency(state, action.arbitrumBridgeMetadata.destinationAssetId),
   )
 
-  const destinationAccountId = action.arbitrumBridgeMetadata.destinationAccountId
+  const { claimsByTxid } = useArbitrumClaims({ isPolling: false })
+
+  // Claimable withdraws aren't polled, recheck this one wasn't claimed elsewhere before claiming it
+  useEffect(() => {
+    if (!isOpen) return
+    queryClient.invalidateQueries({ queryKey: ['claimStatus', { txid: withdrawTxHash }] })
+  }, [isOpen, withdrawTxHash])
+  const claimDetails = useMemo(() => {
+    const claim = claimsByTxid[withdrawTxHash]
+    return claim?.status === ActionStatus.ClaimAvailable ? claim : undefined
+  }, [claimsByTxid, withdrawTxHash])
 
   const destinationFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(
@@ -78,10 +107,10 @@ export const ArbitrumBridgeClaimModal = ({
 
   const destinationFeeAssetBalanceFilter = useMemo(
     () => ({
-      accountId: destinationAccountId,
+      accountId: claimAccountId,
       assetId: destinationFeeAsset?.assetId,
     }),
-    [destinationAccountId, destinationFeeAsset],
+    [claimAccountId, destinationFeeAsset],
   )
 
   const destinationFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
@@ -109,30 +138,27 @@ export const ArbitrumBridgeClaimModal = ({
     amountCryptoPrecision,
   ])
 
-  const handleClaimSuccess = useCallback(
+  // Pending until the subscriber sees the claim confirm, or revert or drop back to claimable
+  const handleClaimBroadcast = useCallback(
     (claimTxHash: string) => {
+      const latestAction = selectArbitrumBridgeWithdrawActionById(store.getState(), action.id)
+      if (!latestAction || latestAction.status !== ActionStatus.ClaimAvailable) return
+
       dispatch(
         actionSlice.actions.upsertAction({
-          ...action,
-          updatedAt: Date.now(),
-          status: ActionStatus.Claimed,
-          arbitrumBridgeMetadata: {
-            ...action.arbitrumBridgeMetadata,
-            claimTxHash,
-          },
+          ...latestAction,
+          status: ActionStatus.Pending,
+          arbitrumBridgeMetadata: { ...latestAction.arbitrumBridgeMetadata, claimTxHash },
         }),
       )
+      onClose()
     },
-    [dispatch, action],
+    [dispatch, action.id, onClose],
   )
 
-  const claimTxResult = useArbitrumClaimTx(
-    claimDetails,
-    destinationAccountId,
-    noop,
-    noop,
-    handleClaimSuccess,
-  )
+  const claimTxResult = useArbitrumClaimTx(claimDetails, claimAccountId, handleClaimBroadcast)
+
+  const executeTransactionDataResult = claimTxResult?.executeTransactionDataResult
 
   const evmFeesResult = claimTxResult?.evmFeesResult
 
@@ -150,13 +176,16 @@ export const ArbitrumBridgeClaimModal = ({
     )
   }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult?.data])
 
-  const onConfirm = useCallback(async () => {
-    if (!claimMutation) return
-    await claimMutation.mutateAsync()
-    onClose()
-  }, [claimMutation, onClose])
+  // A failed broadcast keeps the modal open with the error copy on the button
+  const onConfirm = useCallback(() => claimMutation?.mutate(), [claimMutation])
 
   const confirmCopy = useMemo(() => {
+    if (isClaimCompleted) return translate('common.close')
+
+    if (!claimAccountId) return translate('bridge.noEthereumAccount')
+
+    if (executeTransactionDataResult?.isError) return translate('bridge.claimTxDataFailed')
+
     if (claimMutation?.isError) return translate('trade.errors.title')
 
     if (evmFeesResult?.isError) return translate('trade.errors.networkFeeEstimateFailed')
@@ -168,13 +197,16 @@ export const ArbitrumBridgeClaimModal = ({
       })
 
     return translate('bridge.confirmAndClaim')
-  }, [claimMutation, destinationFeeAsset, evmFeesResult, hasEnoughDestinationFeeBalance, translate])
-
-  useEffect(() => {
-    if (!isClaimCompleted) return
-
-    onClose()
-  }, [isClaimCompleted, onClose])
+  }, [
+    isClaimCompleted,
+    claimAccountId,
+    claimMutation,
+    destinationFeeAsset,
+    evmFeesResult?.isError,
+    executeTransactionDataResult?.isError,
+    hasEnoughDestinationFeeBalance,
+    translate,
+  ])
 
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
     isOpen,
@@ -192,7 +224,9 @@ export const ArbitrumBridgeClaimModal = ({
     <Modal size='md' {...modalProps}>
       <ModalOverlay {...overlayProps} />
       <ModalContent pointerEvents='all' {...modalContentProps}>
-        <ModalHeader>{translate('common.confirm')}</ModalHeader>
+        <ModalHeader>
+          {translate(isClaimCompleted ? 'bridge.alreadyClaimed' : 'common.confirm')}
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing={6} align='center'>
@@ -209,20 +243,31 @@ export const ArbitrumBridgeClaimModal = ({
             <Stack spacing={4} width='full'>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
-                <Row.Value>
-                  {middleEllipsis(
-                    fromAccountId(action.arbitrumBridgeMetadata.destinationAccountId).account,
-                  )}
-                </Row.Value>
+                <Row.Value>{middleEllipsis(fromAccountId(destinationAccountId).account)}</Row.Value>
               </Row>
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('common.gasFee')}</Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={!evmFeesResult?.isFetching}>
-                    <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat ?? '0'} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
+              {isClaimCompleted ? (
+                <Text
+                  fontSize='sm'
+                  color='text.subtle'
+                  textAlign='center'
+                  translation='bridge.alreadyClaimedBody'
+                />
+              ) : (
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('common.gasFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton
+                      isLoaded={
+                        Boolean(claimDetails) &&
+                        !executeTransactionDataResult?.isFetching &&
+                        !evmFeesResult?.isFetching
+                      }
+                    >
+                      <Amount.Fiat value={evmFeesResult?.data?.txFeeFiat ?? '0'} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
             </Stack>
           </Stack>
         </ModalBody>
@@ -231,18 +276,31 @@ export const ArbitrumBridgeClaimModal = ({
             width='full'
             size='lg'
             colorScheme={
-              !hasEnoughDestinationFeeBalance || claimMutation?.isError || evmFeesResult?.isError
+              !isClaimCompleted &&
+              (!claimAccountId ||
+                !hasEnoughDestinationFeeBalance ||
+                executeTransactionDataResult?.isError ||
+                claimMutation?.isError ||
+                evmFeesResult?.isError)
                 ? 'red'
                 : 'blue'
             }
             isDisabled={
-              !evmFeesResult?.isSuccess ||
-              evmFeesResult?.isPending ||
-              claimMutation?.isPending ||
-              !hasEnoughDestinationFeeBalance
+              !isClaimCompleted &&
+              (!hasEnoughDestinationFeeBalance ||
+                !evmFeesResult?.isSuccess ||
+                evmFeesResult?.isPending ||
+                claimMutation?.isPending)
             }
-            isLoading={evmFeesResult?.isFetching || claimMutation?.isPending}
-            onClick={onConfirm}
+            isLoading={
+              // A missing claim resolves on the next status poll
+              !isClaimCompleted &&
+              (!claimDetails ||
+                executeTransactionDataResult?.isFetching ||
+                evmFeesResult?.isFetching ||
+                claimMutation?.isPending)
+            }
+            onClick={isClaimCompleted ? onClose : onConfirm}
           >
             {confirmCopy}
           </Button>

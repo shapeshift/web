@@ -15,7 +15,6 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { zeroAddress } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -57,8 +56,7 @@ export const ArbitrumBridgeClaimModal = ({
   const isClaimAvailable = action.status === ActionStatus.ClaimAvailable
   const isClaimCompleted = action.status === ActionStatus.Claimed
 
-  // The outbox call is permissionless, the account that withdrew pays for the claim when the wallet
-  // holds it on ethereum, otherwise its first ethereum account does. Funds land at the destination either way
+  // Permissionless outbox call, paid by the withdrawing account on ethereum, else the wallet's first
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const claimAccountId = useMemo(() => {
     const { chainId } = fromAccountId(destinationAccountId)
@@ -184,6 +182,8 @@ export const ArbitrumBridgeClaimModal = ({
   const confirmCopy = useMemo(() => {
     if (isClaimCompleted) return translate('common.close')
 
+    if (!claimAccountId) return translate('bridge.noEthereumAccount')
+
     if (executeTransactionDataResult?.isError) return translate('bridge.claimTxDataFailed')
 
     if (claimMutation?.isError) return translate('trade.errors.title')
@@ -199,6 +199,7 @@ export const ArbitrumBridgeClaimModal = ({
     return translate('bridge.confirmAndClaim')
   }, [
     isClaimCompleted,
+    claimAccountId,
     claimMutation,
     destinationFeeAsset,
     evmFeesResult?.isError,
@@ -242,11 +243,7 @@ export const ArbitrumBridgeClaimModal = ({
             <Stack spacing={4} width='full'>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={Boolean(claimDetails)}>
-                    {middleEllipsis(claimDetails?.destinationAddress ?? zeroAddress)}
-                  </Skeleton>
-                </Row.Value>
+                <Row.Value>{middleEllipsis(fromAccountId(destinationAccountId).account)}</Row.Value>
               </Row>
               {isClaimCompleted ? (
                 <Text
@@ -280,7 +277,8 @@ export const ArbitrumBridgeClaimModal = ({
             size='lg'
             colorScheme={
               !isClaimCompleted &&
-              (!hasEnoughDestinationFeeBalance ||
+              (!claimAccountId ||
+                !hasEnoughDestinationFeeBalance ||
                 executeTransactionDataResult?.isError ||
                 claimMutation?.isError ||
                 evmFeesResult?.isError)

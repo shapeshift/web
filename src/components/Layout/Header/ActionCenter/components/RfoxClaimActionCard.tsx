@@ -10,7 +10,7 @@ import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bn } from '@/lib/bignumber/bignumber'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
-import { selectAssetById, selectTxIdsByFilter, selectTxs } from '@/state/slices/selectors'
+import { selectAssetById, selectRfoxUnstakeTxId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -31,29 +31,21 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   )
 
   const { request } = action.rfoxClaimActionMetadata
-  const rfoxTxFilter = useMemo(
-    () => ({ accountId: request.stakingAssetAccountId, parser: 'rfox' }),
-    [request.stakingAssetAccountId],
+  const unstakeTxFilter = useMemo(
+    () => ({
+      accountId: request.stakingAssetAccountId,
+      assetId: request.stakingAssetId,
+      amountCryptoBaseUnit: request.amountCryptoBaseUnit,
+      unstakedAtMs: action.createdAt,
+    }),
+    [
+      request.stakingAssetAccountId,
+      request.stakingAssetId,
+      request.amountCryptoBaseUnit,
+      action.createdAt,
+    ],
   )
-  const rfoxTxIds = useAppSelector(state => selectTxIdsByFilter(state, rfoxTxFilter))
-  const txs = useAppSelector(selectTxs)
-
-  // The contract sets cooldownExpiry = block.timestamp + cooldownPeriod, so the unstake is the account's
-  // unstake of this amount mined at the action's createdAt
-  const unstakeTxHash = useMemo(
-    () =>
-      rfoxTxIds
-        .map(txId => txs[txId])
-        .find(
-          tx =>
-            tx.data?.parser === 'rfox' &&
-            tx.data.method === 'unstakeRequest' &&
-            tx.data.assetId === request.stakingAssetId &&
-            tx.data.value === request.amountCryptoBaseUnit &&
-            tx.blockTime * 1000 === action.createdAt,
-        )?.txid,
-    [rfoxTxIds, txs, request.stakingAssetId, request.amountCryptoBaseUnit, action.createdAt],
-  )
+  const unstakeTxHash = useAppSelector(state => selectRfoxUnstakeTxId(state, unstakeTxFilter))
 
   const handleClaimClick = useCallback(() => {
     const index = action.rfoxClaimActionMetadata.request.index

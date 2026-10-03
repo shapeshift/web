@@ -12,7 +12,10 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
-import { getArbitrumBridgeWithdrawActionId } from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
+import {
+  getArbitrumBridgeWithdrawActionId,
+  getArbitrumBridgeWithdrawMessageKey,
+} from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -130,14 +133,10 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     if (swap.swapperName === SwapperName.ArbitrumBridge) {
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
 
-      // A withdraw is initiated once its tx lands, the claim is what completes it
+      // A withdraw is initiated once its tx lands, its withdraw action tells the rest
       if (swap.buyAsset.chainId === ethChainId) {
+        if (isArbitrumBridgeWithdrawAction(action)) return getArbitrumBridgeWithdrawMessageKey(status)
         if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
-        if (status === ActionStatus.Initiated) {
-          return isArbitrumBridgeWithdrawAction(action)
-            ? 'actionCenter.bridge.pendingWithdraw'
-            : 'actionCenter.bridge.initiated'
-        }
 
         return 'actionCenter.bridge.processing'
       }

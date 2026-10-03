@@ -135,6 +135,40 @@ export const selectArbitrumWithdrawTxs = createDeepEqualOutputSelector(
       ),
 )
 
+type RfoxUnstakeFilter = {
+  accountId: AccountId
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  unstakedAtMs: number
+}
+
+const selectRfoxUnstakeFilter = (_state: ReduxState, filter: RfoxUnstakeFilter) => filter
+
+// The contract sets cooldownExpiry = block.timestamp + cooldownPeriod, so a claim's unstake is the account's
+// unstake of that amount mined at the claim's createdAt
+export const selectRfoxUnstakeTxId = createCachedSelector(
+  selectTxs,
+  selectWalletTxIdsByAccountIdAssetId,
+  selectRfoxUnstakeFilter,
+  (txs, data, { accountId, assetId, amountCryptoBaseUnit, unstakedAtMs }): TxId | undefined =>
+    values(data[accountId] ?? {})
+      .flat()
+      .filter(isSome)
+      .find(txId => {
+        const tx = txs[txId]
+        return (
+          tx?.data?.parser === 'rfox' &&
+          tx.data.method === 'unstakeRequest' &&
+          tx.data.assetId === assetId &&
+          tx.data.value === amountCryptoBaseUnit &&
+          tx.blockTime * 1000 === unstakedAtMs
+        )
+      }),
+)(
+  (_state, { accountId, assetId, amountCryptoBaseUnit, unstakedAtMs }) =>
+    `${accountId}-${assetId}-${amountCryptoBaseUnit}-${unstakedAtMs}`,
+)
+
 export const selectTxIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,

@@ -158,11 +158,16 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
           if (previousStatus !== newStatus && newStatus === ActionStatus.ClaimAvailable) {
             notifyClaimAvailable(update.action.id)
           }
+
+          // The status read can see the claim mined before the receipt poll does
+          if (previousStatus === ActionStatus.Pending && newStatus === ActionStatus.Claimed) {
+            notifyClaimed(update.action.id)
+          }
         })
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-  }, [dispatch, notifyClaimAvailable, pendingArbitrumBridgeActions, claimsByTxid])
+  }, [dispatch, notifyClaimAvailable, notifyClaimed, pendingArbitrumBridgeActions, claimsByTxid])
 
   // Resolves in-flight claims, including ones broadcast before a reload
   const claimingActions = useMemo(

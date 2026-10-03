@@ -884,6 +884,7 @@
     "claimReceiveAddress": "Claim Receive Address",
     "confirmAndClaim": "Confirm & Claim",
     "claimTxDataFailed": "Couldn't prepare the claim transaction",
+    "noEthereumAccount": "Enable an Ethereum account to pay for the claim",
     "alreadyClaimed": "Already claimed",
     "alreadyClaimedBody": "This withdraw has already been claimed."
   },

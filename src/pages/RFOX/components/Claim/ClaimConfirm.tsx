@@ -46,6 +46,7 @@ import {
   createBuildCustomTxInput,
 } from '@/lib/utils/evm'
 import { getStakingContract } from '@/pages/RFOX/helpers'
+import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import {
@@ -96,6 +97,13 @@ export const ClaimConfirm: FC<
     () => actions.find(action => action.id === selectedUnstakingRequest.id),
     [actions, selectedUnstakingRequest.id],
   )
+
+  // Dates a claim the subscriber hasn't created yet the way it would, from the unstake
+  const cooldownPeriodQuery = useCooldownPeriodQuery(selectedUnstakingRequest.stakingAssetId)
+  const unstakedAtMs = cooldownPeriodQuery.data
+    ? Number(selectedUnstakingRequest.cooldownExpiry) * 1000 -
+      cooldownPeriodQuery.data.cooldownPeriodSeconds * 1000
+    : undefined
 
   const handleGoBack = useCallback(() => {
     return navigate('/fox-ecosystem')
@@ -213,7 +221,7 @@ export const ClaimConfirm: FC<
           id: selectedUnstakingRequest.id,
           status: ActionStatus.Pending,
           type: ActionType.RfoxClaim,
-          createdAt: maybeClaimAction?.createdAt ?? Date.now(),
+          createdAt: maybeClaimAction?.createdAt ?? unstakedAtMs ?? Date.now(),
           updatedAt: Date.now(),
           rfoxClaimActionMetadata: {
             request: selectedUnstakingRequest,

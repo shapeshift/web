@@ -117,7 +117,8 @@ const findClaimableAt = async (
     for (const log of logs) {
       const [blockHash] = log.args.assertion.afterState.globalState.bytes32Vals
       const childBlock = await l2Provider.getBlock(blockHash)
-      if (!childBlock || childBlock.number < childBlockNumber) continue
+      if (!childBlock) throw new Error(`Assertion child block ${blockHash} not found`)
+      if (childBlock.number < childBlockNumber) continue
 
       const { confirmPeriodBlocks } = arbitrumNetwork
       const [assertionBlock, periodStartBlock] = await Promise.all([

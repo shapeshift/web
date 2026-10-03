@@ -1,5 +1,6 @@
 import type { PersistPartial } from 'redux-persist/es/persistReducer'
 
+import { isSome } from '@/lib/utils'
 import type { Action, ActionState } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 
@@ -19,7 +20,9 @@ const clearClaimAction = (action: Action): Action | undefined => {
 }
 
 export const clearClaimActions = (state: ActionState): ActionState & PersistPartial => {
-  const byId = Object.values(state.byId).reduce<ActionState['byId']>((acc, action) => {
+  const byId = Object.values(state.byId)
+    .filter(isSome)
+    .reduce<ActionState['byId']>((acc, action) => {
     const migrated = clearClaimAction(action)
     if (migrated) acc[migrated.id] = migrated
     return acc

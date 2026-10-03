@@ -128,7 +128,7 @@ export const ClaimActionCard = ({
         </Button>
       ),
       action.status !== ActionStatus.ClaimAvailable && txHash && (
-        <Button key='tx' width='full' as={Link} isExternal href={toTxLink(txHash)}>
+        <Button key='tx' width='full' size='sm' as={Link} isExternal href={toTxLink(txHash)}>
           {translate('actionCenter.viewTransaction')}
         </Button>
       ),

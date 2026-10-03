@@ -83,7 +83,7 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
       footer={footer}
       onToggle={onToggle}
     >
-      <Button width='full' as={Link} isExternal href={txLink}>
+      <Button width='full' size='sm' as={Link} isExternal href={txLink}>
         {translate('actionCenter.viewTransaction')}
       </Button>
     </ActionCard>

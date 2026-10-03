@@ -153,21 +153,20 @@ export const selectRfoxUnstakeTxId = createCachedSelector(
   selectTxs,
   selectWalletTxIdsByAccountIdAssetId,
   selectRfoxUnstakeFilter,
-  (txs, data, { accountId, assetId, amountCryptoBaseUnit, unstakedAtMs }): TxId | undefined =>
+  (txs, data, { accountId, assetId, amountCryptoBaseUnit, unstakedAtMs }): string | undefined =>
     values(data[accountId] ?? {})
       .flat()
       .filter(isSome)
-      .find(txId => {
-        const tx = txs[txId]
-        return (
+      .map(txId => txs[txId])
+      .find(
+        tx =>
           tx?.data?.parser === 'rfox' &&
           tx.data.type === 'evm' &&
           tx.data.method === 'unstakeRequest' &&
           tx.data.assetId === assetId &&
           tx.data.value === amountCryptoBaseUnit &&
-          tx.blockTime * 1000 === unstakedAtMs
-        )
-      }),
+          tx.blockTime * 1000 === unstakedAtMs,
+      )?.txid,
 )(
   (_state, { accountId, assetId, amountCryptoBaseUnit, unstakedAtMs }) =>
     `${accountId}-${assetId}-${amountCryptoBaseUnit}-${unstakedAtMs}`,

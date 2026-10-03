@@ -60,9 +60,7 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
   // Bridge swaps show their withdraw action once history creates it, the swap action until then
   const action = maybeArbitrumBridgeAction ?? swapAction
 
-  const timeText = useClaimTimeText(
-    maybeArbitrumBridgeAction?.arbitrumBridgeMetadata.claimableAt,
-  )
+  const timeText = useClaimTimeText(maybeArbitrumBridgeAction?.arbitrumBridgeMetadata.claimableAt)
 
   const swapNotificationComponents = useMemo((): TextPropTypes['components'] | undefined => {
     if (!swap) return undefined
@@ -135,7 +133,8 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
       // A withdraw is initiated once its tx lands, its withdraw action tells the rest
       if (swap.buyAsset.chainId === ethChainId) {
-        if (isArbitrumBridgeWithdrawAction(action)) return getArbitrumBridgeWithdrawMessageKey(status)
+        if (isArbitrumBridgeWithdrawAction(action))
+          return getArbitrumBridgeWithdrawMessageKey(status)
         if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
 
         return 'actionCenter.bridge.processing'

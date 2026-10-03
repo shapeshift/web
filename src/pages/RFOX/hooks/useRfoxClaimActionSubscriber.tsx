@@ -124,7 +124,9 @@ export const useRfoxClaimActionSubscriber = () => {
       // Only a cooled down request moves forward, the claim flow owns it from there
       if (action && isRfoxClaimAction(action)) {
         if (isClaimable && action.status === ActionStatus.Initiated) {
-          dispatch(actionSlice.actions.upsertAction({ ...action, status: ActionStatus.ClaimAvailable }))
+          dispatch(
+            actionSlice.actions.upsertAction({ ...action, status: ActionStatus.ClaimAvailable }),
+          )
         }
         return
       }

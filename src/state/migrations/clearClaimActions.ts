@@ -23,10 +23,10 @@ export const clearClaimActions = (state: ActionState): ActionState & PersistPart
   const byId = Object.values(state.byId)
     .filter(isSome)
     .reduce<ActionState['byId']>((acc, action) => {
-    const migrated = clearClaimAction(action)
-    if (migrated) acc[migrated.id] = migrated
-    return acc
-  }, {})
+      const migrated = clearClaimAction(action)
+      if (migrated) acc[migrated.id] = migrated
+      return acc
+    }, {})
 
   return {
     ...state,

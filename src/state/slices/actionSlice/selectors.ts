@@ -5,6 +5,7 @@ import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
 import type {
+  ArbitrumBridgeWithdrawAction,
   ChainflipLendingAction,
   GenericTransactionAction,
   LimitOrderAction,
@@ -302,7 +303,7 @@ export const selectPendingArbitrumBridgeWithdrawActions = createDeepEqualOutputS
   selectWalletActions,
   actions => {
     return actions.filter(
-      action =>
+      (action): action is ArbitrumBridgeWithdrawAction =>
         isArbitrumBridgeWithdrawAction(action) &&
         action.status !== ActionStatus.Claimed &&
         action.status !== ActionStatus.Failed,

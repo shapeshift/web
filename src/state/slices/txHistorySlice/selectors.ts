@@ -115,7 +115,10 @@ const selectWalletArbitrumTxIds = createDeepEqualOutputSelector(
 
     Object.entries(data).forEach(([accountId, byAssetId]) => {
       if (fromAccountId(accountId).chainId !== arbitrumChainId) return
-      values(byAssetId).flat().filter(isSome).forEach(txId => txIds.add(txId))
+      values(byAssetId)
+        .flat()
+        .filter(isSome)
+        .forEach(txId => txIds.add(txId))
     })
 
     return [...txIds]
@@ -158,6 +161,7 @@ export const selectRfoxUnstakeTxId = createCachedSelector(
         const tx = txs[txId]
         return (
           tx?.data?.parser === 'rfox' &&
+          tx.data.type === 'evm' &&
           tx.data.method === 'unstakeRequest' &&
           tx.data.assetId === assetId &&
           tx.data.value === amountCryptoBaseUnit &&

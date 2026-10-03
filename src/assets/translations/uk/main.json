@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "Адреса для отримання клейму",
-    "confirmAndClaim": "Підтвердити та заявити",
-    "bridgeWithdrawalReadyNotification": "Виведення коштів з мосту готові до отримання",
-    "checkActionCenterNotification": "Детальнішу інформацію дивіться в Центрі дій."
+    "confirmAndClaim": "Підтвердити та заявити"
   },
   "trade": {
     "trade": "Торгівля",
@@ -2931,9 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Ініційований стейкінг",
-    "unstakeInitiated": "Ініційовано розблокування",
-    "claimWithdraw": "Підтвердити Вивід",
     "staking": "Стейкінг rFOX ",
     "bridge": "Міст",
     "bridgeFunds": "Перевести кошти",

@@ -883,8 +883,10 @@
     },
     "claimReceiveAddress": "Claim Receive Address",
     "confirmAndClaim": "Confirm & Claim",
-    "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
-    "checkActionCenterNotification": "Check Action Center for details"
+    "claimTxDataFailed": "Couldn't prepare the claim transaction",
+    "noEthereumAccount": "Enable an Ethereum account to pay for the claim",
+    "alreadyClaimed": "Already claimed",
+    "alreadyClaimedBody": "This withdraw has already been claimed."
   },
   "trade": {
     "trade": "Trade",
@@ -2932,9 +2934,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Stake Initiated",
-    "unstakeInitiated": "Unstake Initiated",
-    "claimWithdraw": "Claim Withdraw",
     "staking": "rFOX Staking",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -2971,7 +2970,7 @@
     "changeAddressPending": "Changing RFOX Reward Address to %{newAddress}",
     "changeAddressSuccess": "Changed RFOX Reward Address to %{newAddress}",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
-    "unstakeSuccess": "Once %{cooldownPeriod} has elapsed you will be able to claim your %{amount} %{symbol}",
+    "unstakeSuccess": "Your unstake of %{amount} %{symbol} has been initiated.",
     "unstakeSuccessNoCooldown": "Your %{amount} %{symbol} is unstaked and ready to claim.",
     "currentRewardAddress": "Current Reward Address",
     "newRewardAddress": "New Reward Address",
@@ -3218,6 +3217,9 @@
   },
   "actionCenter": {
     "title": "Notifications",
+    "claims": "Claims",
+    "recent": "Recent",
+    "nothingToClaim": "Nothing to claim",
     "viewTransaction": "View Transaction",
     "originalTransaction": "Original Transaction",
     "replacementTransaction": "Replacement Transaction",
@@ -3285,6 +3287,8 @@
       "complete": "Your claim of %{amount} %{symbol} is complete.",
       "failed": "Your claim of %{amount} %{symbol} has failed."
     },
+    "availableSoon": "soon",
+    "claimAvailableOn": "Claim Available",
     "yield": {
       "unstakeAvailableIn": "Your %{symbol} unstake will be available in %{duration}.",
       "unstakeReady": "Your %{symbol} unstake is ready to claim.",
@@ -3299,7 +3303,6 @@
       "withdrawComplete": "Your bridge of %{amountAndSymbol} is complete.",
       "withdrawProcessing": "Your bridge of %{amountAndSymbol} is being processed.",
       "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed.",
-      "transactionInitiated": "Transaction Initiated",
       "claimWithdraw": "Claim Withdraw",
       "withdrawTx": "Withdraw Tx",
       "claimTx": "Claim Tx"
@@ -3311,6 +3314,8 @@
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
     },
     "rfox": {
+      "unstakeTx": "Unstake Tx",
+      "unstakePending": "Your unstake of %{amount} %{symbol} will be available %{timeText}.",
       "unstakeReady": "Your unstake of %{amount} %{symbol} is ready to claim.",
       "unstakeTxPending": "Your unstake of %{amount} %{symbol} is pending.",
       "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."

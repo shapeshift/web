@@ -41,5 +41,6 @@
   "THOR.TCY": "cosmos:thorchain-1/slip44:tcy",
   "TRON.TRX": "tron:0x2b6653dc/slip44:195",
   "TRON.USDT-TR7NHQJEKQXGTCI8Q8ZY4PL8OTSZGJLJ6T": "tron:0x2b6653dc/trc20:tr7nhqjekqxgtci8q8zy4pl8otszgjlj6t",
+  "ZEC.ZEC": "bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133",
   "THOR.RUNE": "cosmos:thorchain-1/slip44:931"
 }

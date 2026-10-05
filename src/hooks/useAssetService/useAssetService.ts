@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId, starknetChainId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 
@@ -6,6 +6,7 @@ import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import type { GetLoadedAssets } from '@/lib/asset-service'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store, useAppDispatch } from '@/state/store'
 
@@ -44,6 +45,12 @@ const getLoadedAssets: GetLoadedAssets = version => {
   } as ReturnType<GetLoadedAssets>
 }
 
+// The assets any account has a balance for, as of the last time the accounts were fetched
+const getHeldAssetIds = (): AssetId[] =>
+  Object.values(portfolio.selectors.selectAccountBalancesById(store.getState())).flatMap(
+    balancesByAssetId => Object.keys(balancesByAssetId ?? {}),
+  )
+
 // Safe to call from anywhere - react-query dedupes on the key, so this initializes and loads once
 export const useAssetService = () => {
   const dispatch = useAppDispatch()
@@ -65,6 +72,7 @@ export const useAssetService = () => {
           relatedAssetIndex: service.relatedAssetIndex,
           version: service.version,
           watchedAssetIds: preferences.selectors.selectWatchedAssetIds(store.getState()),
+          heldAssetIds: getHeldAssetIds(),
         }),
       )
 

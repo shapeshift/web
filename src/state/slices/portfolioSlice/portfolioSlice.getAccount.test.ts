@@ -62,6 +62,7 @@ describe('portfolioApi getAccount', () => {
         relatedAssetIndex: {},
         version: 'v1',
         watchedAssetIds: [],
+        heldAssetIds: [],
       }),
     )
 

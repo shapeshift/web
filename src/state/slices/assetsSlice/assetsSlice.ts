@@ -49,6 +49,7 @@ type SetGeneratedAssetsPayload = Pick<
   'byId' | 'ids' | 'relatedAssetIndex' | 'version'
 > & {
   watchedAssetIds: AssetId[]
+  heldAssetIds: AssetId[]
 }
 
 export const assets = createSlice({
@@ -62,17 +63,27 @@ export const assets = createSlice({
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),
-    // Replaces the assets wholesale, so removals and the sort order apply. Only custom and watched assets are kept
+    // Replaces the assets wholesale, so removals and the sort order apply. Custom, watched and held assets are kept
     // when the generated assets don't cover them, the others are rebuilt as they are needed
     setGeneratedAssets: create.reducer(
       (state, action: PayloadAction<SetGeneratedAssetsPayload>) => {
-        const { byId, ids, relatedAssetIndex, version, watchedAssetIds } = action.payload
+        const { byId, ids, relatedAssetIndex, version, watchedAssetIds, heldAssetIds } =
+          action.payload
 
         const isOnlyInStore = (assetId: AssetId) => state.byId[assetId] && !byId[assetId]
 
         const customAssetIds = state.customAssetIds.filter(isOnlyInStore)
+        // Held assets are only kept if tracked as runtime assets, so placeholders that predate the tracking are rebuilt
+        const trackedRuntimeAssetIds = new Set(state.runtimeAssetIds)
+        const heldRuntimeAssetIds = heldAssetIds.filter(
+          assetId => trackedRuntimeAssetIds.has(assetId) && isOnlyInStore(assetId),
+        )
         const runtimeAssetIds = Array.from(
-          new Set(customAssetIds.concat(watchedAssetIds.filter(isOnlyInStore))),
+          new Set([
+            ...customAssetIds,
+            ...watchedAssetIds.filter(isOnlyInStore),
+            ...heldRuntimeAssetIds,
+          ]),
         )
         const runtimeAssetsById = Object.fromEntries(
           runtimeAssetIds.map(assetId => [assetId, state.byId[assetId]]),

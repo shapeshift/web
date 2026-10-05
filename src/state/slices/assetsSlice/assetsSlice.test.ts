@@ -26,7 +26,10 @@ const setGeneratedAssets = (
   state: AssetsState,
   generated: Asset[],
   version: string,
-  watchedAssetIds: AssetId[] = [],
+  {
+    watchedAssetIds = [],
+    heldAssetIds = [],
+  }: { watchedAssetIds?: AssetId[]; heldAssetIds?: AssetId[] } = {},
 ) =>
   assets.reducer(
     state,
@@ -36,6 +39,7 @@ const setGeneratedAssets = (
       relatedAssetIndex: {},
       version,
       watchedAssetIds,
+      heldAssetIds,
     }),
   )
 
@@ -50,6 +54,7 @@ describe('assetsSlice', () => {
           relatedAssetIndex: { [fox.assetId]: [fox.assetId] },
           version: 'v1',
           watchedAssetIds: [],
+          heldAssetIds: [],
         }),
       )
 
@@ -89,10 +94,9 @@ describe('assetsSlice', () => {
       const loaded = setGeneratedAssets(initialState, [ethereum], 'v1')
       const withSearchResult = assets.reducer(loaded, assets.actions.upsertAsset(customToken))
 
-      const state = setGeneratedAssets(withSearchResult, [ethereum], 'v2', [
-        ethereum.assetId,
-        customToken.assetId,
-      ])
+      const state = setGeneratedAssets(withSearchResult, [ethereum], 'v2', {
+        watchedAssetIds: [ethereum.assetId, customToken.assetId],
+      })
 
       expect(state.ids).toEqual([ethereum.assetId, customToken.assetId])
       expect(state.runtimeAssetIds).toEqual([customToken.assetId])
@@ -102,14 +106,47 @@ describe('assetsSlice', () => {
     it('keeps a watched asset that was removed from the generated data', () => {
       const loaded = setGeneratedAssets(initialState, [ethereum, fox], 'v1')
 
-      const state = setGeneratedAssets(loaded, [ethereum], 'v2', [fox.assetId])
+      const state = setGeneratedAssets(loaded, [ethereum], 'v2', { watchedAssetIds: [fox.assetId] })
 
       expect(state.byId[fox.assetId]).toEqual(fox)
       expect(state.ids).toEqual([ethereum.assetId, fox.assetId])
       expect(state.runtimeAssetIds).toEqual([fox.assetId])
     })
 
-    it('drops the runtime assets a user did not import and is not watching', () => {
+    it('keeps the placeholders for assets a user holds', () => {
+      const loaded = setGeneratedAssets(initialState, [ethereum], 'v1')
+      const withPlaceholder = assets.reducer(
+        loaded,
+        assets.actions.addPlaceholderAssets({
+          byId: { [fox.assetId]: foxPlaceholder },
+          ids: [fox.assetId],
+        }),
+      )
+
+      const state = setGeneratedAssets(withPlaceholder, [ethereum], 'v2', {
+        heldAssetIds: [ethereum.assetId, fox.assetId],
+      })
+
+      expect(state.byId[fox.assetId]).toEqual(foxPlaceholder)
+      expect(state.ids).toEqual([ethereum.assetId, fox.assetId])
+      expect(state.runtimeAssetIds).toEqual([fox.assetId])
+      expect(state.customAssetIds).toEqual([])
+    })
+
+    it('rebuilds a held asset that is not tracked as a runtime asset', () => {
+      const untracked: AssetsState = {
+        ...initialState,
+        byId: { [ethereum.assetId]: ethereum, [fox.assetId]: foxPlaceholder },
+        ids: [ethereum.assetId, fox.assetId],
+      }
+
+      const state = setGeneratedAssets(untracked, [ethereum], 'v1', { heldAssetIds: [fox.assetId] })
+
+      expect(state.byId[fox.assetId]).toBeUndefined()
+      expect(state.ids).toEqual([ethereum.assetId])
+    })
+
+    it('drops the runtime assets a user did not import, is not watching and does not hold', () => {
       const loaded = setGeneratedAssets(initialState, [ethereum], 'v1')
       const withPlaceholder = assets.reducer(
         loaded,

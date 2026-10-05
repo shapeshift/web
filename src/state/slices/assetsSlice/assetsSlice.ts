@@ -59,6 +59,16 @@ export const assets = createSlice({
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     }),
+    // Placeholders are built from a state snapshot that can predate the asset service load, so they must never replace a known asset
+    addPlaceholderAssets: create.reducer((state, action: PayloadAction<UpsertAssetsPayload>) => {
+      const ids = action.payload.ids.filter(assetId => !state.byId[assetId])
+      if (ids.length === 0) return
+
+      const byId = Object.fromEntries(ids.map(assetId => [assetId, action.payload.byId[assetId]]))
+
+      state.byId = Object.assign({}, state.byId, byId)
+      state.ids = Array.from(new Set(state.ids.concat(ids)))
+    }),
     upsertAsset: create.reducer((state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)

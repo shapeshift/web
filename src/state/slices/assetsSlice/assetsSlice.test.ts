@@ -110,6 +110,21 @@ describe('assetsSlice', () => {
       expect(state.runtimeAssetIds).toEqual([])
     })
 
+    it('tracks a placeholder once when the same asset is listed twice', () => {
+      const withPlaceholder = assets.reducer(
+        initialState,
+        assets.actions.addPlaceholderAssets({
+          byId: { [fox.assetId]: foxPlaceholder },
+          ids: [fox.assetId, fox.assetId],
+        }),
+      )
+
+      const state = setGeneratedAssets(withPlaceholder, [ethereum], 'v1')
+
+      expect(withPlaceholder.runtimeAssetIds).toEqual([fox.assetId])
+      expect(state.ids).toEqual([ethereum.assetId, fox.assetId])
+    })
+
     it('adds placeholders for unknown assets as runtime assets', () => {
       const loaded = setGeneratedAssets(initialState, [usdc], 'v1')
 

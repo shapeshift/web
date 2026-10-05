@@ -32,11 +32,16 @@ export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
   type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
 
   const explorerLinks = ((): ExplorerLinks => {
-    const baseAsset = getBaseAsset(chainId)
-    return {
-      explorer: baseAsset.explorer,
-      explorerTxLink: baseAsset.explorerTxLink,
-      explorerAddressLink: baseAsset.explorerAddressLink,
+    try {
+      const baseAsset = getBaseAsset(chainId)
+      return {
+        explorer: baseAsset.explorer,
+        explorerTxLink: baseAsset.explorerTxLink,
+        explorerAddressLink: baseAsset.explorerAddressLink,
+      }
+    } catch {
+      // A chain without a definition, e.g. the retired Binance Chain, still gets an asset, just without explorer links
+      return { explorer: '', explorerTxLink: '', explorerAddressLink: '' }
     }
   })()
 

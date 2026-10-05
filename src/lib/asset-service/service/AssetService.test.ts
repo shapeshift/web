@@ -8,6 +8,8 @@ import { ethereum as EthAsset } from '@/test/mocks/assets'
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
+  fetchedUrls: [] as string[],
+  shouldFailAssetData: false,
 }))
 
 // Hoisted mock data so it's available in vi.mock factory
@@ -56,10 +58,13 @@ const mockData = vi.hoisted(() => ({
 
 vi.mock('axios', () => {
   const mockGet = (url: string) => {
+    mocks.fetchedUrls.push(url)
+
     if (url.includes('asset-manifest.json')) {
       return Promise.resolve({ data: { assetData: 'test', relatedAssetIndex: 'test' } })
     }
     if (url.includes('generatedAssetData.json')) {
+      if (mocks.shouldFailAssetData) return Promise.reject(new Error('network error'))
       return Promise.resolve({ data: mockData.assetData })
     }
     if (url.includes('relatedAssetIndex.json')) {
@@ -134,27 +139,81 @@ describe('AssetService', () => {
     })
   })
 
-  describe('version', () => {
-    const initWithBuildVersion = async (buildVersion: string) => {
-      vi.stubEnv('VITE_VERSION', buildVersion)
+  describe('with a fresh service', () => {
+    const importAssetService = (commitHash: string) => {
+      vi.stubEnv('VITE_COMMIT_HASH', commitHash)
       vi.resetModules()
+      mocks.fetchedUrls.length = 0
 
-      const { getAssetService, initAssetService } = await import('./AssetService')
-      await initAssetService()
-
-      return getAssetService().version
+      return import('./AssetService')
     }
 
+    const hasFetchedAssetData = () =>
+      mocks.fetchedUrls.some(url => url.includes('generatedAssetData.json'))
+
     afterEach(() => {
-      vi.stubEnv('VITE_VERSION', '')
+      vi.stubEnv('VITE_COMMIT_HASH', '')
+      mocks.shouldFailAssetData = false
     })
 
-    it('combines the build version with the asset data hashes', async () => {
-      await expect(initWithBuildVersion('1.2.3')).resolves.toBe('1.2.3:test:test')
+    it('versions the assets by the build and the asset data hashes', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+      await initAssetService()
+
+      expect(getAssetService().version).toBe('abc1234:test:test')
     })
 
-    it('is undefined for an unversioned build, so the assets are always reloaded', async () => {
-      await expect(initWithBuildVersion('')).resolves.toBeUndefined()
+    it('has no version for an unversioned build, so the assets are always reloaded', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('')
+      const getLoadedAssets = vi.fn()
+      await initAssetService(getLoadedAssets)
+
+      expect(getAssetService().version).toBeUndefined()
+      expect(getLoadedAssets).not.toHaveBeenCalled()
+      expect(hasFetchedAssetData()).toBe(true)
+    })
+
+    it('uses the assets already loaded from its version without fetching the asset data', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+      const loadedAssets = {
+        assetsById: { [EthAsset.assetId]: EthAsset },
+        assetIds: [EthAsset.assetId],
+        relatedAssetIndex: { [EthAsset.assetId]: [EthAsset.assetId] },
+      }
+      const getLoadedAssets = vi.fn().mockReturnValue(loadedAssets)
+
+      await initAssetService(getLoadedAssets)
+
+      const assetService = getAssetService()
+      expect(getLoadedAssets).toHaveBeenCalledWith('abc1234:test:test')
+      expect(hasFetchedAssetData()).toBe(false)
+      expect(assetService.assetsById).toBe(loadedAssets.assetsById)
+      expect(assetService.assetIds).toEqual([EthAsset.assetId])
+      expect(assetService.assets).toEqual([EthAsset])
+      expect(assetService.relatedAssetIndex).toBe(loadedAssets.relatedAssetIndex)
+    })
+
+    it('fetches the asset data when none is loaded from its version', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+
+      await initAssetService(() => undefined)
+
+      expect(hasFetchedAssetData()).toBe(true)
+      expect(getAssetService().assetIds).toEqual(mockData.assetData.ids)
+    })
+
+    it('can be retried after a failed load', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+
+      mocks.shouldFailAssetData = true
+      await expect(initAssetService()).rejects.toThrow('network error')
+      expect(getAssetService().assetIds).toEqual([])
+
+      mocks.shouldFailAssetData = false
+      await initAssetService()
+
+      expect(getAssetService().assetIds).toEqual(mockData.assetData.ids)
+      expect(getAssetService().version).toBe('abc1234:test:test')
     })
   })
 

@@ -54,6 +54,15 @@ import { getConfig } from '@/config'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
 
+export type LoadedAssets = {
+  assetsById: AssetsById
+  assetIds: AssetId[]
+  relatedAssetIndex: Record<AssetId, AssetId[]>
+}
+
+// Returns the assets already loaded from the given version, if any, which saves fetching them again
+export type GetLoadedAssets = (version: string) => LoadedAssets | undefined
+
 // Don't export me, access me through the getter because instantiation is extremely expensive
 class _AssetService {
   private _assetsById: AssetsById = {}
@@ -80,10 +89,10 @@ class _AssetService {
     return this._version
   }
 
-  async init(): Promise<void> {
+  async init(getLoadedAssets?: GetLoadedAssets): Promise<void> {
     if (this.initialized) return // Already initialized
 
-    const [assetDataJson, relatedAssetIndex] = await (async () => {
+    const fetchedAssetData = await (async () => {
       if (typeof window === 'undefined') {
         // Node.js environment (generation scripts)
         const fs = await import('fs')
@@ -111,20 +120,37 @@ class _AssetService {
           }
         })()
 
+        // The build matters as much as the data, as feature flags and chain-level enrichment shape the assets
+        const commitHash = import.meta.env.VITE_COMMIT_HASH
+        this._version = commitHash
+          ? `${commitHash}:${manifest.assetData}:${manifest.relatedAssetIndex}`
+          : undefined
+
+        // Assets already loaded from this version are filtered and enriched, so they are used as they are
+        const loadedAssets = this._version ? getLoadedAssets?.(this._version) : undefined
+        if (loadedAssets) {
+          this._assetIds = loadedAssets.assetIds
+          this._assets = loadedAssets.assetIds.map(assetId => loadedAssets.assetsById[assetId])
+          this._assetsById = loadedAssets.assetsById
+          this._relatedAssetIndex = loadedAssets.relatedAssetIndex
+          return
+        }
+
         const [{ data: assetData }, { data: relatedData }] = await Promise.all([
           axios.get(`/generated/generatedAssetData.json?v=${manifest.assetData}`),
           axios.get(`/generated/relatedAssetIndex.json?v=${manifest.relatedAssetIndex}`),
         ])
 
-        // The build matters as much as the data, as feature flags and chain-level enrichment shape the assets
-        const buildVersion = import.meta.env.VITE_VERSION
-        this._version = buildVersion
-          ? `${buildVersion}:${manifest.assetData}:${manifest.relatedAssetIndex}`
-          : undefined
-
         return [assetData, relatedData]
       }
     })()
+
+    if (!fetchedAssetData) {
+      this.initialized = true
+      return
+    }
+
+    const [assetDataJson, relatedAssetIndex] = fetchedAssetData
 
     const localAssetData = assetDataJson.byId
     const sortedAssetIds = assetDataJson.ids
@@ -260,12 +286,23 @@ export type AssetService = _AssetService
 // Don't export me, access me through the getter
 let _assetService: AssetService | undefined = undefined
 
+let _initAssetService: Promise<void> | undefined = undefined
+
 // Initialize asset service - call once at app bootstrap
-export const initAssetService = async (): Promise<void> => {
-  if (!_assetService) {
-    _assetService = new _AssetService()
-    await _assetService.init()
-  }
+export const initAssetService = (getLoadedAssets?: GetLoadedAssets): Promise<void> => {
+  if (_initAssetService) return _initAssetService
+
+  // The service is only kept once it has loaded, so that a failed load can be retried
+  _initAssetService = (async () => {
+    const assetService = new _AssetService()
+    await assetService.init(getLoadedAssets)
+    _assetService = assetService
+  })().catch(error => {
+    _initAssetService = undefined
+    throw error
+  })
+
+  return _initAssetService
 }
 
 // Empty fallback for test environment when service isn't initialized yet

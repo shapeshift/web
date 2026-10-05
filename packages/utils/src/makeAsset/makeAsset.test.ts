@@ -1,5 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  binanceAssetId,
+  binanceChainId,
+  ethChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import type { MinimalAsset } from './makeAsset'
@@ -35,5 +41,14 @@ describe('makeAsset', () => {
     // is deterministic on color and icon
     expect(asset?.color).toEqual(asset2?.color)
     expect(asset?.icon).toEqual(asset2?.icon)
+  })
+
+  it('makes an asset without explorer links for a chain with no definition', () => {
+    const asset = makeAsset({ assetId: binanceAssetId, symbol: 'BNB', name: 'BNB', precision: 8 })
+
+    expect(asset.chainId).toEqual(binanceChainId)
+    expect(asset.explorer).toEqual('')
+    expect(asset.explorerTxLink).toEqual('')
+    expect(asset.explorerAddressLink).toEqual('')
   })
 })

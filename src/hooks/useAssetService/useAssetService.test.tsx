@@ -8,11 +8,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useAssetService } from './useAssetService'
 
+import type { GetLoadedAssets } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { store } from '@/state/store'
-import { ethereum, fox } from '@/test/mocks/assets'
+import { ethereum, fox, usdc } from '@/test/mocks/assets'
 
 const mocks = vi.hoisted(() => ({
+  getLoadedAssets: undefined as GetLoadedAssets | undefined,
   service: {
     assetsById: {} as Record<AssetId, Asset>,
     assetIds: [] as AssetId[],
@@ -23,7 +25,10 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/lib/asset-service', async importOriginal => ({
   ...(await importOriginal<object>()),
-  initAssetService: () => Promise.resolve(),
+  initAssetService: (getLoadedAssets: GetLoadedAssets) => {
+    mocks.getLoadedAssets = getLoadedAssets
+    return Promise.resolve()
+  },
   getAssetService: () => mocks.service,
 }))
 
@@ -81,6 +86,19 @@ describe('useAssetService', () => {
     expect(store.getState().assets.ids).toEqual([ethereum.assetId])
     expect(store.getState().assets.byId[fox.assetId]).toBeUndefined()
     expect(store.getState().assets.version).toBe('v2')
+  })
+
+  it('offers the service the generated assets in the store for the version they were loaded from', async () => {
+    setServiceAssets([ethereum, fox], 'v1')
+    await loadAssetService()
+    store.dispatch(assets.actions.upsertAsset(usdc))
+
+    expect(mocks.getLoadedAssets?.('v2')).toBeUndefined()
+    expect(mocks.getLoadedAssets?.('v1')).toEqual({
+      assetsById: { [ethereum.assetId]: ethereum, [fox.assetId]: fox },
+      assetIds: [ethereum.assetId, fox.assetId],
+      relatedAssetIndex: {},
+    })
   })
 
   it('always replaces the assets for an unversioned build', async () => {

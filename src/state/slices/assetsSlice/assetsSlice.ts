@@ -60,7 +60,7 @@ export const assets = createSlice({
       (state, action: PayloadAction<SetGeneratedAssetsPayload>) => {
         const { byId, ids, relatedAssetIndex, version } = action.payload
 
-        const runtimeAssetIds = state.runtimeAssetIds.filter(
+        const runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds)).filter(
           assetId => state.byId[assetId] && !byId[assetId],
         )
         const runtimeAssetsById = Object.fromEntries(
@@ -87,7 +87,7 @@ export const assets = createSlice({
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
-      state.runtimeAssetIds = state.runtimeAssetIds.concat(newAssetIds)
+      state.runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds.concat(newAssetIds)))
     }),
     // Placeholders are built from a state snapshot that can predate the asset service load, so they must never replace a known asset
     addPlaceholderAssets: create.reducer((state, action: PayloadAction<UpsertAssetsPayload>) => {
@@ -98,7 +98,7 @@ export const assets = createSlice({
 
       state.byId = Object.assign({}, state.byId, byId)
       state.ids = Array.from(new Set(state.ids.concat(ids)))
-      state.runtimeAssetIds = state.runtimeAssetIds.concat(ids)
+      state.runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds.concat(ids)))
     }),
     upsertAsset: create.reducer((state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
@@ -131,8 +131,12 @@ export const assetApi = createApi({
         try {
           const service = getAssetService()
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
+
+          // The description can resolve before the asset is loaded, and there is nothing to add it to yet
+          if (!originalAsset) return { data: description }
+
           const byId = {
-            [assetId]: originalAsset && Object.assign(originalAsset, { description, isTrusted }),
+            [assetId]: Object.assign(originalAsset, { description, isTrusted }),
           }
 
           dispatch(assets.actions.upsertAssets({ byId, ids: [assetId] }))

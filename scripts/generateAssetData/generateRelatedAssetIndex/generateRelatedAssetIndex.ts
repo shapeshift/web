@@ -570,9 +570,9 @@ export const generateRelatedAssetIndex = async () => {
 
   await fs.promises.writeFile(
     ASSET_DATA_PATH,
-    JSON.stringify({ byId: generatedAssetData, ids: sortedAssetIds }, null, 2),
+    JSON.stringify({ byId: generatedAssetData, ids: sortedAssetIds }),
   )
-  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(relatedAssetIndex, null, 2))
+  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(relatedAssetIndex))
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

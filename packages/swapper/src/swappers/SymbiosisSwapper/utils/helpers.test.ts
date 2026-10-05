@@ -29,6 +29,7 @@ import {
   getSymbiosisTradeStatus,
   getSymbiosisTronFallbackEnergy,
   isSymbiosisRouteSupported,
+  isTronSourceTxFailed,
   symbiosisErrorToTradeQuoteError,
 } from './helpers'
 import type { SymbiosisFee, SymbiosisQuoteResponse, SymbiosisTxResponse } from './types'
@@ -262,9 +263,7 @@ describe('getSymbiosisFeeAssetId', () => {
   })
 
   it('maps an empty address to the chain fee asset', () => {
-    expect(
-      getSymbiosisFeeAssetId({ chainId: 8453, address: '', decimals: 18, symbol: 'ETH' }),
-    ).toBe('eip155:8453/slip44:60')
+    expect(getSymbiosisFeeAssetId({ chainId: 8453, address: '' })).toBe('eip155:8453/slip44:60')
   })
 
   it('maps a Tron hex address to its base58 trc20 asset id', () => {
@@ -272,8 +271,6 @@ describe('getSymbiosisFeeAssetId', () => {
       getSymbiosisFeeAssetId({
         chainId: 728126428,
         address: '0xa614f803b6fd780986a42c78ec9c7f77e6ded13c',
-        decimals: 6,
-        symbol: 'USDT',
       }),
     ).toBe(usdtOnTronAssetId)
   })
@@ -391,5 +388,29 @@ describe('getSymbiosisTradeStatus', () => {
     expect(getSymbiosisTradeStatus({ response: notFound, buySymbiosisChainId }).status).toBe(
       TxStatus.Unknown,
     )
+  })
+})
+
+describe('isTronSourceTxFailed', () => {
+  it('is true for a mined transaction whose contract call did not succeed', () => {
+    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'REVERT' }], confirmations: 3 })).toBe(true)
+    expect(
+      isTronSourceTxFailed({ ret: [{ contractRet: 'OUT_OF_ENERGY' }], confirmations: 1 }),
+    ).toBe(true)
+  })
+
+  it('is false for a successful transaction', () => {
+    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'SUCCESS' }], confirmations: 3 })).toBe(
+      false,
+    )
+  })
+
+  it('is false until the transaction is mined', () => {
+    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'REVERT' }], confirmations: 0 })).toBe(false)
+    expect(isTronSourceTxFailed({ confirmations: 0 })).toBe(false)
+  })
+
+  it('is false when the transaction is not found', () => {
+    expect(isTronSourceTxFailed(null)).toBe(false)
   })
 })

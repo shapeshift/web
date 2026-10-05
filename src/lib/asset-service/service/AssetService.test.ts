@@ -1,5 +1,4 @@
-import type { Asset } from '@shapeshiftoss/types'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { getAssetService, initAssetService } from './AssetService'
 import { descriptions } from './descriptions'
@@ -111,6 +110,54 @@ vi.mock('./descriptions', () => ({
 }))
 
 describe('AssetService', () => {
+  describe('init', () => {
+    it('loads the generated assets in their sorted order', () => {
+      const assetService = getAssetService()
+
+      expect(assetService.assetIds).toEqual(mockData.assetData.ids)
+      expect(assetService.assets.map(asset => asset.assetId)).toEqual(mockData.assetData.ids)
+    })
+
+    it('enriches assets with chain-level data and primary flags', () => {
+      const usdc =
+        getAssetService().assetsById['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48']
+
+      expect(usdc).toMatchObject({
+        symbol: 'USDC',
+        networkName: 'Ethereum',
+        explorer: 'https://etherscan.io',
+        explorerAddressLink: 'https://etherscan.io/address/',
+        explorerTxLink: 'https://etherscan.io/tx/',
+        isPrimary: true,
+        isChainSpecific: true,
+      })
+    })
+  })
+
+  describe('version', () => {
+    const initWithBuildVersion = async (buildVersion: string) => {
+      vi.stubEnv('VITE_VERSION', buildVersion)
+      vi.resetModules()
+
+      const { getAssetService, initAssetService } = await import('./AssetService')
+      await initAssetService()
+
+      return getAssetService().version
+    }
+
+    afterEach(() => {
+      vi.stubEnv('VITE_VERSION', '')
+    })
+
+    it('combines the build version with the asset data hashes', async () => {
+      await expect(initWithBuildVersion('1.2.3')).resolves.toBe('1.2.3:test:test')
+    })
+
+    it('is undefined for an unversioned build, so the assets are always reloaded', async () => {
+      await expect(initWithBuildVersion('')).resolves.toBeUndefined()
+    })
+  })
+
   describe('description', () => {
     it('should return the overridden description if it exists - english default', async () => {
       const assetService = getAssetService()
@@ -159,22 +206,10 @@ describe('AssetService', () => {
     it('should throw if not found', async () => {
       const assetService = getAssetService()
       mocks.get.mockRejectedValue({ data: null })
-      const tokenData: Asset = {
-        assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
-        chainId: 'eip155:1',
-        explorer: 'https://etherscan.io',
-        explorerTxLink: 'https://etherscan.io/tx/',
-        explorerAddressLink: 'https://etherscan.io/address/',
-        name: 'Test Token',
-        precision: 18,
-        color: '#FFFFFF',
-        icon: 'https://assets.coingecko.com/coins/images/17049/thumb/BUNNY.png?1626148809',
-        symbol: 'TST',
-        relatedAssetKey: null,
-      }
-      const expectedErrorMessage = `AssetService:description: no description available for ${tokenData.assetId}`
-      await expect(assetService.description(tokenData.assetId)).rejects.toEqual(
-        new Error(expectedErrorMessage),
+      const assetId = 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a'
+
+      await expect(assetService.description(assetId)).rejects.toEqual(
+        new Error(`AssetService:description: no description available for ${assetId}`),
       )
     })
   })

@@ -60,6 +60,7 @@ class _AssetService {
   private _relatedAssetIndex: Record<AssetId, AssetId[]> = {}
   private _assetIds: AssetId[] = []
   private _assets: Asset[] = []
+  private _version: string | undefined = undefined
   private initialized = false
 
   get assetsById() {
@@ -73,6 +74,10 @@ class _AssetService {
   }
   get assets() {
     return this._assets
+  }
+  // Identifies the build and asset data the assets were derived from, undefined when the build is unversioned
+  get version() {
+    return this._version
   }
 
   async init(): Promise<void> {
@@ -110,6 +115,12 @@ class _AssetService {
           axios.get(`/generated/generatedAssetData.json?v=${manifest.assetData}`),
           axios.get(`/generated/relatedAssetIndex.json?v=${manifest.relatedAssetIndex}`),
         ])
+
+        // The build matters as much as the data, as feature flags and chain-level enrichment shape the assets
+        const buildVersion = import.meta.env.VITE_VERSION
+        this._version = buildVersion
+          ? `${buildVersion}:${manifest.assetData}:${manifest.relatedAssetIndex}`
+          : undefined
 
         return [assetData, relatedData]
       }
@@ -263,6 +274,7 @@ const _emptyFallback = {
   assetIds: [],
   assets: [],
   relatedAssetIndex: {},
+  version: undefined,
   getRelatedAssetIds: () => [],
   description: () => Promise.reject(new Error('AssetService not initialized')),
 } as unknown as AssetService

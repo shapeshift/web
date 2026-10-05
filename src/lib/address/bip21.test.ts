@@ -40,9 +40,11 @@ beforeAll(async () => {
   await initAssetService()
   const service = getAssetService()
   store.dispatch(
-    assets.actions.upsertAssets({
+    assets.actions.setGeneratedAssets({
       byId: service.assetsById,
       ids: service.assetIds,
+      relatedAssetIndex: service.relatedAssetIndex,
+      version: service.version,
     }),
   )
 })

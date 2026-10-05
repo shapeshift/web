@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
-import { useAppDispatch } from '@/state/store'
+import { store, useAppDispatch } from '@/state/store'
 
 const ASSET_SERVICE_QUERY_KEY = ['assetService']
 
@@ -21,7 +21,7 @@ const KNOWN_TOKEN_SCANNING_CHAIN_IDS: Set<ChainId> = new Set([
 export const chainScansKnownTokens = (chainId: ChainId): boolean =>
   KNOWN_TOKEN_SCANNING_CHAIN_IDS.has(chainId)
 
-// Safe to call from anywhere - react-query dedupes on the key, so this initializes and upserts once
+// Safe to call from anywhere - react-query dedupes on the key, so this initializes and loads once
 export const useAssetService = () => {
   const dispatch = useAppDispatch()
 
@@ -31,13 +31,18 @@ export const useAssetService = () => {
       await initAssetService()
       const service = getAssetService()
 
+      // The persisted assets were already loaded from this build and asset data
+      if (service.version && service.version === assets.selectors.selectVersion(store.getState()))
+        return true
+
       dispatch(
-        assets.actions.upsertAssets({
+        assets.actions.setGeneratedAssets({
           byId: service.assetsById,
           ids: service.assetIds,
+          relatedAssetIndex: service.relatedAssetIndex,
+          version: service.version,
         }),
       )
-      dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
 
       return true
     },

@@ -7,20 +7,22 @@ import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/typ
 import { getAssetService } from '@/lib/asset-service'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 
-// do not export this, views get data from selectors
-// or directly from the store outside react components
-const service = getAssetService()
-
 export type AssetsState = {
   byId: AssetsByIdPartial
   ids: AssetId[]
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
+  // Assets that are not part of the generated asset data, e.g. custom tokens and placeholders
+  runtimeAssetIds: AssetId[]
+  // The asset service version the generated assets were last loaded from
+  version: string | undefined
 }
 
 export const initialState: AssetsState = {
-  byId: service.assetsById,
-  ids: service.assetIds,
-  relatedAssetIndex: service.relatedAssetIndex,
+  byId: {},
+  ids: [],
+  relatedAssetIndex: {},
+  runtimeAssetIds: [],
+  version: undefined,
 }
 
 export const defaultAsset: Asset = {
@@ -37,7 +39,9 @@ export const defaultAsset: Asset = {
   relatedAssetKey: null,
 }
 
-export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
+export type UpsertAssetsPayload = Pick<AssetsState, 'byId' | 'ids'>
+
+type SetGeneratedAssetsPayload = Pick<AssetsState, 'byId' | 'ids' | 'relatedAssetIndex' | 'version'>
 
 export const assets = createSlice({
   name: 'assets',
@@ -46,18 +50,43 @@ export const assets = createSlice({
     selectAssetsById: state => state.byId,
     selectAssetIds: state => state.ids,
     selectRelatedAssetIndex: state => state.relatedAssetIndex,
+    selectVersion: state => state.version,
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),
+    // Replaces the generated assets wholesale, so removals and the sort order apply, while keeping runtime assets
+    setGeneratedAssets: create.reducer(
+      (state, action: PayloadAction<SetGeneratedAssetsPayload>) => {
+        const { byId, ids, relatedAssetIndex, version } = action.payload
+
+        const runtimeAssetIds = state.runtimeAssetIds.filter(
+          assetId => state.byId[assetId] && !byId[assetId],
+        )
+        const runtimeAssetsById = Object.fromEntries(
+          runtimeAssetIds.map(assetId => [assetId, state.byId[assetId]]),
+        )
+
+        state.byId = Object.assign({}, byId, runtimeAssetsById)
+        state.ids = ids.concat(runtimeAssetIds)
+        state.relatedAssetIndex = relatedAssetIndex
+        state.runtimeAssetIds = runtimeAssetIds
+        state.version = version
+      },
+    ),
     upsertAssets: create.reducer((state, action: PayloadAction<UpsertAssetsPayload>) => {
       // Ignore empty upserts - don't create new references for no reason
       if (action.payload.ids.length === 0 && Object.keys(action.payload.byId).length === 0) {
         return
       }
 
+      const newAssetIds = action.payload.ids.filter(
+        assetId => !state.byId[assetId] && action.payload.byId[assetId],
+      )
+
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
+      state.runtimeAssetIds = state.runtimeAssetIds.concat(newAssetIds)
     }),
     // Placeholders are built from a state snapshot that can predate the asset service load, so they must never replace a known asset
     addPlaceholderAssets: create.reducer((state, action: PayloadAction<UpsertAssetsPayload>) => {
@@ -68,18 +97,16 @@ export const assets = createSlice({
 
       state.byId = Object.assign({}, state.byId, byId)
       state.ids = Array.from(new Set(state.ids.concat(ids)))
+      state.runtimeAssetIds = state.runtimeAssetIds.concat(ids)
     }),
     upsertAsset: create.reducer((state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
+      if (!state.byId[assetId]) state.runtimeAssetIds.push(assetId)
+
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
     }),
-    setRelatedAssetIndex: create.reducer(
-      (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
-        state.relatedAssetIndex = action.payload
-      },
-    ),
   }),
 })
 

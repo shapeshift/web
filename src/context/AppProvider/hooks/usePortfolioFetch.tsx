@@ -31,8 +31,7 @@ export const usePortfolioFetch = () => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    // Accounts are fetched against the current assets: placeholders are built for the tokens they don't cover,
-    // and chains that scan known tokens take their token list from the asset service
+    // Placeholders and known-token scans need the current assets, so accounts wait for the asset service
     if (!isAssetServicePending) {
       enabledWalletAccountIds.forEach(accountId => {
         dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))

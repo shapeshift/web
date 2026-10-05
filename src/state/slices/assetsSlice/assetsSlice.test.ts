@@ -1,12 +1,20 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { AssetsState } from './assetsSlice'
-import { assets, initialState } from './assetsSlice'
+import { assetApi, assets, initialState } from './assetsSlice'
 
+import { createStore } from '@/state/store'
 import { ethereum, fox, usdc } from '@/test/mocks/assets'
+
+vi.mock('@/lib/asset-service', async importOriginal => ({
+  ...(await importOriginal<object>()),
+  getAssetService: () => ({
+    description: () => Promise.resolve({ description: 'A fox token', isTrusted: true }),
+  }),
+}))
 
 const foxPlaceholder = makeAsset({
   assetId: fox.assetId,
@@ -103,12 +111,27 @@ describe('assetsSlice', () => {
       expect(state.customAssetIds).toEqual([])
     })
 
-    it('keeps a watched asset that was removed from the generated data', () => {
+    it('drops a watched asset that was removed from the generated data', () => {
       const loaded = setGeneratedAssets(initialState, [ethereum, fox], 'v1')
 
       const state = setGeneratedAssets(loaded, [ethereum], 'v2', { watchedAssetIds: [fox.assetId] })
 
-      expect(state.byId[fox.assetId]).toEqual(fox)
+      expect(state.byId[fox.assetId]).toBeUndefined()
+      expect(state.ids).toEqual([ethereum.assetId])
+    })
+
+    it('keeps a watched asset from a store that predates the tracking of runtime assets', () => {
+      const untracked: AssetsState = {
+        ...initialState,
+        byId: { [ethereum.assetId]: ethereum, [fox.assetId]: foxPlaceholder },
+        ids: [ethereum.assetId, fox.assetId],
+      }
+
+      const state = setGeneratedAssets(untracked, [ethereum], 'v1', {
+        watchedAssetIds: [fox.assetId],
+      })
+
+      expect(state.byId[fox.assetId]).toEqual(foxPlaceholder)
       expect(state.ids).toEqual([ethereum.assetId, fox.assetId])
       expect(state.runtimeAssetIds).toEqual([fox.assetId])
     })
@@ -251,6 +274,18 @@ describe('assetsSlice', () => {
     })
   })
 
+  describe('upsertAssets ids', () => {
+    it('does not add an id that has no asset', () => {
+      const state = assets.reducer(
+        initialState,
+        assets.actions.upsertAssets({ byId: {}, ids: [fox.assetId] }),
+      )
+
+      expect(state.ids).toEqual([])
+      expect(state.runtimeAssetIds).toEqual([])
+    })
+  })
+
   describe('upsertAsset', () => {
     it('tracks a new asset as a runtime asset once', () => {
       const added = assets.reducer(initialState, assets.actions.upsertAsset(customToken))
@@ -288,6 +323,51 @@ describe('assetsSlice', () => {
 
       expect(state.byId[fox.assetId]).toEqual(fox)
       expect(state.customAssetIds).toEqual([])
+    })
+  })
+
+  describe('getAssetDescription', () => {
+    it('adds the description to the asset in the store', async () => {
+      const store = createStore()
+      store.dispatch(
+        assets.actions.setGeneratedAssets({
+          byId: { [fox.assetId]: fox },
+          ids: [fox.assetId],
+          relatedAssetIndex: {},
+          version: 'v1',
+          watchedAssetIds: [],
+          heldAssetIds: [],
+        }),
+      )
+
+      const { data } = await store.dispatch(
+        assetApi.endpoints.getAssetDescription.initiate({
+          assetId: fox.assetId,
+          selectedLocale: 'en',
+        }),
+      )
+
+      expect(data).toBe('A fox token')
+      expect(store.getState().assets.byId[fox.assetId]).toEqual({
+        ...fox,
+        description: 'A fox token',
+        isTrusted: true,
+      })
+      expect(store.getState().assets.runtimeAssetIds).toEqual([])
+    })
+
+    it('returns the description for an asset that is not loaded, without adding it', async () => {
+      const store = createStore()
+
+      const { data } = await store.dispatch(
+        assetApi.endpoints.getAssetDescription.initiate({
+          assetId: fox.assetId,
+          selectedLocale: 'en',
+        }),
+      )
+
+      expect(data).toBe('A fox token')
+      expect(store.getState().assets.ids).toEqual([])
     })
   })
 

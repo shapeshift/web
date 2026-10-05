@@ -63,8 +63,7 @@ export const assets = createSlice({
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),
-    // Replaces the assets wholesale, so removals and the sort order apply. Custom, watched and held assets are kept
-    // when the generated assets don't cover them, the others are rebuilt as they are needed
+    // Replaces the assets so removals and the sort order apply, keeping the custom, watched and held runtime assets
     setGeneratedAssets: create.reducer(
       (state, action: PayloadAction<SetGeneratedAssetsPayload>) => {
         const { byId, ids, relatedAssetIndex, version, watchedAssetIds, heldAssetIds } =
@@ -72,17 +71,19 @@ export const assets = createSlice({
 
         const isOnlyInStore = (assetId: AssetId) => state.byId[assetId] && !byId[assetId]
 
-        const customAssetIds = state.customAssetIds.filter(isOnlyInStore)
-        // Held assets are only kept if tracked as runtime assets, so placeholders that predate the tracking are rebuilt
         const trackedRuntimeAssetIds = new Set(state.runtimeAssetIds)
-        const heldRuntimeAssetIds = heldAssetIds.filter(
-          assetId => trackedRuntimeAssetIds.has(assetId) && isOnlyInStore(assetId),
-        )
+        const isTrackedRuntimeAsset = (assetId: AssetId) =>
+          trackedRuntimeAssetIds.has(assetId) && isOnlyInStore(assetId)
+
+        // A store with no version predates the tracking, so its watched assets can't be told apart from removed ones
+        const isWatchedRuntimeAsset = state.version ? isTrackedRuntimeAsset : isOnlyInStore
+
+        const customAssetIds = state.customAssetIds.filter(isOnlyInStore)
         const runtimeAssetIds = Array.from(
           new Set([
             ...customAssetIds,
-            ...watchedAssetIds.filter(isOnlyInStore),
-            ...heldRuntimeAssetIds,
+            ...watchedAssetIds.filter(isWatchedRuntimeAsset),
+            ...heldAssetIds.filter(isTrackedRuntimeAsset),
           ]),
         )
         const runtimeAssetsById = Object.fromEntries(
@@ -103,13 +104,14 @@ export const assets = createSlice({
         return
       }
 
-      const newAssetIds = action.payload.ids.filter(
-        assetId => !state.byId[assetId] && action.payload.byId[assetId],
-      )
+      const ids = action.payload.ids.filter(assetId => action.payload.byId[assetId])
+      const newAssetIds = ids.filter(assetId => !state.byId[assetId])
 
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       // Note this preserves the original sorting while removing duplicates.
-      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
+      state.ids = Array.from(new Set(state.ids.concat(ids)))
+
+      if (newAssetIds.length === 0) return
       state.runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds.concat(newAssetIds)))
     }),
     // Placeholders are built from a state snapshot that can predate the asset service load, so they must never replace a known asset
@@ -159,20 +161,17 @@ export const assetApi = createApi({
           throw new Error('assetId not provided')
         }
 
-        // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
-        const { byId: byIdOriginal } = (getState() as any).assets as AssetsState
-        const originalAsset = byIdOriginal[assetId]
-
         try {
           const service = getAssetService()
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
 
-          // The description can resolve before the asset is loaded, and there is nothing to add it to yet
-          if (!originalAsset) return { data: description }
+          // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
+          const asset = ((getState() as any).assets as AssetsState).byId[assetId]
 
-          const byId = {
-            [assetId]: Object.assign(originalAsset, { description, isTrusted }),
-          }
+          // The description can resolve before the asset is loaded, and there is nothing to add it to yet
+          if (!asset) return { data: description }
+
+          const byId = { [assetId]: { ...asset, description, isTrusted } }
 
           dispatch(assets.actions.upsertAssets({ byId, ids: [assetId] }))
 

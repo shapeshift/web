@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "請求の受取アドレス",
-    "confirmAndClaim": "確認と請求",
-    "bridgeWithdrawalReadyNotification": "ブリッジした資産の受け取り準備ができました",
-    "checkActionCenterNotification": "詳細についてはアクションセンターを確認してください"
+    "confirmAndClaim": "確認と請求"
   },
   "trade": {
     "trade": "取引",
@@ -2931,9 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "ステーク開始",
-    "unstakeInitiated": "ステーク解除開始",
-    "claimWithdraw": "引き出し申請",
     "staking": "rFOXステーキング",
     "bridge": "ブリッジ",
     "bridgeFunds": "資金のブリッジ",

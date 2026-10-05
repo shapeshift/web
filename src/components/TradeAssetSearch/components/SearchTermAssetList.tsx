@@ -111,9 +111,7 @@ export const SearchTermAssetList = ({
 
     const assetsById = selectAssets(store.getState())
 
-    return customTokens
-      .filter(token => !assetsById[token.assetId])
-      .map(token => makeAsset(assetsById, token))
+    return customTokens.filter(token => !assetsById[token.assetId]).map(token => makeAsset(token))
   }, [customTokens])
 
   const searchTermAssets = useMemo(() => {

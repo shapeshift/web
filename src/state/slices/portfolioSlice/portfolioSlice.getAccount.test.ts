@@ -56,9 +56,13 @@ describe('portfolioApi getAccount', () => {
 
     // The asset service lands while the account is still in flight
     store.dispatch(
-      assetsSlice.actions.upsertAssets({
+      assetsSlice.actions.setGeneratedAssets({
         byId: { [ethAssetId]: ethereum, [foxAssetId]: fox },
         ids: [ethAssetId, foxAssetId],
+        relatedAssetIndex: {},
+        version: 'v1',
+        watchedAssetIds: [],
+        heldAssetIds: [],
       }),
     )
 

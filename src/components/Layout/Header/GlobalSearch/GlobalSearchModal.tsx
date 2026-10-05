@@ -19,10 +19,10 @@ import scrollIntoView from 'scroll-into-view-if-needed'
 import { AssetSearchResults } from './AssetSearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
+import { CustomAssetAcknowledgement } from '@/components/TradeAssetSearch/components/CustomAssetAcknowledgement'
 import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS } from '@/lib/customTokenImportSupportedChainIds'
-import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectAssets, selectAssetsBySearchQuery } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
@@ -39,6 +39,8 @@ export const GlobalSearchModal = memo(
   }: Pick<UseDisclosureReturn, 'isOpen' | 'onClose' | 'onOpen' | 'onToggle'>) => {
     const [activeIndex, setActiveIndex] = useState(0)
     const [searchQuery, setSearchQuery] = useState('')
+    const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
+    const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
     const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
@@ -67,16 +69,8 @@ export const GlobalSearchModal = memo(
 
       const assetsById = selectAssets(store.getState())
 
-      return customTokens
-        .filter(token => !assetsById[token.assetId])
-        .map(token => makeAsset(assetsById, token))
+      return customTokens.filter(token => !assetsById[token.assetId]).map(token => makeAsset(token))
     }, [customTokens])
-
-    useEffect(() => {
-      customAssets.forEach(asset => {
-        dispatch(assetsSlice.actions.upsertAsset(asset))
-      })
-    }, [customAssets, dispatch])
 
     const results = useMemo(() => {
       if (!customAssets.length) return searchAssets
@@ -98,7 +92,7 @@ export const GlobalSearchModal = memo(
       }
     })
 
-    const handleClick = useCallback(
+    const handleAssetClick = useCallback(
       (asset: Asset) => {
         // Reset the sell amount to zero, since we may be coming from a different sell asset in regular swapper
         dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
@@ -107,6 +101,21 @@ export const GlobalSearchModal = memo(
         onToggle()
       },
       [onToggle, dispatch, navigate],
+    )
+
+    const handleImportIntent = useCallback((asset: Asset) => {
+      setAssetToImport(asset)
+      setShouldShowWarningAcknowledgement(true)
+    }, [])
+
+    const handleClick = useCallback(
+      (asset: Asset) => {
+        // A custom asset has to be imported before its page can be opened
+        if (!selectAssets(store.getState())[asset.assetId]) return handleImportIntent(asset)
+
+        handleAssetClick(asset)
+      },
+      [handleAssetClick, handleImportIntent],
     )
 
     const onKeyDown = useCallback(
@@ -174,35 +183,44 @@ export const GlobalSearchModal = memo(
     }, [searchQuery])
 
     return (
-      <Modal scrollBehavior='inside' {...modalProps} size='lg'>
-        <ModalOverlay {...overlayProps} />
-        <ModalContent overflow='hidden' data-testid='global-search-modal' {...modalContentProps}>
-          <ModalHeader
-            position='sticky'
-            top={0}
-            sx={sxProp2}
-            borderBottomWidth={1}
-            borderColor='whiteAlpha.100'
-          >
-            <GlobalFilter
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onKeyDown={onKeyDown}
-              inputGroupProps={inputGroupProps}
-              borderBottomRadius={0}
-              borderWidth={0}
-            />
-          </ModalHeader>
-          <ModalBody px={0} ref={menuRef}>
-            <AssetSearchResults
-              results={results}
-              searchQuery={searchQuery}
-              isLoading={isLoadingCustomTokens}
-              onClickResult={handleClick}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <>
+        <CustomAssetAcknowledgement
+          asset={assetToImport}
+          handleAssetClick={handleAssetClick}
+          shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+          setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+        />
+        <Modal scrollBehavior='inside' {...modalProps} size='lg'>
+          <ModalOverlay {...overlayProps} />
+          <ModalContent overflow='hidden' data-testid='global-search-modal' {...modalContentProps}>
+            <ModalHeader
+              position='sticky'
+              top={0}
+              sx={sxProp2}
+              borderBottomWidth={1}
+              borderColor='whiteAlpha.100'
+            >
+              <GlobalFilter
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onKeyDown={onKeyDown}
+                inputGroupProps={inputGroupProps}
+                borderBottomRadius={0}
+                borderWidth={0}
+              />
+            </ModalHeader>
+            <ModalBody px={0} ref={menuRef}>
+              <AssetSearchResults
+                results={results}
+                searchQuery={searchQuery}
+                isLoading={isLoadingCustomTokens}
+                onClickResult={handleClick}
+                onImportClick={handleImportIntent}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </>
     )
   },
 )

@@ -85,7 +85,7 @@ const actionSanitizer = (action: any) => {
 
   const blackList = [
     // our normalized data actions
-    'asset/setAssets',
+    'assets/setGeneratedAssets',
     ...marketDataBlackList,
     // RTK query internal actions
     'assetApi/executeQuery/fulfilled',

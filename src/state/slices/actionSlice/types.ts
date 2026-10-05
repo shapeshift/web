@@ -1,7 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, CowSwapQuoteId, OrderId } from '@shapeshiftoss/types'
 
-import type { ClaimDetails } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -83,8 +82,7 @@ type ActionArbitrumBridgeWithdrawMetadata = {
   destinationAssetId: AssetId
   accountId: AccountId
   destinationAccountId: AccountId
-  timeRemainingSeconds?: number
-  claimDetails?: ClaimDetails
+  claimableAt?: number
 }
 
 export enum ChainflipLendingOperationType {
@@ -295,6 +293,22 @@ export const isPendingSendAction = (action: Action): action is GenericTransactio
   return Boolean(isSendAction(action) && action.status === ActionStatus.Pending)
 }
 
+const ACTIVE_ACTION_STATUSES = new Set([
+  ActionStatus.AwaitingApproval,
+  ActionStatus.AwaitingSwap,
+  ActionStatus.Pending,
+  ActionStatus.Initiated,
+  ActionStatus.ClaimAvailable,
+  ActionStatus.Open,
+])
+
+export const isActiveActionStatus = (status: ActionStatus): boolean =>
+  ACTIVE_ACTION_STATUSES.has(status)
+
+// In-flight actions are dated by when they started, settled ones by when they settled
+export const getActionTimestamp = (action: Action): number =>
+  isActiveActionStatus(action.status) ? action.createdAt : action.updatedAt
+
 export const isArbitrumBridgeWithdrawAction = (
   action: Action,
 ): action is ArbitrumBridgeWithdrawAction => {
@@ -304,3 +318,27 @@ export const isArbitrumBridgeWithdrawAction = (
 export const isChainflipLendingAction = (action: Action): action is ChainflipLendingAction => {
   return Boolean(action.type === ActionType.ChainflipLending && action.chainflipLendingMetadata)
 }
+
+const CLAIM_ACTION_TYPES = new Set([
+  ActionType.Claim,
+  ActionType.RfoxClaim,
+  ActionType.TcyClaim,
+  ActionType.ArbitrumBridgeWithdraw,
+])
+
+export const isClaimAction = (action: Action): boolean => CLAIM_ACTION_TYPES.has(action.type)
+
+// Claims stay in the claims tab until they settle
+export const isClaimSectionAction = (action: Action): boolean =>
+  isClaimAction(action) && isActiveActionStatus(action.status)
+
+// Every claim moves forward through these, only a failed or dropped claim tx steps back to claimable
+const CLAIM_STATUS_ORDER: Partial<Record<ActionStatus, number>> = {
+  [ActionStatus.Initiated]: 0,
+  [ActionStatus.ClaimAvailable]: 1,
+  [ActionStatus.Pending]: 2,
+  [ActionStatus.Claimed]: 3,
+}
+
+export const isClaimStatusRegression = (from: ActionStatus, to: ActionStatus): boolean =>
+  (CLAIM_STATUS_ORDER[to] ?? 0) < (CLAIM_STATUS_ORDER[from] ?? 0)

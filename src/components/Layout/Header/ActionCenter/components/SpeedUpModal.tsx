@@ -346,8 +346,7 @@ export const SpeedUpModal = ({
       const signedTx = await adapter.signTransaction({ txToSign, wallet })
       const replacementTxHash = await adapter.broadcastTransaction({ hex: signedTx })
 
-      // Mark the replaced action first so the new Pending insert gets the newer
-      // `updatedAt` from the reducer and sorts above it in the action list.
+      // Mark the replaced action before inserting its replacement
       const replacedAction = actionsById[txHash]
       if (
         replacedAction &&

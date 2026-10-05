@@ -5,6 +5,7 @@ import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
 import type {
+  ArbitrumBridgeWithdrawAction,
   ChainflipLendingAction,
   GenericTransactionAction,
   LimitOrderAction,
@@ -15,8 +16,10 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  getActionTimestamp,
   isArbitrumBridgeWithdrawAction,
   isChainflipLendingAction,
+  isClaimSectionAction,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
@@ -28,6 +31,7 @@ import {
   isThorchainLpAction,
 } from './types'
 
+import { isSome } from '@/lib/utils'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectCowSwapQuoteIdParamFromRequiredFilter,
@@ -37,7 +41,8 @@ import {
 export const selectActions = createDeepEqualOutputSelector(
   actionSlice.selectors.selectActionsById,
   actionSlice.selectors.selectActionIds,
-  (actionsById, actionIds) => actionIds.map(id => actionsById[id]),
+  // An id without an action, e.g. a persisted null, must not take every subscriber down
+  (actionsById, actionIds) => actionIds.map(id => actionsById[id]).filter(isSome),
 )
 
 export const selectWalletActions = createDeepEqualOutputSelector(
@@ -86,8 +91,21 @@ export const selectWalletActions = createDeepEqualOutputSelector(
         return enabledWalletAccountIds.includes(action.chainflipLendingMetadata.accountId)
       }
 
+      if (isArbitrumBridgeWithdrawAction(action)) {
+        return enabledWalletAccountIds.includes(action.arbitrumBridgeMetadata.accountId)
+      }
+
       return action
     })
+  },
+)
+
+export const selectWalletClaimActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions
+      .filter(isClaimSectionAction)
+      .sort((a, b) => getActionTimestamp(b) - getActionTimestamp(a))
   },
 )
 
@@ -98,8 +116,14 @@ export const selectWalletActionsSorted = createDeepEqualOutputSelector(
       .filter(
         action => action.status !== ActionStatus.Idle && action.status !== ActionStatus.Abandoned,
       )
-      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .sort((a, b) => getActionTimestamp(b) - getActionTimestamp(a))
   },
+)
+
+// Subscribers read the full list above, only the recent tab leaves claims to the claims tab
+export const selectWalletRecentActions = createDeepEqualOutputSelector(
+  selectWalletActionsSorted,
+  actions => actions.filter(action => !isClaimSectionAction(action)),
 )
 
 export const selectWalletPendingActions = createDeepEqualOutputSelector(
@@ -271,19 +295,7 @@ export const selectArbitrumBridgeWithdrawActionById = createDeepEqualOutputSelec
   (_state: any, actionId: string) => actionId,
   (actionsById, actionId) => {
     const action = actionsById[actionId]
-    return isArbitrumBridgeWithdrawAction(action) ? action : undefined
-  },
-)
-
-export const selectArbitrumBridgeWithdrawActionByWithdrawTxHash = createDeepEqualOutputSelector(
-  actionSlice.selectors.selectActionsById,
-  (_state: any, withdrawTxHash: string) => withdrawTxHash,
-  (actionsById, withdrawTxHash) => {
-    return Object.values(actionsById).find(
-      action =>
-        isArbitrumBridgeWithdrawAction(action) &&
-        action.arbitrumBridgeMetadata?.withdrawTxHash === withdrawTxHash,
-    )
+    return action && isArbitrumBridgeWithdrawAction(action) ? action : undefined
   },
 )
 
@@ -291,7 +303,7 @@ export const selectPendingArbitrumBridgeWithdrawActions = createDeepEqualOutputS
   selectWalletActions,
   actions => {
     return actions.filter(
-      action =>
+      (action): action is ArbitrumBridgeWithdrawAction =>
         isArbitrumBridgeWithdrawAction(action) &&
         action.status !== ActionStatus.Claimed &&
         action.status !== ActionStatus.Failed,

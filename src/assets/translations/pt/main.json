@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "Endereço de recebimento do resgate",
-    "confirmAndClaim": "Confirmar e Resgate",
-    "bridgeWithdrawalReadyNotification": "Saque da ponte pronto para resgate",
-    "checkActionCenterNotification": "Verifique o Centro de Ações para obter detalhes"
+    "confirmAndClaim": "Confirmar e Resgate"
   },
   "trade": {
     "trade": "Swap",
@@ -2931,9 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Stake iniciado",
-    "unstakeInitiated": "Unstake iniciado",
-    "claimWithdraw": "Resgate de Saque",
     "staking": "rFOX Staking",
     "bridge": "Ponte",
     "bridgeFunds": "Faça a ponte de seus fundos",

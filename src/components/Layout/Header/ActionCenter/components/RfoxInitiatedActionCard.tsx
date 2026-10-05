@@ -1,7 +1,5 @@
-import { Button, Card, CardBody, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Button, Link, useDisclosure } from '@chakra-ui/react'
 import { uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -12,13 +10,12 @@ import { ActionStatusTag } from './ActionStatusTag'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import { middleEllipsis } from '@/lib/utils'
+import { formatSmartDate } from '@/lib/utils/time'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionType } from '@/state/slices/actionSlice/types'
+import { getActionTimestamp } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { foxEthLpAssetId, foxEthPair } from '@/state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from '@/state/store'
-
-dayjs.extend(relativeTime)
 
 type RfoxInitiatedActionCardProps = {
   action: GenericTransactionAction
@@ -33,16 +30,7 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
     selectAssetById(state, action.transactionMetadata.assetId ?? ''),
   )
 
-  const formattedDate = useMemo(() => {
-    const now = dayjs()
-    const notificationDate = dayjs(action.updatedAt)
-    const sevenDaysAgo = now.subtract(7, 'day')
-    if (notificationDate.isAfter(sevenDaysAgo)) {
-      return notificationDate.fromNow()
-    } else {
-      return notificationDate.toDate().toLocaleString()
-    }
-  }, [action.updatedAt])
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
 
   const txLink = useMemo(() => {
     if (!feeAsset) return
@@ -55,8 +43,6 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
       maybeSafeTx: undefined,
     })
   }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
-
-  const isUnstake = action.type === ActionType.Withdraw
 
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
@@ -97,43 +83,9 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
       footer={footer}
       onToggle={onToggle}
     >
-      <Card>
-        <CardBody>
-          <Stack spacing={4}>
-            <Stack direction='row' justify='space-between' align='center'>
-              <Text fontSize='sm' color='text.primary'>
-                {translate(isUnstake ? 'RFOX.unstakeInitiated' : 'RFOX.stakeInitiated')}
-              </Text>
-              <Link href={txLink} isExternal color='blue.300' fontSize='sm' fontWeight='medium'>
-                {middleEllipsis(action.transactionMetadata.txHash)}
-              </Link>
-            </Stack>
-
-            {isUnstake && action.transactionMetadata.cooldownPeriodSeconds && (
-              <Stack direction='row' justify='space-between' align='center'>
-                <Text fontSize='sm' color='text.primary'>
-                  {translate('RFOX.claimWithdraw')}
-                </Text>
-                <Button
-                  size='sm'
-                  variant='outline'
-                  colorScheme='gray'
-                  borderRadius='md'
-                  px={3}
-                  py={1}
-                  height='auto'
-                  fontSize='sm'
-                  isDisabled
-                >
-                  {dayjs(action.createdAt)
-                    .add(action.transactionMetadata.cooldownPeriodSeconds ?? 0, 'second')
-                    .fromNow()}
-                </Button>
-              </Stack>
-            )}
-          </Stack>
-        </CardBody>
-      </Card>
+      <Button width='full' size='sm' as={Link} isExternal href={txLink}>
+        {translate('actionCenter.viewTransaction')}
+      </Button>
     </ActionCard>
   )
 }

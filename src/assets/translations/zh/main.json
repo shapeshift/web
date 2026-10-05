@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "领取接收地址",
-    "confirmAndClaim": "确认并认领",
-    "bridgeWithdrawalReadyNotification": "链桥提现已可领取",
-    "checkActionCenterNotification": "进入操作中心以查看详情"
+    "confirmAndClaim": "确认并认领"
   },
   "trade": {
     "trade": "交易",
@@ -2931,9 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "质押已发起",
-    "unstakeInitiated": "取消质押已发起",
-    "claimWithdraw": "领取提款",
     "staking": "rFOX 质押",
     "bridge": "桥接",
     "bridgeFunds": "桥接资金",

@@ -882,9 +882,7 @@
       }
     },
     "claimReceiveAddress": "Adresse de réception de réclamation",
-    "confirmAndClaim": "Confirmer et réclamer",
-    "bridgeWithdrawalReadyNotification": "Retrait du bridge prêt à être réclamé",
-    "checkActionCenterNotification": "Consultez le centre d'actions pour plus de détails"
+    "confirmAndClaim": "Confirmer et réclamer"
   },
   "trade": {
     "trade": "Échanger",
@@ -2931,9 +2929,6 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Staking initié",
-    "unstakeInitiated": "Déstaking initié",
-    "claimWithdraw": "Réclamer le retrait",
     "staking": "Staking rFOX",
     "bridge": "Bridger",
     "bridgeFunds": "Bridger des fonds",

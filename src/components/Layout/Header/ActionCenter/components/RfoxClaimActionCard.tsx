@@ -6,10 +6,11 @@ import { useNavigate } from 'react-router-dom'
 
 import { ClaimActionCard } from './ClaimActionCard'
 
+import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bn } from '@/lib/bignumber/bignumber'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectRfoxUnstakeTxId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 dayjs.extend(relativeTime)
@@ -25,6 +26,26 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, action.rfoxClaimActionMetadata.request.stakingAssetId),
   )
+  const timeText = useClaimTimeText(
+    Number(action.rfoxClaimActionMetadata.request.cooldownExpiry) * 1000,
+  )
+
+  const { request } = action.rfoxClaimActionMetadata
+  const unstakeTxFilter = useMemo(
+    () => ({
+      accountId: request.stakingAssetAccountId,
+      assetId: request.stakingAssetId,
+      amountCryptoBaseUnit: request.amountCryptoBaseUnit,
+      unstakedAtMs: action.createdAt,
+    }),
+    [
+      request.stakingAssetAccountId,
+      request.stakingAssetId,
+      request.amountCryptoBaseUnit,
+      action.createdAt,
+    ],
+  )
+  const unstakeTxHash = useAppSelector(state => selectRfoxUnstakeTxId(state, unstakeTxFilter))
 
   const handleClaimClick = useCallback(() => {
     const index = action.rfoxClaimActionMetadata.request.index
@@ -46,6 +67,13 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     ).toFixed(2)
 
     switch (action.status) {
+      case ActionStatus.Initiated: {
+        return translate('actionCenter.rfox.unstakePending', {
+          amount: amountCryptoPrecision,
+          symbol: stakingAsset.symbol,
+          timeText,
+        })
+      }
       case ActionStatus.ClaimAvailable: {
         return translate('actionCenter.rfox.unstakeReady', {
           amount: amountCryptoPrecision,
@@ -71,6 +99,7 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
     action.rfoxClaimActionMetadata.request.amountCryptoPrecision,
     action.status,
     stakingAsset,
+    timeText,
     translate,
   ])
 
@@ -81,6 +110,9 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
       claimAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
       underlyingAssetId={action.rfoxClaimActionMetadata.request.stakingAssetId}
       txHash={action.rfoxClaimActionMetadata.txHash}
+      sourceTxHash={unstakeTxHash}
+      sourceTxLabel={translate('actionCenter.rfox.unstakeTx')}
+      claimableAt={Number(request.cooldownExpiry) * 1000}
       onClaimClick={handleClaimClick}
       message={message ?? ''}
     />

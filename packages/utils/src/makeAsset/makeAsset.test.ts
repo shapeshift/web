@@ -1,24 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethAssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { ASSET_NAMESPACE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import type { MinimalAsset } from './makeAsset'
 import { makeAsset } from './makeAsset'
-
-const ETH: Asset = {
-  assetId: ethAssetId,
-  chainId: ethChainId,
-  symbol: 'ETH',
-  name: 'Ethereum',
-  precision: 18,
-  color: '#FFFFFF',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  relatedAssetKey: null,
-}
 
 describe('makeAsset', () => {
   it('can make erc20 shitcoins', () => {
@@ -30,9 +15,8 @@ describe('makeAsset', () => {
     const chainId = ethChainId
     const assetId: AssetId = toAssetId({ chainId, assetNamespace, assetReference })
     const minimalAsset: MinimalAsset = { assetId, symbol, precision, name }
-    const assetsById = { [ETH.assetId]: ETH }
-    const asset = makeAsset(assetsById, minimalAsset)
-    const asset2 = makeAsset(assetsById, minimalAsset)
+    const asset = makeAsset(minimalAsset)
+    const asset2 = makeAsset(minimalAsset)
 
     // doesn't molest asset id, precision, symbol, name
     expect(asset?.assetId).toEqual(assetId)
@@ -43,10 +27,10 @@ describe('makeAsset', () => {
     // belongs to correct chain
     expect(asset?.chainId).toEqual(chainId)
 
-    // inherits fee asset explorer links
-    expect(asset?.explorer).toEqual(ETH.explorer)
-    expect(asset?.explorerTxLink).toEqual(ETH.explorerTxLink)
-    expect(asset?.explorerAddressLink).toEqual(ETH.explorerAddressLink)
+    // takes explorer links from the chain, without needing the fee asset to be loaded
+    expect(asset?.explorer).toEqual('https://etherscan.io')
+    expect(asset?.explorerTxLink).toEqual('https://etherscan.io/tx/')
+    expect(asset?.explorerAddressLink).toEqual('https://etherscan.io/address/')
 
     // is deterministic on color and icon
     expect(asset?.color).toEqual(asset2?.color)

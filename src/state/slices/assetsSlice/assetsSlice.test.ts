@@ -7,25 +7,19 @@ import { assets, initialState } from './assetsSlice'
 
 import { ethereum, fox, usdc } from '@/test/mocks/assets'
 
-const foxPlaceholder = makeAsset(
-  {},
-  {
-    assetId: fox.assetId,
-    symbol: fox.symbol,
-    name: fox.name,
-    precision: fox.precision,
-  },
-)
+const foxPlaceholder = makeAsset({
+  assetId: fox.assetId,
+  symbol: fox.symbol,
+  name: fox.name,
+  precision: fox.precision,
+})
 
-const customToken = makeAsset(
-  {},
-  {
-    assetId: 'eip155:1/erc20:0x0000000000000000000000000000000000000001',
-    symbol: 'CUSTOM',
-    name: 'Custom Token',
-    precision: 18,
-  },
-)
+const customToken = makeAsset({
+  assetId: 'eip155:1/erc20:0x0000000000000000000000000000000000000001',
+  symbol: 'CUSTOM',
+  name: 'Custom Token',
+  precision: 18,
+})
 
 const setGeneratedAssets = (state: AssetsState, generated: Asset[], version: string) =>
   assets.reducer(
@@ -161,6 +155,30 @@ describe('assetsSlice', () => {
 
       expect(state.ids).toEqual([customToken.assetId])
       expect(state.runtimeAssetIds).toEqual([customToken.assetId])
+    })
+  })
+
+  describe('selectHasGeneratedAssets', () => {
+    const selectHasGeneratedAssets = (state: AssetsState) =>
+      assets.selectors.selectHasGeneratedAssets({ assets: state })
+
+    it('is false for an empty store and for a store holding only runtime assets', () => {
+      const withPlaceholder = assets.reducer(
+        initialState,
+        assets.actions.addPlaceholderAssets({
+          byId: { [fox.assetId]: foxPlaceholder },
+          ids: [fox.assetId],
+        }),
+      )
+
+      expect(selectHasGeneratedAssets(initialState)).toBe(false)
+      expect(selectHasGeneratedAssets(withPlaceholder)).toBe(false)
+    })
+
+    it('is true once the generated assets are loaded', () => {
+      expect(selectHasGeneratedAssets(setGeneratedAssets(initialState, [ethereum], 'v1'))).toBe(
+        true,
+      )
     })
   })
 

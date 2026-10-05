@@ -1,8 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 
-import { chainIdToFeeAsset } from '../chainIdToFeeAsset'
+import { getBaseAsset } from '../assetData/getBaseAsset'
 import { sha256 } from '../sha256'
 
 export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
@@ -11,12 +10,9 @@ export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | '
  * utility to create an asset from minimal asset data from external sources at runtime
  * e.g. zapper/zerion/etherscan
  * required fields are assetId, symbol, name, precision
- * the rest can be inferred from existing data
+ * the rest is inferred from the asset id and its chain
  */
-export const makeAsset = (
-  assetsById: Partial<Record<AssetId, Asset>>,
-  minimalAsset: MinimalAsset,
-): Asset => {
+export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
   const { assetId } = minimalAsset
 
   const color = (() => {
@@ -36,11 +32,11 @@ export const makeAsset = (
   type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
 
   const explorerLinks = ((): ExplorerLinks => {
-    const feeAsset = chainIdToFeeAsset(assetsById, chainId)
+    const baseAsset = getBaseAsset(chainId)
     return {
-      explorer: feeAsset?.explorer ?? '',
-      explorerTxLink: feeAsset?.explorerTxLink ?? '',
-      explorerAddressLink: feeAsset?.explorerAddressLink ?? '',
+      explorer: baseAsset.explorer,
+      explorerTxLink: baseAsset.explorerTxLink,
+      explorerAddressLink: baseAsset.explorerAddressLink,
     }
   })()
 

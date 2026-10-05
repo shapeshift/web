@@ -51,6 +51,7 @@ export const assets = createSlice({
     selectAssetIds: state => state.ids,
     selectRelatedAssetIndex: state => state.relatedAssetIndex,
     selectVersion: state => state.version,
+    selectHasGeneratedAssets: state => state.ids.length > state.runtimeAssetIds.length,
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),

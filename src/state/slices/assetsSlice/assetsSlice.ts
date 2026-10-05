@@ -13,7 +13,7 @@ export type AssetsState = {
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
   // Assets that are not part of the generated asset data, e.g. custom tokens and placeholders
   runtimeAssetIds: AssetId[]
-  // The runtime assets a user imported, which are kept when the generated assets are replaced
+  // The runtime assets a user imported or searched for, which are kept when the generated assets are replaced
   customAssetIds: AssetId[]
   // The asset service version the generated assets were last loaded from
   version: string | undefined
@@ -62,8 +62,8 @@ export const assets = createSlice({
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),
-    // Replaces the assets wholesale, so removals and the sort order apply. Only the assets a user imported or is
-    // watching are kept when the generated assets don't cover them, the others are rebuilt as they are needed
+    // Replaces the assets wholesale, so removals and the sort order apply. Only custom and watched assets are kept
+    // when the generated assets don't cover them, the others are rebuilt as they are needed
     setGeneratedAssets: create.reducer(
       (state, action: PayloadAction<SetGeneratedAssetsPayload>) => {
         const { byId, ids, relatedAssetIndex, version, watchedAssetIds } = action.payload
@@ -120,7 +120,7 @@ export const assets = createSlice({
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
     }),
-    // A custom asset is one a user chose to import, as opposed to one the app came across
+    // A custom asset is one a user imported or searched for by address, as opposed to one the app came across
     addCustomAsset: create.reducer((state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
 

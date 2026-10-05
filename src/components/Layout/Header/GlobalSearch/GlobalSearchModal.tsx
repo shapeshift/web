@@ -72,7 +72,7 @@ export const GlobalSearchModal = memo(
 
     useEffect(() => {
       customAssets.forEach(asset => {
-        dispatch(assetsSlice.actions.upsertAsset(asset))
+        dispatch(assetsSlice.actions.addCustomAsset(asset))
       })
     }, [customAssets, dispatch])
 

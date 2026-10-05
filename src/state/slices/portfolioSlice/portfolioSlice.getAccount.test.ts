@@ -1,6 +1,6 @@
 import { ethAssetId, ethChainId, foxAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { describe, expect, it, vi } from 'vitest'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
@@ -64,6 +64,7 @@ describe('portfolioApi getAccount', () => {
 
     const account: Account<KnownChainIds.EthereumMainnet> = mockEthAccount({
       chainSpecific: {
+        nonce: 1,
         tokens: [
           { assetId: foxAssetId, balance: '1000', name: 'FOX', symbol: 'FOX', precision: 18 },
         ],

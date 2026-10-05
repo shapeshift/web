@@ -62,18 +62,17 @@ export const assets = createSlice({
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),
-    // Replaces the assets wholesale, so removals and the sort order apply. Only the runtime assets a user imported
-    // or is watching are kept, the others are rebuilt as they are needed
+    // Replaces the assets wholesale, so removals and the sort order apply. Only the assets a user imported or is
+    // watching are kept when the generated assets don't cover them, the others are rebuilt as they are needed
     setGeneratedAssets: create.reducer(
       (state, action: PayloadAction<SetGeneratedAssetsPayload>) => {
         const { byId, ids, relatedAssetIndex, version, watchedAssetIds } = action.payload
 
-        const isKeptRuntimeAsset = (assetId: AssetId) =>
-          state.runtimeAssetIds.includes(assetId) && state.byId[assetId] && !byId[assetId]
+        const isOnlyInStore = (assetId: AssetId) => state.byId[assetId] && !byId[assetId]
 
-        const customAssetIds = state.customAssetIds.filter(isKeptRuntimeAsset)
+        const customAssetIds = state.customAssetIds.filter(isOnlyInStore)
         const runtimeAssetIds = Array.from(
-          new Set(customAssetIds.concat(watchedAssetIds.filter(isKeptRuntimeAsset))),
+          new Set(customAssetIds.concat(watchedAssetIds.filter(isOnlyInStore))),
         )
         const runtimeAssetsById = Object.fromEntries(
           runtimeAssetIds.map(assetId => [assetId, state.byId[assetId]]),

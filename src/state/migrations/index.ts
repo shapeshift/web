@@ -50,7 +50,7 @@ export const localWalletMigrations = {
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAssetsMigrations = {
-  366: clearAssets,
+  365: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {

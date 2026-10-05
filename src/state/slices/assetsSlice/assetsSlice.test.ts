@@ -99,6 +99,16 @@ describe('assetsSlice', () => {
       expect(state.customAssetIds).toEqual([])
     })
 
+    it('keeps a watched asset that was removed from the generated data', () => {
+      const loaded = setGeneratedAssets(initialState, [ethereum, fox], 'v1')
+
+      const state = setGeneratedAssets(loaded, [ethereum], 'v2', [fox.assetId])
+
+      expect(state.byId[fox.assetId]).toEqual(fox)
+      expect(state.ids).toEqual([ethereum.assetId, fox.assetId])
+      expect(state.runtimeAssetIds).toEqual([fox.assetId])
+    })
+
     it('drops the runtime assets a user did not import and is not watching', () => {
       const loaded = setGeneratedAssets(initialState, [ethereum], 'v1')
       const withPlaceholder = assets.reducer(

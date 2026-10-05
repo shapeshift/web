@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { describe, expect, it } from 'vitest'
@@ -21,7 +22,12 @@ const customToken = makeAsset({
   precision: 18,
 })
 
-const setGeneratedAssets = (state: AssetsState, generated: Asset[], version: string) =>
+const setGeneratedAssets = (
+  state: AssetsState,
+  generated: Asset[],
+  version: string,
+  watchedAssetIds: AssetId[] = [],
+) =>
   assets.reducer(
     state,
     assets.actions.setGeneratedAssets({
@@ -29,6 +35,7 @@ const setGeneratedAssets = (state: AssetsState, generated: Asset[], version: str
       ids: generated.map(asset => asset.assetId),
       relatedAssetIndex: {},
       version,
+      watchedAssetIds,
     }),
   )
 
@@ -42,6 +49,7 @@ describe('assetsSlice', () => {
           ids: [ethereum.assetId, fox.assetId],
           relatedAssetIndex: { [fox.assetId]: [fox.assetId] },
           version: 'v1',
+          watchedAssetIds: [],
         }),
       )
 
@@ -65,31 +73,66 @@ describe('assetsSlice', () => {
       expect(state.version).toBe('v2')
     })
 
-    it('keeps runtime assets, ordered after the generated assets', () => {
+    it('keeps the custom assets a user imported, ordered after the generated assets', () => {
       const loaded = setGeneratedAssets(initialState, [ethereum], 'v1')
-      const withCustomToken = assets.reducer(loaded, assets.actions.upsertAsset(customToken))
+      const withCustomToken = assets.reducer(loaded, assets.actions.addCustomAsset(customToken))
 
       const state = setGeneratedAssets(withCustomToken, [ethereum, usdc], 'v2')
 
       expect(state.byId[customToken.assetId]).toEqual(customToken)
       expect(state.ids).toEqual([ethereum.assetId, usdc.assetId, customToken.assetId])
       expect(state.runtimeAssetIds).toEqual([customToken.assetId])
+      expect(state.customAssetIds).toEqual([customToken.assetId])
     })
 
-    it('replaces a runtime asset the generated data now covers', () => {
+    it('keeps the runtime assets a user is watching', () => {
+      const loaded = setGeneratedAssets(initialState, [ethereum], 'v1')
+      const withSearchResult = assets.reducer(loaded, assets.actions.upsertAsset(customToken))
+
+      const state = setGeneratedAssets(withSearchResult, [ethereum], 'v2', [
+        ethereum.assetId,
+        customToken.assetId,
+      ])
+
+      expect(state.ids).toEqual([ethereum.assetId, customToken.assetId])
+      expect(state.runtimeAssetIds).toEqual([customToken.assetId])
+      expect(state.customAssetIds).toEqual([])
+    })
+
+    it('drops the runtime assets a user did not import and is not watching', () => {
+      const loaded = setGeneratedAssets(initialState, [ethereum], 'v1')
       const withPlaceholder = assets.reducer(
-        initialState,
+        loaded,
         assets.actions.addPlaceholderAssets({
           byId: { [fox.assetId]: foxPlaceholder },
           ids: [fox.assetId],
         }),
       )
+      const withSearchResult = assets.reducer(
+        withPlaceholder,
+        assets.actions.upsertAsset(customToken),
+      )
 
-      const state = setGeneratedAssets(withPlaceholder, [ethereum, fox], 'v1')
+      const state = setGeneratedAssets(withSearchResult, [ethereum], 'v2')
+
+      expect(state.ids).toEqual([ethereum.assetId])
+      expect(state.byId[fox.assetId]).toBeUndefined()
+      expect(state.byId[customToken.assetId]).toBeUndefined()
+      expect(state.runtimeAssetIds).toEqual([])
+    })
+
+    it('stops tracking a custom asset the generated data now covers', () => {
+      const withCustomFox = assets.reducer(
+        initialState,
+        assets.actions.addCustomAsset(foxPlaceholder),
+      )
+
+      const state = setGeneratedAssets(withCustomFox, [ethereum, fox], 'v1')
 
       expect(state.byId[fox.assetId]).toEqual(fox)
       expect(state.ids).toEqual([ethereum.assetId, fox.assetId])
       expect(state.runtimeAssetIds).toEqual([])
+      expect(state.customAssetIds).toEqual([])
     })
   })
 
@@ -111,7 +154,7 @@ describe('assetsSlice', () => {
     })
 
     it('tracks a placeholder once when the same asset is listed twice', () => {
-      const withPlaceholder = assets.reducer(
+      const state = assets.reducer(
         initialState,
         assets.actions.addPlaceholderAssets({
           byId: { [fox.assetId]: foxPlaceholder },
@@ -119,10 +162,8 @@ describe('assetsSlice', () => {
         }),
       )
 
-      const state = setGeneratedAssets(withPlaceholder, [ethereum], 'v1')
-
-      expect(withPlaceholder.runtimeAssetIds).toEqual([fox.assetId])
-      expect(state.ids).toEqual([ethereum.assetId, fox.assetId])
+      expect(state.ids).toEqual([fox.assetId])
+      expect(state.runtimeAssetIds).toEqual([fox.assetId])
     })
 
     it('adds placeholders for unknown assets as runtime assets', () => {
@@ -173,27 +214,33 @@ describe('assetsSlice', () => {
     })
   })
 
-  describe('selectHasGeneratedAssets', () => {
-    const selectHasGeneratedAssets = (state: AssetsState) =>
-      assets.selectors.selectHasGeneratedAssets({ assets: state })
+  describe('addCustomAsset', () => {
+    it('adds the asset as a custom runtime asset', () => {
+      const state = assets.reducer(initialState, assets.actions.addCustomAsset(customToken))
 
-    it('is false for an empty store and for a store holding only runtime assets', () => {
-      const withPlaceholder = assets.reducer(
-        initialState,
-        assets.actions.addPlaceholderAssets({
-          byId: { [fox.assetId]: foxPlaceholder },
-          ids: [fox.assetId],
-        }),
-      )
-
-      expect(selectHasGeneratedAssets(initialState)).toBe(false)
-      expect(selectHasGeneratedAssets(withPlaceholder)).toBe(false)
+      expect(state.byId[customToken.assetId]).toEqual(customToken)
+      expect(state.ids).toEqual([customToken.assetId])
+      expect(state.runtimeAssetIds).toEqual([customToken.assetId])
+      expect(state.customAssetIds).toEqual([customToken.assetId])
     })
 
-    it('is true once the generated assets are loaded', () => {
-      expect(selectHasGeneratedAssets(setGeneratedAssets(initialState, [ethereum], 'v1'))).toBe(
-        true,
-      )
+    it('makes an asset the app already came across a custom asset', () => {
+      const withSearchResult = assets.reducer(initialState, assets.actions.upsertAsset(customToken))
+
+      const state = assets.reducer(withSearchResult, assets.actions.addCustomAsset(customToken))
+
+      expect(state.ids).toEqual([customToken.assetId])
+      expect(state.runtimeAssetIds).toEqual([customToken.assetId])
+      expect(state.customAssetIds).toEqual([customToken.assetId])
+    })
+
+    it('leaves a generated asset as it is', () => {
+      const loaded = setGeneratedAssets(initialState, [fox], 'v1')
+
+      const state = assets.reducer(loaded, assets.actions.addCustomAsset(foxPlaceholder))
+
+      expect(state.byId[fox.assetId]).toEqual(fox)
+      expect(state.customAssetIds).toEqual([])
     })
   })
 
@@ -206,6 +253,7 @@ describe('assetsSlice', () => {
         ids: [],
         relatedAssetIndex: {},
         runtimeAssetIds: [],
+        customAssetIds: [],
         version: undefined,
       })
     })

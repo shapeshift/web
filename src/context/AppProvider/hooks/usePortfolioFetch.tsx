@@ -1,10 +1,8 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 
-import { chainScansKnownTokens, useAssetService } from '@/hooks/useAssetService/useAssetService'
+import { useAssetService } from '@/hooks/useAssetService/useAssetService'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { txHistoryApi } from '@/state/slices/txHistorySlice/txHistorySlice'
@@ -15,7 +13,6 @@ export const usePortfolioFetch = () => {
   const { isLoadingLocalWallet, modal, wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const { isPending: isAssetServicePending } = useAssetService()
-  const hasGeneratedAssets = useAppSelector(assets.selectors.selectHasGeneratedAssets)
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
 
@@ -34,16 +31,13 @@ export const usePortfolioFetch = () => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    enabledWalletAccountIds.forEach(accountId => {
-      if (isAssetServicePending) {
-        // With no assets in the store every token would get a placeholder, and pool names and icons are built from them
-        if (!hasGeneratedAssets) return
-        // RTK Query keeps the first result of a subscribed query, so this would pin empty balances
-        if (chainScansKnownTokens(fromAccountId(accountId).chainId)) return
-      }
-
-      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
-    })
+    // Accounts are fetched against the current assets: placeholders are built for the tokens they don't cover,
+    // and chains that scan known tokens take their token list from the asset service
+    if (!isAssetServicePending) {
+      enabledWalletAccountIds.forEach(accountId => {
+        dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
+      })
+    }
 
     if (isLazyTxHistoryEnabled) return
 
@@ -53,7 +47,6 @@ export const usePortfolioFetch = () => {
   }, [
     dispatch,
     enabledWalletAccountIds,
-    hasGeneratedAssets,
     isAssetServicePending,
     isLazyTxHistoryEnabled,
     isLoadingLocalWallet,

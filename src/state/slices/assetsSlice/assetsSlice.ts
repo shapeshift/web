@@ -13,6 +13,8 @@ export type AssetsState = {
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
   // Assets that are not part of the generated asset data, e.g. custom tokens and placeholders
   runtimeAssetIds: AssetId[]
+  // The runtime assets a user imported, which are kept when the generated assets are replaced
+  customAssetIds: AssetId[]
   // The asset service version the generated assets were last loaded from
   version: string | undefined
 }
@@ -22,6 +24,7 @@ export const initialState: AssetsState = {
   ids: [],
   relatedAssetIndex: {},
   runtimeAssetIds: [],
+  customAssetIds: [],
   version: undefined,
 }
 
@@ -41,7 +44,12 @@ export const defaultAsset: Asset = {
 
 export type UpsertAssetsPayload = Pick<AssetsState, 'byId' | 'ids'>
 
-type SetGeneratedAssetsPayload = Pick<AssetsState, 'byId' | 'ids' | 'relatedAssetIndex' | 'version'>
+type SetGeneratedAssetsPayload = Pick<
+  AssetsState,
+  'byId' | 'ids' | 'relatedAssetIndex' | 'version'
+> & {
+  watchedAssetIds: AssetId[]
+}
 
 export const assets = createSlice({
   name: 'assets',
@@ -51,17 +59,21 @@ export const assets = createSlice({
     selectAssetIds: state => state.ids,
     selectRelatedAssetIndex: state => state.relatedAssetIndex,
     selectVersion: state => state.version,
-    selectHasGeneratedAssets: state => state.ids.length > state.runtimeAssetIds.length,
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),
-    // Replaces the generated assets wholesale, so removals and the sort order apply, while keeping runtime assets
+    // Replaces the assets wholesale, so removals and the sort order apply. Only the runtime assets a user imported
+    // or is watching are kept, the others are rebuilt as they are needed
     setGeneratedAssets: create.reducer(
       (state, action: PayloadAction<SetGeneratedAssetsPayload>) => {
-        const { byId, ids, relatedAssetIndex, version } = action.payload
+        const { byId, ids, relatedAssetIndex, version, watchedAssetIds } = action.payload
 
-        const runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds)).filter(
-          assetId => state.byId[assetId] && !byId[assetId],
+        const isKeptRuntimeAsset = (assetId: AssetId) =>
+          state.runtimeAssetIds.includes(assetId) && state.byId[assetId] && !byId[assetId]
+
+        const customAssetIds = state.customAssetIds.filter(isKeptRuntimeAsset)
+        const runtimeAssetIds = Array.from(
+          new Set(customAssetIds.concat(watchedAssetIds.filter(isKeptRuntimeAsset))),
         )
         const runtimeAssetsById = Object.fromEntries(
           runtimeAssetIds.map(assetId => [assetId, state.byId[assetId]]),
@@ -71,6 +83,7 @@ export const assets = createSlice({
         state.ids = ids.concat(runtimeAssetIds)
         state.relatedAssetIndex = relatedAssetIndex
         state.runtimeAssetIds = runtimeAssetIds
+        state.customAssetIds = customAssetIds
         state.version = version
       },
     ),
@@ -107,6 +120,18 @@ export const assets = createSlice({
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
+    }),
+    // A custom asset is one a user chose to import, as opposed to one the app came across
+    addCustomAsset: create.reducer((state, action: PayloadAction<Asset>) => {
+      const { assetId } = action.payload
+
+      const isGeneratedAsset = state.byId[assetId] && !state.runtimeAssetIds.includes(assetId)
+      if (isGeneratedAsset) return
+
+      state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
+      state.ids = Array.from(new Set(state.ids.concat(assetId)))
+      state.runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds.concat(assetId)))
+      state.customAssetIds = Array.from(new Set(state.customAssetIds.concat(assetId)))
     }),
   }),
 })

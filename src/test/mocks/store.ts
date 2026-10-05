@@ -244,6 +244,7 @@ export const mockStore: ReduxState = {
     ids: [],
     relatedAssetIndex: {},
     runtimeAssetIds: [],
+    customAssetIds: [],
     version: undefined,
   },
   marketData: {

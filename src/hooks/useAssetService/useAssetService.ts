@@ -6,6 +6,7 @@ import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import type { GetLoadedAssets } from '@/lib/asset-service'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store, useAppDispatch } from '@/state/store'
 
 const ASSET_SERVICE_QUERY_KEY = ['assetService']
@@ -63,6 +64,7 @@ export const useAssetService = () => {
           ids: service.assetIds,
           relatedAssetIndex: service.relatedAssetIndex,
           version: service.version,
+          watchedAssetIds: preferences.selectors.selectWatchedAssetIds(store.getState()),
         }),
       )
 

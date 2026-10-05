@@ -61,6 +61,7 @@ describe('portfolioApi getAccount', () => {
         ids: [ethAssetId, foxAssetId],
         relatedAssetIndex: {},
         version: 'v1',
+        watchedAssetIds: [],
       }),
     )
 

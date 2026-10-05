@@ -10,6 +10,7 @@ import { useAssetService } from './useAssetService'
 
 import type { GetLoadedAssets } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 import { ethereum, fox, usdc } from '@/test/mocks/assets'
 
@@ -99,6 +100,20 @@ describe('useAssetService', () => {
       assetIds: [ethereum.assetId, fox.assetId],
       relatedAssetIndex: {},
     })
+  })
+
+  it('keeps a watched runtime asset when the version changes', async () => {
+    setServiceAssets([ethereum], 'v1')
+    await loadAssetService()
+    store.dispatch(assets.actions.upsertAsset(usdc))
+    store.dispatch(assets.actions.upsertAsset(fox))
+    store.dispatch(preferences.actions.toggleWatchedAssetId(usdc.assetId))
+
+    setServiceAssets([ethereum], 'v2')
+    await loadAssetService()
+    store.dispatch(preferences.actions.toggleWatchedAssetId(usdc.assetId))
+
+    expect(store.getState().assets.ids).toEqual([ethereum.assetId, usdc.assetId])
   })
 
   it('always replaces the assets for an unversioned build', async () => {

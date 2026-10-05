@@ -45,6 +45,7 @@ beforeAll(async () => {
       ids: service.assetIds,
       relatedAssetIndex: service.relatedAssetIndex,
       version: service.version,
+      watchedAssetIds: [],
     }),
   )
 })

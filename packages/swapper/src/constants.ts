@@ -16,6 +16,7 @@ import { portalsApi, portalsSwapper } from './swappers/PortalsSwapper'
 import { relayApi, relaySwapper } from './swappers/RelaySwapper'
 import { stonfiApi, stonfiSwapper } from './swappers/StonfiSwapper'
 import { sunioApi, sunioSwapper } from './swappers/SunioSwapper'
+import { symbiosisApi, symbiosisSwapper } from './swappers/SymbiosisSwapper'
 import { thorchainApi, thorchainSwapper } from './swappers/ThorchainSwapper'
 import { zrxApi, zrxSwapper } from './swappers/ZrxSwapper'
 import type { Swapper, SwapperApi } from './types'
@@ -103,6 +104,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
   [SwapperName.BobGateway]: {
     ...bobGatewaySwapper,
     ...bobGatewayApi,
+  },
+  [SwapperName.Symbiosis]: {
+    ...symbiosisSwapper,
+    ...symbiosisApi,
   },
   [SwapperName.Test]: undefined,
 }

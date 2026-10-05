@@ -19,6 +19,7 @@ import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
 import StonfiIcon from './stonfi-icon.png'
 import SunioIcon from './sunio-icon.png'
+import SymbiosisIcon from './symbiosis-icon.svg'
 import THORChainIcon from './thorchain-icon.png'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
@@ -69,6 +70,8 @@ export const SwapperIcon = ({
         return DebridgeIcon
       case SwapperName.BobGateway:
         return BobGatewayIcon
+      case SwapperName.Symbiosis:
+        return SymbiosisIcon
       case SwapperName.Test:
         return ''
       default:

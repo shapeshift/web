@@ -1,0 +1,194 @@
+import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type { GetTradeQuoteInput, GetTradeRateInput, SwapperDeps } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import { ETH, USDC_ARBITRUM } from '../../../utils/test-data/assets'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+} from '../../../utils/tron'
+import { getSymbiosisStepData } from './getSymbiosisStepData'
+import type { SymbiosisSwapTx } from './types'
+
+vi.mock('../../../utils/evm', () => ({
+  getEvmNetworkFeeCryptoBaseUnit: vi.fn(),
+}))
+
+vi.mock('../../../utils/tron', () => ({
+  getTronContractCallFallbackFeeCryptoBaseUnit: vi.fn(),
+  getTronContractCallNetworkFeeCryptoBaseUnit: vi.fn(),
+}))
+
+const TRX: Asset = {
+  ...ETH,
+  assetId: tronAssetId,
+  chainId: tronChainId,
+  symbol: 'TRX',
+  precision: 6,
+}
+
+const ROUTER = '0x3743c756b64ECd0770f1d4f47696A73d2A46dcbe'
+const TRON_ROUTER = 'TPuaJ6gnYfE9gLUDFrbWbPx3tMnjG8max1'
+const FROM = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+const TRON_FROM = 'TLa2f6VPqDgRE67v1736s7bJ8Ray5wYjU7'
+
+const deps = {
+  assertGetEvmChainAdapter: vi.fn(() => ({})),
+  assertGetTronChainAdapter: vi.fn(() => ({})),
+} as unknown as SwapperDeps
+
+const quoteInput = { supportsEIP1559: true } as unknown as GetTradeQuoteInput
+const rateInput = { supportsEIP1559: false } as unknown as GetTradeRateInput
+
+const evmSwapTx: SymbiosisSwapTx = {
+  type: 'evm',
+  tx: { chainId: 42161, to: ROUTER, data: '0xa11b1198', value: '0' },
+}
+
+const tronSwapTx: SymbiosisSwapTx = {
+  type: 'tron',
+  tx: {
+    chainId: 728126428,
+    from: TRON_FROM,
+    to: TRON_ROUTER,
+    data: '0x0020',
+    value: '500000000',
+    feeLimit: 200000000,
+    functionSelector:
+      'metaRoute((bytes,bytes,address[],address,address,uint256,bool,address,bytes))',
+  },
+}
+
+const evmArgs = {
+  swapTx: evmSwapTx,
+  sellAsset: USDC_ARBITRUM,
+  sellAmountCryptoBaseUnit: '100000000',
+  spenderAddress: ROUTER,
+  tronFallbackEnergy: '470000',
+  from: FROM,
+  deps,
+}
+
+const tronArgs = {
+  swapTx: tronSwapTx,
+  sellAsset: TRX,
+  sellAmountCryptoBaseUnit: '500000000',
+  spenderAddress: '',
+  tronFallbackEnergy: '580000',
+  from: TRON_FROM,
+  deps,
+}
+
+describe('getSymbiosisStepData', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  describe('evm', () => {
+    it('returns executable transactionData and the estimated fee for a quote', async () => {
+      vi.mocked(getEvmNetworkFeeCryptoBaseUnit).mockResolvedValue('1234')
+
+      const result = await getSymbiosisStepData({ ...evmArgs, type: 'quote', input: quoteInput })
+
+      expect(result.unwrap()).toEqual({
+        transactionData: {
+          type: 'evm',
+          chainId: 42161,
+          to: ROUTER,
+          data: '0xa11b1198',
+          value: '0',
+        },
+        networkFeeCryptoBaseUnit: '1234',
+      })
+      expect(getEvmNetworkFeeCryptoBaseUnit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: FROM,
+          supportsEIP1559: true,
+          stateOverride: {
+            sellAsset: USDC_ARBITRUM,
+            sellAmountCryptoBaseUnit: '100000000',
+            spenderAddress: ROUTER,
+          },
+        }),
+      )
+    })
+
+    it('fails a quote when fee estimation fails', async () => {
+      vi.mocked(getEvmNetworkFeeCryptoBaseUnit).mockRejectedValue(new Error('revert'))
+
+      const result = await getSymbiosisStepData({ ...evmArgs, type: 'quote', input: quoteInput })
+
+      expect(result.unwrapErr().code).toBe(TradeQuoteError.NetworkFeeEstimationFailed)
+    })
+
+    it('returns an unknown fee and no transactionData for a rate when estimation fails', async () => {
+      vi.mocked(getEvmNetworkFeeCryptoBaseUnit).mockRejectedValue(new Error('revert'))
+
+      const result = await getSymbiosisStepData({ ...evmArgs, type: 'rate', input: rateInput })
+
+      expect(result.unwrap()).toEqual({ networkFeeCryptoBaseUnit: undefined })
+    })
+  })
+
+  describe('tron', () => {
+    const expectedCall = { to: TRON_ROUTER, data: '0xa11b11980020', value: '500000000' }
+
+    it('assembles the contract call and prices it for a quote', async () => {
+      vi.mocked(getTronContractCallNetworkFeeCryptoBaseUnit).mockResolvedValue('45000000')
+
+      const result = await getSymbiosisStepData({ ...tronArgs, type: 'quote', input: quoteInput })
+
+      expect(result.unwrap()).toEqual({
+        transactionData: { type: 'tron', ...expectedCall },
+        networkFeeCryptoBaseUnit: '45000000',
+      })
+      expect(getTronContractCallNetworkFeeCryptoBaseUnit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionData: expectedCall,
+          from: TRON_FROM,
+          spenderAddress: '',
+          fallbackEnergy: '580000',
+        }),
+      )
+    })
+
+    it('fails a quote when fee estimation fails', async () => {
+      vi.mocked(getTronContractCallNetworkFeeCryptoBaseUnit).mockRejectedValue(new Error('x'))
+
+      const result = await getSymbiosisStepData({ ...tronArgs, type: 'quote', input: quoteInput })
+
+      expect(result.unwrapErr().code).toBe(TradeQuoteError.NetworkFeeEstimationFailed)
+    })
+
+    it('prices a rate from the measured energy', async () => {
+      vi.mocked(getTronContractCallFallbackFeeCryptoBaseUnit).mockResolvedValue('58000000')
+
+      const result = await getSymbiosisStepData({ ...tronArgs, type: 'rate', input: rateInput })
+
+      expect(result.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '58000000' })
+      expect(getTronContractCallFallbackFeeCryptoBaseUnit).toHaveBeenCalledWith(
+        expect.objectContaining({ energy: '580000', contractAddress: TRON_ROUTER }),
+      )
+    })
+
+    it('fails to build when the response has no function selector', async () => {
+      const swapTx: SymbiosisSwapTx = {
+        type: 'tron',
+        tx: { ...tronSwapTx.tx, functionSelector: undefined },
+      }
+
+      const result = await getSymbiosisStepData({
+        ...tronArgs,
+        swapTx,
+        type: 'quote',
+        input: quoteInput,
+      })
+
+      expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
+      expect(getTronContractCallNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
+    })
+  })
+})

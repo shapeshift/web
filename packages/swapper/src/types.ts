@@ -116,6 +116,7 @@ export enum SwapperName {
   Across = 'Across',
   Debridge = 'deBridge',
   BobGateway = 'BOB Gateway',
+  Symbiosis = 'Symbiosis',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

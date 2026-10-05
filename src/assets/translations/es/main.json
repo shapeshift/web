@@ -2969,7 +2969,6 @@
     "changeAddressPending": "Cambiar dirección de recompensas RFOX a %{newAddress}",
     "changeAddressSuccess": "Dirección cambiada para recompensas RFOX a %{newAddress}",
     "unstakePending": "Solicitando retiro de %{amount} %{symbol}",
-    "unstakeSuccess": "Una vez transcurrido %{cooldownPeriod} podrás reclamar tu %{amount} %{symbol}",
     "currentRewardAddress": "Dirección de Recompensa Actual",
     "newRewardAddress": "Nueva Dirección de Recompensa",
     "rewardCycleExplainer": "Esto se actualizará para el próximo ciclo de recompensas.",
@@ -3041,10 +3040,7 @@
     "claimInProgress": "Reclamo en curso",
     "migrationBannerTitle": "rFOX se está migrando a Ethereum.",
     "migrationBannerDescription": "Staking de rFOX se trasladará de Arbitrum a Ethereum el %{migrationDate}. Seguirás obteniendo recompensas en Arbitrum hasta entonces, una vez se habilite el unstaking podras transferir tus FOX.",
-    "migrationBannerCta": "Trasladar FOX a Ethereum",
-    "stakingPausedTooltip": "Staking suspendido para este programa.",
-    "unstakingPausedTooltip": "Retirar staking está en pausa para este programa.",
-    "withdrawalsPausedTooltip": "Reclamar está suspendida para este programa."
+    "migrationBannerCta": "Trasladar FOX a Ethereum"
   },
   "TCY": {
     "stake": "Stake",
@@ -3382,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

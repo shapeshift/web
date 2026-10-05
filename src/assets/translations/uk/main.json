@@ -2969,7 +2969,6 @@
     "changeAddressPending": "Зміна адреси винагороди RFOX на %{newAddress}",
     "changeAddressSuccess": "Змінено адресу винагороди RFOX на %{newAddress}.",
     "unstakePending": "Запит на зняття %{amount} %{symbol}",
-    "unstakeSuccess": "Після закінчення %{cooldownPeriod} ви зможете отримати свої %{amount} %{symbol}",
     "currentRewardAddress": "Поточна адреса для отримання винагороди",
     "newRewardAddress": "Нова адреса для отримання винагороди",
     "rewardCycleExplainer": "Ця інформація буде оновлена для наступного циклу нагородження.",
@@ -3041,10 +3040,7 @@
     "claimInProgress": "Заявка знаходиться на розгляді",
     "migrationBannerTitle": "rFOX переходить на Ethereum",
     "migrationBannerDescription": "Стейкінг rFOX переноситься з Arbitrum на Ethereum %{migrationDate}. До цього часу ви продовжуватимете отримувати винагороду на Arbitrum, а після цього відкриється можливість розблокування стейкінгу, і ви зможете перенести свої FOX на нову платформу.",
-    "migrationBannerCta": "Перенести FOX на Ethereum",
-    "stakingPausedTooltip": "Стейкінг у рамках цієї програми призупинено.",
-    "unstakingPausedTooltip": "Для цієї програми процес виведення стейкінгу призупинено.",
-    "withdrawalsPausedTooltip": "Прийом заявок на участь у цій програмі тимчасово призупинено."
+    "migrationBannerCta": "Перенести FOX на Ethereum"
   },
   "TCY": {
     "stake": "Стейкінг",
@@ -3382,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Дохідність",
     "pageSubtitle": "Відкривайте та керуйте можливостями отримання прибутку в декількох мережах",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Прибутковість",
     "apy": "APY",
     "apr": "APR",

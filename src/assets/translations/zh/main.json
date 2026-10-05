@@ -2969,7 +2969,6 @@
     "changeAddressPending": "正在将 RFOX 奖励地址更改为 %{newAddress}",
     "changeAddressSuccess": "已将 RFOX 奖励地址更改为 %{newAddress}",
     "unstakePending": "请求提取 %{amount} %{symbol}",
-    "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
     "currentRewardAddress": "当前奖励地址",
     "newRewardAddress": "新的奖励地址",
     "rewardCycleExplainer": "这将在下一个奖励周期更新。",
@@ -3041,10 +3040,7 @@
     "claimInProgress": "正在领取中",
     "migrationBannerTitle": "rFOX 将迁移至以太坊",
     "migrationBannerDescription": "rFOX 质押将于 %{migrationDate} 从 Arbitrum 迁移至以太坊。届时将开放取消质押，您可以将 FOX 转移至以太坊。 在此之前，您将继续在 Arbitrum 上获取收益。",
-    "migrationBannerCta": "将 FOX 转移至以太坊",
-    "stakingPausedTooltip": "该计划已暂停质押。",
-    "unstakingPausedTooltip": "该计划已暂停取消质押。",
-    "withdrawalsPausedTooltip": "该计划已暂停领取。"
+    "migrationBannerCta": "将 FOX 转移至以太坊"
   },
   "TCY": {
     "stake": "质押",
@@ -3382,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {
-    },
+    "actions": {},
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

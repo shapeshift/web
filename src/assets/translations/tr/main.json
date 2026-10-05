@@ -2969,7 +2969,6 @@
     "changeAddressPending": "RFOX Ödül Adresi %{newAddress} Olarak Değiştiriliyor",
     "changeAddressSuccess": "RFOX Ödül Adresi %{newAddress} olarak değiştirildi",
     "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
-    "unstakeSuccess": "%{cooldownPeriod} geçtikten sonra %{amount} %{symbol} miktarınızı talep edebileceksiniz",
     "currentRewardAddress": "Güncel Ödül Adresi",
     "newRewardAddress": "Yeni Ödül Adresi",
     "rewardCycleExplainer": "Bu, bir sonraki ödül döngüsü için güncellenecektir.",
@@ -3041,10 +3040,7 @@
     "claimInProgress": "Başvuru süreci devam ediyor.",
     "migrationBannerTitle": "rFOX Ethereum'a geçiyor",
     "migrationBannerDescription": "rFOX staking işlemi %{migrationDate} tarihinde Arbitrum'dan Ethereum'a taşınıyor. FOX'larınızı taşıyabilmeniz için staking işleminin açılmasına kadar Arbitrum'da ödül kazanmaya devam edeceksiniz.",
-    "migrationBannerCta": "FOX'u Ethereum'a taşıyın",
-    "stakingPausedTooltip": "Bu program süresince stake işlemleri durdurulmuştur.",
-    "unstakingPausedTooltip": "Bu program için hisse geri alma işlemi durduruldu.",
-    "withdrawalsPausedTooltip": "Bu program için başvuru işlemleri geçici olarak durdurulmuştur."
+    "migrationBannerCta": "FOX'u Ethereum'a taşıyın"
   },
   "TCY": {
     "stake": "Stake",
@@ -3382,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

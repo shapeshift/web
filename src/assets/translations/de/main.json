@@ -2969,7 +2969,6 @@
     "changeAddressPending": "RFOX Belohnungsadresse in %{newAddress} ändern",
     "changeAddressSuccess": "RFOX Belohnungsadresse in %{newAddress} geändert",
     "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
-    "unstakeSuccess": "Sobald %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
     "currentRewardAddress": "Aktuelle Belohnungsadresse",
     "newRewardAddress": "Neue Belohnungsadresse",
     "rewardCycleExplainer": "Dies wird für den nächsten Belohnungszyklus aktualisiert.",
@@ -3041,10 +3040,7 @@
     "claimInProgress": "Beanspruchen in Bearbeitung",
     "migrationBannerTitle": "rFOX wechselt zu Ethereum",
     "migrationBannerDescription": "Das rFOX-Staken wird am %{migrationDate} von Arbitrum zu Ethereum migriert. Bis dahin erhalten Sie weiterhin Belohnungen auf Arbitrum. Anschließend können Sie Ihre FOX-Bestände abheben und übertragen.",
-    "migrationBannerCta": "FOX zu Ethereum verschieben",
-    "stakingPausedTooltip": "Das Staken ist für dieses Programm pausiert.",
-    "unstakingPausedTooltip": "Die Freigabe von Positionen ist für dieses Programm pausiert.",
-    "withdrawalsPausedTooltip": "Beanspruchen ist für dieses Programm vorübergehend ausgesetzt."
+    "migrationBannerCta": "FOX zu Ethereum verschieben"
   },
   "TCY": {
     "stake": "Stake",
@@ -3382,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",

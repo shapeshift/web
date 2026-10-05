@@ -2969,7 +2969,6 @@
     "changeAddressPending": "RFOX 報酬アドレスを %{newAddress} に変更します",
     "changeAddressSuccess": "RFOX 報酬アドレスを %{newAddress} に変更しました",
     "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
-    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
     "currentRewardAddress": "現在の報酬アドレス",
     "newRewardAddress": "新しい報酬アドレス",
     "rewardCycleExplainer": "これは次の報酬サイクルを通して更新されます。",
@@ -3041,10 +3040,7 @@
     "claimInProgress": "請求処理中",
     "migrationBannerTitle": "rFOXはイーサリアムに移行します",
     "migrationBannerDescription": "rFOXのステーキングは、%{migrationDate}にArbitrumからEthereumに移行します。それまではArbitrumで報酬を獲得し続け、ステーキング解除が解放されたらFOXをEthereumに移行できます。",
-    "migrationBannerCta": "FOXをイーサリアムに移行",
-    "stakingPausedTooltip": "本プログラム期間中は、ステーキングは一時停止されます。",
-    "unstakingPausedTooltip": "このプログラム期間中は、ステーキング解除は一時停止されます。",
-    "withdrawalsPausedTooltip": "このプログラムでは、報酬の請求は一時停止されています。"
+    "migrationBannerCta": "FOXをイーサリアムに移行"
   },
   "TCY": {
     "stake": "ステーク",
@@ -3382,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "利回り",
     "pageSubtitle": "複数のチェーンにわたる収益機会の発見と管理",
-    "actions": {
-    },
+    "actions": {},
     "yield": "利回り",
     "apy": "年利",
     "apr": "APR",

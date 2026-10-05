@@ -91,6 +91,7 @@ import { csp as relay } from './relay'
 import { csp as sentry } from './sentry'
 import { csp as shapeshift } from './shapeshift'
 import { csp as snapshots } from './snapshots'
+import { csp as symbiosis } from './symbiosis'
 import { csp as tenderly } from './tenderly'
 import { csp as trezor } from './trezor'
 import { csp as userback } from './userback'
@@ -104,6 +105,7 @@ import { csp as yieldxyz } from './yieldxyz'
 
 export const csps = [
   across,
+  symbiosis,
   base,
   agenticChat,
   hypelab,

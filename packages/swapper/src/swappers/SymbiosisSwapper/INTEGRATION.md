@@ -28,6 +28,7 @@
 - EVM `tx` has no gas limit; `getEvmNetworkFeeCryptoBaseUnit` estimates and sets it.
 - Tron `tx.data` holds the encoded parameters only; the selector comes from `tx.functionSelector` (a signature string). `tx.feeLimit` is a flat 200 TRX cap and is not used.
 - `approveTo` is the spender for token sells and equals `tx.to`.
+- A step is rejected unless `tx.value` is exactly the sell amount for a native sell and `0` for a token sell. Symbiosis adds its own fee on top of the native value on same-chain and Chainflip-routed quotes; in-scope routes do not, and this keeps it that way.
 - `fees[]` mixes destination-chain tokens with sTokens on the Symbiosis host chain (`13863860`). Host-chain entries have no ShapeShift asset and are left out of `protocolFees`; the buy amount is already net of them.
 
 ## Partner fee
@@ -49,6 +50,7 @@
 
 - Before an operation is indexed, the endpoint answers `0` for the plain source transaction, with `tx` equal to `txIn`. That is why Success alone is not enough.
 - `transitTokenSent` means the destination swap did not complete and the user received the transit token (for example USDC). We report Confirmed with a message naming it.
+- A Tron sell that fails on chain (REVERT, OUT_OF_ENERGY) never reaches Symbiosis, which answers not found for it. The Tron source transaction is checked first and a mined non-SUCCESS result reports Failed. 15 of the router's last 200 calls had failed when sampled on 2026-10-05.
 
 ## Tron energy
 
@@ -56,6 +58,8 @@
 
 ## Known gaps
 
+- The web app does not render status messages for swaps, so the transit-token and stuck messages are stored on the swap (`statusMessage`) but not shown. A swap that paid out the transit token looks like a normal completed swap.
+- The confirm screen shows the user's own custom slippage (app-wide selector behaviour). A custom value below 0.2% is displayed while 0.2% is what Symbiosis is sent.
 - Live `approveTo` addresses are not in Symbiosis's published SDK config, so they cannot be checked against it.
 - Per the public SDK, stuck swaps touching Tron or Abstract refund through Symbiosis-held revert addresses.
 - Rate limits on `/v2/quote` are undocumented.

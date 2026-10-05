@@ -1,3 +1,4 @@
+import { tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
@@ -8,7 +9,7 @@ import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { chainIdToSymbiosisChainId, SYMBIOSIS_EXPLORER_URL } from './utils/constants'
-import { getSymbiosisTradeStatus } from './utils/helpers'
+import { getSymbiosisTradeStatus, isTronSourceTxFailed } from './utils/helpers'
 import { symbiosisService } from './utils/symbiosisService'
 import type {
   SymbiosisTradeQuoteInput,
@@ -31,6 +32,7 @@ export const symbiosisApi: SwapperApi = {
     swap,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
+    assertGetTronChainAdapter,
   }) => {
     if (!swap) throw new Error('Missing swap')
 
@@ -46,6 +48,16 @@ export const symbiosisApi: SwapperApi = {
       if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
 
       txHash = sourceTxStatus.buyTxHash ?? txHash
+    }
+
+    if (chainId === tronChainId) {
+      const sourceTx = await assertGetTronChainAdapter(chainId)
+        .httpProvider.getTransaction({ txid: txHash })
+        .catch(() => null)
+
+      if (isTronSourceTxFailed(sourceTx)) {
+        return { buyTxHash: undefined, status: TxStatus.Failed, message: undefined }
+      }
     }
 
     const sellSymbiosisChainId = chainIdToSymbiosisChainId[chainId]

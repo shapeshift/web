@@ -1,5 +1,6 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import { tron } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -46,6 +47,12 @@ export async function getSymbiosisStepData(
     input,
     deps,
   } = args
+
+  // Symbiosis adds its own fee to the native value on other route kinds - a step must send exactly the sell amount
+  const expectedValue = isToken(sellAsset.assetId) ? '0' : sellAmountCryptoBaseUnit
+  if (!bnOrZero(swapTx.tx.value).eq(expectedValue)) {
+    return Err(makeTradeStepBuildFailedErr('getSymbiosisStepData'))
+  }
 
   switch (swapTx.type) {
     case 'evm': {

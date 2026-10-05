@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GetTradeQuoteInput, GetTradeRateInput, SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import { ETH, USDC_ARBITRUM } from '../../../utils/test-data/assets'
+import { ETH, ETH_ARBITRUM, USDC_ARBITRUM } from '../../../utils/test-data/assets'
 import {
   getTronContractCallFallbackFeeCryptoBaseUnit,
   getTronContractCallNetworkFeeCryptoBaseUnit,
@@ -131,6 +131,62 @@ describe('getSymbiosisStepData', () => {
 
       expect(result.unwrap()).toEqual({ networkFeeCryptoBaseUnit: undefined })
     })
+
+    it('fails to build when a token sell carries native value', async () => {
+      const swapTx: SymbiosisSwapTx = {
+        type: 'evm',
+        tx: { ...evmSwapTx.tx, value: '300000000000000' },
+      }
+
+      const result = await getSymbiosisStepData({
+        ...evmArgs,
+        swapTx,
+        type: 'quote',
+        input: quoteInput,
+      })
+
+      expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
+      expect(getEvmNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
+    })
+
+    it('fails to build when a native sell sends more than the sell amount', async () => {
+      const swapTx: SymbiosisSwapTx = {
+        type: 'evm',
+        tx: { ...evmSwapTx.tx, value: '50300000000000000' },
+      }
+
+      const result = await getSymbiosisStepData({
+        ...evmArgs,
+        swapTx,
+        sellAsset: ETH_ARBITRUM,
+        sellAmountCryptoBaseUnit: '50000000000000000',
+        type: 'quote',
+        input: quoteInput,
+      })
+
+      expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
+      expect(getEvmNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
+    })
+
+    it('builds a native sell whose value is exactly the sell amount', async () => {
+      vi.mocked(getEvmNetworkFeeCryptoBaseUnit).mockResolvedValue('1234')
+
+      const swapTx: SymbiosisSwapTx = {
+        type: 'evm',
+        tx: { ...evmSwapTx.tx, value: '50000000000000000' },
+      }
+
+      const result = await getSymbiosisStepData({
+        ...evmArgs,
+        swapTx,
+        sellAsset: ETH_ARBITRUM,
+        sellAmountCryptoBaseUnit: '50000000000000000',
+        type: 'quote',
+        input: quoteInput,
+      })
+
+      expect(result.isOk()).toBe(true)
+    })
   })
 
   describe('tron', () => {
@@ -178,6 +234,23 @@ describe('getSymbiosisStepData', () => {
       const swapTx: SymbiosisSwapTx = {
         type: 'tron',
         tx: { ...tronSwapTx.tx, functionSelector: undefined },
+      }
+
+      const result = await getSymbiosisStepData({
+        ...tronArgs,
+        swapTx,
+        type: 'quote',
+        input: quoteInput,
+      })
+
+      expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
+      expect(getTronContractCallNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
+    })
+
+    it('fails to build when a native sell sends more than the sell amount', async () => {
+      const swapTx: SymbiosisSwapTx = {
+        type: 'tron',
+        tx: { ...tronSwapTx.tx, value: '501000000' },
       }
 
       const result = await getSymbiosisStepData({

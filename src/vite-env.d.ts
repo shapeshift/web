@@ -13,6 +13,7 @@ interface ImportMetaEnv {
 
   // Injected by CI at build time
   readonly VITE_VERSION?: string
+  readonly VITE_COMMIT_HASH?: string
 
   // Local development only - enables Sentry on localhost
   readonly VITE_ENABLE_SENTRY_LOCALHOST?: string

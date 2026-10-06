@@ -799,7 +799,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       await this.assertSwitchChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      const signedMessage = await wallet.ethSignMessage(messageToSign)
+      const message = isHex(messageToSign.message)
+        ? messageToSign.message
+        : toHex(messageToSign.message)
+
+      const signedMessage = await wallet.ethSignMessage({ ...messageToSign, message })
 
       if (!signedMessage) throw new Error('error signing message')
 

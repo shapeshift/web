@@ -1,8 +1,12 @@
-import { formatJsonRpcResult } from '@json-rpc-tools/utils'
+import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { PairingJsonRpcTypes, SignClientTypes } from '@walletconnect/types'
+import { getSdkError } from '@walletconnect/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletConnectEventsHandler } from '@/plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsHandler'
 import type {
   SupportedSessionRequest,
@@ -37,6 +41,17 @@ export const useWalletConnectEventsManager = (
   const { handleSessionProposal, handleSessionAuthRequest, handleSessionRequest } =
     useWalletConnectEventsHandler(dispatch, state.web3wallet)
 
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  // KeepKey and Trezor One can't sign messages over 1024 bytes, which session_authenticate SIWE messages exceed.
+  // Without a listener, the sign client handles the dApp's fallback session proposal instead.
+  const supportsSessionAuthenticate = useMemo(
+    () => !(wallet && (isKeepKey(wallet) || isTrezor(wallet))),
+    [wallet],
+  )
+
   const signClientEvents = useMemo(() => state.web3wallet?.engine.signClient.events, [state])
   const pairingEvents = useMemo(() => state.core?.pairing.events, [state])
 
@@ -53,7 +68,16 @@ export const useWalletConnectEventsManager = (
         })
       }
 
-      if (!isSupportedSessionRequest(request)) return
+      // The sign client holds back later requests until the current one is responded to
+      if (!isSupportedSessionRequest(request)) {
+        console.warn(`Unsupported WalletConnect request: ${request.params.request.method}`)
+        state.web3wallet?.respondSessionRequest({
+          topic: request.topic,
+          response: formatJsonRpcError(request.id, getSdkError('UNSUPPORTED_METHODS')),
+        })
+        return
+      }
+
       handleSessionRequest(request)
     },
     [handleSessionRequest, state.web3wallet],
@@ -105,7 +129,9 @@ export const useWalletConnectEventsManager = (
     signClientEvents?.on('session_update', sessionUpdateListener)
     signClientEvents?.on('session_delete', sessionDeleteListener)
 
-    state.web3wallet?.on('session_authenticate', handleSessionAuthRequest)
+    if (supportsSessionAuthenticate) {
+      state.web3wallet?.on('session_authenticate', handleSessionAuthRequest)
+    }
 
     // Pairing events
     pairingEvents?.on('pairing_ping', pairingPingListener)
@@ -140,5 +166,6 @@ export const useWalletConnectEventsManager = (
     sessionRequestListener,
     sessionUpdateListener,
     pairingPingListener,
+    supportsSessionAuthenticate,
   ])
 }

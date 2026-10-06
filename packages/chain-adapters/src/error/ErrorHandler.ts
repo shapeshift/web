@@ -25,7 +25,7 @@ export class ChainAdapterError extends Error {
     } else if (error instanceof Error || error instanceof ChainAdapterError) {
       super(error.message)
     } else {
-      super(`Unknown Error: ${error}`)
+      super(`Unknown Error: ${JSON.stringify(error)}`)
     }
 
     this.name = this.constructor.name

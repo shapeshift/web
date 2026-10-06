@@ -207,21 +207,32 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       const selectedAccountId = customTransactionData?.accountId || accountId
       const selectedAccountMetadata = portfolioAccountMetadata[selectedAccountId ?? '']
 
-      const approvalResponse = await approveSessionAuthRequest({
-        wallet,
-        web3wallet,
-        sessionAuthRequest,
-        customTransactionData,
-        accountId,
-        accountMetadata: selectedAccountMetadata,
-      })
+      try {
+        const approvalResponse = await approveSessionAuthRequest({
+          wallet,
+          web3wallet,
+          sessionAuthRequest,
+          customTransactionData,
+          accountId,
+          accountMetadata: selectedAccountMetadata,
+        })
 
-      if (!approvalResponse?.session) return
+        if (!approvalResponse?.session) return
 
-      dispatch({
-        type: WalletConnectActionType.ADD_SESSION,
-        payload: approvalResponse.session,
-      })
+        dispatch({
+          type: WalletConnectActionType.ADD_SESSION,
+          payload: approvalResponse.session,
+        })
+      } catch (e) {
+        console.error('[WC Auth] request failed:', e)
+        await web3wallet.rejectSessionAuthenticate({
+          id: sessionAuthRequest.id,
+          reason: {
+            code: getSdkError('USER_REJECTED').code,
+            message: (e as Error).message ?? 'Unknown error',
+          },
+        })
+      }
 
       handleClose()
     },

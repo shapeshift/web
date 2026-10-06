@@ -79,6 +79,7 @@ export type SwapperConfig = {
   VITE_COWSWAP_BASE_URL: string
   VITE_PORTALS_BASE_URL: string
   VITE_ZRX_BASE_URL: string
+  VITE_FYND_BASE_URL: string
   VITE_CHAINFLIP_API_KEY: string
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
@@ -116,6 +117,7 @@ export enum SwapperName {
   Debridge = 'deBridge',
   BobGateway = 'BOB Gateway',
   Symbiosis = 'Symbiosis',
+  Fynd = 'Fynd',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

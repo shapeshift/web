@@ -10,6 +10,7 @@ import { cetusApi, cetusSwapper } from './swappers/CetusSwapper'
 import { chainflipApi, chainflipSwapper } from './swappers/ChainflipSwapper'
 import { cowApi, cowSwapper } from './swappers/CowSwapper'
 import { debridgeApi, debridgeSwapper } from './swappers/DebridgeSwapper'
+import { fyndApi, fyndSwapper } from './swappers/FyndSwapper'
 import { mayachainApi, mayachainSwapper } from './swappers/MayachainSwapper'
 import { nearIntentsApi, nearIntentsSwapper } from './swappers/NearIntentsSwapper'
 import { portalsApi, portalsSwapper } from './swappers/PortalsSwapper'
@@ -109,6 +110,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...symbiosisSwapper,
     ...symbiosisApi,
   },
+  [SwapperName.Fynd]: {
+    ...fyndSwapper,
+    ...fyndApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -139,6 +144,7 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
   switch (swapperName) {
     case SwapperName.Zrx:
     case SwapperName.Bebop:
+    case SwapperName.Fynd:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.CowSwap:

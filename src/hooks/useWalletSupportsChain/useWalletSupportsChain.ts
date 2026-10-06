@@ -56,7 +56,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isGridPlus,
   isMetaMask,
-  isPhantom,
   isVultisig,
   supportsAbstract,
   supportsArbitrum,
@@ -232,11 +231,11 @@ export const walletSupportsChain = ({
     case btcChainId:
       return supportsBTC(wallet)
     case bchChainId:
-      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
+      return supportsBTC(wallet) && !isGridPlus(wallet)
     case dogeChainId:
-      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
+      return supportsBTC(wallet) && !isGridPlus(wallet)
     case ltcChainId:
-      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
+      return supportsBTC(wallet) && !isGridPlus(wallet)
     case zecChainId:
       return (
         supportsBTC(wallet) &&

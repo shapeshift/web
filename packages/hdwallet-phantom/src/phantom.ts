@@ -127,8 +127,9 @@ export class PhantomHDWallet
   extends PhantomHDWalletInfo
   implements core.HDWallet, core.ETHWallet, core.SolanaWallet
 {
-  readonly _supportsETH = true
   readonly _supportsEthSwitchChain = true
+
+  readonly _supportsETH = true
   readonly _supportsAvalanche = false
   readonly _supportsOptimism = false
   readonly _supportsPolygon = true
@@ -163,7 +164,7 @@ export class PhantomHDWallet
   readonly _supportsCronos = false
   readonly _supportsUnichain = false
   readonly _supportsSoneium = false
-  readonly _supportsBSC = false
+  readonly _supportsBSC = true
   readonly _supportsRobinhood = true
   readonly _supportsSolana = true
   readonly _isPhantom = true

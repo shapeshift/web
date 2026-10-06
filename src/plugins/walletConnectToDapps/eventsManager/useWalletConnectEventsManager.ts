@@ -45,8 +45,7 @@ export const useWalletConnectEventsManager = (
     state: { wallet },
   } = useWallet()
 
-  // KeepKey and Trezor One can't sign messages over 1024 bytes, which session_authenticate SIWE messages exceed.
-  // Without a listener, the sign client handles the dApp's fallback session proposal instead.
+  // KeepKey and Trezor One can't sign the >1024 byte session_authenticate message, with no listener the dApp's fallback proposal is used
   const supportsSessionAuthenticate = useMemo(
     () => !(wallet && (isKeepKey(wallet) || isTrezor(wallet))),
     [wallet],

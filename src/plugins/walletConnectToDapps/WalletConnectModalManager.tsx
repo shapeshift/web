@@ -225,13 +225,15 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         })
       } catch (e) {
         console.error('[WC Auth] request failed:', e)
-        await web3wallet.rejectSessionAuthenticate({
-          id: sessionAuthRequest.id,
-          reason: {
-            code: getSdkError('USER_REJECTED').code,
-            message: (e as Error).message ?? 'Unknown error',
-          },
-        })
+        await web3wallet
+          .rejectSessionAuthenticate({
+            id: sessionAuthRequest.id,
+            reason: {
+              code: getSdkError('USER_REJECTED').code,
+              message: e instanceof Error && e.message ? e.message : 'Unknown error',
+            },
+          })
+          .catch(error => console.error('[WC Auth] reject failed:', error))
       }
 
       handleClose()

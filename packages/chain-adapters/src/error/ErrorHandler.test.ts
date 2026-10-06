@@ -19,4 +19,11 @@ describe('ErrorHandler', () => {
     expect(err.message).toBe(`Unknown Error: ${JSON.stringify(failureEvent)}`)
     expect(err.metadata).toEqual(metadata)
   })
+
+  it('falls back to String for a thrown object that cannot be serialized', async () => {
+    const err = await ErrorHandler({ amount: 1n }, metadata).catch(e => e)
+
+    expect(err).toBeInstanceOf(ChainAdapterError)
+    expect(err.message).toBe('Unknown Error: [object Object]')
+  })
 })

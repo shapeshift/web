@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "Адрес получения клейма",
-    "confirmAndClaim": "Подтвердить и заклеймить"
+    "confirmAndClaim": "Подтвердить и заклеймить",
+    "claimTxDataFailed": "Не удалось подготовить транзакцию по претензии",
+    "noEthereumAccount": "Включить аккаунт Ethereum для оплаты заявки",
+    "alreadyClaimed": "Уже востребовано",
+    "alreadyClaimedBody": "Этот вывод средств уже был оформлен."
   },
   "trade": {
     "trade": "Торговля",
@@ -1315,6 +1319,7 @@
       "qrCode": "QR Code",
       "addressBook": "Адресная книга",
       "noEntries": "Адрес не найден.",
+      "contractAddressWarning": "Это адрес контракта. Убедитесь, что вы действительно хотите отправить средства именно сюда. Средства, отправленные на неправильный контракт, могут быть утрачены.",
       "yourWallets": "Ваши кошельки",
       "noInternalAccounts": "Счетов не найдено.",
       "addNewAddress": "Добавить новый адрес",
@@ -2930,9 +2935,6 @@
   },
   "RFOX": {
     "staking": "Стейкинг rFOX ",
-    "bridge": "Мост",
-    "bridgeFunds": "Перевести средства",
-    "bridgeSuccess": "Ваши средства были успешно переведены. Теперь вы можете продолжить стейкинг.",
     "stake": "Стейкинг",
     "unstake": "Вывести стейкинг",
     "claim": "Клейм",
@@ -2954,7 +2956,6 @@
     "useWalletAddress": "Используйте адрес кошелька",
     "useCustomAddress": "Использование пользовательского адреса",
     "stakeWarning": "Когда вы стейкаете на %{symbol}, пожалуйста, имейте в виду, что период блокировки составляет %{cooldownPeriod}.Это означает, что если вы решите снять свои токены со стейкинга, вам придется подождать %{cooldownPeriod}, прежде чем вы сможете получить свои средства.",
-    "bridgeCta": "Вы выбрали %{assetSymbol} в %{originNetwork}, но вам нужен %{assetSymbol} в %{destinationNetwork}, чтобы застейкать. Мы можем помочь вам перевести средства в %{destinationNetwork}. Хотите, чтобы мы провели вас через этот процесс?",
     "unstakeWarning": "Прежде чем вы сможете потребовать свой  %{symbol} , необходимо подождать в течение %{cooldownPeriod}. По истечении этого времени вы сможете потребовать свою незастейканую сумму.",
     "tooltips": {
       "stakeAmount": "Это сумма FOX, которую вы будете стейкать.",
@@ -2969,6 +2970,8 @@
     "changeAddressPending": "Изменение адреса вознаграждения RFOX на %{newAddress}",
     "changeAddressSuccess": "Изменен адрес вознаграждения RFOX на %{newAddress}",
     "unstakePending": "Запрос на снятие %{amount} %{symbol}",
+    "unstakeSuccess": "Начата процедура снятия вашего стейкинга в размере %{amount} %{symbol}.",
+    "unstakeSuccessNoCooldown": "Ваш %{amount} %{symbol} разблокирован и готов к выводу.",
     "currentRewardAddress": "Текущий адрес для получения вознаграждения",
     "newRewardAddress": "Новый адрес для вознаграждений",
     "rewardCycleExplainer": "Это будет обновлено для следующего цикла вознаграждений.",
@@ -2981,13 +2984,13 @@
     "errorFetchingClaims": "Возникла ошибка при получении клейма.",
     "noClaimsAvailableDescription": "У вас нет ничего для клейма.",
     "unstakeNow": "Снять и запросить FOX",
-    "bridgeAndConfirm": "Перевести и подтвердить",
     "noSupportedChains": "Сеть не поддерживается",
     "noSupportedChainsDescription": "Добавьте %{chainLabel} или подключитесь к кошельку, который его поддерживает.",
     "myStakedBalance": "Мой баланс Стейкинга",
     "myStakedBalanceHelper": "Сумма %{symbol}, которую вы застейкали",
     "pendingRewardsBalance": "Баланс начисленных вознаграждений",
-    "pendingRewardsBalanceHelper": "Это лишь приблизительная оценка ваших ожидаемых вознаграждений, основанная на доходах за период до настоящего времени. Все расчеты производятся в конце эпохи и не могут быть точно рассчитаны до конца месяца.",
+    "pendingRewardsBalanceTooltip": "Ваши вознаграждения на данный момент эпохи. Эта сумма будет меняться по мере изменения дохода и общего количества застейканых %{symbol}. Выплата производится автоматически по окончании эпохи.",
+    "claimTooltip": "Просмотрите свои незаблокированные %{symbol} и получите их по истечении периода ожидания.",
     "lifetimeRewards": "Награды за все время",
     "lifetimeRewardsHelper": "Общее вознаграждение, которое вы заработали, со стейкинга на ваш %{symbol}, на сегодняшний день",
     "timeInPool": "Время в пуле",
@@ -3034,13 +3037,18 @@
     "foxBuybackAmount": "Сумма обратного выкупа FOX (в данной эпохе)",
     "pendingDistribution": "Ожидающееся распределение",
     "selectRuneAddress": "Выберите адрес RUNE",
-    "unstakeDisabledMigrationTooltip": "Отмена стейкинга недоступна до %{migrationDate}, после чего период ожидания будет снят.",
     "lpSunsetWarningTitle": "Программа завершена",
     "lpSunsetWarningDescription": "Программа вознаграждений Arbitrum WETH/FOX завершена. Пожалуйста, снимите свои вложения и затребуйте свой баланс в кратчайшие сроки.",
     "claimInProgress": "Заявка находится в процессе рассмотрения",
-    "migrationBannerTitle": "rFOX переходит на Ethereum",
-    "migrationBannerDescription": "Стейкинг rFOX будет перенесен с Arbitrum на Ethereum %{migrationDate}. До этого момента вы будете продолжать получать вознаграждения на Arbitrum, а после открытия возможности снятия ставок вы сможете перевести свои FOX на новую платформу.",
-    "migrationBannerCta": "Перенести FOX на Ethereum"
+    "arbitrumSunsetBannerTitle": "Стейкинг rFOX на Arbitrum завершился",
+    "arbitrumSunsetBannerDescription": "Стейкинг rFOX перенесён на Ethereum. Отмените стейкинг и получите свои FOX на Arbitrum, а затем перенесите их на Ethereum, чтобы продолжать получать вознаграждения.",
+    "arbitrumSunsetBannerMoveDescription": "Стейкинг rFOX перенесён на Ethereum. Переведите свои FOX с Arbitrum на Ethereum, чтобы участвовать в стейкинге.",
+    "arbitrumSunsetBannerViewCta": "Перейти на Arbitrum",
+    "migrationBannerCta": "Перенести FOX на Ethereum",
+    "stakingPausedTooltip": "В настоящее время стейкинг приостановлен.",
+    "stakingEndedTooltip": "Стейкинг %{symbol} на Arbitrum завершился.",
+    "unstakingPausedTooltip": "В настоящее время процесс снятия стейкинга приостановлен.",
+    "withdrawalsPausedTooltip": "В настоящее время процесс подачи заявок приостановлен."
   },
   "TCY": {
     "stake": "Стейкинг",
@@ -3209,6 +3217,9 @@
   },
   "actionCenter": {
     "title": "Уведомления",
+    "claims": "Требования",
+    "recent": "Последние",
+    "nothingToClaim": "Нет оснований для требования",
     "viewTransaction": "Посмотреть сделку",
     "originalTransaction": "Первоначальная транзакция",
     "replacementTransaction": "Операция по замене",
@@ -3276,6 +3287,8 @@
       "complete": "Ваше требование на %{amount} %{symbol} выполнено.",
       "failed": "Не удалось получить %{amount} %{symbol}."
     },
+    "availableSoon": "скоро",
+    "claimAvailableOn": "Прием заявок открыт",
     "yield": {
       "unstakeAvailableIn": "Снятие со стейкинга %{symbol} будет доступно через %{duration}.",
       "unstakeReady": "Снятие со стейкинга %{symbol} готово — можно получить.",
@@ -3287,8 +3300,9 @@
       "initiated": "Ваш мост от %{sellAmountAndSymbol} до %{buyAmountAndSymbol} был инициирован.",
       "pendingWithdraw": "Ваш вывод %{amountAndSymbol} будет доступен %{timeText}.",
       "claimAvailable": "Ваш мост %{amountAndSymbol} доступен для получения.",
+      "withdrawComplete": "Ваш перевод на сумму %{amountAndSymbol} завершен.",
+      "withdrawProcessing": "Ваш перевод на сумму %{amountAndSymbol} находится в обработке.",
       "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу.",
-      "transactionInitiated": "Транзакция инициирована",
       "claimWithdraw": "Заклеймить вывод",
       "withdrawTx": "Тx вывода",
       "claimTx": "Tx клейма"
@@ -3300,6 +3314,8 @@
       "expired": "Срок действия вашего ордера на покупку %{buyAmountAndSymbol} за %{sellAmountAndSymbol} истек."
     },
     "rfox": {
+      "unstakeTx": "Снятие со стейкинга Tx",
+      "unstakePending": "Ваше снятие со стейкинга в размере %{amount} %{symbol} будет доступно через %{timeText}.",
       "unstakeReady": "Ваше Снятие со стейкинга в размере %{amount} %{symbol} готово к получению.",
       "unstakeTxPending": "Ваше Снятие со стейкинга %{amount} %{symbol} находится на рассмотрении.",
       "unstakeTxComplete": "Снятие со стейкинга %{amount} %{symbol} завершено."
@@ -3378,7 +3394,8 @@
   "yieldXYZ": {
     "pageTitle": "Прибыль",
     "pageSubtitle": "Обнаруживайте и управляйте возможностями получения дохода в нескольких сетях",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Доходность",
     "apy": "APY",
     "apr": "APR",
@@ -3500,6 +3517,7 @@
       "quoteFailedTitle": "Не удалось получить котировку",
       "quoteFailedDescription": "Не удалось получить расценки для этой транзакции. Повторите попытку.",
       "insufficientAssetForGas": "Недостаточное количество %{symbol} для газа",
+      "tronFeeLimitBelowEstimate": "Предельный размер комиссии поставщика услуг ниже расчетной комиссии сети. Пожалуйста, попробуйте позже.",
       "rateLimited": "Слишком много запросов"
     },
     "underMaintenance": "В процессе обслуживания",

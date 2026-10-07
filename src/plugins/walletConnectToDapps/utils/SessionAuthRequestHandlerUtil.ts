@@ -1,7 +1,10 @@
 import type { IWalletKit, WalletKitTypes } from '@reown/walletkit'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata } from '@shapeshiftoss/types'
+import { getAddress } from 'viem'
 
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
@@ -11,8 +14,14 @@ type ApproveSessionAuthRequestArgs = {
   web3wallet: IWalletKit
   sessionAuthRequest: WalletKitTypes.EventArguments['session_authenticate']
   customTransactionData?: CustomTransactionData
-  accountId?: string
+  accountId?: AccountId
   accountMetadata?: AccountMetadata
+}
+
+// DID:PKH identifier of the signer (iss in SIWE), EIP-4361 requires the address to be EIP-55 checksummed
+export const getSessionAuthIss = (accountId: AccountId): string => {
+  const { chainId, account } = fromAccountId(accountId)
+  return `did:pkh:${chainId}:${getAddress(account)}`
 }
 
 export const approveSessionAuthRequest = async ({
@@ -33,10 +42,7 @@ export const approveSessionAuthRequest = async ({
 
   const chainAdapter = assertGetEvmChainAdapter(selectedChainId)
 
-  // Build the DID:PKH identifier from the account ID (iss = issuer in SIWE)
-  // Format: did:pkh:<account_id> where account_id is already chainId:address format
-  // See: https://docs.reown.com/advanced/multichain/rpc-reference/ethereum-rpc#session_authenticate
-  const iss = `did:pkh:${selectedAccountId}`
+  const iss = getSessionAuthIss(selectedAccountId)
 
   const message = web3wallet.formatAuthMessage({
     request: authPayload,

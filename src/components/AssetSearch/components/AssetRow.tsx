@@ -213,7 +213,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       if (isCustomAsset) {
         return (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
-            <Button colorScheme='blue' onClick={handleImportClick}>
+            <Button as='span' role='button' colorScheme='blue' onClick={handleImportClick}>
               {translate('common.import')}
             </Button>
           </Flex>

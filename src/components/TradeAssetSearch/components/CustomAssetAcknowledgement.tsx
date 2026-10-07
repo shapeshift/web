@@ -74,7 +74,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
     })
 
     // Add asset to the store
-    dispatch(assetsSlice.actions.upsertAsset(asset))
+    dispatch(assetsSlice.actions.addCustomAsset(asset))
     // Use the market API to get the market data for the custom asset
     dispatch(marketApi.endpoints.findByAssetId.initiate(asset.assetId))
     // Once the custom asset is in the store, proceed as if it was a normal asset

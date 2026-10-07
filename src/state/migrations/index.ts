@@ -7,6 +7,7 @@ import { clearClaimActions } from './clearClaimActions'
 import { clearLocalWallet } from './clearLocalWallet'
 import { clearMarketData } from './clearMarketData'
 import { clearOpportunities } from './clearOpportunities'
+import { clearPhantomDroppedChainAccounts } from './clearPhantomDroppedChainAccounts'
 import { clearPortfolio } from './clearPortfolio'
 import { clearSnapshot } from './clearSnapshot'
 import { clearSwaps } from './clearSwaps'
@@ -42,6 +43,7 @@ export const clearPortfolioMigrations = {
   4: clearPortfolio,
   5: clearPortfolio,
   6: clearPortfolio,
+  7: clearPhantomDroppedChainAccounts,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const localWalletMigrations = {

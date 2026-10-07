@@ -32,10 +32,7 @@ import {
   erc20Abi,
   getAddress,
   isAddressEqual,
-  isHex,
   parseEventLogs,
-  parseUnits,
-  toHex,
   TransactionReceiptNotFoundError,
   zeroAddress,
 } from 'viem'
@@ -44,7 +41,6 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
-  FeeDataEstimate,
   GetFeeDataInput,
   SubscribeError,
   SubscribeTxsInput,
@@ -56,7 +52,7 @@ import { CONTRACT_INTERACTION } from '../types'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { EvmBaseAdapter } from './EvmBaseAdapter'
-import type { EvmGasLimitEstimate, GasFeeDataEstimate } from './types'
+import type { GasFeeDataEstimate, GasLimitEstimate } from './types'
 
 const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [berachainChainId]: '0x6969696969696969696969696969696969696969',
@@ -325,54 +321,15 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     return this.getGasFeeDataFallback(this.viemClient)
   }
 
-  async getGasLimitEstimate(input: GetFeeDataInput<T>): Promise<EvmGasLimitEstimate> {
+  async getGasLimit(input: GetFeeDataInput<T>): Promise<GasLimitEstimate> {
     const estimateGasBody = this.buildEstimateGasBody(input)
 
     const gasLimit = await this.requestQueue.add(
-      () =>
-        this.viemClient.estimateGas({
-          account: getAddress(estimateGasBody.from),
-          to: getAddress(estimateGasBody.to),
-          value: parseUnits(estimateGasBody.value, 0),
-          data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
-        }),
+      () => this.estimateGasWithRpc(this.viemClient, estimateGasBody),
       { throwOnTimeout: true },
     )
 
-    if (gasLimit === undefined) throw new Error('Failed to estimate gas')
-
-    return { gasLimit: gasLimit.toString() }
-  }
-
-  async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
-    try {
-      const { gasLimit: gasLimitString } = await this.getGasLimitEstimate(input)
-
-      const { fast, average, slow } = await this.getGasFeeData()
-
-      return {
-        fast: {
-          txFee: bnOrZero(fast.maxFeePerGas ?? fast.gasPrice)
-            .times(gasLimitString)
-            .toFixed(0),
-          chainSpecific: { gasLimit: gasLimitString, ...fast },
-        },
-        average: {
-          txFee: bnOrZero(average.maxFeePerGas ?? average.gasPrice)
-            .times(gasLimitString)
-            .toFixed(0),
-          chainSpecific: { gasLimit: gasLimitString, ...average },
-        },
-        slow: {
-          txFee: bnOrZero(slow.maxFeePerGas ?? slow.gasPrice)
-            .times(gasLimitString)
-            .toFixed(0),
-          chainSpecific: { gasLimit: gasLimitString, ...slow },
-        },
-      } as FeeDataEstimate<T>
-    } catch (err) {
-      throw new Error(`Failed to get fee data: ${err}`)
-    }
+    return { gasLimit }
   }
 
   async broadcastTransaction({

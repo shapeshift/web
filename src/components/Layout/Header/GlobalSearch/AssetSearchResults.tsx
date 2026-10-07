@@ -11,10 +11,11 @@ export type AssetSearchResultsProps = {
   searchQuery: string
   isLoading: boolean
   onClickResult: (item: Asset) => void
+  onImportClick: (item: Asset) => void
 }
 
 export const AssetSearchResults = memo(
-  ({ results, searchQuery, isLoading, onClickResult }: AssetSearchResultsProps) => {
+  ({ results, searchQuery, isLoading, onClickResult, onImportClick }: AssetSearchResultsProps) => {
     const noResults = useMemo(() => {
       return !results.length
     }, [results.length])
@@ -33,7 +34,12 @@ export const AssetSearchResults = memo(
 
     return (
       <List>
-        <AssetResults onClick={onClickResult} results={results} searchQuery={searchQuery} />
+        <AssetResults
+          onClick={onClickResult}
+          onImportClick={onImportClick}
+          results={results}
+          searchQuery={searchQuery}
+        />
       </List>
     )
   },

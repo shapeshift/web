@@ -1,6 +1,5 @@
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
@@ -23,22 +22,10 @@ export const EIP155TransactionConfirmation: FC<
 
   const form = useForm<CustomTransactionData>({
     defaultValues: {
-      nonce: toNumberString(transaction?.nonce),
       gasLimit: toNumberString(transaction?.gasLimit ?? transaction?.gas),
       speed: FeeDataKey.Fast,
     },
   })
-
-  const handleFormSubmit = useCallback(
-    (formData?: CustomTransactionData) =>
-      handleConfirm(
-        formData && {
-          ...formData,
-          isUserDefinedNonce: !!form.formState.dirtyFields.nonce,
-        },
-      ),
-    [form.formState.dirtyFields.nonce, handleConfirm],
-  )
 
   // if the transaction is missing the dapp sent invalid params
   if (!transaction || !chainId) {
@@ -53,7 +40,7 @@ export const EIP155TransactionConfirmation: FC<
   return (
     <FormProvider {...form}>
       <WalletConnectSigningModal
-        onConfirm={handleFormSubmit}
+        onConfirm={handleConfirm}
         onReject={handleReject}
         state={state}
         topic={topic}
@@ -61,7 +48,11 @@ export const EIP155TransactionConfirmation: FC<
         formContext={form}
       >
         <TransactionContent transaction={transaction} chainId={chainId} />
-        <TransactionAdvancedParameters accountId={accountId} chainId={chainId} />
+        <TransactionAdvancedParameters
+          accountId={accountId}
+          chainId={chainId}
+          transaction={transaction}
+        />
       </WalletConnectSigningModal>
     </FormProvider>
   )

@@ -1009,31 +1009,6 @@ export const ${c.camelName}: Readonly<Asset> = Object.freeze({
   )
 
   // ============================================================
-  // 37. src/state/migrations/index.ts
-  // ============================================================
-  const migrationsFile = r('src/state/migrations/index.ts')
-
-  results.push(
-    wrap(migrationsFile, 'migrations-clearAssets', () => {
-      const src = fs.readFileSync(migrationsFile, 'utf8')
-      const matches = [...src.matchAll(/(\d+): clearAssets,/g)]
-      if (!matches.length) {
-        console.warn('[codemods] Could not find any clearAssets migration entries')
-        return false
-      }
-      const lastNum = Math.max(...matches.map(m => parseInt(m[1], 10)))
-      const nextNum = lastNum + 1
-      if (src.includes(`${nextNum}: clearAssets`)) return false
-      return appendLineAfterPattern(
-        migrationsFile,
-        new RegExp(`${lastNum}: clearAssets,`),
-        `  ${nextNum}: clearAssets,`,
-        `${nextNum}: clearAssets`,
-      )
-    }),
-  )
-
-  // ============================================================
   // 38. packages/chain-adapters/src/evm/SecondClassEvmAdapter.ts - WRAPPED_NATIVE
   // ============================================================
   if (c.wrappedNativeAddress) {

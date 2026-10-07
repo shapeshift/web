@@ -292,8 +292,6 @@ export const portfolioApi = createApi({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         dispatch(portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: true }))
         if (!accountId) return { data: cloneDeep(initialState) }
-        const state: ReduxState = getState() as any
-        const assetIds = state.assets.ids
         const chainAdapters = getChainAdapterManager()
         const { chainId, account: pubkey } = fromAccountId(accountId)
         try {
@@ -327,6 +325,10 @@ export const portfolioApi = createApi({
           fetchIsSmartContractAddressQuery(pubkey, chainId)
 
           const data = await (async (): Promise<Portfolio> => {
+            // Read after the account is fetched, as the assets can be replaced while it is in flight
+            const state: ReduxState = getState() as any
+            const assetIds = state.assets.ids
+
             const assets = await makeAssets({
               chainId,
               pubkey,

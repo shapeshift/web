@@ -23,8 +23,8 @@ type TenderlyGasEstimateQueryData = {
   simulation: TenderlySimulationResponse | null
   feeData: adapters.evm.GasFeeData
   gasFeeData: adapters.evm.GasFeeDataEstimate
-  estimatedGasLimit: adapters.evm.EvmGasLimitEstimate['gasLimit'] | undefined
-  l1GasLimit: adapters.evm.EvmGasLimitEstimate['l1GasLimit']
+  estimatedGasLimit: adapters.evm.GasLimitEstimate['gasLimit'] | undefined
+  l1GasLimit: adapters.evm.GasLimitEstimate['l1GasLimit']
   // The gas limit we fill into the form when the dApp didn't supply one
   baseGasLimit: string | undefined
 }
@@ -111,7 +111,7 @@ export const useSimulateEvmTransaction = ({
               feeData,
             }),
             chainAdapter
-              .getGasLimitEstimate({
+              .getGasLimit({
                 to: transaction.to,
                 value: BigInt(transaction.value ?? 0).toString(),
                 chainSpecific: {

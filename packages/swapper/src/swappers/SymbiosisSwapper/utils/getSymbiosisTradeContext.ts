@@ -20,7 +20,6 @@ import {
   SYMBIOSIS_PARTNER_ADDRESS,
   SYMBIOSIS_PARTNER_FEE_BPS,
 } from './constants'
-import { fetchSymbiosisTrade } from './fetchSymbiosisTrade'
 import type { GetSymbiosisStepDataArgs } from './getSymbiosisStepData'
 import {
   assertValidTrade,
@@ -32,8 +31,11 @@ import {
   isSymbiosisRouteSupported,
   symbiosisErrorToTradeQuoteError,
 } from './helpers'
+import { symbiosisService } from './symbiosisService'
 import type {
   SymbiosisErrorResponse,
+  SymbiosisQuoteRequest,
+  SymbiosisQuoteResponse,
   SymbiosisTradeQuoteInput,
   SymbiosisTradeRateInput,
 } from './types'
@@ -73,26 +75,28 @@ export const getSymbiosisTradeContext = async ({
     affiliateBps,
   })
 
-  const maybeQuote = await fetchSymbiosisTrade(
-    {
-      tokenAmountIn: {
-        chainId: sellSymbiosisChainId,
-        address: getSymbiosisTokenAddress(sellAsset),
-        decimals: sellAsset.precision,
-        amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      },
-      tokenOut: {
-        chainId: buySymbiosisChainId,
-        address: getSymbiosisTokenAddress(buyAsset),
-        decimals: buyAsset.precision,
-      },
-      from,
-      to,
-      slippage: slippageBps,
-      disabledProviders: SYMBIOSIS_DISABLED_PROVIDERS,
-      partnerAddress,
+  const request: SymbiosisQuoteRequest = {
+    tokenAmountIn: {
+      chainId: sellSymbiosisChainId,
+      address: getSymbiosisTokenAddress(sellAsset),
+      decimals: sellAsset.precision,
+      amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
-    deps.config,
+    tokenOut: {
+      chainId: buySymbiosisChainId,
+      address: getSymbiosisTokenAddress(buyAsset),
+      decimals: buyAsset.precision,
+    },
+    from,
+    to,
+    slippage: slippageBps,
+    disabledProviders: SYMBIOSIS_DISABLED_PROVIDERS,
+    partnerAddress,
+  }
+
+  const maybeQuote = await symbiosisService.post<SymbiosisQuoteResponse>(
+    `${deps.config.VITE_SYMBIOSIS_API_URL}/v2/quote`,
+    request,
   )
 
   if (maybeQuote.isErr()) {

@@ -79,9 +79,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BaseMainnet> {
     }
   }
 
-  async getGasLimit(
-    input: GetFeeDataInput<KnownChainIds.BaseMainnet>,
-  ): Promise<GasLimitEstimate> {
+  async getGasLimit(input: GetFeeDataInput<KnownChainIds.BaseMainnet>): Promise<GasLimitEstimate> {
     const estimateGasBody = this.buildEstimateGasBody(input)
 
     try {

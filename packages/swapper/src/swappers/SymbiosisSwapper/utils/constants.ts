@@ -85,7 +85,8 @@ export const SYMBIOSIS_CROSSCHAIN_KIND = 'crosschain-swap'
 export const SYMBIOSIS_MIN_SLIPPAGE_BPS = 20
 export const SYMBIOSIS_MAX_SLIPPAGE_BPS = 1000
 
-// The fee rate Symbiosis has configured for VITE_SYMBIOSIS_PARTNER_ADDRESS - '0' until an address is registered
+// Our registered partner address and the fixed fee rate Symbiosis has configured for it - empty and '0' until registered
+export const SYMBIOSIS_PARTNER_ADDRESS = ''
 export const SYMBIOSIS_PARTNER_FEE_BPS = '0'
 
 export const DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'

@@ -15,7 +15,11 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { SYMBIOSIS_DISABLED_PROVIDERS, SYMBIOSIS_PARTNER_FEE_BPS } from './constants'
+import {
+  SYMBIOSIS_DISABLED_PROVIDERS,
+  SYMBIOSIS_PARTNER_ADDRESS,
+  SYMBIOSIS_PARTNER_FEE_BPS,
+} from './constants'
 import { fetchSymbiosisTrade } from './fetchSymbiosisTrade'
 import type { GetSymbiosisStepDataArgs } from './getSymbiosisStepData'
 import {
@@ -64,7 +68,7 @@ export const getSymbiosisTradeContext = async ({
   )
 
   const partnerAddress = getSymbiosisPartnerAddress({
-    partnerAddress: deps.config.VITE_SYMBIOSIS_PARTNER_ADDRESS,
+    partnerAddress: SYMBIOSIS_PARTNER_ADDRESS,
     partnerFeeBps: SYMBIOSIS_PARTNER_FEE_BPS,
     affiliateBps,
   })

@@ -93,7 +93,6 @@ export type SwapperConfig = {
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
   VITE_SYMBIOSIS_API_URL: string
-  VITE_SYMBIOSIS_PARTNER_ADDRESS: string
 }
 
 export enum SwapperName {

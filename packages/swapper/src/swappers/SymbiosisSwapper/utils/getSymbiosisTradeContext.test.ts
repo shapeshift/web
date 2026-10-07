@@ -22,7 +22,6 @@ const TO = '0x1111111111111111111111111111111111111111'
 const deps = {
   config: {
     VITE_SYMBIOSIS_API_URL: 'https://api.symbiosis.finance/crosschain',
-    VITE_SYMBIOSIS_PARTNER_ADDRESS: '',
   },
 } as unknown as SwapperDeps
 

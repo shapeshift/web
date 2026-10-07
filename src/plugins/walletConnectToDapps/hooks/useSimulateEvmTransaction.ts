@@ -25,6 +25,8 @@ type TenderlyGasEstimateQueryData = {
   gasFeeData: adapters.evm.GasFeeDataEstimate
   estimatedGasLimit: adapters.evm.EvmGasLimitEstimate['gasLimit'] | undefined
   l1GasLimit: adapters.evm.EvmGasLimitEstimate['l1GasLimit']
+  // The gas limit we fill into the form when the dApp didn't supply one
+  baseGasLimit: string | undefined
 }
 
 const OPTIMISTIC_ROLLUP_CHAIN_IDS = [KnownChainIds.OptimismMainnet, KnownChainIds.BaseMainnet]
@@ -136,6 +138,7 @@ export const useSimulateEvmTransaction = ({
             gasFeeData,
             estimatedGasLimit,
             l1GasLimit,
+            baseGasLimit: estimatedGasLimit ?? simulation?.transaction.gas_used.toString(),
           }
         }
       : skipToken,

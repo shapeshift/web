@@ -10,7 +10,7 @@ import type { CustomTransactionData, TransactionParams } from '@/plugins/walletC
 import { TestProviders } from '@/test/TestProviders'
 
 const mockSimulation = vi.hoisted(() => ({
-  gasEstimateQuery: {} as { isLoading?: boolean; data?: { estimatedGasLimit?: string } },
+  gasEstimateQuery: {} as { isLoading?: boolean; data?: { baseGasLimit?: string } },
 }))
 
 vi.mock('@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction', () => ({
@@ -95,7 +95,7 @@ describe('WalletConnectModalSigningFooter', () => {
   })
 
   it('enables confirm when our estimate supplies the gas limit', () => {
-    mockSimulation.gasEstimateQuery = { data: { estimatedGasLimit: '150000' } }
+    mockSimulation.gasEstimateQuery = { data: { baseGasLimit: '150000' } }
     render(<TestFooter />)
     expect(screen.getByRole('button', { name: 'Confirm' })).toHaveProperty('disabled', false)
   })

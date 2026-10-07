@@ -155,10 +155,7 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const isGasEstimateLoading = gasEstimateQuery.isLoading
 
   // A cached estimate is written into the form before it mounts and watch() never sees it
-  const estimatedGasLimit =
-    gasEstimateQuery.data?.estimatedGasLimit ??
-    gasEstimateQuery.data?.simulation?.transaction?.gas_used
-  const isGasLimitMissing = !!transaction && !gasLimit && !estimatedGasLimit
+  const isGasLimitMissing = !!transaction && !gasLimit && !gasEstimateQuery.data?.baseGasLimit
 
   const handleSubmit = useCallback(() => {
     if (!formContext?.handleSubmit) return onConfirm()

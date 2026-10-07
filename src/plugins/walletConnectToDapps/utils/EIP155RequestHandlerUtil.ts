@@ -22,6 +22,7 @@ import { getSignParamsMessage } from '@/plugins/walletConnectToDapps/utils'
 
 type ApproveEIP155RequestArgs = {
   requestEvent: SupportedSessionRequest
+  assertRequestAuthorized: () => void
   wallet: HDWallet
   chainAdapter: EvmChainAdapter
   accountMetadata?: AccountMetadata
@@ -38,6 +39,7 @@ function assertSupportsEthSignTypedData(
 
 export const approveEIP155Request = async ({
   requestEvent,
+  assertRequestAuthorized,
   wallet,
   chainAdapter,
   accountMetadata,
@@ -50,12 +52,22 @@ export const approveEIP155Request = async ({
   const accountNumber = bip44Params?.accountNumber
   const addressNList = bip44Params ? toAddressNList(chainAdapter.getBip44Params(bip44Params)) : []
 
+  assertIsDefined(accountId)
+  assertIsDefined(accountNumber)
+  assertIsDefined(accountMetadata)
+  const expectedAddress = fromAccountId(accountId).account
+  const walletAddress = await chainAdapter.getAddress({ accountNumber, wallet })
+  if (walletAddress.toLowerCase() !== expectedAddress.toLowerCase())
+    throw new Error('WalletConnect wallet does not match requested signer')
+  assertRequestAuthorized()
+
   switch (request.method) {
     case EIP155_SigningMethod.PERSONAL_SIGN:
     case EIP155_SigningMethod.ETH_SIGN: {
-      const message = getSignParamsMessage(request.params, false)
+      const message = getSignParamsMessage(request.params, false, request.method)
       const messageToSign = { addressNList, message }
       const input = { messageToSign, wallet }
+      assertRequestAuthorized()
       const signedMessage = await chainAdapter.signMessage(input)
       if (!signedMessage) throw new Error('approveEIP155Request: signMessage failed')
       return formatJsonRpcResult(id, signedMessage)
@@ -69,6 +81,7 @@ export const approveEIP155Request = async ({
       const payloadString = request.params[1]
       const typedData = JSON.parse(payloadString)
       const messageToSign = { addressNList, typedData }
+      assertRequestAuthorized()
       const signedData = await wallet.ethSignTypedData(messageToSign)
       if (!signedData) throw new Error('approveEIP155Request: signMessage failed')
       return formatJsonRpcResult(id, signedData.signature)
@@ -108,6 +121,8 @@ export const approveEIP155Request = async ({
           ? customTransactionData.nonce
           : txToSign.nonce
 
+      assertRequestAuthorized()
+
       const signedTx = await chainAdapter.signTransaction({
         txToSign: {
           ...txToSign,
@@ -139,6 +154,8 @@ export const approveEIP155Request = async ({
       if (!nonce) throw new Error('approveEIP155Request: missing nonce')
 
       const feeData = await chainAdapter.getGasFeeData()
+
+      assertRequestAuthorized()
 
       const signature = await chainAdapter.signTransaction({
         txToSign: {

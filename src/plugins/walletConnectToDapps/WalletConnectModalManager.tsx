@@ -40,6 +40,7 @@ import type {
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
+import { extractConnectedAccounts, getRequestAccount } from '@/plugins/walletConnectToDapps/utils'
 import { approveBIP122Request } from '@/plugins/walletConnectToDapps/utils/BIP122RequestHandlerUtil'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
@@ -103,6 +104,41 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   )
 
   const topic = requestEvent?.topic
+  const requestWallet = useRef({ requestEvent, wallet })
+  if (requestWallet.current.requestEvent !== requestEvent)
+    requestWallet.current = { requestEvent, wallet }
+  const liveState = useRef({ wallet, requestEvent, accountId })
+  liveState.current = { wallet, requestEvent, accountId }
+  const assertRequestAuthorized = useCallback(() => {
+    if (
+      !requestEvent ||
+      !web3wallet ||
+      !accountId ||
+      requestWallet.current.wallet !== wallet ||
+      liveState.current.wallet !== wallet ||
+      liveState.current.requestEvent !== requestEvent ||
+      liveState.current.accountId !== accountId
+    )
+      throw new Error('WalletConnect request is no longer authorized')
+    const session = web3wallet.getActiveSessions()[requestEvent.topic]
+    if (!session || session.expiry * 1000 <= Date.now())
+      throw new Error('WalletConnect session expired')
+    const { chainId: requestChain, request } = requestEvent.params
+    const permitted = Object.values(session.namespaces).some(
+      namespace =>
+        namespace.methods.includes(request.method) && namespace.accounts.includes(accountId),
+    )
+    if (
+      !permitted ||
+      getRequestAccount(
+        extractConnectedAccounts(session),
+        request.method,
+        request.params,
+        requestChain,
+      ) !== accountId
+    )
+      throw new Error('WalletConnect signer is not approved for this session')
+  }, [requestEvent, web3wallet, accountId, wallet])
 
   const handleConfirmEIP155Request = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
@@ -110,6 +146,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return
       }
 
+      assertRequestAuthorized()
       const chainAdapter = assertGetEvmChainAdapter(chainId)
 
       const response = await approveEIP155Request({
@@ -119,6 +156,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         accountMetadata,
         customTransactionData,
         accountId,
+        assertRequestAuthorized,
       })
       await web3wallet.respondSessionRequest({
         topic,
@@ -126,7 +164,17 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
       handleClose()
     },
-    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
+    [
+      accountId,
+      accountMetadata,
+      assertRequestAuthorized,
+      chainId,
+      handleClose,
+      requestEvent,
+      topic,
+      wallet,
+      web3wallet,
+    ],
   )
 
   const handleConfirmCosmosRequest = useCallback(async () => {
@@ -135,10 +183,12 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     }
 
     try {
+      assertRequestAuthorized()
       const response = await approveCosmosRequest({
         wallet,
         requestEvent,
         accountMetadata,
+        assertRequestAuthorized,
       })
       await web3wallet.respondSessionRequest({
         topic,
@@ -152,12 +202,21 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
     }
     handleClose()
-  }, [accountMetadata, handleClose, requestEvent, topic, wallet, web3wallet])
+  }, [
+    accountMetadata,
+    assertRequestAuthorized,
+    handleClose,
+    requestEvent,
+    topic,
+    wallet,
+    web3wallet,
+  ])
 
   const handleConfirmBIP122Request = useCallback(async () => {
     if (!requestEvent || !wallet || !web3wallet || !topic || !chainId) return
 
     try {
+      assertRequestAuthorized()
       const utxoChainAdapter = (() => {
         try {
           return assertGetUtxoChainAdapter(chainId)
@@ -170,6 +229,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         wallet,
         requestEvent,
         chainAdapter: utxoChainAdapter,
+        assertRequestAuthorized,
       })
       await web3wallet.respondSessionRequest({
         topic,
@@ -183,7 +243,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
     }
     handleClose()
-  }, [chainId, handleClose, requestEvent, topic, wallet, web3wallet])
+  }, [assertRequestAuthorized, chainId, handleClose, requestEvent, topic, wallet, web3wallet])
 
   const handleRejectRequest = useCallback(async () => {
     if (!requestEvent || !web3wallet || !topic) return

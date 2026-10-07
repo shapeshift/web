@@ -4,13 +4,7 @@ import type { SessionTypes } from '@walletconnect/types'
 import { hexToBigInt, hexToString, isAddress, isHex, validateTypedData } from 'viem'
 
 import { isSome } from '@/lib/utils'
-import type {
-  CosmosSignAminoCallRequestParams,
-  CosmosSignDirectCallRequestParams,
-  EthSignParams,
-  TransactionParams,
-  WalletConnectState,
-} from '@/plugins/walletConnectToDapps/types'
+import type { WalletConnectState } from '@/plugins/walletConnectToDapps/types'
 
 /**
  * Converts hex to utf8 string if it is valid bytes
@@ -37,13 +31,8 @@ export const toNumberString = (value: string | undefined): string | undefined =>
   }
 }
 
-/**
- * Gets message from various signing request methods by filtering out
- * a value that is not an address (thus is a message).
- * If it is a hex string, it gets converted to utf8 string
- */
-export const getSignParamsMessage = (params: [string, string], toUtf8: boolean) => {
-  const message = params.filter(p => !isAddress(p))[0]
+export const getSignParamsMessage = (params: [string, string], toUtf8: boolean, method: string) => {
+  const message = params[method === 'personal_sign' ? 0 : 1]
   return toUtf8 ? maybeConvertHexEncodedMessageToUtf8(message) : message
 }
 
@@ -82,59 +71,53 @@ export const extractAllConnectedAccounts = (
   )
 }
 
-// Get our account from params by checking if the params string contains an account from our wallet
-export const getWalletAccountFromEthParams = (
+export const getRequestSigner = (method: string, params: unknown): string | undefined => {
+  if (method === 'personal_sign')
+    return Array.isArray(params) && params.length === 2 && typeof params[1] === 'string'
+      ? params[1]
+      : undefined
+  if (
+    ['eth_sign', 'eth_signTypedData', 'eth_signTypedData_v3', 'eth_signTypedData_v4'].includes(
+      method,
+    )
+  )
+    return Array.isArray(params) && params.length === 2 && typeof params[0] === 'string'
+      ? params[0]
+      : undefined
+  if (['eth_sendTransaction', 'eth_signTransaction'].includes(method))
+    return Array.isArray(params) && params.length === 1 && typeof params[0]?.from === 'string'
+      ? params[0].from
+      : undefined
+  if (!params || typeof params !== 'object') return undefined
+  if (['cosmos_signAmino', 'cosmos_signDirect'].includes(method))
+    return 'signerAddress' in params && typeof params.signerAddress === 'string'
+      ? params.signerAddress
+      : undefined
+  if (['signMessage', 'sendTransfer', 'signPsbt'].includes(method))
+    return 'account' in params && typeof params.account === 'string' ? params.account : undefined
+  return undefined
+}
+
+export const getRequestAccount = (
   accountIds: AccountId[],
-  params: EthSignParams | TransactionParams[],
+  method: string,
+  params: unknown,
   chainId: ChainId,
-): AccountId => {
-  const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
-
-  const matchingAccounts = accountIds.filter(
-    accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
-  )
-
-  const accountForChain = matchingAccounts.find(
-    accountId => fromAccountId(accountId).chainId === chainId,
-  )
-
-  return accountForChain ?? ''
+): AccountId | undefined => {
+  const signer = getRequestSigner(method, params)
+  if (!signer) return undefined
+  const isEvm = chainId.startsWith('eip155:')
+  if (isEvm && !isAddress(signer, { strict: false })) return undefined
+  const matches = Array.from(new Set(accountIds)).filter(accountId => {
+    const { chainId: accountChain, account } = fromAccountId(accountId)
+    return (
+      accountChain === chainId &&
+      (isEvm ? account.toLowerCase() === signer.toLowerCase() : account === signer)
+    )
+  })
+  return matches.length === 1 ? matches[0] : undefined
 }
 
-export const getWalletAccountFromCosmosParams = (
-  accountIds: AccountId[],
-  params: CosmosSignDirectCallRequestParams | CosmosSignAminoCallRequestParams,
-): AccountId => {
-  const paramsString = params ? params.signerAddress : undefined
-  return (
-    accountIds.find(
-      accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
-    ) || ''
-  )
-}
-
-export const getWalletAccountFromBip122Params = (
-  accountIds: AccountId[],
-  params: { account: string },
-): AccountId => {
-  const paramsAccount = params.account
-  return (
-    accountIds.find(accountId => paramsAccount?.includes(fromAccountId(accountId).account)) || ''
-  )
-}
-
-/**
- * Get our address from params checking if params string contains one
- * of our wallet addresses
- */
-export const getWalletAddressFromEthSignParams = (
-  accountIds: AccountId[],
-  params: EthSignParams,
-): string => {
-  const addresses = accountIds.map(accountId => fromAccountId(accountId).account)
-  const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
-  return addresses.find(address => paramsString?.includes(address.toLowerCase())) || ''
-}
 export const getChainIdFromDomain = (message: string): ChainId | undefined => {
   try {
     const parsed = JSON.parse(message)

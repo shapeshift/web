@@ -27,7 +27,7 @@ const createMockWallet = (overrides?: Record<string, unknown>) =>
     _supportsBTC: true,
     btcSupportsCoin: vi.fn().mockReturnValue(true),
     btcSupportsScriptType: vi.fn().mockReturnValue(true),
-    btcGetAddress: vi.fn(),
+    btcGetAddress: vi.fn().mockResolvedValue('bc1qxzntwam7733myh5vryz5dptpqg79d0kn80clmt'),
     btcSignTx: vi.fn(),
     btcSignMessage: vi.fn(),
     btcVerifyMessage: vi.fn(),
@@ -89,6 +89,7 @@ describe('BIP122RequestHandlerUtil', () => {
       })
 
       const result = await approveBIP122Request({
+        assertRequestAuthorized: () => undefined,
         requestEvent: createSignMessageRequestEvent('Hello Bitcoin'),
         wallet,
       })
@@ -110,6 +111,7 @@ describe('BIP122RequestHandlerUtil', () => {
 
     it('should use SpendP2SHWitness and BIP49 path for P2SH address', async () => {
       const wallet = createMockWallet({
+        btcGetAddress: vi.fn().mockResolvedValue('3LUs8kTZo2G3X5wxv2sWKQJiC9btU1FUae'),
         btcSignMessage: vi.fn().mockResolvedValue({
           address: '3LUs8kTZo2G3X5wxv2sWKQJiC9btU1FUae',
           signature: 'H+p2shSignature==',
@@ -117,6 +119,7 @@ describe('BIP122RequestHandlerUtil', () => {
       })
 
       await approveBIP122Request({
+        assertRequestAuthorized: () => undefined,
         requestEvent: createSignMessageRequestEvent('Hello', '3LUs8kTZo2G3X5wxv2sWKQJiC9btU1FUae'),
         wallet,
       })
@@ -131,6 +134,7 @@ describe('BIP122RequestHandlerUtil', () => {
 
     it('should use SpendAddress and BIP44 path for legacy P2PKH address', async () => {
       const wallet = createMockWallet({
+        btcGetAddress: vi.fn().mockResolvedValue('1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr'),
         btcSignMessage: vi.fn().mockResolvedValue({
           address: '1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr',
           signature: 'H+legacySignature==',
@@ -138,6 +142,7 @@ describe('BIP122RequestHandlerUtil', () => {
       })
 
       await approveBIP122Request({
+        assertRequestAuthorized: () => undefined,
         requestEvent: createSignMessageRequestEvent('Hello', '1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr'),
         wallet,
       })
@@ -157,6 +162,7 @@ describe('BIP122RequestHandlerUtil', () => {
 
       await expect(
         approveBIP122Request({
+          assertRequestAuthorized: () => undefined,
           requestEvent: createSignMessageRequestEvent('Hello'),
           wallet,
         }),
@@ -196,6 +202,7 @@ describe('BIP122RequestHandlerUtil', () => {
       }))
 
       const result = await approveBIP122Request({
+        assertRequestAuthorized: () => undefined,
         requestEvent: createSignPsbtRequestEvent(MOCK_PSBT_BASE64, signInputs),
         wallet,
       })
@@ -241,6 +248,7 @@ describe('BIP122RequestHandlerUtil', () => {
       ]
 
       const result = await approveBIP122Request({
+        assertRequestAuthorized: () => undefined,
         requestEvent: createSignPsbtRequestEvent(MOCK_PSBT_BASE64, signInputs),
         wallet,
       })
@@ -289,6 +297,7 @@ describe('BIP122RequestHandlerUtil', () => {
       }))
 
       const result = await approveBIP122Request({
+        assertRequestAuthorized: () => undefined,
         requestEvent: createSignPsbtRequestEvent(MOCK_PSBT_BASE64, signInputs, true),
         wallet,
         chainAdapter: mockChainAdapter as any,
@@ -311,6 +320,7 @@ describe('BIP122RequestHandlerUtil', () => {
 
       await expect(
         approveBIP122Request({
+          assertRequestAuthorized: () => undefined,
           requestEvent: createSignPsbtRequestEvent(MOCK_PSBT_BASE64, signInputs),
           wallet,
         }),
@@ -352,6 +362,7 @@ describe('BIP122RequestHandlerUtil', () => {
       }
 
       const result = await approveBIP122Request({
+        assertRequestAuthorized: () => undefined,
         requestEvent,
         wallet,
         chainAdapter: mockChainAdapter as any,
@@ -397,10 +408,78 @@ describe('BIP122RequestHandlerUtil', () => {
 
       await expect(
         approveBIP122Request({
+          assertRequestAuthorized: () => undefined,
           requestEvent,
           wallet,
         }),
       ).rejects.toThrow('Chain adapter required for sendTransfer')
     })
   })
+})
+
+describe('Bitcoin signing authorization', () => {
+  it('does not sign after session authorization is revoked', async () => {
+    const sign = vi.fn()
+    const wallet = createMockWallet({ btcSignMessage: sign })
+    await expect(
+      approveBIP122Request({
+        wallet,
+        requestEvent: createSignMessageRequestEvent('Hello'),
+        assertRequestAuthorized: () => {
+          throw new Error('Session revoked')
+        },
+      }),
+    ).rejects.toThrow('Session revoked')
+    expect(sign).not.toHaveBeenCalled()
+  })
+  it('does not sign with a wallet whose derived address differs', async () => {
+    const sign = vi.fn()
+    const wallet = createMockWallet({
+      btcSignMessage: sign,
+      btcGetAddress: vi.fn().mockResolvedValue('other-wallet'),
+    })
+    await expect(
+      approveBIP122Request({
+        wallet,
+        requestEvent: createSignMessageRequestEvent('Hello'),
+        assertRequestAuthorized: () => undefined,
+      }),
+    ).rejects.toThrow('does not match')
+    expect(sign).not.toHaveBeenCalled()
+  })
+  it('rejects PSBT signing inputs outside the selected signer', async () => {
+    const sign = vi.fn()
+    const wallet = createMockWallet({ btcSignTx: sign })
+    await expect(
+      approveBIP122Request({
+        wallet,
+        requestEvent: createSignPsbtRequestEvent(MOCK_PSBT_BASE64, [
+          { address: 'bc1qxzntwam7733myh5vryz5dptpqg79d0kn80clmt', index: 0 },
+          { address: 'foreign-address', index: 1 },
+        ]),
+        assertRequestAuthorized: () => undefined,
+      }),
+    ).rejects.toThrow('approved signer')
+    expect(sign).not.toHaveBeenCalled()
+  })
+})
+
+it('does not sign or broadcast unselected inputs belonging to another account', async () => {
+  const psbt = Psbt.fromBase64(MOCK_PSBT_BASE64)
+  const witnessUtxo = psbt.data.inputs[1].witnessUtxo
+  if (!witnessUtxo) throw new Error('Expected test witness UTXO')
+  witnessUtxo.script = Buffer.from(`0014${'11'.repeat(20)}`, 'hex')
+  const sign = vi.fn()
+  await expect(
+    approveBIP122Request({
+      wallet: createMockWallet({ btcSignTx: sign }),
+      requestEvent: createSignPsbtRequestEvent(
+        psbt.toBase64(),
+        [{ address: 'bc1qxzntwam7733myh5vryz5dptpqg79d0kn80clmt', index: 0 }],
+        true,
+      ),
+      assertRequestAuthorized: () => undefined,
+    }),
+  ).rejects.toThrow('Every PSBT input')
+  expect(sign).not.toHaveBeenCalled()
 })

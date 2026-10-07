@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "Adresse de réception de réclamation",
-    "confirmAndClaim": "Confirmer et réclamer"
+    "confirmAndClaim": "Confirmer et réclamer",
+    "claimTxDataFailed": "Impossible de préparer la transaction de réclamation",
+    "noEthereumAccount": "Activez un compte Ethereum pour payer la réclamation",
+    "alreadyClaimed": "Déjà réclamé",
+    "alreadyClaimedBody": "Ce retrait a déjà été réclamé."
   },
   "trade": {
     "trade": "Échanger",
@@ -1315,6 +1319,7 @@
       "qrCode": "QR Code",
       "addressBook": "Carnet d'adresses",
       "noEntries": "Aucune adresse trouvée.",
+      "contractAddressWarning": "Vous avez entré une adresse de contrat. Veuillez vérifier que l'envoi à cette adresse est bien intentionnel. Les fonds envoyés à une mauvaise adresse peuvent être perdus.",
       "yourWallets": "Vos porte-monnaie",
       "noInternalAccounts": "Aucun compte trouvé.",
       "addNewAddress": "Ajouter une nouvelle adresse",
@@ -2930,9 +2935,6 @@
   },
   "RFOX": {
     "staking": "Staking rFOX",
-    "bridge": "Bridger",
-    "bridgeFunds": "Bridger des fonds",
-    "bridgeSuccess": "Vos fonds ont été bridgés avec succès. Vous pouvez maintenant poursuivre avec le staking.",
     "stake": "Staker",
     "unstake": "Déstaker",
     "claim": "Réclamer",
@@ -2954,7 +2956,6 @@
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
     "stakeWarning": "Lorsque vous stakez vos jetons %{symbol}, sachez que la période de verrouillage est de %{cooldownPeriod}. Cela signifie que si vous décidez déstaker vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
-    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour staker. Nous pouvons vous aider à transférer vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans le processus ?",
     "unstakeWarning": "Avant de pouvoir réclamer vos %{symbol}, la période de repos est de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant déstaké.",
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous stakerez",
@@ -2969,7 +2970,8 @@
     "changeAddressPending": "Adresse de récompenses RFOX en cours de changement pour %{newAddress}",
     "changeAddressSuccess": "Adresse de récompenses RFOX changée pour %{newAddress}",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
-    "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
+    "unstakeSuccess": "Votre déstake de %{amount} %{symbol} a été initié.",
+    "unstakeSuccessNoCooldown": "Vos %{amount} %{symbol} sont destakés et prêts à être réclamés.",
     "currentRewardAddress": "Adresse de récompenses actuelle",
     "newRewardAddress": "Nouvelle adresse de récompenses",
     "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
@@ -2982,13 +2984,13 @@
     "errorFetchingClaims": "Une erreur s'est produite lors de la récupération des réclamations",
     "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
     "unstakeNow": "Déstaker pour réclamer les FOX",
-    "bridgeAndConfirm": "Bridger et confirmer",
     "noSupportedChains": "Chaîne non prise en charge",
     "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",
     "myStakedBalance": "Mon solde staké",
     "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez staké",
     "pendingRewardsBalance": "Solde des récompenses en attente",
-    "pendingRewardsBalanceHelper": "Il s'agit uniquement d'une estimation de vos récompenses en attente, basée sur les revenus de l'époque à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut pas être calculée exactement avant la fin du mois",
+    "pendingRewardsBalanceTooltip": "Vos récompenses à ce stade de l'époque. Elles évolueront en fonction des revenus et des changements du total de %{symbol} stakés. Le versement sera automatique à la fin de l'époque.",
+    "claimTooltip": "Consultez vos %{symbol} stakés et réclamez-les une fois leur délai de repos écoulé.",
     "lifetimeRewards": "Récompenses cumulées",
     "lifetimeRewardsHelper": "Le total à ce jour des récompenses que vous avez gagnées en stakant vos %{symbol}",
     "timeInPool": "Temps dans le pool",
@@ -3035,16 +3037,18 @@
     "foxBuybackAmount": "Montant  du rachat de FOX (cette époque)",
     "pendingDistribution": "Distribution en attente",
     "selectRuneAddress": "Sélectionnez une adresse RUNE",
-    "unstakeDisabledMigrationTooltip": "Le déstaking est désactivé jusqu'au %{migrationDate}, date à laquelle la période de repos sera retirée.",
     "lpSunsetWarningTitle": "Le programme est terminé",
     "lpSunsetWarningDescription": "Le programme de récompenses pour WETH/FOX sur Arbitrum est désormais terminé. Veuillez unstaker et réclamer vos fonds à votre plus proche convenance.",
     "claimInProgress": "Réclamation en cours",
-    "migrationBannerTitle": "rFOX migre vers Ethereum",
-    "migrationBannerDescription": "Le staking rFOX migre d'Arbitrum vers Ethereum le %{migrationDate}. Vous continuerez à percevoir des récompenses sur Arbitrum jusqu'à cette date, après quoi le déstaking ouvre afin que vous puissiez déplacer vos FOX.",
+    "arbitrumSunsetBannerTitle": "Le staking rFOX sur Arbitrum est terminé.",
+    "arbitrumSunsetBannerDescription": "Le staking rFOX a été déplacé sur Ethereum. Retirez vos FOX stakés et réclamez-les sur Arbitrum, puis transférez-les sur Ethereum pour continuer à percevoir des récompenses.",
+    "arbitrumSunsetBannerMoveDescription": "Le staking rFOX est désormais disponible sur Ethereum. Transférez vos FOX sur Arbitrum vers Ethereum pour les staker.",
+    "arbitrumSunsetBannerViewCta": "Rendez-vous sur Arbitrum",
     "migrationBannerCta": "Déplacer des FOX vers Ethereum",
-    "stakingPausedTooltip": "Le staking est suspendu pour ce programme.",
-    "unstakingPausedTooltip": "Le déstaking est suspendu pour ce programme.",
-    "withdrawalsPausedTooltip": "Les réclamations sont suspendues pour ce programme."
+    "stakingPausedTooltip": "Le staking est actuellement suspendu.",
+    "stakingEndedTooltip": "Le staking %{symbol} sur Arbitrum est terminé.",
+    "unstakingPausedTooltip": "Le déstaking est actuellement suspendu.",
+    "withdrawalsPausedTooltip": "Les réclamations sont actuellement suspendues."
   },
   "TCY": {
     "stake": "Staker",
@@ -3213,6 +3217,9 @@
   },
   "actionCenter": {
     "title": "Notifications",
+    "claims": "Réclamations",
+    "recent": "Récent",
+    "nothingToClaim": "Rien à réclamer",
     "viewTransaction": "Voir la transaction",
     "originalTransaction": "Transaction originale",
     "replacementTransaction": "Transaction de remplacement",
@@ -3280,6 +3287,8 @@
       "complete": "Votre réclamation de %{amount} %{symbol} est terminée.",
       "failed": "Votre réclamation de %{amount} %{symbol} a échoué."
     },
+    "availableSoon": "bientôt",
+    "claimAvailableOn": "Réclamation disponible",
     "yield": {
       "unstakeAvailableIn": "Votre déstake en %{symbol} sera disponible dans %{duration}.",
       "unstakeReady": "Votre déstake en %{symbol} est prêt à être réclamé.",
@@ -3291,8 +3300,9 @@
       "initiated": "Votre bridge de %{sellAmountAndSymbol} ver %{buyAmountAndSymbol} a été initié.",
       "pendingWithdraw": "Votre retrait de %{amountAndSymbol} sera disponible %{timeText}.",
       "claimAvailable": "Votre bridge de %{amountAndSymbol} est disponible pour être réclamé.",
+      "withdrawComplete": "Votre bridge de %{amountAndSymbol} est terminé.",
+      "withdrawProcessing": "Votre bridge de %{amountAndSymbol} est en cours de traitement.",
       "failed": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a échoué.",
-      "transactionInitiated": "Transaction initiée",
       "claimWithdraw": "Réclamer le retrait",
       "withdrawTx": "Tx de retrait",
       "claimTx": "Tx de réclamation"
@@ -3304,6 +3314,8 @@
       "expired": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a expiré."
     },
     "rfox": {
+      "unstakeTx": "Tx. de déstake",
+      "unstakePending": "Votre déstake de %{amount} %{symbol} sera disponible %{timeText}.",
       "unstakeReady": "Votre déstake de %{amount} %{symbol} est prêt à être réclamé.",
       "unstakeTxPending": "Votre déstake de %{amount} %{symbol} est en attente.",
       "unstakeTxComplete": "Votre déstake de %{amount} %{symbol} est terminé."
@@ -3505,6 +3517,7 @@
       "quoteFailedTitle": "Devis échoué",
       "quoteFailedDescription": "Impossible d'obtenir un devis pour cette transaction. Veuillez réessayer.",
       "insufficientAssetForGas": "Solde %{symbol} insuffisant pour le carburant",
+      "tronFeeLimitBelowEstimate": "Le plafond des frais du fournisseur est inférieur aux frais de réseau estimés. Veuillez réessayer plus tard.",
       "rateLimited": "Trop de requêtes"
     },
     "underMaintenance": "En cours de maintenance",

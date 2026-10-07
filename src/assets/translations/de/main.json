@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
-    "confirmAndClaim": "Bestätigen und Beanspruchen"
+    "confirmAndClaim": "Bestätigen und Beanspruchen",
+    "claimTxDataFailed": "Das Beanspruchen von Erträgen konnte nicht vorbereitet werden",
+    "noEthereumAccount": "Aktivieren Sie ein Ethereum Konto, für die Auszahlungen",
+    "alreadyClaimed": "Bereits beansprucht",
+    "alreadyClaimedBody": "Diese Auszahlung wurde bereits beantragt."
   },
   "trade": {
     "trade": "Handeln",
@@ -1315,6 +1319,7 @@
       "qrCode": "QR Code",
       "addressBook": "Adressbuch",
       "noEntries": "Keine Adresse gefunden.",
+      "contractAddressWarning": "Dies ist eine Vertragsadresse. Bitte prüfen Sie sorgfältig, ob die Überweisung an diese Adresse beabsichtigt ist. Beträge, die an die falsche Vertragsadresse gesendet werden, können verloren gehen.",
       "yourWallets": "Ihre Wallet",
       "noInternalAccounts": "Keine Konten gefunden.",
       "addNewAddress": "Neue Adresse hinzufügen",
@@ -2930,9 +2935,6 @@
   },
   "RFOX": {
     "staking": "rFOX Staking",
-    "bridge": "Wechsel",
-    "bridgeFunds": "Wechsel Betrag",
-    "bridgeSuccess": "Ihr Betrag wurden erfolgreich gewechselt. Sie können jetzt mit dem Staking fortfahren.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Beanspruchen",
@@ -2954,7 +2956,6 @@
     "useWalletAddress": "Wallet Adresse verwenden",
     "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
     "stakeWarning": "Wenn Sie Ihr %{symbol} einsetzen, beachten Sie bitte, dass die Sperrfrist %{cooldownPeriod} beträgt. Das bedeutet, dass Sie, wenn Sie sich entscheiden, Ihre Tokens nicht einzusetzen, %{cooldownPeriod} warten müssen, bevor Sie Ihre Gelder einfordern können.",
-    "bridgeCta": "Sie haben %{assetSymbol} auf %{originNetwork} ausgewählt, aber Sie benötigen %{assetSymbol} auf %{destinationNetwork} zum Staking. Wir können Ihnen helfen, Ihre Mittel auf %{destinationNetwork} zu übertragen. Möchten Sie, dass wir Sie durch den Prozess führen?",
     "unstakeWarning": "Bevor Sie Ihr %{symbol} beanspruchen können, beträgt die Abkühlphase %{cooldownPeriod}. Nach Ablauf dieser Zeit können Sie Ihren nicht eingesetzten Betrag beanspruchen.",
     "tooltips": {
       "stakeAmount": "Dies ist der Betrag an FOX, den Sie Staken werden",
@@ -2969,7 +2970,8 @@
     "changeAddressPending": "RFOX Belohnungsadresse in %{newAddress} ändern",
     "changeAddressSuccess": "RFOX Belohnungsadresse in %{newAddress} geändert",
     "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
-    "unstakeSuccess": "Sobald %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
+    "unstakeSuccess": "Ihre Auszahlung von %{amount} %{symbol} wurde eingeleitet.",
+    "unstakeSuccessNoCooldown": "Ihre %{amount} %{symbol} sind freigegeben und können beansprucht werden.",
     "currentRewardAddress": "Aktuelle Belohnungsadresse",
     "newRewardAddress": "Neue Belohnungsadresse",
     "rewardCycleExplainer": "Dies wird für den nächsten Belohnungszyklus aktualisiert.",
@@ -2982,13 +2984,13 @@
     "errorFetchingClaims": "Beim Abrufen der Ansprüche ist ein Fehler aufgetreten",
     "noClaimsAvailableDescription": "Sie haben keine verfügbaren Ansprüche",
     "unstakeNow": "Unstake des Einsatzes, um FOX zu beanspruchen",
-    "bridgeAndConfirm": "Wechseln & Bestätigen",
     "noSupportedChains": "Netzwerk wird nicht unterstützt",
     "noSupportedChainsDescription": "Fügen Sie %{chainLabel} hinzu oder stellen Sie eine Verbindung zu einer Wallet her, die dies unterstützt.",
     "myStakedBalance": "Mein gestaktes Guthaben",
     "myStakedBalanceHelper": "Der Betrag von %{symbol}, den Sie gestaked haben",
     "pendingRewardsBalance": "Ausstehendes Prämienguthaben",
-    "pendingRewardsBalanceHelper": "Dies ist nur eine Schätzung Ihrer ausstehenden Belohnungen basierend auf den Einnahmen der Epoche bis heute. Die gesamte Abrechnung erfolgt am Ende der Epoche und kann nicht vor Monatsende genau berechnet werden.",
+    "pendingRewardsBalanceTooltip": "Ihre Belohnungen zu diesem Zeitpunkt der Epoche. Diese ändern sich mit den Einnahmen und dem gesamten eingesetzten %{symbol}. Die Auszahlung erfolgt automatisch nach Ende der Epoche.",
+    "claimTooltip": "Sehen Sie sich Ihre nicht gestakten %{symbol} an und beanspruchen Sie sie, sobald die Abklingzeit abgelaufen ist.",
     "lifetimeRewards": "Bisherige Belohnungen",
     "lifetimeRewardsHelper": "Die Gesamtbelohnungen, die Sie bisher durch das Staking Ihres %{symbol} erhalten haben",
     "timeInPool": "Zeit im Pool",
@@ -3035,16 +3037,18 @@
     "foxBuybackAmount": "Rückkaufbetrag von FOX (Diese Epoche)",
     "pendingDistribution": "Ausstehende Verteilung",
     "selectRuneAddress": "Wählen Sie eine RUNE Adresse",
-    "unstakeDisabledMigrationTooltip": "Die Freigabe ist bis zum %{migrationDate} deaktiviert, da an diesem Tag die Abkühlzeit aufgehoben wird.",
     "lpSunsetWarningTitle": "Programm beendet",
     "lpSunsetWarningDescription": "Das Arbitrum WETH/FOX Reward Programm wurde eingestellt. Bitte lösen Sie Ihre Stakebestände auf und fordern Sie Ihr Guthaben so bald wie möglich zurück.",
     "claimInProgress": "Beanspruchen in Bearbeitung",
-    "migrationBannerTitle": "rFOX wechselt zu Ethereum",
-    "migrationBannerDescription": "Das rFOX-Staken wird am %{migrationDate} von Arbitrum zu Ethereum migriert. Bis dahin erhalten Sie weiterhin Belohnungen auf Arbitrum. Anschließend können Sie Ihre FOX-Bestände abheben und übertragen.",
+    "arbitrumSunsetBannerTitle": "Das Staking von rFOX auf Arbitrum ist beendet.",
+    "arbitrumSunsetBannerDescription": "Das rFOX-Staking wurde auf Ethereum übertragen. Beanspruchen Sie alle ihrer FOX-Token bei Arbitrum, bevor Sie sie zu Ethereum übertragen, um weiterhin Belohnungen zu erhalten.",
+    "arbitrumSunsetBannerMoveDescription": "Das Staking von rFOX wurde auf Ethereum verlegt. Übertragen Sie Ihre Arbitrum FOX-Bestände zu Ethereum, um sie dort zu staken.",
+    "arbitrumSunsetBannerViewCta": "Gehe zu Arbitrum",
     "migrationBannerCta": "FOX zu Ethereum verschieben",
-    "stakingPausedTooltip": "Das Staken ist für dieses Programm pausiert.",
-    "unstakingPausedTooltip": "Die Freigabe von Positionen ist für dieses Programm pausiert.",
-    "withdrawalsPausedTooltip": "Beanspruchen ist für dieses Programm vorübergehend ausgesetzt."
+    "stakingPausedTooltip": "Das Staking ist derzeit pausiert.",
+    "stakingEndedTooltip": "Das Staking von %{symbol} auf Arbitrum ist beendet.",
+    "unstakingPausedTooltip": "Das Abheben von Positionen ist derzeit pausiert.",
+    "withdrawalsPausedTooltip": "Das Beanspruchen von Erträgen ist derzeit ausgesetzt."
   },
   "TCY": {
     "stake": "Stake",
@@ -3213,6 +3217,9 @@
   },
   "actionCenter": {
     "title": "Benachrichtigungen",
+    "claims": "Ansprüche",
+    "recent": "Zuletzt",
+    "nothingToClaim": "Nichts zu beanspruchen",
     "viewTransaction": "Transaktion anzeigen",
     "originalTransaction": "Ursprüngliche Transaktion",
     "replacementTransaction": "Ersatztransaktion",
@@ -3280,6 +3287,8 @@
       "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig.",
       "failed": "Das Einfordern von %{amount} %{symbol} ist fehlgeschlagen."
     },
+    "availableSoon": "bald",
+    "claimAvailableOn": "Anspruch verfügbar",
     "yield": {
       "unstakeAvailableIn": "Das Beenden des Stakings für Ihr %{symbol} ist in %{duration} verfügbar.",
       "unstakeReady": "Das Beenden des Stakings für Ihr %{symbol} ist bereit zum Einfordern.",
@@ -3291,8 +3300,9 @@
       "initiated": "Ihr Wechsel von %{sellAmountAndSymbol} zu %{buyAmountAndSymbol} wurde initiiert.",
       "pendingWithdraw": "Ihre Auszahlung von %{amountAndSymbol} wird %{timeText} verfügbar sein.",
       "claimAvailable": "Ihr Wechsel von %{amountAndSymbol} kann beansprucht werden.",
+      "withdrawComplete": "Ihre Übertragung von %{amountAndSymbol} ist fertig.",
+      "withdrawProcessing": "Ihre Übertragung von %{amountAndSymbol} wird verarbeitet.",
       "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen.",
-      "transactionInitiated": "Transaktion eingeleitet",
       "claimWithdraw": "Auszahlung beanspruchen",
       "withdrawTx": "Tx abheben",
       "claimTx": "Anspruch Tx"
@@ -3304,6 +3314,8 @@
       "expired": "Ihre Bestellung zum Kauf von %{buyAmountAndSymbol} für %{sellAmountAndSymbol} ist abgelaufen."
     },
     "rfox": {
+      "unstakeTx": "Abhebungs Tx",
+      "unstakePending": "Ihr Einsatz von %{amount} %{symbol} steht Ihnen ab %{timeText} zur Verfügung.",
       "unstakeReady": "Ihr nicht beanspruchter Anteil von %{amount} %{symbol} kann eingefordert werden.",
       "unstakeTxPending": "Ihr nicht beanspruchter Anteil  von %{amount} %{symbol} steht noch aus.",
       "unstakeTxComplete": "Ihr nicht beanspruchter Anteil  von %{amount} %{symbol} ist abgeschlossen."
@@ -3505,6 +3517,7 @@
       "quoteFailedTitle": "Angebot fehlgeschlagen",
       "quoteFailedDescription": "Für diese Transaktion konnte kein Angebot eingeholt werden. Bitte versuchen Sie es erneut.",
       "insufficientAssetForGas": "Unzureichendes %{symbol} für Gasgebühr",
+      "tronFeeLimitBelowEstimate": "Das Gebührenlimit des Anbieters liegt unter den geschätzten Netzwerkgebühren. Bitte versuchen Sie es später erneut.",
       "rateLimited": "Zu viele Anfragen"
     },
     "underMaintenance": "In Wartung",

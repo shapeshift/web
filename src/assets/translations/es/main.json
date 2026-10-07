@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "Dirección para Reclamar",
-    "confirmAndClaim": "Confirmar y Reclamar"
+    "confirmAndClaim": "Confirmar y Reclamar",
+    "claimTxDataFailed": "No se pudo preparar la transacción de reclamación.",
+    "noEthereumAccount": "Habilite una cuenta Ethereum para pagar la reclamación",
+    "alreadyClaimed": "Ya reclamado",
+    "alreadyClaimedBody": "Este retiro ya ha sido solicitado."
   },
   "trade": {
     "trade": "Intercambiar",
@@ -1315,6 +1319,7 @@
       "qrCode": "Código QR",
       "addressBook": "Libro de Direcciones",
       "noEntries": "Ninguna dirección encontrada.",
+      "contractAddressWarning": "Esta es una dirección de contrato. Por favor, verifique la dirección. Fondos enviados a dirección incorrecta se perderan.",
       "yourWallets": "Tus Billeteras",
       "noInternalAccounts": "No se encontraron cuentas.",
       "addNewAddress": "Agregar Nueva Dirección",
@@ -2930,9 +2935,6 @@
   },
   "RFOX": {
     "staking": "Staking rFOX",
-    "bridge": "Bridge",
-    "bridgeFunds": "Bridge Fondos",
-    "bridgeSuccess": "Sus fondos han Bridge exitosamente. Ahora puede continuar Staking.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Reclamar",
@@ -2954,7 +2956,6 @@
     "useWalletAddress": "Usar dirección de billetera",
     "useCustomAddress": "Usar dirección personalizada",
     "stakeWarning": "Cuando hagas staking de tus %{symbol}, ten en cuenta que el período de bloqueo es %{cooldownPeriod}. Significa que, si decides dejar de hacer staking, tendrás que esperar %{cooldownPeriod} antes de poder reclamar tus fondos.",
-    "bridgeCta": "Seleccionó %{assetSymbol} en %{originNetwork}, pero necesitará %{assetSymbol} en %{destinationNetwork} para staking. Podemos ayudar a transferir sus fondos a %{destinationNetwork}. ¿Quieres que te guiemos en el proceso?",
     "unstakeWarning": "Antes de poder reclamar tu %{symbol}, el período de recuperación es %{cooldownPeriod}. Una vez transcurrido, podrás reclamar el monto que retiras de staking.",
     "tooltips": {
       "stakeAmount": "Esta es la cantidad de FOX que Stake",
@@ -2969,7 +2970,8 @@
     "changeAddressPending": "Cambiar dirección de recompensas RFOX a %{newAddress}",
     "changeAddressSuccess": "Dirección cambiada para recompensas RFOX a %{newAddress}",
     "unstakePending": "Solicitando retiro de %{amount} %{symbol}",
-    "unstakeSuccess": "Una vez transcurrido %{cooldownPeriod} podrás reclamar tu %{amount} %{symbol}",
+    "unstakeSuccess": "Iniciada liberación de %{amount} %{symbol}.",
+    "unstakeSuccessNoCooldown": "Tu %{amount} %{symbol} está fuera de staking y listo para ser reclamado.",
     "currentRewardAddress": "Dirección de Recompensa Actual",
     "newRewardAddress": "Nueva Dirección de Recompensa",
     "rewardCycleExplainer": "Esto se actualizará para el próximo ciclo de recompensas.",
@@ -2982,13 +2984,13 @@
     "errorFetchingClaims": "Se produjo error al recuperar sus reclamos.",
     "noClaimsAvailableDescription": "No tienes ningún reclamo disponible",
     "unstakeNow": "Retira de staking para reclamar tus FOX",
-    "bridgeAndConfirm": "Bridge y Confirmar",
     "noSupportedChains": "Cadena no compatible",
     "noSupportedChainsDescription": "Agregue %{chainLabel} o conecte billetera que la admita.",
     "myStakedBalance": "Mi Balance en Staking",
     "myStakedBalanceHelper": "La cantidad de %{symbol} que posees en staking",
     "pendingRewardsBalance": "Saldo de Recompensas Pendiente",
-    "pendingRewardsBalanceHelper": "Esta es solo una estimación de recompensas pendientes según ingresos de la época hasta la fecha. La contabilidad se realiza al final de la época y no se puede calcular exactamente antes de fin de mes.",
+    "pendingRewardsBalanceTooltip": "Tus recompensas en este punto de la época. Esto cambiará a medida que varíen los ingresos y el porcentaje total de %{symbol} en staking. Se pagarán automáticamente al finalizar la época.",
+    "claimTooltip": "Vea su %{symbol} sin staking y reclame cuando haya transcurrido su tiempo de espera.",
     "lifetimeRewards": "Recompensas de por Vida",
     "lifetimeRewardsHelper": "Recompensas totales que ha obtenido por staking %{symbol} hasta la fecha",
     "timeInPool": "Tiempo en Pool",
@@ -3035,16 +3037,18 @@
     "foxBuybackAmount": "Recompra de FOX (en esta época)",
     "pendingDistribution": "Distribución Pendiente",
     "selectRuneAddress": "Seleccione una dirección RUNE",
-    "unstakeDisabledMigrationTooltip": "La retirada de Staking estará deshabilitada hasta el %{migrationDate}, momento en el que se eliminará el período de espera.",
     "lpSunsetWarningTitle": "Programa Finalizado",
     "lpSunsetWarningDescription": "El programa de recompensas WETH/FOX de Arbitrum ha finalizado. Por favor, cancele su staking y reclame su saldo lo antes posible.",
     "claimInProgress": "Reclamo en curso",
-    "migrationBannerTitle": "rFOX se está migrando a Ethereum.",
-    "migrationBannerDescription": "Staking de rFOX se trasladará de Arbitrum a Ethereum el %{migrationDate}. Seguirás obteniendo recompensas en Arbitrum hasta entonces, una vez se habilite el unstaking podras transferir tus FOX.",
+    "arbitrumSunsetBannerTitle": "Staking de rFOX en Arbitrum ha finalizado.",
+    "arbitrumSunsetBannerDescription": "Staking de rFOX fue trasladado a Ethereum. Retira tus FOX de staking y reclame su inversión en Arbitrum; luego, transfiéralos a Ethereum para seguir obteniendo recompensas.",
+    "arbitrumSunsetBannerMoveDescription": "Staking de rFOX se trasladado a Ethereum. Traslada tus Arbitrum FOX a Ethereum para hacer staking.",
+    "arbitrumSunsetBannerViewCta": "Ir a Arbitrum",
     "migrationBannerCta": "Trasladar FOX a Ethereum",
-    "stakingPausedTooltip": "Staking suspendido para este programa.",
-    "unstakingPausedTooltip": "Retirar staking está en pausa para este programa.",
-    "withdrawalsPausedTooltip": "Reclamar está suspendida para este programa."
+    "stakingPausedTooltip": "Staking en pausa.",
+    "stakingEndedTooltip": "Staking de %{symbol} en Arbitrum ha finalizado.",
+    "unstakingPausedTooltip": "Desbloqueo de staking en pausa.",
+    "withdrawalsPausedTooltip": "El proceso para reclamar en pausa."
   },
   "TCY": {
     "stake": "Stake",
@@ -3213,6 +3217,9 @@
   },
   "actionCenter": {
     "title": "Notificaciones",
+    "claims": "Reclamos",
+    "recent": "Reciente",
+    "nothingToClaim": "Nada que reclamar",
     "viewTransaction": "Ver Transacción",
     "originalTransaction": "Transacción Original",
     "replacementTransaction": "Transacción de Reemplazo",
@@ -3280,6 +3287,8 @@
       "complete": "Su reclamo de %{amount} %{symbol} está completo.",
       "failed": "Su reclamo de %{amount} %{symbol} ha fallado."
     },
+    "availableSoon": "pronto",
+    "claimAvailableOn": "Reclamo disponible",
     "yield": {
       "unstakeAvailableIn": "Tu retiro del staking de %{symbol} estará disponible en %{duration}.",
       "unstakeReady": "Tu retiro del staking de %{symbol} está listo para reclamar.",
@@ -3291,8 +3300,9 @@
       "initiated": "Se ha iniciado su bridge de %{sellAmountAndSymbol} a %{buyAmountAndSymbol}.",
       "pendingWithdraw": "Su retiro de %{amountAndSymbol} estará disponible %{timeText}.",
       "claimAvailable": "Su bridge de %{amountAndSymbol} está disponible para reclamar.",
+      "withdrawComplete": "Su bridge de %{amountAndSymbol} ha completado.",
+      "withdrawProcessing": "Su bridge de %{amountAndSymbol} esta siendo procesado.",
       "failed": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} ha fallado.",
-      "transactionInitiated": "Transacción Iniciada",
       "claimWithdraw": "Reclamar Retiro",
       "withdrawTx": "Retirar Tx",
       "claimTx": "Reclamar Tx"
@@ -3304,6 +3314,8 @@
       "expired": "Orden para comprar %{buyAmountAndSymbol} por %{sellAmountAndSymbol} expiró."
     },
     "rfox": {
+      "unstakeTx": "Tx para retirar Staking",
+      "unstakePending": "%{amount} %{symbol} retirado de staking estará disponible %{timeText}.",
       "unstakeReady": "Unstake de %{amount} %{symbol} está listo para reclamar.",
       "unstakeTxPending": "Unstake de %{amount} %{symbol} está pendiente.",
       "unstakeTxComplete": "Unstake de %{amount} %{symbol} completado."
@@ -3505,6 +3517,7 @@
       "quoteFailedTitle": "Cotización fallida",
       "quoteFailedDescription": "No se pudo obtener una cotización para esta transacción. Inténtelo de nuevo.",
       "insufficientAssetForGas": "%{symbol} insuficiente para Gas",
+      "tronFeeLimitBelowEstimate": "Límite de tarifa del proveedor es inferior a la tarifa de red estimada. inténtelo de nuevo más tarde.",
       "rateLimited": "Demasiadas Peticiones"
     },
     "underMaintenance": "En Mantenimiento",

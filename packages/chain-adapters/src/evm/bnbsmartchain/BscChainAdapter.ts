@@ -75,9 +75,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
       const { fast, average, slow, baseFeePerGas } = await this.providers.http.getGasFees()
       return { fast, average, slow, baseFeePerGas }
     } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getGasFeeData',
-      })
+      return this.getGasFeeDataRpcFallback(err)
     }
   }
 
@@ -85,9 +83,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
     input: GetFeeDataInput<KnownChainIds.BnbSmartChainMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.BnbSmartChainMainnet>> {
     try {
-      const { gasLimit } = await this.providers.http.estimateGas({
-        estimateGasBody: this.buildEstimateGasBody(input),
-      })
+      const { gasLimit } = await this.getGasLimit(input)
 
       const { fast, average, slow, baseFeePerGas } = await this.getGasFeeData()
 

@@ -4,17 +4,15 @@ import { viemBaseClient } from '@shapeshiftoss/contracts'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import BigNumber from 'bignumber.js'
 import type { Hex } from 'viem'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
-import type { BroadcastTransactionInput, FeeDataEstimate, GetFeeDataInput } from '../../types'
+import type { BroadcastTransactionInput, GetFeeDataInput } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
-import { bnOrZero } from '../../utils'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
-import type { GasFeeDataEstimate } from '../types'
+import type { GasFeeDataEstimate, GasLimitEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.BaseMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.BaseMainnet
@@ -77,52 +75,21 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BaseMainnet> {
         slow: { ...slow, l1GasPrice },
       }
     } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getGasFeeData',
-      })
+      return this.getGasFeeDataRpcFallback(err)
     }
   }
 
-  async getFeeData(
+  async getGasLimit(
     input: GetFeeDataInput<KnownChainIds.BaseMainnet>,
-  ): Promise<FeeDataEstimate<KnownChainIds.BaseMainnet>> {
+  ): Promise<GasLimitEstimate> {
+    const estimateGasBody = this.buildEstimateGasBody(input)
+
     try {
-      const { gasLimit, l1GasLimit } = await this.api.estimateGas({
-        estimateGasBody: this.buildEstimateGasBody(input),
-      })
-
-      const { fast, average, slow } = await this.getGasFeeData()
-
-      return {
-        fast: {
-          txFee: bnOrZero(
-            BigNumber.max(fast.gasPrice, fast.maxFeePerGas ?? 0)
-              .times(gasLimit)
-              .plus(bnOrZero(fast.l1GasPrice).times(l1GasLimit)),
-          ).toFixed(0),
-          chainSpecific: { gasLimit, l1GasLimit, ...fast },
-        },
-        average: {
-          txFee: bnOrZero(
-            BigNumber.max(average.gasPrice, average.maxFeePerGas ?? 0)
-              .times(gasLimit)
-              .plus(bnOrZero(average.l1GasPrice).times(l1GasLimit)),
-          ).toFixed(0),
-          chainSpecific: { gasLimit, l1GasLimit, ...average },
-        },
-        slow: {
-          txFee: bnOrZero(
-            BigNumber.max(slow.gasPrice, slow.maxFeePerGas ?? 0)
-              .times(gasLimit)
-              .plus(bnOrZero(slow.l1GasPrice).times(l1GasLimit)),
-          ).toFixed(0),
-          chainSpecific: { gasLimit, l1GasLimit, ...slow },
-        },
-      }
+      const { gasLimit, l1GasLimit } = await this.api.estimateGas({ estimateGasBody })
+      return { gasLimit, l1GasLimit }
     } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getFeeData',
-      })
+      // RPC fallback has no L1 data, so the L1 fee reads 0 until unchained recovers
+      return { gasLimit: await this.estimateGasRpcFallback(estimateGasBody, err) }
     }
   }
 

@@ -12,6 +12,7 @@ import {
   getTronContractCallFallbackFeeCryptoBaseUnit,
   getTronContractCallNetworkFeeCryptoBaseUnit,
 } from '../../../utils/tron'
+import { chainIdToSymbiosisChainId } from './constants'
 import { buildSymbiosisTronCallData } from './helpers'
 import type { SymbiosisSwapTx } from './types'
 
@@ -51,6 +52,10 @@ export async function getSymbiosisStepData(
   // Symbiosis adds its own fee to the native value on other route kinds - a step must send exactly the sell amount
   const expectedValue = isToken(sellAsset.assetId) ? '0' : sellAmountCryptoBaseUnit
   if (!bnOrZero(swapTx.tx.value).eq(expectedValue)) {
+    return Err(makeTradeStepBuildFailedErr('getSymbiosisStepData'))
+  }
+
+  if (swapTx.tx.chainId !== chainIdToSymbiosisChainId[sellAsset.chainId]) {
     return Err(makeTradeStepBuildFailedErr('getSymbiosisStepData'))
   }
 

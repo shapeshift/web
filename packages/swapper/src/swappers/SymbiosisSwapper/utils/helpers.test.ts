@@ -187,15 +187,9 @@ describe('getSymbiosisTradeStatus', () => {
 })
 
 describe('isTronSourceTxFailed', () => {
-  it('is true for a mined transaction whose contract call did not succeed', () => {
-    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'REVERT' }], confirmations: 3 })).toBe(true)
-    expect(
-      isTronSourceTxFailed({ ret: [{ contractRet: 'OUT_OF_ENERGY' }], confirmations: 1 }),
-    ).toBe(true)
-  })
-
-  it('is false until the transaction is mined', () => {
-    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'REVERT' }], confirmations: 0 })).toBe(false)
-    expect(isTronSourceTxFailed({ confirmations: 0 })).toBe(false)
+  it('is true for any contract result other than SUCCESS', () => {
+    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'REVERT' }] })).toBe(true)
+    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'OUT_OF_ENERGY' }] })).toBe(true)
+    expect(isTronSourceTxFailed({ ret: [{ contractRet: 'SUCCESS' }] })).toBe(false)
   })
 })

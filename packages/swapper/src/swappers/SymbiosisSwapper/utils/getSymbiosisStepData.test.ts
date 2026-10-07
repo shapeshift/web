@@ -120,6 +120,20 @@ describe('getSymbiosisStepData', () => {
       expect(getEvmNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
     })
 
+    it('fails to build when the payload is for another chain', async () => {
+      const swapTx: SymbiosisSwapTx = { type: 'evm', tx: { ...evmSwapTx.tx, chainId: 1 } }
+
+      const result = await getSymbiosisStepData({
+        ...evmArgs,
+        swapTx,
+        type: 'quote',
+        input: quoteInput,
+      })
+
+      expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
+      expect(getEvmNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
+    })
+
     it('builds a native sell whose value is exactly the sell amount', async () => {
       vi.mocked(getEvmNetworkFeeCryptoBaseUnit).mockResolvedValue('1234')
 

@@ -193,12 +193,10 @@ export const symbiosisErrorToTradeQuoteError = (message: string | undefined): Tr
 }
 
 // A mined Tron call that did not succeed (REVERT, OUT_OF_ENERGY, ...) never reaches Symbiosis, which answers not found for it
-export const isTronSourceTxFailed = (
-  tx: { ret?: { contractRet?: string }[]; confirmations: number } | null,
-): boolean => {
-  const contractRet = tx?.ret?.[0]?.contractRet
+export const isTronSourceTxFailed = (tx: { ret?: { contractRet?: string }[] }): boolean => {
+  const contractRet = tx.ret?.[0]?.contractRet
 
-  return Boolean(tx && contractRet && contractRet !== 'SUCCESS' && tx.confirmations > 0)
+  return contractRet !== undefined && contractRet !== 'SUCCESS'
 }
 
 export const getSymbiosisTradeStatus = ({

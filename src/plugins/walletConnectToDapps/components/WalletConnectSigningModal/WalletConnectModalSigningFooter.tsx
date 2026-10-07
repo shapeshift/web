@@ -145,14 +145,17 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const speed = formContext?.watch('speed')
   const gasLimit = formContext?.watch('gasLimit')
 
-  const { simulationQuery } = useSimulateEvmTransaction({
+  const { simulationQuery, gasEstimateQuery } = useSimulateEvmTransaction({
     transaction,
     chainId,
     speed,
   })
 
   const isSimulationLoading = simulationQuery.isLoading
-  const isGasLimitMissing = !!transaction && !gasLimit
+  const isGasEstimateLoading = gasEstimateQuery.isLoading
+
+  // A cached estimate is written into the form before it mounts and watch() never sees it
+  const isGasLimitMissing = !!transaction && !gasLimit && !gasEstimateQuery.data?.baseGasLimit
 
   const handleSubmit = useCallback(() => {
     if (!formContext?.handleSubmit) return onConfirm()
@@ -185,8 +188,10 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
             colorScheme='blue'
             type='submit'
             onClick={handleSubmit}
-            isLoading={isSubmitting || isSimulationLoading}
-            isDisabled={isSubmitting || isSimulationLoading || isGasLimitMissing}
+            isLoading={isSubmitting || isSimulationLoading || isGasEstimateLoading}
+            isDisabled={
+              isSubmitting || isSimulationLoading || isGasEstimateLoading || isGasLimitMissing
+            }
             _disabled={disabledProp}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}

@@ -54,7 +54,7 @@ const selectCoingeckoAssets = (
         topMover.details.detail_platforms[topMover.details.asset_platform_id]?.decimal_place
       if (!feeAsset) return acc
 
-      const asset = makeAsset(assets, {
+      const asset = makeAsset({
         assetId,
         symbol: topMover.details.symbol,
         name: topMover.details.name,

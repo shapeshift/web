@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "Alıcı Adresi Talep Et",
-    "confirmAndClaim": "Onayla ve Talep Et"
+    "confirmAndClaim": "Onayla ve Talep Et",
+    "claimTxDataFailed": "Talep işlemi hazırlanamadı.",
+    "noEthereumAccount": "Talep işlemini gerçekleştirmek için bir Ethereum hesabını etkinleştirin.",
+    "alreadyClaimed": "Zaten talep edildi",
+    "alreadyClaimedBody": "Bu talep çekme işlemi zaten gerçekleştirildi."
   },
   "trade": {
     "trade": "Takas",
@@ -1315,6 +1319,7 @@
       "qrCode": "QR Kod",
       "addressBook": "Adres Defteri",
       "noEntries": "Adres bulunamadı.",
+      "contractAddressWarning": "Bu bir sözleşme adresidir. Buraya gönderimin bilinçli olduğundan emin olun. Yanlış sözleşmeye gönderilen paralar kaybolabilir.",
       "yourWallets": "Cüzdanlarınız",
       "noInternalAccounts": "Hesap bulunamadı.",
       "addNewAddress": "Yeni Adres Ekle",
@@ -2930,9 +2935,6 @@
   },
   "RFOX": {
     "staking": "rFOX Stake Etme",
-    "bridge": "Köprü",
-    "bridgeFunds": "Köprü Fonları",
-    "bridgeSuccess": "Paranız başarıyla köprülendi. Artık stake etmeye devam edebilirsiniz.",
     "stake": "Stake",
     "unstake": "Stake Kaldır",
     "claim": "Topla",
@@ -2954,7 +2956,6 @@
     "useWalletAddress": "Cüzdan adresini kullan",
     "useCustomAddress": "Özel adres kullan",
     "stakeWarning": "%{symbol}'unuzu stake ettiğinizde lütfen kilitlenme süresinin %{cooldownPeriod} olduğunu unutmayın. Bu, token'larınızı stake etmemeye karar verirseniz, fonlarınızı talep edebilmeniz için %{cooldownPeriod} beklemeniz gerekeceği anlamına gelir.",
-    "bridgeCta": "%{originNetwork} üzerinde %{assetSymbol}'ı seçtiniz, ancak stake etmek için %{destinationNetwork} üzerinde %{assetSymbol}'a ihtiyacınız olacak. Paranızı %{destinationNetwork}'a bağlamanıza yardımcı olabiliriz. Süreç boyunca size rehberlik etmemizi ister misiniz?",
     "unstakeWarning": "%{symbol}'unuzu talep edebilmeniz için gereken soğuma süresi %{cooldownPeriod}'dur. Bu süre geçtikten sonra stake etmediğiniz miktarı talep edebileceksiniz.",
     "tooltips": {
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
@@ -2969,6 +2970,8 @@
     "changeAddressPending": "RFOX Ödül Adresi %{newAddress} Olarak Değiştiriliyor",
     "changeAddressSuccess": "RFOX Ödül Adresi %{newAddress} olarak değiştirildi",
     "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
+    "unstakeSuccess": "%{amount} %{symbol} tutarındaki yatırımınızın çekilmesi başlatıldı.",
+    "unstakeSuccessNoCooldown": "%{amount} %{symbol} tutarınız stake'ten çıkarıldı ve talep edilmeye hazır.",
     "currentRewardAddress": "Güncel Ödül Adresi",
     "newRewardAddress": "Yeni Ödül Adresi",
     "rewardCycleExplainer": "Bu, bir sonraki ödül döngüsü için güncellenecektir.",
@@ -2981,13 +2984,13 @@
     "errorFetchingClaims": "Hak talepleri alınırken bir hata oluştu",
     "noClaimsAvailableDescription": "Kullanılabilir talebiniz yok",
     "unstakeNow": "FOX'u Almak İçin Stake'i kaldırın",
-    "bridgeAndConfirm": "Köprüle ve Onayla",
     "noSupportedChains": "Zincir desteklenmiyor",
     "noSupportedChainsDescription": "%{chainLabel} ekleyin veya onu destekleyen bir cüzdana bağlanın.",
     "myStakedBalance": "Stake Edilmiş Bakiyem",
     "myStakedBalanceHelper": "Stake ettiğiniz %{symbol} miktarı",
     "pendingRewardsBalance": "Bekleyen Ödül Bakiyesi",
-    "pendingRewardsBalanceHelper": "Bu yalnızca dönemden günümüze kadar olan gelirlere dayalı olarak bekleyen ödüllerinizin bir tahminidir. Tüm muhasebe dönem sonunda yapılır ve tam olarak ay sonundan önce hesaplanamaz",
+    "pendingRewardsBalanceTooltip": "Dönemin bu noktasındaki ödülleriniz. Gelir ve toplam %{symbol} stake edilen miktar değiştikçe bu da değişecektir. Dönem sona erdikten sonra otomatik olarak ödenir.",
+    "claimTooltip": "Henüz stake edilmemiş %{symbol}'unuzu görüntüleyin ve bekleme süresi dolduktan sonra talep edin.",
     "lifetimeRewards": "Ömür Boyu Ödüller",
     "lifetimeRewardsHelper": "Bugüne kadar %{symbol}'unuzu stake ederek kazandığınız toplam ödüller",
     "timeInPool": "Havuzda Kalma Süresi",
@@ -3034,13 +3037,18 @@
     "foxBuybackAmount": "FOX Geri Alım Miktarı (Bu Dönem)",
     "pendingDistribution": "Bekleyen Dağıtım",
     "selectRuneAddress": "Bir RUNE adresi seçin",
-    "unstakeDisabledMigrationTooltip": "Stake kaldırma işlemi, bekleme süresi kaldırılana kadar (%{migrationDate}) devre dışı bırakılmıştır.",
     "lpSunsetWarningTitle": "Program Sona Erdi",
     "lpSunsetWarningDescription": "Arbitrum WETH/FOX Ödül programı sona ermiştir. Lütfen en kısa sürede stake'lerinizi geri çekin ve bakiyenizi talep edin.",
     "claimInProgress": "Başvuru süreci devam ediyor.",
-    "migrationBannerTitle": "rFOX Ethereum'a geçiyor",
-    "migrationBannerDescription": "rFOX staking işlemi %{migrationDate} tarihinde Arbitrum'dan Ethereum'a taşınıyor. FOX'larınızı taşıyabilmeniz için staking işleminin açılmasına kadar Arbitrum'da ödül kazanmaya devam edeceksiniz.",
-    "migrationBannerCta": "FOX'u Ethereum'a taşıyın"
+    "arbitrumSunsetBannerTitle": "rFOX'un Arbitrum'daki stake işlemi sona erdi.",
+    "arbitrumSunsetBannerDescription": "rFOX staking işlemi Ethereum'a taşındı. Arbitrum'da FOX'larınızı stake'ten çıkarın ve talep edin, ardından ödül kazanmaya devam etmek için Ethereum'a taşıyın.",
+    "arbitrumSunsetBannerMoveDescription": "rFOX staking işlemi Ethereum'a taşındı. Stake etmek için Arbitrum FOX'unuzu Ethereum'a taşıyın.",
+    "arbitrumSunsetBannerViewCta": "Arbitrum'a Git",
+    "migrationBannerCta": "FOX'u Ethereum'a taşıyın",
+    "stakingPausedTooltip": "Staking işlemi şu anda durdurulmuştur.",
+    "stakingEndedTooltip": "Arbitrum'da %{symbol} stake etme işlemi sona erdi.",
+    "unstakingPausedTooltip": "Stake geri alma işlemi şu anda duraklatıldı.",
+    "withdrawalsPausedTooltip": "Talep işlemleri şu anda durdurulmuştur."
   },
   "TCY": {
     "stake": "Stake",
@@ -3209,6 +3217,9 @@
   },
   "actionCenter": {
     "title": "Bildirimler",
+    "claims": "Talepler",
+    "recent": "Son",
+    "nothingToClaim": "Talep edilecek bir şey yok.",
     "viewTransaction": "İşlemi Görüntüle",
     "originalTransaction": "Orijinal İşlem",
     "replacementTransaction": "Değiştirilen İşlem",
@@ -3276,6 +3287,8 @@
       "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı.",
       "failed": "%{amount} %{symbol} talep işleminiz başarısız oldu."
     },
+    "availableSoon": "yakında",
+    "claimAvailableOn": "Talep Mevcut",
     "yield": {
       "unstakeAvailableIn": "%{symbol} stake kaldırma işleminiz %{duration} içinde kullanılabilir olacak.",
       "unstakeReady": "%{symbol} stake kaldırma işleminiz talep edilmeye hazır.",
@@ -3287,8 +3300,9 @@
       "initiated": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki köprünüz başlatıldı.",
       "pendingWithdraw": "%{amountAndSymbol} tutarındaki çekim işleminiz %{timeText} tarihinde gerçekleştirilebilecek.",
       "claimAvailable": "%{amountAndSymbol} köprünüz talep edilebilir.",
+      "withdrawComplete": "%{amountAndSymbol} köprünüz tamamlandı.",
+      "withdrawProcessing": "%{amountAndSymbol} köprünüz işleniyor.",
       "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu.",
-      "transactionInitiated": "İşlem Başlatıldı",
       "claimWithdraw": "Talep Geri Çekme",
       "withdrawTx": "Tx'i Çek",
       "claimTx": "Talep Tx"
@@ -3300,6 +3314,8 @@
       "expired": "%{buyAmountAndSymbol} ürününü %{sellAmountAndSymbol} karşılığında satın alma emriniz sona erdi."
     },
     "rfox": {
+      "unstakeTx": "Unstake Tx",
+      "unstakePending": "%{amount} %{symbol} tutarındaki yatırımınız %{timeText} tarihinde kullanılabilir olacaktır.",
       "unstakeReady": "%{amount} %{symbol} tutarındaki hisse senedinizi talep etmeye hazırsınız.",
       "unstakeTxPending": "%{amount} %{symbol} tutarındaki hisse senedinden çekilme talebiniz beklemede.",
       "unstakeTxComplete": "%{amount} %{symbol} tutarındaki hisse senedinden çekilme işleminiz tamamlandı."
@@ -3378,7 +3394,8 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",
@@ -3500,6 +3517,7 @@
       "quoteFailedTitle": "Alıntı başarısız oldu.",
       "quoteFailedDescription": "Bu işlem için fiyat teklifi alınamadı. Lütfen tekrar deneyin.",
       "insufficientAssetForGas": "Yetersiz Gaz %{symbol}",
+      "tronFeeLimitBelowEstimate": "Sağlayıcının ücret limiti, tahmini ağ ücretinin altında. Lütfen daha sonra tekrar deneyin.",
       "rateLimited": "Çok Fazla İstek"
     },
     "underMaintenance": "Bakımda",

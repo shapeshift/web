@@ -4,7 +4,6 @@ import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isMetaMask,
-  isPhantom,
   isVultisig,
   isWalletConnectV2,
   supportsBTC,
@@ -120,7 +119,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         // MetaMask snaps adapter only supports legacy for BTC and LTC
         supportedAccountTypes = [UtxoAccountType.P2pkh]
       }
-      if (isPhantom(wallet) || isVultisig(wallet) || isWalletConnectV2(wallet)) {
+      if (isVultisig(wallet) || isWalletConnectV2(wallet)) {
         supportedAccountTypes = [UtxoAccountType.SegwitNative]
       }
       for (const accountType of supportedAccountTypes) {

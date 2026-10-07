@@ -156,7 +156,7 @@ const main = async () => {
     `[generate:chain] replaced ${oldAssetIds.size} old assets with ${orderedNewAssets.length} new assets`,
   )
 
-  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(existingData, null, 2))
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(existingData))
 
   // Generate related asset index for ONLY this chain's assets
   const { generateChainRelatedAssetIndex } = await import(

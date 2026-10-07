@@ -60,7 +60,6 @@ export async function getSymbiosisStepData(
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
       const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
-      // Symbiosis supplies no gas limit - the fee helper estimates and sets it
       const transactionData = {
         type: 'evm' as const,
         chainId: Number(fromChainId(sellAsset.chainId).chainReference),
@@ -72,7 +71,6 @@ export async function getSymbiosisStepData(
       const stateOverride = { sellAsset, sellAmountCryptoBaseUnit, spenderAddress }
 
       if (type === 'rate') {
-        // Symbiosis returns no source gas figure, so a failed estimate leaves the rate fee unknown
         const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
           adapter,
           transactionData,

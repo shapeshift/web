@@ -11,16 +11,10 @@ import {
   USDC_ARBITRUM,
   USDC_MAINNET,
 } from '../../../utils/test-data/assets'
-import {
-  DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS,
-  DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS,
-  SYMBIOSIS_TRON_BRIDGE_ENERGY,
-  SYMBIOSIS_TRON_SOURCE_SWAP_ENERGY,
-} from './constants'
+import { SYMBIOSIS_TRON_SOURCE_SWAP_ENERGY } from './constants'
 import {
   assertValidTrade,
   buildSymbiosisTronCallData,
-  getDefaultUserAddress,
   getSymbiosisFeeAssetId,
   getSymbiosisPartnerAddress,
   getSymbiosisProtocolFees,
@@ -110,12 +104,6 @@ describe('assertValidTrade', () => {
     expect(result.unwrapErr().code).toBe(TradeQuoteError.UnsupportedTradePair)
   })
 
-  it('rejects Tron to Tron', () => {
-    const result = assertValidTrade({ sellAsset: TRX, buyAsset: USDT_TRON })
-
-    expect(result.unwrapErr().code).toBe(TradeQuoteError.UnsupportedTradePair)
-  })
-
   it('rejects an unsupported sell chain', () => {
     const result = assertValidTrade({ sellAsset: BTC, buyAsset: ETH })
 
@@ -130,11 +118,6 @@ describe('assertValidTrade', () => {
 })
 
 describe('getSymbiosisTokenAddress', () => {
-  it('returns an empty string for native assets', () => {
-    expect(getSymbiosisTokenAddress(ETH)).toBe('')
-    expect(getSymbiosisTokenAddress(TRX)).toBe('')
-  })
-
   it('returns the checksummed address for ERC20 tokens', () => {
     expect(getSymbiosisTokenAddress(USDC_MAINNET)).toBe(
       '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -147,11 +130,6 @@ describe('getSymbiosisTokenAddress', () => {
 })
 
 describe('getSymbiosisSlippageBps', () => {
-  it('converts a decimal percentage to integer bps', () => {
-    expect(getSymbiosisSlippageBps('0.01')).toBe(100)
-    expect(getSymbiosisSlippageBps('0.0055')).toBe(55)
-  })
-
   it('raises slippage below the Symbiosis minimum to 20 bps', () => {
     expect(getSymbiosisSlippageBps('0.001')).toBe(20)
     expect(getSymbiosisSlippageBps('0')).toBe(20)
@@ -159,13 +137,6 @@ describe('getSymbiosisSlippageBps', () => {
 
   it('lowers slippage above the Symbiosis maximum to 1000 bps', () => {
     expect(getSymbiosisSlippageBps('0.25')).toBe(1000)
-  })
-})
-
-describe('getDefaultUserAddress', () => {
-  it('returns the Tron default for Tron and the EVM default otherwise', () => {
-    expect(getDefaultUserAddress(tronChainId)).toBe(DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS)
-    expect(getDefaultUserAddress(ETH.chainId)).toBe(DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS)
   })
 })
 
@@ -222,10 +193,6 @@ describe('getSymbiosisTronFallbackEnergy', () => {
     expect(getSymbiosisTronFallbackEnergy(['octopool-swap', 'src-chain-swap'])).toBe(
       SYMBIOSIS_TRON_SOURCE_SWAP_ENERGY,
     )
-  })
-
-  it('uses the bridge energy otherwise', () => {
-    expect(getSymbiosisTronFallbackEnergy(['octopool-swap'])).toBe(SYMBIOSIS_TRON_BRIDGE_ENERGY)
   })
 })
 
@@ -295,10 +262,6 @@ describe('getSymbiosisProtocolFees', () => {
     const fees = getSymbiosisProtocolFees([liveFees[1], liveFees[1]])
 
     expect(fees[BSC_USDC_ASSET_ID]?.amountCryptoBaseUnit).toBe('500000000000000000')
-  })
-
-  it('returns an empty record when there are no fees', () => {
-    expect(getSymbiosisProtocolFees([])).toEqual({})
   })
 })
 

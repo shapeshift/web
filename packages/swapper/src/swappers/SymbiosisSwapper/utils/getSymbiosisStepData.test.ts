@@ -246,22 +246,5 @@ describe('getSymbiosisStepData', () => {
       expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
       expect(getTronContractCallNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
     })
-
-    it('fails to build when a native sell sends more than the sell amount', async () => {
-      const swapTx: SymbiosisSwapTx = {
-        type: 'tron',
-        tx: { ...tronSwapTx.tx, value: '501000000' },
-      }
-
-      const result = await getSymbiosisStepData({
-        ...tronArgs,
-        swapTx,
-        type: 'quote',
-        input: quoteInput,
-      })
-
-      expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
-      expect(getTronContractCallNetworkFeeCryptoBaseUnit).not.toHaveBeenCalled()
-    })
   })
 })

@@ -11,17 +11,28 @@ import { isContractAddress } from '@/lib/utils/isContractAddress'
 export type AssetResultsProps = {
   results: Asset[]
   onClick: (arg: Asset) => void
+  onImportClick: (arg: Asset) => void
   searchQuery?: string
 }
 
-export const AssetResults: React.FC<AssetResultsProps> = ({ results, onClick, searchQuery }) => {
+export const AssetResults: React.FC<AssetResultsProps> = ({
+  results,
+  onClick,
+  onImportClick,
+  searchQuery,
+}) => {
   const translate = useTranslate()
   const showRelatedAssets = useMemo(() => !isContractAddress(searchQuery ?? ''), [searchQuery])
   const renderItems = useMemo(
     () => (
-      <AssetList assets={results} handleClick={onClick} showRelatedAssets={showRelatedAssets} />
+      <AssetList
+        assets={results}
+        handleClick={onClick}
+        onImportClick={onImportClick}
+        showRelatedAssets={showRelatedAssets}
+      />
     ),
-    [results, onClick, showRelatedAssets],
+    [results, onClick, onImportClick, showRelatedAssets],
   )
 
   if (searchQuery && !results.length) return null

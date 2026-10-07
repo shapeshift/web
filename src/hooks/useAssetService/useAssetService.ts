@@ -1,11 +1,14 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId, starknetChainId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
+import type { GetLoadedAssets } from '@/lib/asset-service'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
-import { useAppDispatch } from '@/state/store'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { store, useAppDispatch } from '@/state/store'
 
 const ASSET_SERVICE_QUERY_KEY = ['assetService']
 
@@ -21,23 +24,57 @@ const KNOWN_TOKEN_SCANNING_CHAIN_IDS: Set<ChainId> = new Set([
 export const chainScansKnownTokens = (chainId: ChainId): boolean =>
   KNOWN_TOKEN_SCANNING_CHAIN_IDS.has(chainId)
 
-// Safe to call from anywhere - react-query dedupes on the key, so this initializes and upserts once
+// The generated assets the store already holds for the given version, without the runtime assets
+const getLoadedAssets: GetLoadedAssets = version => {
+  const {
+    byId,
+    ids,
+    relatedAssetIndex,
+    runtimeAssetIds,
+    version: loadedVersion,
+  } = store.getState().assets
+  if (loadedVersion !== version) return
+
+  const runtimeAssetIdSet = new Set(runtimeAssetIds)
+  const assetIds = ids.filter(assetId => !runtimeAssetIdSet.has(assetId))
+
+  return {
+    assetsById: Object.fromEntries(assetIds.map(assetId => [assetId, byId[assetId]])),
+    assetIds,
+    relatedAssetIndex,
+  } as ReturnType<GetLoadedAssets>
+}
+
+// The assets any account has a balance for, as of the last time the accounts were fetched
+const getHeldAssetIds = (): AssetId[] =>
+  Object.values(portfolio.selectors.selectAccountBalancesById(store.getState())).flatMap(
+    balancesByAssetId => Object.keys(balancesByAssetId ?? {}),
+  )
+
+// Safe to call from anywhere - react-query dedupes on the key, so this initializes and loads once
 export const useAssetService = () => {
   const dispatch = useAppDispatch()
 
   return useQuery({
     queryKey: ASSET_SERVICE_QUERY_KEY,
     queryFn: async () => {
-      await initAssetService()
+      await initAssetService(getLoadedAssets)
       const service = getAssetService()
 
+      // The store already holds the assets for this build and asset data, and the service was loaded from them
+      if (service.version && service.version === assets.selectors.selectVersion(store.getState()))
+        return true
+
       dispatch(
-        assets.actions.upsertAssets({
+        assets.actions.setGeneratedAssets({
           byId: service.assetsById,
           ids: service.assetIds,
+          relatedAssetIndex: service.relatedAssetIndex,
+          version: service.version,
+          watchedAssetIds: preferences.selectors.selectWatchedAssetIds(store.getState()),
+          heldAssetIds: getHeldAssetIds(),
         }),
       )
-      dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
 
       return true
     },

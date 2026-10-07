@@ -56,7 +56,10 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Web
-        run: MODE=production DEPLOY=true VITE_VERSION=${{ steps.version.outputs.version }} pnpm run build:web
+        # The commit hash must match the deployed build, which is built from the merge commit on main
+        run: |
+          COMMIT_HASH="${{ github.event.pull_request.merge_commit_sha }}"
+          MODE=production DEPLOY=true VITE_VERSION=${{ steps.version.outputs.version }} VITE_COMMIT_HASH=${COMMIT_HASH:0:7} pnpm run build:web
 
       - name: Sentry Release
         uses: getsentry/action-release@v3

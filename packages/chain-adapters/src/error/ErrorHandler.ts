@@ -16,6 +16,14 @@ const isResponseError = (err: unknown): err is unchained.ResponseError => {
   )
 }
 
+const stringifyError = (error: unknown): string => {
+  try {
+    return JSON.stringify(error) ?? String(error)
+  } catch {
+    return String(error)
+  }
+}
+
 export class ChainAdapterError extends Error {
   metadata: ErrorMetadata
 
@@ -25,7 +33,7 @@ export class ChainAdapterError extends Error {
     } else if (error instanceof Error || error instanceof ChainAdapterError) {
       super(error.message)
     } else {
-      super(`Unknown Error: ${error}`)
+      super(`Unknown Error: ${stringifyError(error)}`)
     }
 
     this.name = this.constructor.name

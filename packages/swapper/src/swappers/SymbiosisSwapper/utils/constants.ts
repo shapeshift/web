@@ -82,7 +82,8 @@ export const SYMBIOSIS_PASSTHROUGH_LABELS = ['partner-swap', 'semi-centralized']
 export const SYMBIOSIS_SOURCE_SWAP_LABEL = 'src-chain-swap'
 export const SYMBIOSIS_CROSSCHAIN_KIND = 'crosschain-swap'
 
-export const SYMBIOSIS_MIN_SLIPPAGE_BPS = 20
+// /v2/quote answers 'Slippage is too low' under 10 and 'too high' over 1000
+export const SYMBIOSIS_MIN_SLIPPAGE_BPS = 10
 export const SYMBIOSIS_MAX_SLIPPAGE_BPS = 1000
 
 // Our registered partner address and the fixed fee rate Symbiosis has configured for it - empty and '0' until registered

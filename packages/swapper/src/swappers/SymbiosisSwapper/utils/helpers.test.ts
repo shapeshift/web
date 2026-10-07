@@ -44,9 +44,9 @@ const liveFees: SymbiosisFee[] = [
 ]
 
 describe('getSymbiosisSlippageBps', () => {
-  it('raises slippage below the Symbiosis minimum to 20 bps', () => {
-    expect(getSymbiosisSlippageBps('0.001')).toBe(20)
-    expect(getSymbiosisSlippageBps('0')).toBe(20)
+  it('raises slippage below the Symbiosis minimum to 10 bps', () => {
+    expect(getSymbiosisSlippageBps('0.0005')).toBe(10)
+    expect(getSymbiosisSlippageBps('0')).toBe(10)
   })
 
   it('lowers slippage above the Symbiosis maximum to 1000 bps', () => {

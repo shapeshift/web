@@ -36,24 +36,30 @@ export const symbiosisApi: SwapperApi = {
   }) => {
     if (!swap) throw new Error('Missing swap')
 
-    if (isEvmChainId(chainId)) {
-      const sourceTxStatus = await checkEvmSwapStatus({
-        txHash,
-        chainId,
-        address,
-        assertGetEvmChainAdapter,
-        fetchIsSmartContractAddressQuery,
-      })
+    const evmSourceTxStatus = isEvmChainId(chainId)
+      ? await checkEvmSwapStatus({
+          txHash,
+          chainId,
+          address,
+          assertGetEvmChainAdapter,
+          fetchIsSmartContractAddressQuery,
+        })
+      : undefined
 
-      if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
-
-      txHash = sourceTxStatus.buyTxHash ?? txHash
+    if (evmSourceTxStatus && evmSourceTxStatus.status !== TxStatus.Confirmed) {
+      return evmSourceTxStatus
     }
+
+    const sourceTxHash = evmSourceTxStatus?.buyTxHash ?? txHash
 
     if (chainId === tronChainId) {
       const sourceTx = await assertGetTronChainAdapter(chainId)
-        .httpProvider.getTransaction({ txid: txHash })
+        .httpProvider.getTransaction({ txid: sourceTxHash })
         .catch(() => null)
+
+      if (!sourceTx?.confirmations) {
+        return { buyTxHash: undefined, status: TxStatus.Pending, message: undefined }
+      }
 
       if (isTronSourceTxFailed(sourceTx)) {
         return { buyTxHash: undefined, status: TxStatus.Failed, message: undefined }
@@ -64,7 +70,7 @@ export const symbiosisApi: SwapperApi = {
     const buySymbiosisChainId = chainIdToSymbiosisChainId[swap.buyAsset.chainId]
 
     const maybeStatusResponse = await symbiosisService.get<SymbiosisTxResponse>(
-      `${config.VITE_SYMBIOSIS_API_URL}/v2/tx/${sellSymbiosisChainId}/${txHash}`,
+      `${config.VITE_SYMBIOSIS_API_URL}/v2/tx/${sellSymbiosisChainId}/${sourceTxHash}`,
     )
 
     if (maybeStatusResponse.isErr()) {
@@ -79,8 +85,8 @@ export const symbiosisApi: SwapperApi = {
 
     return {
       ...getSymbiosisTradeStatus({ response, buySymbiosisChainId }),
-      swapperTxId: txHash,
-      swapperTxLink: `${SYMBIOSIS_EXPLORER_URL}/transactions/${sellSymbiosisChainId}/${txHash}`,
+      swapperTxId: sourceTxHash,
+      swapperTxLink: `${SYMBIOSIS_EXPLORER_URL}/transactions/${sellSymbiosisChainId}/${sourceTxHash}`,
     }
   },
 }

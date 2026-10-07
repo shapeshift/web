@@ -121,6 +121,7 @@ export async function getSymbiosisStepData(
           energy: tronFallbackEnergy,
           bandwidthBytes: tron.getTronContractCallBandwidthBytes(call.data),
           contractAddress: call.to,
+          fullEnergyOnShareLookupFailure: true,
         }).catch(() => undefined)
 
         const stepData: SymbiosisRateStepData = { networkFeeCryptoBaseUnit }

@@ -149,6 +149,14 @@ describe('getSymbiosisTradeContext', () => {
     expect(result.unwrap().stepCommon.allowanceContract).toBe('')
   })
 
+  it('rejects a token sell whose response has no spender', async () => {
+    mockQuote({ ...quote, approveTo: undefined })
+
+    const result = await getSymbiosisTradeContext({ input: makeInput(), deps, from: FROM, to: TO })
+
+    expect(result.unwrapErr().code).toBe(TradeQuoteError.QueryFailed)
+  })
+
   it('rejects a passthrough route', async () => {
     mockQuote({ ...quote, labels: ['partner-swap'] })
 

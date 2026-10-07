@@ -96,7 +96,11 @@ export const getSymbiosisTradeContext = async ({
 
     if (!axios.isAxiosError(cause)) {
       return Err(
-        makeSwapErrorRight({ message: 'Unknown error', code: TradeQuoteError.UnknownError }),
+        makeSwapErrorRight({
+          message: 'Unknown error',
+          code: TradeQuoteError.UnknownError,
+          cause,
+        }),
       )
     }
 
@@ -144,7 +148,16 @@ export const getSymbiosisTradeContext = async ({
     buyAsset,
   })
 
-  const allowanceContract = isToken(sellAsset.assetId) ? quote.approveTo ?? '' : ''
+  const allowanceContract = isToken(sellAsset.assetId) ? quote.approveTo : ''
+
+  if (allowanceContract === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Symbiosis returned no spender for a token sell',
+        code: TradeQuoteError.QueryFailed,
+      }),
+    )
+  }
 
   return Ok({
     tradeCommon: {

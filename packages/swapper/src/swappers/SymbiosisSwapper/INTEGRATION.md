@@ -50,7 +50,7 @@
 
 - Before an operation is indexed, the endpoint answers `0` for the plain source transaction, with `tx` equal to `txIn`. That is why Success alone is not enough.
 - `transitTokenSent` means the destination swap did not complete and the user received the transit token (for example USDC). We report Confirmed with a message naming it.
-- A Tron sell that fails on chain (REVERT, OUT_OF_ENERGY) never reaches Symbiosis, which answers not found for it. The Tron source transaction is checked first and a mined non-SUCCESS result reports Failed. 15 of the router's last 200 calls had failed when sampled on 2026-10-05.
+- A Tron sell that fails on chain (REVERT, OUT_OF_ENERGY) never reaches Symbiosis, which answers not found for it. The Tron source transaction is checked first: unmined reports Pending, a mined non-SUCCESS result reports Failed. 15 of the router's last 200 calls had failed when sampled on 2026-10-05.
 
 ## Tron energy
 

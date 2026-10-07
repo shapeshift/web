@@ -10,13 +10,15 @@ import type { CustomTransactionData, TransactionParams } from '@/plugins/walletC
 import { TestProviders } from '@/test/TestProviders'
 
 const mockSimulation = vi.hoisted(() => ({
-  gasEstimateQuery: {} as { isLoading?: boolean; data?: { baseGasLimit?: string } },
+  recommendedGasLimit: undefined as string | undefined,
+  isGasLimitLoading: false,
 }))
 
 vi.mock('@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction', () => ({
-  useSimulateEvmTransaction: () => ({
+  useSimulateEvmTransaction: ({ gasLimit }: { gasLimit?: string }) => ({
     simulationQuery: { isLoading: false },
-    gasEstimateQuery: mockSimulation.gasEstimateQuery,
+    gasLimit: gasLimit || mockSimulation.recommendedGasLimit,
+    isGasLimitLoading: mockSimulation.isGasLimitLoading,
   }),
 }))
 
@@ -65,7 +67,8 @@ const TestFooter = ({
 
 describe('WalletConnectModalSigningFooter', () => {
   beforeEach(() => {
-    mockSimulation.gasEstimateQuery = {}
+    mockSimulation.recommendedGasLimit = undefined
+    mockSimulation.isGasLimitLoading = false
   })
 
   afterEach(cleanup)
@@ -95,13 +98,13 @@ describe('WalletConnectModalSigningFooter', () => {
   })
 
   it('enables confirm when our estimate supplies the gas limit', () => {
-    mockSimulation.gasEstimateQuery = { data: { baseGasLimit: '150000' } }
+    mockSimulation.recommendedGasLimit = '150000'
     render(<TestFooter />)
     expect(screen.getByRole('button', { name: 'Confirm' })).toHaveProperty('disabled', false)
   })
 
   it('shows confirm as loading while the gas estimate is in flight', () => {
-    mockSimulation.gasEstimateQuery = { isLoading: true }
+    mockSimulation.isGasLimitLoading = true
     render(<TestFooter />)
     // Chakra swaps the label for a spinner while loading, so the button can't be found by name
     const confirm = screen

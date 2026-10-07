@@ -172,10 +172,10 @@ const validators = {
     default: 'https://midgard.mayachain.info/v2',
   }),
   VITE_COWSWAP_BASE_URL: url({ default: 'https://api.cow.fi' }),
+  VITE_ONRAMPER_SIGNING_URL: url({ default: '' }),
   VITE_ONRAMPER_WIDGET_URL: url(),
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
-  VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
     default: 'https://github.com/keepkey/keepkey-vault/releases/latest',
   }),

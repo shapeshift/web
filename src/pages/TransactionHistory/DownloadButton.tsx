@@ -15,6 +15,8 @@ import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
+import { getTransferColumns } from './utils'
+
 type ReportRow = {
   txid: TxId
   type: string
@@ -82,13 +84,16 @@ export const DownloadButton = ({
       const type = getTxType(tx, transfers)
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
 
-      const { send, receive } = (() => {
-        if (transfers.length === 1) return { send: transfers[0], receive: transfers[0] }
+      const { sends, receives } = (() => {
+        if (transfers.length === 1) return { sends: transfers, receives: transfers }
         return {
-          send: transfers.find(transfer => transfer.type === TransferType.Send),
-          receive: transfers.find(transfer => transfer.type === TransferType.Receive),
+          sends: transfers.filter(transfer => transfer.type === TransferType.Send),
+          receives: transfers.filter(transfer => transfer.type === TransferType.Receive),
         }
       })()
+
+      const input = getTransferColumns(sends, 'from')
+      const output = getTransferColumns(receives, 'to')
 
       const typeLabel = (() => {
         if (type === 'common') return 'transactionRow.common'
@@ -111,26 +116,12 @@ export const DownloadButton = ({
               ).toFixed()
             : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
-        inputAmount: send
-          ? bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: send.value,
-                precision: send.asset?.precision ?? 18,
-              }).toPrecision(),
-            ).toFixed()
-          : '-',
-        inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
-        inputAddresses: send ? `"${send?.from.join('\n')}"` : '-',
-        outputAmount: receive
-          ? bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: receive.value,
-                precision: receive.asset?.precision ?? 18,
-              }).toPrecision(),
-            ).toFixed()
-          : '-',
-        outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',
-        outputAddresses: receive ? `"${receive?.to.join('\n')}"` : '-',
+        inputAmount: input.amount,
+        inputCurrency: input.currency,
+        inputAddresses: input.addresses,
+        outputAmount: output.amount,
+        outputCurrency: output.currency,
+        outputAddresses: output.addresses,
       })
     }
 

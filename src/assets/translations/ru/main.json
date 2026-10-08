@@ -2202,21 +2202,6 @@
       "apply": "Применить"
     },
     "downloadCSV": "Скачать CSV",
-    "csv": {
-      "fileName": "История транзакций\nShapeShift ",
-      "txid": "TX ID",
-      "type": "тип TX ",
-      "timestamp": "Временная метка",
-      "status": "Статус",
-      "minerFee": "Комиссия майнера",
-      "minerFeeCurrency": "Валюта комиссии майнера",
-      "inputAmount": "Входная сумма",
-      "inputCurrency": "Входная валюта",
-      "inputAddress": "Входной адрес",
-      "outputAmount": "Выходная сумма",
-      "outputCurrency": "Выходная валюта",
-      "outputAddress": "Выходной адрес"
-    },
     "txid": "TX ID",
     "status": "Состояние",
     "minerFee": "Комиссия майнера",

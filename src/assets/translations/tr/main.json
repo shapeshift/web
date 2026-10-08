@@ -2202,21 +2202,6 @@
       "apply": "Uygula"
     },
     "downloadCSV": "CSV'yi indir",
-    "csv": {
-      "fileName": "ShapeShift İşlem Geçmişi",
-      "txid": "TX ID",
-      "type": "TX type",
-      "timestamp": "Zaman Damgası",
-      "status": "Durum",
-      "minerFee": "Madenci ücreti",
-      "minerFeeCurrency": "Madenci ücreti para birimi",
-      "inputAmount": "Giriş miktarı",
-      "inputCurrency": "Giriş para birimi",
-      "inputAddress": "Giriş adresi",
-      "outputAmount": "Çıkış miktarı",
-      "outputCurrency": "Çıkış para birimi",
-      "outputAddress": "Çıkış adresi"
-    },
     "txid": "TX ID",
     "status": "Durum",
     "minerFee": "Madenci Ücreti",

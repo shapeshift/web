@@ -2202,21 +2202,6 @@
       "apply": "Anwenden"
     },
     "downloadCSV": "CSV-Datei herunterladen",
-    "csv": {
-      "fileName": "Verlauf der ShapeShift-Transaktionen",
-      "txid": "TX ID",
-      "type": "TX-Art",
-      "timestamp": "Zeitstempel",
-      "status": "Status",
-      "minerFee": "Miner-Gebühr",
-      "minerFeeCurrency": "Miner-Gebührenwährung",
-      "inputAmount": "Eingangsbetrag",
-      "inputCurrency": "Eingabewährung",
-      "inputAddress": "Eingangsadresse",
-      "outputAmount": "Ausgangsbetrag",
-      "outputCurrency": "Ausgabewährung",
-      "outputAddress": "Ausgangsadresse"
-    },
     "txid": "TX ID",
     "status": "Status",
     "minerFee": "Miner-Gebühr",

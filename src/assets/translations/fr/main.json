@@ -2202,21 +2202,6 @@
       "apply": "Appliquer"
     },
     "downloadCSV": "Télécharger CSV",
-    "csv": {
-      "fileName": "Historique des transactions ShapeShift",
-      "txid": "ID TX",
-      "type": "Type TX",
-      "timestamp": "Horodatage",
-      "status": "Statut",
-      "minerFee": "Frais de minage",
-      "minerFeeCurrency": "Devise des frais de minage",
-      "inputAmount": "Montant en entrée",
-      "inputCurrency": "Devise en entrée",
-      "inputAddress": "Adresse d'entrée",
-      "outputAmount": "Montant en sortie",
-      "outputCurrency": "Devise de sortie",
-      "outputAddress": "Adresse de sortie"
-    },
     "txid": "ID TX",
     "status": "Statut",
     "minerFee": "Frais de minage",

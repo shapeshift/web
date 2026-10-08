@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { getReportLegs, toReportDate } from './utils'
 
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
-import { ethereum, fox, usdc } from '@/test/mocks/assets'
+import { bitcoin, ethereum, fox, usdc } from '@/test/mocks/assets'
 
 const user = '0x3c0100F53b49BA4d3A33fc6e8827Ea3A9784D2fF'
 const router = '0xEE0319cF0BCa5d09333f9F6277743E8De31bD69A'
@@ -54,6 +54,37 @@ const usdcReceive: Transfer = {
   to: [user],
   value: '250000000',
 }
+
+const ethRefund: Transfer = {
+  type: TransferType.Receive,
+  assetId: ethereum.assetId,
+  asset: ethereum,
+  from: [router],
+  to: [user],
+  value: '100000000000000',
+}
+
+const btcAddress = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
+const btcChange = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
+
+const btcSelfSend: Transfer[] = [
+  {
+    type: TransferType.Send,
+    assetId: bitcoin.assetId,
+    asset: bitcoin,
+    from: [btcAddress],
+    to: [btcChange],
+    value: '50000000',
+  },
+  {
+    type: TransferType.Receive,
+    assetId: bitcoin.assetId,
+    asset: bitcoin,
+    from: [btcAddress],
+    to: [btcChange],
+    value: '50000000',
+  },
+]
 
 const contract: Transfer = {
   type: TransferType.Contract,
@@ -130,6 +161,48 @@ describe('TransactionHistory/utils', () => {
           receivedAmount: '0.435857',
           receivedCurrency: 'FOX',
           receivedAddresses: `"${user}"`,
+        },
+      ])
+    })
+
+    it('pairs the token bought ahead of a native refund received in the same tx', () => {
+      expect(getReportLegs([usdcSend, ethRefund, foxReceive])).toEqual([
+        {
+          sentAmount: '2002.24',
+          sentCurrency: 'USDC',
+          sentAddresses: `"${user}"`,
+          receivedAmount: '0.435857',
+          receivedCurrency: 'FOX',
+          receivedAddresses: `"${user}"`,
+        },
+        {
+          sentAmount: '',
+          sentCurrency: '',
+          sentAddresses: `"${router}"`,
+          receivedAmount: '0.0001',
+          receivedCurrency: 'ETH',
+          receivedAddresses: `"${user}"`,
+        },
+      ])
+    })
+
+    it('keeps a same-asset self send as a transfer rather than a trade', () => {
+      expect(getReportLegs(btcSelfSend)).toEqual([
+        {
+          sentAmount: '0.5',
+          sentCurrency: 'BTC',
+          sentAddresses: `"${btcAddress}"`,
+          receivedAmount: '',
+          receivedCurrency: '',
+          receivedAddresses: `"${btcChange}"`,
+        },
+        {
+          sentAmount: '',
+          sentCurrency: '',
+          sentAddresses: `"${btcAddress}"`,
+          receivedAmount: '0.5',
+          receivedCurrency: 'BTC',
+          receivedAddresses: `"${btcChange}"`,
         },
       ])
     })

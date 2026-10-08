@@ -1,6 +1,6 @@
-import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 
 import { getTransfersByType } from '@/components/TransactionHistoryRows/utils'
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
@@ -23,35 +23,39 @@ const toAmount = (transfer: Transfer): string =>
 const toAddresses = (addresses: string[] | undefined): string =>
   addresses ? `"${addresses.join('\n')}"` : ''
 
-const isNativeAsset = (transfer: Transfer): boolean =>
-  fromAssetId(transfer.assetId).assetNamespace === ASSET_NAMESPACE.slip44
+const isFeeAsset = (transfer: Transfer): boolean =>
+  transfer.assetId === chainIdToFeeAssetId(fromAssetId(transfer.assetId).chainId)
 
-// A native send alongside token sends is a protocol fee, so pair the tokens with the receives first
-const sortTokensFirst = (sends: Transfer[]): Transfer[] =>
-  [...sends].sort((a, b) => Number(isNativeAsset(a)) - Number(isNativeAsset(b)))
+// A fee-asset leg beside token legs is a protocol fee or a refund, so tokens pair first
+const sortTokensFirst = (transfers: Transfer[]): Transfer[] =>
+  [...transfers].sort((a, b) => Number(isFeeAsset(a)) - Number(isFeeAsset(b)))
 
-// One leg per sent/received pair, the shape tax tools import; surplus legs carry one side only
+const toLeg = (send?: Transfer, receive?: Transfer): ReportLeg => ({
+  sentAmount: send ? toAmount(send) : '',
+  sentCurrency: send?.asset.symbol ?? '',
+  sentAddresses: toAddresses((send ?? receive)?.from),
+  receivedAmount: receive ? toAmount(receive) : '',
+  receivedCurrency: receive?.asset.symbol ?? '',
+  receivedAddresses: toAddresses((receive ?? send)?.to),
+})
+
 export const getReportLegs = (transfers: Transfer[]): ReportLeg[] => {
   const { Send = [], Receive = [] } = getTransfersByType(transfers, [
     TransferType.Send,
     TransferType.Receive,
   ])
-  const sends = sortTokensFirst(Send)
-  const legCount = Math.max(sends.length, Receive.length, 1)
+  const unpairedReceives = sortTokensFirst(Receive)
 
-  return Array.from({ length: legCount }, (_, i) => {
-    const send = sends[i]
-    const receive = Receive[i]
-
-    return {
-      sentAmount: send ? toAmount(send) : '',
-      sentCurrency: send?.asset.symbol ?? '',
-      sentAddresses: toAddresses((send ?? receive)?.from),
-      receivedAmount: receive ? toAmount(receive) : '',
-      receivedCurrency: receive?.asset.symbol ?? '',
-      receivedAddresses: toAddresses((receive ?? send)?.to),
-    }
+  // A same-asset pair is a transfer, not a trade, so each side keeps its own leg
+  const legs = sortTokensFirst(Send).map(send => {
+    const i = unpairedReceives.findIndex(receive => receive.assetId !== send.assetId)
+    const receive = i >= 0 ? unpairedReceives.splice(i, 1)[0] : undefined
+    return toLeg(send, receive)
   })
+
+  legs.push(...unpairedReceives.map(receive => toLeg(undefined, receive)))
+
+  return legs.length ? legs : [toLeg()]
 }
 
 // Koinly and CoinTracker expect YYYY-MM-DD HH:mm:ss in UTC

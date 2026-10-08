@@ -25,10 +25,11 @@ type ReportRow = {
   feeCurrency: string
 } & ReportLeg
 
-const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string => {
+const jsonToCsv = (fields: Record<keyof ReportRow, string>, rows: ReportRow[]): string => {
+  const keys = Object.keys(fields) as (keyof ReportRow)[]
   const csvRows = [
-    Object.values(fields).join(','), // header
-    ...rows.map(row => Object.values(row).join(',')), // data
+    keys.map(key => fields[key]).join(','), // header
+    ...rows.map(row => keys.map(key => row[key]).join(',')), // data
   ].join('\r\n')
 
   return `${csvRows}\r\n`
@@ -71,44 +72,44 @@ export const DownloadButton = ({
   const generateCSV = useCallback(() => {
     setIsLoading(true)
 
-    const report: ReportRow[] = []
-    for (const txId of txIds) {
-      const tx = allTxs[txId]
-      const transfers = getTransfers(tx, assets)
-      const type = getTxType(tx, transfers)
-      const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
+    try {
+      const report: ReportRow[] = []
+      for (const txId of txIds) {
+        const tx = allTxs[txId]
+        const transfers = getTransfers(tx, assets)
+        const type = getTxType(tx, transfers)
+        const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
 
-      const typeLabel = (() => {
-        if (type === 'common') return 'transactionRow.common'
-        if (tx.data?.method) return `transactionRow.parser.${tx.data.parser}.${tx.data.method}`
-        return `transactionHistory.transactionTypes.${type}`
-      })()
+        const typeLabel = (() => {
+          if (type === 'common') return 'transactionRow.common'
+          if (tx.data?.method) return `transactionRow.parser.${tx.data.parser}.${tx.data.method}`
+          return `transactionHistory.transactionTypes.${type}`
+        })()
 
-      const fee =
-        tx.fee && feeAsset
-          ? {
-              feeAmount: BigAmount.fromBaseUnit({
-                value: tx.fee.value,
-                precision: feeAsset.precision,
-              }).toPrecision(),
-              feeCurrency: feeAsset.symbol,
-            }
-          : noFee
-
-      // The fee is paid once per tx, so only the first leg carries it
-      getReportLegs(transfers).forEach((leg, i) => {
-        report.push({
+        const base = {
           txid: `"${tx.txid}"`,
           type: translate(typeLabel),
           status: translate(`transactionRow.${tx.status.toLowerCase()}`),
           date: toReportDate(tx.blockTime),
-          ...(i === 0 ? fee : noFee),
-          ...leg,
-        })
-      })
-    }
+        }
 
-    try {
+        const fee =
+          tx.fee && feeAsset
+            ? {
+                feeAmount: BigAmount.fromBaseUnit({
+                  value: tx.fee.value,
+                  precision: feeAsset.precision,
+                }).toPrecision(),
+                feeCurrency: feeAsset.symbol,
+              }
+            : noFee
+
+        // The fee is paid once per tx, so only the first leg carries it
+        getReportLegs(transfers).forEach((leg, i) => {
+          report.push({ ...base, ...(i === 0 ? fee : noFee), ...leg })
+        })
+      }
+
       const data = jsonToCsv(fields, report)
       const filename = `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
         'HH:mm A, MMMM DD, YYYY',

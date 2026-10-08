@@ -89,9 +89,9 @@ export const SYMBIOSIS_SEMI_CENTRALIZED_LABEL = 'semi-centralized'
 export const SYMBIOSIS_MIN_SLIPPAGE_BPS = 10
 export const SYMBIOSIS_MAX_SLIPPAGE_BPS = 1000
 
-// Our registered partner address and the fixed fee rate Symbiosis has configured for it - empty and '0' until registered
-export const SYMBIOSIS_PARTNER_ADDRESS = ''
-export const SYMBIOSIS_PARTNER_FEE_BPS = '0'
+// Our registered partner address and the fixed fee rate Symbiosis has configured for it
+export const SYMBIOSIS_PARTNER_ADDRESS = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
+export const SYMBIOSIS_PARTNER_FEE_BPS = '60'
 
 export const DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 export const DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS = 'TLa2f6VPqDgRE67v1736s7bJ8Ray5wYjU7'

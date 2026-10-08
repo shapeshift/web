@@ -76,11 +76,12 @@ export const symbiosisChainIdToChainId: Partial<Record<number, ChainId>> = Objec
   SYMBIOSIS_CHAIN_ID_ENTRIES.map(([chainId, symbiosisChainId]) => [symbiosisChainId, chainId]),
 )
 
-// Liquidity providers disabled on every quote: the bridges are protocols we integrate directly and Changelly is custodial
-export const SYMBIOSIS_DISABLED_PROVIDERS = 'chainflip-bridge,thorchain-bridge,changelly'
+// Disabled liquidity providers: bridges we integrate directly, custodial Changelly, and intent routes that skip the partner fee
+export const SYMBIOSIS_DISABLED_PROVIDERS = 'chainflip-bridge,thorchain-bridge,changelly,intent-solver'
 
 export const SYMBIOSIS_CROSSCHAIN_SWAP_KIND = 'crosschain-swap'
 export const SYMBIOSIS_SRC_CHAIN_SWAP_LABEL = 'src-chain-swap'
+
 // Swap performed by a partner rather than Symbiosis itself
 export const SYMBIOSIS_PARTNER_SWAP_LABEL = 'partner-swap'
 export const SYMBIOSIS_SEMI_CENTRALIZED_LABEL = 'semi-centralized'

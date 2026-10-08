@@ -3,7 +3,6 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
-import { FALLBACK_QUOTE_DEADLINE_MS } from '../../../utils/helpers'
 import { getSymbiosisStepData } from '../utils/getSymbiosisStepData'
 import { getSymbiosisTradeContext } from '../utils/getSymbiosisTradeContext'
 import type { SymbiosisTradeQuoteInput } from '../utils/types'
@@ -36,7 +35,6 @@ export const getTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
-    deadline: Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
     receiveAddress,
     steps: [
       {

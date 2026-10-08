@@ -94,6 +94,7 @@ export const SYMBIOSIS_MAX_SLIPPAGE_BPS = 1000
 // Our registered partner address and the fixed fee rate Symbiosis has configured for it
 export const SYMBIOSIS_PARTNER_ADDRESS = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const SYMBIOSIS_PARTNER_FEE_BPS = '60'
+export const SYMBIOSIS_PARTNER_FEE_DESCRIPTION = 'Partner fee'
 // Sent as X-Partner-Id so Symbiosis attributes our swaps to this client id in its explorer and metrics
 export const SYMBIOSIS_PARTNER_ID = 'shapeshift'
 

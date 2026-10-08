@@ -18,6 +18,8 @@ import {
   SYMBIOSIS_CROSSCHAIN_SWAP_KIND,
   SYMBIOSIS_MAX_SLIPPAGE_BPS,
   SYMBIOSIS_MIN_SLIPPAGE_BPS,
+  SYMBIOSIS_PARTNER_ADDRESS,
+  SYMBIOSIS_PARTNER_FEE_BPS,
   SYMBIOSIS_PARTNER_SWAP_LABEL,
   SYMBIOSIS_SEMI_CENTRALIZED_LABEL,
   SYMBIOSIS_SRC_CHAIN_SWAP_LABEL,
@@ -91,21 +93,21 @@ export const getSymbiosisSlippageBps = (slippageTolerancePercentageDecimal: stri
 export const getDefaultUserAddress = (chainId: ChainId): string =>
   chainId === tronChainId ? DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS : DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS
 
-// Symbiosis charges its own fixed rate for a partner, so the fee only applies when that rate is what the app asked for
-export const getSymbiosisPartnerAddress = ({
-  partnerAddress,
-  partnerFeeBps,
-  affiliateBps,
-}: {
-  partnerAddress: string
-  partnerFeeBps: string
-  affiliateBps: string
-}): string | undefined => {
-  if (!partnerAddress) return
-  if (bnOrZero(partnerFeeBps).lte(0)) return
-  if (!bnOrZero(affiliateBps).eq(partnerFeeBps)) return
+// Symbiosis fixes the partner rate on its side, so only a fee-free swap or the registered rate can be honored
+export const getSymbiosisPartnerAddress = (
+  affiliateBps: string,
+): Result<string | undefined, SwapErrorRight> => {
+  const requestedBps = bnOrZero(affiliateBps)
 
-  return partnerAddress
+  if (requestedBps.isZero()) return Ok(undefined)
+  if (requestedBps.eq(SYMBIOSIS_PARTNER_FEE_BPS)) return Ok(SYMBIOSIS_PARTNER_ADDRESS)
+
+  return Err(
+    makeSwapErrorRight({
+      message: `Symbiosis only supports a ${SYMBIOSIS_PARTNER_FEE_BPS} bps affiliate fee, got ${affiliateBps}`,
+      code: TradeQuoteError.UnsupportedTradePair,
+    }),
+  )
 }
 
 // Symbiosis returns the function signature and its encoded parameters separately

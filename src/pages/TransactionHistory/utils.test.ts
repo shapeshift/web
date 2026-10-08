@@ -250,6 +250,7 @@ describe('TransactionHistory/utils', () => {
       expect(toCsvCell('=HYPERLINK("http://evil","claim")')).toBe(
         `"'=HYPERLINK(""http://evil"",""claim"")"`,
       )
+      expect(toCsvCell('\t=1+1')).toBe("'\t=1+1")
     })
   })
 })

@@ -60,6 +60,6 @@ export const toReportDate = (blockTime: number): string =>
 
 // RFC 4180 quoting, plus a leading apostrophe so a token symbol cannot run as a spreadsheet formula
 export const toCsvCell = (value: string): string => {
-  const safe = /^[=+\-@]/.test(value) ? `'${value}` : value
+  const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
   return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
 }

@@ -7,6 +7,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import { getTransferColumns } from './utils'
+
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -14,8 +16,6 @@ import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
-
-import { getTransferColumns } from './utils'
 
 type ReportRow = {
   txid: TxId

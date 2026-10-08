@@ -1,45 +1,59 @@
+import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { BigAmount } from '@shapeshiftoss/utils'
 
 import { getTransfersByType } from '@/components/TransactionHistoryRows/utils'
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 
-type TransferColumns = {
-  amount: string
-  currency: string
-  addresses: string
+export type ReportLeg = {
+  sentAmount: string
+  sentCurrency: string
+  sentAddresses: string
+  receivedAmount: string
+  receivedCurrency: string
+  receivedAddresses: string
 }
 
-const toCell = (values: string[]): string =>
-  values.length > 1 ? `"${values.join('\n')}"` : values[0]
+const toAmount = (transfer: Transfer): string =>
+  BigAmount.fromBaseUnit({
+    value: transfer.value,
+    precision: transfer.asset.precision,
+  }).toPrecision()
 
-const getTransferColumns = (transfers: Transfer[], addressKey: 'from' | 'to'): TransferColumns => {
-  if (!transfers.length) return { amount: '-', currency: '-', addresses: '-' }
+const toAddresses = (addresses: string[] | undefined): string =>
+  addresses ? `"${addresses.join('\n')}"` : ''
 
-  const amounts = transfers.map(transfer =>
-    BigAmount.fromBaseUnit({
-      value: transfer.value,
-      precision: transfer.asset.precision,
-    }).toPrecision(),
-  )
-  const currencies = transfers.map(transfer => transfer.asset.symbol)
-  const addresses = transfers.flatMap(transfer => transfer[addressKey])
+const isNativeAsset = (transfer: Transfer): boolean =>
+  fromAssetId(transfer.assetId).assetNamespace === ASSET_NAMESPACE.slip44
 
-  return {
-    amount: toCell(amounts),
-    currency: toCell(currencies),
-    addresses: `"${addresses.join('\n')}"`,
-  }
+// A native send alongside token sends is a protocol fee, so pair the tokens with the receives first
+const sortTokensFirst = (sends: Transfer[]): Transfer[] =>
+  [...sends].sort((a, b) => Number(isNativeAsset(a)) - Number(isNativeAsset(b)))
+
+// One leg per sent/received pair, the shape tax tools import; surplus legs carry one side only
+export const getReportLegs = (transfers: Transfer[]): ReportLeg[] => {
+  const { Send = [], Receive = [] } = getTransfersByType(transfers, [
+    TransferType.Send,
+    TransferType.Receive,
+  ])
+  const sends = sortTokensFirst(Send)
+  const legCount = Math.max(sends.length, Receive.length, 1)
+
+  return Array.from({ length: legCount }, (_, i) => {
+    const send = sends[i]
+    const receive = Receive[i]
+
+    return {
+      sentAmount: send ? toAmount(send) : '',
+      sentCurrency: send?.asset.symbol ?? '',
+      sentAddresses: toAddresses((send ?? receive)?.from),
+      receivedAmount: receive ? toAmount(receive) : '',
+      receivedCurrency: receive?.asset.symbol ?? '',
+      receivedAddresses: toAddresses((receive ?? send)?.to),
+    }
+  })
 }
 
-// A side with no transfers of its own reports the other side of the same movement
-export const getReportColumns = (
-  transfers: Transfer[],
-): { input: TransferColumns; output: TransferColumns } => {
-  const { Send, Receive } = getTransfersByType(transfers, [TransferType.Send, TransferType.Receive])
-
-  return {
-    input: getTransferColumns(Send ?? transfers, 'from'),
-    output: getTransferColumns(Receive ?? transfers, 'to'),
-  }
-}
+// Koinly and CoinTracker expect YYYY-MM-DD HH:mm:ss in UTC
+export const toReportDate = (blockTime: number): string =>
+  new Date(blockTime * 1000).toISOString().slice(0, 19).replace('T', ' ')

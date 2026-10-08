@@ -6,7 +6,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { getReportColumns } from './utils'
+import type { ReportLeg } from './utils'
+import { getReportLegs, toReportDate } from './utils'
 
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
@@ -19,16 +20,10 @@ type ReportRow = {
   txid: TxId
   type: string
   status: string
-  timestamp: string
-  minerFee: string
-  minerFeeCurrency: string
-  inputAmount: string
-  inputCurrency: string
-  inputAddresses: string
-  outputAmount: string
-  outputCurrency: string
-  outputAddresses: string
-}
+  date: string
+  feeAmount: string
+  feeCurrency: string
+} & ReportLeg
 
 const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string => {
   const csvRows = [
@@ -39,6 +34,7 @@ const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string =>
   return `${csvRows}\r\n`
 }
 
+const noFee = { feeAmount: '', feeCurrency: '' }
 const buttonMargin = [3, 3, 6]
 const downloadIcon = <TbDownload size='1em' />
 
@@ -59,15 +55,15 @@ export const DownloadButton = ({
       txid: translate('transactionHistory.csv.txid'),
       type: translate('transactionHistory.csv.type'),
       status: translate('transactionHistory.csv.status'),
-      timestamp: translate('transactionHistory.csv.timestamp'),
-      minerFee: translate('transactionHistory.csv.minerFee'),
-      minerFeeCurrency: translate('transactionHistory.csv.minerFeeCurrency'),
-      inputAmount: translate('transactionHistory.csv.inputAmount'),
-      inputCurrency: translate('transactionHistory.csv.inputCurrency'),
-      inputAddress: translate('transactionHistory.csv.inputAddress'),
-      outputAmount: translate('transactionHistory.csv.outputAmount'),
-      outputCurrency: translate('transactionHistory.csv.outputCurrency'),
-      outputAddress: translate('transactionHistory.csv.outputAddress'),
+      date: translate('transactionHistory.csv.date'),
+      feeAmount: translate('transactionHistory.csv.feeAmount'),
+      feeCurrency: translate('transactionHistory.csv.feeCurrency'),
+      sentAmount: translate('transactionHistory.csv.sentAmount'),
+      sentCurrency: translate('transactionHistory.csv.sentCurrency'),
+      sentAddresses: translate('transactionHistory.csv.sentAddress'),
+      receivedAmount: translate('transactionHistory.csv.receivedAmount'),
+      receivedCurrency: translate('transactionHistory.csv.receivedCurrency'),
+      receivedAddresses: translate('transactionHistory.csv.receivedAddress'),
     }),
     [translate],
   )
@@ -82,33 +78,33 @@ export const DownloadButton = ({
       const type = getTxType(tx, transfers)
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
 
-      const { input, output } = getReportColumns(transfers)
-
       const typeLabel = (() => {
         if (type === 'common') return 'transactionRow.common'
         if (tx.data?.method) return `transactionRow.parser.${tx.data.parser}.${tx.data.method}`
         return `transactionHistory.transactionTypes.${type}`
       })()
 
-      report.push({
-        txid: `"${tx.txid}"`,
-        type: translate(typeLabel),
-        status: translate(`transactionRow.${tx.status.toLowerCase()}`),
-        timestamp: dayjs(tx.blockTime * 1000).toISOString(),
-        minerFee:
-          tx.fee && feeAsset
-            ? BigAmount.fromBaseUnit({
+      const fee =
+        tx.fee && feeAsset
+          ? {
+              feeAmount: BigAmount.fromBaseUnit({
                 value: tx.fee.value,
                 precision: feeAsset.precision,
-              }).toPrecision()
-            : '0',
-        minerFeeCurrency: feeAsset?.symbol ?? '-',
-        inputAmount: input.amount,
-        inputCurrency: input.currency,
-        inputAddresses: input.addresses,
-        outputAmount: output.amount,
-        outputCurrency: output.currency,
-        outputAddresses: output.addresses,
+              }).toPrecision(),
+              feeCurrency: feeAsset.symbol,
+            }
+          : noFee
+
+      // The fee is paid once per tx, so only the first leg carries it
+      getReportLegs(transfers).forEach((leg, i) => {
+        report.push({
+          txid: `"${tx.txid}"`,
+          type: translate(typeLabel),
+          status: translate(`transactionRow.${tx.status.toLowerCase()}`),
+          date: toReportDate(tx.blockTime),
+          ...(i === 0 ? fee : noFee),
+          ...leg,
+        })
       })
     }
 

@@ -10,7 +10,6 @@ import { getReportColumns } from './utils'
 
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
@@ -98,12 +97,10 @@ export const DownloadButton = ({
         timestamp: dayjs(tx.blockTime * 1000).toISOString(),
         minerFee:
           tx.fee && feeAsset
-            ? bnOrZero(
-                BigAmount.fromBaseUnit({
-                  value: tx.fee.value,
-                  precision: feeAsset.precision,
-                }).toPrecision(),
-              ).toFixed()
+            ? BigAmount.fromBaseUnit({
+                value: tx.fee.value,
+                precision: feeAsset.precision,
+              }).toPrecision()
             : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
         inputAmount: input.amount,

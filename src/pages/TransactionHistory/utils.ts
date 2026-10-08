@@ -1,6 +1,7 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { BigAmount } from '@shapeshiftoss/utils'
 
+import { getTransfersByType } from '@/components/TransactionHistoryRows/utils'
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 
 type TransferColumns = {
@@ -35,11 +36,10 @@ const getTransferColumns = (transfers: Transfer[], addressKey: 'from' | 'to'): T
 export const getReportColumns = (
   transfers: Transfer[],
 ): { input: TransferColumns; output: TransferColumns } => {
-  const sends = transfers.filter(transfer => transfer.type === TransferType.Send)
-  const receives = transfers.filter(transfer => transfer.type === TransferType.Receive)
+  const { Send, Receive } = getTransfersByType(transfers, [TransferType.Send, TransferType.Receive])
 
   return {
-    input: getTransferColumns(sends.length ? sends : transfers, 'from'),
-    output: getTransferColumns(receives.length ? receives : transfers, 'to'),
+    input: getTransferColumns(Send ?? transfers, 'from'),
+    output: getTransferColumns(Receive ?? transfers, 'to'),
   }
 }

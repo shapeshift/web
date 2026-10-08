@@ -2202,9 +2202,6 @@
       "apply": "Aplicar"
     },
     "downloadCSV": "Baixar CSV",
-    "csv": {
-      "fileName": "Histórico de transações do ShapeShift"
-    },
     "txid": "ID TX",
     "status": "Status",
     "minerFee": "Taxa de Minerador",

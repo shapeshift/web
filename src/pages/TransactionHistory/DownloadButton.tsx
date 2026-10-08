@@ -103,7 +103,7 @@ export const DownloadButton = ({
       }
 
       const data = toCsv(report)
-      const filename = `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
+      const filename = `ShapeShift Transactions History - ${dayjs().format(
         'HH:mm A, MMMM DD, YYYY',
       )}.csv`
       fileDownload(data, filename)
@@ -112,7 +112,7 @@ export const DownloadButton = ({
     } finally {
       setIsLoading(false)
     }
-  }, [allTxs, assets, translate, txIds])
+  }, [allTxs, assets, txIds])
 
   return isLargerThanLg && !isCompact ? (
     <Button

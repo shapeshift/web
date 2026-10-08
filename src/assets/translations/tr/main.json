@@ -2202,9 +2202,6 @@
       "apply": "Uygula"
     },
     "downloadCSV": "CSV'yi indir",
-    "csv": {
-      "fileName": "ShapeShift İşlem Geçmişi"
-    },
     "txid": "TX ID",
     "status": "Durum",
     "minerFee": "Madenci Ücreti",

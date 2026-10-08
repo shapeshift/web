@@ -957,9 +957,6 @@
       "apply": "필터 적용하기"
     },
     "downloadCSV": "CSV 파일로 다운로드",
-    "csv": {
-      "fileName": "ShapeShift Transaction History"
-    },
     "transactionTypes": {
       "send": "보냄",
       "receive": "받음",

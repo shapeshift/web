@@ -901,9 +901,6 @@
       "apply": "Menerapkan"
     },
     "downloadCSV": "Unduh CSV",
-    "csv": {
-      "fileName": "Riwayat Transaksi ShapeShift"
-    },
     "transactionTypes": {
       "send": "Kirim",
       "receive": "Menerima",

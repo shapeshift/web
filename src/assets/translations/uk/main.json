@@ -2202,9 +2202,6 @@
       "apply": "Подати заявку"
     },
     "downloadCSV": "Завантажити CSV",
-    "csv": {
-      "fileName": "Історія транзакцій ShapeShift"
-    },
     "txid": "ID транзакції",
     "status": "Статус",
     "minerFee": "Комісія майнерам",

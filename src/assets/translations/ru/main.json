@@ -2202,9 +2202,6 @@
       "apply": "Применить"
     },
     "downloadCSV": "Скачать CSV",
-    "csv": {
-      "fileName": "История транзакций\nShapeShift "
-    },
     "txid": "TX ID",
     "status": "Состояние",
     "minerFee": "Комиссия майнера",

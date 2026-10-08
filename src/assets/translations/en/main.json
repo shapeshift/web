@@ -2202,9 +2202,6 @@
       "apply": "Apply"
     },
     "downloadCSV": "Download CSV",
-    "csv": {
-      "fileName": "ShapeShift Transactions History"
-    },
     "txid": "TX ID",
     "status": "Status",
     "minerFee": "Miner Fee",

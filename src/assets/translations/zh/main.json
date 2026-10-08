@@ -2202,9 +2202,6 @@
       "apply": "申请"
     },
     "downloadCSV": "下载 CSV 文件",
-    "csv": {
-      "fileName": "ShapeShift 交易记录"
-    },
     "txid": "交易 ID",
     "status": "状态",
     "minerFee": "矿工费",

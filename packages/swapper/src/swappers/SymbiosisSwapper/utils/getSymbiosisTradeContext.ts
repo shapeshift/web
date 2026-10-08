@@ -17,8 +17,8 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import {
   SYMBIOSIS_DISABLED_PROVIDERS,
-  SYMBIOSIS_PARTNER_ADDRESS,
   SYMBIOSIS_PARTNER_FEE_BPS,
+  SYMBIOSIS_PARTNER_FEE_DESCRIPTION,
 } from './constants'
 import type { GetSymbiosisStepDataArgs } from './getSymbiosisStepData'
 import {
@@ -69,11 +69,9 @@ export const getSymbiosisTradeContext = async ({
       getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Symbiosis),
   )
 
-  const partnerAddress = getSymbiosisPartnerAddress({
-    partnerAddress: SYMBIOSIS_PARTNER_ADDRESS,
-    partnerFeeBps: SYMBIOSIS_PARTNER_FEE_BPS,
-    affiliateBps,
-  })
+  const maybePartnerAddress = getSymbiosisPartnerAddress(affiliateBps)
+  if (maybePartnerAddress.isErr()) return Err(maybePartnerAddress.unwrapErr())
+  const partnerAddress = maybePartnerAddress.unwrap()
 
   const request: SymbiosisQuoteRequest = {
     tokenAmountIn: {
@@ -138,6 +136,19 @@ export const getSymbiosisTradeContext = async ({
       makeSwapErrorRight({
         message: 'No Symbiosis route through its own liquidity',
         code: TradeQuoteError.NoRouteFound,
+      }),
+    )
+  }
+
+  // The quote must carry the fee we report, otherwise Symbiosis is not collecting it on this route
+  if (
+    partnerAddress &&
+    !quote.fees.some(fee => fee.description === SYMBIOSIS_PARTNER_FEE_DESCRIPTION)
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Symbiosis quote is missing the partner fee',
+        code: TradeQuoteError.InvalidResponse,
       }),
     )
   }

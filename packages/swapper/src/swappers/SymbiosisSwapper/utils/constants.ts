@@ -76,19 +76,28 @@ export const symbiosisChainIdToChainId: Partial<Record<number, ChainId>> = Objec
   SYMBIOSIS_CHAIN_ID_ENTRIES.map(([chainId, symbiosisChainId]) => [symbiosisChainId, chainId]),
 )
 
-// Routes Symbiosis only forwards to other protocols - excluded so quotes come from its own pools
-export const SYMBIOSIS_DISABLED_PROVIDERS = 'chainflip-bridge,thorchain-bridge,changelly'
-export const SYMBIOSIS_PASSTHROUGH_LABELS = ['partner-swap', 'semi-centralized']
-export const SYMBIOSIS_SOURCE_SWAP_LABEL = 'src-chain-swap'
-export const SYMBIOSIS_CROSSCHAIN_KIND = 'crosschain-swap'
+// Disabled liquidity providers: bridges we integrate directly, custodial Changelly, and intent routes that skip the partner fee
+export const SYMBIOSIS_DISABLED_PROVIDERS =
+  'chainflip-bridge,thorchain-bridge,changelly,intent-solver'
+
+export const SYMBIOSIS_CROSSCHAIN_SWAP_KIND = 'crosschain-swap'
+export const SYMBIOSIS_SRC_CHAIN_SWAP_LABEL = 'src-chain-swap'
+
+// Labels on routes with a leg outside Symbiosis
+export const SYMBIOSIS_PARTNER_SWAP_LABEL = 'partner-swap'
+export const SYMBIOSIS_SEMI_CENTRALIZED_LABEL = 'semi-centralized'
 
 // /v2/quote answers 'Slippage is too low' under 10 and 'too high' over 1000
 export const SYMBIOSIS_MIN_SLIPPAGE_BPS = 10
 export const SYMBIOSIS_MAX_SLIPPAGE_BPS = 1000
 
-// Our registered partner address and the fixed fee rate Symbiosis has configured for it - empty and '0' until registered
-export const SYMBIOSIS_PARTNER_ADDRESS = ''
-export const SYMBIOSIS_PARTNER_FEE_BPS = '0'
+// Our registered partner address and the fixed fee rate Symbiosis has configured for it
+export const SYMBIOSIS_PARTNER_ADDRESS = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
+export const SYMBIOSIS_PARTNER_FEE_BPS = '60'
+export const SYMBIOSIS_PARTNER_FEE_DESCRIPTION = 'Partner fee'
+
+// Sent as X-Partner-Id so Symbiosis attributes our swaps to this client id in its explorer and metrics
+export const SYMBIOSIS_PARTNER_ID = 'shapeshift'
 
 export const DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 export const DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS = 'TLa2f6VPqDgRE67v1736s7bJ8Ray5wYjU7'

@@ -2203,19 +2203,7 @@
     },
     "downloadCSV": "CSVをダウンロード",
     "csv": {
-      "fileName": "ShapeShiftトランザクション履歴",
-      "txid": "TX ID",
-      "type": "TXタイプ",
-      "timestamp": "タイムスタンプ",
-      "status": "ステータス",
-      "minerFee": "マイナー手数料",
-      "minerFeeCurrency": "マイナー手数料通貨",
-      "inputAmount": "入力額",
-      "inputCurrency": "入力通貨",
-      "inputAddress": "入力アドレス",
-      "outputAmount": "出力額",
-      "outputCurrency": "出力通貨",
-      "outputAddress": "出力アドレス"
+      "fileName": "ShapeShiftトランザクション履歴"
     },
     "txid": "TX ID",
     "status": "ステータス",

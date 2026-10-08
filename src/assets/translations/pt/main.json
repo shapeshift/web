@@ -2203,19 +2203,7 @@
     },
     "downloadCSV": "Baixar CSV",
     "csv": {
-      "fileName": "Histórico de transações do ShapeShift",
-      "txid": "ID TX",
-      "type": "Tipo TX",
-      "timestamp": "Carimbo de data e hora",
-      "status": "Status",
-      "minerFee": "Taxa de minerador",
-      "minerFeeCurrency": "Moeda da taxa do minerador",
-      "inputAmount": "Valor de entrada",
-      "inputCurrency": "Moeda de entrada",
-      "inputAddress": "Endereço de entrada",
-      "outputAmount": "Quantidade de saída",
-      "outputCurrency": "Moeda de saída",
-      "outputAddress": "Endereço de saída"
+      "fileName": "Histórico de transações do ShapeShift"
     },
     "txid": "ID TX",
     "status": "Status",

@@ -2203,19 +2203,7 @@
     },
     "downloadCSV": "Завантажити CSV",
     "csv": {
-      "fileName": "Історія транзакцій ShapeShift",
-      "txid": "ID транзакції",
-      "type": "тип транзакції",
-      "timestamp": "Часовий діапазон",
-      "status": "Статус",
-      "minerFee": "Комісія майнерам",
-      "minerFeeCurrency": "Валюта комісії майнерам",
-      "inputAmount": "Сума вкладу",
-      "inputCurrency": "Валюта платежу",
-      "inputAddress": "Адреса введення",
-      "outputAmount": "Сума виводу",
-      "outputCurrency": "Вихідна валюта",
-      "outputAddress": "Вихідний адрес"
+      "fileName": "Історія транзакцій ShapeShift"
     },
     "txid": "ID транзакції",
     "status": "Статус",

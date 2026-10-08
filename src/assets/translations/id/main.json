@@ -902,19 +902,7 @@
     },
     "downloadCSV": "Unduh CSV",
     "csv": {
-      "fileName": "Riwayat Transaksi ShapeShift",
-      "txid": "TX ID",
-      "type": "Tipe TX",
-      "timestamp": "stempel waktu",
-      "status": "Status",
-      "minerFee": "Biaya penambang",
-      "minerFeeCurrency": "Mata uang biaya penambang",
-      "inputAmount": "Jumlah masukan",
-      "inputCurrency": "Masukan mata uang",
-      "inputAddress": "Masukan alamat",
-      "outputAmount": "jumlah keluaran",
-      "outputCurrency": "Keluaran mata uang",
-      "outputAddress": "Alamat keluaran"
+      "fileName": "Riwayat Transaksi ShapeShift"
     },
     "transactionTypes": {
       "send": "Kirim",

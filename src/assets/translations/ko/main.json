@@ -958,19 +958,7 @@
     },
     "downloadCSV": "CSV 파일로 다운로드",
     "csv": {
-      "fileName": "ShapeShift Transaction History",
-      "txid": "TX ID",
-      "type": "TX type",
-      "timestamp": "Timestamp",
-      "status": "Status",
-      "minerFee": "Miner fee",
-      "minerFeeCurrency": "Miner fee Currency",
-      "inputAmount": "Input amount",
-      "inputCurrency": "Input currency",
-      "inputAddress": "Input address",
-      "outputAmount": "Output amount",
-      "outputCurrency": "Output currency",
-      "outputAddress": "Output address"
+      "fileName": "ShapeShift Transaction History"
     },
     "transactionTypes": {
       "send": "보냄",

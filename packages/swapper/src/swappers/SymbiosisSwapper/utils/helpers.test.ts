@@ -2,6 +2,7 @@ import { usdtOnTronAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { describe, expect, it } from 'vitest'
 
+import { SYMBIOSIS_PARTNER_ADDRESS } from './constants'
 import {
   buildSymbiosisTronCallData,
   getSymbiosisFeeAssetId,
@@ -55,21 +56,17 @@ describe('getSymbiosisSlippageBps', () => {
 })
 
 describe('getSymbiosisPartnerAddress', () => {
-  const partnerAddress = '0x1111111111111111111111111111111111111111'
-
-  it('returns the address when the requested bps equals the registered rate', () => {
-    expect(
-      getSymbiosisPartnerAddress({ partnerAddress, partnerFeeBps: '60', affiliateBps: '60' }),
-    ).toBe(partnerAddress)
+  it('sends the partner address at the registered rate', () => {
+    expect(getSymbiosisPartnerAddress('60').unwrap()).toBe(SYMBIOSIS_PARTNER_ADDRESS)
   })
 
-  it('returns undefined when the requested bps differs from the registered rate', () => {
-    expect(
-      getSymbiosisPartnerAddress({ partnerAddress, partnerFeeBps: '60', affiliateBps: '30' }),
-    ).toBeUndefined()
-    expect(
-      getSymbiosisPartnerAddress({ partnerAddress, partnerFeeBps: '60', affiliateBps: '0' }),
-    ).toBeUndefined()
+  it('omits the partner address for a fee-free swap', () => {
+    expect(getSymbiosisPartnerAddress('0').unwrap()).toBeUndefined()
+  })
+
+  it('rejects any other rate instead of silently dropping the fee', () => {
+    expect(getSymbiosisPartnerAddress('30').isErr()).toBe(true)
+    expect(getSymbiosisPartnerAddress('80').isErr()).toBe(true)
   })
 })
 

@@ -21,7 +21,7 @@ const ethSend: Transfer = {
 const usdcSend: Transfer = {
   type: TransferType.Send,
   assetId: usdc.assetId,
-  asset: { ...usdc, symbol: 'USDC' },
+  asset: usdc,
   from: [user],
   to: [router],
   value: '2002240000',

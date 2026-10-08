@@ -1,9 +1,8 @@
 import { BigAmount } from '@shapeshiftoss/utils'
 
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 
-export type TransferColumns = {
+type TransferColumns = {
   amount: string
   currency: string
   addresses: string
@@ -19,12 +18,10 @@ export const getTransferColumns = (
   if (!transfers.length) return { amount: '-', currency: '-', addresses: '-' }
 
   const amounts = transfers.map(transfer =>
-    bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: transfer.value,
-        precision: transfer.asset.precision,
-      }).toPrecision(),
-    ).toFixed(),
+    BigAmount.fromBaseUnit({
+      value: transfer.value,
+      precision: transfer.asset.precision,
+    }).toPrecision(),
   )
   const currencies = transfers.map(transfer => transfer.asset.symbol)
   const addresses = transfers.flatMap(transfer => transfer[addressKey])

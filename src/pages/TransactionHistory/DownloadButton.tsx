@@ -84,16 +84,11 @@ export const DownloadButton = ({
       const type = getTxType(tx, transfers)
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
 
-      const { sends, receives } = (() => {
-        if (transfers.length === 1) return { sends: transfers, receives: transfers }
-        return {
-          sends: transfers.filter(transfer => transfer.type === TransferType.Send),
-          receives: transfers.filter(transfer => transfer.type === TransferType.Receive),
-        }
-      })()
+      const sends = transfers.filter(transfer => transfer.type === TransferType.Send)
+      const receives = transfers.filter(transfer => transfer.type === TransferType.Receive)
 
-      const input = getTransferColumns(sends, 'from')
-      const output = getTransferColumns(receives, 'to')
+      const input = getTransferColumns(sends.length ? sends : receives, 'from')
+      const output = getTransferColumns(receives.length ? receives : sends, 'to')
 
       const typeLabel = (() => {
         if (type === 'common') return 'transactionRow.common'

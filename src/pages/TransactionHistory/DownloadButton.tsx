@@ -7,7 +7,7 @@ import { TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import type { ReportLeg } from './utils'
-import { getReportLegs, toAmount, toCsvCell, toReportDate } from './utils'
+import { getReportLegs, toAmount, toCsvCell, toLeg, toReportDate } from './utils'
 
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
@@ -96,8 +96,16 @@ export const DownloadButton = ({
               }
             : noFee
 
+        // A failed tx moved nothing, so only its fee is reported
+        const legs = getReportLegs(
+          tx.status === TxStatus.Failed ? [] : transfers,
+          chainIdToFeeAssetId(tx.chainId),
+        )
+        if (!legs.length && fee === noFee) continue
+
         // The fee is paid once per tx, so only the first leg carries it
-        getReportLegs(transfers, chainIdToFeeAssetId(tx.chainId)).forEach((leg, i) => {
+        const rows = legs.length ? legs : [toLeg()]
+        rows.forEach((leg, i) => {
           report.push({ ...base, ...(i === 0 ? fee : noFee), ...leg })
         })
       }

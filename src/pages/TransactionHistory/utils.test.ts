@@ -1,7 +1,7 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { describe, expect, it } from 'vitest'
 
-import { getReportLegs, toCsvCell, toReportDate } from './utils'
+import { getReportLegs, toCsvCell, toLeg, toReportDate } from './utils'
 
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 import { bitcoin, ethereum, fox, usdc } from '@/test/mocks/assets'
@@ -97,8 +97,8 @@ const contract: Transfer = {
 
 describe('TransactionHistory/utils', () => {
   describe('getReportLegs', () => {
-    it('returns one blank leg when there are no transfers', () => {
-      expect(getReportLegs([], ethereum.assetId)).toEqual([blankLeg])
+    it('returns no legs when there are no transfers', () => {
+      expect(getReportLegs([], ethereum.assetId)).toEqual([])
     })
 
     it('reports a send as sent only, keeping the recipient address', () => {
@@ -128,7 +128,7 @@ describe('TransactionHistory/utils', () => {
     })
 
     it('ignores contract transfers, which are not the user funds', () => {
-      expect(getReportLegs([contract], ethereum.assetId)).toEqual([blankLeg])
+      expect(getReportLegs([contract], ethereum.assetId)).toEqual([])
     })
 
     it('pairs the token sold with the token bought and puts a native fee on its own leg', () => {
@@ -226,6 +226,12 @@ describe('TransactionHistory/utils', () => {
           receivedAddresses: user,
         },
       ])
+    })
+  })
+
+  describe('toLeg', () => {
+    it('is blank with no transfers', () => {
+      expect(toLeg()).toEqual(blankLeg)
     })
   })
 

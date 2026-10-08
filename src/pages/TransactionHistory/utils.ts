@@ -19,7 +19,7 @@ export const toAmount = (value: string, precision: number): string =>
 
 const toAddresses = (addresses: string[] | undefined): string => addresses?.join(', ') ?? ''
 
-const toLeg = (send?: Transfer, receive?: Transfer): ReportLeg => ({
+export const toLeg = (send?: Transfer, receive?: Transfer): ReportLeg => ({
   sentAmount: send ? toAmount(send.value, send.asset.precision) : '',
   sentCurrency: send?.asset.symbol ?? '',
   sentAddresses: toAddresses((send ?? receive)?.from),
@@ -51,7 +51,7 @@ export const getReportLegs = (
 
   legs.push(...unpairedReceives.map(receive => toLeg(undefined, receive)))
 
-  return legs.length ? legs : [toLeg()]
+  return legs
 }
 
 // Koinly and CoinTracker expect YYYY-MM-DD HH:mm:ss in UTC

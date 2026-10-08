@@ -233,10 +233,6 @@ describe('TransactionHistory/utils', () => {
     it('formats the block time as a utc date tax tools accept', () => {
       expect(toReportDate(1778855615)).toBe('2026-05-15 14:33:35')
     })
-
-    it('leaves the date blank for an unconfirmed tx', () => {
-      expect(toReportDate(0)).toBe('')
-    })
   })
 
   describe('toCsvCell', () => {

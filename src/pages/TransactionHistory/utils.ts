@@ -54,9 +54,9 @@ export const getReportLegs = (
   return legs.length ? legs : [toLeg()]
 }
 
-// Koinly and CoinTracker expect YYYY-MM-DD HH:mm:ss in UTC; an unconfirmed tx has no date yet
+// Koinly and CoinTracker expect YYYY-MM-DD HH:mm:ss in UTC
 export const toReportDate = (blockTime: number): string =>
-  blockTime ? new Date(blockTime * 1000).toISOString().slice(0, 19).replace('T', ' ') : ''
+  new Date(blockTime * 1000).toISOString().slice(0, 19).replace('T', ' ')
 
 // RFC 4180 quoting, plus a leading apostrophe so a token symbol cannot run as a spreadsheet formula
 export const toCsvCell = (value: string): string => {

@@ -1,4 +1,5 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useCallback, useState } from 'react'
@@ -9,8 +10,8 @@ import type { ReportLeg } from './utils'
 import { getReportLegs, toAmount, toCsvCell, toReportDate } from './utils'
 
 import { Text } from '@/components/Text'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
+import { chainIdToFeeAssetId } from '@/lib/utils'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
@@ -25,7 +26,7 @@ type ReportRow = {
   feeCurrency: string
 } & ReportLeg
 
-// Fixed English headers so tax tools can match the columns regardless of the app locale
+// Headers and values are fixed English so tax tools read the file the same in every app locale
 const headers: Record<keyof ReportRow, string> = {
   txid: 'TxHash',
   type: 'Type',
@@ -74,20 +75,16 @@ export const DownloadButton = ({
       const report: ReportRow[] = []
       for (const txId of txIds) {
         const tx = allTxs[txId]
+        if (tx.status === TxStatus.Pending) continue
+
         const transfers = getTransfers(tx, assets)
         const type = getTxType(tx, transfers)
-        const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
-
-        const typeLabel = (() => {
-          if (type === 'common') return 'transactionRow.common'
-          if (tx.data?.method) return `transactionRow.parser.${tx.data.parser}.${tx.data.method}`
-          return `transactionHistory.transactionTypes.${type}`
-        })()
+        const feeAsset = tx.fee ? assets[tx.fee.assetId] : undefined
 
         const base = {
           txid: tx.txid,
-          type: translate(typeLabel),
-          status: translate(`transactionRow.${tx.status.toLowerCase()}`),
+          type: tx.data?.method ?? (type === 'common' ? 'Transaction' : type),
+          status: tx.status,
           date: toReportDate(tx.blockTime),
         }
 
@@ -100,9 +97,7 @@ export const DownloadButton = ({
             : noFee
 
         // The fee is paid once per tx, so only the first leg carries it
-        const feeAssetId = getChainAdapterManager().get(tx.chainId)?.getFeeAssetId()
-
-        getReportLegs(transfers, feeAssetId).forEach((leg, i) => {
+        getReportLegs(transfers, chainIdToFeeAssetId(tx.chainId)).forEach((leg, i) => {
           report.push({ ...base, ...(i === 0 ? fee : noFee), ...leg })
         })
       }

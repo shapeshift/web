@@ -87,8 +87,8 @@ export const DownloadButton = ({
       const sends = transfers.filter(transfer => transfer.type === TransferType.Send)
       const receives = transfers.filter(transfer => transfer.type === TransferType.Receive)
 
-      const input = getTransferColumns(sends.length ? sends : receives, 'from')
-      const output = getTransferColumns(receives.length ? receives : sends, 'to')
+      const input = getTransferColumns(sends.length ? sends : transfers, 'from')
+      const output = getTransferColumns(receives.length ? receives : transfers, 'to')
 
       const typeLabel = (() => {
         if (type === 'common') return 'transactionRow.common'

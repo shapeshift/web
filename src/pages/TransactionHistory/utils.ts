@@ -1,3 +1,4 @@
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import { BigAmount } from '@shapeshiftoss/utils'
 
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
@@ -11,10 +12,7 @@ type TransferColumns = {
 const toCell = (values: string[]): string =>
   values.length > 1 ? `"${values.join('\n')}"` : values[0]
 
-export const getTransferColumns = (
-  transfers: Transfer[],
-  addressKey: 'from' | 'to',
-): TransferColumns => {
+const getTransferColumns = (transfers: Transfer[], addressKey: 'from' | 'to'): TransferColumns => {
   if (!transfers.length) return { amount: '-', currency: '-', addresses: '-' }
 
   const amounts = transfers.map(transfer =>
@@ -30,5 +28,18 @@ export const getTransferColumns = (
     amount: toCell(amounts),
     currency: toCell(currencies),
     addresses: `"${addresses.join('\n')}"`,
+  }
+}
+
+// A side with no transfers of its own reports the other side of the same movement
+export const getReportColumns = (
+  transfers: Transfer[],
+): { input: TransferColumns; output: TransferColumns } => {
+  const sends = transfers.filter(transfer => transfer.type === TransferType.Send)
+  const receives = transfers.filter(transfer => transfer.type === TransferType.Receive)
+
+  return {
+    input: getTransferColumns(sends.length ? sends : transfers, 'from'),
+    output: getTransferColumns(receives.length ? receives : transfers, 'to'),
   }
 }

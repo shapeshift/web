@@ -1,5 +1,4 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
-import { TransferType } from '@shapeshiftoss/unchained-client'
 import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
@@ -7,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { getTransferColumns } from './utils'
+import { getReportColumns } from './utils'
 
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
@@ -84,11 +83,7 @@ export const DownloadButton = ({
       const type = getTxType(tx, transfers)
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
 
-      const sends = transfers.filter(transfer => transfer.type === TransferType.Send)
-      const receives = transfers.filter(transfer => transfer.type === TransferType.Receive)
-
-      const input = getTransferColumns(sends.length ? sends : transfers, 'from')
-      const output = getTransferColumns(receives.length ? receives : transfers, 'to')
+      const { input, output } = getReportColumns(transfers)
 
       const typeLabel = (() => {
         if (type === 'common') return 'transactionRow.common'

@@ -15,11 +15,12 @@ import {
   chainIdToSymbiosisChainId,
   DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS,
   DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS,
-  SYMBIOSIS_CROSSCHAIN_KIND,
+  SYMBIOSIS_CROSSCHAIN_SWAP_KIND,
   SYMBIOSIS_MAX_SLIPPAGE_BPS,
   SYMBIOSIS_MIN_SLIPPAGE_BPS,
-  SYMBIOSIS_PASSTHROUGH_LABELS,
-  SYMBIOSIS_SOURCE_SWAP_LABEL,
+  SYMBIOSIS_PARTNER_SWAP_LABEL,
+  SYMBIOSIS_SEMI_CENTRALIZED_LABEL,
+  SYMBIOSIS_SRC_CHAIN_SWAP_LABEL,
   SYMBIOSIS_TRON_BRIDGE_ENERGY,
   SYMBIOSIS_TRON_SOURCE_SWAP_ENERGY,
   symbiosisChainIdToChainId,
@@ -122,7 +123,7 @@ export const buildSymbiosisTronCallData = ({
 }
 
 export const getSymbiosisTronFallbackEnergy = (labels: string[]): string =>
-  labels.includes(SYMBIOSIS_SOURCE_SWAP_LABEL)
+  labels.includes(SYMBIOSIS_SRC_CHAIN_SWAP_LABEL)
     ? SYMBIOSIS_TRON_SOURCE_SWAP_ENERGY
     : SYMBIOSIS_TRON_BRIDGE_ENERGY
 
@@ -133,8 +134,9 @@ export const isSymbiosisRouteSupported = ({
   quote: SymbiosisQuoteResponse
   sellAsset: Asset
 }): boolean => {
-  if (quote.kind !== SYMBIOSIS_CROSSCHAIN_KIND) return false
-  if (quote.labels.some(label => SYMBIOSIS_PASSTHROUGH_LABELS.includes(label))) return false
+  if (quote.kind !== SYMBIOSIS_CROSSCHAIN_SWAP_KIND) return false
+  if (quote.labels.includes(SYMBIOSIS_PARTNER_SWAP_LABEL)) return false
+  if (quote.labels.includes(SYMBIOSIS_SEMI_CENTRALIZED_LABEL)) return false
 
   const expectedType = sellAsset.chainId === tronChainId ? 'tron' : 'evm'
 

@@ -83,7 +83,7 @@ export const SYMBIOSIS_DISABLED_PROVIDERS =
 export const SYMBIOSIS_CROSSCHAIN_SWAP_KIND = 'crosschain-swap'
 export const SYMBIOSIS_SRC_CHAIN_SWAP_LABEL = 'src-chain-swap'
 
-// Swap performed by a partner rather than Symbiosis itself
+// Labels on routes with a leg outside Symbiosis
 export const SYMBIOSIS_PARTNER_SWAP_LABEL = 'partner-swap'
 export const SYMBIOSIS_SEMI_CENTRALIZED_LABEL = 'semi-centralized'
 
@@ -95,6 +95,7 @@ export const SYMBIOSIS_MAX_SLIPPAGE_BPS = 1000
 export const SYMBIOSIS_PARTNER_ADDRESS = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const SYMBIOSIS_PARTNER_FEE_BPS = '60'
 export const SYMBIOSIS_PARTNER_FEE_DESCRIPTION = 'Partner fee'
+
 // Sent as X-Partner-Id so Symbiosis attributes our swaps to this client id in its explorer and metrics
 export const SYMBIOSIS_PARTNER_ID = 'shapeshift'
 

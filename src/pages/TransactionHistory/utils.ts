@@ -1,6 +1,6 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount, chainIdToFeeAssetId } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import { getTransfersByType } from '@/components/TransactionHistoryRows/utils'
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
@@ -14,40 +14,36 @@ export type ReportLeg = {
   receivedAddresses: string
 }
 
-const toAmount = (transfer: Transfer): string =>
-  BigAmount.fromBaseUnit({
-    value: transfer.value,
-    precision: transfer.asset.precision,
-  }).toPrecision()
+export const toAmount = (value: string, precision: number): string =>
+  BigAmount.fromBaseUnit({ value, precision }).toPrecision()
 
-const toAddresses = (addresses: string[] | undefined): string =>
-  addresses ? `"${addresses.join('\n')}"` : ''
-
-const isFeeAsset = (transfer: Transfer): boolean =>
-  transfer.assetId === chainIdToFeeAssetId(fromAssetId(transfer.assetId).chainId)
-
-// A fee-asset leg beside token legs is a protocol fee or a refund, so tokens pair first
-const sortTokensFirst = (transfers: Transfer[]): Transfer[] =>
-  [...transfers].sort((a, b) => Number(isFeeAsset(a)) - Number(isFeeAsset(b)))
+const toAddresses = (addresses: string[] | undefined): string => addresses?.join(', ') ?? ''
 
 const toLeg = (send?: Transfer, receive?: Transfer): ReportLeg => ({
-  sentAmount: send ? toAmount(send) : '',
+  sentAmount: send ? toAmount(send.value, send.asset.precision) : '',
   sentCurrency: send?.asset.symbol ?? '',
   sentAddresses: toAddresses((send ?? receive)?.from),
-  receivedAmount: receive ? toAmount(receive) : '',
+  receivedAmount: receive ? toAmount(receive.value, receive.asset.precision) : '',
   receivedCurrency: receive?.asset.symbol ?? '',
   receivedAddresses: toAddresses((receive ?? send)?.to),
 })
 
-export const getReportLegs = (transfers: Transfer[]): ReportLeg[] => {
+// A fee-asset leg beside token legs is a protocol fee or a refund, so tokens pair first
+const sortTokensFirst = (transfers: Transfer[], feeAssetId: AssetId | undefined): Transfer[] =>
+  [...transfers].sort((a, b) => Number(a.assetId === feeAssetId) - Number(b.assetId === feeAssetId))
+
+export const getReportLegs = (
+  transfers: Transfer[],
+  feeAssetId: AssetId | undefined,
+): ReportLeg[] => {
   const { Send = [], Receive = [] } = getTransfersByType(transfers, [
     TransferType.Send,
     TransferType.Receive,
   ])
-  const unpairedReceives = sortTokensFirst(Receive)
+  const unpairedReceives = sortTokensFirst(Receive, feeAssetId)
 
   // A same-asset pair is a transfer, not a trade, so each side keeps its own leg
-  const legs = sortTokensFirst(Send).map(send => {
+  const legs = sortTokensFirst(Send, feeAssetId).map(send => {
     const i = unpairedReceives.findIndex(receive => receive.assetId !== send.assetId)
     const receive = i >= 0 ? unpairedReceives.splice(i, 1)[0] : undefined
     return toLeg(send, receive)
@@ -58,6 +54,12 @@ export const getReportLegs = (transfers: Transfer[]): ReportLeg[] => {
   return legs.length ? legs : [toLeg()]
 }
 
-// Koinly and CoinTracker expect YYYY-MM-DD HH:mm:ss in UTC
+// Koinly and CoinTracker expect YYYY-MM-DD HH:mm:ss in UTC; an unconfirmed tx has no date yet
 export const toReportDate = (blockTime: number): string =>
-  new Date(blockTime * 1000).toISOString().slice(0, 19).replace('T', ' ')
+  blockTime ? new Date(blockTime * 1000).toISOString().slice(0, 19).replace('T', ' ') : ''
+
+// RFC 4180 quoting, plus a leading apostrophe so a token symbol cannot run as a spreadsheet formula
+export const toCsvCell = (value: string): string => {
+  const safe = /^[=+\-@]/.test(value) ? `'${value}` : value
+  return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
+}

@@ -1,15 +1,15 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import type { ReportLeg } from './utils'
-import { getReportLegs, toReportDate } from './utils'
+import { getReportLegs, toAmount, toCsvCell, toReportDate } from './utils'
 
 import { Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
@@ -25,11 +25,27 @@ type ReportRow = {
   feeCurrency: string
 } & ReportLeg
 
-const jsonToCsv = (fields: Record<keyof ReportRow, string>, rows: ReportRow[]): string => {
-  const keys = Object.keys(fields) as (keyof ReportRow)[]
+// Fixed English headers so tax tools can match the columns regardless of the app locale
+const headers: Record<keyof ReportRow, string> = {
+  txid: 'TxHash',
+  type: 'Type',
+  status: 'Status',
+  date: 'Date',
+  feeAmount: 'Fee Amount',
+  feeCurrency: 'Fee Currency',
+  sentAmount: 'Sent Amount',
+  sentCurrency: 'Sent Currency',
+  sentAddresses: 'Sent Address',
+  receivedAmount: 'Received Amount',
+  receivedCurrency: 'Received Currency',
+  receivedAddresses: 'Received Address',
+}
+
+const toCsv = (rows: ReportRow[]): string => {
+  const keys = Object.keys(headers) as (keyof ReportRow)[]
   const csvRows = [
-    keys.map(key => fields[key]).join(','), // header
-    ...rows.map(row => keys.map(key => row[key]).join(',')), // data
+    keys.map(key => toCsvCell(headers[key])).join(','),
+    ...rows.map(row => keys.map(key => toCsvCell(row[key])).join(',')),
   ].join('\r\n')
 
   return `${csvRows}\r\n`
@@ -51,24 +67,6 @@ export const DownloadButton = ({
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
   const translate = useTranslate()
-  const fields = useMemo(
-    () => ({
-      txid: translate('transactionHistory.csv.txid'),
-      type: translate('transactionHistory.csv.type'),
-      status: translate('transactionHistory.csv.status'),
-      date: translate('transactionHistory.csv.date'),
-      feeAmount: translate('transactionHistory.csv.feeAmount'),
-      feeCurrency: translate('transactionHistory.csv.feeCurrency'),
-      sentAmount: translate('transactionHistory.csv.sentAmount'),
-      sentCurrency: translate('transactionHistory.csv.sentCurrency'),
-      sentAddresses: translate('transactionHistory.csv.sentAddress'),
-      receivedAmount: translate('transactionHistory.csv.receivedAmount'),
-      receivedCurrency: translate('transactionHistory.csv.receivedCurrency'),
-      receivedAddresses: translate('transactionHistory.csv.receivedAddress'),
-    }),
-    [translate],
-  )
-
   const generateCSV = useCallback(() => {
     setIsLoading(true)
 
@@ -87,7 +85,7 @@ export const DownloadButton = ({
         })()
 
         const base = {
-          txid: `"${tx.txid}"`,
+          txid: tx.txid,
           type: translate(typeLabel),
           status: translate(`transactionRow.${tx.status.toLowerCase()}`),
           date: toReportDate(tx.blockTime),
@@ -96,21 +94,20 @@ export const DownloadButton = ({
         const fee =
           tx.fee && feeAsset
             ? {
-                feeAmount: BigAmount.fromBaseUnit({
-                  value: tx.fee.value,
-                  precision: feeAsset.precision,
-                }).toPrecision(),
+                feeAmount: toAmount(tx.fee.value, feeAsset.precision),
                 feeCurrency: feeAsset.symbol,
               }
             : noFee
 
         // The fee is paid once per tx, so only the first leg carries it
-        getReportLegs(transfers).forEach((leg, i) => {
+        const feeAssetId = getChainAdapterManager().get(tx.chainId)?.getFeeAssetId()
+
+        getReportLegs(transfers, feeAssetId).forEach((leg, i) => {
           report.push({ ...base, ...(i === 0 ? fee : noFee), ...leg })
         })
       }
 
-      const data = jsonToCsv(fields, report)
+      const data = toCsv(report)
       const filename = `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
         'HH:mm A, MMMM DD, YYYY',
       )}.csv`
@@ -120,7 +117,7 @@ export const DownloadButton = ({
     } finally {
       setIsLoading(false)
     }
-  }, [allTxs, assets, fields, translate, txIds])
+  }, [allTxs, assets, translate, txIds])
 
   return isLargerThanLg && !isCompact ? (
     <Button

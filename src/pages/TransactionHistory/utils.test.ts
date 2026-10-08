@@ -1,7 +1,7 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { describe, expect, it } from 'vitest'
 
-import { getReportLegs, toReportDate } from './utils'
+import { getReportLegs, toCsvCell, toReportDate } from './utils'
 
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 import { bitcoin, ethereum, fox, usdc } from '@/test/mocks/assets'
@@ -98,132 +98,132 @@ const contract: Transfer = {
 describe('TransactionHistory/utils', () => {
   describe('getReportLegs', () => {
     it('returns one blank leg when there are no transfers', () => {
-      expect(getReportLegs([])).toEqual([blankLeg])
+      expect(getReportLegs([], ethereum.assetId)).toEqual([blankLeg])
     })
 
     it('reports a send as sent only, keeping the recipient address', () => {
-      expect(getReportLegs([usdcSend])).toEqual([
+      expect(getReportLegs([usdcSend], ethereum.assetId)).toEqual([
         {
           sentAmount: '2002.24',
           sentCurrency: 'USDC',
-          sentAddresses: `"${user}"`,
+          sentAddresses: user,
           receivedAmount: '',
           receivedCurrency: '',
-          receivedAddresses: `"${router}"`,
+          receivedAddresses: router,
         },
       ])
     })
 
     it('reports a receive as received only, keeping the sender address', () => {
-      expect(getReportLegs([usdcReceive])).toEqual([
+      expect(getReportLegs([usdcReceive], ethereum.assetId)).toEqual([
         {
           sentAmount: '',
           sentCurrency: '',
-          sentAddresses: `"${other}"`,
+          sentAddresses: other,
           receivedAmount: '250',
           receivedCurrency: 'USDC',
-          receivedAddresses: `"${user}"`,
+          receivedAddresses: user,
         },
       ])
     })
 
     it('ignores contract transfers, which are not the user funds', () => {
-      expect(getReportLegs([contract])).toEqual([blankLeg])
+      expect(getReportLegs([contract], ethereum.assetId)).toEqual([blankLeg])
     })
 
     it('pairs the token sold with the token bought and puts a native fee on its own leg', () => {
-      expect(getReportLegs([ethSend, usdcSend, foxReceive])).toEqual([
+      expect(getReportLegs([ethSend, usdcSend, foxReceive], ethereum.assetId)).toEqual([
         {
           sentAmount: '2002.24',
           sentCurrency: 'USDC',
-          sentAddresses: `"${user}"`,
+          sentAddresses: user,
           receivedAmount: '0.435857',
           receivedCurrency: 'FOX',
-          receivedAddresses: `"${user}"`,
+          receivedAddresses: user,
         },
         {
           sentAmount: '0.0005',
           sentCurrency: 'ETH',
-          sentAddresses: `"${user}"`,
+          sentAddresses: user,
           receivedAmount: '',
           receivedCurrency: '',
-          receivedAddresses: `"${router}"`,
+          receivedAddresses: router,
         },
       ])
     })
 
     it('reports a native swap as a single trade leg', () => {
-      expect(getReportLegs([ethSend, foxReceive])).toEqual([
+      expect(getReportLegs([ethSend, foxReceive], ethereum.assetId)).toEqual([
         {
           sentAmount: '0.0005',
           sentCurrency: 'ETH',
-          sentAddresses: `"${user}"`,
+          sentAddresses: user,
           receivedAmount: '0.435857',
           receivedCurrency: 'FOX',
-          receivedAddresses: `"${user}"`,
+          receivedAddresses: user,
         },
       ])
     })
 
     it('pairs the token bought ahead of a native refund received in the same tx', () => {
-      expect(getReportLegs([usdcSend, ethRefund, foxReceive])).toEqual([
+      expect(getReportLegs([usdcSend, ethRefund, foxReceive], ethereum.assetId)).toEqual([
         {
           sentAmount: '2002.24',
           sentCurrency: 'USDC',
-          sentAddresses: `"${user}"`,
+          sentAddresses: user,
           receivedAmount: '0.435857',
           receivedCurrency: 'FOX',
-          receivedAddresses: `"${user}"`,
+          receivedAddresses: user,
         },
         {
           sentAmount: '',
           sentCurrency: '',
-          sentAddresses: `"${router}"`,
+          sentAddresses: router,
           receivedAmount: '0.0001',
           receivedCurrency: 'ETH',
-          receivedAddresses: `"${user}"`,
+          receivedAddresses: user,
         },
       ])
     })
 
     it('keeps a same-asset self send as a transfer rather than a trade', () => {
-      expect(getReportLegs(btcSelfSend)).toEqual([
+      expect(getReportLegs(btcSelfSend, bitcoin.assetId)).toEqual([
         {
           sentAmount: '0.5',
           sentCurrency: 'BTC',
-          sentAddresses: `"${btcAddress}"`,
+          sentAddresses: btcAddress,
           receivedAmount: '',
           receivedCurrency: '',
-          receivedAddresses: `"${btcChange}"`,
+          receivedAddresses: btcChange,
         },
         {
           sentAmount: '',
           sentCurrency: '',
-          sentAddresses: `"${btcAddress}"`,
+          sentAddresses: btcAddress,
           receivedAmount: '0.5',
           receivedCurrency: 'BTC',
-          receivedAddresses: `"${btcChange}"`,
+          receivedAddresses: btcChange,
         },
       ])
     })
 
     it('reports each receive of a receive-only tx on its own leg', () => {
-      expect(getReportLegs([foxReceive, usdcReceive])).toEqual([
+      expect(getReportLegs([foxReceive, usdcReceive], ethereum.assetId)).toEqual([
         {
           sentAmount: '',
           sentCurrency: '',
-          sentAddresses: `"${router}"`,
+          sentAddresses: router,
           receivedAmount: '0.435857',
           receivedCurrency: 'FOX',
-          receivedAddresses: `"${user}"`,
+          receivedAddresses: user,
         },
         {
           sentAmount: '',
           sentCurrency: '',
-          sentAddresses: `"${other}"`,
+          sentAddresses: other,
           receivedAmount: '250',
           receivedCurrency: 'USDC',
-          receivedAddresses: `"${user}"`,
+          receivedAddresses: user,
         },
       ])
     })
@@ -232,6 +232,28 @@ describe('TransactionHistory/utils', () => {
   describe('toReportDate', () => {
     it('formats the block time as a utc date tax tools accept', () => {
       expect(toReportDate(1778855615)).toBe('2026-05-15 14:33:35')
+    })
+
+    it('leaves the date blank for an unconfirmed tx', () => {
+      expect(toReportDate(0)).toBe('')
+    })
+  })
+
+  describe('toCsvCell', () => {
+    it('passes plain values through', () => {
+      expect(toCsvCell('2002.24')).toBe('2002.24')
+    })
+
+    it('quotes values containing delimiters and doubles inner quotes', () => {
+      expect(toCsvCell('USDC,FREE')).toBe('"USDC,FREE"')
+      expect(toCsvCell('say "hi"')).toBe('"say ""hi"""')
+      expect(toCsvCell(`${user}, ${other}`)).toBe(`"${user}, ${other}"`)
+    })
+
+    it('neutralises a value that would run as a spreadsheet formula', () => {
+      expect(toCsvCell('=HYPERLINK("http://evil","claim")')).toBe(
+        `"'=HYPERLINK(""http://evil"",""claim"")"`,
+      )
     })
   })
 })

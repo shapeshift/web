@@ -94,9 +94,9 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
-  EvmGasLimitEstimate,
   GasFeeData,
   GasFeeDataEstimate,
+  GasLimitEstimate,
   NetworkFees,
 } from './types'
 import { getErc20Data } from './utils'
@@ -163,11 +163,6 @@ export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   rootBip44Params: RootBip44Params
   supportedChainIds: ChainId[]
   parser: unchained.evm.BaseTransactionParser<unchained.evm.types.Tx>
-}
-
-const getL1GasLimit = (estimate: { gasLimit: string }): string | undefined => {
-  if (!('l1GasLimit' in estimate) || typeof estimate.l1GasLimit !== 'string') return undefined
-  return estimate.l1GasLimit
 }
 
 export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
@@ -1022,16 +1017,45 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           : {}),
       }
 
-      return {
-        fast: fees,
-        average: fees,
-        slow: fees,
-      }
+      return { fast: fees, average: fees, slow: fees }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getGasFeeData',
       })
     }
+  }
+
+  protected getGasFeeDataRpcFallback(err: unknown): Promise<GasFeeDataEstimate> {
+    const viemClient = viemClientByChainId[this.chainId]
+    if (!viemClient) return ErrorHandler(err, { translation: 'chainAdapters.errors.getGasFeeData' })
+
+    console.warn(`Unchained getGasFeeData failed for ${this.chainId}, falling back to direct RPC`)
+    return this.getGasFeeDataFallback(viemClient)
+  }
+
+  protected async estimateGasWithRpc(
+    viemClient: PublicClient,
+    estimateGasBody: EstimateGasRequest,
+  ): Promise<string> {
+    const gasLimit = await viemClient.estimateGas({
+      account: getAddress(estimateGasBody.from),
+      to: getAddress(estimateGasBody.to),
+      value: parseUnits(estimateGasBody.value, 0),
+      data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
+    })
+
+    return gasLimit.toString()
+  }
+
+  protected estimateGasRpcFallback(
+    estimateGasBody: EstimateGasRequest,
+    err: unknown,
+  ): Promise<string> {
+    const viemClient = viemClientByChainId[this.chainId]
+    if (!viemClient) throw err
+
+    console.warn(`Unchained estimateGas failed for ${this.chainId}, falling back to direct RPC`)
+    return this.estimateGasWithRpc(viemClient, estimateGasBody)
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
@@ -1039,69 +1063,39 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const { fast, average, slow } = await this.providers.http.getGasFees()
       return { fast, average, slow }
     } catch (err) {
-      const viemClient = viemClientByChainId[this.chainId]
-      if (viemClient) {
-        console.warn(
-          `Unchained getGasFeeData failed for ${this.chainId}, falling back to direct RPC`,
-        )
-        return this.getGasFeeDataFallback(viemClient)
-      }
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getGasFeeData',
-      })
+      return this.getGasFeeDataRpcFallback(err)
     }
   }
 
-  async getGasLimitEstimate(input: GetFeeDataInput<T>): Promise<EvmGasLimitEstimate> {
+  async getGasLimit(input: GetFeeDataInput<T>): Promise<GasLimitEstimate> {
     const estimateGasBody = this.buildEstimateGasBody(input)
 
     try {
-      const estimated = await this.providers.http.estimateGas({ estimateGasBody })
-      const l1GasLimit = getL1GasLimit(estimated)
-
-      return { gasLimit: estimated.gasLimit, l1GasLimit }
+      const { gasLimit } = await this.providers.http.estimateGas({ estimateGasBody })
+      return { gasLimit }
     } catch (err) {
-      const viemClient = viemClientByChainId[this.chainId]
-      if (!viemClient) throw err
-
-      console.warn(`Unchained estimateGas failed for ${this.chainId}, falling back to direct RPC`)
-
-      const gasLimit = await viemClient.estimateGas({
-        account: getAddress(estimateGasBody.from),
-        to: getAddress(estimateGasBody.to),
-        value: parseUnits(estimateGasBody.value, 0),
-        data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
-      })
-
-      return { gasLimit: gasLimit.toString() }
+      return { gasLimit: await this.estimateGasRpcFallback(estimateGasBody, err) }
     }
   }
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const { gasLimit } = await this.getGasLimitEstimate(input)
-
+      const { gasLimit, l1GasLimit } = await this.getGasLimit(input)
       const { fast, average, slow } = await this.getGasFeeData()
 
+      const toFeeData = (gasFeeData: GasFeeData) => ({
+        txFee: bnOrZero(
+          BigNumber.max(gasFeeData.gasPrice, gasFeeData.maxFeePerGas ?? 0)
+            .times(gasLimit)
+            .plus(bnOrZero(gasFeeData.l1GasPrice).times(bnOrZero(l1GasLimit))),
+        ).toFixed(0),
+        chainSpecific: { gasLimit, l1GasLimit, ...gasFeeData },
+      })
+
       return {
-        fast: {
-          txFee: bnOrZero(
-            BigNumber.max(fast.gasPrice, fast.maxFeePerGas ?? 0).times(gasLimit),
-          ).toFixed(0),
-          chainSpecific: { gasLimit, ...fast },
-        },
-        average: {
-          txFee: bnOrZero(
-            BigNumber.max(average.gasPrice, average.maxFeePerGas ?? 0).times(gasLimit),
-          ).toFixed(0),
-          chainSpecific: { gasLimit, ...average },
-        },
-        slow: {
-          txFee: bnOrZero(
-            BigNumber.max(slow.gasPrice, slow.maxFeePerGas ?? 0).times(gasLimit),
-          ).toFixed(0),
-          chainSpecific: { gasLimit, ...slow },
-        },
+        fast: toFeeData(fast),
+        average: toFeeData(average),
+        slow: toFeeData(slow),
       } as FeeDataEstimate<T>
     } catch (err) {
       return ErrorHandler(err, {

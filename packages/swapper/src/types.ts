@@ -92,6 +92,7 @@ export type SwapperConfig = {
   VITE_ACROSS_API_KEY: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
+  VITE_SYMBIOSIS_API_URL: string
 }
 
 export enum SwapperName {
@@ -114,6 +115,7 @@ export enum SwapperName {
   Across = 'Across',
   Debridge = 'deBridge',
   BobGateway = 'BOB Gateway',
+  Symbiosis = 'Symbiosis',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -597,8 +599,8 @@ export type TradeQuote = TradeQuoteBase & {
 } & {
   quoteOrRate: 'quote'
   receiveAddress: string
-  // Epoch ms after which the quote is no longer safe to execute (provider expiry or fallback)
-  deadline: number
+  // Epoch ms after which the provider or contract rejects the swap; absent when neither sets one
+  deadline?: number
 }
 
 export type MultiHopTradeQuote = TradeQuote & {

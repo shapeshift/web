@@ -88,3 +88,6 @@ export const isSwapperExecutableOnSellChain = (
 // Sanity ceiling catching provider deadline bugs (unit inflation, sentinel far-future dates).
 // Widest legitimate deadline today is chainflip's 6h - raise this if a swapper ever quotes longer.
 export const MAX_QUOTE_DEADLINE_MS = 7 * 24 * 60 * 60 * 1000
+
+// expiresAt for swappers without a deadline of their own - keeps priced amounts honest for clients
+export const FALLBACK_QUOTE_EXPIRES_IN_MS = 60_000

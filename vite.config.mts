@@ -143,6 +143,8 @@ const serveCompressedAssets: PluginOption = {
 // eslint-disable-next-line import/no-default-export
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  if (env.VITE_ONRAMPER_SIGNING_KEY)
+    throw new Error('Remove VITE_ONRAMPER_SIGNING_KEY from browser build configuration')
   const port = Number(process.env.PORT) || 3000
 
   return {

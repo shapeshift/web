@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "請求の受取アドレス",
-    "confirmAndClaim": "確認と請求"
+    "confirmAndClaim": "確認と請求",
+    "claimTxDataFailed": "クレーム（請求）のトランザクションを準備できませんでした",
+    "noEthereumAccount": "請求の支払いに使用するイーサリアムアカウントを有効にしてください。",
+    "alreadyClaimed": "既に請求済みです",
+    "alreadyClaimedBody": "この引き出しは既に請求（受取）済みです。"
   },
   "trade": {
     "trade": "取引",
@@ -1315,6 +1319,7 @@
       "qrCode": "QRコード",
       "addressBook": "アドレス帳",
       "noEntries": "アドレスが見つかりません。",
+      "contractAddressWarning": "これはコントラクトアドレスです。ここに送金することが意図的なものであることを再度ご確認ください。誤ったコントラクトに送金された場合、資金が失われる可能性があります。",
       "yourWallets": "あなたのウォレット",
       "noInternalAccounts": "アカウントが見つかりません。",
       "addNewAddress": "新しいアドレスを追加",
@@ -2197,21 +2202,6 @@
       "apply": "適用する"
     },
     "downloadCSV": "CSVをダウンロード",
-    "csv": {
-      "fileName": "ShapeShiftトランザクション履歴",
-      "txid": "TX ID",
-      "type": "TXタイプ",
-      "timestamp": "タイムスタンプ",
-      "status": "ステータス",
-      "minerFee": "マイナー手数料",
-      "minerFeeCurrency": "マイナー手数料通貨",
-      "inputAmount": "入力額",
-      "inputCurrency": "入力通貨",
-      "inputAddress": "入力アドレス",
-      "outputAmount": "出力額",
-      "outputCurrency": "出力通貨",
-      "outputAddress": "出力アドレス"
-    },
     "txid": "TX ID",
     "status": "ステータス",
     "minerFee": "マイナー手数料",
@@ -2930,9 +2920,6 @@
   },
   "RFOX": {
     "staking": "rFOXステーキング",
-    "bridge": "ブリッジ",
-    "bridgeFunds": "資金のブリッジ",
-    "bridgeSuccess": "資金のブリッジが完了しました。ステーキングを続行できます。",
     "stake": "ステーク",
     "unstake": "ステーク解除",
     "claim": "請求",
@@ -2954,7 +2941,6 @@
     "useWalletAddress": "ウォレットアドレスを使用する",
     "useCustomAddress": "カスタムアドレスを使用する",
     "stakeWarning": "%{symbol} をステークする際は、ロックアップ期間が %{cooldownPeriod} であることに注意してください。つまり、トークンのステークを解除することにした場合、資金を請求できるようになるまで %{cooldownPeriod} 待つ必要があります。",
-    "bridgeCta": "%{originNetwork} で %{assetSymbol} を選択しましたが、ステークするには %{destinationNetwork} で %{assetSymbol} が必要になります。資金を %{destinationNetwork} にブリッジするお手伝いをいたします。手順についてのガイドを開始しますか?",
     "unstakeWarning": "%{symbol} を請求できるまでのクールダウン期間は %{cooldownPeriod} です。その時間が経過すると、ステークされていない金額を請求できるようになります。",
     "tooltips": {
       "stakeAmount": "こちらがあなたがステークするFOXの量です",
@@ -2969,7 +2955,8 @@
     "changeAddressPending": "RFOX 報酬アドレスを %{newAddress} に変更します",
     "changeAddressSuccess": "RFOX 報酬アドレスを %{newAddress} に変更しました",
     "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
-    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
+    "unstakeSuccess": "%{amount} %{symbol}の​​アンステーキングが開始されました。",
+    "unstakeSuccessNoCooldown": "%{amount} %{symbol} のアンステーキングが完了し、請求できるようになりました。",
     "currentRewardAddress": "現在の報酬アドレス",
     "newRewardAddress": "新しい報酬アドレス",
     "rewardCycleExplainer": "これは次の報酬サイクルを通して更新されます。",
@@ -2982,13 +2969,13 @@
     "errorFetchingClaims": "クレームの取得中にエラーが発生しました",
     "noClaimsAvailableDescription": "利用可能な請求はありません",
     "unstakeNow": "FOXを請求するにはステークを解除してください",
-    "bridgeAndConfirm": "ブリッジ＆確認",
     "noSupportedChains": "チェーンはサポートされていません",
     "noSupportedChainsDescription": "%{chainLabel} を追加するか、それをサポートするウォレットに接続します。",
     "myStakedBalance": "私のステークした残高",
     "myStakedBalanceHelper": "あなたが賭けた%{symbol}の金額",
     "pendingRewardsBalance": "保留中の報酬残高",
-    "pendingRewardsBalanceHelper": "これは、エポックの現在の収益に基づいた保留中の報酬の見積もりにすぎません。すべての計算はエポックの終了時に行われ、月末までは正確に計算することはできません。",
+    "pendingRewardsBalanceTooltip": "現時点での報酬額です。収益やステーキングされた総 %{symbol} の変動に伴い変化します。報酬はエポック終了後に自動的に支払われます。",
+    "claimTooltip": "アンステーキングされた %{symbol} を確認し、クールダウン期間が経過したら請求してください。",
     "lifetimeRewards": "生涯報酬",
     "lifetimeRewardsHelper": "これまでに%{symbol}をステーキングして獲得した合計報酬",
     "timeInPool": "プール中の時間",
@@ -3035,16 +3022,18 @@
     "foxBuybackAmount": "FOXの買い戻し額（今期）",
     "pendingDistribution": "配布保留中",
     "selectRuneAddress": "RUNEアドレスを選択",
-    "unstakeDisabledMigrationTooltip": "%{migrationDate}まで、ステーキング解除は無効化されています。%{migrationDate}以降はクールダウン期間が免除されます（または：クールダウン期間が撤廃されます）。",
     "lpSunsetWarningTitle": "プログラム終了",
     "lpSunsetWarningDescription": "Arbitrum WETH/FOX Rewardsプログラムは終了いたしました。お早めにステーキングを解除し、残高を請求してください。",
     "claimInProgress": "請求処理中",
-    "migrationBannerTitle": "rFOXはイーサリアムに移行します",
-    "migrationBannerDescription": "rFOXのステーキングは、%{migrationDate}にArbitrumからEthereumに移行します。それまではArbitrumで報酬を獲得し続け、ステーキング解除が解放されたらFOXをEthereumに移行できます。",
+    "arbitrumSunsetBannerTitle": "ArbitrumにおけるrFOXのステーキングは終了しました。",
+    "arbitrumSunsetBannerDescription": "rFOXのステーキングはイーサリアムに移行しました。ArbitrumでFOXのアンステーキングと報酬の請求を行い、イーサリアムに移行することで引き続き報酬を獲得できます。",
+    "arbitrumSunsetBannerMoveDescription": "rFOXのステーキングはイーサリアムに移行しました。お手持ちのArbitrum FOXをイーサリアムに移行してステーキングしてください。",
+    "arbitrumSunsetBannerViewCta": "Arbitrumへ移動",
     "migrationBannerCta": "FOXをイーサリアムに移行",
-    "stakingPausedTooltip": "本プログラム期間中は、ステーキングは一時停止されます。",
-    "unstakingPausedTooltip": "このプログラム期間中は、ステーキング解除は一時停止されます。",
-    "withdrawalsPausedTooltip": "このプログラムでは、報酬の請求は一時停止されています。"
+    "stakingPausedTooltip": "現在、ステーキングは一時停止中です。",
+    "stakingEndedTooltip": "Arbitrumでの%{symbol}の​​ステーキングは終了しました。",
+    "unstakingPausedTooltip": "現在、アンステーキングは一時停止中です。",
+    "withdrawalsPausedTooltip": "現在、請求は一時停止中です。"
   },
   "TCY": {
     "stake": "ステーク",
@@ -3213,6 +3202,9 @@
   },
   "actionCenter": {
     "title": "通知",
+    "claims": "請求",
+    "recent": "最近",
+    "nothingToClaim": "請求できるものはありません",
     "viewTransaction": "取引を表示",
     "originalTransaction": "元の取引",
     "replacementTransaction": "交換取引",
@@ -3280,6 +3272,8 @@
       "complete": "%{amount} %{symbol} の請求が完了しました。",
       "failed": "%{amount} %{symbol} の請求が失敗しました。"
     },
+    "availableSoon": "まもなく",
+    "claimAvailableOn": "請求可能",
     "yield": {
       "unstakeAvailableIn": "%{symbol} のステーク解除は %{duration} 後に利用可能になります。",
       "unstakeReady": "%{symbol} のステーク解除の請求が可能になりました。",
@@ -3291,8 +3285,9 @@
       "initiated": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのブリッジが開始されました。",
       "pendingWithdraw": "%{amountAndSymbol} の出金は %{timeText} から可能になります。",
       "claimAvailable": "ブリッジした %{amountAndSymbol} を受け取れます",
+      "withdrawComplete": "%{amountAndSymbol} のブリッジが完了しました。",
+      "withdrawProcessing": "%{amountAndSymbol} のブリッジ処理中です。",
       "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが失敗しました。",
-      "transactionInitiated": "取引開始",
       "claimWithdraw": "引き出しを請求",
       "withdrawTx": "出金トランザクション",
       "claimTx": "請求トランザクション"
@@ -3304,6 +3299,8 @@
       "expired": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文の有効期限が切れました。"
     },
     "rfox": {
+      "unstakeTx": "アンステークTx",
+      "unstakePending": "%{amount} %{symbol} のアンステーキングは %{timeText} に利用可能になります。",
       "unstakeReady": "%{amount} %{symbol} のステーク解除を請求する準備ができました。",
       "unstakeTxPending": "%{amount} %{symbol} のステーク解除が保留中です。",
       "unstakeTxComplete": "%{amount} %{symbol} のステーク解除が完了しました。"
@@ -3505,6 +3502,7 @@
       "quoteFailedTitle": "見積もりに失敗しました",
       "quoteFailedDescription": "この取引の見積りを取得できません。もう一度お試しください。",
       "insufficientAssetForGas": "ガスに必要な%{symbol}が不足しています",
+      "tronFeeLimitBelowEstimate": "プロバイダーの料金上限が、推定ネットワーク料金を下回っています。しばらくしてからもう一度お試しください。",
       "rateLimited": "リクエストが多すぎます"
     },
     "underMaintenance": "メンテナンス中",

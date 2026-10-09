@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "Адреса для отримання клейму",
-    "confirmAndClaim": "Підтвердити та заявити"
+    "confirmAndClaim": "Підтвердити та заявити",
+    "claimTxDataFailed": "Не вдалося підготувати транзакцію за претензією",
+    "noEthereumAccount": "Увімкніть обліковий запис Ethereum для оплати претензії",
+    "alreadyClaimed": "Вже отримано",
+    "alreadyClaimedBody": "Цю виплату вже отримано."
   },
   "trade": {
     "trade": "Торгівля",
@@ -1315,6 +1319,7 @@
       "qrCode": "QR Code",
       "addressBook": "Адресна книга",
       "noEntries": "Адреса не знайдена.",
+      "contractAddressWarning": "Це адреса контракту. Переконайтеся, що ви дійсно хочете здійснити переказ саме на цю адресу. Кошти, надіслані на неправильний контракт, можуть бути втрачені.",
       "yourWallets": "Ваші гаманці",
       "noInternalAccounts": "Не знайдено жодних облікових записів.",
       "addNewAddress": "Додати нову адресу",
@@ -2197,21 +2202,6 @@
       "apply": "Подати заявку"
     },
     "downloadCSV": "Завантажити CSV",
-    "csv": {
-      "fileName": "Історія транзакцій ShapeShift",
-      "txid": "ID транзакції",
-      "type": "тип транзакції",
-      "timestamp": "Часовий діапазон",
-      "status": "Статус",
-      "minerFee": "Комісія майнерам",
-      "minerFeeCurrency": "Валюта комісії майнерам",
-      "inputAmount": "Сума вкладу",
-      "inputCurrency": "Валюта платежу",
-      "inputAddress": "Адреса введення",
-      "outputAmount": "Сума виводу",
-      "outputCurrency": "Вихідна валюта",
-      "outputAddress": "Вихідний адрес"
-    },
     "txid": "ID транзакції",
     "status": "Статус",
     "minerFee": "Комісія майнерам",
@@ -2930,9 +2920,6 @@
   },
   "RFOX": {
     "staking": "Стейкінг rFOX ",
-    "bridge": "Міст",
-    "bridgeFunds": "Перевести кошти",
-    "bridgeSuccess": "Ваші кошти були успішно переведені. Тепер ви можете продовжувати стейкінг.",
     "stake": "Стейкінг",
     "unstake": "Зняти з стейкінгу",
     "claim": "Клейм",
@@ -2954,7 +2941,6 @@
     "useWalletAddress": "Використовуйте адресу гаманця",
     "useCustomAddress": "Використовуйте власну адресу",
     "stakeWarning": "Коли ви вкладаєте свої %{symbol}, будь ласка, пам'ятайте, що період блокування становить %{cooldownPeriod}. Це означає, що якщо ви вирішите зняти свої токени, вам потрібно буде почекати %{cooldownPeriod}, перш ніж ви зможете забрати свої кошти.",
-    "bridgeCta": "Ви вибрали %{assetSymbol} у %{originNetwork}, але для того, щоб застейкати, вам потрібен %{assetSymbol} у %{destinationNetwork}. Ми можемо допомогти вам перевести ваші кошти в %{destinationNetwork}. Бажаєте, щоб ми провели вас через цей процес?",
     "unstakeWarning": "Перед тим, як ви зможете забрати свій %{symbol}, у вас є період очікування %{cooldownPeriod}. Після закінчення цього часу ви зможете забрати свою не застейкану суму.",
     "tooltips": {
       "stakeAmount": "Це сума FOX, яку ви поставите на кін",
@@ -2969,7 +2955,8 @@
     "changeAddressPending": "Зміна адреси винагороди RFOX на %{newAddress}",
     "changeAddressSuccess": "Змінено адресу винагороди RFOX на %{newAddress}.",
     "unstakePending": "Запит на зняття %{amount} %{symbol}",
-    "unstakeSuccess": "Після закінчення %{cooldownPeriod} ви зможете отримати свої %{amount} %{symbol}",
+    "unstakeSuccess": "Процес виведення ваших %{amount} %{symbol} розпочато.",
+    "unstakeSuccessNoCooldown": "Ваші %{amount} %{symbol} вилучені зі стейкінгу і готові до отримання.",
     "currentRewardAddress": "Поточна адреса для отримання винагороди",
     "newRewardAddress": "Нова адреса для отримання винагороди",
     "rewardCycleExplainer": "Ця інформація буде оновлена для наступного циклу нагородження.",
@@ -2982,13 +2969,13 @@
     "errorFetchingClaims": "Виникла помилка при клеймі",
     "noClaimsAvailableDescription": "Ви не маєте жодних наявних клеймів",
     "unstakeNow": "Відстейкати і заклеймити FOX",
-    "bridgeAndConfirm": "Перевести & Підтвердити",
     "noSupportedChains": "Мережа не підтримується",
     "noSupportedChainsDescription": "Додайте %{chainLabel} або підключіться до гаманця, який його підтримує.",
     "myStakedBalance": "Мій баланс стейкінгу",
     "myStakedBalanceHelper": "Сума %{symbol}, яку ви застейкали",
     "pendingRewardsBalance": "Баланс очікуваних винагород",
-    "pendingRewardsBalanceHelper": "Це лише приблизний розрахунок ваших очікуваних винагород, який базується на доходах епохи на сьогоднішній день. Всі розрахунки проводяться в кінці епохи і не можуть бути точно розраховані до кінця місяця",
+    "pendingRewardsBalanceTooltip": "Ваші винагороди на даний момент епохи. Ця сума змінюватиметься у міру зміни доходу та загальної суми %{symbol}, поставленої на стейкінг. Виплата здійснюється автоматично після закінчення епохи.",
+    "claimTooltip": "Перегляньте свій незастейканий %{symbol} і отримайте його після закінчення періоду очікування.",
     "lifetimeRewards": "Винагороди за весь час",
     "lifetimeRewardsHelper": "Загальна сума винагород, яку ви заробили, поставивши свої %{symbol} на сьогоднішній день",
     "timeInPool": "Час в пулі",
@@ -3035,16 +3022,18 @@
     "foxBuybackAmount": "Сума викупу FOX (у цій епосі)",
     "pendingDistribution": "Очікує на розподіл",
     "selectRuneAddress": "Виберіть адресу RUN",
-    "unstakeDisabledMigrationTooltip": "Функція виведення стейкінгу буде недоступною до %{migrationDate}, після чого період очікування буде скасовано.",
     "lpSunsetWarningTitle": "Програма завершена",
     "lpSunsetWarningDescription": "Програма винагород Arbitrum WETH/FOX була припинена. Будь ласка, зніміть свій стейкінг та заберіть свій баланс якомога швидше.",
     "claimInProgress": "Заявка знаходиться на розгляді",
-    "migrationBannerTitle": "rFOX переходить на Ethereum",
-    "migrationBannerDescription": "Стейкінг rFOX переноситься з Arbitrum на Ethereum %{migrationDate}. До цього часу ви продовжуватимете отримувати винагороду на Arbitrum, а після цього відкриється можливість розблокування стейкінгу, і ви зможете перенести свої FOX на нову платформу.",
+    "arbitrumSunsetBannerTitle": "Стейкінг rFOX на Arbitrum завершився",
+    "arbitrumSunsetBannerDescription": "Стейкінг rFOX перенесено на Ethereum. Зніміть стейкінг і отримайте свої FOX на Arbitrum, а потім перенесіть їх на Ethereum, щоб і надалі отримувати винагороди.",
+    "arbitrumSunsetBannerMoveDescription": "Стейкінг rFOX перенесено на Ethereum. Перенесіть свої FOX з Arbitrum на Ethereum, щоб взяти участь у стейкінгу.",
+    "arbitrumSunsetBannerViewCta": "Перейти на Arbitrum",
     "migrationBannerCta": "Перенести FOX на Ethereum",
-    "stakingPausedTooltip": "Стейкінг у рамках цієї програми призупинено.",
-    "unstakingPausedTooltip": "Для цієї програми процес виведення стейкінгу призупинено.",
-    "withdrawalsPausedTooltip": "Прийом заявок на участь у цій програмі тимчасово призупинено."
+    "stakingPausedTooltip": "Наразі стейкінг призупинено.",
+    "stakingEndedTooltip": "Стейкінг %{symbol} на Arbitrum завершився.",
+    "unstakingPausedTooltip": "Наразі процес виведення стейкінгу призупинено.",
+    "withdrawalsPausedTooltip": "Наразі прийом заяв призупинено."
   },
   "TCY": {
     "stake": "Стейкінг",
@@ -3213,6 +3202,9 @@
   },
   "actionCenter": {
     "title": "Сповіщення",
+    "claims": "Претензії",
+    "recent": "Останні",
+    "nothingToClaim": "Немає претензій",
     "viewTransaction": "Переглянути транзакцію",
     "originalTransaction": "Початкова транзакція",
     "replacementTransaction": "Операція заміни",
@@ -3280,6 +3272,8 @@
       "complete": "Ваша вимога на суму %{amount} %{symbol} виконана.",
       "failed": "Ваш запит на отримання %{amount} %{symbol} не вдався."
     },
+    "availableSoon": "скоро",
+    "claimAvailableOn": "Заявка доступна",
     "yield": {
       "unstakeAvailableIn": "Зняття зі стейкінгу %{symbol} буде доступне через %{duration}.",
       "unstakeReady": "Ваше зняття зі стейкінгу %{symbol} готове до отримання.",
@@ -3291,8 +3285,9 @@
       "initiated": "Ваш міст від %{sellAmountAndSymbol} до %{buyAmountAndSymbol} було ініційовано.",
       "pendingWithdraw": "Ваш вивід %{amountAndSymbol} буде доступний %{timeText}.",
       "claimAvailable": "Ваш міст на суму %{amountAndSymbol} доступний для отримання.",
+      "withdrawComplete": "Ваш переказ на суму %{amountAndSymbol} завершено.",
+      "withdrawProcessing": "Ваш переказ на суму %{amountAndSymbol} зараз обробляється.",
       "failed": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} не вдався.",
-      "transactionInitiated": "Транзакція ініційована",
       "claimWithdraw": "Заклеймити вивід",
       "withdrawTx": "Транзакція виводу",
       "claimTx": "Заклеймлені транзакції"
@@ -3304,6 +3299,8 @@
       "expired": "Ваше замовлення на покупку %{buyAmountAndSymbol} за %{sellAmountAndSymbol} закінчився."
     },
     "rfox": {
+      "unstakeTx": "Транзакція скасування стейкінгу",
+      "unstakePending": "Ваші кошти у розмірі %{amount} %{symbol} будуть доступні через %{timeText}.",
       "unstakeReady": "Ваше зняття зі стейкінгу %{amount} %{symbol} готове для клейму.",
       "unstakeTxPending": "Ваше зняття зі стейкінгу %{amount} %{symbol} в процесі.",
       "unstakeTxComplete": "Ваше зняття зі стейкінгу %{amount} %{symbol} готове."
@@ -3505,6 +3502,7 @@
       "quoteFailedTitle": "Не вдалося отримати котирування",
       "quoteFailedDescription": "Неможливо отримати розрахунок вартості цієї операції. Спробуйте ще раз.",
       "insufficientAssetForGas": "Недостатньо %{symbol} для газу",
+      "tronFeeLimitBelowEstimate": "Ліміт комісії постачальника послуг нижчий за орієнтовну комісію мережі. Спробуйте ще раз пізніше.",
       "rateLimited": "Занадто багато запитів"
     },
     "underMaintenance": "На технічному обслуговуванні",

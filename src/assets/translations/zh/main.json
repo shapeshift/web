@@ -882,7 +882,11 @@
       }
     },
     "claimReceiveAddress": "领取接收地址",
-    "confirmAndClaim": "确认并认领"
+    "confirmAndClaim": "确认并认领",
+    "claimTxDataFailed": "无法准备领取交易",
+    "noEthereumAccount": "启用以太坊帐户以支付领取费用",
+    "alreadyClaimed": "已领取",
+    "alreadyClaimedBody": "提现已被领取。"
   },
   "trade": {
     "trade": "交易",
@@ -1315,6 +1319,7 @@
       "qrCode": "二维码",
       "addressBook": "地址簿",
       "noEntries": "未找到地址。",
+      "contractAddressWarning": "“这是一个合约地址。请确认您确实要向此地址发送资金。发送到错误的合约可能会导致资金永久丢失。",
       "yourWallets": "您的钱包",
       "noInternalAccounts": "未找到帐户。",
       "addNewAddress": "添加新地址",
@@ -2197,21 +2202,6 @@
       "apply": "申请"
     },
     "downloadCSV": "下载 CSV 文件",
-    "csv": {
-      "fileName": "ShapeShift 交易记录",
-      "txid": "交易 ID",
-      "type": "交易类型",
-      "timestamp": "时间戳",
-      "status": "状态",
-      "minerFee": "矿工费",
-      "minerFeeCurrency": "矿工费币种",
-      "inputAmount": "输入数量",
-      "inputCurrency": "输入币种",
-      "inputAddress": "输入地址",
-      "outputAmount": "输出数量",
-      "outputCurrency": "输出币种",
-      "outputAddress": "输出地址"
-    },
     "txid": "交易 ID",
     "status": "状态",
     "minerFee": "矿工费",
@@ -2930,9 +2920,6 @@
   },
   "RFOX": {
     "staking": "rFOX 质押",
-    "bridge": "桥接",
-    "bridgeFunds": "桥接资金",
-    "bridgeSuccess": "你的资金已成功转入。你现在可以继续质押。",
     "stake": "质押",
     "unstake": "取消质押",
     "claim": "领取",
@@ -2954,7 +2941,6 @@
     "useWalletAddress": "使用钱包地址",
     "useCustomAddress": "使用自定义地址",
     "stakeWarning": "请注意：在质押您的 %{symbol} 时，会有 %{cooldownPeriod} 的锁定期。这意味着，如果您希望取消质押代币，在领取您的资金前，您需要等待 %{cooldownPeriod}。",
-    "bridgeCta": "你选择了 %{originNetwork} 上的 %{assetSymbol}，但你需要 %{destinationNetwork} 上的 %{assetSymbol} 才能质押。我们可以帮助你将资金桥接到 %{destinationNetwork}。你希望我们指导你完成整个过程吗？",
     "unstakeWarning": "在领取您的 %{symbol} 之前，需要经过 %{cooldownPeriod} 的冷却期。冷却期结束后，您将能够领取未质押的数量。",
     "tooltips": {
       "stakeAmount": "这是你将质押的 FOX 数量",
@@ -2969,7 +2955,8 @@
     "changeAddressPending": "正在将 RFOX 奖励地址更改为 %{newAddress}",
     "changeAddressSuccess": "已将 RFOX 奖励地址更改为 %{newAddress}",
     "unstakePending": "请求提取 %{amount} %{symbol}",
-    "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
+    "unstakeSuccess": " %{amount} %{symbol} 的取消质押已发起。",
+    "unstakeSuccessNoCooldown": "您的 %{amount} %{symbol} 已取消质押，可以领取。",
     "currentRewardAddress": "当前奖励地址",
     "newRewardAddress": "新的奖励地址",
     "rewardCycleExplainer": "这将在下一个奖励周期更新。",
@@ -2982,13 +2969,13 @@
     "errorFetchingClaims": "获取领取数据时出错",
     "noClaimsAvailableDescription": "您没有任何可领取的奖励",
     "unstakeNow": "取消质押以领取 FOX",
-    "bridgeAndConfirm": "桥接并确认",
     "noSupportedChains": "不支持该链",
     "noSupportedChainsDescription": "添加 %{chainLabel} 或连接到支持它的钱包。",
     "myStakedBalance": "我的质押余额",
     "myStakedBalanceHelper": "您质押的 %{symbol} 数量",
     "pendingRewardsBalance": "待处理奖励余额",
-    "pendingRewardsBalanceHelper": "这是根据当前周期的收入估算的待领取奖励。所有的账务结算将在时段结束时进行，因此在月底之前无法准确计算。",
+    "pendingRewardsBalanceTooltip": "这是您在当前时段截至目前可获得的奖励。随着收入和 %{symbol} 总质押量的变化，该数值也会随之变化。时段结束后将自动发放。",
+    "claimTooltip": "查看您取消质押的 %{symbol}，冷却期结束后即可领取",
     "lifetimeRewards": "终生奖励",
     "lifetimeRewardsHelper": "截至目前，您质押 %{symbol} 所赚取的总奖励",
     "timeInPool": "在池中的时间",
@@ -3035,16 +3022,18 @@
     "foxBuybackAmount": "FOX 回购量 (当前时段)",
     "pendingDistribution": "待分配奖励",
     "selectRuneAddress": "选择一个 RUNE 地址",
-    "unstakeDisabledMigrationTooltip": "在 %{migrationDate} 冷却期结束前，暂不支持取消质押。",
     "lpSunsetWarningTitle": "项目已结束",
     "lpSunsetWarningDescription": "Arbitrum WETH/FOX 奖励项目已结束。请尽快取消质押并领取您的余额。",
     "claimInProgress": "正在领取中",
-    "migrationBannerTitle": "rFOX 将迁移至以太坊",
-    "migrationBannerDescription": "rFOX 质押将于 %{migrationDate} 从 Arbitrum 迁移至以太坊。届时将开放取消质押，您可以将 FOX 转移至以太坊。 在此之前，您将继续在 Arbitrum 上获取收益。",
+    "arbitrumSunsetBannerTitle": "Arbitrum 上的 rFOX 质押已结束",
+    "arbitrumSunsetBannerDescription": "rFOX 质押已迁移至以太坊。请在 Arbitrum 上取消质押并领取您的 FOX，然后将其转移至以太坊以继续赚取奖励。",
+    "arbitrumSunsetBannerMoveDescription": "rFOX 质押已迁移至以太坊。请将您在 Arbitrum 上的 FOX 转移至以太坊进行质押。",
+    "arbitrumSunsetBannerViewCta": "前往 Arbitrum",
     "migrationBannerCta": "将 FOX 转移至以太坊",
-    "stakingPausedTooltip": "该计划已暂停质押。",
-    "unstakingPausedTooltip": "该计划已暂停取消质押。",
-    "withdrawalsPausedTooltip": "该计划已暂停领取。"
+    "stakingPausedTooltip": "质押目前已暂停。",
+    "stakingEndedTooltip": "在 Arbitrum 上质押 %{symbol} 已结束。",
+    "unstakingPausedTooltip": "取消质押目前已暂停。",
+    "withdrawalsPausedTooltip": "领取目前已暂停。"
   },
   "TCY": {
     "stake": "质押",
@@ -3213,6 +3202,9 @@
   },
   "actionCenter": {
     "title": "通知",
+    "claims": "领取",
+    "recent": "最近",
+    "nothingToClaim": "暂无可领取内容",
     "viewTransaction": "查看交易",
     "originalTransaction": "原始交易",
     "replacementTransaction": "替换交易",
@@ -3280,6 +3272,8 @@
       "complete": "您领取的 %{amount} %{symbol} 已完成。",
       "failed": "您领取 %{amount} %{symbol} 的操作失败。"
     },
+    "availableSoon": "即将推出",
+    "claimAvailableOn": "领取可用",
     "yield": {
       "unstakeAvailableIn": "您的 %{symbol} 取消质押将在 %{duration} 后可用。",
       "unstakeReady": "您的 %{symbol} 取消质押已可领取。",
@@ -3291,8 +3285,9 @@
       "initiated": "您将 %{sellAmountAndSymbol} 桥接到 %{buyAmountAndSymbol} 的操作已发起。",
       "pendingWithdraw": "您提现的 %{amountAndSymbol} 将在 %{timeText} 可用。",
       "claimAvailable": "您桥接的 %{amountAndSymbol} 已可领取。",
+      "withdrawComplete": "您的 %{amountAndSymbol} 跨链交易已完成。",
+      "withdrawProcessing": "您的 %{amountAndSymbol} 跨链交易正在处理中。",
       "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。",
-      "transactionInitiated": "交易已发起",
       "claimWithdraw": "领取提现",
       "withdrawTx": "提现交易",
       "claimTx": "领取交易"
@@ -3304,6 +3299,8 @@
       "expired": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已到期。"
     },
     "rfox": {
+      "unstakeTx": "取消质押交易",
+      "unstakePending": "您取消质押的 %{amount} %{symbol} 将于 %{timeText} 后可用。",
       "unstakeReady": "您取消质押的 %{amount} %{symbol} 已可领取。",
       "unstakeTxPending": "您取消质押的 %{amount} %{symbol} 待处理中。",
       "unstakeTxComplete": "您取消质押的 %{amount} %{symbol} 已完成。"
@@ -3505,6 +3502,7 @@
       "quoteFailedTitle": "报价失败",
       "quoteFailedDescription": "无法为该交易获取报价，请重试。",
       "insufficientAssetForGas": "%{symbol} 不足以支付 Gas",
+      "tronFeeLimitBelowEstimate": "服务提供方的费用上限低于预计网络费用，请稍后重试。",
       "rateLimited": "请求过多"
     },
     "underMaintenance": "正在维护中",

@@ -16,6 +16,7 @@ import { portalsApi, portalsSwapper } from './swappers/PortalsSwapper'
 import { relayApi, relaySwapper } from './swappers/RelaySwapper'
 import { stonfiApi, stonfiSwapper } from './swappers/StonfiSwapper'
 import { sunioApi, sunioSwapper } from './swappers/SunioSwapper'
+import { symbiosisApi, symbiosisSwapper } from './swappers/SymbiosisSwapper'
 import { thorchainApi, thorchainSwapper } from './swappers/ThorchainSwapper'
 import { zrxApi, zrxSwapper } from './swappers/ZrxSwapper'
 import type { Swapper, SwapperApi } from './types'
@@ -104,6 +105,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...bobGatewaySwapper,
     ...bobGatewayApi,
   },
+  [SwapperName.Symbiosis]: {
+    ...symbiosisSwapper,
+    ...symbiosisApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -124,6 +129,8 @@ const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 // deBridge API off-chain simulation overestimates output on some chains (e.g. SEI ~2.4%), so auto slippage (1%) is insufficient
 const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
 const DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
+// Symbiosis splits the tolerance across up to three legs, and a destination leg over its share pays out the transit token instead of reverting
+const DEFAULT_SYMBIOSIS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -166,6 +173,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.BobGateway:
       return DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Symbiosis:
+      return DEFAULT_SYMBIOSIS_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

@@ -40,9 +40,6 @@ import {
 import type { TradeAmount, TradeStepCommon } from '../types'
 import { SwapperName } from '../types'
 
-// Deadline for providers without their own expiry - short enough to keep priced amounts honest
-export const FALLBACK_QUOTE_DEADLINE_MS = 60_000
-
 export const getTradeAmount = (
   input:
     | { sellAmountIncludingProtocolFeesCryptoBaseUnit: string }

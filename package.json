@@ -59,7 +59,8 @@
     "translations:count-words-invalidate-since": "pnpm exec tsx ./scripts/translations/countWordsInvalidateSince.ts",
     "translations:update-path": "pnpm exec tsx ./scripts/translations/updateTranslationPath.ts",
     "type-check": "NODE_OPTIONS=--max-old-space-size=8192 pnpm exec tsc --noEmit",
-    "type-check-watch": "pnpm exec tsc --noEmit --watch"
+    "type-check-watch": "pnpm exec tsc --noEmit --watch",
+    "onramper:local": "VITE_ONRAMPER_SIGNING_KEY= VITE_ONRAMPER_API_KEY=local-test-only VITE_ONRAMPER_SIGNING_URL=http://localhost:3002 VITE_ONRAMPER_API_URL=http://localhost:3999/ VITE_ONRAMPER_WIDGET_URL=http://localhost:3999/ vite --host 127.0.0.1 --port 5173 --strictPort --mode development"
   },
   "browserslist": {
     "production": [

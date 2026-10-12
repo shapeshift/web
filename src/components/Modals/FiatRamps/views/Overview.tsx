@@ -26,6 +26,8 @@ import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
 import type { FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
+import { useOnramperWalletAuth } from '../fiatRampProviders/onramper/useOnramperWalletAuth'
+import { OnramperCheckoutError } from '../fiatRampProviders/onramper/walletAuth'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
@@ -117,6 +119,7 @@ export const Overview: React.FC<OverviewProps> = ({
     [assetId, accountId],
   )
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
+  const walletAuth = useOnramperWalletAuth(wallet, accountMetadata)
   const accountUserCurrencyBalance = useAppSelector(s =>
     selectPortfolioUserCurrencyBalanceByFilter(s, filter),
   )
@@ -208,20 +211,43 @@ export const Overview: React.FC<OverviewProps> = ({
         ramp: ramp.id,
       }
       getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
-      const url = await ramp.onSubmit({
-        action: fiatRampAction,
-        assetId,
-        address,
-        fiatCurrency,
-        options: {
-          language: selectedLocale,
-          mode: colorMode,
-          currentUrl: window.location.href,
-        },
-      })
-      if (url) popup.open({ url, title: 'Buy' })
+      try {
+        const url = await ramp.onSubmit({
+          action: fiatRampAction,
+          assetId,
+          address,
+          fiatCurrency,
+          walletAuth,
+          options: {
+            language: selectedLocale,
+            mode: colorMode,
+            currentUrl: window.location.href,
+          },
+        })
+        if (url) popup.open({ url, title: 'Buy' })
+      } catch (error) {
+        toast({
+          title: translate(
+            error instanceof OnramperCheckoutError
+              ? error.translationKey
+              : 'fiatRamps.onramperCheckoutFailed',
+          ),
+          status: 'error',
+        })
+      }
     },
-    [assets, assetId, colorMode, fiatCurrency, fiatRampAction, popup, selectedLocale],
+    [
+      assets,
+      assetId,
+      colorMode,
+      fiatCurrency,
+      fiatRampAction,
+      popup,
+      selectedLocale,
+      walletAuth,
+      toast,
+      translate,
+    ],
   )
 
   const renderProviders = useMemo(() => {

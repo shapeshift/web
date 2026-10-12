@@ -230,7 +230,9 @@ export const Overview: React.FC<OverviewProps> = ({
           title: translate(
             error instanceof OnramperCheckoutError
               ? error.translationKey
-              : 'fiatRamps.onramperCheckoutFailed',
+              : ramp.id === 'OnRamper'
+              ? 'fiatRamps.onramperCheckoutFailed'
+              : 'common.somethingWentWrong',
           ),
           status: 'error',
         })

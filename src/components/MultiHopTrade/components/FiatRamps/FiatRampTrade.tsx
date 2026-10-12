@@ -398,7 +398,9 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
           title: translate(
             error instanceof OnramperCheckoutError
               ? error.translationKey
-              : 'fiatRamps.onramperCheckoutFailed',
+              : selectedQuote.provider === 'OnRamper'
+              ? 'fiatRamps.onramperCheckoutFailed'
+              : 'common.somethingWentWrong',
           ),
           status: 'error',
         })

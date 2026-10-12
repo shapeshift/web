@@ -249,5 +249,14 @@ export const createApprovalNamespaces = (
     }
   }
 
-  return approvedNamespaces
+  // dApp connectors such as AppKit read the approved chains from here rather than from the accounts
+  return Object.fromEntries(
+    Object.entries(approvedNamespaces).map(([key, namespace]) => [
+      key,
+      {
+        ...namespace,
+        chains: uniq(namespace.accounts.map(account => account.split(':').slice(0, 2).join(':'))),
+      },
+    ]),
+  )
 }

@@ -1,5 +1,4 @@
-import type { Asset } from '@shapeshiftoss/types'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { getAssetService, initAssetService } from './AssetService'
 import { descriptions } from './descriptions'
@@ -9,6 +8,8 @@ import { ethereum as EthAsset } from '@/test/mocks/assets'
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
+  fetchedUrls: [] as string[],
+  shouldFailAssetData: false,
 }))
 
 // Hoisted mock data so it's available in vi.mock factory
@@ -57,10 +58,13 @@ const mockData = vi.hoisted(() => ({
 
 vi.mock('axios', () => {
   const mockGet = (url: string) => {
+    mocks.fetchedUrls.push(url)
+
     if (url.includes('asset-manifest.json')) {
       return Promise.resolve({ data: { assetData: 'test', relatedAssetIndex: 'test' } })
     }
     if (url.includes('generatedAssetData.json')) {
+      if (mocks.shouldFailAssetData) return Promise.reject(new Error('network error'))
       return Promise.resolve({ data: mockData.assetData })
     }
     if (url.includes('relatedAssetIndex.json')) {
@@ -111,6 +115,108 @@ vi.mock('./descriptions', () => ({
 }))
 
 describe('AssetService', () => {
+  describe('init', () => {
+    it('loads the generated assets in their sorted order', () => {
+      const assetService = getAssetService()
+
+      expect(assetService.assetIds).toEqual(mockData.assetData.ids)
+      expect(assetService.assets.map(asset => asset.assetId)).toEqual(mockData.assetData.ids)
+    })
+
+    it('enriches assets with chain-level data and primary flags', () => {
+      const usdc =
+        getAssetService().assetsById['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48']
+
+      expect(usdc).toMatchObject({
+        symbol: 'USDC',
+        networkName: 'Ethereum',
+        explorer: 'https://etherscan.io',
+        explorerAddressLink: 'https://etherscan.io/address/',
+        explorerTxLink: 'https://etherscan.io/tx/',
+        isPrimary: true,
+        isChainSpecific: true,
+      })
+    })
+  })
+
+  describe('with a fresh service', () => {
+    const importAssetService = (commitHash: string) => {
+      vi.stubEnv('VITE_COMMIT_HASH', commitHash)
+      vi.resetModules()
+      mocks.fetchedUrls.length = 0
+
+      return import('./AssetService')
+    }
+
+    const hasFetchedAssetData = () =>
+      mocks.fetchedUrls.some(url => url.includes('generatedAssetData.json'))
+
+    afterEach(() => {
+      vi.stubEnv('VITE_COMMIT_HASH', '')
+      mocks.shouldFailAssetData = false
+    })
+
+    it('versions the assets by the build and the asset data hashes', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+      await initAssetService()
+
+      expect(getAssetService().version).toBe('abc1234:test:test')
+    })
+
+    it('has no version for an unversioned build, so the assets are always reloaded', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('')
+      const getLoadedAssets = vi.fn()
+      await initAssetService(getLoadedAssets)
+
+      expect(getAssetService().version).toBeUndefined()
+      expect(getLoadedAssets).not.toHaveBeenCalled()
+      expect(hasFetchedAssetData()).toBe(true)
+    })
+
+    it('uses the assets already loaded from its version without fetching the asset data', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+      const loadedAssets = {
+        assetsById: { [EthAsset.assetId]: EthAsset },
+        assetIds: [EthAsset.assetId],
+        relatedAssetIndex: { [EthAsset.assetId]: [EthAsset.assetId] },
+      }
+      const getLoadedAssets = vi.fn().mockReturnValue(loadedAssets)
+
+      await initAssetService(getLoadedAssets)
+
+      const assetService = getAssetService()
+      expect(getLoadedAssets).toHaveBeenCalledWith('abc1234:test:test')
+      expect(hasFetchedAssetData()).toBe(false)
+      expect(assetService.assetsById).toBe(loadedAssets.assetsById)
+      expect(assetService.assetIds).toEqual([EthAsset.assetId])
+      expect(assetService.assets).toEqual([EthAsset])
+      expect(assetService.relatedAssetIndex).toBe(loadedAssets.relatedAssetIndex)
+    })
+
+    it('fetches the asset data when none is loaded from its version', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+
+      await initAssetService(() => undefined)
+
+      expect(hasFetchedAssetData()).toBe(true)
+      expect(getAssetService().assetIds).toEqual(mockData.assetData.ids)
+    })
+
+    it('can be retried after a failed load', async () => {
+      const { getAssetService, initAssetService } = await importAssetService('abc1234')
+
+      mocks.shouldFailAssetData = true
+      await expect(initAssetService()).rejects.toThrow('network error')
+      expect(getAssetService().assetIds).toEqual([])
+
+      mocks.shouldFailAssetData = false
+      await initAssetService()
+
+      expect(getAssetService().assetIds).toEqual(mockData.assetData.ids)
+      expect(getAssetService().version).toBe('abc1234:test:test')
+    })
+  })
+
   describe('description', () => {
     it('should return the overridden description if it exists - english default', async () => {
       const assetService = getAssetService()
@@ -159,22 +265,10 @@ describe('AssetService', () => {
     it('should throw if not found', async () => {
       const assetService = getAssetService()
       mocks.get.mockRejectedValue({ data: null })
-      const tokenData: Asset = {
-        assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
-        chainId: 'eip155:1',
-        explorer: 'https://etherscan.io',
-        explorerTxLink: 'https://etherscan.io/tx/',
-        explorerAddressLink: 'https://etherscan.io/address/',
-        name: 'Test Token',
-        precision: 18,
-        color: '#FFFFFF',
-        icon: 'https://assets.coingecko.com/coins/images/17049/thumb/BUNNY.png?1626148809',
-        symbol: 'TST',
-        relatedAssetKey: null,
-      }
-      const expectedErrorMessage = `AssetService:description: no description available for ${tokenData.assetId}`
-      await expect(assetService.description(tokenData.assetId)).rejects.toEqual(
-        new Error(expectedErrorMessage),
+      const assetId = 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a'
+
+      await expect(assetService.description(assetId)).rejects.toEqual(
+        new Error(`AssetService:description: no description available for ${assetId}`),
       )
     })
   })

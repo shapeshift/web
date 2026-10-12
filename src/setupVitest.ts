@@ -1,13 +1,10 @@
 import 'module-alias/register'
 
-import { btcAssetId, ethAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type axios from 'axios'
 import indexeddb from 'fake-indexeddb'
 import moduleAlias from 'module-alias'
 import path from 'path'
 import { beforeAll, vi } from 'vitest'
-
-import { bitcoin, ethereum, usdc } from '@/test/mocks/assets'
 
 globalThis.indexedDB = indexeddb
 
@@ -65,18 +62,6 @@ const hoistedMockData = vi.hoisted(() => ({
 vi.hoisted(() => {
   vi.stubEnv('VITE_FEATURE_MIXPANEL', 'false')
 })
-
-// Mock asset data for axios requests (used by AssetService)
-export const mockAssetData = {
-  byId: {
-    [btcAssetId]: bitcoin,
-    [ethAssetId]: ethereum,
-    [usdcAssetId]: usdc,
-  },
-  ids: [btcAssetId, ethAssetId, usdcAssetId],
-}
-
-export const mockRelatedAssetIndex = {}
 
 beforeAll(() => {
   ;(global as any).IS_REACT_ACT_ENVIRONMENT = true

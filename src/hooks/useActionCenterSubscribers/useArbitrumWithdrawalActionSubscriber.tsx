@@ -1,33 +1,57 @@
 import { usePrevious } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isSome } from '@shapeshiftoss/utils'
-import { uuidv4 } from '@walletconnect/utils'
-import { useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { useQueries } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo } from 'react'
+import type { Hash } from 'viem'
+import { TransactionNotFoundError, TransactionReceiptNotFoundError } from 'viem'
 
 import { useNotificationToast } from '../useNotificationToast'
+import {
+  buildArbitrumBridgeWithdrawActionFromClaim,
+  getArbitrumBridgeWithdrawActionId,
+} from './arbitrumBridgeWithdrawAction'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { useArbitrumClaimsByStatus } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
+import { ArbitrumBridgeWithdrawNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/ArbitrumBridgeWithdrawNotification'
+import { useArbitrumClaims } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  isArbitrumBridgeWithdrawAction,
-  isSwapAction,
-} from '@/state/slices/actionSlice/types'
-import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { ActionStatus, isClaimStatusRegression } from '@/state/slices/actionSlice/types'
+import { selectPendingArbitrumBridgeWithdrawActions } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+// A node can briefly miss a fresh broadcast, so only a long-unknown claim counts as dropped
+const CLAIM_TX_DROPPED_AFTER_MS = 10 * 60 * 1000
+
+const getClaimTxStatus = async (claimTxHash: Hash, broadcastAt: number): Promise<TxStatus> => {
+  const client = assertGetViemClient(ethChainId)
+
+  try {
+    const { status } = await client.getTransactionReceipt({ hash: claimTxHash })
+    return status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
+  } catch (error) {
+    if (!(error instanceof TransactionReceiptNotFoundError)) throw error
+  }
+
+  try {
+    await client.getTransaction({ hash: claimTxHash })
+    return TxStatus.Pending
+  } catch (error) {
+    if (!(error instanceof TransactionNotFoundError)) throw error
+    return Date.now() - broadcastAt > CLAIM_TX_DROPPED_AFTER_MS ? TxStatus.Failed : TxStatus.Pending
+  }
+}
+
+const selectClaimTxStatuses = (results: { data?: TxStatus }[]) => results.map(({ data }) => data)
 
 export const useArbitrumWithdrawalActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
-  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
-  const { claimsByStatus } = useArbitrumClaimsByStatus()
-  const translate = useTranslate()
+  const { claims, claimsByTxid } = useArbitrumClaims()
 
-  const { isDrawerOpen } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter, openActionCenterClaims } = useActionCenterContext()
   const toastOptions = useMemo(() => ({ duration: isDrawerOpen ? 5000 : null }), [isDrawerOpen])
   const toast = useNotificationToast(toastOptions)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
@@ -38,142 +62,81 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
     }
   }, [isDrawerOpen, toast, previousIsDrawerOpen])
 
-  // Create ArbitrumBridge withdraw actions from completed swap actions
+  // The toast reads the action from the store, so it follows the card's wording and status
+  const notify = useCallback(
+    (actionId: string, toastId: string, openTab: () => void) => {
+      if (toast.isActive(toastId)) return
+
+      toast({
+        id: toastId,
+        status: 'success',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openTab()
+          }
+
+          return (
+            <ArbitrumBridgeWithdrawNotification
+              handleClick={handleClick}
+              actionId={actionId}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+    },
+    [toast],
+  )
+
+  const notifyClaimAvailable = useCallback(
+    (actionId: string) => notify(actionId, actionId, openActionCenterClaims),
+    [notify, openActionCenterClaims],
+  )
+
+  // The claimed card leaves the claims tab for recent
+  const notifyClaimed = useCallback(
+    (actionId: string) => notify(actionId, `${actionId}-claimed`, openActionCenter),
+    [notify, openActionCenter],
+  )
+
+  // Recover missing withdraw actions from tx history, e.g. after a wiped store or an outside withdrawal
   useEffect(() => {
-    const allClaims = [
-      ...claimsByStatus.Pending,
-      ...claimsByStatus.Available,
-      ...claimsByStatus.Complete,
-    ]
+    claims.forEach(claim => {
+      if (claim.status === ActionStatus.Claimed) return
+      if (actionsById[getArbitrumBridgeWithdrawActionId(claim.withdrawTxHash)]) return
 
-    Object.values(actionsById)
-      .filter(isSwapAction)
-      .filter(action => action.status === ActionStatus.Initiated)
-      .forEach(swapAction => {
-        const swap = swapsById[swapAction.swapMetadata.swapId]
-        if (
-          !swap?.sellTxHash ||
-          swap.swapperName !== SwapperName.ArbitrumBridge ||
-          swap.buyAsset.chainId !== ethChainId
-        )
-          return
+      dispatch(actionSlice.actions.upsertAction(buildArbitrumBridgeWithdrawActionFromClaim(claim)))
+    })
+  }, [dispatch, actionsById, claims])
 
-        // Check if ArbitrumBridge withdraw action already exists
-        // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
-        const existingAction = Object.values(actionsById).find(
-          action =>
-            action.type === ActionType.ArbitrumBridgeWithdraw &&
-            action.arbitrumBridgeMetadata?.withdrawTxHash === swap.sellTxHash,
-        )
-        if (existingAction) return
-
-        // Get real-time ETA from claims hook - use fallback if not available yet
-        // Chicken and egg: we need an ETA to upsert the action, but we need an action to check the ETA
-        const claimDetails = allClaims.find(claim => claim.tx.txid === swap.sellTxHash)
-
-        dispatch(
-          actionSlice.actions.upsertAction({
-            id: uuidv4(),
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            type: ActionType.ArbitrumBridgeWithdraw as const,
-            status: ActionStatus.Initiated,
-            arbitrumBridgeMetadata: {
-              withdrawTxHash: swap.sellTxHash,
-              amountCryptoBaseUnit: swap.sellAmountCryptoBaseUnit,
-              assetId: swap.sellAsset.assetId,
-              destinationAssetId: swap.buyAsset.assetId,
-              accountId: swap.sellAccountId ?? '',
-              destinationAccountId: swap.buyAccountId ?? '',
-              timeRemainingSeconds: claimDetails?.timeRemainingSeconds ?? 6.4 * 24 * 60 * 60,
-              claimDetails,
-            },
-          }),
-        )
-      })
-  }, [actionsById, swapsById, dispatch, claimsByStatus])
-
-  const pendingArbitrumBridgeActions = useMemo(() => {
-    return Object.values(actionsById)
-      .filter(isArbitrumBridgeWithdrawAction)
-      .filter(action => {
-        // Early bailout: if action is already in terminal state, don't process
-        // i.e see this bad boi https://github.com/shapeshift/web/pull/10556
-        if (action.status === ActionStatus.Claimed || action.status === ActionStatus.Failed) {
-          return false
-        }
-        return true
-      })
-  }, [actionsById])
+  // Claimed is final, nothing below reads or writes it again
+  const pendingArbitrumBridgeActions = useAppSelector(selectPendingArbitrumBridgeWithdrawActions)
 
   useEffect(() => {
     try {
       pendingArbitrumBridgeActions
         .map(action => {
-          const withdrawTxHash = action.arbitrumBridgeMetadata.withdrawTxHash
+          const claim = claimsByTxid[action.arbitrumBridgeMetadata.withdrawTxHash]
+          if (!claim) return null
 
-          // Find claims by transaction hash
-          const availableClaim = claimsByStatus.Available.find(
-            claim => claim.tx.txid === withdrawTxHash,
-          )
-          const completedClaim = claimsByStatus.Complete.find(
-            claim => claim.tx.txid === withdrawTxHash,
-          )
-          const pendingClaim = claimsByStatus.Pending.find(
-            claim => claim.tx.txid === withdrawTxHash,
-          )
+          const newStatus = claim.status
 
-          const currentMetadata = action.arbitrumBridgeMetadata
+          // A lagging rpc or a claim in flight reads as an earlier status, a withdraw never moves backwards
+          if (isClaimStatusRegression(action.status, newStatus)) return null
 
-          // Determine new action state from claim data
-          const newState = (() => {
-            if (completedClaim) {
-              return {
-                newStatus: ActionStatus.Claimed,
-                claimDetails: completedClaim,
-                timeRemainingSeconds: currentMetadata.timeRemainingSeconds,
-                claimTxHash: currentMetadata.claimTxHash,
-              }
-            }
+          // Only a pending claim's estimate still matters
+          const claimableAt =
+            newStatus === ActionStatus.Initiated
+              ? claim.claimableAt
+              : action.arbitrumBridgeMetadata.claimableAt
 
-            if (availableClaim) {
-              return {
-                newStatus: ActionStatus.ClaimAvailable,
-                claimDetails: availableClaim,
-                timeRemainingSeconds: availableClaim.timeRemainingSeconds,
-                claimTxHash: currentMetadata.claimTxHash,
-              }
-            }
-
-            if (pendingClaim) {
-              return {
-                newStatus: ActionStatus.Initiated,
-                claimDetails: pendingClaim,
-                timeRemainingSeconds: pendingClaim.timeRemainingSeconds,
-                claimTxHash: currentMetadata.claimTxHash,
-              }
-            }
-
-            // No changes - return current state
-            return {
-              newStatus: action.status,
-              claimDetails: currentMetadata.claimDetails,
-              timeRemainingSeconds: currentMetadata.timeRemainingSeconds,
-              claimTxHash: currentMetadata.claimTxHash,
-            }
-          })()
-
-          // Check if action state changed - use deep comparison for objects
-          // once again, paranoia against this bad boi https://github.com/shapeshift/web/pull/10556
-
+          // Every upsert bumps updatedAt and re-fires this effect, an unchanged write loops it (#10556)
           const hasChanges =
-            newState.newStatus !== action.status ||
-            JSON.stringify(newState.claimDetails) !==
-              JSON.stringify(currentMetadata.claimDetails) ||
-            newState.timeRemainingSeconds !== currentMetadata.timeRemainingSeconds ||
-            newState.claimTxHash !== currentMetadata.claimTxHash
+            newStatus !== action.status || claimableAt !== action.arbitrumBridgeMetadata.claimableAt
 
-          return hasChanges ? { action, ...newState } : null
+          return hasChanges ? { action, newStatus, claimableAt } : null
         })
         .filter(isSome)
         .forEach(update => {
@@ -187,37 +150,69 @@ export const useArbitrumWithdrawalActionSubscriber = () => {
               status: update.newStatus,
               arbitrumBridgeMetadata: {
                 ...update.action.arbitrumBridgeMetadata,
-                claimDetails: update.claimDetails,
-                timeRemainingSeconds: update.timeRemainingSeconds,
-                claimTxHash: update.claimTxHash ?? update.action.arbitrumBridgeMetadata.claimTxHash,
+                claimableAt: update.claimableAt,
               },
             }),
           )
 
-          // Show notification when status changes to ClaimAvailable
           if (previousStatus !== newStatus && newStatus === ActionStatus.ClaimAvailable) {
-            if (!toast.isActive(update.action.id)) {
-              toast({
-                status: 'success',
-                title: translate('bridge.bridgeWithdrawalReadyNotification'),
-                description: translate('bridge.checkActionCenterNotification'),
-                position: 'bottom-right',
-              })
-            }
+            notifyClaimAvailable(update.action.id)
+          }
+
+          // The status read can see the claim mined before the receipt poll does
+          if (previousStatus === ActionStatus.Pending && newStatus === ActionStatus.Claimed) {
+            notifyClaimed(update.action.id)
           }
         })
     } catch (error) {
       console.error('Error updating ArbitrumBridge action statuses:', error)
     }
-    // claimsByStatus arrays are recreated on every render, use length for stable references
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    dispatch,
-    toast,
-    translate,
-    pendingArbitrumBridgeActions,
-    claimsByStatus.Available.length,
-    claimsByStatus.Complete.length,
-    claimsByStatus.Pending.length,
-  ])
+  }, [dispatch, notifyClaimAvailable, notifyClaimed, pendingArbitrumBridgeActions, claimsByTxid])
+
+  // Resolves in-flight claims, including ones broadcast before a reload
+  const claimingActions = useMemo(
+    () =>
+      pendingArbitrumBridgeActions.filter(
+        action =>
+          action.status === ActionStatus.Pending &&
+          Boolean(action.arbitrumBridgeMetadata.claimTxHash),
+      ),
+    [pendingArbitrumBridgeActions],
+  )
+
+  const claimTxStatuses = useQueries({
+    queries: claimingActions.map(action => {
+      const claimTxHash = action.arbitrumBridgeMetadata.claimTxHash as Hash
+
+      return {
+        queryKey: ['arbitrumClaimTxStatus', { claimTxHash }],
+        // updatedAt is the broadcast time, a claiming action isn't written again until it resolves
+        queryFn: () => getClaimTxStatus(claimTxHash, action.updatedAt),
+        refetchInterval: 15_000,
+      }
+    }),
+    combine: selectClaimTxStatuses,
+  })
+
+  useEffect(() => {
+    claimingActions.forEach((action, i) => {
+      switch (claimTxStatuses[i]) {
+        case TxStatus.Confirmed:
+          dispatch(actionSlice.actions.upsertAction({ ...action, status: ActionStatus.Claimed }))
+          notifyClaimed(action.id)
+          return
+        case TxStatus.Failed:
+          dispatch(
+            actionSlice.actions.upsertAction({
+              ...action,
+              status: ActionStatus.ClaimAvailable,
+              arbitrumBridgeMetadata: { ...action.arbitrumBridgeMetadata, claimTxHash: undefined },
+            }),
+          )
+          return
+        default:
+          return
+      }
+    })
+  }, [dispatch, notifyClaimed, claimingActions, claimTxStatuses])
 }

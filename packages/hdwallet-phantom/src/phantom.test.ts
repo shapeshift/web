@@ -2,14 +2,13 @@ import * as core from '@shapeshiftoss/hdwallet-core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PhantomHDWallet } from '.'
-import type { PhantomSolanaProvider, PhantomUtxoProvider } from './types'
+import type { PhantomSolanaProvider } from './types'
 
 describe('PhantomHDWallet', () => {
   let wallet: PhantomHDWallet
 
   beforeEach(() => {
     wallet = new PhantomHDWallet(
-      core.untouchable('PhantomHDWallet:provider'),
       core.untouchable('PhantomHDWallet:provider'),
       core.untouchable('PhantomHDWallet:provider'),
     )
@@ -168,25 +167,6 @@ describe('PhantomHDWallet', () => {
             '0x61f1dda82e9c3800e960894396c9ce8164fd1526fccb136c71b88442405f7d09721725629915d10bc7cecfca2818fe76bc5816ed96a1b0cebee9b03b052980131b',
         }),
       ).toEqual(true)
-    })
-  })
-
-  describe('Bitcoin', () => {
-    it('btcGetAddress returns a valid address', async () => {
-      wallet.bitcoinProvider = {
-        requestAccounts: vi.fn().mockReturnValue([
-          {
-            purpose: 'payment',
-            address: 'bc1q9sjm947kn2hz84syykmem7dshvevm8xm5dkrpg',
-          },
-        ]),
-      } as unknown as PhantomUtxoProvider
-
-      const address = await wallet.btcGetAddress({
-        coin: 'Bitcoin',
-      } as core.BTCGetAddress)
-
-      expect(address).toEqual('bc1q9sjm947kn2hz84syykmem7dshvevm8xm5dkrpg')
     })
   })
 

@@ -2,7 +2,6 @@ import * as core from '@shapeshiftoss/hdwallet-core'
 import * as ledger from '@shapeshiftoss/hdwallet-ledger'
 import * as metamask from '@shapeshiftoss/hdwallet-metamask-multichain'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import * as phantom from '@shapeshiftoss/hdwallet-phantom'
 import * as trezor from '@shapeshiftoss/hdwallet-trezor'
 import * as vultisig from '@shapeshiftoss/hdwallet-vultisig'
 
@@ -75,13 +74,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       'btcSupportsCoin() - Testnet',
       async () => {
-        if (
-          !wallet ||
-          phantom.isPhantom(wallet) ||
-          metamask.isMetaMask(wallet) ||
-          vultisig.isVultisig(wallet)
-        )
-          return
+        if (!wallet || metamask.isMetaMask(wallet) || vultisig.isVultisig(wallet)) return
         expect(wallet.btcSupportsCoin('Testnet')).toBeTruthy()
         expect(await info.btcSupportsCoin('Testnet')).toBeTruthy()
       },
@@ -93,7 +86,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         !wallet ||
         ledger.isLedger(wallet) ||
         trezor.isTrezor(wallet) ||
-        phantom.isPhantom(wallet) ||
         vultisig.isVultisig(wallet)
       )
         return
@@ -247,7 +239,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       'btcSignTx() - p2pkh',
       async () => {
-        if (!wallet || phantom.isPhantom(wallet) || metamask.isMetaMask(wallet)) return
+        if (!wallet || metamask.isMetaMask(wallet)) return
         if (ledger.isLedger(wallet)) return // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
@@ -322,7 +314,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       'btcSignTx() - thorchain swap',
       async () => {
-        if (!wallet || phantom.isPhantom(wallet) || metamask.isMetaMask(wallet)) return
+        if (!wallet || metamask.isMetaMask(wallet)) return
         if (ledger.isLedger(wallet)) return // FIXME: Expected failure
         if (trezor.isTrezor(wallet)) return //TODO: Add trezor support for op return data passed at top level
         const tx: core.BitcoinTx = {
@@ -407,7 +399,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       'btcSignTx() - p2pkh with custom sequence (RBF opt-in)',
       async () => {
-        if (!wallet || phantom.isPhantom(wallet) || metamask.isMetaMask(wallet)) return
+        if (!wallet || metamask.isMetaMask(wallet)) return
         if (ledger.isLedger(wallet)) return
         if (trezor.isTrezor(wallet)) return
         if (vultisig.isVultisig(wallet)) return

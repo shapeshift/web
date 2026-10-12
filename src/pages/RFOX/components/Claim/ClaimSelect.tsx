@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useGetUnstakingRequestsQuery } from '../../hooks/useGetUnstakingRequestsQuery'
+import { isUnstakingRequestClaimable } from '../../hooks/useGetUnstakingRequestsQuery/utils'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
@@ -85,7 +86,7 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
     return accountUnstakingRequests.map(unstakingRequest => {
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
-      const isAvailable = currentTimestampMs >= unstakingTimestampMs
+      const isAvailable = isUnstakingRequestClaimable(unstakingRequest, currentTimestampMs)
       // A claim that has been broadcast but not yet confirmed is still returned by the contract, so
       // without this the row stays actionable and the claim can be submitted again
       const isClaimInProgress = claimingRequestIds.has(unstakingRequest.id)

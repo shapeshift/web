@@ -31,6 +31,24 @@ export type UnstakingRequestAccountAssetData = {
   stakingAssetAccountId: AccountId
 }
 
+// Omitting the staking asset matches every program's requests for the account
+export const getUnstakingRequestsQueryKey = ({
+  stakingAssetAccountId,
+  stakingAssetId,
+}: {
+  stakingAssetAccountId: AccountId
+  stakingAssetId?: AssetId
+}) =>
+  [
+    'getUnstakingRequests',
+    stakingAssetId ? { stakingAssetAccountId, stakingAssetId } : { stakingAssetAccountId },
+  ] as const
+
+export const isUnstakingRequestClaimable = (
+  unstakingRequest: UnstakingRequest,
+  nowMs: number = Date.now(),
+) => nowMs >= Number(unstakingRequest.cooldownExpiry) * 1000
+
 export const getUnstakingRequestsQueryFn = ({
   stakingAssetAccountId,
   stakingAssetId,
@@ -58,13 +76,15 @@ export const getUnstakingRequestsQueryFn = ({
       } as const
     })
 
-    const responses = await multicall(client, { contracts: multicallParams })
-    const unstakingRequests = responses
-      .map(({ result }, i) => {
-        const stakingAsset = selectAssetById(store.getState(), stakingAssetId)
+    // A partial read would read as claimed requests, so fail the whole read instead
+    const responses = await multicall(client, { contracts: multicallParams, allowFailure: false })
 
+    const stakingAsset = selectAssetById(store.getState(), stakingAssetId)
+    if (!stakingAsset) throw new Error(`Asset not found for ${stakingAssetId}`)
+
+    const unstakingRequests = responses
+      .map((result, i) => {
         if (!result) return null
-        if (!stakingAsset) return null
 
         const contractAddress = multicallParams[i].address
 
@@ -82,12 +102,8 @@ export const getUnstakingRequestsQueryFn = ({
           cooldownExpiry: result.cooldownExpiry.toString(),
           stakingAssetId,
           index,
-          // composite ID to ensure uniqueness of unstaking requests, to be used for lookups
-          // cooldownExpiry should be a unique enough index, since it's based on blockTime, and users are *not* going to be able to make
-          // two unstaking requests in one block. But for the sake of paranoia, we make it a composite ID with index too
-          // Which itself *is* unique at any given time, though as users unstake/claim, it may change due to the inner workings of solidity, as
-          // indexes can reorg
-          id: `${index}-${result.cooldownExpiry}-${contractAddress}`,
+          // The request's Unstake event, the index moves as other requests are claimed
+          id: `${stakingAssetAccountId}-${contractAddress}-${result.cooldownExpiry}-${amountCryptoBaseUnit}`,
           stakingAssetAccountId,
         }
       })

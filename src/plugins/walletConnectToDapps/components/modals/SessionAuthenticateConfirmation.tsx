@@ -12,6 +12,7 @@ import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/componen
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import { MessageContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/MessageContent'
 import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
+import { getSessionAuthIss } from '@/plugins/walletConnectToDapps/utils/SessionAuthRequestHandlerUtil'
 import type { WalletConnectSessionAuthModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import {
   selectAccountIdsByAccountNumberAndChainId,
@@ -71,13 +72,10 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
     if (!sessionAuthPayload || !accountId || !state.web3wallet || !chainId)
       return translate('plugins.walletConnectToDapps.modal.sessionAuth.invalidRequest')
 
-    // Build DID:PKH identifier for SIWE message (accountId is already in chainId:address format)
-    const iss = `did:pkh:${accountId}`
-
     try {
       const message = state.web3wallet.formatAuthMessage({
         request: sessionAuthPayload,
-        iss,
+        iss: getSessionAuthIss(accountId),
       })
       return message
     } catch (error) {

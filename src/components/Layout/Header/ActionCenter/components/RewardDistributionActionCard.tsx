@@ -1,6 +1,5 @@
 import { Button, ButtonGroup, Link, useDisclosure } from '@chakra-ui/react'
 import { BigAmount } from '@shapeshiftoss/utils'
-import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -12,9 +11,14 @@ import { Amount } from '@/components/Amount/Amount'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { getTxLink } from '@/lib/getTxLink'
+import { formatSmartDate } from '@/lib/utils/time'
 import { getRewardAssetId, maybeGetStakingAssetId } from '@/pages/RFOX/helpers'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  GenericTransactionDisplayType,
+  getActionTimestamp,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -24,7 +28,7 @@ type RewardDistributionActionCardProps = {
 
 export const RewardDistributionActionCard = ({ action }: RewardDistributionActionCardProps) => {
   const translate = useTranslate()
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
+  const { isOpen, onToggle } = useDisclosure()
   const { distribution } = action.rewardDistributionMetadata
 
   const rewardAssetId = useMemo(() => {
@@ -34,9 +38,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   }, [distribution.epoch, distribution.stakingContract])
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId ?? ''))
 
-  const formattedDate = useMemo(() => {
-    return dayjs(action.updatedAt).fromNow()
-  }, [action.updatedAt])
+  const formattedDate = useMemo(() => formatSmartDate(getActionTimestamp(action)), [action])
 
   const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
     if (!rewardAsset) return

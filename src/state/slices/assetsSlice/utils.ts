@@ -47,7 +47,7 @@ export const makeNftAssetsFromTxs = (txs: Transaction[]): UpsertAssetsPayload =>
       tx.transfers.forEach(transfer => {
         if (state.byId[transfer.assetId] || !isNft(transfer.assetId)) return
 
-        state.byId[transfer.assetId] = makeAsset(state.byId, {
+        state.byId[transfer.assetId] = makeAsset({
           assetId: transfer.assetId,
           id: transfer.id,
           symbol: transfer.token?.symbol ?? 'N/A',

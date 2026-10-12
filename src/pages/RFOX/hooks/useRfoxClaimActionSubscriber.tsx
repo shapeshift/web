@@ -1,9 +1,14 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useReadContracts } from 'wagmi'
 
+import { getRfoxNetworkId, getStakingContract } from '../helpers'
 import { useGetUnstakingRequestsQuery } from './useGetUnstakingRequestsQuery'
+import { getUnstakingRequestsQueryKey } from './useGetUnstakingRequestsQuery/utils'
+import { supportedStakingAssetIds } from './useRfoxContext'
 
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingRfoxClaimActions } from '@/state/slices/actionSlice/selectors'
@@ -43,6 +48,19 @@ export const useRfoxClaimActionSubscriber = () => {
       const tx = txs[serializedTxIndex]
 
       if (!tx) return
+
+      // A failed claim leaves the request claimable
+      if (tx.status === TxStatus.Failed) {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...action,
+            status: ActionStatus.ClaimAvailable,
+            rfoxClaimActionMetadata: { request: action.rfoxClaimActionMetadata.request },
+          }),
+        )
+        return
+      }
+
       if (tx.status !== TxStatus.Confirmed) return
 
       dispatch(
@@ -59,47 +77,111 @@ export const useRfoxClaimActionSubscriber = () => {
       )
 
       queryClient.invalidateQueries({
-        queryKey: ['getUnstakingRequests', { stakingAssetAccountId }],
+        queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId }),
       })
     })
   }, [txs, assets, pendingRfoxClaimActions, dispatch, queryClient])
 
+  // Dates a request from its unstake, the period only changes by governance
+  const cooldownPeriods = useReadContracts({
+    contracts: supportedStakingAssetIds.map(
+      stakingAssetId =>
+        ({
+          abi: RFOX_ABI,
+          address: getStakingContract(stakingAssetId),
+          functionName: 'cooldownPeriod',
+          chainId: getRfoxNetworkId(stakingAssetId),
+        }) as const,
+    ),
+    query: { staleTime: Infinity },
+  })
+
+  const cooldownPeriodByStakingAssetId = useMemo(
+    () =>
+      Object.fromEntries(
+        supportedStakingAssetIds.map((stakingAssetId, i) => [
+          stakingAssetId,
+          cooldownPeriods.data?.[i]?.result,
+        ]),
+      ),
+    [cooldownPeriods.data],
+  )
+
+  // A cooldown outlives any timeout, so the next check is at most a day out
+  const [cooldownTick, setCooldownTick] = useState(0)
+
   useEffect(() => {
     if (!allUnstakingRequests.isSuccess) return
+
     const now = Date.now()
+    const { all, byAccountId } = allUnstakingRequests.data
 
-    allUnstakingRequests.data.all.forEach(request => {
+    all.forEach(request => {
       const cooldownExpiryMs = Number(request.cooldownExpiry) * 1000
+      const isClaimable = now >= cooldownExpiryMs
+      const action = actions[request.id]
 
-      const maybeStoreAction = actions[request.id]
-
-      if (now >= cooldownExpiryMs) {
-        // This was available and is still available, no-op.
-        if (
-          maybeStoreAction &&
-          isRfoxClaimAction(maybeStoreAction) &&
-          maybeStoreAction.status === ActionStatus.ClaimAvailable
-        )
-          return
-
-        const asset = assets[request.stakingAssetId]
-        if (!asset) return
-
-        dispatch(
-          actionSlice.actions.upsertAction({
-            id: request.id,
-            status: ActionStatus.ClaimAvailable,
-            type: ActionType.RfoxClaim,
-            createdAt: cooldownExpiryMs,
-            updatedAt: now,
-            rfoxClaimActionMetadata: {
-              request,
-            },
-          }),
-        )
+      // Only a cooled down request moves forward, the claim flow owns it from there
+      if (action && isRfoxClaimAction(action)) {
+        if (isClaimable && action.status === ActionStatus.Initiated) {
+          dispatch(
+            actionSlice.actions.upsertAction({ ...action, status: ActionStatus.ClaimAvailable }),
+          )
+        }
+        return
       }
+
+      if (!assets[request.stakingAssetId]) return
+
+      const cooldownPeriod = cooldownPeriodByStakingAssetId[request.stakingAssetId]
+      if (cooldownPeriod === undefined) return
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: request.id,
+          status: isClaimable ? ActionStatus.ClaimAvailable : ActionStatus.Initiated,
+          type: ActionType.RfoxClaim,
+          createdAt: cooldownExpiryMs - Number(cooldownPeriod) * 1000,
+          updatedAt: now,
+          rfoxClaimActionMetadata: {
+            request,
+          },
+        }),
+      )
     })
+
+    // A claimable request missing from its account's fresh requests was claimed elsewhere
+    Object.values(actions)
+      .filter(isRfoxClaimAction)
+      .filter(action => action.status === ActionStatus.ClaimAvailable)
+      .forEach(action => {
+        const accountRequests =
+          byAccountId[action.rfoxClaimActionMetadata.request.stakingAssetAccountId]
+        if (!accountRequests) return
+        if (accountRequests.some(request => request.id === action.id)) return
+
+        dispatch(actionSlice.actions.deleteAction(action.id))
+      })
+
+    const nextCooldownExpiryMs = Math.min(
+      ...all.map(request => Number(request.cooldownExpiry) * 1000).filter(ms => ms > now),
+    )
+    if (!Number.isFinite(nextCooldownExpiryMs)) return
+
+    const timeout = setTimeout(
+      () => setCooldownTick(tick => tick + 1),
+      Math.min(nextCooldownExpiryMs - now, 24 * 60 * 60 * 1000),
+    )
+
+    return () => clearTimeout(timeout)
     // We definitely don't want to react on assets here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allUnstakingRequests.data, allUnstakingRequests.isSuccess, dispatch, actionIds])
+  }, [
+    allUnstakingRequests.data,
+    allUnstakingRequests.isSuccess,
+    cooldownPeriodByStakingAssetId,
+    cooldownTick,
+    dispatch,
+    actionIds,
+  ])
 }

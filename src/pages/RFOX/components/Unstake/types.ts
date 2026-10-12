@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { JSX } from 'react'
 
 import type { TradeAmountInputFormValues } from '@/components/MultiHopTrade/components/TradeAmountInput'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 
 export enum UnstakeRoutePaths {
   Input = '/remove/input',
@@ -11,6 +12,7 @@ export enum UnstakeRoutePaths {
 export type UnstakeRouteProps = {
   headerComponent?: JSX.Element
   onClose?: () => void
+  onClaim?: (unstakingRequest: UnstakingRequest) => void
 }
 
 export type RfoxUnstakingQuote = {

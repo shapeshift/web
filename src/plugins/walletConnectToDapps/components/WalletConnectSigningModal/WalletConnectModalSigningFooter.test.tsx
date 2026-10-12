@@ -2,15 +2,24 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { WalletConnectModalSigningFooter } from './WalletConnectModalSigningFooter'
 
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import { TestProviders } from '@/test/TestProviders'
 
+const mockSimulation = vi.hoisted(() => ({
+  recommendedGasLimit: undefined as string | undefined,
+  isGasLimitLoading: false,
+}))
+
 vi.mock('@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction', () => ({
-  useSimulateEvmTransaction: () => ({ simulationQuery: { isLoading: false } }),
+  useSimulateEvmTransaction: ({ gasLimit }: { gasLimit?: string }) => ({
+    simulationQuery: { isLoading: false },
+    gasLimit: gasLimit || mockSimulation.recommendedGasLimit,
+    isGasLimitLoading: mockSimulation.isGasLimitLoading,
+  }),
 }))
 
 vi.mock('../WalletConnectFooter', () => ({
@@ -57,6 +66,11 @@ const TestFooter = ({
 }
 
 describe('WalletConnectModalSigningFooter', () => {
+  beforeEach(() => {
+    mockSimulation.recommendedGasLimit = undefined
+    mockSimulation.isGasLimitLoading = false
+  })
+
   afterEach(cleanup)
 
   it('waits for a gas limit even when simulation has already finished', async () => {
@@ -81,6 +95,22 @@ describe('WalletConnectModalSigningFooter', () => {
   it('allows a dApp-supplied gas limit without waiting for estimation', () => {
     render(<TestFooter gasLimit='21000' />)
     expect(screen.getByRole('button', { name: 'Confirm' })).toHaveProperty('disabled', false)
+  })
+
+  it('enables confirm when our estimate supplies the gas limit', () => {
+    mockSimulation.recommendedGasLimit = '150000'
+    render(<TestFooter />)
+    expect(screen.getByRole('button', { name: 'Confirm' })).toHaveProperty('disabled', false)
+  })
+
+  it('shows confirm as loading while the gas estimate is in flight', () => {
+    mockSimulation.isGasLimitLoading = true
+    render(<TestFooter />)
+    // Chakra swaps the label for a spinner while loading, so the button can't be found by name
+    const confirm = screen
+      .getAllByRole('button')
+      .find(button => button.hasAttribute('data-loading'))
+    expect(confirm).toHaveProperty('disabled', true)
   })
 
   it('does not require a gas limit for message signing', () => {

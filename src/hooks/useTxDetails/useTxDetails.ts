@@ -149,7 +149,7 @@ export const getTransfers = (
         precision: isNft(transfer.assetId) ? 0 : transfer.token?.decimals ?? defaultAsset.precision,
       }
 
-      const asset = makeAsset(assets, minimalAsset)
+      const asset = makeAsset(minimalAsset)
 
       dispatch && dispatch(assetsSlice.actions.upsertAsset(asset))
 

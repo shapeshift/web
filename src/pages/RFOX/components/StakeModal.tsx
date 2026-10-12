@@ -13,6 +13,9 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 
+// Handing focus back on close would open the action button's tooltip
+const modalProps = { returnFocusOnClose: false }
+
 type StakeModalProps = {
   isOpen: boolean
   onClose: () => void
@@ -22,7 +25,7 @@ export const StakeModal: React.FC<StakeModalProps> = ({ isOpen, onClose }) => {
   const translate = useTranslate()
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
+    <Dialog isOpen={isOpen} onClose={onClose} height='auto' modalProps={modalProps}>
       <DialogHeader pl={6} pe={0}>
         <DialogHeaderLeft>
           <DialogTitle>{translate('defi.stake')}</DialogTitle>

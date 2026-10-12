@@ -3,7 +3,6 @@ import * as phantom from '@shapeshiftoss/hdwallet-phantom'
 import type {
   PhantomEvmProvider,
   PhantomSolanaProvider,
-  PhantomUtxoProvider,
 } from '@shapeshiftoss/hdwallet-phantom/src/types'
 
 export function name(): string {
@@ -34,27 +33,6 @@ const ethereumProvider = {
   }),
 } as unknown as PhantomEvmProvider
 
-const utxoProvider = {
-  requestAccounts: vi.fn(() => {
-    return [
-      {
-        purpose: 'payment',
-        address: '1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM',
-      },
-    ]
-  }),
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  signMessage: vi.fn(
-    (_address: string, _message: Uint8Array): Promise<{ signature: Uint8Array }> => {
-      return Promise.resolve({
-        signature: core.fromHexString(
-          '20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd',
-        ),
-      })
-    },
-  ),
-} as unknown as PhantomUtxoProvider
-
 const solanaProvider = {} as unknown as PhantomSolanaProvider
 
 export function createInfo(): core.HDWalletInfo {
@@ -62,7 +40,7 @@ export function createInfo(): core.HDWalletInfo {
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const wallet = new phantom.PhantomHDWallet(ethereumProvider, utxoProvider, solanaProvider)
+  const wallet = new phantom.PhantomHDWallet(ethereumProvider, solanaProvider)
   await wallet.initialize()
   return wallet
 }
@@ -73,12 +51,7 @@ export function selfTest(get: () => core.HDWallet): void {
   beforeAll(async () => {
     const w = get() as phantom.PhantomHDWallet
 
-    if (
-      phantom.isPhantom(w) &&
-      core.supportsBTC(w) &&
-      core.supportsETH(w) &&
-      core.supportsSolana(w)
-    ) {
+    if (phantom.isPhantom(w) && core.supportsETH(w) && core.supportsSolana(w)) {
       wallet = w
     } else {
       throw new Error('Wallet is not Phantom')
@@ -88,11 +61,6 @@ export function selfTest(get: () => core.HDWallet): void {
   it('supports Ethereum mainnet', async () => {
     if (!wallet) return
     expect(await wallet.ethSupportsNetwork(1)).toEqual(true)
-  })
-
-  it('supports Bitcoin', async () => {
-    if (!wallet) return
-    expect(core.supportsBTC(wallet)).toEqual(true)
   })
 
   it('does not support Secure Transfer', async () => {
@@ -181,85 +149,6 @@ export function selfTest(get: () => core.HDWallet): void {
         verbose: "m/44'/60'/0'/0/3",
         coin: 'Ethereum',
         isKnown: false,
-      })
-    })
-  })
-
-  describe('Bitcoin', () => {
-    it('uses correct bip44 paths', () => {
-      if (!wallet) return
-
-      const paths = wallet.btcGetAccountPaths({
-        coin: 'Bitcoin',
-        accountIdx: 3,
-      })
-
-      expect(paths).toEqual([
-        {
-          addressNList: [2147483732, 2147483648, 2147483651],
-          scriptType: core.BTCInputScriptType.SpendWitness,
-          coin: 'Bitcoin',
-        },
-      ])
-    })
-
-    it('can describe a Bitcoin path', () => {
-      expect(
-        wallet.describePath({
-          path: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
-          coin: 'Bitcoin',
-          scriptType: core.BTCInputScriptType.SpendAddress,
-        }),
-      ).toEqual({
-        verbose: 'Bitcoin Account #0, Address #0 (Legacy)',
-        coin: 'Bitcoin',
-        isKnown: true,
-        scriptType: core.BTCInputScriptType.SpendAddress,
-        accountIdx: 0,
-        addressIdx: 0,
-        wholeAccount: false,
-        isChange: false,
-        isPrefork: false,
-      })
-    })
-
-    it('can describe a Bitcoin bech32 path', () => {
-      expect(
-        wallet.describePath({
-          path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
-          coin: 'Bitcoin',
-          scriptType: core.BTCInputScriptType.Bech32,
-        }),
-      ).toEqual({
-        verbose: 'Bitcoin Account #0, Address #0 (Segwit Native)',
-        coin: 'Bitcoin',
-        isKnown: true,
-        scriptType: core.BTCInputScriptType.Bech32,
-        accountIdx: 0,
-        addressIdx: 0,
-        wholeAccount: false,
-        isChange: false,
-        isPrefork: false,
-      })
-    })
-
-    it('can describe Bitcoin Change Addresses', () => {
-      expect(
-        wallet.describePath({
-          path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
-          coin: 'Bitcoin',
-          scriptType: core.BTCInputScriptType.SpendAddress,
-        }),
-      ).toEqual({
-        verbose: 'Bitcoin Account #7, Change Address #5 (Legacy)',
-        coin: 'Bitcoin',
-        isKnown: true,
-        scriptType: core.BTCInputScriptType.SpendAddress,
-        accountIdx: 7,
-        addressIdx: 5,
-        wholeAccount: false,
-        isChange: true,
-        isPrefork: false,
       })
     })
   })

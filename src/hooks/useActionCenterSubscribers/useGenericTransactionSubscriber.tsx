@@ -15,6 +15,7 @@ import { getAffiliateRevenueUsdQueryKey } from '@/pages/RFOX/hooks/useAffiliateR
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
 import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
+import { getUnstakingRequestsQueryKey } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { getStakingBalanceOfQueryKey } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { getStakingInfoQueryKey } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { getTimeInPoolQueryKey } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
@@ -26,6 +27,7 @@ import {
   ActionType,
   GenericTransactionDisplayType,
   GenericTransactionQueryId,
+  isClaimAction,
 } from '@/state/slices/actionSlice/types'
 import { selectTxs } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -73,7 +75,7 @@ const YIELD_POLL_INTERVAL_MS = 5000
 
 export const useGenericTransactionSubscriber = () => {
   const dispatch = useAppDispatch()
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
+  const { isDrawerOpen, openActionCenter, openActionCenterClaims } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
 
   const pendingGenericTransactionActions = useAppSelector(selectPendingGenericTransactionActions)
@@ -101,7 +103,7 @@ export const useGenericTransactionSubscriber = () => {
         render: ({ onClose, ...props }) => {
           const handleClick = () => {
             onClose()
-            openActionCenter()
+            isClaimAction(action) ? openActionCenterClaims() : openActionCenter()
           }
 
           return (
@@ -115,7 +117,7 @@ export const useGenericTransactionSubscriber = () => {
         },
       })
     },
-    [isDrawerOpen, openActionCenter, toast],
+    [isDrawerOpen, openActionCenter, openActionCenterClaims, toast],
   )
 
   useEffect(() => {
@@ -234,7 +236,7 @@ export const useGenericTransactionSubscriber = () => {
                   }),
                 )
 
-                fireToast(action, 'success')
+                fireToast({ ...action, type: ActionType.Claim }, 'success')
               } else {
                 const typeMessagesMap = displayTypeMessagesMap[action.type]
                 const message =
@@ -309,7 +311,13 @@ export const useGenericTransactionSubscriber = () => {
       if (tx.status !== TxStatus.Confirmed) return
 
       const typeMessagesMap = displayTypeMessagesMap[action.type]
-      const message = typeMessagesMap?.[action.transactionMetadata.displayType]
+      const isRfoxUnstakeWithoutCooldown =
+        action.type === ActionType.Withdraw &&
+        action.transactionMetadata.displayType === GenericTransactionDisplayType.RFOX &&
+        action.transactionMetadata.cooldownPeriodSeconds === 0
+      const message = isRfoxUnstakeWithoutCooldown
+        ? 'RFOX.unstakeSuccessNoCooldown'
+        : typeMessagesMap?.[action.transactionMetadata.displayType]
 
       if (!message) return
 
@@ -364,7 +372,7 @@ export const useGenericTransactionSubscriber = () => {
         })
 
         queryClient.invalidateQueries({
-          queryKey: ['getUnstakingRequests', { stakingAssetAccountId: accountId }],
+          queryKey: getUnstakingRequestsQueryKey({ stakingAssetAccountId: accountId }),
         })
       } else if (queryId === GenericTransactionQueryId.TCY) {
         queryClient.invalidateQueries({

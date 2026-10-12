@@ -1,7 +1,6 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 
-import { chainScansKnownTokens, useAssetService } from '@/hooks/useAssetService/useAssetService'
+import { useAssetService } from '@/hooks/useAssetService/useAssetService'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -32,12 +31,12 @@ export const usePortfolioFetch = () => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    enabledWalletAccountIds.forEach(accountId => {
-      // RTK Query keeps the first result of a subscribed query, so this would pin empty balances
-      if (isAssetServicePending && chainScansKnownTokens(fromAccountId(accountId).chainId)) return
-
-      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
-    })
+    // Placeholders and known-token scans need the current assets, so accounts wait for the asset service
+    if (!isAssetServicePending) {
+      enabledWalletAccountIds.forEach(accountId => {
+        dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
+      })
+    }
 
     if (isLazyTxHistoryEnabled) return
 

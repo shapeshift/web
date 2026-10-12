@@ -10,17 +10,24 @@ import {
   Flex,
   Icon,
   IconButton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Tag,
 } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { Virtuoso } from 'react-virtuoso'
 
-import { useActionCenterContext } from './ActionCenterContext'
+import { ActionCenterTab, useActionCenterContext, useActionCenterTab } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
 import { ArbitrumBridgeClaimModal } from './components/ArbitrumBridgeClaimModal'
 import { ArbitrumBridgeWithdrawActionCard } from './components/ArbitrumBridgeWithdrawActionCard'
 import { ChainflipLendingActionCard } from './components/ChainflipLendingActionCard'
+import { ClaimsEmptyState } from './components/ClaimsEmptyState'
 import { EmptyState } from './components/EmptyState'
 import { GenericTransactionActionCard } from './components/GenericTransactionActionCard'
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
@@ -39,14 +46,17 @@ import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
-  selectWalletActionsSorted,
+  selectWalletClaimActions,
   selectWalletPendingActions,
+  selectWalletRecentActions,
 } from '@/state/slices/actionSlice/selectors'
 import type {
+  Action,
   ArbitrumBridgeWithdrawAction,
   GenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
 import {
+  ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
   isArbitrumBridgeWithdrawAction,
@@ -61,6 +71,7 @@ const ActionCenterIcon = <Icon as={TbBellFilled} />
 
 const virtuosoStyle = {
   height: '100%',
+  scrollbarGutter: 'stable',
 }
 
 const INCREASE_VIEWPORT_BY = {
@@ -68,9 +79,14 @@ const INCREASE_VIEWPORT_BY = {
   bottom: 100,
 }
 
+const computeActionKey = (_index: number, action: Action) => action.id
+
+const tabs = [ActionCenterTab.Recent, ActionCenterTab.Claims]
+
 export const ActionCenter = memo(() => {
   'use no memo'
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
+  const { activeTab, setActiveTab } = useActionCenterTab()
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: isDrawerOpen,
     onClose: closeDrawer,
@@ -111,7 +127,8 @@ export const ActionCenter = memo(() => {
 
   const handleCloseArbitrumClaim = useCallback(() => setArbitrumClaimActionId(undefined), [])
 
-  const actions = useAppSelector(state => (isConnected ? selectWalletActionsSorted(state) : []))
+  const actions = useAppSelector(state => (isConnected ? selectWalletRecentActions(state) : []))
+  const claimActions = useAppSelector(state => (isConnected ? selectWalletClaimActions(state) : []))
 
   const pendingActions = useAppSelector(state =>
     isConnected ? selectWalletPendingActions(state) : [],
@@ -119,11 +136,8 @@ export const ActionCenter = memo(() => {
   const { ordersByActionId } = useLimitOrders()
   const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
 
-  const renderActionCard = useMemo(() => {
-    return (index: number) => {
-      const action = actions[index]
-      if (!action) return null
-
+  const renderActionCard = useCallback(
+    (_index: number, action: Action) => {
       const actionsCards = (() => {
         switch (action.type) {
           case ActionType.Swap: {
@@ -201,8 +215,26 @@ export const ActionCenter = memo(() => {
       })()
 
       return actionsCards
-    }
-  }, [actions, handleOpenArbitrumClaim, handleOpenSpeedUp, ordersByActionId, swapsById])
+    },
+    [handleOpenArbitrumClaim, handleOpenSpeedUp, ordersByActionId, swapsById],
+  )
+
+  const renderActionList = useCallback(
+    (data: Action[]) => (
+      <Virtuoso
+        data={data}
+        itemContent={renderActionCard}
+        style={virtuosoStyle}
+        overscan={200}
+        increaseViewportBy={INCREASE_VIEWPORT_BY}
+        computeItemKey={computeActionKey}
+        className='scroll-container'
+      />
+    ),
+    [renderActionCard],
+  )
+
+  const handleTabChange = useCallback((index: number) => setActiveTab(tabs[index]), [setActiveTab])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {
@@ -237,23 +269,56 @@ export const ActionCenter = memo(() => {
     )
   }, [openActionCenter, translate, pendingActions])
 
-  const drawerContent = useMemo(() => {
-    if (!actions.length) {
-      return <EmptyState onClose={closeDrawer} />
-    }
+  const readyClaimCount = useMemo(
+    () => claimActions.filter(action => action.status === ActionStatus.ClaimAvailable).length,
+    [claimActions],
+  )
 
+  const drawerContent = useMemo(() => {
     return (
-      <Virtuoso
-        data={actions}
-        itemContent={renderActionCard}
-        style={virtuosoStyle}
-        overscan={200}
-        increaseViewportBy={INCREASE_VIEWPORT_BY}
-        computeItemKey={(_, action) => action.id}
-        className='scroll-container'
-      />
+      <Tabs
+        index={tabs.indexOf(activeTab)}
+        onChange={handleTabChange}
+        variant='line'
+        isFitted
+        isLazy
+        display='flex'
+        flexDirection='column'
+        height='100%'
+      >
+        <TabList gap={0} flexShrink={0} borderColor='border.base'>
+          <Tab py={3} fontSize='sm' fontWeight='semibold'>
+            {translate('actionCenter.recent')}
+          </Tab>
+          <Tab py={3} gap={2} fontSize='sm' fontWeight='semibold'>
+            {translate('actionCenter.claims')}
+            {readyClaimCount > 0 && (
+              <Tag size='sm' colorScheme='green' borderRadius='full'>
+                {readyClaimCount}
+              </Tag>
+            )}
+          </Tab>
+        </TabList>
+        <TabPanels flex='1' minHeight={0} pt={2}>
+          <TabPanel p={0} height='100%'>
+            {actions.length ? renderActionList(actions) : <EmptyState onClose={closeDrawer} />}
+          </TabPanel>
+          <TabPanel p={0} height='100%'>
+            {claimActions.length ? renderActionList(claimActions) : <ClaimsEmptyState />}
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     )
-  }, [actions, renderActionCard, closeDrawer])
+  }, [
+    actions,
+    activeTab,
+    claimActions,
+    closeDrawer,
+    handleTabChange,
+    readyClaimCount,
+    renderActionList,
+    translate,
+  ])
 
   return (
     <>

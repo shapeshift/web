@@ -422,6 +422,39 @@ describe('EthereumChainAdapter', () => {
 
       await expect(adapter.signMessage(message)).rejects.toThrow(/error signing message/)
     })
+
+    it('should hex encode a utf8 message before passing it to the wallet', async () => {
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const wallet = await getWallet()
+      const addressNList = toAddressNList(adapter.getBip44Params({ accountNumber: 0 }))
+
+      const ethSignMessage = vi.fn().mockResolvedValue({ address: '0x', signature: '0xsig' })
+      wallet.ethSignMessage = ethSignMessage
+
+      await adapter.signMessage({
+        wallet,
+        messageToSign: { message: 'Hello world 111', addressNList },
+      })
+
+      expect(ethSignMessage).toHaveBeenCalledWith({
+        message: '0x48656c6c6f20776f726c6420313131',
+        addressNList,
+      })
+    })
+
+    it('should pass a hex message to the wallet unchanged', async () => {
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const wallet = await getWallet()
+      const addressNList = toAddressNList(adapter.getBip44Params({ accountNumber: 0 }))
+      const message = '0x48656c6c6f20776f726c6420313131'
+
+      const ethSignMessage = vi.fn().mockResolvedValue({ address: '0x', signature: '0xsig' })
+      wallet.ethSignMessage = ethSignMessage
+
+      await adapter.signMessage({ wallet, messageToSign: { message, addressNList } })
+
+      expect(ethSignMessage).toHaveBeenCalledWith({ message, addressNList })
+    })
   })
 
   describe('broadcastTransaction', () => {

@@ -106,8 +106,12 @@ export async function ethSignMessage(
   const res = await transport.call('ethereumSignMessage', {
     path: msg.addressNList,
     message: msg.message,
+    hex: true,
   })
   handleError(transport, res, 'Could not sign ETH message with Trezor')
+  if (!res.payload.signature) {
+    throw new Error(`Could not sign ETH message with Trezor: '${JSON.stringify(res.payload)}'`)
+  }
   return {
     address: res.payload.address,
     signature: '0x' + res.payload.signature,

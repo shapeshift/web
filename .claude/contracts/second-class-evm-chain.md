@@ -90,11 +90,6 @@ All integration points required when adding a new second-class EVM chain to Shap
     - NO per-chain tx status util file needed (the `default` case in `useSendActionSubscriber.tsx` uses `getSecondClassEvmTxStatus()` which detects any `SecondClassEvmAdapter` via `isSecondClassEvmAdapter` type guard)
     - Only non-EVM chains (Tron, Sui, Near, Ton, Starknet) have individual cases
 
-16b. **State Migration** - `src/state/migrations/index.ts`
-    - A new `clearAssets` migration entry is REQUIRED when adding a chain
-    - Bump the migration version number (next sequential integer)
-    - Without this, existing users with persisted state won't see the new chain's assets until they manually clear cache
-
 16c. **Market Service Test** - `src/lib/market-service/coingecko/coingecko.test.ts`
     - **ONLY for ETH-native chains** (where CoinGecko maps the native asset to `'ethereum'`):
     - Expected result counts in both `can flatten multiple responses` and `can return some results if partially rate limited` tests need incrementing (one more ETH-native chain = one more result in each)

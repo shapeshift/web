@@ -73,7 +73,7 @@ const ClaimRoutes = ({
   const dispatch = useAppDispatch()
   const pendingTcyClaimActions = useAppSelector(selectPendingTcyClaimActions)
   const maybePendingAction = useMemo(
-    () => pendingTcyClaimActions.find(a => a.id === claim?.l1_address),
+    () => pendingTcyClaimActions.find(a => a.id === claim?.accountId),
     [pendingTcyClaimActions, claim],
   )
 
@@ -95,7 +95,7 @@ const ClaimRoutes = ({
       // Dispatch claimed action
       dispatch(
         actionSlice.actions.upsertAction({
-          id: claim.l1_address,
+          id: claim.accountId,
           status: ActionStatus.Claimed,
           type: ActionType.TcyClaim,
           createdAt,

@@ -3,9 +3,10 @@ import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
+import type { UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useSuspenseQueries } from '@tanstack/react-query'
-import axios from 'axios'
-import { useMemo } from 'react'
+import axios, { isAxiosError } from 'axios'
+import { useCallback, useMemo } from 'react'
 
 import type { Claim, TcyClaimer } from '../components/Claim/types'
 
@@ -23,6 +24,12 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+
+// THORNode answers an address without claims with a 400 rather than an empty list
+const isNoTcyClaimsError = (error: unknown): boolean =>
+  isAxiosError(error) &&
+  error.response?.status === 400 &&
+  JSON.stringify(error.response.data).includes("doesn't have any tcy to claim")
 
 export const useTCYClaims = (accountNumber: number | 'all') => {
   const {
@@ -45,67 +52,73 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
     [accountNumber, allAccountIds, accountIdsByAccountNumberAndChainId],
   )
 
+  // null is an unknown read, as opposed to an account without claims
+  const combine = useCallback(
+    (results: UseSuspenseQueryResult<Claim[] | null>[]) =>
+      results.map((result, i) => ({ ...result, accountId: accountIds[i] })),
+    [accountIds],
+  )
+
   return useSuspenseQueries({
     queries: accountIds.map(accountId => ({
       queryKey: ['tcy-claims', accountId, isConnected, isLocked, isSnapInstalled],
-      queryFn: async (): Promise<Claim[]> => {
-        if (!isConnected) return []
+      queryFn: async (): Promise<Claim[] | null> => {
+        if (!isConnected) return null
 
-        const activeAddresses = (
-          await (() => {
-            const chainId = fromAccountId(accountId).chainId
-            const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
-            if (!assetId) return []
-            if (!isSupportedThorchainSaversAssetId(assetId)) return []
-            if (isRune(assetId)) return []
+        const activeAddresses = await (() => {
+          const chainId = fromAccountId(accountId).chainId
+          const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+          if (!assetId) return []
+          if (!isSupportedThorchainSaversAssetId(assetId)) return []
+          if (isRune(assetId)) return []
 
-            // UTXO-based chains are the odd ones, for all address-based, we can simply use the `account` caip-10 part
-            if (!isUtxoChainId(fromAccountId(accountId).chainId))
-              return [fromAccountId(accountId).account]
+          // UTXO-based chains are the odd ones, for all address-based, we can simply use the `account` caip-10 part
+          if (!isUtxoChainId(fromAccountId(accountId).chainId))
+            return [fromAccountId(accountId).account]
 
-            const isMetaMaskMultichainWallet = isMetaMask(wallet)
+          const isMetaMaskMultichainWallet = isMetaMask(wallet)
 
-            // Metamask snap might be uninstalled but UTXO accounts not cleared yet because of reactivity
-            // Native multichain wallets don't use snaps, so skip this guard for them
-            if (
-              isMetaMaskMultichainWallet &&
-              !isSnapInstalled &&
-              !isMetaMaskNativeMultichain(wallet)
-            )
-              return []
+          // Metamask snap might be uninstalled but UTXO accounts not cleared yet because of reactivity
+          // Native multichain wallets don't use snaps, so skip this guard for them
+          if (isMetaMaskMultichainWallet && !isSnapInstalled && !isMetaMaskNativeMultichain(wallet))
+            return null
 
-            const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
-              accountId,
-            })
-            if (!accountMetadata) return []
-            if (!wallet) return []
+          const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
+            accountId,
+          })
+          if (!accountMetadata) return null
+          if (!wallet) return null
 
-            // Introspects THORChain savers to get the active address for a given xpub AccountId
-            // Defaults to 0 if none found
-            // We do not duplicate this for LP and Lending, as those users should all be on a 0th account_index, only savers is the exception
-            // as some users may have historical non-zero account_index active address
-            return getThorfiUtxoFromAddresses({
-              accountId,
-              assetId,
-              accountMetadata,
-              wallet,
-            })
-          })()
-        ).filter(isSome)
+          // Introspects THORChain savers to get the active address for a given xpub AccountId
+          // Defaults to 0 if none found
+          // We do not duplicate this for LP and Lending, as those users should all be on a 0th account_index, only savers is the exception
+          // as some users may have historical non-zero account_index active address
+          return getThorfiUtxoFromAddresses({
+            accountId,
+            assetId,
+            accountMetadata,
+            wallet,
+          })
+        })()
 
-        if (!activeAddresses) return []
+        if (!activeAddresses) return null
 
         try {
           const tcyClaimers = await Promise.all(
-            activeAddresses.map(address =>
-              axios.get<{ tcy_claimer: TcyClaimer[] }>(
-                `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${address}`,
-              ),
-            ),
+            activeAddresses.filter(isSome).map(async address => {
+              try {
+                const { data } = await axios.get<{ tcy_claimer: TcyClaimer[] }>(
+                  `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${address}`,
+                )
+                return data.tcy_claimer
+              } catch (error) {
+                if (isNoTcyClaimsError(error)) return []
+                throw error
+              }
+            }),
           )
 
           return tcyClaimers
-            .map(response => response.data.tcy_claimer)
             .flat()
             .filter(claimer => {
               const assetId = thorPoolAssetIdToAssetId(claimer.asset)
@@ -140,10 +153,11 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
               }
             })
         } catch {
-          return []
+          return null
         }
       },
       staleTime: 60_000,
     })),
+    combine,
   })
 }

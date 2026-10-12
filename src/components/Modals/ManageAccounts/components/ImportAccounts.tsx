@@ -429,7 +429,7 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
             const assetIds = state.assets.ids
 
             // upsert placeholder assets
-            if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
+            if (assets) dispatch(assetSlice.actions.addPlaceholderAssets(assets))
 
             return accountToPortfolio({
               portfolioAccounts,

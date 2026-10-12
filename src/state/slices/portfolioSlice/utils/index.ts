@@ -63,7 +63,6 @@ import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isGridPlus,
-  isPhantom,
   supportsAbstract,
   supportsArbitrum,
   supportsAvalanche,
@@ -592,11 +591,11 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case btcChainId:
       return supportsBTC(wallet)
     case ltcChainId:
-      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
+      return supportsBTC(wallet) && !isGridPlus(wallet)
     case dogeChainId:
-      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
+      return supportsBTC(wallet) && !isGridPlus(wallet)
     case bchChainId:
-      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
+      return supportsBTC(wallet) && !isGridPlus(wallet)
     case zecChainId:
       return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isTrezorHDWallet(wallet))
     case cosmosChainId:
@@ -835,7 +834,7 @@ export const makeAssets = async ({
           minimalAsset.icons = icons
         }
 
-        const asset = makeAsset(state.assets.byId, minimalAsset)
+        const asset = makeAsset(minimalAsset)
 
         // Tokens without a precision are an obvious spam
         if (!asset.precision && !isNft(asset.assetId)) {
@@ -857,7 +856,7 @@ export const makeAssets = async ({
       (prev, token) => {
         if (state.assets.byId[token.assetId]) return prev
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.byId[token.assetId] = makeAsset({ ...token })
         prev.ids.push(token.assetId)
 
         return prev
@@ -877,7 +876,7 @@ export const makeAssets = async ({
     for (const token of unknownTokens) {
       const precision = await adapter?.getTokenPrecision(token.assetId)
       if (precision === undefined) continue
-      assets.push(makeAsset(state.assets.byId, { ...token, precision }))
+      assets.push(makeAsset({ ...token, precision }))
     }
 
     return assets.reduce<UpsertAssetsPayload>(
@@ -898,7 +897,7 @@ export const makeAssets = async ({
       (prev, token) => {
         if (state.assets.byId[token.assetId]) return prev
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.byId[token.assetId] = makeAsset({ ...token })
         prev.ids.push(token.assetId)
 
         return prev
@@ -914,7 +913,7 @@ export const makeAssets = async ({
       (prev, token) => {
         if (state.assets.byId[token.assetId]) return prev
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.byId[token.assetId] = makeAsset({ ...token })
         prev.ids.push(token.assetId)
 
         return prev

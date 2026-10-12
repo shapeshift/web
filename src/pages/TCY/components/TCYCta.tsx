@@ -45,7 +45,7 @@ export const TCYCta = () => {
   const translate = useTranslate()
   const claimsQuery = useTCYClaims('all')
   const [isClosed, setIsClosed] = useLocalStorage<boolean>('TCY_CTA_CLOSED', false)
-  const hasClaims = useMemo(() => claimsQuery.some(query => query.data.length), [claimsQuery])
+  const hasClaims = useMemo(() => claimsQuery.some(query => query.data?.length), [claimsQuery])
 
   const handleClose = useCallback(() => {
     setIsClosed(true)

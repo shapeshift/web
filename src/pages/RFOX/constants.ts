@@ -25,12 +25,9 @@ export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
 
 export const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'bafkreib3ftdt4rhq4fapplsyesyzyorayvnc3a4csdmmbzbaim6tb3gndi'
+export const CURRENT_EPOCH_IPFS_HASH = 'bafkreifcvn6ofyeychliwcrtvdbmxix3wcp6fgzcute4c3zkr3eiqo7gqm'
 export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
 export const RFOX_V3_UPGRADE_EPOCH = 18
-
-// Months are 0 indexed, so this is October 1st
-export const RFOX_MIGRATION_TIMESTAMP_MS = Date.UTC(2026, 9, 1)
 
 export type RfoxStakingConfig = {
   stakingContract: Address
@@ -49,7 +46,7 @@ export const RFOX_STAKING_CONFIG: Record<AssetId, RfoxStakingConfig> = {
     chainId: arbitrumChainId,
     networkId: arbitrum.id,
     rewardAssetId: usdcOnArbitrumOneAssetId,
-    isLegacy: false,
+    isLegacy: true,
   },
   [foxAssetId]: {
     stakingContract: RFOX_ETH_PROXY_CONTRACT,

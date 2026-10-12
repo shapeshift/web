@@ -11,11 +11,9 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import BigNumber from 'bignumber.js'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -23,7 +21,6 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText } from '@/components/Text'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
-import type { TenderlySimulationResponse } from '@/plugins/walletConnectToDapps/utils/tenderly/types'
 
 type GasSelectionMenuProps = {
   transaction: TransactionParams
@@ -36,9 +33,6 @@ const SPEED_OPTIONS = [
   { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast' },
 ]
 
-// 20% headroom on estimated gas to cover state drift between estimation and broadcast.
-const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
-
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
 const chevronIcon = <ChevronDownIcon />
 
@@ -46,39 +40,14 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   const translate = useTranslate()
   const { setValue } = useFormContext<CustomTransactionData>()
 
-  const { speed } = useWatch<CustomTransactionData>()
-  const { gasLimit } = useWatch<CustomTransactionData>()
-  const selectedSpeed = speed
+  const { speed: selectedSpeed, gasLimit } = useWatch<CustomTransactionData>()
 
-  const { gasEstimateQuery, fee } = useSimulateEvmTransaction({
+  const { fee } = useSimulateEvmTransaction({
     transaction,
     chainId,
     speed: selectedSpeed,
-  })
-
-  useEffect(() => {
-    // Defer to the dApp / user value when one is already set; our estimate only fills the gap.
-    if (gasLimit) return
-
-    const maybeBaseGasLimit:
-      | evm.EvmGasLimitEstimate['gasLimit']
-      | TenderlySimulationResponse['transaction']['gas_used']
-      | undefined =
-      gasEstimateQuery.data?.estimatedGasLimit ??
-      gasEstimateQuery.data?.simulation?.transaction?.gas_used
-    if (!maybeBaseGasLimit) return
-
-    const bufferedGas: BigNumber = bnOrZero(maybeBaseGasLimit)
-      .times(GAS_LIMIT_BUFFER_MULTIPLIER)
-      .integerValue(BigNumber.ROUND_CEIL)
-
-    setValue('gasLimit', bufferedGas.toString())
-  }, [
-    gasEstimateQuery.data?.estimatedGasLimit,
-    gasEstimateQuery.data?.simulation?.transaction?.gas_used,
-    setValue,
     gasLimit,
-  ])
+  })
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {

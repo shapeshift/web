@@ -12,12 +12,16 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
+import {
+  getArbitrumBridgeWithdrawActionId,
+  getArbitrumBridgeWithdrawMessageKey,
+} from '@/hooks/useActionCenterSubscribers/arbitrumBridgeWithdrawAction'
 import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
+import { useClaimTimeText } from '@/hooks/useClaimTimeText/useClaimTimeText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatSecondsToDuration } from '@/lib/utils/time'
 import { ActionStatus, isArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import {
-  selectArbitrumBridgeWithdrawActionByWithdrawTxHash,
+  selectArbitrumBridgeWithdrawActionById,
   selectSwapActionBySwapId,
   selectWalletSwapsById,
 } from '@/state/slices/selectors'
@@ -46,13 +50,17 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
   const maybeArbitrumBridgeAction = useAppSelector(state =>
     withdrawTxHash
-      ? selectArbitrumBridgeWithdrawActionByWithdrawTxHash(state, withdrawTxHash)
+      ? selectArbitrumBridgeWithdrawActionById(
+          state,
+          getArbitrumBridgeWithdrawActionId(withdrawTxHash),
+        )
       : undefined,
   )
 
-  // Use ArbitrumBridge action for ArbitrumBridge swaps, otherwise use swap action
-  const action =
-    swap?.swapperName === SwapperName.ArbitrumBridge ? maybeArbitrumBridgeAction : swapAction
+  // Bridge swaps show their withdraw action once history creates it, the swap action until then
+  const action = maybeArbitrumBridgeAction ?? swapAction
+
+  const timeText = useClaimTimeText(maybeArbitrumBridgeAction?.arbitrumBridgeMetadata.claimableAt)
 
   const swapNotificationComponents = useMemo((): TextPropTypes['components'] | undefined => {
     if (!swap) return undefined
@@ -88,13 +96,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     }
 
     if (isArbitrumBridgeWithdraw) {
-      const timeRemaining =
-        action.arbitrumBridgeMetadata.claimDetails?.timeRemainingSeconds ??
-        action.arbitrumBridgeMetadata.timeRemainingSeconds
-      const timeDisplay =
-        timeRemaining && timeRemaining > 0 ? formatSecondsToDuration(timeRemaining) : null
-      const timeText = timeDisplay ? `in ${timeDisplay}` : 'Available'
-
       const buyAmountCryptoPrecision = bnOrZero(
         actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision,
       )
@@ -120,21 +121,26 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
     }
 
     return components
-  }, [swap, actualBuyAmountCryptoPrecision, action])
+  }, [swap, actualBuyAmountCryptoPrecision, action, timeText])
 
   const swapTitleTranslation = useMemo(() => {
     if (!action || !swap) return 'actionCenter.swap.processing'
 
     const { status } = action
 
-    if (swap.swapperName === SwapperName.ArbitrumBridge && swap.buyAsset.chainId === ethChainId) {
-      if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
+    if (swap.swapperName === SwapperName.ArbitrumBridge) {
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
-      if (status === ActionStatus.Initiated) {
-        return isArbitrumBridgeWithdrawAction(action)
-          ? 'actionCenter.bridge.pendingWithdraw'
-          : 'actionCenter.bridge.initiated'
+
+      // A withdraw is initiated once its tx lands, its withdraw action tells the rest
+      if (swap.buyAsset.chainId === ethChainId) {
+        if (isArbitrumBridgeWithdrawAction(action))
+          return getArbitrumBridgeWithdrawMessageKey(status)
+        if (status === ActionStatus.Complete) return 'actionCenter.bridge.initiated'
+
+        return 'actionCenter.bridge.processing'
       }
+
+      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
 
       return 'actionCenter.bridge.processing'
     }

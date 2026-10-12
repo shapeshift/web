@@ -113,6 +113,7 @@ export class MockTransport extends trezor.TrezorTransport {
       {
         path: [2147483692, 2147483708, 2147483648, 0, 0],
         message: '0x48656c6c6f20576f726c64', // "Hello World"
+        hex: true,
       },
       {
         success: true,

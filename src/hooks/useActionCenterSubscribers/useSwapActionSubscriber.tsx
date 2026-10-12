@@ -1,9 +1,8 @@
 import { usePrevious } from '@chakra-ui/react'
-import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
-  SwapperName,
   swappers,
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
@@ -22,6 +21,10 @@ import { MobileFeature, useMobileFeaturesCompatibility } from '../useMobileFeatu
 import { useModal } from '../useModal/useModal'
 import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
+import {
+  buildArbitrumBridgeWithdrawActionFromSwap,
+  isArbitrumBridgeWithdrawSwap,
+} from './arbitrumBridgeWithdrawAction'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
@@ -29,6 +32,7 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { fetchArbitrumClaimMessage } from '@/hooks/useArbitrumClaims/useArbitrumClaims'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
@@ -58,15 +62,6 @@ const getActionStatusFromSwap = (
   isApprovalRequired?: boolean,
   isActiveSwap: boolean = true,
 ): ActionStatus => {
-  // Special handling for ArbitrumBridge - Success means withdrawal initiated, not complete
-  if (
-    swap.status === SwapStatus.Success &&
-    swap.swapperName === SwapperName.ArbitrumBridge &&
-    swap.buyAsset.chainId === ethChainId
-  ) {
-    return ActionStatus.Initiated
-  }
-
   // If swap is pending/success/failed, use direct mapping
   if (swap.status !== SwapStatus.Idle) {
     return swapStatusToActionStatus[swap.status]
@@ -280,6 +275,21 @@ export const useSwapActionSubscriber = () => {
             actualBuyAmountCryptoBaseUnit,
           }),
         )
+
+        // Not awaited, the withdraw block lookup must not hold up the balance refetches below
+        if (isArbitrumBridgeWithdrawSwap(swap)) {
+          void fetchArbitrumClaimMessage(swap.sellTxHash.toLowerCase())
+            .then(({ withdrawTimeMs }) => withdrawTimeMs)
+            .catch(() => Date.now())
+            .then(withdrawTimeMs => {
+              const withdrawAction = buildArbitrumBridgeWithdrawActionFromSwap(swap, withdrawTimeMs)
+              if (!withdrawAction) return
+              if (actionSlice.selectors.selectActionsById(store.getState())[withdrawAction.id])
+                return
+
+              dispatch(actionSlice.actions.upsertAction(withdrawAction))
+            })
+        }
 
         const { getAccount } = portfolioApi.endpoints
 

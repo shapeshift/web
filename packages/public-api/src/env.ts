@@ -75,6 +75,7 @@ const envSchema = z.object({
   RELAY_API_URL: url,
   ACROSS_API_URL: url,
   DEBRIDGE_API_URL: url,
+  SYMBIOSIS_API_URL: url.default('https://api.symbiosis.finance/crosschain'),
   CHAINFLIP_API_URL: url,
 
   // Swapper API keys
@@ -84,7 +85,7 @@ const envSchema = z.object({
   BOB_GATEWAY_API_KEY: z.string().default(''),
   CHAINFLIP_API_KEY: z.string().min(1),
   NEAR_INTENTS_API_KEY: z.string().min(1),
-  RELAY_API_KEY: z.string().default(''),
+  RELAY_API_KEY: z.string().min(1),
   TRON_GRID_API_KEY: z.string().default(''),
 
   // Feature flags

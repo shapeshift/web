@@ -4,6 +4,7 @@ import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 
 import { getStakingContract } from '../helpers'
+import { useCurrentEpochMetadataQuery } from './useCurrentEpochMetadataQuery'
 import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
@@ -29,6 +30,8 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
+
   const totalStakedCryptoCurrencyQuery = useTotalStakedQuery<string>({
     stakingAssetId,
     select: (totalStaked: bigint) => {
@@ -41,17 +44,16 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       if (!stakingAssetPriceHistory) return
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
+      if (!currentEpochMetadataQuery.data) return
       if (!epochs.length) return
 
       const latestEpoch = epochs[0]
 
-      // A staking contract the epoch metadata doesn't cover yet has no knowable APY - returning
-      // undefined renders 0% rather than leaving the previously selected program's figure up
+      // The current epoch's rate, as a program is only covered by a completed epoch once its first epoch closes
       const distributionRate =
-        latestEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]
-          ?.distributionRate
-
-      if (distributionRate === undefined) return
+        currentEpochMetadataQuery.data.distributionRateByStakingContract[
+          getStakingContract(stakingAsset.assetId)
+        ] ?? 0
 
       const closestStakingAssetPrice =
         stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
@@ -71,7 +73,12 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
 
       return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)
     },
-    [stakingAssetPriceHistory, stakingAsset, totalStakedCryptoCurrencyQuery],
+    [
+      stakingAssetPriceHistory,
+      stakingAsset,
+      totalStakedCryptoCurrencyQuery,
+      currentEpochMetadataQuery.data,
+    ],
   )
 
   const query = useEpochHistoryQuery({ select })

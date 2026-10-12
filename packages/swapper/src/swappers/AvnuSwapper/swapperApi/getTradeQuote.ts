@@ -5,7 +5,6 @@ import { validateAndParseAddress } from 'starknet'
 import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
-import { FALLBACK_QUOTE_DEADLINE_MS } from '../../../utils/helpers'
 import type { AvnuTradeQuoteInput } from '../types'
 import { getAvnuTradeContext } from '../utils/getAvnuTradeContext'
 
@@ -47,7 +46,7 @@ export const getTradeQuote = async (
       ...tradeCommon,
       receiveAddress: normalizedReceiveAddress,
       quoteOrRate: 'quote',
-      deadline: deadline ?? Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
+      deadline,
       steps: [
         {
           ...stepCommon,

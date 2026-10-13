@@ -1,11 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import { isAddress, zeroAddress } from 'viem'
 
-import type { SwapErrorRight } from '../../../types'
+import type { EvmChainId, SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { FyndEncodedQuote } from '../types'
@@ -23,7 +22,7 @@ import { isFyndAmount, validateFyndQuoteResponse } from './validation'
 type FetchFyndInput = {
   sellAsset: Asset
   buyAsset: Asset
-  chainId?: ChainId
+  chainId: EvmChainId
   sellAmountCryptoBaseUnit: string
   sender: string
   receiver: string

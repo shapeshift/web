@@ -4,8 +4,8 @@ import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber, bn, chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { Address } from 'viem'
 import axios from 'axios'
+import type { Address } from 'viem'
 import { getAddress, isAddress, zeroAddress } from 'viem'
 
 import type { SwapErrorRight } from '../../../types'
@@ -37,7 +37,7 @@ export const assertValidTrade = ({
 }: {
   sellAsset: Asset
   buyAsset: Asset
-  chainId?: ChainId
+  chainId: ChainId
 }): Result<FyndSupportedChainId, SwapErrorRight> => {
   if (!isFyndSupportedChainId(sellAsset.chainId) || !isFyndSupportedChainId(buyAsset.chainId)) {
     return Err<FyndSupportedChainId, SwapErrorRight>(
@@ -69,7 +69,7 @@ export const assertValidTrade = ({
           assetReference.slice(6).toLowerCase() !== zeroAddress))
     )
   })
-  if (!validAssets || (chainId !== undefined && chainId !== sellAsset.chainId)) {
+  if (!validAssets || chainId !== sellAsset.chainId) {
     return Err<FyndSupportedChainId, SwapErrorRight>(
       makeSwapErrorRight({
         message: 'Invalid Fynd assets or chain',

@@ -11,7 +11,12 @@ import { makeSwapErrorRight } from '../../../utils'
 import type { FyndEncodedQuote } from '../types'
 import { FYND_CHAINS } from './constants'
 import { createFyndService } from './fyndService'
-import { assertValidTrade, convertAssetIdToFyndToken, isFyndNativeAsset } from './helpers'
+import {
+  assertValidTrade,
+  convertAssetIdToFyndToken,
+  getFyndRequestError,
+  isFyndNativeAsset,
+} from './helpers'
 import { isFyndAmount, validateFyndQuoteResponse } from './validation'
 
 type FetchFyndInput = {
@@ -86,7 +91,7 @@ export const fetchFromFynd = async ({
       },
     },
   })
-  if (maybeResponse.isErr()) return Err(maybeResponse.unwrapErr())
+  if (maybeResponse.isErr()) return Err(getFyndRequestError(maybeResponse.unwrapErr()))
   return validateFyndQuoteResponse(maybeResponse.unwrap().data, {
     chainId,
     sellAmountCryptoBaseUnit,

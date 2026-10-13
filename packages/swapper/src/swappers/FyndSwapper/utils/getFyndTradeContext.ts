@@ -51,10 +51,6 @@ export const getFyndTradeContext = ({
       swapperName: SwapperName.Fynd,
       affiliateBps: '0',
       slippageTolerancePercentageDecimal,
-      priceImpactPercentageDecimal:
-        quote.price_impact_bps == null
-          ? undefined
-          : bn(quote.price_impact_bps).div(10_000).toFixed(),
     },
     stepCommon: {
       estimatedExecutionTimeMs: 0,

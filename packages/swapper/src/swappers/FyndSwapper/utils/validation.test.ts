@@ -27,7 +27,6 @@ const order = {
   amount_out: '1000',
   gas_estimate: '21000',
   gas_price: null,
-  price_impact_bps: -10,
   route: null,
   transaction,
   fee_breakdown: fees,
@@ -42,7 +41,7 @@ const validate = (overrides: Record<string, unknown>) =>
   validateFyndQuoteResponse({ orders: [{ ...order, ...overrides }] }, context)
 
 describe('Fynd response validation', () => {
-  it('accepts nullable gas price and signed price impact', () => {
+  it('accepts a nullable gas price', () => {
     expect(validate({}).isOk()).toBe(true)
   })
 
@@ -51,7 +50,6 @@ describe('Fynd response validation', () => {
     ['negative output', { amount_out: '-1' }, 'Fynd returned invalid quote amounts'],
     ['fractional base units', { amount_out: '0.5' }, 'Fynd returned invalid quote amounts'],
     ['exponent base units', { amount_out: '1e3' }, 'Fynd returned invalid quote amounts'],
-    ['fractional price impact', { price_impact_bps: 1.5 }, 'Fynd returned invalid quote amounts'],
     ['missing fees', { fee_breakdown: null }, 'Fynd returned a malformed fee breakdown'],
     [
       'fees exceed output',

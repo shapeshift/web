@@ -5,11 +5,13 @@ import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Address } from 'viem'
+import axios from 'axios'
 import { getAddress, isAddress, zeroAddress } from 'viem'
 
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import type { FyndErrorResponse } from '../types'
 import type { FyndSupportedChainId } from './constants'
 import { FYND_CHAINS } from './constants'
 
@@ -73,4 +75,37 @@ export const assertValidTrade = ({
     )
   }
   return Ok<FyndSupportedChainId, SwapErrorRight>(sellAsset.chainId)
+}
+
+const isFyndErrorResponse = (value: unknown): value is FyndErrorResponse =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as FyndErrorResponse).error === 'string' &&
+  typeof (value as FyndErrorResponse).code === 'string'
+
+// The proxy forwards Fynd's status and `{ error, code }` body as-is
+export const getFyndRequestError = (error: SwapErrorRight): SwapErrorRight => {
+  const { cause } = error
+  if (!axios.isAxiosError(cause)) return error
+
+  const status = cause.response?.status
+  const body: unknown = cause.response?.data
+  const code = isFyndErrorResponse(body) ? body.code : undefined
+  const message = isFyndErrorResponse(body)
+    ? `Fynd: ${body.error}`
+    : `Fynd request failed${status ? ` with status ${status}` : ''}`
+
+  if (status === 429) {
+    return makeSwapErrorRight({
+      message: 'Fynd rate limit exceeded',
+      code: TradeQuoteError.RateLimitExceeded,
+    })
+  }
+  if (code === 'NO_ROUTE_FOUND' || code === 'INSUFFICIENT_LIQUIDITY') {
+    return makeSwapErrorRight({ message, code: TradeQuoteError.NoRouteFound })
+  }
+  if (code === 'TIMEOUT') {
+    return makeSwapErrorRight({ message, code: TradeQuoteError.Timeout })
+  }
+  return makeSwapErrorRight({ message, code: TradeQuoteError.QueryFailed, cause })
 }

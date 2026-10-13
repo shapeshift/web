@@ -56,8 +56,7 @@ const getAmountsError = (
     bn(order.amount_out).gt(0) &&
     isFyndAmount(order.gas_estimate) &&
     bn(order.gas_estimate).gt(0) &&
-    (isNullish(order.gas_price) || isFyndAmount(order.gas_price)) &&
-    (isNullish(order.price_impact_bps) || Number.isSafeInteger(order.price_impact_bps))
+    (isNullish(order.gas_price) || isFyndAmount(order.gas_price))
   if (isValid) return
   return invalidResponse('Fynd returned invalid quote amounts', {
     amountIn: order.amount_in,
@@ -65,7 +64,6 @@ const getAmountsError = (
     amountOut: order.amount_out,
     gasEstimate: order.gas_estimate,
     gasPrice: order.gas_price,
-    priceImpactBps: order.price_impact_bps,
   })
 }
 

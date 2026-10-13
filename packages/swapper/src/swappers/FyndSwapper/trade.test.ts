@@ -1,10 +1,12 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+import { AxiosError } from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { SwapperDeps } from '../../types'
 import { TradeQuoteError } from '../../types'
+import { makeSwapErrorRight } from '../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../utils/evm'
 import { ETH, USDC_MAINNET, WETH } from '../../utils/test-data/assets'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -48,7 +50,7 @@ const input: FyndTradeQuoteInput = {
   slippageTolerancePercentageDecimal: '0.005',
 }
 
-const response = (router: `0x${string}`, priceImpact: number | null = -10) => ({
+const response = (router: `0x${string}`) => ({
   orders: [
     {
       order_id: 'test-order',
@@ -58,7 +60,6 @@ const response = (router: `0x${string}`, priceImpact: number | null = -10) => ({
       amount_out_net_gas: '990000',
       gas_estimate: '100000',
       gas_price: null,
-      price_impact_bps: priceImpact,
       route: { swaps: [{ protocol: 'uniswap_v3' }] },
       transaction: {
         to: router,
@@ -141,16 +142,6 @@ describe('Fynd trades', () => {
         }),
       }),
     )
-  })
-
-  it.each<[number | null, string | undefined]>([
-    [10, '0.001'],
-    [-10, '-0.001'],
-    [null, undefined],
-  ])('preserves the direction of price impact %s', async (impact, expected) => {
-    payload = response(FYND_CHAINS[KnownChainIds.EthereumMainnet].routerAddress, impact)
-    const result = await getTradeQuote(input, deps)
-    expect(result.unwrap()[0].priceImpactPercentageDecimal).toBe(expected)
   })
 
   it('preserves connected rate accounts without exposing an executable transaction', async () => {
@@ -307,6 +298,26 @@ describe('Fynd trades', () => {
     const result = await getTradeQuote({ ...input, sellAsset: { ...WETH, assetId } }, deps)
     expect(result.isErr()).toBe(true)
     expect(http.post).not.toHaveBeenCalled()
+  })
+
+  it.each<[number, unknown, TradeQuoteError]>([
+    [429, 'Too Many Requests', TradeQuoteError.RateLimitExceeded],
+    [422, { error: 'no route', code: 'NO_ROUTE_FOUND' }, TradeQuoteError.NoRouteFound],
+    [422, { error: 'thin', code: 'INSUFFICIENT_LIQUIDITY' }, TradeQuoteError.NoRouteFound],
+    [503, { error: 'solver timeout', code: 'TIMEOUT' }, TradeQuoteError.Timeout],
+    [422, { error: 'price check', code: 'PRICE_CHECK_FAILED' }, TradeQuoteError.QueryFailed],
+    [400, { error: 'bad slippage', code: 'INVALID_SLIPPAGE' }, TradeQuoteError.QueryFailed],
+    [503, 'Service Unavailable', TradeQuoteError.QueryFailed],
+  ])('maps a proxied http %s response to %s', async (status, data, code) => {
+    const cause = new AxiosError('Request failed', undefined, undefined, undefined, {
+      status,
+      data,
+    } as AxiosError['response'])
+    http.post.mockResolvedValueOnce(
+      Err(makeSwapErrorRight({ message: 'makeSwapperAxiosServiceMonadic', cause })),
+    )
+    const result = await getTradeQuote(input, deps)
+    expect(result.unwrapErr().code).toBe(code)
   })
 
   it.each([

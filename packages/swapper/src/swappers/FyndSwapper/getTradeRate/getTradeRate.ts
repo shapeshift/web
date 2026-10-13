@@ -32,6 +32,7 @@ export const getTradeRate = async (
     sender,
     receiver,
     slippageTolerancePercentageDecimal,
+    affiliateBps: input.affiliateBps,
     baseUrl: deps.config.VITE_FYND_BASE_URL,
   })
   if (maybeFynd.isErr()) return Err(maybeFynd.unwrapErr())

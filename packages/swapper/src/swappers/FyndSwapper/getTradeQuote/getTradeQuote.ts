@@ -43,6 +43,7 @@ export const getTradeQuote = async (
     sender: sendAddress,
     receiver: receiveAddress,
     slippageTolerancePercentageDecimal,
+    affiliateBps: input.affiliateBps,
     baseUrl: deps.config.VITE_FYND_BASE_URL,
   })
   if (maybeFynd.isErr()) return Err(maybeFynd.unwrapErr())
@@ -70,6 +71,7 @@ export const getTradeQuote = async (
     ...tradeCommon,
     quoteOrRate: 'quote',
     receiveAddress,
+    ...(quote.client_fee_deadline ? { deadline: quote.client_fee_deadline * 1000 } : {}),
     steps: [
       {
         ...stepCommon,

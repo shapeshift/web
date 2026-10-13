@@ -347,4 +347,50 @@ describe('Fynd trades', () => {
       )
     },
   )
+
+  it('requests the gross client fee and reports our net share', async () => {
+    payload.orders[0].amount_out = '1000000'
+    payload.orders[0].transaction = {
+      ...payload.orders[0].transaction,
+      data: `0x12345678${'ab'.repeat(65)}`,
+      client_fee_signature_offset: 4,
+    }
+    payload.orders[0].fee_breakdown = {
+      ...payload.orders[0].fee_breakdown,
+      router_fee: '1500',
+      client_fee: '6000',
+      max_slippage: '4962',
+      min_amount_received: '987538',
+    }
+    ;(payload.orders[0] as Record<string, unknown>).client_fee_deadline = 1_900_000_000
+    const result = await getTradeQuote({ ...input, affiliateBps: '60' }, deps)
+    const quote = result.unwrap()[0]
+    expect(http.post).toHaveBeenCalledWith(
+      '/quote',
+      expect.objectContaining({
+        options: expect.objectContaining({
+          encoding_options: expect.objectContaining({ client_fee_params: { bps: 75 } }),
+        }),
+      }),
+    )
+    expect(quote.affiliateBps).toBe('60')
+    expect(quote.deadline).toBe(1_900_000_000_000)
+    expect(quote.steps[0].affiliateFee).toMatchObject({ amountCryptoBaseUnit: '6000' })
+    expect(quote.steps[0].buyAmountAfterFeesCryptoBaseUnit).toBe('992500')
+    expect(quote.steps[0].feeData.protocolFees).toMatchObject({
+      [USDC_MAINNET.assetId]: { amountCryptoBaseUnit: '1500' },
+    })
+  })
+
+  it('does not request a client fee without affiliate bps', async () => {
+    await getTradeQuote(input, deps)
+    expect(http.post).toHaveBeenCalledWith(
+      '/quote',
+      expect.objectContaining({
+        options: expect.objectContaining({
+          encoding_options: expect.not.objectContaining({ client_fee_params: expect.anything() }),
+        }),
+      }),
+    )
+  })
 })

@@ -14,6 +14,7 @@ import { createFyndService } from './fyndService'
 import {
   assertValidTrade,
   convertAssetIdToFyndToken,
+  getFyndClientFeeBps,
   getFyndRequestError,
   isFyndNativeAsset,
 } from './helpers'
@@ -27,6 +28,7 @@ type FetchFyndInput = {
   sender: string
   receiver: string
   slippageTolerancePercentageDecimal: string
+  affiliateBps: string
   baseUrl: string
 }
 
@@ -38,6 +40,7 @@ export const fetchFromFynd = async ({
   sender,
   receiver,
   slippageTolerancePercentageDecimal,
+  affiliateBps,
   baseUrl,
 }: FetchFyndInput): Promise<Result<FyndEncodedQuote, SwapErrorRight>> => {
   if (!baseUrl) {
@@ -67,6 +70,7 @@ export const fetchFromFynd = async ({
       }),
     )
   }
+  const clientFeeBps = getFyndClientFeeBps(affiliateBps)
   const service = createFyndService({
     baseUrl: `${baseUrl.replace(/\/$/, '')}/${FYND_CHAINS[chainId].name}`,
   })
@@ -85,9 +89,11 @@ export const fetchFromFynd = async ({
       timeout_ms: 5_000,
       min_responses: 1,
       // The deployed API accepts a string despite its OpenAPI schema declaring a number.
+      // The proxy sets the fee receiver and deadline and signs the quote
       encoding_options: {
         slippage: slippageTolerancePercentageDecimal,
         transfer_type: 'transfer_from',
+        ...(clientFeeBps > 0 ? { client_fee_params: { bps: clientFeeBps } } : {}),
       },
     },
   })
@@ -97,5 +103,6 @@ export const fetchFromFynd = async ({
     sellAmountCryptoBaseUnit,
     isNativeSell: isFyndNativeAsset(sellAsset.assetId),
     slippageTolerancePercentageDecimal,
+    clientFeeBps,
   })
 }

@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
+import { BigNumber, bn, chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Address } from 'viem'
@@ -13,13 +13,16 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { FyndErrorResponse } from '../types'
 import type { FyndSupportedChainId } from './constants'
-import { FYND_CHAINS } from './constants'
+import { FYND_CHAINS, FYND_CLIENT_FEE_SHARE } from './constants'
 
 const isFyndSupportedChainId = (chainId: ChainId): chainId is FyndSupportedChainId =>
   chainId in FYND_CHAINS
 
 export const isFyndNativeAsset = (assetId: AssetId): boolean =>
   assetId === chainIdToFeeAssetId(assetId.split('/')[0])
+
+export const getFyndClientFeeBps = (affiliateBps: string): number =>
+  bn(affiliateBps).div(FYND_CLIENT_FEE_SHARE).integerValue(BigNumber.ROUND_CEIL).toNumber()
 
 export const convertAssetIdToFyndToken = (assetId: AssetId): Address => {
   const { assetReference } = fromAssetId(assetId)

@@ -23,9 +23,12 @@ export const getFyndTradeContext = ({
   slippageTolerancePercentageDecimal: string
 }): FyndTradeContext => {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
-  const routerFee = quote.fee_breakdown.router_fee
+  const { router_fee: routerFee, client_fee: clientFee } = quote.fee_breakdown
   const buyAmountBeforeFeesCryptoBaseUnit = quote.amount_out
-  const buyAmountAfterFeesCryptoBaseUnit = bn(quote.amount_out).minus(routerFee).toFixed()
+  const buyAmountAfterFeesCryptoBaseUnit = bn(quote.amount_out)
+    .minus(routerFee)
+    .minus(clientFee)
+    .toFixed()
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: quote.amount_in,
     buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
@@ -49,7 +52,7 @@ export const getFyndTradeContext = ({
       id: uuid(),
       rate,
       swapperName: SwapperName.Fynd,
-      affiliateBps: '0',
+      affiliateBps: input.affiliateBps,
       slippageTolerancePercentageDecimal,
     },
     stepCommon: {
@@ -62,6 +65,9 @@ export const getFyndTradeContext = ({
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit,
       source,
+      affiliateFee: bn(clientFee).gt(0)
+        ? { assetId: buyAsset.assetId, amountCryptoBaseUnit: clientFee, asset: buyAsset }
+        : undefined,
     },
     protocolFees,
   }

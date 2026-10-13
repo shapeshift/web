@@ -7,13 +7,14 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { FyndEncodedQuote, FyndFeeBreakdown } from '../types'
 import type { FyndSupportedChainId } from './constants'
-import { FYND_CHAINS } from './constants'
+import { FYND_CHAINS, FYND_CLIENT_FEE_SHARE, FYND_CLIENT_FEE_SIGNATURE_BYTES } from './constants'
 
 type FyndQuoteValidationContext = {
   chainId: FyndSupportedChainId
   sellAmountCryptoBaseUnit: string
   isNativeSell: boolean
   slippageTolerancePercentageDecimal: string
+  clientFeeBps: number
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -67,13 +68,32 @@ const getAmountsError = (
   })
 }
 
-const getFeeBreakdownError = (order: Record<string, unknown>): SwapErrorRight | undefined => {
+// Our share of the gross client fee, allowing one unit of rounding
+const getMinClientFee = (amountOut: unknown, clientFeeBps: number): BigNumber =>
+  bn(isFyndAmount(amountOut) ? amountOut : 0)
+    .times(clientFeeBps)
+    .div(10_000)
+    .times(FYND_CLIENT_FEE_SHARE)
+    .integerValue(BigNumber.ROUND_DOWN)
+    .minus(1)
+
+const getFeeBreakdownError = (
+  order: Record<string, unknown>,
+  { clientFeeBps }: FyndQuoteValidationContext,
+): SwapErrorRight | undefined => {
   const fees = order.fee_breakdown
   if (!isValidFeeBreakdown(fees)) {
     return invalidResponse('Fynd returned a malformed fee breakdown', { feeBreakdown: fees })
   }
-  if (!bn(fees.client_fee).isZero()) {
+  if (clientFeeBps === 0 && !bn(fees.client_fee).isZero()) {
     return invalidResponse('Fynd returned an unexpected client fee', { clientFee: fees.client_fee })
+  }
+  if (clientFeeBps > 0 && bn(fees.client_fee).lt(getMinClientFee(order.amount_out, clientFeeBps))) {
+    return invalidResponse('Fynd client fee is below the requested share', {
+      clientFee: fees.client_fee,
+      amountOut: order.amount_out,
+      clientFeeBps,
+    })
   }
   const feeBreakdownTotal = bn(fees.router_fee)
     .plus(fees.client_fee)
@@ -87,9 +107,17 @@ const getFeeBreakdownError = (order: Record<string, unknown>): SwapErrorRight | 
   })
 }
 
+// The proxy patches the 65-byte signature over Fynd's zeroed placeholder at the reported offset
+const isSignedAtOffset = (data: string, offset: unknown): boolean => {
+  if (!Number.isSafeInteger(offset) || (offset as number) < 0) return false
+  const start = 2 + (offset as number) * 2
+  const signature = data.slice(start, start + FYND_CLIENT_FEE_SIGNATURE_BYTES * 2)
+  return signature.length === FYND_CLIENT_FEE_SIGNATURE_BYTES * 2 && !/^0+$/.test(signature)
+}
+
 const getTransactionError = (
   transaction: unknown,
-  { chainId, sellAmountCryptoBaseUnit, isNativeSell }: FyndQuoteValidationContext,
+  { chainId, sellAmountCryptoBaseUnit, isNativeSell, clientFeeBps }: FyndQuoteValidationContext,
 ): SwapErrorRight | undefined => {
   if (!isRecord(transaction)) {
     return invalidResponse('Fynd quote is missing its transaction')
@@ -106,18 +134,36 @@ const getTransactionError = (
   const expectedValue = isNativeSell ? sellAmountCryptoBaseUnit : '0'
   const hasCalldata =
     typeof transaction.data === 'string' && /^0x(?:[a-fA-F0-9]{2}){4,}$/.test(transaction.data)
+  const hasExpectedSignature =
+    clientFeeBps > 0
+      ? hasCalldata && isSignedAtOffset(transaction.data, transaction.client_fee_signature_offset)
+      : isNullish(transaction.client_fee_signature_offset)
   const isValid =
     hasCalldata &&
     isFyndAmount(transaction.value) &&
     bn(transaction.value).eq(expectedValue) &&
-    isNullish(transaction.client_fee_signature_offset)
+    hasExpectedSignature
   if (isValid) return
   return invalidResponse('Fynd returned an invalid transaction', {
     value: transaction.value,
     expectedValue,
     hasCalldata,
+    clientFeeBps,
     clientFeeSignatureOffset: transaction.client_fee_signature_offset,
   })
+}
+
+const getClientFeeDeadlineError = (
+  order: Record<string, unknown>,
+  { clientFeeBps }: FyndQuoteValidationContext,
+): SwapErrorRight | undefined => {
+  const deadline = order.client_fee_deadline
+  const isValid =
+    clientFeeBps > 0
+      ? Number.isSafeInteger(deadline) && (deadline as number) > 0
+      : isNullish(deadline)
+  if (isValid) return
+  return invalidResponse('Fynd quote is missing its client fee deadline', { deadline, clientFeeBps })
 }
 
 const getRouteError = (route: unknown): SwapErrorRight | undefined => {
@@ -165,8 +211,9 @@ export const validateFyndQuoteResponse = (
 
   const responseError =
     getAmountsError(order, context) ??
-    getFeeBreakdownError(order) ??
+    getFeeBreakdownError(order, context) ??
     getTransactionError(order.transaction, context) ??
+    getClientFeeDeadlineError(order, context) ??
     getRouteError(order.route)
   if (responseError) return Err(responseError)
 

@@ -9,6 +9,7 @@ export type FyndTransaction = {
   to: Address
   value: string
   data: Hex
+  client_fee_signature_offset?: number | null
 }
 
 export type FyndFeeBreakdown = {
@@ -33,4 +34,6 @@ export type FyndEncodedQuote = {
   route?: { swaps: { protocol: string }[] } | null
   transaction: FyndTransaction
   fee_breakdown: FyndFeeBreakdown
+  // Unix seconds; set by the proxy when it signs the client fee
+  client_fee_deadline?: number | null
 }

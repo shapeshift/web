@@ -18,7 +18,7 @@ type GetFyndStepDataArgs = StepDataArgs<
   }
 >
 
-type FyndRateStepData = { networkFeeCryptoBaseUnit: string }
+type FyndRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
 type FyndQuoteStepData = {
   transactionData: TxBuildData
   networkFeeCryptoBaseUnit: string
@@ -34,24 +34,38 @@ export async function getFyndStepData(
   args: GetFyndStepDataArgs,
 ): Promise<Result<FyndRateStepData | FyndQuoteStepData, SwapErrorRight>> {
   const { sellAsset, input, deps } = args
+  const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+  const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
+
+  if (args.type === 'rate') {
+    const networkFeeCryptoBaseUnit = await (async () => {
+      try {
+        return await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          supportsEIP1559,
+          gasLimit: args.gasEstimate,
+        })
+      } catch {
+        return args.gasPrice ? bn(args.gasEstimate).times(args.gasPrice).toFixed(0) : undefined
+      }
+    })()
+
+    const stepData: FyndRateStepData = { networkFeeCryptoBaseUnit }
+
+    return Ok(stepData)
+  }
+
+  // Fynd's gas_estimate is a route-level sum, not a simulation, so estimate on chain and let the
+  // router verify the signed fee before the user signs
+  const transactionData: TxBuildData = {
+    type: 'evm',
+    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+    to: args.transaction.to,
+    data: args.transaction.data,
+    value: args.transaction.value,
+  }
+
   try {
-    const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-    const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
-    if (args.type === 'rate') {
-      const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-        adapter,
-        supportsEIP1559,
-        gasLimit: args.gasEstimate,
-      })
-      return Ok({ networkFeeCryptoBaseUnit })
-    }
-    const transactionData: TxBuildData = {
-      type: 'evm',
-      chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-      to: args.transaction.to,
-      data: args.transaction.data,
-      value: args.transaction.value,
-    }
     const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
       adapter,
       transactionData,
@@ -63,13 +77,11 @@ export async function getFyndStepData(
         spenderAddress: args.spenderAddress,
       },
     })
-    return Ok({ transactionData, networkFeeCryptoBaseUnit })
+
+    const stepData: FyndQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+    return Ok(stepData)
   } catch (error) {
-    if (args.type === 'rate' && args.gasPrice !== null) {
-      return Ok({
-        networkFeeCryptoBaseUnit: bn(args.gasEstimate).times(args.gasPrice).toFixed(),
-      })
-    }
     return Err(makeNetworkFeeEstimationFailedErr('getFyndStepData', error))
   }
 }

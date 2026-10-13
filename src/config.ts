@@ -226,7 +226,7 @@ const validators = {
   VITE_FEATURE_FOX_PAGE_GOVERNANCE: bool({ default: false }),
   VITE_FEATURE_LIMIT_ORDERS: bool({ default: false }),
   VITE_ZRX_BASE_URL: url(),
-  VITE_FYND_BASE_URL: url({ default: 'https://api.shapeshift.com/v1/fynd' }),
+  VITE_FYND_BASE_URL: url(),
   VITE_FEATURE_CHAINFLIP_SWAP: bool({ default: false }),
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: bool({ default: false }),
   VITE_FEATURE_CHAINFLIP_LENDING: bool({ default: false }),

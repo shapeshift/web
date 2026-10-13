@@ -72,6 +72,7 @@ const envSchema = z.object({
   COWSWAP_BASE_URL: url,
   PORTALS_BASE_URL: url,
   ZRX_BASE_URL: url,
+  FYND_BASE_URL: url.default('https://api.proxy.shapeshift.com/api/v1/fynd'),
   RELAY_API_URL: url,
   ACROSS_API_URL: url,
   DEBRIDGE_API_URL: url,
@@ -81,7 +82,6 @@ const envSchema = z.object({
   // Swapper API keys
   ACROSS_INTEGRATOR_ID: z.string().default(''),
   ACROSS_API_KEY: z.string().default(''),
-  FYND_API_KEY: z.string().default(''),
   BEBOP_API_KEY: z.string().min(1),
   BOB_GATEWAY_API_KEY: z.string().default(''),
   CHAINFLIP_API_KEY: z.string().min(1),

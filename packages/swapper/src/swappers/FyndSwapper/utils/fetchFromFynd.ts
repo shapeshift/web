@@ -7,6 +7,7 @@ import { isAddress, zeroAddress } from 'viem'
 import type { EvmChainId, SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { FyndEncodedQuote } from '../types'
 import { FYND_CHAINS } from './constants'
 import { createFyndService } from './fyndService'
@@ -15,7 +16,6 @@ import {
   convertAssetIdToFyndToken,
   getFyndClientFeeBps,
   getFyndRequestError,
-  isFyndNativeAsset,
 } from './helpers'
 import { isFyndAmount, validateFyndQuoteResponse } from './validation'
 
@@ -100,7 +100,7 @@ export const fetchFromFynd = async ({
   return validateFyndQuoteResponse(maybeResponse.unwrap().data, {
     chainId,
     sellAmountCryptoBaseUnit,
-    isNativeSell: isFyndNativeAsset(sellAsset.assetId),
+    isNativeSell: isNativeEvmAsset(sellAsset.assetId),
     slippageTolerancePercentageDecimal,
     clientFeeBps,
   })

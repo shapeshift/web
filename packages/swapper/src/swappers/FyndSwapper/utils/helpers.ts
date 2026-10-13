@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigNumber, bn, chainIdToFeeAssetId } from '@shapeshiftoss/utils'
+import { BigNumber, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -11,6 +11,7 @@ import { getAddress, isAddress, zeroAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { FyndErrorResponse } from '../types'
 import type { FyndSupportedChainId } from './constants'
 import { FYND_CHAINS, FYND_CLIENT_FEE_SHARE } from './constants'
@@ -18,15 +19,12 @@ import { FYND_CHAINS, FYND_CLIENT_FEE_SHARE } from './constants'
 const isFyndSupportedChainId = (chainId: ChainId): chainId is FyndSupportedChainId =>
   chainId in FYND_CHAINS
 
-export const isFyndNativeAsset = (assetId: AssetId): boolean =>
-  assetId === chainIdToFeeAssetId(assetId.split('/')[0])
-
 export const getFyndClientFeeBps = (affiliateBps: string): number =>
   bn(affiliateBps).div(FYND_CLIENT_FEE_SHARE).integerValue(BigNumber.ROUND_CEIL).toNumber()
 
 export const convertAssetIdToFyndToken = (assetId: AssetId): Address => {
   const { assetReference } = fromAssetId(assetId)
-  if (isFyndNativeAsset(assetId)) return zeroAddress
+  if (isNativeEvmAsset(assetId)) return zeroAddress
   return getAddress(assetReference)
 }
 
@@ -63,7 +61,7 @@ export const assertValidTrade = ({
     return (
       assetParts.length === 2 &&
       assetChainId === asset.chainId &&
-      (isFyndNativeAsset(asset.assetId) ||
+      ((assetReference?.startsWith('slip44:') && isNativeEvmAsset(asset.assetId)) ||
         (assetReference?.startsWith('erc20:') &&
           isAddress(assetReference.slice(6)) &&
           assetReference.slice(6).toLowerCase() !== zeroAddress))

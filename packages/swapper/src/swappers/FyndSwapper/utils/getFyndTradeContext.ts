@@ -4,8 +4,8 @@ import { v4 as uuid } from 'uuid'
 import type { QuoteFeeData, SwapSource, TradeCommon, TradeStepCommon } from '../../../types'
 import { SwapperName } from '../../../types'
 import { getInputOutputRate } from '../../../utils'
+import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { FyndEncodedQuote, FyndTradeQuoteInput, FyndTradeRateInput } from '../types'
-import { isFyndNativeAsset } from './helpers'
 
 type FyndTradeContext = {
   tradeCommon: TradeCommon
@@ -57,7 +57,7 @@ export const getFyndTradeContext = ({
     },
     stepCommon: {
       estimatedExecutionTimeMs: 0,
-      allowanceContract: isFyndNativeAsset(sellAsset.assetId) ? '' : quote.transaction.to,
+      allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? '' : quote.transaction.to,
       rate,
       sellAsset,
       buyAsset,

@@ -34,7 +34,9 @@ export const FYND_CHAINS = {
 } as const satisfies Record<string, { name: string; routerAddress: Address }>
 
 export type FyndSupportedChainId = keyof typeof FYND_CHAINS
+
 export const FYND_RATE_ADDRESS = '0x0000000000000000000000000000000000000001' as Address
+
 // Fynd keeps 20% of the client fee, so request the gross bps that nets affiliateBps
 export const FYND_CLIENT_FEE_SHARE = 0.8
 export const FYND_CLIENT_FEE_SIGNATURE_BYTES = 65

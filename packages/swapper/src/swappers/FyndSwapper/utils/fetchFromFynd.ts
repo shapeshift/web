@@ -8,7 +8,7 @@ import type { EvmChainId, SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../../utils/helpers'
-import type { FyndEncodedQuote } from '../types'
+import type { FyndEncodedQuote, FyndQuoteResponse } from '../types'
 import { FYND_CHAINS } from './constants'
 import { createFyndService } from './fyndService'
 import {
@@ -17,7 +17,7 @@ import {
   getFyndClientFeeBps,
   getFyndRequestError,
 } from './helpers'
-import { isFyndAmount, validateFyndQuoteResponse } from './validation'
+import { validateFyndQuoteResponse } from './validation'
 
 type FetchFyndInput = {
   sellAsset: Asset
@@ -54,7 +54,7 @@ export const fetchFromFynd = async ({
   if (maybeTrade.isErr()) return Err(maybeTrade.unwrapErr())
   const chainId = maybeTrade.unwrap()
   if (
-    !isFyndAmount(sellAmountCryptoBaseUnit) ||
+    !bn(sellAmountCryptoBaseUnit).isInteger() ||
     !bn(sellAmountCryptoBaseUnit).gt(0) ||
     !isAddress(sender) ||
     !isAddress(receiver) ||
@@ -73,7 +73,7 @@ export const fetchFromFynd = async ({
   const service = createFyndService({
     baseUrl: `${baseUrl.replace(/\/$/, '')}/${FYND_CHAINS[chainId].name}`,
   })
-  const maybeResponse = await service.post<unknown>('/quote', {
+  const maybeResponse = await service.post<FyndQuoteResponse>('/quote', {
     orders: [
       {
         token_in: convertAssetIdToFyndToken(sellAsset.assetId),

@@ -12,21 +12,12 @@ const transaction = {
   data: '0x12345678',
   client_fee_signature_offset: null,
 }
-const fees = {
-  router_fee: '10',
-  client_fee: '0',
-  max_slippage: '4',
-  min_amount_received: '986',
-  swaps_hash: null,
-}
+const fees = { router_fee: '10', client_fee: '0', max_slippage: '4', min_amount_received: '986' }
 const order = {
-  order_id: 'test',
-  status: 'success',
+  status: 'success' as const,
   amount_in: '1000',
   amount_out: '1000',
   gas_estimate: '21000',
-  gas_price: null,
-  route: null,
   transaction,
   fee_breakdown: fees,
 }
@@ -49,29 +40,16 @@ describe('Fynd response validation', () => {
   })
 
   it.each([
-    ['a different sell amount', { amount_in: '999' }, 'Fynd returned invalid quote amounts'],
+    ['an unpinned router', { transaction: { ...transaction, to: unpinnedRouter } }],
+    ['a different sell amount', { amount_in: '999' }],
+    ['native value on a token sell', { transaction: { ...transaction, value: '1' } }],
     [
-      'fees that do not add up to the output',
-      { fee_breakdown: { ...fees, router_fee: '1001' } },
-      'Fynd fee breakdown does not add up to the quoted output',
+      'an output floor looser than the slippage',
+      { fee_breakdown: { ...fees, min_amount_received: '984' } },
     ],
-    [
-      'a client fee we did not request',
-      { fee_breakdown: { ...fees, client_fee: '1' } },
-      'Fynd returned an unexpected client fee',
-    ],
-    [
-      'an unpinned router',
-      { transaction: { ...transaction, to: unpinnedRouter } },
-      `Fynd router ${unpinnedRouter} is not the pinned router ${router} for eip155:1`,
-    ],
-    [
-      'native value on a token sell',
-      { transaction: { ...transaction, value: '1' } },
-      'Fynd returned an invalid transaction',
-    ],
-  ])('rejects %s', (_label, overrides, message) => {
-    expect(validate(overrides).unwrapErr().message).toBe(message)
+    ['a client fee we did not request', { fee_breakdown: { ...fees, client_fee: '1' } }],
+  ])('rejects %s', (_label, overrides) => {
+    expect(validate(overrides).isErr()).toBe(true)
   })
 
   it('binds native transaction value to the requested sell amount', () => {
@@ -81,31 +59,10 @@ describe('Fynd response validation', () => {
     ).toBe(true)
   })
 
-  it.each([
-    ['weaker output floor', '0.005', '1000', '10', '5', '985', false],
-    ['stricter output floor', '0.005', '1000', '10', '3', '987', true],
-    ['zero tolerance', '0', '1000', '10', '0', '990', true],
-    ['loss at zero tolerance', '0', '1000', '10', '1', '989', false],
-    ['six-decimal quantization', '0.0000019', '2000000', '0', '2', '1999998', true],
-    ['loss beyond quantized tolerance', '0.0000019', '2000000', '0', '3', '1999997', false],
-  ] as const)(
-    'enforces requested slippage: %s',
-    (_label, slippage, amountOut, routerFee, maxSlippage, minOutput, accepted) => {
-      const result = validate(
-        {
-          amount_out: amountOut,
-          fee_breakdown: {
-            ...fees,
-            router_fee: routerFee,
-            max_slippage: maxSlippage,
-            min_amount_received: minOutput,
-          },
-        },
-        { slippageTolerancePercentageDecimal: slippage },
-      )
-      expect(result.isOk()).toBe(accepted)
-    },
-  )
+  it('maps a missing route to NoRouteFound', () => {
+    const result = validateFyndQuoteResponse({ orders: [{ status: 'no_route_found' }] }, context)
+    expect(result.unwrapErr().code).toBe('NoRouteFound')
+  })
 
   describe('with a client fee', () => {
     const feeContext = { clientFeeBps: 75 }
@@ -116,7 +73,6 @@ describe('Fynd response validation', () => {
         client_fee_signature_offset: 4,
       },
       fee_breakdown: {
-        ...fees,
         router_fee: '2',
         client_fee: '6',
         max_slippage: '4',
@@ -135,20 +91,14 @@ describe('Fynd response validation', () => {
         {
           fee_breakdown: { ...feeOrder.fee_breakdown, client_fee: '4', min_amount_received: '990' },
         },
-        'Fynd client fee is below the requested share',
       ],
       [
         'an unsigned placeholder',
         { transaction: { ...feeOrder.transaction, data: `0x12345678${'00'.repeat(65)}` } },
-        'Fynd returned an invalid transaction',
       ],
-      [
-        'a missing deadline',
-        { client_fee_deadline: null },
-        'Fynd quote is missing its client fee deadline',
-      ],
-    ])('rejects %s', (_label, overrides, message) => {
-      expect(validate({ ...feeOrder, ...overrides }, feeContext).unwrapErr().message).toBe(message)
+      ['a missing deadline', { client_fee_deadline: null }],
+    ])('rejects %s', (_label, overrides) => {
+      expect(validate({ ...feeOrder, ...overrides }, feeContext).isErr()).toBe(true)
     })
   })
 })

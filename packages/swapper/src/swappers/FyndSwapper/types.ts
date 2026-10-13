@@ -37,3 +37,17 @@ export type FyndEncodedQuote = {
   // Unix seconds; set by the proxy when it signs the client fee
   client_fee_deadline?: number | null
 }
+
+export type FyndFailedOrder = {
+  status:
+    | 'no_route_found'
+    | 'insufficient_liquidity'
+    | 'timeout'
+    | 'not_ready'
+    | 'price_check_failed'
+    | 'encoding_failed'
+}
+
+export type FyndQuoteResponse = {
+  orders: (FyndEncodedQuote | FyndFailedOrder)[]
+}

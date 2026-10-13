@@ -31,6 +31,13 @@ This file is the canonical instruction entrypoint for local agent tooling in thi
 - QA automation (`qabot`, fixture-based flow): [.claude/skills/qabot/SKILL.md](.claude/skills/qabot/SKILL.md)
 - Translation workflow: [.claude/skills/translate/SKILL.md](.claude/skills/translate/SKILL.md)
 
+## Cursor Cloud specific instructions
+
+- Cloud Agent images put Node 22.14 at `/exec-daemon/node`, ahead of `/usr/local/bin`. Vitest loads `module-alias`, which needs `module.registerHooks` from Node 22.15+. Install and start switch that binary to the official Node 22.23.3 tarball when the active `node` is older. `.nvmrc` is `22`. `packageManager` pins `pnpm@10.30.3` (`corepack prepare pnpm@10.30.3 --activate`).
+- OpenJDK is already on the image. `pnpm run build:packages` must finish before the web app or package tests. It generates the gitignored Unchained clients in `packages/unchained-client/src/generated` from public GitHub OpenAPI specs, then compiles workspace packages.
+- Start the UI with `pnpm run dev:web:localhost` (Vite on port 3000, host `0.0.0.0`). `pnpm run dev` and `dev:web` expect the optional Portless proxy (`http://<branch>.web.localhost:1355`) and are not required here. `pnpm run dev:packages` is the package watch (`tsc --build --watch`).
+- Committed `.env.development` is enough to open the trade screen, request a quote, and open Markets. No extra secrets are required for that flow.
+
 ## Tooling Notes
 
 - Claude compatibility is provided by `CLAUDE.md` importing this file.

@@ -175,7 +175,13 @@ describe('Fynd response validation', () => {
     const feeOrder = {
       ...order,
       transaction: { ...transaction, data: signedData, client_fee_signature_offset: 4 },
-      fee_breakdown: { ...fees, router_fee: '2', client_fee: '6', max_slippage: '4', min_amount_received: '988' },
+      fee_breakdown: {
+        ...fees,
+        router_fee: '2',
+        client_fee: '6',
+        max_slippage: '4',
+        min_amount_received: '988',
+      },
       client_fee_deadline: 1_900_000_000,
     }
     const validateFee = (overrides: Record<string, unknown>) =>
@@ -188,7 +194,9 @@ describe('Fynd response validation', () => {
     it.each([
       [
         'fee below our share',
-        { fee_breakdown: { ...feeOrder.fee_breakdown, client_fee: '4', min_amount_received: '990' } },
+        {
+          fee_breakdown: { ...feeOrder.fee_breakdown, client_fee: '4', min_amount_received: '990' },
+        },
         'Fynd client fee is below the requested share',
       ],
       [
@@ -201,7 +209,11 @@ describe('Fynd response validation', () => {
         { transaction: { ...feeOrder.transaction, client_fee_signature_offset: null } },
         'Fynd returned an invalid transaction',
       ],
-      ['missing deadline', { client_fee_deadline: null }, 'Fynd quote is missing its client fee deadline'],
+      [
+        'missing deadline',
+        { client_fee_deadline: null },
+        'Fynd quote is missing its client fee deadline',
+      ],
     ])('rejects %s', (_label, overrides, message) => {
       expect(validateFee(overrides).unwrapErr().message).toBe(message)
     })

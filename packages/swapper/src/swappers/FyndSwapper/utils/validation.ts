@@ -163,7 +163,10 @@ const getClientFeeDeadlineError = (
       ? Number.isSafeInteger(deadline) && (deadline as number) > 0
       : isNullish(deadline)
   if (isValid) return
-  return invalidResponse('Fynd quote is missing its client fee deadline', { deadline, clientFeeBps })
+  return invalidResponse('Fynd quote is missing its client fee deadline', {
+    deadline,
+    clientFeeBps,
+  })
 }
 
 const getRouteError = (route: unknown): SwapErrorRight | undefined => {

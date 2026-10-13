@@ -48,6 +48,10 @@ export const getTradeRate = async (
     input,
     deps,
     sellAsset: input.sellAsset,
+    transaction: quote.transaction,
+    from: sender,
+    spenderAddress: stepCommon.allowanceContract,
+    sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     gasEstimate: quote.gas_estimate,
     gasPrice: quote.gas_price ?? null,
   })

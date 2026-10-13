@@ -1,18 +1,9 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  SingleHopTradeQuoteSteps,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-} from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
+import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import { assertQuoteAddresses } from '../../../utils'
 import type { FyndTradeQuoteInput } from '../types'
-import { FYND_RATE_ADDRESS } from '../utils/constants'
-import { fetchFromFynd } from '../utils/fetchFromFynd'
 import { getFyndStepData } from '../utils/getFyndStepData'
 import { getFyndTradeContext } from '../utils/getFyndTradeContext'
 
@@ -20,66 +11,40 @@ export const getTradeQuote = async (
   input: FyndTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  const { accountNumber } = input
+
   const maybeAddresses = assertQuoteAddresses(input)
   if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
   const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
-  if ([sendAddress, receiveAddress].some(address => address.toLowerCase() === FYND_RATE_ADDRESS)) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Fynd executable quotes require wallet addresses',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
 
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Fynd)
-  const maybeFynd = await fetchFromFynd({
-    sellAsset: input.sellAsset,
-    buyAsset: input.buyAsset,
-    chainId: input.chainId,
-    sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sender: sendAddress,
-    receiver: receiveAddress,
-    slippageTolerancePercentageDecimal,
-    affiliateBps: input.affiliateBps,
-    baseUrl: deps.config.VITE_FYND_BASE_URL,
-  })
-  if (maybeFynd.isErr()) return Err(maybeFynd.unwrapErr())
-  const quote = maybeFynd.unwrap()
-  const { tradeCommon, stepCommon, protocolFees } = getFyndTradeContext({
-    input,
-    quote,
-    slippageTolerancePercentageDecimal,
-  })
-
-  const maybeStepData = await getFyndStepData({
-    type: 'quote',
+  const maybeContext = await getFyndTradeContext({
     input,
     deps,
-    sellAsset: input.sellAsset,
-    transaction: quote.transaction,
     from: sendAddress,
-    spenderAddress: stepCommon.allowanceContract,
-    sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    to: receiveAddress,
   })
+
+  if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
+  const { tradeCommon, stepCommon, protocolFees, deadline, stepDataArgs } = maybeContext.unwrap()
+
+  const maybeStepData = await getFyndStepData({ ...stepDataArgs, type: 'quote', input })
+
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
-    quoteOrRate: 'quote',
+    quoteOrRate: 'quote' as const,
     receiveAddress,
-    ...(quote.client_fee_deadline ? { deadline: quote.client_fee_deadline * 1000 } : {}),
+    deadline,
     steps: [
       {
         ...stepCommon,
-        accountNumber: input.accountNumber,
+        accountNumber,
         transactionData,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
-    ] as SingleHopTradeQuoteSteps,
+    ],
   }
 
   return Ok([tradeQuote])

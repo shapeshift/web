@@ -1,106 +1,74 @@
-import type { Asset } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import { isAddress, zeroAddress } from 'viem'
 
-import type { EvmChainId, SwapErrorRight } from '../../../types'
-import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../../utils/helpers'
-import type { FyndEncodedQuote, FyndQuoteResponse } from '../types'
+import type { SwapErrorRight } from '../../../types'
+import type {
+  FyndEncodedQuote,
+  FyndQuoteResponse,
+  FyndTradeQuoteInput,
+  FyndTradeRateInput,
+} from '../types'
+import type { FyndSupportedChainId } from './constants'
 import { FYND_CHAINS } from './constants'
-import { createFyndService } from './fyndService'
+import { fyndService } from './fyndService'
 import {
-  assertValidTrade,
   convertAssetIdToFyndToken,
-  getFyndClientFeeBps,
   getFyndRequestError,
+  validateFyndQuoteResponse,
 } from './helpers'
-import { validateFyndQuoteResponse } from './validation'
-
-type FetchFyndInput = {
-  sellAsset: Asset
-  buyAsset: Asset
-  chainId: EvmChainId
-  sellAmountCryptoBaseUnit: string
-  sender: string
-  receiver: string
-  slippageTolerancePercentageDecimal: string
-  affiliateBps: string
-  baseUrl: string
-}
 
 export const fetchFromFynd = async ({
-  sellAsset,
-  buyAsset,
-  chainId: requestedChainId,
-  sellAmountCryptoBaseUnit,
+  input,
+  chainId,
   sender,
   receiver,
   slippageTolerancePercentageDecimal,
-  affiliateBps,
+  clientFeeBps,
   baseUrl,
-}: FetchFyndInput): Promise<Result<FyndEncodedQuote, SwapErrorRight>> => {
-  if (!baseUrl) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Fynd base URL is not configured',
-        code: TradeQuoteError.InternalError,
-      }),
-    )
-  }
-  const maybeTrade = assertValidTrade({ sellAsset, buyAsset, chainId: requestedChainId })
-  if (maybeTrade.isErr()) return Err(maybeTrade.unwrapErr())
-  const chainId = maybeTrade.unwrap()
-  if (
-    !bn(sellAmountCryptoBaseUnit).isInteger() ||
-    !bn(sellAmountCryptoBaseUnit).gt(0) ||
-    !isAddress(sender) ||
-    !isAddress(receiver) ||
-    sender.toLowerCase() === zeroAddress ||
-    receiver.toLowerCase() === zeroAddress ||
-    !/^0(?:\.\d+)?$/.test(slippageTolerancePercentageDecimal)
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Invalid Fynd amount, address or slippage',
-        code: TradeQuoteError.InternalError,
-      }),
-    )
-  }
-  const clientFeeBps = getFyndClientFeeBps(affiliateBps)
-  const service = createFyndService({
-    baseUrl: `${baseUrl.replace(/\/$/, '')}/${FYND_CHAINS[chainId].name}`,
-  })
-  const maybeResponse = await service.post<FyndQuoteResponse>('/quote', {
-    orders: [
-      {
-        token_in: convertAssetIdToFyndToken(sellAsset.assetId),
-        token_out: convertAssetIdToFyndToken(buyAsset.assetId),
-        amount: sellAmountCryptoBaseUnit,
-        side: 'sell',
-        sender,
-        receiver,
-      },
-    ],
-    options: {
-      timeout_ms: 5_000,
-      min_responses: 1,
-      // The deployed API accepts a string despite its OpenAPI schema declaring a number.
-      // The proxy sets the fee receiver and deadline and signs the quote
-      encoding_options: {
-        slippage: slippageTolerancePercentageDecimal,
-        transfer_type: 'transfer_from',
-        ...(clientFeeBps > 0 ? { client_fee_params: { bps: clientFeeBps } } : {}),
+}: {
+  input: FyndTradeQuoteInput | FyndTradeRateInput
+  chainId: FyndSupportedChainId
+  sender: string
+  receiver: string
+  slippageTolerancePercentageDecimal: string
+  clientFeeBps: number
+  baseUrl: string
+}): Promise<Result<FyndEncodedQuote, SwapErrorRight>> => {
+  const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
+
+  const maybeResponse = await fyndService.post<FyndQuoteResponse>(
+    `${baseUrl}/${FYND_CHAINS[chainId].name}/quote`,
+    {
+      orders: [
+        {
+          token_in: convertAssetIdToFyndToken(sellAsset.assetId),
+          token_out: convertAssetIdToFyndToken(buyAsset.assetId),
+          amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          side: 'sell',
+          sender,
+          receiver,
+        },
+      ],
+      options: {
+        timeout_ms: 5_000,
+        min_responses: 1,
+        encoding_options: {
+          // The API accepts a string slippage despite its schema declaring a number
+          slippage: slippageTolerancePercentageDecimal,
+          transfer_type: 'transfer_from',
+          // The proxy sets the fee receiver and deadline and signs the quote
+          ...(clientFeeBps > 0 ? { client_fee_params: { bps: clientFeeBps } } : {}),
+        },
       },
     },
-  })
+  )
+
   if (maybeResponse.isErr()) return Err(getFyndRequestError(maybeResponse.unwrapErr()))
+
   return validateFyndQuoteResponse(maybeResponse.unwrap().data, {
     chainId,
-    sellAmountCryptoBaseUnit,
-    isNativeSell: isNativeEvmAsset(sellAsset.assetId),
+    sellAsset,
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     slippageTolerancePercentageDecimal,
     clientFeeBps,
   })

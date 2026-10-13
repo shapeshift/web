@@ -22,7 +22,6 @@ export type FyndFeeBreakdown = {
 export type FyndErrorResponse = {
   error: string
   code: string
-  details?: unknown
 }
 
 export type FyndEncodedQuote = {
@@ -30,7 +29,6 @@ export type FyndEncodedQuote = {
   amount_in: string
   amount_out: string
   gas_estimate: string
-  gas_price?: string | null
   route?: { swaps: { protocol: string }[] } | null
   transaction: FyndTransaction
   fee_breakdown: FyndFeeBreakdown

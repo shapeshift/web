@@ -1,28 +1,22 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
 import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
-import type { FyndTransaction } from '../types'
+import type { FyndEncodedQuote } from '../types'
 
-type GetFyndStepDataArgs = StepDataArgs<
-  {
-    transaction: FyndTransaction
-    spenderAddress: string
-    sellAmountCryptoBaseUnit: string
-    from: string
-  },
-  { gasEstimate: string; gasPrice: string | null }
->
+type BaseArgs = {
+  quote: FyndEncodedQuote
+  sellAmountCryptoBaseUnit: string
+  spenderAddress: string
+}
+
+export type GetFyndStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
 
 type FyndRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
-type FyndQuoteStepData = {
-  transactionData: TxBuildData
-  networkFeeCryptoBaseUnit: string
-}
+type FyndQuoteStepData = { transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }
 
 export function getFyndStepData(
   args: Extract<GetFyndStepDataArgs, { type: 'rate' }>,
@@ -33,37 +27,34 @@ export function getFyndStepData(
 export async function getFyndStepData(
   args: GetFyndStepDataArgs,
 ): Promise<Result<FyndRateStepData | FyndQuoteStepData, SwapErrorRight>> {
-  const { sellAsset, input, deps } = args
+  const { quote, sellAsset, sellAmountCryptoBaseUnit, spenderAddress, from, type, input, deps } =
+    args
+
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
   const transactionData: TxBuildData = {
     type: 'evm',
     chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    to: args.transaction.to,
-    data: args.transaction.data,
-    value: args.transaction.value,
-  }
-  const stateOverride = {
-    sellAsset,
-    sellAmountCryptoBaseUnit: args.sellAmountCryptoBaseUnit,
-    spenderAddress: args.spenderAddress,
+    to: quote.transaction.to,
+    data: quote.transaction.data,
+    value: quote.transaction.value,
   }
 
-  if (args.type === 'rate') {
-    const networkFeeCryptoBaseUnit = await (async () => {
-      try {
-        return await getEvmNetworkFeeCryptoBaseUnit({
-          adapter,
-          transactionData,
-          from: args.from,
-          supportsEIP1559,
-          stateOverride,
-        })
-      } catch {
-        return args.gasPrice ? bn(args.gasEstimate).times(args.gasPrice).toFixed(0) : undefined
-      }
-    })()
+  const stateOverride = { sellAsset, sellAmountCryptoBaseUnit, spenderAddress }
+
+  if (type === 'rate') {
+    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      adapter,
+      transactionData,
+      from,
+      supportsEIP1559,
+      stateOverride,
+    })
+      .catch(() =>
+        getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit: quote.gas_estimate }),
+      )
+      .catch(() => undefined)
 
     const stepData: FyndRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -75,7 +66,7 @@ export async function getFyndStepData(
     const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
       adapter,
       transactionData,
-      from: args.from,
+      from,
       supportsEIP1559,
       stateOverride,
     })

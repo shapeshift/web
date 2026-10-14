@@ -2,7 +2,6 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { TypedData } from 'eip-712'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
@@ -51,7 +50,7 @@ export async function getZrxStepData(
     ...(permit2Eip712 && {
       signatureRequired: {
         type: 'permit2' as const,
-        eip712: permit2Eip712 as unknown as TypedData,
+        eip712: permit2Eip712,
       },
     }),
   }

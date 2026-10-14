@@ -16,6 +16,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { getAsset } from '../../assets'
 import {
   ENABLED_SWAPPER_NAMES,
+  FALLBACK_QUOTE_EXPIRES_IN_MS,
   isExecutableSellChainId,
   isSwapperExecutableOnSellChain,
   MAX_QUOTE_DEADLINE_MS,
@@ -228,14 +229,17 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     // taken after the allowance rpc reads so a slow check can't sneak an expired quote through
     const now = Date.now()
 
-    if (!Number.isFinite(quote.deadline) || quote.deadline <= now) {
+    if (
+      quote.deadline !== undefined &&
+      (!Number.isFinite(quote.deadline) || quote.deadline <= now)
+    ) {
       res.status(502).json({
         error: 'Swapper quote expired before it could be returned; request a new quote',
       } satisfies ErrorResponse)
       return
     }
 
-    if (quote.deadline > now + MAX_QUOTE_DEADLINE_MS) {
+    if (quote.deadline !== undefined && quote.deadline > now + MAX_QUOTE_DEADLINE_MS) {
       console.error(
         `[getQuote] ${validSwapperName} deadline ${quote.deadline} exceeds MAX_QUOTE_DEADLINE_MS sanity ceiling - provider bug, or raise the ceiling if this swapper legitimately quotes longer`,
       )
@@ -246,6 +250,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     }
 
     const depositAddress = getDepositAddress(step, validSwapperName)
+    const expiresAt = quote.deadline ?? now + FALLBACK_QUOTE_EXPIRES_IN_MS
 
     quoteStore.set(quoteId, {
       ...baseQuote,
@@ -256,7 +261,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerAddress: req.affiliateInfo?.partnerAddress,
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
-      quoteDeadline: quote.deadline,
+      quoteDeadline: expiresAt,
       metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       depositAddress,
     })
@@ -270,7 +275,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(transformQuoteStep),
       approval,
-      expiresAt: quote.deadline,
+      expiresAt,
       depositAddress,
     }
 

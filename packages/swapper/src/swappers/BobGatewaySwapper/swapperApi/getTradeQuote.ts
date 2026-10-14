@@ -4,7 +4,6 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { assertQuoteAddresses } from '../../../utils'
-import { FALLBACK_QUOTE_DEADLINE_MS } from '../../../utils/helpers'
 import type { BobGatewayTradeQuoteInput } from '../types'
 import { getBobGatewayStepData } from '../utils/getBobGatewayStepData'
 import { getBobGatewayTradeContext } from '../utils/getBobGatewayTradeContext'
@@ -49,7 +48,6 @@ export const getBobGatewayTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote',
-    deadline: Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
     receiveAddress,
     steps: [
       {

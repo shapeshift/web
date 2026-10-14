@@ -75,6 +75,7 @@ const envSchema = z.object({
   RELAY_API_URL: url,
   ACROSS_API_URL: url,
   DEBRIDGE_API_URL: url,
+  SYMBIOSIS_API_URL: url.default('https://api.symbiosis.finance/crosschain'),
   CHAINFLIP_API_URL: url,
 
   // Swapper API keys

@@ -134,6 +134,7 @@ export const mockStore: ReduxState = {
       Soneium: false,
       Zcash: false,
       ZrxSwap: false,
+      FyndSwap: false,
       ThorSwap: false,
       Cowswap: false,
       WalletConnectToDapps: false,

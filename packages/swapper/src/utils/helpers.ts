@@ -1,21 +1,9 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  arbitrumAssetId,
-  avalancheAssetId,
-  baseAssetId,
-  bscAssetId,
-  ethAssetId,
-  fromAssetId,
-  gnosisAssetId,
-  katanaAssetId,
-  monadAssetId,
-  optimismAssetId,
-  plasmaAssetId,
-  polygonAssetId,
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TreasuryChainId } from '@shapeshiftoss/utils'
 import {
+  chainIdToFeeAssetId,
   DAO_TREASURY_ARBITRUM,
   DAO_TREASURY_AVALANCHE,
   DAO_TREASURY_BASE,
@@ -58,33 +46,8 @@ export const normalizeEpochToMs = (value: number): number => {
 }
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
-  const { chainId } = fromAssetId(assetId)
-  switch (chainId) {
-    case KnownChainIds.EthereumMainnet:
-      return assetId === ethAssetId
-    case KnownChainIds.AvalancheMainnet:
-      return assetId === avalancheAssetId
-    case KnownChainIds.OptimismMainnet:
-      return assetId === optimismAssetId
-    case KnownChainIds.BnbSmartChainMainnet:
-      return assetId === bscAssetId
-    case KnownChainIds.PolygonMainnet:
-      return assetId === polygonAssetId
-    case KnownChainIds.GnosisMainnet:
-      return assetId === gnosisAssetId
-    case KnownChainIds.ArbitrumMainnet:
-      return assetId === arbitrumAssetId
-    case KnownChainIds.BaseMainnet:
-      return assetId === baseAssetId
-    case KnownChainIds.MonadMainnet:
-      return assetId === monadAssetId
-    case KnownChainIds.PlasmaMainnet:
-      return assetId === plasmaAssetId
-    case KnownChainIds.KatanaMainnet:
-      return assetId === katanaAssetId
-    default:
-      return false
-  }
+  const { chainId, chainNamespace } = fromAssetId(assetId)
+  return chainNamespace === CHAIN_NAMESPACE.Evm && assetId === chainIdToFeeAssetId(chainId)
 }
 
 const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {

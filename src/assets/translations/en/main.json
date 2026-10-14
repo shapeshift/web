@@ -526,7 +526,12 @@
     "noProvidersBody": "Looks like we don't have any providers for that asset yet.",
     "notSupported": "%{asset} is not supported by %{wallet}",
     "previewPurchase": "Preview Purchase",
-    "previewSale": "Preview Sale"
+    "previewSale": "Preview Sale",
+    "onramperWalletVerification": "A wallet signature is required to authorize checkout. It does not send a transaction.",
+    "onramperWalletChanged": "Your wallet changed. Start checkout again with the selected wallet.",
+    "onramperWalletUnsupported": "Onramper checkout currently requires an EVM wallet that supports message signing.",
+    "onramperWalletMismatch": "Use a checkout destination controlled by your selected wallet.",
+    "onramperCheckoutFailed": "Onramper checkout could not be authorized. Check that your wallet is connected and try again."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1011,7 +1016,7 @@
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "unsupportedTradePair": "Unsupported Trade Pair",
       "noRouteFound": "No routes found for this pair and amount",
-      "quoteExpired": "Quote expired, try again.",
+      "quoteExpired": "Quote expired. Go back to refresh your quote and try again.",
       "quoteUnsupportedChain": "Chain not supported",
       "quoteCrossChainNotSupported": "Cross chain not supported",
       "quoteExactOutputNotSupported": "Exact receive amount not supported",

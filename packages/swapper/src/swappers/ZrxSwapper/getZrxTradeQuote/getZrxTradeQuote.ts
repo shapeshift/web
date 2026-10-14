@@ -66,6 +66,23 @@ export const getZrxTradeQuote = async (
     maybeZrxQuoteResponse.unwrap()
 
   const permit2Eip712 = permit2?.eip712
+  const permit2Deadline = permit2Eip712 ? Number(permit2Eip712.message.deadline) : undefined
+
+  if (
+    permit2Deadline !== undefined &&
+    ((typeof permit2Eip712?.message.deadline !== 'string' &&
+      typeof permit2Eip712?.message.deadline !== 'number') ||
+      !Number.isSafeInteger(permit2Deadline) ||
+      permit2Deadline <= 0 ||
+      !Number.isSafeInteger(permit2Deadline * 1000))
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Invalid Permit2 deadline from 0x response',
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
 
   if (!isNativeEvmAsset(sellAsset.assetId) && !isWrappedNativeSell(route) && !permit2Eip712) {
     return Err(
@@ -112,6 +129,7 @@ export const getZrxTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    deadline: permit2Deadline === undefined ? undefined : permit2Deadline * 1000,
     receiveAddress,
     steps: [
       {

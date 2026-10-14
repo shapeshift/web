@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters } from '@shapeshiftoss/caip'
-import head from 'lodash/head'
+import { adapters, fromAssetId } from '@shapeshiftoss/caip'
+import axios from 'axios'
+import { parseSiweMessage, validateSiweMessage } from 'viem/siwe'
 
 import { FiatRampAction } from '../../FiatRampsCommon'
 import type { CreateUrlProps } from '../../types'
@@ -10,8 +11,15 @@ import {
   findOnramperTokenIdByAssetId,
   getSupportedOnramperCurrencies,
 } from './utils'
+import type { OnramperWalletAuth } from './walletAuth'
+import { OnramperCheckoutError } from './walletAuth'
 
 import { getConfig } from '@/config'
+
+const sessions = new WeakMap<
+  OnramperWalletAuth,
+  { scope: string; token: string; expiresAt: number }
+>()
 
 export const getOnRamperAssets = async (): Promise<AssetId[]> => {
   const data = await getSupportedOnramperCurrencies()
@@ -24,105 +32,126 @@ const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse):
     new Set(
       response.message.crypto
         .map(currency => findAssetIdByOnramperCrypto(currency))
-        .filter((assetId): assetId is AssetId => Boolean(assetId)),
+        .filter((assetId): assetId is AssetId => Boolean(assetId?.startsWith('eip155:'))),
     ),
   )
-}
-
-const generateSignature = async (data: string): Promise<string> => {
-  const secretKey = getConfig().VITE_ONRAMPER_SIGNING_KEY
-  const encoder = new TextEncoder()
-  const keyData = encoder.encode(secretKey)
-  const message = encoder.encode(data)
-
-  // https://gist.github.com/fire015/73de05647cb3c3d5d0400d5286e5be50
-  // Browser equivalent of crypto.createHmac since the browser crypto API is slightly diff from Node's
-  // See https://developer.mozilla.org/en-US/docs/Web/API/Crypto vs. https://nodejs.org/api/crypto.html
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    keyData,
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign'],
-  )
-
-  const signature = await crypto.subtle.sign('HMAC', cryptoKey, message)
-
-  return Array.from(new Uint8Array(signature))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('')
 }
 
 export const createOnRamperUrl = async ({
   action,
   assetId,
-  amountCryptoPrecision,
   address,
   fiatCurrency,
   fiatAmount,
-  options: { language, mode, currentUrl },
+  amountCryptoPrecision,
+  options,
+  walletAuth,
 }: CreateUrlProps): Promise<string> => {
-  const supportedCurrencies = await getSupportedOnramperCurrencies()
-  if (!supportedCurrencies) throw new Error('Failed to get supported currencies from Onramper')
-
-  const onRamperSymbols = (() => {
-    const maybeMappingSymbols = adapters.assetIdToOnRamperTokenList(assetId)
-    if (maybeMappingSymbols?.length) return maybeMappingSymbols
-
-    const tokenId = findOnramperTokenIdByAssetId(assetId, supportedCurrencies)
-
-    if (!tokenId) return
-
-    return [tokenId]
+  const baseURL = getConfig().VITE_ONRAMPER_SIGNING_URL
+  if (!baseURL) throw new Error('Onramper checkout service is not configured')
+  const { chainId: caipChainId } = fromAssetId(assetId)
+  if (!caipChainId.startsWith('eip155:') || !walletAuth)
+    throw new OnramperCheckoutError('fiatRamps.onramperWalletUnsupported')
+  const chainId = Number(caipChainId.split(':')[1])
+  walletAuth.assertActive()
+  const currencies = await getSupportedOnramperCurrencies()
+  if (!currencies) throw new Error('Onramper currencies unavailable')
+  const crypto =
+    adapters.assetIdToOnRamperTokenList(assetId)?.[0] ??
+    findOnramperTokenIdByAssetId(assetId, currencies)
+  if (!crypto) throw new Error('Asset not supported by Onramper')
+  const client = axios.create({ baseURL, timeout: 10000 })
+  const scope = `${baseURL}:${window.location.origin}:${chainId}:${address.toLowerCase()}`
+  const cached = sessions.get(walletAuth)
+  const session = await (async () => {
+    if (cached?.scope === scope && cached.expiresAt > Date.now() + 30_000) return cached
+    const { data: challenge } = await client.post<{ id: string; message: string }>(
+      '/onramper/auth/challenge',
+      { address, chainId },
+    )
+    const message = parseSiweMessage(challenge.message)
+    if (
+      !validateSiweMessage({
+        message,
+        address: address as `0x${string}`,
+        domain: window.location.host,
+        scheme: window.location.protocol.slice(0, -1),
+      }) ||
+      message.version !== '1' ||
+      Boolean(message.resources?.length) ||
+      message.chainId !== chainId ||
+      message.uri !== `${window.location.origin}/onramper` ||
+      message.requestId !== challenge.id ||
+      !message.expirationTime ||
+      message.expirationTime.getTime() > Date.now() + 5 * 60_000 + 10_000 ||
+      message.statement !==
+        'Authorize ShapeShift Onramper checkout to this wallet. This does not authorize a blockchain transaction.'
+    )
+      throw new OnramperCheckoutError('fiatRamps.onramperCheckoutFailed')
+    const signature = await walletAuth.signMessage(challenge.message, address, caipChainId)
+    walletAuth.assertActive()
+    const { data: verified } = await client.post<{
+      token: string
+      address: string
+      chainId: number
+      expiresAt: string
+    }>('/onramper/auth/verify', { id: challenge.id, signature })
+    if (
+      verified.address.toLowerCase() !== address.toLowerCase() ||
+      verified.chainId !== chainId ||
+      !/^[a-f0-9]{64}$/.test(verified.token) ||
+      !Number.isFinite(Date.parse(verified.expiresAt)) ||
+      Date.parse(verified.expiresAt) <= Date.now() ||
+      Date.parse(verified.expiresAt) > Date.now() + 15 * 60_000 + 10_000
+    )
+      throw new OnramperCheckoutError('fiatRamps.onramperCheckoutFailed')
+    walletAuth.assertActive()
+    const authorized = { scope, token: verified.token, expiresAt: Date.parse(verified.expiresAt) }
+    sessions.set(walletAuth, authorized)
+    return authorized
   })()
-
-  if (!onRamperSymbols?.length) {
-    throw new Error('Asset not supported by OnRamper')
+  walletAuth.assertActive()
+  const headers = { Authorization: `Bearer ${session.token}` }
+  try {
+    const { data: intent } = await client.post<{ id: string; token: string }>(
+      '/onramper/intents',
+      {
+        crypto,
+        chainId,
+        fiat: fiatCurrency.toUpperCase(),
+        action,
+        amount: action === FiatRampAction.Sell ? amountCryptoPrecision : fiatAmount,
+        language: options.language,
+        theme: options.mode,
+        redirectUrl: options.currentUrl,
+      },
+      { headers },
+    )
+    walletAuth.assertActive()
+    const { data } = await client.post<{ url: string }>(
+      `/onramper/intents/${encodeURIComponent(intent.id)}/checkout`,
+      { token: intent.token },
+      { headers },
+    )
+    const url = new URL(data.url)
+    const expected = new URL(getConfig().VITE_ONRAMPER_WIDGET_URL)
+    if (
+      url.origin !== expected.origin ||
+      (url.protocol !== 'https:' &&
+        !(
+          import.meta.env.DEV &&
+          url.protocol === 'http:' &&
+          ['localhost', '127.0.0.1'].includes(url.hostname)
+        )) ||
+      url.username ||
+      url.password ||
+      url.pathname !== '/'
+    )
+      throw new Error('Invalid checkout URL')
+    walletAuth.assertActive()
+    return url.href
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) sessions.delete(walletAuth)
+    throw error
   }
-
-  const baseUrl = getConfig().VITE_ONRAMPER_WIDGET_URL
-  const apiKey = getConfig().VITE_ONRAMPER_API_KEY
-
-  const params = new URLSearchParams()
-  const defaultCrypto = head(onRamperSymbols)
-
-  // This should not happen really, head() is just strongly typed in favour of safety but we should have at least one symbol really
-  // Unless we don't? I mean that's what safety is for, hey
-  if (!defaultCrypto) throw new Error('Failed to get onRamperSymbols head')
-
-  params.set('apiKey', apiKey)
-  params.set('wallets', `${defaultCrypto}:${address}`)
-
-  if (action === FiatRampAction.Sell) {
-    // Note: selling via OnRamper does not allow selecting the currency, their api currently does not support it
-    params.set('mode', 'sell')
-    params.set('sell_defaultCrypto', defaultCrypto)
-    params.set('sell_defaultFiat', fiatCurrency)
-    params.set('sell_onlyCryptos', onRamperSymbols.join(','))
-
-    if (amountCryptoPrecision) {
-      params.set('sell_defaultAmount', amountCryptoPrecision)
-    }
-  } else {
-    params.set('mode', 'buy')
-    params.set('defaultCrypto', defaultCrypto)
-    params.set('onlyCryptos', onRamperSymbols.join(','))
-    params.set('defaultFiat', fiatCurrency)
-
-    if (fiatAmount) {
-      params.set('defaultAmount', fiatAmount)
-    }
-  }
-  params.set('language', language)
-
-  params.set('themeName', mode === 'dark' ? 'dark' : 'light')
-  currentUrl && params.set('redirectURL', currentUrl)
-
-  const walletParam = `wallets=${defaultCrypto}:${address}`
-  const signature = await generateSignature(walletParam)
-  params.set('signature', signature)
-
-  const signedUrl = `${baseUrl.toString()}?${params.toString()}`
-
-  return signedUrl
 }

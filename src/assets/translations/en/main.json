@@ -1016,7 +1016,7 @@
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "unsupportedTradePair": "Unsupported Trade Pair",
       "noRouteFound": "No routes found for this pair and amount",
-      "quoteExpired": "Quote expired, try again.",
+      "quoteExpired": "Quote expired. Go back to refresh your quote and try again.",
       "quoteUnsupportedChain": "Chain not supported",
       "quoteCrossChainNotSupported": "Cross chain not supported",
       "quoteExactOutputNotSupported": "Exact receive amount not supported",

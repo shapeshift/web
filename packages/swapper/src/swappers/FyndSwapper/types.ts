@@ -24,12 +24,14 @@ export type FyndErrorResponse = {
   code: string
 }
 
+export type FyndRouteSwap = { protocol: string }
+
 export type FyndEncodedQuote = {
   status: 'success'
   amount_in: string
   amount_out: string
   gas_estimate: string
-  route?: { swaps: { protocol: string }[] } | null
+  route?: { swaps: FyndRouteSwap[] } | null
   transaction: FyndTransaction
   fee_breakdown: FyndFeeBreakdown
   // Unix seconds; set by the proxy when it signs the client fee

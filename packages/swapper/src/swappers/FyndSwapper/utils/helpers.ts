@@ -12,12 +12,35 @@ import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../../utils/helpers'
-import type { FyndEncodedQuote, FyndErrorResponse, FyndQuoteResponse } from '../types'
+import type {
+  FyndEncodedQuote,
+  FyndErrorResponse,
+  FyndQuoteResponse,
+  FyndRouteSwap,
+} from '../types'
 import type { FyndSupportedChainId } from './constants'
 import { FYND_CHAINS, FYND_CLIENT_FEE_SHARE, FYND_CLIENT_FEE_SIGNATURE_BYTES } from './constants'
 
 const isFyndSupportedChainId = (chainId: ChainId): chainId is FyndSupportedChainId =>
   chainId in FYND_CHAINS
+
+// Protocol ids look like uniswap_v3, vm:balancer_v2 or fallback:rfq:bebop
+const formatFyndProtocol = (protocol: string): string =>
+  protocol
+    .slice(protocol.lastIndexOf(':') + 1)
+    .split('_')
+    .map(word =>
+      /^v\d+$/.test(word) ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1),
+    )
+    .join(' ')
+
+// The native_wrapper hop is only the WETH wrap/unwrap around the real venues
+export const getFyndRouteProtocols = (swaps: FyndRouteSwap[] | undefined): string[] => {
+  const venues = (swaps ?? [])
+    .map(swap => swap.protocol)
+    .filter(protocol => !protocol.endsWith('native_wrapper'))
+  return [...new Set(venues)].map(formatFyndProtocol)
+}
 
 export const getFyndClientFeeBps = (affiliateBps: string): number =>
   bn(affiliateBps).div(FYND_CLIENT_FEE_SHARE).integerValue(BigNumber.ROUND_CEIL).toNumber()

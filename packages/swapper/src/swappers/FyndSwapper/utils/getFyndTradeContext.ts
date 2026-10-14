@@ -18,7 +18,7 @@ import { isNativeEvmAsset, normalizeEpochToMs } from '../../../utils/helpers'
 import type { FyndTradeQuoteInput, FyndTradeRateInput } from '../types'
 import { fetchFromFynd } from './fetchFromFynd'
 import type { GetFyndStepDataArgs } from './getFyndStepData'
-import { assertValidTrade, getFyndClientFeeBps } from './helpers'
+import { assertValidTrade, getFyndClientFeeBps, getFyndRouteProtocols } from './helpers'
 
 type FyndTradeContext = {
   tradeCommon: TradeCommon
@@ -79,8 +79,10 @@ export const getFyndTradeContext = async ({
     buyAsset,
   })
 
-  const protocol = quote.route?.swaps[0]?.protocol.replace(/^vm:/, '')
-  const source: SwapSource = protocol ? `${SwapperName.Fynd} • ${protocol}` : SwapperName.Fynd
+  const protocols = getFyndRouteProtocols(quote.route?.swaps)
+  const source: SwapSource = protocols.length
+    ? `${SwapperName.Fynd} • ${protocols.join(', ')}`
+    : SwapperName.Fynd
 
   const allowanceContract = isNativeEvmAsset(sellAsset.assetId) ? '' : quote.transaction.to
 

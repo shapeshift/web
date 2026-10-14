@@ -61,7 +61,6 @@ export async function getFyndStepData(
     return Ok(stepData)
   }
 
-  // Estimation also has the router verify the signed fee before the user signs
   try {
     const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
       adapter,

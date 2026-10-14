@@ -53,7 +53,6 @@ export const fetchFromFynd = async ({
         timeout_ms: 5_000,
         min_responses: 1,
         encoding_options: {
-          // The API accepts a string slippage despite its schema declaring a number
           slippage: slippageTolerancePercentageDecimal,
           transfer_type: 'transfer_from',
           // The proxy sets the fee receiver and deadline and signs the quote

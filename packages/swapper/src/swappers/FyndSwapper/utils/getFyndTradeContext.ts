@@ -48,6 +48,7 @@ export const getFyndTradeContext = async ({
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Fynd)
+
   const clientFeeBps = getFyndClientFeeBps(affiliateBps)
 
   const maybeQuote = await fetchFromFynd({
@@ -59,10 +60,12 @@ export const getFyndTradeContext = async ({
     clientFeeBps,
     baseUrl: deps.config.VITE_FYND_BASE_URL,
   })
+
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
   const quote = maybeQuote.unwrap()
 
   const { router_fee: routerFee, client_fee: clientFee } = quote.fee_breakdown
+
   const buyAmountBeforeFeesCryptoBaseUnit = quote.amount_out
   const buyAmountAfterFeesCryptoBaseUnit = bn(quote.amount_out)
     .minus(routerFee)

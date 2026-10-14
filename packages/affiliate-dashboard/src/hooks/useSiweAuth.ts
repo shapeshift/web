@@ -1,5 +1,5 @@
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { EIP1193Provider } from 'viem'
 import { getAddress, stringToHex } from 'viem'
 import { z } from 'zod'
@@ -115,7 +115,10 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
     isConnected &&
     address?.toLowerCase() === authenticatedAddress
 
-  const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+  const authHeaders = useMemo<Record<string, string>>(
+    () => (token ? { Authorization: `Bearer ${token}` } : {}),
+    [token],
+  )
 
   return {
     token,

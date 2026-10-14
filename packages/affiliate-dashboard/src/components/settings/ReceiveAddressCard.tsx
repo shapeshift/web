@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import type { ActionMessage } from '../../hooks/useAffiliateActions'
 import type { AffiliateConfig } from '../../hooks/useAffiliateConfig'
+import { EVM_ADDRESS_REGEX } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
 
 interface ReceiveAddressCardProps {
@@ -11,8 +12,6 @@ interface ReceiveAddressCardProps {
   onUpdate: (address: string) => Promise<void>
   onValidationError: (message: ActionMessage) => void
 }
-
-const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 
 export const ReceiveAddressCard = ({
   config,
@@ -27,7 +26,7 @@ export const ReceiveAddressCard = ({
 
   const handleUpdate = async (): Promise<void> => {
     const trimmed = address.trim()
-    if (!ADDRESS_REGEX.test(trimmed)) {
+    if (!EVM_ADDRESS_REGEX.test(trimmed)) {
       onValidationError({ type: 'error', text: 'Invalid EVM address' })
       return
     }
@@ -42,7 +41,7 @@ export const ReceiveAddressCard = ({
   return (
     <SettingsCard
       title='Receive Address'
-      description='Destination for affiliate revenue. Defaults to your connected wallet.'
+      description='Destination for affiliate revenue. Defaults to the owner wallet.'
     >
       <HStack spacing={3} wrap='wrap'>
         <Input

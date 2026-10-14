@@ -14,7 +14,9 @@ applies your configured fee automatically.
 
 Register at the [Affiliate Dashboard](https://dashboard.affiliate.shapeshift.com/): connect your wallet, sign
 in (a wallet signature — no gas), then choose your partner code and fee. The code is mapped to your
-wallet, and you'll use it everywhere below.
+wallet, and you'll use it everywhere below. The registering wallet owns the affiliate; from the
+dashboard's Settings tab it can grant other wallets admin access, and each admin signs in with its own
+wallet to manage the same configuration.
 
 ### 2. Using the Swap Widget
 
@@ -94,9 +96,13 @@ curl "https://api.shapeshift.com/v1/affiliate/swaps?partnerCode=your-partner-cod
 | GET    | `/v1/affiliate/{address}`                 | none            | Look up an affiliate by wallet address   |
 | POST   | `/v1/affiliate`                           | wallet (SIWE)   | Register as an affiliate                 |
 | PATCH  | `/v1/affiliate/{address}`                 | wallet (SIWE)   | Update affiliate settings                |
+| GET    | `/v1/affiliate/{address}/members`         | wallet (SIWE)   | List the owner and admin wallets         |
+| POST   | `/v1/affiliate/{address}/members`         | wallet (SIWE)   | Grant a wallet admin access              |
+| DELETE | `/v1/affiliate/{address}/members/{memberAddress}` | wallet (SIWE) | Revoke a wallet's admin access     |
 
 Wallet-authenticated endpoints use Sign-In With Ethereum (`POST /v1/auth/siwe/nonce` →
-`POST /v1/auth/siwe/verify`). Most partners never call these directly — the
+`POST /v1/auth/siwe/verify`), and `{address}` is always the signed-in wallet, whether it is the owner
+or an admin. Most partners never call these directly — the
 [Affiliate Dashboard](https://dashboard.affiliate.shapeshift.com/) handles registration for you.
 
 See the full request/response schemas in the [Public API reference](https://api.shapeshift.com/docs).

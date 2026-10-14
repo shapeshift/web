@@ -1,15 +1,17 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
-import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { TbDownload } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
+import type { ReportLeg } from './utils'
+import { getReportLegs, toAmount, toCsvCell, toLeg, toReportDate } from './utils'
+
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { chainIdToFeeAssetId } from '@/lib/utils'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
@@ -19,26 +21,38 @@ type ReportRow = {
   txid: TxId
   type: string
   status: string
-  timestamp: string
-  minerFee: string
-  minerFeeCurrency: string
-  inputAmount: string
-  inputCurrency: string
-  inputAddresses: string
-  outputAmount: string
-  outputCurrency: string
-  outputAddresses: string
+  date: string
+  feeAmount: string
+  feeCurrency: string
+} & ReportLeg
+
+// Headers and values are fixed English so tax tools read the file the same in every app locale
+const headers: Record<keyof ReportRow, string> = {
+  txid: 'TxHash',
+  type: 'Type',
+  status: 'Status',
+  date: 'Date',
+  feeAmount: 'Fee Amount',
+  feeCurrency: 'Fee Currency',
+  sentAmount: 'Sent Amount',
+  sentCurrency: 'Sent Currency',
+  sentAddresses: 'Sent Address',
+  receivedAmount: 'Received Amount',
+  receivedCurrency: 'Received Currency',
+  receivedAddresses: 'Received Address',
 }
 
-const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string => {
+const toCsv = (rows: ReportRow[]): string => {
+  const keys = Object.keys(headers) as (keyof ReportRow)[]
   const csvRows = [
-    Object.values(fields).join(','), // header
-    ...rows.map(row => Object.values(row).join(',')), // data
+    keys.map(key => toCsvCell(headers[key])).join(','),
+    ...rows.map(row => keys.map(key => toCsvCell(row[key])).join(',')),
   ].join('\r\n')
 
   return `${csvRows}\r\n`
 }
 
+const noFee = { feeAmount: '', feeCurrency: '' }
 const buttonMargin = [3, 3, 6]
 const downloadIcon = <TbDownload size='1em' />
 
@@ -54,89 +68,50 @@ export const DownloadButton = ({
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
   const translate = useTranslate()
-  const fields = useMemo(
-    () => ({
-      txid: translate('transactionHistory.csv.txid'),
-      type: translate('transactionHistory.csv.type'),
-      status: translate('transactionHistory.csv.status'),
-      timestamp: translate('transactionHistory.csv.timestamp'),
-      minerFee: translate('transactionHistory.csv.minerFee'),
-      minerFeeCurrency: translate('transactionHistory.csv.minerFeeCurrency'),
-      inputAmount: translate('transactionHistory.csv.inputAmount'),
-      inputCurrency: translate('transactionHistory.csv.inputCurrency'),
-      inputAddress: translate('transactionHistory.csv.inputAddress'),
-      outputAmount: translate('transactionHistory.csv.outputAmount'),
-      outputCurrency: translate('transactionHistory.csv.outputCurrency'),
-      outputAddress: translate('transactionHistory.csv.outputAddress'),
-    }),
-    [translate],
-  )
-
   const generateCSV = useCallback(() => {
     setIsLoading(true)
 
-    const report: ReportRow[] = []
-    for (const txId of txIds) {
-      const tx = allTxs[txId]
-      const transfers = getTransfers(tx, assets)
-      const type = getTxType(tx, transfers)
-      const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
-
-      const { send, receive } = (() => {
-        if (transfers.length === 1) return { send: transfers[0], receive: transfers[0] }
-        return {
-          send: transfers.find(transfer => transfer.type === TransferType.Send),
-          receive: transfers.find(transfer => transfer.type === TransferType.Receive),
-        }
-      })()
-
-      const typeLabel = (() => {
-        if (type === 'common') return 'transactionRow.common'
-        if (tx.data?.method) return `transactionRow.parser.${tx.data.parser}.${tx.data.method}`
-        return `transactionHistory.transactionTypes.${type}`
-      })()
-
-      report.push({
-        txid: `"${tx.txid}"`,
-        type: translate(typeLabel),
-        status: translate(`transactionRow.${tx.status.toLowerCase()}`),
-        timestamp: dayjs(tx.blockTime * 1000).toISOString(),
-        minerFee:
-          tx.fee && feeAsset
-            ? bnOrZero(
-                BigAmount.fromBaseUnit({
-                  value: tx.fee.value,
-                  precision: feeAsset.precision,
-                }).toPrecision(),
-              ).toFixed()
-            : '0',
-        minerFeeCurrency: feeAsset?.symbol ?? '-',
-        inputAmount: send
-          ? bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: send.value,
-                precision: send.asset?.precision ?? 18,
-              }).toPrecision(),
-            ).toFixed()
-          : '-',
-        inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
-        inputAddresses: send ? `"${send?.from.join('\n')}"` : '-',
-        outputAmount: receive
-          ? bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: receive.value,
-                precision: receive.asset?.precision ?? 18,
-              }).toPrecision(),
-            ).toFixed()
-          : '-',
-        outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',
-        outputAddresses: receive ? `"${receive?.to.join('\n')}"` : '-',
-      })
-    }
-
     try {
-      const data = jsonToCsv(fields, report)
-      const filename = `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
+      const report: ReportRow[] = []
+      for (const txId of txIds) {
+        const tx = allTxs[txId]
+        if (tx.status === TxStatus.Pending) continue
+
+        const transfers = getTransfers(tx, assets)
+        const type = getTxType(tx, transfers)
+        const feeAsset = tx.fee ? assets[tx.fee.assetId] : undefined
+
+        const base = {
+          txid: tx.txid,
+          type: tx.data?.method ?? (type === 'common' ? 'Transaction' : type),
+          status: tx.status,
+          date: toReportDate(tx.blockTime),
+        }
+
+        const fee =
+          tx.fee && feeAsset
+            ? {
+                feeAmount: toAmount(tx.fee.value, feeAsset.precision),
+                feeCurrency: feeAsset.symbol,
+              }
+            : noFee
+
+        // A failed tx moved nothing, so only its fee is reported
+        const legs = getReportLegs(
+          tx.status === TxStatus.Failed ? [] : transfers,
+          chainIdToFeeAssetId(tx.chainId),
+        )
+        if (!legs.length && fee === noFee) continue
+
+        // The fee is paid once per tx, so only the first leg carries it
+        const rows = legs.length ? legs : [toLeg()]
+        rows.forEach((leg, i) => {
+          report.push({ ...base, ...(i === 0 ? fee : noFee), ...leg })
+        })
+      }
+
+      const data = toCsv(report)
+      const filename = `ShapeShift Transactions History - ${dayjs().format(
         'HH:mm A, MMMM DD, YYYY',
       )}.csv`
       fileDownload(data, filename)
@@ -145,7 +120,7 @@ export const DownloadButton = ({
     } finally {
       setIsLoading(false)
     }
-  }, [allTxs, assets, fields, translate, txIds])
+  }, [allTxs, assets, txIds])
 
   return isLargerThanLg && !isCompact ? (
     <Button

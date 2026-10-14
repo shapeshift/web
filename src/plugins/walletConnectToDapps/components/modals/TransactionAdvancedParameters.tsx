@@ -16,23 +16,26 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText, Text } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import type { ConfirmData } from '@/plugins/walletConnectToDapps/types'
+import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
+import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 
 type TransactionAdvancedParametersProps = {
   accountId: AccountId | undefined
-  chainId: ChainId | undefined
+  chainId: ChainId
+  transaction: TransactionParams
 }
 
 export const TransactionAdvancedParameters = ({
   accountId,
   chainId,
+  transaction,
 }: TransactionAdvancedParametersProps) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -62,18 +65,9 @@ export const TransactionAdvancedParameters = ({
     refetchOnMount: 'always',
   })
 
-  const formContext = useFormContext<ConfirmData>()
-  const { register, setValue, watch } = formContext ?? {}
+  const { register } = useFormContext<CustomTransactionData>()
 
-  const formNonce = watch?.('nonce')
-
-  useEffect(() => {
-    if (currentNonce !== undefined && !formNonce) {
-      setValue?.('nonce', currentNonce.toString())
-    }
-  }, [currentNonce, formNonce, setValue])
-
-  if (!formContext) return null
+  const { recommendedGasLimit } = useSimulateEvmTransaction({ transaction, chainId })
 
   return (
     <Card p={4} borderRadius='2xl' mt={4}>
@@ -124,7 +118,15 @@ export const TransactionAdvancedParameters = ({
               </FormLabel>
               <Skeleton isLoaded={!isLoadingNonce}>
                 <NumberInput borderColor={borderColor} mt={2}>
-                  <NumberInputField {...register('nonce')} />
+                  <NumberInputField
+                    placeholder={
+                      currentNonce?.toString() ??
+                      translate(
+                        'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.placeholder',
+                      )
+                    }
+                    {...register('nonce')}
+                  />
                 </NumberInput>
               </Skeleton>
             </FormControl>
@@ -145,9 +147,12 @@ export const TransactionAdvancedParameters = ({
               </FormLabel>
               <NumberInput borderColor={borderColor} mt={2}>
                 <NumberInputField
-                  placeholder={translate(
-                    'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.placeholder',
-                  )}
+                  placeholder={
+                    recommendedGasLimit ??
+                    translate(
+                      'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.placeholder',
+                    )
+                  }
                   {...register('gasLimit')}
                 />
               </NumberInput>

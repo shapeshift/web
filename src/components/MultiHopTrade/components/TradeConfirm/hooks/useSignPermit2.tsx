@@ -1,6 +1,6 @@
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { getPermit2Eip712 } from '@shapeshiftoss/swapper'
+import { getPermit2Eip712, isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import assert from 'assert'
 import { useCallback, useMemo } from 'react'
 
@@ -8,7 +8,10 @@ import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
-import { selectHopSellAccountId } from '@/state/slices/tradeQuoteSlice/selectors'
+import {
+  selectConfirmedQuote,
+  selectHopSellAccountId,
+} from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -21,6 +24,7 @@ export const useSignPermit2 = (
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
+  const tradeQuote = useAppSelector(selectConfirmedQuote)
 
   const hopSellAccountIdFilter = useMemo(() => {
     return {
@@ -51,6 +55,16 @@ export const useSignPermit2 = (
     )
 
     try {
+      if (
+        hopIndex === 0 &&
+        tradeQuote &&
+        isExecutableTradeQuote(tradeQuote) &&
+        tradeQuote.deadline !== undefined &&
+        Date.now() > tradeQuote.deadline
+      ) {
+        throw new ChainAdapterError('Quote expired', { translation: 'trade.errors.quoteExpired' })
+      }
+
       const permit2Eip712 = getPermit2Eip712(tradeQuoteStep)
       assert(permit2Eip712, 'Trade quote is missing permit2 eip712 metadata')
 
@@ -87,6 +101,7 @@ export const useSignPermit2 = (
     hopIndex,
     showErrorToast,
     tradeQuoteStep,
+    tradeQuote,
     wallet,
   ])
 

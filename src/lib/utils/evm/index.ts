@@ -30,6 +30,8 @@ type BroadcastArgs = {
   adapter: EvmChainAdapter
   txToSign: SignTx<EvmChainId>
   wallet: HDWallet
+  // Runs after signing when the wallet signs offline, before the bundled call otherwise
+  beforeBroadcast?: () => void
 }
 
 type BuildAndBroadcastArgs = BuildArgs &
@@ -99,6 +101,7 @@ export const buildAndBroadcast = async ({
   adapter,
   buildCustomTxInput,
   receiverAddress,
+  beforeBroadcast,
 }: BuildAndBroadcastArgs) => {
   const senderAddress = await adapter.getAddress(buildCustomTxInput)
   const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
@@ -108,6 +111,7 @@ export const buildAndBroadcast = async ({
     wallet: buildCustomTxInput.wallet,
     senderAddress,
     receiverAddress,
+    beforeBroadcast,
   })
 }
 
@@ -117,11 +121,13 @@ export const signAndBroadcast = async ({
   wallet,
   senderAddress,
   receiverAddress,
+  beforeBroadcast,
 }: BroadcastArgs) => {
   if (!wallet) throw new Error('Wallet is required to broadcast EVM Txs')
 
   if (wallet.supportsOfflineSigning()) {
     const signedTx = await adapter.signTransaction({ txToSign, wallet })
+    beforeBroadcast?.()
     const txid = await adapter.broadcastTransaction({
       senderAddress,
       receiverAddress,
@@ -133,6 +139,7 @@ export const signAndBroadcast = async ({
   if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
     // note that txToSign.to is often a contract address and not the actual receiver
     // TODO: do we want to validate contract addresses too?
+    beforeBroadcast?.()
     const txid = await adapter.signAndBroadcastTransaction({
       senderAddress,
       receiverAddress,

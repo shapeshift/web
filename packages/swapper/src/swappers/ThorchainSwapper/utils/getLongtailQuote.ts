@@ -122,7 +122,7 @@ export const getLongtailToL1Quote = async (
       return Ok({
         ...quote,
         // The aggregator swapIn deadline is tighter than the daemon quote expiry
-        deadline: Math.min(quote.deadline, Number(deadline) * 1000),
+        deadline: Math.min(quote.deadline ?? Infinity, Number(deadline) * 1000),
         data: data ?? quote.data,
         // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
         steps: quote.steps.map(s => ({

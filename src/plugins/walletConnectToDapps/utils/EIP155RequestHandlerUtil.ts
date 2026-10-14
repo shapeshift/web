@@ -103,10 +103,7 @@ export const approveEIP155Request = async ({
         pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
       })
 
-      const nonce =
-        customTransactionData.isUserDefinedNonce && customTransactionData.nonce
-          ? customTransactionData.nonce
-          : txToSign.nonce
+      const nonce = customTransactionData.nonce || txToSign.nonce
 
       const signedTx = await chainAdapter.signTransaction({
         txToSign: {
@@ -131,10 +128,7 @@ export const approveEIP155Request = async ({
 
       const signTransaction = request.params[0]
 
-      const nonce =
-        customTransactionData.isUserDefinedNonce && customTransactionData.nonce
-          ? customTransactionData.nonce
-          : signTransaction.nonce
+      const nonce = customTransactionData.nonce || signTransaction.nonce
 
       if (!nonce) throw new Error('approveEIP155Request: missing nonce')
 

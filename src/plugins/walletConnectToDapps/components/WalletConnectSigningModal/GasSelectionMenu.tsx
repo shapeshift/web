@@ -11,10 +11,9 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import BigNumber from 'bignumber.js'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -34,9 +33,6 @@ const SPEED_OPTIONS = [
   { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast' },
 ]
 
-// 20% headroom on estimated gas to cover state drift between estimation and broadcast.
-const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
-
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
 const chevronIcon = <ChevronDownIcon />
 
@@ -44,29 +40,14 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   const translate = useTranslate()
   const { setValue } = useFormContext<CustomTransactionData>()
 
-  const { speed } = useWatch<CustomTransactionData>()
-  const { gasLimit } = useWatch<CustomTransactionData>()
-  const selectedSpeed = speed
+  const { speed: selectedSpeed, gasLimit } = useWatch<CustomTransactionData>()
 
-  const { gasEstimateQuery, fee } = useSimulateEvmTransaction({
+  const { fee } = useSimulateEvmTransaction({
     transaction,
     chainId,
     speed: selectedSpeed,
+    gasLimit,
   })
-
-  useEffect(() => {
-    // Defer to the dApp / user value when one is already set; our estimate only fills the gap.
-    if (gasLimit) return
-
-    const baseGasLimit = gasEstimateQuery.data?.baseGasLimit
-    if (!baseGasLimit) return
-
-    const bufferedGas = bnOrZero(baseGasLimit)
-      .times(GAS_LIMIT_BUFFER_MULTIPLIER)
-      .integerValue(BigNumber.ROUND_CEIL)
-
-    setValue('gasLimit', bufferedGas.toString())
-  }, [gasEstimateQuery.data?.baseGasLimit, setValue, gasLimit])
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {

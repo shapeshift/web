@@ -382,6 +382,14 @@ export const useTradeExecution = (
 
       if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
+      // Binds the first deposit only, and is set only when the provider or contract enforces it
+      const assertQuoteNotExpired = () => {
+        if (hopIndex > 0 || tradeQuote.deadline === undefined) return
+        if (Date.now() > tradeQuote.deadline) {
+          throw new ChainAdapterError('Quote expired', { translation: 'trade.errors.quoteExpired' })
+        }
+      }
+
       const skipDeviceDerivation = wallet && (isTrezor(wallet) || isGridPlus(wallet))
       const pubKey = fromAccountId(sellAssetAccountId).account
 
@@ -400,6 +408,8 @@ export const useTradeExecution = (
           slippageTolerancePercentageDecimal,
           from,
           signMessage: async (message: TypedData) => {
+            assertQuoteNotExpired()
+
             const typedDataToSign: ETHSignTypedData = {
               addressNList: toAddressNList(adapter.getBip44Params(bip44Params)),
               typedData: message,
@@ -431,6 +441,8 @@ export const useTradeExecution = (
               throw new Error('Wallet does not support signing serialized Solana transactions')
             }
 
+            assertQuoteNotExpired()
+
             const result = await wallet.solanaSignSerializedTx({
               addressNList: toAddressNList(accountMetadata.bip44Params),
               serializedTx,
@@ -457,6 +469,8 @@ export const useTradeExecution = (
             }
 
             const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
+
+            assertQuoteNotExpired()
 
             return adapter.broadcastTransaction({
               senderAddress: fromAccountId(sellAssetAccountId).account,
@@ -511,6 +525,7 @@ export const useTradeExecution = (
                 wallet,
                 senderAddress: from,
                 receiverAddress,
+                beforeBroadcast: assertQuoteNotExpired,
               })
 
               return output
@@ -559,10 +574,12 @@ export const useTradeExecution = (
             signAndBroadcastTransaction: async (txToSign: SignTx<UtxoChainId>) => {
               setInboundAddress(txToSign)
               const signedTx = await adapter.signTransaction({ txToSign, wallet })
+              assertQuoteNotExpired()
               return adapter.broadcastTransaction({ hex: signedTx })
             },
             signTransaction: (txToSign: SignTx<UtxoChainId>) => {
               setInboundAddress(txToSign)
+              assertQuoteNotExpired()
               return adapter.signTransaction({ txToSign, wallet })
             },
           })
@@ -598,6 +615,8 @@ export const useTradeExecution = (
 
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
+              assertQuoteNotExpired()
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress,
@@ -628,6 +647,8 @@ export const useTradeExecution = (
             signAndBroadcastTransaction: async (txToSign: SolanaSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
+              assertQuoteNotExpired()
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress,
@@ -637,6 +658,7 @@ export const useTradeExecution = (
               return output
             },
             signTransaction: (txToSign: SolanaSignTx) => {
+              assertQuoteNotExpired()
               return adapter.signTransaction({ txToSign, wallet })
             },
           })
@@ -655,6 +677,8 @@ export const useTradeExecution = (
             from,
             signAndBroadcastTransaction: async (txToSign: SignTx<TronChainId>) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              assertQuoteNotExpired()
 
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
@@ -687,6 +711,8 @@ export const useTradeExecution = (
             signAndBroadcastTransaction: async (txToSign: SuiSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
+              assertQuoteNotExpired()
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress,
@@ -718,6 +744,8 @@ export const useTradeExecution = (
             signAndBroadcastTransaction: async (txToSign: near.NearSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
+              assertQuoteNotExpired()
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress,
@@ -747,6 +775,8 @@ export const useTradeExecution = (
             from,
             signAndBroadcastTransaction: async (txToSign: StarknetSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              assertQuoteNotExpired()
 
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
@@ -778,6 +808,8 @@ export const useTradeExecution = (
             from,
             signAndBroadcastTransaction: async (txToSign: ton.TonSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              assertQuoteNotExpired()
 
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,

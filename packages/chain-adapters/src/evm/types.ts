@@ -63,10 +63,6 @@ export type FeeData = {
   maxPriorityFeePerGas?: string
 } & L1FeeData
 
-// Gas limit from eth_estimateGas. Kept separate from the fee-price quote so a price
-// failure cannot discard a successful estimate. l1GasLimit is set for optimistic rollups.
-export type EvmGasLimitEstimate = Pick<FeeData, 'gasLimit' | 'l1GasLimit'>
-
 export type NetworkFees =
   | {
       gasPrice: string
@@ -80,6 +76,8 @@ export type NetworkFees =
     }
 
 export type GasFeeData = Omit<FeeData, 'gasLimit' | 'l1GasLimit'>
+
+export type GasLimitEstimate = Pick<FeeData, 'gasLimit' | 'l1GasLimit'>
 
 export type GasFeeDataEstimate = {
   [common.FeeDataKey.Fast]: GasFeeData

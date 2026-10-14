@@ -9,11 +9,7 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
-import {
-  FALLBACK_QUOTE_DEADLINE_MS,
-  getTreasuryAddressFromChainId,
-  normalizeEpochToMs,
-} from '../../../utils/helpers'
+import { getTreasuryAddressFromChainId, normalizeEpochToMs } from '../../../utils/helpers'
 import type { PortalsTradeQuoteInput } from '../types'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsStepData } from '../utils/getPortalsStepData'
@@ -174,7 +170,7 @@ export const getPortalsTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
-    deadline: expiryMs ?? Date.now() + FALLBACK_QUOTE_DEADLINE_MS,
+    deadline: expiryMs,
     receiveAddress,
     steps: [
       {

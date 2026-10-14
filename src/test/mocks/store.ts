@@ -191,6 +191,7 @@ export const mockStore: ReduxState = {
       AcrossSwap: false,
       DebridgeSwap: false,
       BobGatewaySwap: false,
+      SymbiosisSwap: false,
       LazyTxHistory: false,
       QuickBuy: false,
       SwapperFiatRamps: false,

@@ -1,0 +1,157 @@
+import { fromChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, isToken } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+
+import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
+import { makeNetworkFeeEstimationFailedErr, makeTradeStepBuildFailedErr } from '../../../utils'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import type { TronContractCall } from '../../../utils/tron'
+import {
+  getTronContractCallFallbackFeeCryptoBaseUnit,
+  getTronContractCallNetworkFeeCryptoBaseUnit,
+} from '../../../utils/tron'
+import { chainIdToSymbiosisChainId } from './constants'
+import { buildSymbiosisTronCallData } from './helpers'
+import type { SymbiosisSwapTx } from './types'
+
+type BaseArgs = {
+  swapTx: SymbiosisSwapTx
+  sellAmountCryptoBaseUnit: string
+  spenderAddress: string
+  tronFallbackEnergy: string
+}
+
+export type GetSymbiosisStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
+
+type SymbiosisRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
+type SymbiosisQuoteStepData = { transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }
+
+export function getSymbiosisStepData(
+  args: Extract<GetSymbiosisStepDataArgs, { type: 'rate' }>,
+): Promise<Result<SymbiosisRateStepData, SwapErrorRight>>
+export function getSymbiosisStepData(
+  args: Extract<GetSymbiosisStepDataArgs, { type: 'quote' }>,
+): Promise<Result<SymbiosisQuoteStepData, SwapErrorRight>>
+export async function getSymbiosisStepData(
+  args: GetSymbiosisStepDataArgs,
+): Promise<Result<SymbiosisRateStepData | SymbiosisQuoteStepData, SwapErrorRight>> {
+  const {
+    swapTx,
+    sellAsset,
+    sellAmountCryptoBaseUnit,
+    spenderAddress,
+    tronFallbackEnergy,
+    from,
+    type,
+    input,
+    deps,
+  } = args
+
+  // Symbiosis adds its own fee to the native value on other route kinds - a step must send exactly the sell amount
+  const expectedValue = isToken(sellAsset.assetId) ? '0' : sellAmountCryptoBaseUnit
+  if (!bnOrZero(swapTx.tx.value).eq(expectedValue)) {
+    return Err(makeTradeStepBuildFailedErr('getSymbiosisStepData'))
+  }
+
+  if (swapTx.tx.chainId !== chainIdToSymbiosisChainId[sellAsset.chainId]) {
+    return Err(makeTradeStepBuildFailedErr('getSymbiosisStepData'))
+  }
+
+  switch (swapTx.type) {
+    case 'evm': {
+      const { tx } = swapTx
+      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+      const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
+
+      const transactionData = {
+        type: 'evm' as const,
+        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+        to: tx.to,
+        data: tx.data,
+        value: tx.value ?? '0',
+      }
+
+      const stateOverride = { sellAsset, sellAmountCryptoBaseUnit, spenderAddress }
+
+      if (type === 'rate') {
+        const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          transactionData,
+          from,
+          supportsEIP1559,
+          stateOverride,
+        }).catch(() => undefined)
+
+        const stepData: SymbiosisRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
+      }
+
+      try {
+        const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          transactionData,
+          from,
+          supportsEIP1559,
+          stateOverride,
+        })
+
+        const stepData: SymbiosisQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
+      } catch (error) {
+        return Err(makeNetworkFeeEstimationFailedErr('getSymbiosisStepData', error))
+      }
+    }
+    case 'tron': {
+      const { tx } = swapTx
+
+      if (!tx.functionSelector) return Err(makeTradeStepBuildFailedErr('getSymbiosisStepData'))
+
+      const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+
+      const call: TronContractCall = {
+        to: tx.to,
+        data: buildSymbiosisTronCallData({ functionSelector: tx.functionSelector, data: tx.data }),
+        value: tx.value ?? '0',
+      }
+
+      if (type === 'rate') {
+        const networkFeeCryptoBaseUnit = await getTronContractCallFallbackFeeCryptoBaseUnit({
+          adapter,
+          energy: tronFallbackEnergy,
+          bandwidthBytes: tron.getTronContractCallBandwidthBytes(call.data),
+          contractAddress: call.to,
+          fullEnergyOnShareLookupFailure: true,
+        }).catch(() => undefined)
+
+        const stepData: SymbiosisRateStepData = { networkFeeCryptoBaseUnit }
+
+        return Ok(stepData)
+      }
+
+      try {
+        const stepData: SymbiosisQuoteStepData = {
+          transactionData: { type: 'tron', ...call },
+          networkFeeCryptoBaseUnit: await getTronContractCallNetworkFeeCryptoBaseUnit({
+            adapter,
+            transactionData: call,
+            from,
+            sellAsset,
+            sellAmountCryptoBaseUnit,
+            spenderAddress,
+            fallbackEnergy: tronFallbackEnergy,
+          }),
+        }
+
+        return Ok(stepData)
+      } catch (error) {
+        return Err(makeNetworkFeeEstimationFailedErr('getSymbiosisStepData', error))
+      }
+    }
+    default:
+      return Err(makeTradeStepBuildFailedErr('getSymbiosisStepData'))
+  }
+}

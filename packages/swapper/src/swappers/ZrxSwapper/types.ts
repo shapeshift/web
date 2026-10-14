@@ -1,5 +1,6 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Address, TypedData } from 'viem'
+import type { TypedData } from 'eip-712'
+import type { Address } from 'viem'
 
 import type { GetEvmTradeQuoteInput, GetEvmTradeRateInput } from '../../types'
 

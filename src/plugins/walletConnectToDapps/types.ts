@@ -119,11 +119,9 @@ export enum WalletConnectModal {
 
 export type CustomTransactionData = {
   nonce?: string
-  gas?: string
   gasLimit?: string
   speed?: FeeDataKey
   accountId?: AccountId
-  isUserDefinedNonce?: boolean
 }
 
 export type TransactionParams = {
@@ -330,12 +328,6 @@ export type RequestParams =
   | BIP122SignPsbtCallRequestParams
   | BIP122SignMessageCallRequestParams
   | BIP122GetAccountAddressesCallRequestParams
-
-export type ConfirmData = {
-  nonce?: string
-  gasLimit?: string
-  speed: FeeDataKey
-}
 
 export type SessionProposalRef = {
   handleReject: () => Promise<void>

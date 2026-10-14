@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import type { Address } from 'viem'
-import { getAddress, zeroAddress } from 'viem'
+import { getAddress, isAddress, isAddressEqual, zeroAddress } from 'viem'
 
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
@@ -56,8 +56,7 @@ export const assertValidTrade = ({
   return Ok<FyndSupportedChainId, SwapErrorRight>(sellAsset.chainId)
 }
 
-// Order statuses and http error codes share one vocabulary
-const getFyndStatusError = (status: string): SwapErrorRight => {
+const getFyndStatusError = (status: string, detail?: string): SwapErrorRight => {
   const code = (() => {
     switch (status.toLowerCase()) {
       case 'no_route_found':
@@ -70,7 +69,10 @@ const getFyndStatusError = (status: string): SwapErrorRight => {
     }
   })()
 
-  return makeSwapErrorRight({ message: `Fynd quote failed: ${status}`, code })
+  return makeSwapErrorRight({
+    message: `Fynd quote failed: ${status}${detail ? ` (${detail})` : ''}`,
+    code,
+  })
 }
 
 const isFyndErrorResponse = (value: unknown): value is FyndErrorResponse =>
@@ -81,9 +83,9 @@ const isFyndErrorResponse = (value: unknown): value is FyndErrorResponse =>
   'code' in value &&
   typeof value.code === 'string'
 
-// The proxy forwards Fynd's status and `{ error, code }` body as-is
 export const getFyndRequestError = (error: SwapErrorRight): SwapErrorRight => {
   const { cause } = error
+
   if (!axios.isAxiosError(cause)) return error
 
   if (cause.response?.status === 429) {
@@ -94,7 +96,7 @@ export const getFyndRequestError = (error: SwapErrorRight): SwapErrorRight => {
   }
 
   const body: unknown = cause.response?.data
-  if (isFyndErrorResponse(body)) return getFyndStatusError(body.code)
+  if (isFyndErrorResponse(body)) return getFyndStatusError(body.code, body.error)
 
   return makeSwapErrorRight({
     message: `Fynd request failed with status ${cause.response?.status}`,
@@ -127,7 +129,10 @@ const getQuoteError = (
   const { transaction, fee_breakdown: fees } = quote
   const pinnedRouter = FYND_CHAINS[chainId].routerAddress
 
-  if (transaction.to.toLowerCase() !== pinnedRouter) {
+  if (
+    !isAddress(transaction.to, { strict: false }) ||
+    !isAddressEqual(transaction.to, pinnedRouter)
+  ) {
     return invalidResponse(
       `Fynd router ${transaction.to} is not the pinned router ${pinnedRouter} for ${chainId}`,
     )
@@ -153,6 +158,7 @@ const getQuoteError = (
   const outputFloor = netOutput
     .times(bn(1).minus(slippageTolerancePercentageDecimal))
     .integerValue(BigNumber.ROUND_DOWN)
+
   if (bn(fees.min_amount_received).lt(outputFloor)) {
     return invalidResponse('Fynd output floor is below the requested slippage', {
       minAmountReceived: fees.min_amount_received,
@@ -178,6 +184,7 @@ const getQuoteError = (
     .times(FYND_CLIENT_FEE_SHARE)
     .integerValue(BigNumber.ROUND_DOWN)
     .minus(1)
+
   if (bn(fees.client_fee).lt(minClientFee)) {
     return invalidResponse('Fynd client fee is below the requested share', {
       clientFee: fees.client_fee,
@@ -192,6 +199,7 @@ const getQuoteError = (
     typeof offset === 'number'
       ? transaction.data.slice(2 + offset * 2, 2 + (offset + FYND_CLIENT_FEE_SIGNATURE_BYTES) * 2)
       : ''
+
   if (signature.length !== FYND_CLIENT_FEE_SIGNATURE_BYTES * 2 || /^0+$/.test(signature)) {
     return invalidResponse('Fynd quote is not signed for the client fee', { offset })
   }
@@ -205,7 +213,8 @@ export const validateFyndQuoteResponse = (
   response: FyndQuoteResponse,
   context: FyndQuoteContext,
 ): Result<FyndEncodedQuote, SwapErrorRight> => {
-  const order = response.orders[0]
+  const order = Array.isArray(response?.orders) ? response.orders[0] : undefined
+
   if (!order) return Err(invalidResponse('Fynd returned no order'))
   if (order.status !== 'success') return Err(getFyndStatusError(order.status))
 

@@ -13,7 +13,7 @@ import { useAllMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, AssetId, ChainId } from '../types'
-import { isWidgetServiceableChainId, isWidgetSupportedChainId } from '../types'
+import { isWidgetSupportedChainId, isWidgetSwappableChainId } from '../types'
 
 const VISIBLE_BUFFER = 10
 
@@ -119,7 +119,7 @@ export const TokenSelectModal = ({
     )
 
     if (!allowShapeshiftRedirect) {
-      enabledChains = enabledChains.filter(chain => isWidgetServiceableChainId(chain.chainId))
+      enabledChains = enabledChains.filter(chain => isWidgetSwappableChainId(chain.chainId))
     }
 
     if (allowedChainIds && allowedChainIds.length > 0) {
@@ -152,7 +152,7 @@ export const TokenSelectModal = ({
     )
 
     if (!allowShapeshiftRedirect) {
-      assets = assets.filter(asset => isWidgetServiceableChainId(asset.chainId))
+      assets = assets.filter(asset => isWidgetSwappableChainId(asset.chainId))
     }
 
     if (allowedAssetIds && allowedAssetIds.length > 0) {

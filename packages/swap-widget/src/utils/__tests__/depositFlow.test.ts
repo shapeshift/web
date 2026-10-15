@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import type { TradeRate } from '../../types'
 import {
-  canWidgetRunRate,
   isExternalPaymentRate,
+  isSwappableRate,
   pickDefaultRate,
   pickDepositRate,
   shouldUseDepositFlow,
@@ -76,19 +76,19 @@ describe('pickDepositRate', () => {
   })
 })
 
-describe('canWidgetRunRate', () => {
+describe('isSwappableRate', () => {
   const ethereum = 'eip155:1'
   const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
 
-  it('runs any route on a chain the widget signs for', () => {
-    expect(canWidgetRunRate(ethereum, makeRate({ supportsExternalPayment: false }))).toBe(true)
-    expect(canWidgetRunRate(ethereum, makeRate({ supportsExternalPayment: true }))).toBe(true)
+  it('is any route on a chain the widget signs for', () => {
+    expect(isSwappableRate(ethereum, makeRate({ supportsExternalPayment: false }))).toBe(true)
+    expect(isSwappableRate(ethereum, makeRate({ supportsExternalPayment: true }))).toBe(true)
   })
 
-  it('runs only externally paid routes on a chain the widget cannot sign for', () => {
-    expect(canWidgetRunRate(zcash, makeRate({ supportsExternalPayment: true }))).toBe(true)
-    expect(canWidgetRunRate(zcash, makeRate({ supportsExternalPayment: false }))).toBe(false)
-    expect(canWidgetRunRate(zcash, makeRate({}))).toBe(false)
+  it('is only an externally paid route on a chain the widget cannot sign for', () => {
+    expect(isSwappableRate(zcash, makeRate({ supportsExternalPayment: true }))).toBe(true)
+    expect(isSwappableRate(zcash, makeRate({ supportsExternalPayment: false }))).toBe(false)
+    expect(isSwappableRate(zcash, makeRate({}))).toBe(false)
   })
 })
 
@@ -102,7 +102,7 @@ describe('pickDefaultRate', () => {
     expect(pickDefaultRate([maya, near], ethereum)).toBe(maya)
   })
 
-  it('takes the best runnable rate on a chain the widget cannot sign for', () => {
+  it('takes the best swappable rate on a chain the widget cannot sign for', () => {
     expect(pickDefaultRate([maya, near], zcash)).toBe(near)
   })
 

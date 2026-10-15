@@ -5,7 +5,7 @@ import type { ApiClient } from '../api/client'
 import type { AssetId, TradeRate } from '../types'
 import { SwapperName } from '../types'
 import { isPermanentApiError } from '../utils/apiError'
-import { canWidgetRunRate } from '../utils/depositFlow'
+import { isSwappableRate } from '../utils/depositFlow'
 import { sortRatesByValue } from '../utils/rateDisplay'
 
 const ENABLED_SWAPPER_NAMES = new Set<string>(Object.values(SwapperName))
@@ -69,7 +69,7 @@ export const useSwapRates = (
           !rate.error &&
           rate.buyAmountCryptoBaseUnit !== '0' &&
           ENABLED_SWAPPER_NAMES.has(rate.swapperName) &&
-          (allowShapeshiftRedirect || canWidgetRunRate(sellChainId, rate)),
+          (allowShapeshiftRedirect || isSwappableRate(sellChainId, rate)),
       )
 
       if (allowedSwapperNames?.length) {

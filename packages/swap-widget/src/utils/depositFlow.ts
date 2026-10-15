@@ -4,17 +4,15 @@ import { isWidgetExecutableChainId } from '../types'
 export const isExternalPaymentRate = (rate: TradeRate): boolean =>
   rate.supportsExternalPayment === true
 
-// A chain the widget can't sign for is only served by routes paid from another wallet
-export const canWidgetRunRate = (sellChainId: string, rate: TradeRate): boolean =>
+// On a chain that isn't executable in-widget, only an external payment route can swap
+export const isSwappableRate = (sellChainId: string, rate: TradeRate): boolean =>
   isWidgetExecutableChainId(sellChainId) || isExternalPaymentRate(rate)
 
-// Until the user picks one, the route is the best one the widget can run here, or the best overall
-// when none can (those only lead to the app)
+// Until the user picks one, the route is the best swappable one, or the best overall when none is
 export const pickDefaultRate = (
   rates: TradeRate[] | undefined,
   sellChainId: string,
-): TradeRate | undefined =>
-  rates?.find(rate => canWidgetRunRate(sellChainId, rate)) ?? rates?.[0]
+): TradeRate | undefined => rates?.find(rate => isSwappableRate(sellChainId, rate)) ?? rates?.[0]
 
 type ShouldUseDepositFlowArgs = {
   rate: TradeRate | undefined

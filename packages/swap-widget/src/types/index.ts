@@ -332,8 +332,8 @@ const EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET: ReadonlySet<string> = new Set([zecChai
 export const isExternalPaymentSellChainId = (chainId: string): boolean =>
   EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET.has(chainId)
 
-// Chains the widget can serve without the app: signed in-widget or paid from any wallet
-export const isWidgetServiceableChainId = (chainId: string): boolean =>
+// Chains the widget can swap from: executable in-widget, or sold through an external payment
+export const isWidgetSwappableChainId = (chainId: string): boolean =>
   isWidgetExecutableChainId(chainId) || isExternalPaymentSellChainId(chainId)
 
 const SUPPORTED_CHAIN_ID_SET: ReadonlySet<string> = new Set([

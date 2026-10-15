@@ -40,14 +40,19 @@ export const QuoteSelector = ({
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const bestRate = useMemo(() => rates[0], [rates])
-  const defaultRate = useMemo(() => pickDefaultRate(rates, sellAsset.chainId), [rates, sellAsset.chainId])
-  const alternativeRatesCount = useMemo(() => Math.max(0, rates.length - 1), [rates])
+
+  const defaultRate = useMemo(
+    () => pickDefaultRate(rates, sellAsset.chainId),
+    [rates, sellAsset.chainId],
+  )
+
+  const hasMultipleRates = rates.length > 1
 
   const handleOpenModal = useCallback(() => {
-    if (rates.length > 1) {
+    if (hasMultipleRates) {
       setIsModalOpen(true)
     }
-  }, [rates.length])
+  }, [hasMultipleRates])
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false)
@@ -91,9 +96,9 @@ export const QuoteSelector = ({
   return (
     <>
       <button
-        className={`ssw-quote-selector ${alternativeRatesCount === 0 ? 'ssw-single' : ''}`}
+        className={`ssw-quote-selector ${hasMultipleRates ? '' : 'ssw-single'}`}
         onClick={handleOpenModal}
-        disabled={alternativeRatesCount === 0}
+        disabled={!hasMultipleRates}
         type='button'
       >
         <div className='ssw-quote-left'>
@@ -123,9 +128,9 @@ export const QuoteSelector = ({
             <span className='ssw-quote-amount'>{formattedAmount}</span>
             <span className='ssw-quote-symbol'>{asset.symbol}</span>
           </div>
-          {alternativeRatesCount > 0 && (
+          {hasMultipleRates && (
             <span className='ssw-quote-more'>
-              +{alternativeRatesCount} more
+              +{rates.length - 1} more
               <svg
                 width='12'
                 height='12'

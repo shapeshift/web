@@ -603,6 +603,7 @@ import {
 | `getChainType`              | `(chainId: string) => "evm" \| "utxo" \| "cosmos" \| "solana" \| "other"` | Classify a chain by namespace.                               |
 | `isWidgetSupportedChainId`  | `(chainId: string) => boolean`                                            | Whether the widget lists assets on this chain.               |
 | `isWidgetExecutableChainId` | `(chainId: string) => boolean`                                            | Whether the widget can sign/execute swaps on this chain in-app. |
+| `isWidgetSwappableChainId`  | `(chainId: string) => boolean`                                            | Whether the widget can complete a swap from this chain without the app, by signing or through a deposit address. |
 | `getChainName`              | `(chainId: ChainId) => string`                                            | Display name for a chain.                                    |
 | `getChainIcon`              | `(chainId: ChainId) => string \| undefined`                               | Icon URL for a chain.                                        |
 | `getChainColor`            | `(chainId: ChainId) => string`                                            | Brand color for a chain.                                     |
@@ -695,7 +696,7 @@ chains are selectable but route the user to [app.shapeshift.com](https://app.sha
 complete the swap (when `allowShapeshiftRedirect` is enabled), unless an
 [externally paid route](#externally-paid-swaps) quotes them, which needs no signer. With the redirect
 disabled, only chains the widget can sign for or pay externally stay in the selector
-(`isWidgetServiceableChainId`); the other redirect-only chains drop out.
+(`isWidgetSwappableChainId`); the other redirect-only chains drop out.
 
 | Chain             | Chain ID                                  | Type   | Executable in-widget |
 | ----------------- | ----------------------------------------- | ------ | -------------------- |

@@ -66,6 +66,7 @@ export type FeatureFlags = {
   WalletConnectToDappsV2: boolean
   Cowswap: boolean
   ZrxSwap: boolean
+  FyndSwap: boolean
   Mixpanel: boolean
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
@@ -234,6 +235,7 @@ const initialState: Preferences = {
     WalletConnectToDapps: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS,
     Cowswap: getConfig().VITE_FEATURE_COWSWAP,
     ZrxSwap: getConfig().VITE_FEATURE_ZRX_SWAP,
+    FyndSwap: getConfig().VITE_FEATURE_FYND_SWAP,
     Mixpanel: getConfig().VITE_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().VITE_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().VITE_FEATURE_READ_ONLY_ASSETS,

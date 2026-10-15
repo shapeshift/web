@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TradeRate } from '../../types'
-import { isExternalPaymentRate, pickDepositRate, shouldUseDepositFlow } from '../depositFlow'
+import {
+  canWidgetRunRate,
+  isExternalPaymentRate,
+  pickDepositRate,
+  shouldUseDepositFlow,
+} from '../depositFlow'
 
 const makeRate = (overrides: Partial<TradeRate>): TradeRate =>
   ({
@@ -67,5 +72,21 @@ describe('pickDepositRate', () => {
 
   it('is undefined with no rates', () => {
     expect(pickDepositRate(undefined, 'Chainflip')).toBeUndefined()
+  })
+})
+
+describe('canWidgetRunRate', () => {
+  const ethereum = 'eip155:1'
+  const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
+
+  it('runs any route on a chain the widget signs for', () => {
+    expect(canWidgetRunRate(ethereum, makeRate({ supportsExternalPayment: false }))).toBe(true)
+    expect(canWidgetRunRate(ethereum, makeRate({ supportsExternalPayment: true }))).toBe(true)
+  })
+
+  it('runs only externally paid routes on a chain the widget cannot sign for', () => {
+    expect(canWidgetRunRate(zcash, makeRate({ supportsExternalPayment: true }))).toBe(true)
+    expect(canWidgetRunRate(zcash, makeRate({ supportsExternalPayment: false }))).toBe(false)
+    expect(canWidgetRunRate(zcash, makeRate({}))).toBe(false)
   })
 })

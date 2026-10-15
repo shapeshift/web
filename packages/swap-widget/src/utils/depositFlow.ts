@@ -1,7 +1,12 @@
 import type { TradeRate } from '../types'
+import { isWidgetExecutableChainId } from '../types'
 
 export const isExternalPaymentRate = (rate: TradeRate): boolean =>
   rate.supportsExternalPayment === true
+
+// A chain the widget can't sign for is only served by routes paid from another wallet
+export const canWidgetRunRate = (sellChainId: string, rate: TradeRate): boolean =>
+  isWidgetExecutableChainId(sellChainId) || isExternalPaymentRate(rate)
 
 type ShouldUseDepositFlowArgs = {
   rate: TradeRate | undefined

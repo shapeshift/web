@@ -73,6 +73,7 @@ export const useSwapDisplayValues = ({
     error: ratesError,
   } = useSwapRates(apiClient, {
     sellAssetId: sellAsset.assetId,
+    sellChainId: sellAsset.chainId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: context.sellAmountBaseUnit,
     buyAmountCryptoBaseUnit: buyAmountBaseUnit,

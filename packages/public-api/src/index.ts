@@ -17,10 +17,13 @@ import {
   swapStatusLimiter,
 } from './middleware/rateLimit'
 import {
+  addAffiliateMember,
   createAffiliate,
   getAffiliate,
+  getAffiliateMembers,
   getAffiliateStats,
   getAffiliateSwaps,
+  removeAffiliateMember,
   updateAffiliate,
 } from './routes/affiliate'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
@@ -63,6 +66,13 @@ const startServer = async () => {
   v1Router.get('/affiliate/:address', dataLimiter, getAffiliate)
   v1Router.post('/affiliate', affiliateMutationLimiter, createAffiliate)
   v1Router.patch('/affiliate/:address', affiliateMutationLimiter, updateAffiliate)
+  v1Router.get('/affiliate/:address/members', dataLimiter, getAffiliateMembers)
+  v1Router.post('/affiliate/:address/members', affiliateMutationLimiter, addAffiliateMember)
+  v1Router.delete(
+    '/affiliate/:address/members/:memberAddress',
+    affiliateMutationLimiter,
+    removeAffiliateMember,
+  )
 
   v1Router.post('/auth/siwe/nonce', affiliateMutationLimiter, siweNonce)
   v1Router.post('/auth/siwe/verify', affiliateMutationLimiter, siweVerify)

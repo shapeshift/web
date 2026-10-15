@@ -7,14 +7,11 @@ export const isExternalPaymentRate = (rate: TradeRate): boolean =>
 export const isSwappableRate = (sellChainId: string, rate: TradeRate): boolean =>
   isWidgetExecutableChainId(sellChainId) || isExternalPaymentRate(rate)
 
-// Until the user picks one, the route is the best swappable one, or the best overall when none is
 export const pickDefaultRate = (
   rates: TradeRate[] | undefined,
   sellChainId: string,
 ): TradeRate | undefined => rates?.find(rate => isSwappableRate(sellChainId, rate)) ?? rates?.[0]
 
-// A pick is remembered by swapper, so each poll's rate for it is the live one; a swapper that
-// stopped quoting falls back to the default
 export const getActiveRate = (
   rates: TradeRate[] | undefined,
   selectedRate: TradeRate | null,

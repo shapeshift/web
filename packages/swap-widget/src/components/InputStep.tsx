@@ -5,7 +5,7 @@ import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 import { formatAmount, isExternalPaymentSellChainId } from '../types'
-import { getActiveRate, shouldUseDepositFlow } from '../utils/depositFlow'
+import { shouldUseDepositFlow } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
 import type { InputCtaAction } from '../utils/inputCta'
 import { getInputCta } from '../utils/inputCta'
@@ -118,13 +118,8 @@ export const InputStep = ({
     sellAmountCrypto,
   ])
 
-  const selectedRate = getActiveRate(
-    displayValues.rates,
-    context.selectedRate,
-    context.sellAsset.chainId,
-  )
   const isDepositFlowAvailable = shouldUseDepositFlow({
-    rate: selectedRate,
+    rate: displayValues.displayRate,
     hasWalletForSellChain: !!walletSendAddress,
   })
 
@@ -412,7 +407,7 @@ export const InputStep = ({
           <div className='ssw-quotes'>
             <QuoteSelector
               rates={displayValues.rates ?? []}
-              selectedRate={context.selectedRate}
+              activeRate={displayValues.displayRate}
               onSelectRate={onSelectRate}
               buyAsset={context.buyAsset}
               sellAsset={context.sellAsset}

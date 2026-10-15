@@ -23,7 +23,7 @@ type QuotesModalProps = {
   isOpen: boolean
   onClose: () => void
   rates: TradeRate[]
-  selectedRate: TradeRate | null
+  selectedRate: TradeRate | undefined
   onSelectRate: (rate: TradeRate) => void
   buyAsset: Asset
   sellAsset: Asset
@@ -126,7 +126,7 @@ export const QuotesModal = ({
             const amountBaseUnit = getRateAmountBaseUnit(rate, isExactOutput)
             const estimatedTime = rate.estimatedExecutionTimeMs
             const isBest = index === 0
-            const isSelected = selectedRate?.id === rate.id
+            const isSelected = selectedRate?.swapperName === rate.swapperName
             const swapperIcon = getSwapperIcon(rate.swapperName)
             const swapperColor = getSwapperColor(rate.swapperName)
             const formattedAmount = formatAmount(amountBaseUnit, asset.precision)
@@ -139,7 +139,7 @@ export const QuotesModal = ({
 
             return (
               <button
-                key={rate.id}
+                key={rate.swapperName}
                 className={`ssw-quote-row ${isSelected ? 'ssw-selected' : ''}`}
                 onClick={() => handleSelectRate(rate)}
                 type='button'

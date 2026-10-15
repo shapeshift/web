@@ -1,18 +1,17 @@
 import './QuoteSelector.css'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
 import { formatUsdValue } from '../hooks/useMarketData'
 import type { Asset, TradeRate } from '../types'
 import { formatAmount } from '../types'
-import { getActiveRate } from '../utils/depositFlow'
 import { getRateAmountBaseUnit } from '../utils/rateDisplay'
 import { QuotesModal } from './QuotesModal'
 
 type QuoteSelectorProps = {
   rates: TradeRate[]
-  selectedRate: TradeRate | null
+  activeRate: TradeRate | undefined
   onSelectRate: (rate: TradeRate) => void
   buyAsset: Asset
   sellAsset: Asset
@@ -26,7 +25,7 @@ type QuoteSelectorProps = {
 
 export const QuoteSelector = ({
   rates,
-  selectedRate,
+  activeRate,
   onSelectRate,
   buyAsset,
   sellAsset,
@@ -39,20 +38,13 @@ export const QuoteSelector = ({
 }: QuoteSelectorProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const bestRate = useMemo(() => rates[0], [rates])
-
-  const displayRate = useMemo(
-    () => getActiveRate(rates, selectedRate, sellAsset.chainId),
-    [rates, selectedRate, sellAsset.chainId],
-  )
+  const bestRate = rates[0]
 
   const hasMultipleRates = rates.length > 1
 
   const handleOpenModal = useCallback(() => {
-    if (hasMultipleRates) {
-      setIsModalOpen(true)
-    }
-  }, [hasMultipleRates])
+    setIsModalOpen(true)
+  }, [])
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false)
@@ -76,15 +68,15 @@ export const QuoteSelector = ({
     )
   }
 
-  if (!displayRate) {
+  if (!activeRate) {
     return null
   }
 
-  const swapperIcon = getSwapperIcon(displayRate.swapperName)
-  const swapperColor = getSwapperColor(displayRate.swapperName)
+  const swapperIcon = getSwapperIcon(activeRate.swapperName)
+  const swapperColor = getSwapperColor(activeRate.swapperName)
 
   const asset = isExactOutput ? sellAsset : buyAsset
-  const amountBaseUnit = getRateAmountBaseUnit(displayRate, isExactOutput)
+  const amountBaseUnit = getRateAmountBaseUnit(activeRate, isExactOutput)
   const formattedAmount = formatAmount(amountBaseUnit, asset.precision)
   const usdValue = formatUsdValue(
     amountBaseUnit,
@@ -105,7 +97,7 @@ export const QuoteSelector = ({
             {swapperIcon ? (
               <img
                 src={swapperIcon}
-                alt={displayRate.swapperName}
+                alt={activeRate.swapperName}
                 className='ssw-quote-provider-icon'
               />
             ) : (
@@ -113,11 +105,11 @@ export const QuoteSelector = ({
                 className='ssw-quote-provider-icon-placeholder'
                 style={{ backgroundColor: swapperColor }}
               >
-                {displayRate.swapperName.charAt(0)}
+                {activeRate.swapperName.charAt(0)}
               </div>
             )}
-            <span className='ssw-quote-provider-name'>{displayRate.swapperName}</span>
-            {displayRate === bestRate && <span className='ssw-quote-best-tag'>Best</span>}
+            <span className='ssw-quote-provider-name'>{activeRate.swapperName}</span>
+            {activeRate === bestRate && <span className='ssw-quote-best-tag'>Best</span>}
           </div>
           <span className='ssw-quote-usd'>{usdValue}</span>
         </div>
@@ -149,7 +141,7 @@ export const QuoteSelector = ({
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         rates={rates}
-        selectedRate={displayRate}
+        selectedRate={activeRate}
         onSelectRate={handleSelectRate}
         buyAsset={buyAsset}
         sellAsset={sellAsset}

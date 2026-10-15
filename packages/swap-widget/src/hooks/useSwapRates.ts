@@ -76,13 +76,7 @@ export const useSwapRates = (
         filteredRates = filteredRates.filter(rate => allowedSwapperNames.includes(rate.swapperName))
       }
 
-      return sortRatesByValue(
-        filteredRates.map(rate => ({
-          ...rate,
-          id: rate.id ?? rate.swapperName,
-        })),
-        isExactOutput,
-      )
+      return sortRatesByValue(filteredRates, isExactOutput)
     },
     enabled: enabled && !!sellAssetId && !!buyAssetId && !!amountCryptoBaseUnit,
     staleTime: 10_000,

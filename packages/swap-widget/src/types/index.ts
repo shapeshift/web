@@ -124,7 +124,6 @@ export type TradeRate = {
     code: string
     message: string
   }
-  id?: string
 }
 
 export type ThemeMode = 'light' | 'dark'

@@ -38,9 +38,10 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
     const fetchQuote = async () => {
       try {
         const isExactOutput = !!context.buyAmountBaseUnit
+        const activeRate = getActiveRate(rates, context.selectedRate, context.sellAsset.chainId)
         const rateToUse = context.isDepositFlow
-          ? pickDepositRate(rates, context.quote?.swapperName)
-          : getActiveRate(rates, context.selectedRate, context.sellAsset.chainId)
+          ? pickDepositRate(rates, context.quote?.swapperName ?? activeRate?.swapperName)
+          : activeRate
 
         const sellAmountBaseUnit = isExactOutput
           ? rateToUse?.sellAmountCryptoBaseUnit

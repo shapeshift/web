@@ -42,7 +42,7 @@ export const QuoteSelector = ({
   const alternativeRatesCount = useMemo(() => Math.max(0, rates.length - 1), [rates])
 
   const handleOpenModal = useCallback(() => {
-    if (rates.length > 0) {
+    if (rates.length > 1) {
       setIsModalOpen(true)
     }
   }, [rates.length])
@@ -88,7 +88,12 @@ export const QuoteSelector = ({
 
   return (
     <>
-      <button className='ssw-quote-selector' onClick={handleOpenModal} type='button'>
+      <button
+        className={`ssw-quote-selector ${alternativeRatesCount === 0 ? 'ssw-single' : ''}`}
+        onClick={handleOpenModal}
+        disabled={alternativeRatesCount === 0}
+        type='button'
+      >
         <div className='ssw-quote-left'>
           <div className='ssw-quote-provider'>
             {swapperIcon ? (

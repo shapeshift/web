@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { TradeRate } from '../../types'
 import {
+  getActiveRate,
   isExternalPaymentRate,
   isSwappableRate,
   pickDefaultRate,
@@ -109,5 +110,24 @@ describe('pickDefaultRate', () => {
   it('falls back to the best rate when none can run here', () => {
     expect(pickDefaultRate([maya], zcash)).toBe(maya)
     expect(pickDefaultRate(undefined, zcash)).toBeUndefined()
+  })
+})
+
+describe('getActiveRate', () => {
+  const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
+  const maya = makeRate({ swapperName: 'MAYAChain' as TradeRate['swapperName'], supportsExternalPayment: false })
+  const near = makeRate({ swapperName: 'NEAR Intents' as TradeRate['swapperName'], supportsExternalPayment: true })
+  const staleMaya = { ...maya, buyAmountCryptoBaseUnit: '2' }
+
+  it('follows the picked swapper into each new poll', () => {
+    expect(getActiveRate([near, maya], staleMaya, zcash)).toBe(maya)
+  })
+
+  it('falls back to the default when the picked swapper stopped quoting', () => {
+    expect(getActiveRate([near], staleMaya, zcash)).toBe(near)
+  })
+
+  it('is the default when nothing was picked', () => {
+    expect(getActiveRate([maya, near], null, zcash)).toBe(near)
   })
 })

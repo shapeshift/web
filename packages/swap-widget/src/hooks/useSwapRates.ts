@@ -77,9 +77,9 @@ export const useSwapRates = (
       }
 
       return sortRatesByValue(
-        filteredRates.map((rate, index) => ({
+        filteredRates.map(rate => ({
           ...rate,
-          id: rate.id ?? `${rate.swapperName}-${index}`,
+          id: rate.id ?? rate.swapperName,
         })),
         isExactOutput,
       )

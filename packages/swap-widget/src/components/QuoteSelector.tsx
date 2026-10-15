@@ -6,7 +6,7 @@ import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
 import { formatUsdValue } from '../hooks/useMarketData'
 import type { Asset, TradeRate } from '../types'
 import { formatAmount } from '../types'
-import { pickDefaultRate } from '../utils/depositFlow'
+import { getActiveRate } from '../utils/depositFlow'
 import { getRateAmountBaseUnit } from '../utils/rateDisplay'
 import { QuotesModal } from './QuotesModal'
 
@@ -41,9 +41,9 @@ export const QuoteSelector = ({
 
   const bestRate = useMemo(() => rates[0], [rates])
 
-  const defaultRate = useMemo(
-    () => pickDefaultRate(rates, sellAsset.chainId),
-    [rates, sellAsset.chainId],
+  const displayRate = useMemo(
+    () => getActiveRate(rates, selectedRate, sellAsset.chainId),
+    [rates, selectedRate, sellAsset.chainId],
   )
 
   const hasMultipleRates = rates.length > 1
@@ -76,7 +76,6 @@ export const QuoteSelector = ({
     )
   }
 
-  const displayRate = selectedRate ?? defaultRate
   if (!displayRate) {
     return null
   }

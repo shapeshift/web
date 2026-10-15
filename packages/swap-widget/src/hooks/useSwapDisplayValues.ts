@@ -8,7 +8,7 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { SwapperName, TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
-import { pickDefaultRate } from '../utils/depositFlow'
+import { getActiveRate } from '../utils/depositFlow'
 import { shouldFetchRates, shouldPollRates } from '../utils/ratesPolling'
 import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
@@ -127,8 +127,8 @@ export const useSwapDisplayValues = ({
   const { data: buyChainInfo } = useChainInfo(buyAsset.chainId)
 
   const displayRate = useMemo(
-    () => selectedRate ?? pickDefaultRate(rates, sellAsset.chainId),
-    [selectedRate, rates, sellAsset.chainId],
+    () => getActiveRate(rates, selectedRate, sellAsset.chainId),
+    [rates, selectedRate, sellAsset.chainId],
   )
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit
 

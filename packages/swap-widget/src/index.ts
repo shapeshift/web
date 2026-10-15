@@ -29,6 +29,7 @@ export {
   OTHER_CHAIN_IDS,
   REDIRECT_ONLY_CHAIN_IDS,
   isWidgetExecutableChainId,
+  isWidgetServiceableChainId,
   isWidgetSupportedChainId,
 } from './types'
 

@@ -8,19 +8,20 @@ const settlerAbi = parseAbi([
 
 const NATIVE_CHECK_SELECTOR = toFunctionSelector('function NATIVE_CHECK(uint256,uint256)')
 
-// Native sells carry no Permit2, but Settler reverts with SignatureExpired past the NATIVE_CHECK deadline
+// Native sells carry no Permit2, but Settler reverts with SignatureExpired past any NATIVE_CHECK deadline
 export const getZrxNativeCheckDeadline = (data: string): number | undefined => {
   try {
     const { functionName, args } = decodeFunctionData({ abi: settlerAbi, data: data as Hex })
     if (functionName !== 'execute') return undefined
 
-    const nativeCheck = args[1].find(action => action.startsWith(NATIVE_CHECK_SELECTOR))
-    if (!nativeCheck) return undefined
+    const deadlines = args[1]
+      .filter(action => action.startsWith(NATIVE_CHECK_SELECTOR))
+      .map(action => decodeFunctionData({ abi: settlerAbi, data: action }))
+      .flatMap(decoded =>
+        decoded.functionName === 'NATIVE_CHECK' ? [Number(decoded.args[0])] : [],
+      )
 
-    const decoded = decodeFunctionData({ abi: settlerAbi, data: nativeCheck })
-    if (decoded.functionName !== 'NATIVE_CHECK') return undefined
-
-    return Number(decoded.args[0])
+    return deadlines.length ? Math.min(...deadlines) : undefined
   } catch {
     return undefined
   }

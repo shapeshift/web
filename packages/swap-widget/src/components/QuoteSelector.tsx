@@ -40,6 +40,7 @@ export const QuoteSelector = ({
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const bestRate = useMemo(() => rates[0], [rates])
+  const defaultRate = useMemo(() => pickDefaultRate(rates, sellAsset.chainId), [rates, sellAsset.chainId])
   const alternativeRatesCount = useMemo(() => Math.max(0, rates.length - 1), [rates])
 
   const handleOpenModal = useCallback(() => {
@@ -70,11 +71,11 @@ export const QuoteSelector = ({
     )
   }
 
-  if (!bestRate) {
+  const displayRate = selectedRate ?? defaultRate
+  if (!displayRate) {
     return null
   }
 
-  const displayRate = selectedRate ?? pickDefaultRate(rates, sellAsset.chainId) ?? bestRate
   const swapperIcon = getSwapperIcon(displayRate.swapperName)
   const swapperColor = getSwapperColor(displayRate.swapperName)
 
@@ -144,7 +145,7 @@ export const QuoteSelector = ({
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         rates={rates}
-        selectedRate={selectedRate}
+        selectedRate={displayRate}
         onSelectRate={handleSelectRate}
         buyAsset={buyAsset}
         sellAsset={sellAsset}

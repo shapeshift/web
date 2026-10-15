@@ -23,7 +23,7 @@ import type {
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { getTradeAmount, isNativeEvmAsset } from '../../../utils/helpers'
+import { getTradeAmount, isNativeEvmAsset, normalizeEpochToMs } from '../../../utils/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
@@ -49,6 +49,7 @@ type RelayTradeContext = {
   // data/spenderAddress are per-step - the callers pair them from relayStepInputs
   stepDataArgs: Omit<GetRelayStepDataArgs, 'type' | 'input' | 'data' | 'spenderAddress'>
   relayId: string
+  deadline: number | undefined
 }
 
 export const getRelayTradeContext = async ({
@@ -387,6 +388,10 @@ export const getRelayTradeContext = async ({
 
   const relayId = quote.steps[0].requestId
 
+  // Only cross-chain (protocol v2) orders carry an expiry; past it the solver submits a no-fill refund
+  const orderDeadline = quote.protocol?.v2?.orderData?.output?.deadline
+  const deadline = orderDeadline === undefined ? undefined : normalizeEpochToMs(orderDeadline)
+
   const relayStepInputs = swapSteps.map(step => {
     const data = step.items?.[0]?.data
     return { data, allowanceContract: getRelayAllowanceContract(data) }
@@ -431,6 +436,7 @@ export const getRelayTradeContext = async ({
       ...appFeesAsProtocolFee,
     },
     relayStepInputs,
+    deadline,
     stepDataArgs: {
       sellAsset,
       sellAmountCryptoBaseUnit,

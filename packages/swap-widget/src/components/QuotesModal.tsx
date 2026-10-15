@@ -140,9 +140,7 @@ export const QuotesModal = ({
             return (
               <button
                 key={rate.id}
-                className={`ssw-quote-row ${isSelected ? 'ssw-selected' : ''} ${
-                  isBest ? 'ssw-best' : ''
-                }`}
+                className={`ssw-quote-row ${isSelected ? 'ssw-selected' : ''}`}
                 onClick={() => handleSelectRate(rate)}
                 type='button'
               >

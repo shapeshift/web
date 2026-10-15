@@ -140,11 +140,6 @@
   );
 }
 
-.ssw-quote-row.ssw-best {
-  border-color: var(--ssw-accent, #3861fb);
-  background-color: color-mix(in srgb, var(--ssw-accent, #3861fb) 6%, var(--ssw-bg-tertiary, #1a1a2e));
-}
-
 .ssw-quote-row.ssw-selected {
   border-color: var(--ssw-success, #00d395);
   background-color: color-mix(in srgb, var(--ssw-success, #00d395) 6%, var(--ssw-bg-tertiary, #1a1a2e));

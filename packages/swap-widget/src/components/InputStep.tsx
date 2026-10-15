@@ -5,7 +5,7 @@ import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 import { formatAmount, isExternalPaymentSellChainId } from '../types'
-import { shouldUseDepositFlow } from '../utils/depositFlow'
+import { pickDefaultRate, shouldUseDepositFlow } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
 import type { InputCtaAction } from '../utils/inputCta'
 import { getInputCta } from '../utils/inputCta'
@@ -118,7 +118,8 @@ export const InputStep = ({
     sellAmountCrypto,
   ])
 
-  const selectedRate = context.selectedRate ?? displayValues.rates?.[0]
+  const selectedRate =
+    context.selectedRate ?? pickDefaultRate(displayValues.rates, context.sellAsset.chainId)
   const isDepositFlowAvailable = shouldUseDepositFlow({
     rate: selectedRate,
     hasWalletForSellChain: !!walletSendAddress,

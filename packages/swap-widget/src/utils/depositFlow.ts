@@ -8,6 +8,14 @@ export const isExternalPaymentRate = (rate: TradeRate): boolean =>
 export const canWidgetRunRate = (sellChainId: string, rate: TradeRate): boolean =>
   isWidgetExecutableChainId(sellChainId) || isExternalPaymentRate(rate)
 
+// Until the user picks one, the route is the best one the widget can run here, or the best overall
+// when none can (those only lead to the app)
+export const pickDefaultRate = (
+  rates: TradeRate[] | undefined,
+  sellChainId: string,
+): TradeRate | undefined =>
+  rates?.find(rate => canWidgetRunRate(sellChainId, rate)) ?? rates?.[0]
+
 type ShouldUseDepositFlowArgs = {
   rate: TradeRate | undefined
   hasWalletForSellChain: boolean

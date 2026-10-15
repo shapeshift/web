@@ -4,6 +4,7 @@ import type { TradeRate } from '../../types'
 import {
   canWidgetRunRate,
   isExternalPaymentRate,
+  pickDefaultRate,
   pickDepositRate,
   shouldUseDepositFlow,
 } from '../depositFlow'
@@ -88,5 +89,25 @@ describe('canWidgetRunRate', () => {
     expect(canWidgetRunRate(zcash, makeRate({ supportsExternalPayment: true }))).toBe(true)
     expect(canWidgetRunRate(zcash, makeRate({ supportsExternalPayment: false }))).toBe(false)
     expect(canWidgetRunRate(zcash, makeRate({}))).toBe(false)
+  })
+})
+
+describe('pickDefaultRate', () => {
+  const ethereum = 'eip155:1'
+  const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
+  const maya = makeRate({ swapperName: 'MAYAChain' as TradeRate['swapperName'], supportsExternalPayment: false })
+  const near = makeRate({ swapperName: 'NEAR Intents' as TradeRate['swapperName'], supportsExternalPayment: true })
+
+  it('takes the best rate on a chain the widget signs for', () => {
+    expect(pickDefaultRate([maya, near], ethereum)).toBe(maya)
+  })
+
+  it('takes the best runnable rate on a chain the widget cannot sign for', () => {
+    expect(pickDefaultRate([maya, near], zcash)).toBe(near)
+  })
+
+  it('falls back to the best rate when none can run here', () => {
+    expect(pickDefaultRate([maya], zcash)).toBe(maya)
+    expect(pickDefaultRate(undefined, zcash)).toBeUndefined()
   })
 })

@@ -14,6 +14,8 @@ export type UseSwapRatesParams = {
   sellAssetId: AssetId | undefined
   sellChainId: string
   buyAssetId: AssetId | undefined
+  // Routes the widget can't run are still worth listing when the app can run them
+  allowShapeshiftRedirect: boolean
   sellAmountCryptoBaseUnit: string | undefined
   buyAmountCryptoBaseUnit?: string | undefined
   enabled?: boolean
@@ -29,6 +31,7 @@ export const useSwapRates = (
     sellAssetId,
     sellChainId,
     buyAssetId,
+    allowShapeshiftRedirect,
     sellAmountCryptoBaseUnit,
     buyAmountCryptoBaseUnit,
     enabled = true,
@@ -47,6 +50,7 @@ export const useSwapRates = (
       amountCryptoBaseUnit,
       isExactOutput,
       allowedSwapperNames,
+      allowShapeshiftRedirect,
     ],
     queryFn: async (): Promise<TradeRate[]> => {
       if (!sellAssetId || !buyAssetId || !amountCryptoBaseUnit) {
@@ -65,7 +69,7 @@ export const useSwapRates = (
           !rate.error &&
           rate.buyAmountCryptoBaseUnit !== '0' &&
           ENABLED_SWAPPER_NAMES.has(rate.swapperName) &&
-          canWidgetRunRate(sellChainId, rate),
+          (allowShapeshiftRedirect || canWidgetRunRate(sellChainId, rate)),
       )
 
       if (allowedSwapperNames?.length) {

@@ -4,7 +4,7 @@ import type { ApiClient } from '../api/client'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
-import { pickDepositRate } from '../utils/depositFlow'
+import { pickDefaultRate, pickDepositRate } from '../utils/depositFlow'
 
 type BalanceData =
   | {
@@ -40,7 +40,9 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
         const isExactOutput = !!context.buyAmountBaseUnit
         const rateToUse =
           context.selectedRate ??
-          (context.isDepositFlow ? pickDepositRate(rates, context.quote?.swapperName) : rates?.[0])
+          (context.isDepositFlow
+            ? pickDepositRate(rates, context.quote?.swapperName)
+            : pickDefaultRate(rates, context.sellAsset.chainId))
 
         const sellAmountBaseUnit = isExactOutput
           ? rateToUse?.sellAmountCryptoBaseUnit

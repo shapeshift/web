@@ -6,6 +6,7 @@ import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
 import { formatUsdValue } from '../hooks/useMarketData'
 import type { Asset, TradeRate } from '../types'
 import { formatAmount } from '../types'
+import { pickDefaultRate } from '../utils/depositFlow'
 import { getRateAmountBaseUnit } from '../utils/rateDisplay'
 import { QuotesModal } from './QuotesModal'
 
@@ -73,7 +74,7 @@ export const QuoteSelector = ({
     return null
   }
 
-  const displayRate = selectedRate ?? bestRate
+  const displayRate = selectedRate ?? pickDefaultRate(rates, sellAsset.chainId) ?? bestRate
   const swapperIcon = getSwapperIcon(displayRate.swapperName)
   const swapperColor = getSwapperColor(displayRate.swapperName)
 

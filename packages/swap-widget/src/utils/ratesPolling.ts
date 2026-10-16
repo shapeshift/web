@@ -6,4 +6,5 @@ const RATES_CONSUMING_STATES = new Set(['idle', 'input', 'quoting', 'error', 'de
 export const shouldPollRates = (stateValue: unknown): boolean =>
   typeof stateValue === 'string' && RATES_CONSUMING_STATES.has(stateValue)
 
-export const shouldFetchRates = (sellChainId: string): boolean => isWidgetSwappableChainId(sellChainId)
+export const shouldFetchRates = (sellChainId: string): boolean =>
+  isWidgetSwappableChainId(sellChainId)

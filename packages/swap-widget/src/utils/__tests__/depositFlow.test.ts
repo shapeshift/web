@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TradeRate } from '../../types'
+import { SwapperName } from '../../types'
 import {
   getActiveRate,
   isExternalPaymentRate,
@@ -12,7 +13,7 @@ import {
 
 const makeRate = (overrides: Partial<TradeRate>): TradeRate =>
   ({
-    swapperName: 'Chainflip' as TradeRate['swapperName'],
+    swapperName: SwapperName.Chainflip,
     rate: '1',
     buyAmountCryptoBaseUnit: '1',
     sellAmountCryptoBaseUnit: '1',
@@ -55,10 +56,10 @@ describe('shouldUseDepositFlow', () => {
 describe('pickDepositRate', () => {
   const chainflip = makeRate({ supportsExternalPayment: true })
   const near = makeRate({
-    swapperName: 'NEAR Intents' as TradeRate['swapperName'],
+    swapperName: SwapperName.NearIntents,
     supportsExternalPayment: true,
   })
-  const relay = makeRate({ swapperName: 'Relay' as TradeRate['swapperName'] })
+  const relay = makeRate({ swapperName: SwapperName.Relay })
 
   it('keeps the swapper that was already quoted', () => {
     expect(pickDepositRate([relay, chainflip, near], 'NEAR Intents')).toBe(near)
@@ -97,11 +98,11 @@ describe('pickDefaultRate', () => {
   const ethereum = 'eip155:1'
   const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
   const maya = makeRate({
-    swapperName: 'MAYAChain' as TradeRate['swapperName'],
+    swapperName: SwapperName.Mayachain,
     supportsExternalPayment: false,
   })
   const near = makeRate({
-    swapperName: 'NEAR Intents' as TradeRate['swapperName'],
+    swapperName: SwapperName.NearIntents,
     supportsExternalPayment: true,
   })
 
@@ -122,11 +123,11 @@ describe('pickDefaultRate', () => {
 describe('getActiveRate', () => {
   const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
   const maya = makeRate({
-    swapperName: 'MAYAChain' as TradeRate['swapperName'],
+    swapperName: SwapperName.Mayachain,
     supportsExternalPayment: false,
   })
   const near = makeRate({
-    swapperName: 'NEAR Intents' as TradeRate['swapperName'],
+    swapperName: SwapperName.NearIntents,
     supportsExternalPayment: true,
   })
   const staleMaya = { ...maya, buyAmountCryptoBaseUnit: '2' }

@@ -4,7 +4,6 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { createApiClient } from '../api/client'
-import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
@@ -21,7 +20,7 @@ import { useSwapExecution } from '../hooks/useSwapExecution'
 import { useSwapHandlers } from '../hooks/useSwapHandlers'
 import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
+import type { Asset, SwapWidgetFilters, SwapWidgetProps } from '../types'
 import { formatAmountForInput, getChainType } from '../types'
 import { validateAddress } from '../utils/addressValidation'
 import {
@@ -32,9 +31,11 @@ import {
 import { resolveReceiveAddress } from '../utils/receiveAddress'
 import { resolveSendAddress } from '../utils/sendAddress'
 import { ApprovalStep } from './ApprovalStep'
+import { DefaultAssets } from './DefaultAssets'
 import { DepositStep } from './DepositStep'
 import { ExecutionStep } from './ExecutionStep'
 import { InputStep } from './InputStep'
+import { PoweredBy } from './PoweredBy'
 import { SettingsModal } from './SettingsModal'
 import { StatusStep } from './StatusStep'
 import { TokenSelectModal } from './TokenSelectModal'
@@ -42,7 +43,6 @@ import { AppKitWalletProvider, ConnectWalletButton } from './WalletProvider'
 
 type SwapWidgetContentProps = {
   apiClient: ReturnType<typeof createApiClient>
-  theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
   showConnectButton: boolean
   isBuyAssetLocked: boolean
@@ -61,7 +61,6 @@ type SwapWidgetContentProps = {
 
 const SwapWidgetContent = ({
   apiClient,
-  theme = 'dark',
   showPoweredBy,
   showConnectButton,
   isBuyAssetLocked,
@@ -93,12 +92,10 @@ const SwapWidgetContent = ({
   const [tokenModalType, setTokenModalType] = useState<'sell' | 'buy' | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
-  const themeMode: ThemeMode = typeof theme === 'string' ? theme : theme.mode
-  const themeConfig = typeof theme === 'object' ? theme : undefined
-
   const displayValues = useSwapDisplayValues({
     apiClient,
     allowedSwapperNames,
+    allowShapeshiftRedirect: canRedirectToShapeshift,
     ratesRefetchInterval,
   })
   const { rates, sellAssetBalance, refetchSellBalance, refetchBuyBalance } = displayValues
@@ -159,61 +156,8 @@ const SwapWidgetContent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the rest of the context is read from the snapshot
   }, [state.value, state.context.txLink, state.context.swapperTxLink])
 
-  const widgetStyle = useMemo(() => {
-    if (!themeConfig) return undefined
-    const style: Record<string, string> = {}
-    if (themeConfig.accentColor) {
-      style['--ssw-accent'] = themeConfig.accentColor
-      style['--ssw-accent-light'] = `${themeConfig.accentColor}1a`
-    }
-    if (themeConfig.backgroundColor) {
-      style['--ssw-bg-secondary'] = themeConfig.backgroundColor
-      style['--ssw-bg-primary'] = themeConfig.backgroundColor
-    }
-    if (themeConfig.cardColor) {
-      style['--ssw-bg-tertiary'] = themeConfig.cardColor
-    }
-    if (themeConfig.textColor) {
-      style['--ssw-text-primary'] = themeConfig.textColor
-    }
-    if (themeConfig.borderRadius) {
-      const base = parseFloat(themeConfig.borderRadius) || 0
-      style['--ssw-radius-widget'] = `${base * 1.25}px`
-      style['--ssw-radius-lg'] = `${base}px`
-      style['--ssw-radius-md'] = `${Math.round(base * 0.875)}px`
-      style['--ssw-radius-sm'] = `${Math.round(base * 0.625)}px`
-      style['--ssw-radius-xs'] = `${Math.round(base * 0.375)}px`
-      style['--ssw-radius-2xs'] = `${Math.round(base * 0.25)}px`
-    }
-    if (themeConfig.fontFamily) {
-      style['--ssw-font-family'] = themeConfig.fontFamily
-    }
-    if (themeConfig.borderColor) {
-      style['--ssw-border'] = themeConfig.borderColor
-      style['--ssw-border-hover'] = themeConfig.borderColor
-    }
-    if (themeConfig.secondaryTextColor) {
-      style['--ssw-text-secondary'] = themeConfig.secondaryTextColor
-    }
-    if (themeConfig.mutedTextColor) {
-      style['--ssw-text-muted'] = themeConfig.mutedTextColor
-    }
-    if (themeConfig.inputColor) {
-      style['--ssw-bg-input'] = themeConfig.inputColor
-    }
-    if (themeConfig.hoverColor) {
-      style['--ssw-bg-hover'] = themeConfig.hoverColor
-    }
-    return Object.keys(style).length > 0 ? (style as React.CSSProperties) : undefined
-  }, [themeConfig])
-
   return (
-    <div
-      className={`ssw-widget ${themeMode === 'light' ? 'ssw-light' : 'ssw-dark'}${
-        themeConfig?.buttonVariant === 'outline' ? ' ssw-btn-outline' : ''
-      }`}
-      style={widgetStyle}
-    >
+    <>
       <div className='ssw-header'>
         <span className='ssw-header-title'>Swap</span>
         <div className='ssw-header-actions'>
@@ -274,22 +218,7 @@ const SwapWidgetContent = ({
           state.matches('error')) && <StatusStep isPayment={isPayment} />}
       </div>
 
-      {showPoweredBy && (
-        <div className='ssw-powered-by'>
-          Powered by{' '}
-          <a
-            href='https://shapeshift.com'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='ssw-powered-by-link'
-          >
-            <svg width='16' height='16' viewBox='0 0 57 62' fill='currentColor'>
-              <path d='M51.67 5.1L48.97 21.3L39.37 10L51.67 5.1ZM49.03 28.27L51.43 37.14L33.06 42.2L49.03 28.27ZM9.03 23.8L18.88 10.93H35.99L46.92 23.8H9.03ZM45.66 26.99L27.85 42.53L9.7 26.99H45.66ZM15.58 10.01L6.78 21.51L4.08 5.17L15.58 10.01ZM22.57 42.2L4.02 37.15L6.56 28.48L22.57 42.2ZM25.99 46.43L22.49 50.28C19.53 47.46 16.26 44.96 12.78 42.83L25.99 46.43ZM42.98 42.77C39.5 44.94 36.24 47.47 33.29 50.32L29.72 46.42L42.98 42.77ZM55.73 0.06L36.42 7.75H18.42L0 0L4.18 25.3L0.17 38.99L10.65 45.26C15.61 48.23 20.06 51.94 23.86 56.3L27.94 60.97L32.23 56.06C35.9 51.84 40.18 48.22 44.95 45.29L55.23 38.99L51.52 25.31L55.73 0.06Z' />
-            </svg>
-            ShapeShift
-          </a>
-        </div>
-      )}
+      {showPoweredBy && <PoweredBy />}
 
       <TokenSelectModal
         isOpen={tokenModalType !== null}
@@ -311,7 +240,7 @@ const SwapWidgetContent = ({
         onClose={() => setIsSettingsOpen(false)}
         onSlippageChange={handleSlippageChange}
       />
-    </div>
+    </>
   )
 }
 
@@ -320,7 +249,6 @@ type SwapWidgetCoreProps = {
   defaultBuyAsset: Asset
   defaultSlippage: string
   apiClient: ReturnType<typeof createApiClient>
-  theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
   showConnectButton: boolean
   isBuyAssetLocked: boolean
@@ -343,7 +271,6 @@ const SwapWidgetCore = ({
   defaultBuyAsset,
   defaultSlippage,
   apiClient,
-  theme,
   showPoweredBy,
   showConnectButton,
   isBuyAssetLocked,
@@ -544,7 +471,6 @@ const SwapWidgetCore = ({
     <SwapWalletProvider value={walletValue}>
       <SwapWidgetContent
         apiClient={apiClient}
-        theme={theme}
         showPoweredBy={showPoweredBy}
         showConnectButton={showConnectButton}
         isBuyAssetLocked={isBuyAssetLocked || hasLockedBuyAmount}
@@ -576,30 +502,38 @@ export const SwapWidget = (props: SwapWidgetProps) => {
 
   return (
     <AppKitWalletProvider projectId={props.walletConnectProjectId}>
-      <SwapMachineCtx.Provider>
-        <SwapWidgetCore
-          defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
-          defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
-          defaultSlippage={props.defaultSlippage ?? '0.5'}
-          apiClient={apiClient}
-          theme={props.theme}
-          showPoweredBy={props.showPoweredBy ?? true}
-          showConnectButton={props.showConnectButton ?? true}
-          isBuyAssetLocked={props.isBuyAssetLocked ?? false}
-          defaultReceiveAddress={props.defaultReceiveAddress}
-          isReceiveAddressLocked={props.isReceiveAddressLocked ?? false}
-          defaultBuyAmountCryptoBaseUnit={props.defaultBuyAmountCryptoBaseUnit}
-          isBuyAmountLocked={props.isBuyAmountLocked ?? false}
-          partnerCode={props.partnerCode}
-          allowShapeshiftRedirect={props.allowShapeshiftRedirect ?? true}
-          onSwapSuccess={props.onSwapSuccess}
-          onSwapError={props.onSwapError}
-          sellFilters={props.sellFilters ?? {}}
-          buyFilters={props.buyFilters ?? {}}
-          allowedSwapperNames={props.allowedSwapperNames}
-          ratesRefetchInterval={props.ratesRefetchInterval}
-        />
-      </SwapMachineCtx.Provider>
+      <DefaultAssets
+        theme={props.theme}
+        showPoweredBy={props.showPoweredBy ?? true}
+        sellAsset={props.defaultSellAsset}
+        buyAsset={props.defaultBuyAsset}
+      >
+        {(defaultSellAsset, defaultBuyAsset) => (
+          <SwapMachineCtx.Provider>
+            <SwapWidgetCore
+              defaultSellAsset={defaultSellAsset}
+              defaultBuyAsset={defaultBuyAsset}
+              defaultSlippage={props.defaultSlippage ?? '0.5'}
+              apiClient={apiClient}
+              showPoweredBy={props.showPoweredBy ?? true}
+              showConnectButton={props.showConnectButton ?? true}
+              isBuyAssetLocked={props.isBuyAssetLocked ?? false}
+              defaultReceiveAddress={props.defaultReceiveAddress}
+              isReceiveAddressLocked={props.isReceiveAddressLocked ?? false}
+              defaultBuyAmountCryptoBaseUnit={props.defaultBuyAmountCryptoBaseUnit}
+              isBuyAmountLocked={props.isBuyAmountLocked ?? false}
+              partnerCode={props.partnerCode}
+              allowShapeshiftRedirect={props.allowShapeshiftRedirect ?? true}
+              onSwapSuccess={props.onSwapSuccess}
+              onSwapError={props.onSwapError}
+              sellFilters={props.sellFilters ?? {}}
+              buyFilters={props.buyFilters ?? {}}
+              allowedSwapperNames={props.allowedSwapperNames}
+              ratesRefetchInterval={props.ratesRefetchInterval}
+            />
+          </SwapMachineCtx.Provider>
+        )}
+      </DefaultAssets>
     </AppKitWalletProvider>
   )
 }

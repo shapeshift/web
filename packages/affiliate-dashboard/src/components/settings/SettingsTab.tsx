@@ -5,6 +5,7 @@ import type {
   useAffiliateActions,
 } from '../../hooks/useAffiliateActions'
 import type { AffiliateConfig } from '../../hooks/useAffiliateConfig'
+import { AccessManagementCard } from './AccessManagementCard'
 import { ActionMessage } from './ActionMessage'
 import { AffiliateBpsCard } from './AffiliateBpsCard'
 import { AuthBanner } from './AuthBanner'
@@ -17,6 +18,7 @@ interface SettingsTabProps {
   affiliateAddress: string
   config: AffiliateConfig | undefined
   actions: ReturnType<typeof useAffiliateActions>
+  authHeaders: Record<string, string>
   isAuthenticated: boolean
   isAuthenticating: boolean
   authError: string | null
@@ -29,6 +31,7 @@ export const SettingsTab = ({
   affiliateAddress,
   config,
   actions,
+  authHeaders,
   isAuthenticated,
   isAuthenticating,
   authError,
@@ -60,20 +63,25 @@ export const SettingsTab = ({
       <>
         <ConfigSummaryCard config={config} />
         {isAuthenticated && (
-          <AffiliateBpsCard
-            currentBps={config.partnerBps}
-            isLoading={actions.isLoading}
-            onUpdate={bps => actions.updateBps(bps)}
-            onValidationError={onValidationError}
-          />
-        )}
-        {isAuthenticated && (
-          <ReceiveAddressCard
-            config={config}
-            isLoading={actions.isLoading}
-            onUpdate={addr => actions.updateReceiveAddress(addr)}
-            onValidationError={onValidationError}
-          />
+          <>
+            <AffiliateBpsCard
+              currentBps={config.partnerBps}
+              isLoading={actions.isLoading}
+              onUpdate={bps => actions.updateBps(bps)}
+              onValidationError={onValidationError}
+            />
+            <ReceiveAddressCard
+              config={config}
+              isLoading={actions.isLoading}
+              onUpdate={addr => actions.updateReceiveAddress(addr)}
+              onValidationError={onValidationError}
+            />
+            <AccessManagementCard
+              affiliateAddress={affiliateAddress}
+              authHeaders={authHeaders}
+              setMessage={actions.setMessage}
+            />
+          </>
         )}
       </>
     )}

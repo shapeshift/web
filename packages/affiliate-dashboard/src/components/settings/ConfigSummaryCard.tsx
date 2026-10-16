@@ -47,9 +47,10 @@ const Row = ({
 export const ConfigSummaryCard = ({ config }: ConfigSummaryCardProps): React.JSX.Element => (
   <SettingsCard title='Current Configuration'>
     <Stack spacing={0}>
-      <Row label='Wallet' mono>
+      <Row label='Owner Wallet' mono>
         {config.walletAddress}
       </Row>
+      {config.role && <Row label='Your Role'>{config.role === 'owner' ? 'Owner' : 'Admin'}</Row>}
       <Row label='Receive Address' mono>
         {config.receiveAddress ?? config.walletAddress}
       </Row>

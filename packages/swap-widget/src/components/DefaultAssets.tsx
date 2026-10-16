@@ -1,6 +1,6 @@
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { isSupportedChainId } from '../constants/chains'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
@@ -80,11 +80,15 @@ export const DefaultAssets = ({
   buyAsset,
   children,
 }: DefaultAssetsProps) => {
-  const hasAssetId = typeof sellAsset === 'string' || typeof buyAsset === 'string'
+  // Captured at mount so a later prop change can't swap the running widget for the skeleton
+  const initialSellAsset = useRef(sellAsset).current
+  const initialBuyAsset = useRef(buyAsset).current
+
+  const hasAssetId = typeof initialSellAsset === 'string' || typeof initialBuyAsset === 'string'
   const { data: assetsById, isFetched, error } = useAssetsById({ enabled: hasAssetId })
 
-  const resolvedSellAsset = resolveAsset(sellAsset, assetsById, DEFAULT_SELL_ASSET)
-  const resolvedBuyAsset = resolveAsset(buyAsset, assetsById, DEFAULT_BUY_ASSET)
+  const resolvedSellAsset = resolveAsset(initialSellAsset, assetsById, DEFAULT_SELL_ASSET)
+  const resolvedBuyAsset = resolveAsset(initialBuyAsset, assetsById, DEFAULT_BUY_ASSET)
   const isResolved = !!resolvedSellAsset && !!resolvedBuyAsset
 
   useEffect(() => {
@@ -93,9 +97,17 @@ export const DefaultAssets = ({
       console.error('Failed to load the asset catalog for the default assets', error)
       return
     }
-    if (!resolvedSellAsset) console.error(`Unknown default sell asset: ${String(sellAsset)}`)
-    if (!resolvedBuyAsset) console.error(`Unknown default buy asset: ${String(buyAsset)}`)
-  }, [isFetched, isResolved, error, resolvedSellAsset, resolvedBuyAsset, sellAsset, buyAsset])
+    if (!resolvedSellAsset) console.error(`Unknown default sell asset: ${String(initialSellAsset)}`)
+    if (!resolvedBuyAsset) console.error(`Unknown default buy asset: ${String(initialBuyAsset)}`)
+  }, [
+    isFetched,
+    isResolved,
+    error,
+    resolvedSellAsset,
+    resolvedBuyAsset,
+    initialSellAsset,
+    initialBuyAsset,
+  ])
 
   return (
     <WidgetFrame theme={theme}>

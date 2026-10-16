@@ -6,12 +6,15 @@ import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import type { FormEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { FiatRampRoutePaths } from './types'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { supportedFiatRamps } from '@/components/Modals/FiatRamps/config'
+import { useOnramperWalletAuth } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/useOnramperWalletAuth'
+import { OnramperCheckoutError } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/walletAuth'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampQuoteTimer } from '@/components/MultiHopTrade/components/FiatRamps/components/FiatRampQuoteTimer'
 import { FiatRampTradeBody } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTradeBody'
@@ -31,6 +34,7 @@ import { useReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAd
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
@@ -57,6 +61,7 @@ import {
   selectManualReceiveAddress,
   selectSelectedBuyFiatRampQuote,
   selectSelectedSellFiatRampQuote,
+  selectSellAccountId,
   selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
@@ -85,7 +90,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const {
-    state: { isConnected },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -98,6 +103,9 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const selectedBuyQuote = useAppSelector(selectSelectedBuyFiatRampQuote)
   const selectedSellQuote = useAppSelector(selectSelectedSellFiatRampQuote)
   const buyAccountId = useAppSelector(selectBuyAccountId)
+  const sellAccountId = useAppSelector(selectSellAccountId)
+  const toast = useNotificationToast()
+  const translate = useTranslate()
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
 
   const { price: sellAssetUserCurrencyRate } =
@@ -139,6 +147,19 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
+
+  const sellAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAccountId ?? '' }),
+  )
+  const walletAuth = useOnramperWalletAuth(
+    wallet,
+    direction === FiatRampAction.Buy ? buyAccountMetadata : sellAccountMetadata,
+  )
+  const { walletReceiveAddress: sellWalletAddress } = useReceiveAddress({
+    sellAccountId: undefined,
+    buyAccountId: sellAccountId,
+    buyAsset: sellAsset,
+  })
 
   const { walletReceiveAddress } = useReceiveAddress({
     sellAccountId: undefined,
@@ -349,23 +370,41 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       }
 
       getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
-      const url = await ramp.onSubmit({
-        action: direction,
-        assetId:
-          direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
-        address: manualReceiveAddress ?? walletReceiveAddress ?? '',
-        fiatCurrency:
-          direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
-        fiatAmount: direction === FiatRampAction.Buy ? buyFiatAmount : selectedQuote?.amount ?? '0',
-        amountCryptoPrecision:
-          direction === FiatRampAction.Sell ? sellAmountCryptoPrecision : undefined,
-        options: {
-          language: selectedLocale,
-          mode: colorMode,
-          currentUrl: window.location.href,
-        },
-      })
-      if (url) popup.open({ url, title: direction === FiatRampAction.Buy ? 'Buy' : 'Sell' })
+      try {
+        const url = await ramp.onSubmit({
+          action: direction,
+          assetId:
+            direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
+          address:
+            selectedQuote.provider === 'OnRamper' && direction === FiatRampAction.Sell
+              ? sellWalletAddress ?? ''
+              : manualReceiveAddress ?? walletReceiveAddress ?? '',
+          walletAuth,
+          fiatCurrency:
+            direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
+          fiatAmount:
+            direction === FiatRampAction.Buy ? buyFiatAmount : selectedQuote?.amount ?? '0',
+          amountCryptoPrecision:
+            direction === FiatRampAction.Sell ? sellAmountCryptoPrecision : undefined,
+          options: {
+            language: selectedLocale,
+            mode: colorMode,
+            currentUrl: window.location.href,
+          },
+        })
+        if (url) popup.open({ url, title: direction === FiatRampAction.Buy ? 'Buy' : 'Sell' })
+      } catch (error) {
+        toast({
+          title: translate(
+            error instanceof OnramperCheckoutError
+              ? error.translationKey
+              : selectedQuote.provider === 'OnRamper'
+              ? 'fiatRamps.onramperCheckoutFailed'
+              : 'common.somethingWentWrong',
+          ),
+          status: 'error',
+        })
+      }
     },
     [
       assets,
@@ -385,6 +424,10 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       buyAccountMetadata,
       buyAsset,
       sellAsset,
+      sellWalletAddress,
+      walletAuth,
+      toast,
+      translate,
     ],
   )
 

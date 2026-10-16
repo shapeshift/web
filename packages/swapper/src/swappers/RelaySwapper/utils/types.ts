@@ -179,9 +179,15 @@ export type RelayQuoteStep = {
   items?: RelayQuoteItem[]
 }
 
+export type RelayOrderData = {
+  output?: {
+    deadline?: number
+  }
+}
+
 export type RelayProtocolV2 = {
   orderId: string | undefined
-  orderData?: unknown
+  orderData?: RelayOrderData
   paymentDetails?: {
     chainId: string
     depository: string

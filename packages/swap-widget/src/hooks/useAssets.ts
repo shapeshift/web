@@ -41,12 +41,17 @@ const fetchAssetData = async (): Promise<RawAssetData> => {
   return response.json()
 }
 
-export const useAssetData = (): UseQueryResult<RawAssetData> => {
+type AssetQueryOptions = { enabled?: boolean }
+
+export const useAssetData = ({
+  enabled = true,
+}: AssetQueryOptions = {}): UseQueryResult<RawAssetData> => {
   return useQuery({
     queryKey: ['assetData'],
     queryFn: fetchAssetData,
     staleTime: ASSET_QUERY_STALE_TIME,
     gcTime: 30 * 60 * 1000,
+    enabled,
   })
 }
 
@@ -60,8 +65,10 @@ export const useAssets = (): AssetQueryResult<Asset[]> => {
   return { data: assets, ...rest }
 }
 
-export const useAssetsById = (): AssetQueryResult<Record<AssetId, Asset>> => {
-  const { data, ...rest } = useAssetData()
+export const useAssetsById = (
+  options?: AssetQueryOptions,
+): AssetQueryResult<Record<AssetId, Asset>> => {
+  const { data, ...rest } = useAssetData(options)
   return { data: data?.byId ?? {}, ...rest }
 }
 

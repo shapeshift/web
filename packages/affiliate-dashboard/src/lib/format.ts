@@ -1,6 +1,7 @@
 import { MAX_BPS, MIN_BPS } from './constants'
 
 export const PARTNER_CODE_REGEX = /^[a-z0-9]{3,32}$/
+export const EVM_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 
 export const formatUsd = (value: number): string =>
   new Intl.NumberFormat('en-US', {

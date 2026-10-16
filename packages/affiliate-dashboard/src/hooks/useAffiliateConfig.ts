@@ -5,6 +5,8 @@ import { z } from 'zod'
 import { parseResponse } from '../lib/api'
 import { AFFILIATE_URL } from '../lib/constants'
 
+export const AffiliateRoleSchema = z.enum(['owner', 'admin'])
+
 const AffiliateConfigSchema = z.object({
   id: z.string(),
   walletAddress: z.string(),
@@ -15,6 +17,7 @@ const AffiliateConfigSchema = z.object({
   isActive: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  role: AffiliateRoleSchema.optional(),
 })
 
 export type AffiliateConfig = z.infer<typeof AffiliateConfigSchema>

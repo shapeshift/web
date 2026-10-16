@@ -63,6 +63,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
+  /* The 36px controls plus padding, so the header keeps its height when they are hidden */
+  min-height: 68px;
   border-bottom: 1px solid var(--ssw-border);
 }
 
@@ -1147,4 +1149,51 @@
   justify-content: space-between;
   font-size: 13px;
   color: var(--ssw-text-secondary);
+}
+
+/* Default assets resolving — the input layout, drawn as shimmer bars */
+.ssw-skeleton-bar {
+  display: block;
+  border-radius: var(--ssw-radius-2xs);
+  background: linear-gradient(
+    90deg,
+    var(--ssw-bg-hover) 25%,
+    var(--ssw-border) 50%,
+    var(--ssw-bg-hover) 75%
+  );
+  background-size: 200% 100%;
+  animation: ssw-skeleton-shimmer 1.5s infinite;
+}
+
+.ssw-skeleton-label {
+  width: 32px;
+  height: 16px;
+}
+
+.ssw-skeleton-amount {
+  flex: 1;
+  max-width: 40%;
+  height: 38px;
+}
+
+.ssw-skeleton-token {
+  width: 136px;
+  height: 48px;
+  border-radius: var(--ssw-radius-sm);
+}
+
+.ssw-skeleton-footer {
+  width: 56px;
+  height: 16px;
+}
+
+/* The space the swap button takes between the cards, without drawing it */
+.ssw-skeleton-divider {
+  height: 12px;
+}
+
+.ssw-skeleton-action {
+  height: 52px;
+  margin: 0 16px 16px;
+  border-radius: var(--ssw-radius-md);
 }

@@ -4,7 +4,6 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { createApiClient } from '../api/client'
-import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
@@ -32,6 +31,7 @@ import {
 import { resolveReceiveAddress } from '../utils/receiveAddress'
 import { resolveSendAddress } from '../utils/sendAddress'
 import { ApprovalStep } from './ApprovalStep'
+import { DefaultAssets } from './DefaultAssets'
 import { DepositStep } from './DepositStep'
 import { ExecutionStep } from './ExecutionStep'
 import { InputStep } from './InputStep'
@@ -576,30 +576,34 @@ export const SwapWidget = (props: SwapWidgetProps) => {
 
   return (
     <AppKitWalletProvider projectId={props.walletConnectProjectId}>
-      <SwapMachineCtx.Provider>
-        <SwapWidgetCore
-          defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
-          defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
-          defaultSlippage={props.defaultSlippage ?? '0.5'}
-          apiClient={apiClient}
-          theme={props.theme}
-          showPoweredBy={props.showPoweredBy ?? true}
-          showConnectButton={props.showConnectButton ?? true}
-          isBuyAssetLocked={props.isBuyAssetLocked ?? false}
-          defaultReceiveAddress={props.defaultReceiveAddress}
-          isReceiveAddressLocked={props.isReceiveAddressLocked ?? false}
-          defaultBuyAmountCryptoBaseUnit={props.defaultBuyAmountCryptoBaseUnit}
-          isBuyAmountLocked={props.isBuyAmountLocked ?? false}
-          partnerCode={props.partnerCode}
-          allowShapeshiftRedirect={props.allowShapeshiftRedirect ?? true}
-          onSwapSuccess={props.onSwapSuccess}
-          onSwapError={props.onSwapError}
-          sellFilters={props.sellFilters ?? {}}
-          buyFilters={props.buyFilters ?? {}}
-          allowedSwapperNames={props.allowedSwapperNames}
-          ratesRefetchInterval={props.ratesRefetchInterval}
-        />
-      </SwapMachineCtx.Provider>
+      <DefaultAssets sellAsset={props.defaultSellAsset} buyAsset={props.defaultBuyAsset}>
+        {(defaultSellAsset, defaultBuyAsset) => (
+          <SwapMachineCtx.Provider>
+            <SwapWidgetCore
+              defaultSellAsset={defaultSellAsset}
+              defaultBuyAsset={defaultBuyAsset}
+              defaultSlippage={props.defaultSlippage ?? '0.5'}
+              apiClient={apiClient}
+              theme={props.theme}
+              showPoweredBy={props.showPoweredBy ?? true}
+              showConnectButton={props.showConnectButton ?? true}
+              isBuyAssetLocked={props.isBuyAssetLocked ?? false}
+              defaultReceiveAddress={props.defaultReceiveAddress}
+              isReceiveAddressLocked={props.isReceiveAddressLocked ?? false}
+              defaultBuyAmountCryptoBaseUnit={props.defaultBuyAmountCryptoBaseUnit}
+              isBuyAmountLocked={props.isBuyAmountLocked ?? false}
+              partnerCode={props.partnerCode}
+              allowShapeshiftRedirect={props.allowShapeshiftRedirect ?? true}
+              onSwapSuccess={props.onSwapSuccess}
+              onSwapError={props.onSwapError}
+              sellFilters={props.sellFilters ?? {}}
+              buyFilters={props.buyFilters ?? {}}
+              allowedSwapperNames={props.allowedSwapperNames}
+              ratesRefetchInterval={props.ratesRefetchInterval}
+            />
+          </SwapMachineCtx.Provider>
+        )}
+      </DefaultAssets>
     </AppKitWalletProvider>
   )
 }

@@ -39,7 +39,6 @@ export const QuoteSelector = ({
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const bestRate = rates[0]
-
   const hasMultipleRates = rates.length > 1
 
   const handleOpenModal = useCallback(() => {
@@ -68,9 +67,7 @@ export const QuoteSelector = ({
     )
   }
 
-  if (!activeRate) {
-    return null
-  }
+  if (!activeRate) return null
 
   const swapperIcon = getSwapperIcon(activeRate.swapperName)
   const swapperColor = getSwapperColor(activeRate.swapperName)

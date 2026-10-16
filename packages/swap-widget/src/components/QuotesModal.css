@@ -132,7 +132,6 @@
   gap: 12px;
 }
 
-/* The tint layers over each row's own background, so every row hovers the same way */
 .ssw-quote-row:hover {
   background-image: linear-gradient(
     var(--ssw-bg-hover, rgba(255, 255, 255, 0.05)),

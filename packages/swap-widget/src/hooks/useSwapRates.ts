@@ -14,7 +14,6 @@ export type UseSwapRatesParams = {
   sellAssetId: AssetId | undefined
   sellChainId: string
   buyAssetId: AssetId | undefined
-  // Routes the widget can't run are still worth listing when the app can run them
   allowShapeshiftRedirect: boolean
   sellAmountCryptoBaseUnit: string | undefined
   buyAmountCryptoBaseUnit?: string | undefined

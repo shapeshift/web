@@ -1152,11 +1152,8 @@
 }
 
 /* Default assets resolving — the input layout, drawn as shimmer bars */
-.ssw-skeleton-container {
-  gap: 12px;
-}
-
 .ssw-skeleton-bar {
+  display: block;
   border-radius: var(--ssw-radius-2xs);
   background: linear-gradient(
     90deg,
@@ -1169,18 +1166,36 @@
 }
 
 .ssw-skeleton-label {
-  width: 40px;
-  height: 13px;
-  margin-bottom: 16px;
+  width: 32px;
+  height: 16px;
 }
 
 .ssw-skeleton-amount {
-  width: 60%;
-  height: 32px;
+  flex: 1;
+  max-width: 40%;
+  height: 38px;
+}
+
+.ssw-skeleton-token {
+  width: 136px;
+  height: 48px;
+  border-radius: var(--ssw-radius-sm);
+}
+
+.ssw-skeleton-footer {
+  width: 56px;
+  height: 16px;
+}
+
+.ssw-skeleton-swap {
+  width: 36px;
+  height: 36px;
+  border: 4px solid var(--ssw-bg-secondary);
+  border-radius: var(--ssw-radius-sm);
 }
 
 .ssw-skeleton-action {
   height: 52px;
-  margin-top: 4px;
+  margin: 0 16px 16px;
   border-radius: var(--ssw-radius-md);
 }

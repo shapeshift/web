@@ -40,23 +40,36 @@ const resolveAsset = (
   return catalogAsset && isSupportedChainId(catalogAsset.chainId) ? catalogAsset : undefined
 }
 
+// Built from the input step's own containers, so the skeleton takes the same height as the real card
+const SkeletonTokenSection = () => (
+  <div className='ssw-token-section'>
+    <div className='ssw-section-header'>
+      <span className='ssw-skeleton-bar ssw-skeleton-label' />
+    </div>
+    <div className='ssw-input-row'>
+      <span className='ssw-skeleton-bar ssw-skeleton-amount' />
+      <span className='ssw-skeleton-bar ssw-skeleton-token' />
+    </div>
+    <div className='ssw-section-footer'>
+      <span className='ssw-skeleton-bar ssw-skeleton-footer' />
+    </div>
+  </div>
+)
+
 // The header and footer never change between states, so they hold the frame's height from the start
 const DefaultAssetsSkeleton = ({ showPoweredBy }: { showPoweredBy: boolean }) => (
   <>
     <div className='ssw-header'>
       <span className='ssw-header-title'>Swap</span>
     </div>
-    <div className='ssw-swap-container ssw-skeleton-container' aria-busy='true'>
-      <div className='ssw-token-section'>
-        <div className='ssw-skeleton-bar ssw-skeleton-label' />
-        <div className='ssw-skeleton-bar ssw-skeleton-amount' />
+    <div className='ssw-swap-container' aria-busy='true'>
+      <SkeletonTokenSection />
+      <div className='ssw-swap-divider'>
+        <div className='ssw-skeleton-bar ssw-skeleton-swap' />
       </div>
-      <div className='ssw-token-section'>
-        <div className='ssw-skeleton-bar ssw-skeleton-label' />
-        <div className='ssw-skeleton-bar ssw-skeleton-amount' />
-      </div>
-      <div className='ssw-skeleton-bar ssw-skeleton-action' />
+      <SkeletonTokenSection />
     </div>
+    <div className='ssw-skeleton-bar ssw-skeleton-action' />
     {showPoweredBy && <PoweredBy />}
   </>
 )

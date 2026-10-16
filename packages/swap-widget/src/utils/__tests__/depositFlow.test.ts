@@ -96,8 +96,14 @@ describe('isSwappableRate', () => {
 describe('pickDefaultRate', () => {
   const ethereum = 'eip155:1'
   const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
-  const maya = makeRate({ swapperName: 'MAYAChain' as TradeRate['swapperName'], supportsExternalPayment: false })
-  const near = makeRate({ swapperName: 'NEAR Intents' as TradeRate['swapperName'], supportsExternalPayment: true })
+  const maya = makeRate({
+    swapperName: 'MAYAChain' as TradeRate['swapperName'],
+    supportsExternalPayment: false,
+  })
+  const near = makeRate({
+    swapperName: 'NEAR Intents' as TradeRate['swapperName'],
+    supportsExternalPayment: true,
+  })
 
   it('takes the best rate on a chain the widget signs for', () => {
     expect(pickDefaultRate([maya, near], ethereum)).toBe(maya)
@@ -115,8 +121,14 @@ describe('pickDefaultRate', () => {
 
 describe('getActiveRate', () => {
   const zcash = 'bip122:00040fe8ec8471911baa1db1266ea15d'
-  const maya = makeRate({ swapperName: 'MAYAChain' as TradeRate['swapperName'], supportsExternalPayment: false })
-  const near = makeRate({ swapperName: 'NEAR Intents' as TradeRate['swapperName'], supportsExternalPayment: true })
+  const maya = makeRate({
+    swapperName: 'MAYAChain' as TradeRate['swapperName'],
+    supportsExternalPayment: false,
+  })
+  const near = makeRate({
+    swapperName: 'NEAR Intents' as TradeRate['swapperName'],
+    supportsExternalPayment: true,
+  })
   const staleMaya = { ...maya, buyAmountCryptoBaseUnit: '2' }
 
   it('follows the picked swapper into each new poll', () => {

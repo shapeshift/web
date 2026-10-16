@@ -30,6 +30,7 @@ export {
   REDIRECT_ONLY_CHAIN_IDS,
   isWidgetExecutableChainId,
   isWidgetSupportedChainId,
+  isWidgetSwappableChainId,
 } from './types'
 
 export {

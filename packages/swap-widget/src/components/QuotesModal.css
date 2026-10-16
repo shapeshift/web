@@ -124,7 +124,7 @@
   padding: 14px 16px;
   border: 1px solid transparent;
   border-radius: var(--ssw-radius-md);
-  background: var(--ssw-bg-tertiary, #1a1a2e);
+  background-color: var(--ssw-bg-tertiary, #1a1a2e);
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
@@ -133,21 +133,15 @@
 }
 
 .ssw-quote-row:hover {
-  background: var(--ssw-bg-hover, rgba(255, 255, 255, 0.05));
-}
-
-.ssw-quote-row.ssw-best {
-  border-color: var(--ssw-accent, #3861fb);
-  background: color-mix(in srgb, var(--ssw-accent, #3861fb) 6%, transparent);
-}
-
-.ssw-quote-row.ssw-best:hover {
-  background: color-mix(in srgb, var(--ssw-accent, #3861fb) 12%, transparent);
+  background-image: linear-gradient(
+    var(--ssw-bg-hover, rgba(255, 255, 255, 0.05)),
+    var(--ssw-bg-hover, rgba(255, 255, 255, 0.05))
+  );
 }
 
 .ssw-quote-row.ssw-selected {
   border-color: var(--ssw-success, #00d395);
-  background: rgba(0, 211, 149, 0.06);
+  background-color: color-mix(in srgb, var(--ssw-success, #00d395) 6%, var(--ssw-bg-tertiary, #1a1a2e));
 }
 
 .ssw-quote-row-left {

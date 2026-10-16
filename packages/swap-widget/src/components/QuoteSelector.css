@@ -22,7 +22,14 @@
   justify-content: center;
 }
 
-.ssw-quote-selector.ssw-loading:hover {
+/* One route is information, not a choice */
+.ssw-quote-selector.ssw-single {
+  cursor: default;
+  color: inherit;
+}
+
+.ssw-quote-selector.ssw-loading:hover,
+.ssw-quote-selector.ssw-single:hover {
   border-color: var(--ssw-border);
   background: var(--ssw-bg-tertiary);
 }

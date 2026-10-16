@@ -99,6 +99,7 @@ const SwapWidgetContent = ({
   const displayValues = useSwapDisplayValues({
     apiClient,
     allowedSwapperNames,
+    allowShapeshiftRedirect: canRedirectToShapeshift,
     ratesRefetchInterval,
   })
   const { rates, sellAssetBalance, refetchSellBalance, refetchBuyBalance } = displayValues

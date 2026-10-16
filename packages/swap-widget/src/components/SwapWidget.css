@@ -1148,3 +1148,37 @@
   font-size: 13px;
   color: var(--ssw-text-secondary);
 }
+
+/* Default assets resolving — the input layout, drawn as shimmer bars */
+.ssw-skeleton-container {
+  gap: 12px;
+}
+
+.ssw-skeleton-bar {
+  border-radius: var(--ssw-radius-2xs);
+  background: linear-gradient(
+    90deg,
+    var(--ssw-bg-hover) 25%,
+    var(--ssw-border) 50%,
+    var(--ssw-bg-hover) 75%
+  );
+  background-size: 200% 100%;
+  animation: ssw-skeleton-shimmer 1.5s infinite;
+}
+
+.ssw-skeleton-label {
+  width: 40px;
+  height: 13px;
+  margin-bottom: 16px;
+}
+
+.ssw-skeleton-amount {
+  width: 60%;
+  height: 32px;
+}
+
+.ssw-skeleton-action {
+  height: 52px;
+  margin-top: 4px;
+  border-radius: var(--ssw-radius-md);
+}

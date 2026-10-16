@@ -498,8 +498,9 @@ function App() {
 }
 ```
 
-An id the catalog does not know leaves the widget unrendered and logs an error, rather than seeding
-a different asset than the one you asked for.
+The widget shows a loading skeleton while the catalog is fetched. An id the catalog does not know,
+or one on a chain the widget does not list, keeps it there and logs an error, rather than seeding a
+different asset than the one you asked for.
 
 ### Locking the buy asset
 

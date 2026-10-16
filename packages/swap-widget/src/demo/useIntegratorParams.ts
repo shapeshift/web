@@ -40,8 +40,8 @@ export const useIntegratorParams = () => {
       : {}
 
     return {
-      defaultSellAsset: params.get('sellAssetId') ?? undefined,
-      defaultBuyAsset: params.get('buyAssetId') ?? undefined,
+      defaultSellAsset: params.get('sellAssetId') || undefined,
+      defaultBuyAsset: params.get('buyAssetId') || undefined,
       isBuyAssetLocked: params.get('lockBuyAsset') === 'true',
       ...receiveAddressProps,
       ...buyAmountProps,

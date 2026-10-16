@@ -6,10 +6,12 @@ import { isSupportedChainId } from '../constants/chains'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import { useAssetsById } from '../hooks/useAssets'
 import type { Asset, AssetId, SwapWidgetProps } from '../types'
+import { PoweredBy } from './PoweredBy'
 import { WidgetFrame } from './WidgetFrame'
 
 type DefaultAssetsProps = {
   theme: SwapWidgetProps['theme']
+  showPoweredBy: boolean
   sellAsset: Asset | AssetId | undefined
   buyAsset: Asset | AssetId | undefined
   children: (sellAsset: Asset, buyAsset: Asset) => ReactNode
@@ -38,22 +40,35 @@ const resolveAsset = (
   return catalogAsset && isSupportedChainId(catalogAsset.chainId) ? catalogAsset : undefined
 }
 
-const DefaultAssetsSkeleton = () => (
-  <div className='ssw-swap-container ssw-skeleton-container' aria-busy='true'>
-    <div className='ssw-token-section'>
-      <div className='ssw-skeleton-bar ssw-skeleton-label' />
-      <div className='ssw-skeleton-bar ssw-skeleton-amount' />
+// The header and footer never change between states, so they hold the frame's height from the start
+const DefaultAssetsSkeleton = ({ showPoweredBy }: { showPoweredBy: boolean }) => (
+  <>
+    <div className='ssw-header'>
+      <span className='ssw-header-title'>Swap</span>
     </div>
-    <div className='ssw-token-section'>
-      <div className='ssw-skeleton-bar ssw-skeleton-label' />
-      <div className='ssw-skeleton-bar ssw-skeleton-amount' />
+    <div className='ssw-swap-container ssw-skeleton-container' aria-busy='true'>
+      <div className='ssw-token-section'>
+        <div className='ssw-skeleton-bar ssw-skeleton-label' />
+        <div className='ssw-skeleton-bar ssw-skeleton-amount' />
+      </div>
+      <div className='ssw-token-section'>
+        <div className='ssw-skeleton-bar ssw-skeleton-label' />
+        <div className='ssw-skeleton-bar ssw-skeleton-amount' />
+      </div>
+      <div className='ssw-skeleton-bar ssw-skeleton-action' />
     </div>
-    <div className='ssw-skeleton-bar ssw-skeleton-action' />
-  </div>
+    {showPoweredBy && <PoweredBy />}
+  </>
 )
 
 // Defaults seed once at mount, so an id has to be looked up in the catalog before the widget renders
-export const DefaultAssets = ({ theme, sellAsset, buyAsset, children }: DefaultAssetsProps) => {
+export const DefaultAssets = ({
+  theme,
+  showPoweredBy,
+  sellAsset,
+  buyAsset,
+  children,
+}: DefaultAssetsProps) => {
   const hasAssetId = typeof sellAsset === 'string' || typeof buyAsset === 'string'
   const { data: assetsById, isFetched, error } = useAssetsById({ enabled: hasAssetId })
 
@@ -73,7 +88,11 @@ export const DefaultAssets = ({ theme, sellAsset, buyAsset, children }: DefaultA
 
   return (
     <WidgetFrame theme={theme}>
-      {isResolved ? children(resolvedSellAsset, resolvedBuyAsset) : <DefaultAssetsSkeleton />}
+      {isResolved ? (
+        children(resolvedSellAsset, resolvedBuyAsset)
+      ) : (
+        <DefaultAssetsSkeleton showPoweredBy={showPoweredBy} />
+      )}
     </WidgetFrame>
   )
 }

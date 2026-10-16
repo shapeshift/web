@@ -63,6 +63,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
+  /* The 36px controls plus padding, so the header keeps its height when they are hidden */
+  min-height: 68px;
   border-bottom: 1px solid var(--ssw-border);
 }
 

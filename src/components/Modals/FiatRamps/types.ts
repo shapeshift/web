@@ -10,6 +10,10 @@ export type CreateUrlProps = {
   fiatCurrency: string
   fiatAmount?: string
   amountCryptoPrecision?: string
+  walletAuth?: {
+    signMessage: (message: string, address: string, chainId: string) => Promise<string>
+    assertActive: () => void
+  }
   options: {
     language: string
     mode: ColorMode

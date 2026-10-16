@@ -96,6 +96,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
   OnRamper: {
     id: 'OnRamper',
     label: 'fiatRamps.onRamper',
+    info: 'fiatRamps.onramperWalletVerification',
     tags: ['Aggregator'],
     logo: OnRamperLogo,
     isActive: () => true,
@@ -111,15 +112,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     },
     getSupportedFiatList: () => SUPPORTED_ONRAMPER_FIAT_CURRENCIES,
     getQuotes: getOnramperQuote,
-    onSubmit: async props => {
-      try {
-        const onRamperCheckoutUrl = await createOnRamperUrl(props)
-        return onRamperCheckoutUrl
-      } catch (err) {
-        console.error(err)
-        return Promise.resolve(undefined)
-      }
-    },
+    onSubmit: createOnRamperUrl,
   },
   Banxa: {
     id: 'Banxa',

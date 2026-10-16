@@ -137,8 +137,8 @@ ShapeShift.
 | `walletConnectProjectId` | `string`                                        | –                  | Reown AppKit / WalletConnect project ID. The widget uses it to initialize AppKit. Required unless your host app already initializes AppKit (see [Wallet Connection](#wallet-connection)). |
 | `partnerCode`            | `string`                                        | –                  | Your registered partner code for affiliate fee attribution. See [Partner Codes](#partner-codes--affiliate-revenue). |
 | `apiBaseUrl`             | `string`                                        | `https://api.shapeshift.com` | Override the API base URL. Useful for testing or custom deployments.                           |
-| `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum    | Initial asset to sell.                                                                                    |
-| `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum   | Initial asset to buy.                                                                                     |
+| `defaultSellAsset`       | `Asset \| AssetId`                              | ETH on Ethereum    | Initial asset to sell. An asset id is looked up in the ShapeShift asset catalog before the widget renders. See [Custom default assets](#custom-default-assets). |
+| `defaultBuyAsset`        | `Asset \| AssetId`                              | USDC on Ethereum   | Initial asset to buy. Resolved the same way.                                                             |
 | `sellFilters`            | `SwapWidgetFilters`                             | `{}`               | Restrict which chains/assets are selectable for the **sell** side. See [Filtering](#filtering-chains-and-assets). |
 | `buyFilters`             | `SwapWidgetFilters`                             | `{}`               | Restrict which chains/assets are selectable for the **buy** side.                                        |
 | `allowedSwapperNames`    | `SwapperName[]`                                 | all enabled        | Limit quotes to specific swappers. See [Supported Swappers](#supported-swappers).                        |
@@ -309,7 +309,8 @@ dropped constraint can send funds somewhere you didn't intend.
 Every `default*` prop is applied a single time, when the widget mounts — the same semantics as
 `defaultValue` on an `<input>`. After that the value belongs to the user, so changing the prop on an
 already mounted widget has no effect, and neither does resolving it asynchronously: if you fetch
-`Asset` objects, hold off rendering until you have them.
+`Asset` objects, hold off rendering until you have them — or pass asset ids and let the widget wait
+on its own catalog (see [Custom default assets](#custom-default-assets)).
 
 **Locked values are the exception.** A locked value is yours rather than the user's, so it tracks its
 prop rather than seeding once — change `defaultBuyAmountCryptoBaseUnit` alongside `isBuyAmountLocked`,
@@ -479,38 +480,29 @@ function App() {
 
 ### Custom default assets
 
+A native asset comes from `getBaseAsset` with one of the exported chain ids. Anything else is named
+by its CAIP-19 asset id, which the widget looks up in the ShapeShift asset catalog before it renders.
+A full `Asset` object is still accepted if you already have one.
+
 ```tsx
-import { SwapWidget } from '@shapeshiftoss/swap-widget'
-import type { Asset } from '@shapeshiftoss/swap-widget'
-
-const defaultSellAsset: Asset = {
-  assetId: 'eip155:137/slip44:966',
-  chainId: 'eip155:137',
-  symbol: 'POL',
-  name: 'Polygon',
-  precision: 18,
-}
-
-const defaultBuyAsset: Asset = {
-  assetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-  chainId: 'eip155:137',
-  symbol: 'USDC',
-  name: 'USD Coin',
-  precision: 6,
-}
+import { EVM_CHAIN_IDS, getBaseAsset, SwapWidget } from '@shapeshiftoss/swap-widget'
 
 function App() {
   return (
     <SwapWidget
       walletConnectProjectId="..."
       partnerCode="your-partner-code"
-      defaultSellAsset={defaultSellAsset}
-      defaultBuyAsset={defaultBuyAsset}
+      defaultSellAsset={getBaseAsset(EVM_CHAIN_IDS.polygon)}
+      defaultBuyAsset="eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174" // USDC on Polygon
       theme="dark"
     />
   )
 }
 ```
+
+The widget shows a loading skeleton while the catalog is fetched. An id the catalog does not know,
+or one on a chain the widget does not list, keeps it there and logs an error, rather than seeding a
+different asset than the one you asked for.
 
 ### Locking the buy asset
 

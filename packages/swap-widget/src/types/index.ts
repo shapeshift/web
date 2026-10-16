@@ -164,8 +164,8 @@ export type SwapWidgetProps = ReceiveAddressProps &
     partnerCode?: string
     apiBaseUrl?: string
     allowShapeshiftRedirect?: boolean
-    defaultSellAsset?: Asset
-    defaultBuyAsset?: Asset
+    defaultSellAsset?: Asset | AssetId
+    defaultBuyAsset?: Asset | AssetId
     sellFilters?: SwapWidgetFilters
     buyFilters?: SwapWidgetFilters
     allowedSwapperNames?: SwapperName[]

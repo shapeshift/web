@@ -142,7 +142,7 @@ ShapeShift.
 | `sellFilters`            | `SwapWidgetFilters`                             | `{}`               | Restrict which chains/assets are selectable for the **sell** side. See [Filtering](#filtering-chains-and-assets). |
 | `buyFilters`             | `SwapWidgetFilters`                             | `{}`               | Restrict which chains/assets are selectable for the **buy** side.                                        |
 | `allowedSwapperNames`    | `SwapperName[]`                                 | all enabled        | Limit quotes to specific swappers. See [Supported Swappers](#supported-swappers).                        |
-| `allowShapeshiftRedirect`| `boolean`                                       | `true`             | When a swap isn't executable in-widget, redirect to app.shapeshift.com instead of hiding it.             |
+| `allowShapeshiftRedirect`| `boolean`                                       | `true`             | When a swap isn't executable in-widget, redirect to app.shapeshift.com instead of hiding it. Off, the selector keeps only chains the widget can sign for or pay externally. |
 | `isBuyAssetLocked`       | `boolean`                                       | `false`            | Prevent the user from changing the buy asset.                                                            |
 | `defaultBuyAmountCryptoBaseUnit` | `string`                                | –                  | Drive the trade from the buy side: the user receives exactly this amount and the sell amount is derived. Restricts routing to exact-output swappers. See [Exact Output and Locked Destinations](#exact-output-and-locked-destinations). |
 | `isBuyAmountLocked`      | `boolean`                                       | `false`            | Prevent the user from changing the buy amount. When an amount is supplied it also locks the buy asset, since a base-unit amount is meaningless without the asset it counts. |
@@ -295,10 +295,11 @@ twice.
 
 The app.shapeshift.com redirect carries neither the destination nor the buy amount, so following it
 would drop whichever constraint you set. Locking the buy amount **or** the receive address
-therefore disables it outright: `allowShapeshiftRedirect` has no effect, and assets on
-non-executable chains drop out of the asset pickers rather than dead-ending. The pickers share that
-filter, so Cosmos-SDK assets go from the **buy** side too, even though a swap into them works — only
-the sell side needs a signature. The remaining redirect-only chains go with them.
+therefore disables it outright: `allowShapeshiftRedirect` has no effect, and assets on chains the
+widget can neither sign for nor pay through an [externally paid route](#externally-paid-swaps) drop
+out of the asset pickers rather than dead-ending. The pickers share that filter, so Cosmos-SDK assets
+go from the **buy** side too, even though a swap into them works — only the sell side needs a
+signature. The remaining redirect-only chains go with them.
 
 Note this is a wider condition than payment mode — locking either one is enough, because a single
 dropped constraint can send funds somewhere you didn't intend.
@@ -359,7 +360,8 @@ wallet connected at all, and to serve chains it can't sign for.
 
 There is nothing to configure. When the selected route comes from a deposit-address protocol and no
 wallet is connected for the sell chain, the primary button becomes **Continue without a wallet**
-instead of Connect Wallet.
+instead of Connect Wallet. On a chain the widget can't sign for, the default route is the best
+deposit-address one, so the button offers that path without a pick.
 
 ### What the user provides
 
@@ -594,6 +596,7 @@ import {
 | `getChainType`              | `(chainId: string) => "evm" \| "utxo" \| "cosmos" \| "solana" \| "other"` | Classify a chain by namespace.                               |
 | `isWidgetSupportedChainId`  | `(chainId: string) => boolean`                                            | Whether the widget lists assets on this chain.               |
 | `isWidgetExecutableChainId` | `(chainId: string) => boolean`                                            | Whether the widget can sign/execute swaps on this chain in-app. |
+| `isWidgetSwappableChainId`  | `(chainId: string) => boolean`                                            | Whether the widget can complete a swap from this chain without the app, by signing or through a deposit address. |
 | `getChainName`              | `(chainId: ChainId) => string`                                            | Display name for a chain.                                    |
 | `getChainIcon`              | `(chainId: ChainId) => string \| undefined`                               | Icon URL for a chain.                                        |
 | `getChainColor`            | `(chainId: ChainId) => string`                                            | Brand color for a chain.                                     |
@@ -684,7 +687,9 @@ Assets on the following chains appear in the selector. Swaps are **executed in-w
 UTXO, and Solana assets (`isWidgetExecutableChainId` returns `true`). Cosmos-SDK and redirect-only
 chains are selectable but route the user to [app.shapeshift.com](https://app.shapeshift.com) to
 complete the swap (when `allowShapeshiftRedirect` is enabled), unless an
-[externally paid route](#externally-paid-swaps) quotes them, which needs no signer.
+[externally paid route](#externally-paid-swaps) quotes them, which needs no signer. With the redirect
+disabled, only chains the widget can sign for or pay externally stay in the selector
+(`isWidgetSwappableChainId`); the other redirect-only chains drop out.
 
 | Chain             | Chain ID                                  | Type   | Executable in-widget |
 | ----------------- | ----------------------------------------- | ------ | -------------------- |
@@ -713,8 +718,12 @@ complete the swap (when `allowShapeshiftRedirect` is enabled), unless an
 
 ## Supported Swappers
 
-The widget aggregates quotes across the protocols below and surfaces the best rate. Use
-`allowedSwapperNames` to restrict which are used.
+The widget aggregates quotes across the protocols below. The route list shows every route the
+widget can take from the sell chain, best first, and starts on that best route; the user can pick
+another. A pick is kept by protocol while rates refresh, and falls back to the default if that
+protocol stops quoting. On a chain the widget can't sign for, routes that need the app stay listed
+while `allowShapeshiftRedirect` is on and are dropped when it is off. Use `allowedSwapperNames` to
+restrict which protocols are quoted.
 
 - **NEAR Intents** (`SwapperName.NearIntents`) — deposit address
 - **Chainflip** (`SwapperName.Chainflip`) — deposit address

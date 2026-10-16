@@ -118,9 +118,8 @@ export const InputStep = ({
     sellAmountCrypto,
   ])
 
-  const selectedRate = context.selectedRate ?? displayValues.rates?.[0]
   const isDepositFlowAvailable = shouldUseDepositFlow({
-    rate: selectedRate,
+    rate: displayValues.displayRate,
     hasWalletForSellChain: !!walletSendAddress,
   })
 
@@ -408,7 +407,7 @@ export const InputStep = ({
           <div className='ssw-quotes'>
             <QuoteSelector
               rates={displayValues.rates ?? []}
-              selectedRate={context.selectedRate}
+              activeRate={displayValues.displayRate}
               onSelectRate={onSelectRate}
               buyAsset={context.buyAsset}
               sellAsset={context.sellAsset}

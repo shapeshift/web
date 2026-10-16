@@ -64,9 +64,7 @@ const DefaultAssetsSkeleton = ({ showPoweredBy }: { showPoweredBy: boolean }) =>
     </div>
     <div className='ssw-swap-container' aria-busy='true'>
       <SkeletonTokenSection />
-      <div className='ssw-swap-divider'>
-        <div className='ssw-skeleton-bar ssw-skeleton-swap' />
-      </div>
+      <div className='ssw-skeleton-divider' />
       <SkeletonTokenSection />
     </div>
     <div className='ssw-skeleton-bar ssw-skeleton-action' />

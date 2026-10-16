@@ -1187,11 +1187,9 @@
   height: 16px;
 }
 
-.ssw-skeleton-swap {
-  width: 36px;
-  height: 36px;
-  border: 4px solid var(--ssw-bg-secondary);
-  border-radius: var(--ssw-radius-sm);
+/* The space the swap button takes between the cards, without drawing it */
+.ssw-skeleton-divider {
+  height: 12px;
 }
 
 .ssw-skeleton-action {

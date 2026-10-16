@@ -359,7 +359,8 @@ wallet connected at all, and to serve chains it can't sign for.
 
 There is nothing to configure. When the selected route comes from a deposit-address protocol and no
 wallet is connected for the sell chain, the primary button becomes **Continue without a wallet**
-instead of Connect Wallet.
+instead of Connect Wallet. On a chain the widget can't sign for, the default route is the best
+deposit-address one, so the button offers that path without a pick.
 
 ### What the user provides
 
@@ -725,8 +726,12 @@ disabled, only chains the widget can sign for or pay externally stay in the sele
 
 ## Supported Swappers
 
-The widget aggregates quotes across the protocols below and surfaces the best rate. Use
-`allowedSwapperNames` to restrict which are used.
+The widget aggregates quotes across the protocols below. The route list shows every route the
+widget can take from the sell chain, best first, and starts on that best route; the user can pick
+another. A pick is kept by protocol while rates refresh, and falls back to the default if that
+protocol stops quoting. On a chain the widget can't sign for, routes that need the app stay listed
+while `allowShapeshiftRedirect` is on and are dropped when it is off. Use `allowedSwapperNames` to
+restrict which protocols are quoted.
 
 - **NEAR Intents** (`SwapperName.NearIntents`) — deposit address
 - **Chainflip** (`SwapperName.Chainflip`) — deposit address

@@ -1,5 +1,7 @@
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { RFOX_ETH_PROXY_CONTRACT, ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTransactionParserArgs } from '../../parser'
@@ -26,10 +28,13 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
 
     // due to the current parser logic, order here matters (register most generic first to most specific last)
     this.registerParsers([
-      new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
+      new erc20.Parser({ chainId: this.chainId }),
       new foxy.Parser(),
-      new weth.Parser({ chainId: this.chainId, provider: this.provider }),
-      new uniV2.Parser({ chainId: this.chainId, provider: this.provider }),
+      new weth.Parser({ chainId: this.chainId }),
+      new uniV2.Parser({
+        chainId: this.chainId,
+        client: createPublicClient({ chain: mainnet, transport: http(this.rpcUrl) }),
+      }),
       new mayachain.Parser({
         chainId: this.chainId,
         midgardUrl: args.mayaMidgardUrl,

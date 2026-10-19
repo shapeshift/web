@@ -7,7 +7,6 @@ import type {
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
-import type { ethers } from 'ethers'
 
 import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
@@ -19,22 +18,11 @@ import { ZerionMarketService } from './zerion/zerion'
 import type { AssetService } from '@/lib/asset-service'
 import { getAssetService } from '@/lib/asset-service'
 
-export type ProviderUrls = {
-  jsonRpcProviderUrl: string
-  unchainedEthereumHttpUrl: string
-  unchainedEthereumWsUrl: string
-}
-
-export type MarketServiceManagerArgs = {
-  providerUrls: ProviderUrls
-  provider: ethers.JsonRpcProvider
-}
-
 export class MarketServiceManager {
   marketProviders: MarketService[]
   assetService: AssetService
 
-  constructor(_args: MarketServiceManagerArgs) {
+  constructor() {
     this.marketProviders = [
       // Order of this MarketProviders array constitutes the order of providers we will be checking first.
       // More reliable providers should be listed first.

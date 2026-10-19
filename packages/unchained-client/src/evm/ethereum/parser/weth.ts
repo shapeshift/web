@@ -16,7 +16,6 @@ export interface TxMetadata extends BaseTxMetadata {
 
 export interface ParserArgs {
   chainId: ChainId
-  provider: ethers.JsonRpcProvider
 }
 
 interface SupportedFunctions {
@@ -25,7 +24,6 @@ interface SupportedFunctions {
 }
 
 export class Parser implements SubParser<Tx> {
-  provider: ethers.JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
   readonly abiInterface = new ethers.Interface(WETH_ABI)
@@ -33,7 +31,6 @@ export class Parser implements SubParser<Tx> {
 
   constructor(args: ParserArgs) {
     this.chainId = args.chainId
-    this.provider = args.provider
 
     assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
 

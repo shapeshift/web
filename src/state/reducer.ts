@@ -116,6 +116,7 @@ const opportunitiesPersistConfig = {
 const snapshotPersistConfig = {
   key: 'snapshot',
   storage,
+  blacklist: ['strategies'],
   version: Math.max(...Object.keys(clearSnapshotMigrations).map(Number)),
   migrate: createMigrate(clearSnapshotMigrations, { debug: false }),
   throttle: PERSIST_THROTTLE_MS,

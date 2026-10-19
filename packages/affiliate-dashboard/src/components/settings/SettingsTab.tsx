@@ -27,6 +27,17 @@ interface SettingsTabProps {
   onValidationError: (message: ActionMessageType) => void
 }
 
+const scrollbarSx = {
+  scrollbarWidth: 'thin',
+  scrollbarColor: 'var(--chakra-colors-border-input) transparent',
+  '&::-webkit-scrollbar': { width: '6px' },
+  '&::-webkit-scrollbar-track': { background: 'transparent' },
+  '&::-webkit-scrollbar-thumb': {
+    background: 'var(--chakra-colors-border-input)',
+    borderRadius: 'full',
+  },
+}
+
 export const SettingsTab = ({
   affiliateAddress,
   config,
@@ -39,7 +50,7 @@ export const SettingsTab = ({
   onSignOut,
   onValidationError,
 }: SettingsTabProps): React.JSX.Element => (
-  <Stack spacing={5}>
+  <Stack spacing={5} flex={1} minH={0} overflowY='auto' pr={2} sx={scrollbarSx}>
     {actions.message && (
       <ActionMessage message={actions.message} onDismiss={() => actions.clearMessage()} />
     )}

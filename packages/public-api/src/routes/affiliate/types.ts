@@ -20,6 +20,9 @@ export const AffiliateAddressParamsSchema = z.object({
   address: EVM_ADDRESS,
 })
 
+// The wallet that registered the affiliate is its owner; wallets it adds are admins
+export const AffiliateRoleSchema = z.enum(['owner', 'admin']).openapi({ example: 'owner' })
+
 export const AffiliateConfigResponseSchema = registry.register(
   'AffiliateConfig',
   z.object({
@@ -32,6 +35,7 @@ export const AffiliateConfigResponseSchema = registry.register(
     isActive: z.boolean().openapi({ example: true }),
     createdAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
     updatedAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
+    role: AffiliateRoleSchema.optional(),
   }),
 )
 
@@ -46,6 +50,31 @@ export const UpdateAffiliateRequestSchema = z.object({
   receiveAddress: EVM_ADDRESS.optional(),
   bps: z.number().int().min(0).max(1000).optional(),
 })
+
+// --- Affiliate Members ---
+
+export const AffiliateMemberParamsSchema = AffiliateAddressParamsSchema.extend({
+  memberAddress: EVM_ADDRESS,
+})
+
+export const AddAffiliateMemberRequestSchema = z.object({
+  walletAddress: EVM_ADDRESS,
+})
+
+export const AffiliateMemberSchema = registry.register(
+  'AffiliateMember',
+  z.object({
+    walletAddress: EVM_ADDRESS,
+    role: AffiliateRoleSchema,
+    addedBy: EVM_ADDRESS.nullable(),
+    createdAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
+  }),
+)
+
+export const AffiliateMembersResponseSchema = registry.register(
+  'AffiliateMembers',
+  z.object({ members: z.array(AffiliateMemberSchema) }),
+)
 
 // --- Affiliate Swaps ---
 
@@ -169,6 +198,10 @@ export type AffiliateAddressParams = z.infer<typeof AffiliateAddressParamsSchema
 export type AffiliateConfig = z.infer<typeof AffiliateConfigResponseSchema>
 export type CreateAffiliateRequest = z.infer<typeof CreateAffiliateRequestSchema>
 export type UpdateAffiliateRequest = z.infer<typeof UpdateAffiliateRequestSchema>
+export type AffiliateMemberParams = z.infer<typeof AffiliateMemberParamsSchema>
+export type AddAffiliateMemberRequest = z.infer<typeof AddAffiliateMemberRequestSchema>
+export type AffiliateMember = z.infer<typeof AffiliateMemberSchema>
+export type AffiliateMembersResponse = z.infer<typeof AffiliateMembersResponseSchema>
 export type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
 export type SwapServiceAffiliateSwap = z.infer<typeof SwapServiceAffiliateSwapSchema>
 export type AffiliateSwapsRequest = z.infer<typeof AffiliateSwapsRequestSchema>

@@ -28,8 +28,15 @@ const getQuote = async (
 
   const maybeContext = await getRelayTradeContext({ input, deps, relayChainMap })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
-  const { tradeCommon, stepCommon, protocolFees, relayStepInputs, stepDataArgs, relayId } =
-    maybeContext.unwrap()
+  const {
+    tradeCommon,
+    stepCommon,
+    protocolFees,
+    relayStepInputs,
+    stepDataArgs,
+    relayId,
+    deadline,
+  } = maybeContext.unwrap()
 
   const stepResults = await Promise.all(
     relayStepInputs.map(async ({ data, allowanceContract }) => {
@@ -69,6 +76,7 @@ const getQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
+    deadline,
     receiveAddress,
     steps,
   }

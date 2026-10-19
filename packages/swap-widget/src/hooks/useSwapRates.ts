@@ -5,13 +5,16 @@ import type { ApiClient } from '../api/client'
 import type { AssetId, TradeRate } from '../types'
 import { SwapperName } from '../types'
 import { isPermanentApiError } from '../utils/apiError'
+import { isSwappableRate } from '../utils/depositFlow'
 import { sortRatesByValue } from '../utils/rateDisplay'
 
 const ENABLED_SWAPPER_NAMES = new Set<string>(Object.values(SwapperName))
 
 export type UseSwapRatesParams = {
   sellAssetId: AssetId | undefined
+  sellChainId: string
   buyAssetId: AssetId | undefined
+  allowShapeshiftRedirect: boolean
   sellAmountCryptoBaseUnit: string | undefined
   buyAmountCryptoBaseUnit?: string | undefined
   enabled?: boolean
@@ -25,7 +28,9 @@ export const useSwapRates = (
 ): UseQueryResult<TradeRate[]> => {
   const {
     sellAssetId,
+    sellChainId,
     buyAssetId,
+    allowShapeshiftRedirect,
     sellAmountCryptoBaseUnit,
     buyAmountCryptoBaseUnit,
     enabled = true,
@@ -44,6 +49,7 @@ export const useSwapRates = (
       amountCryptoBaseUnit,
       isExactOutput,
       allowedSwapperNames,
+      allowShapeshiftRedirect,
     ],
     queryFn: async (): Promise<TradeRate[]> => {
       if (!sellAssetId || !buyAssetId || !amountCryptoBaseUnit) {
@@ -61,20 +67,15 @@ export const useSwapRates = (
         rate =>
           !rate.error &&
           rate.buyAmountCryptoBaseUnit !== '0' &&
-          ENABLED_SWAPPER_NAMES.has(rate.swapperName),
+          ENABLED_SWAPPER_NAMES.has(rate.swapperName) &&
+          (allowShapeshiftRedirect || isSwappableRate(sellChainId, rate)),
       )
 
       if (allowedSwapperNames?.length) {
         filteredRates = filteredRates.filter(rate => allowedSwapperNames.includes(rate.swapperName))
       }
 
-      return sortRatesByValue(
-        filteredRates.map((rate, index) => ({
-          ...rate,
-          id: rate.id ?? `${rate.swapperName}-${index}`,
-        })),
-        isExactOutput,
-      )
+      return sortRatesByValue(filteredRates, isExactOutput)
     },
     enabled: enabled && !!sellAssetId && !!buyAssetId && !!amountCryptoBaseUnit,
     staleTime: 10_000,

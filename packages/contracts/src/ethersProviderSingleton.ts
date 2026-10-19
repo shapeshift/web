@@ -6,7 +6,7 @@ import { ethers as ethersV5 } from 'ethers5'
 
 import { PUBLIC_RPC_URLS } from './publicRpcUrls'
 
-export const rpcUrlByChainId = (chainId: EvmChainId): string => {
+const rpcUrlByChainId = (chainId: EvmChainId): string => {
   const url = (() => {
     switch (chainId) {
       // First-class chains: env-driven with public fallback

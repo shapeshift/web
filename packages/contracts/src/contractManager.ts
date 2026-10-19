@@ -77,7 +77,7 @@ export const getOrCreateContractByType: <A extends KnownContractAddress, T exten
   return contract as unknown as KnownContractByType<A, T>
 }
 
-export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
+const getUniV2PairTokens = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
   const pair = getOrCreateContractByType({
     address: getAddress(assetReference),
@@ -85,11 +85,7 @@ export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
     chainId: KnownChainIds.EthereumMainnet,
   })
 
-  const [token0Address, token1Address, [reserve0, reserve1]] = await Promise.all([
-    pair.read.token0(),
-    pair.read.token1(),
-    pair.read.getReserves(),
-  ])
+  const [token0Address, token1Address] = await Promise.all([pair.read.token0(), pair.read.token1()])
 
   const [decimals0, decimals1] = await Promise.all(
     [token0Address, token1Address].map(address =>
@@ -98,12 +94,25 @@ export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   )
 
   const evmChainId = Number(fromChainId(chainId).chainReference)
-  const token0 = new Token(evmChainId, token0Address, decimals0)
-  const token1 = new Token(evmChainId, token1Address, decimals1)
+
+  return {
+    pair,
+    token0: new Token(evmChainId, token0Address, decimals0),
+    token1: new Token(evmChainId, token1Address, decimals1),
+  }
+})
+
+export const fetchUniV2PairData = async (pairAssetId: AssetId) => {
+  const { pair, token0, token1 } = await getUniV2PairTokens(pairAssetId).catch(err => {
+    getUniV2PairTokens.cache.delete(pairAssetId)
+    throw err
+  })
+
+  const [reserve0, reserve1] = await pair.read.getReserves()
 
   // a uniswap v2 pair's token0 always sorts before token1, so reserves are already in token order
   return new Pair(
     new TokenAmount(token0, reserve0.toString()),
     new TokenAmount(token1, reserve1.toString()),
   )
-})
+}

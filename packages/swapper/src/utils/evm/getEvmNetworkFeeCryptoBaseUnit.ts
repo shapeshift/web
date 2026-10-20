@@ -34,8 +34,11 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
   const { adapter, supportsEIP1559 } = args
 
   // Price a provider gas limit with fresh gas prices - no on chain estimation
-  const priceProviderGasLimit = async (gasLimit: string): Promise<string> => {
-    const { average: gasPrices } = await adapter.getGasFeeData()
+  const priceProviderGasLimit = async (
+    gasLimit: string,
+    gasFeeData = adapter.getGasFeeData(),
+  ): Promise<string> => {
+    const { average: gasPrices } = await gasFeeData
     return evm.calcNetworkFeeCryptoBaseUnit({ ...gasPrices, supportsEIP1559, gasLimit })
   }
 
@@ -57,7 +60,7 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
 
     // Best effort - a timeout, undiscoverable slot, or an rpc without stateOverride support falls
     // through to plain estimation, which succeeds whenever the seller's state was sufficient anyway
-    const overriddenGasLimit = await withTimeout(
+    const overridden = await withTimeout(
       (async () => {
         const overrideArgs = {
           sellAsset,
@@ -70,13 +73,24 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
         const stateOverride = await getMinimalStateOverride(overrideArgs)
         if (!stateOverride) return undefined
 
-        return estimateGasWithStateOverride({ ...overrideArgs, to, data, stateOverride })
+        // Gas prices are fetched alongside the estimate and awaited only once it succeeds
+        const gasFeeData = adapter.getGasFeeData()
+        gasFeeData.catch(() => undefined)
+
+        const gasLimit = await estimateGasWithStateOverride({
+          ...overrideArgs,
+          to,
+          data,
+          stateOverride,
+        })
+
+        return { gasLimit, gasFeeData }
       })(),
     ).catch(() => undefined)
 
-    if (overriddenGasLimit) {
-      transactionData.gasLimit = bnOrZero(overriddenGasLimit).times(gasLimitBuffer).toFixed(0)
-      return priceProviderGasLimit(overriddenGasLimit)
+    if (overridden) {
+      transactionData.gasLimit = bnOrZero(overridden.gasLimit).times(gasLimitBuffer).toFixed(0)
+      return priceProviderGasLimit(overridden.gasLimit, overridden.gasFeeData)
     }
   }
 

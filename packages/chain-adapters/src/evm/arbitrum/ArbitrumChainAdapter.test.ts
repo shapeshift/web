@@ -165,6 +165,49 @@ describe('ArbitrumChainAdapter', () => {
         }),
       )
     })
+
+    it('fetches gas prices without waiting for the gas estimate', async () => {
+      let resolveEstimate: (value: unknown) => void = () => {}
+      const httpProvider = {
+        estimateGas: vi.fn(() => new Promise(resolve => (resolveEstimate = resolve))),
+        getGasFees: vi.fn().mockResolvedValue(makeGetGasFeesMockedResponse()),
+      } as unknown as unchained.arbitrum.V1Api
+
+      const adapter = new arbitrum.ChainAdapter(
+        makeChainAdapterArgs({ providers: { http: httpProvider } }),
+      )
+
+      const feeData = adapter.getFeeData({
+        to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
+        value: '123',
+        chainSpecific: { from: ZERO_ADDRESS, data: '0x' },
+      })
+
+      expect(httpProvider.getGasFees).toHaveBeenCalledTimes(1)
+
+      resolveEstimate(makeEstimateGasMockedResponse())
+      await expect(feeData).resolves.toEqual(
+        expect.objectContaining({
+          average: expect.objectContaining({ txFee: '6300000' }),
+        }),
+      )
+    })
+
+    it('surfaces the gas estimate error ahead of a gas price error', async () => {
+      const adapter = new arbitrum.ChainAdapter(makeChainAdapterArgs())
+      // Plain functions (spies attach handlers): gas prices fail while the estimate is in flight
+      adapter.getGasLimit = () =>
+        new Promise((_, reject) => setTimeout(() => reject(new Error('estimate failed')), 10))
+      adapter.getGasFeeData = () => Promise.reject(new Error('gas fees failed'))
+
+      await expect(
+        adapter.getFeeData({
+          to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
+          value: '123',
+          chainSpecific: { from: ZERO_ADDRESS, data: '0x' },
+        }),
+      ).rejects.toThrow('estimate failed')
+    })
   })
 
   describe('getGasFeeData', () => {

@@ -193,26 +193,27 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     const multicallAddress = this.viemClient.chain?.contracts?.multicall3?.address
     if (!multicallAddress) return this.getTokenBalancesIndividually(address, knownTokens)
 
-    const batchResults = await Promise.all(
-      chunk(knownTokens, BATCH_SIZE).map(batch =>
-        this.requestQueue.add(
-          () =>
-            this.viemClient.multicall({
-              contracts: batch.map(token => ({
-                address: getAddress(token.contractAddress),
-                abi: erc20Abi,
-                functionName: 'balanceOf' as const,
-                args: [address],
-              })),
-              allowFailure: true,
-              multicallAddress,
-              batchSize: 0,
-            }),
-          { throwOnTimeout: true },
+    const results = (
+      await Promise.all(
+        chunk(knownTokens, BATCH_SIZE).map(batch =>
+          this.requestQueue.add(
+            () =>
+              this.viemClient.multicall({
+                contracts: batch.map(token => ({
+                  address: getAddress(token.contractAddress),
+                  abi: erc20Abi,
+                  functionName: 'balanceOf' as const,
+                  args: [address],
+                })),
+                allowFailure: true,
+                multicallAddress,
+                batchSize: 0,
+              }),
+            { throwOnTimeout: true },
+          ),
         ),
-      ),
-    )
-    const results = batchResults.flat()
+      )
+    ).flat()
 
     return knownTokens.flatMap((token, i) => {
       const result = results[i]

@@ -1,6 +1,4 @@
-import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { memoize } from 'lodash'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
@@ -14,38 +12,9 @@ export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLP
     .decimalPlaces(4) // Arbitrary decimal cutoff
     .toString()
 
-// Rate of FOX given per second for all staked addresses)
-const getRewardsRate = memoize(
-  async <T extends FoxEthStakingContractAbi>(farmingRewardsContract: FoxEthStakingContract<T>) =>
-    await farmingRewardsContract.read.rewardRate(),
-)
-
-const getTotalLpSupply = memoize(
-  async <T extends FoxEthStakingContractAbi>(farmingRewardsContract: FoxEthStakingContract<T>) => {
-    try {
-      const totalSupply = await farmingRewardsContract.read.totalSupply()
-      return bnOrZero(totalSupply.toString())
-    } catch (error) {
-      console.error(error)
-      const errorMsg = 'totalLpSupply error'
-      throw new Error(errorMsg)
-    }
-  },
-)
-
-export const rewardRatePerToken = memoize(
-  async <T extends FoxEthStakingContractAbi>(farmingRewardsContract: FoxEthStakingContract<T>) => {
-    try {
-      const rewardRate = await getRewardsRate(farmingRewardsContract)
-      const totalSupply = await getTotalLpSupply(farmingRewardsContract)
-      return BigAmount.fromPrecision({
-        value: bnOrZero(rewardRate.toString()).div(totalSupply).toFixed(),
-        precision: 18,
-      }).toBaseUnit()
-    } catch (error) {
-      console.error(error)
-      const errorMsg = 'rewardRatePerToken error'
-      throw new Error(errorMsg)
-    }
-  },
-)
+// Rate of FOX given per second for 1 staked LP token
+export const rewardRatePerToken = (rewardRate: bigint, totalSupply: bigint): string =>
+  BigAmount.fromPrecision({
+    value: bnOrZero(rewardRate.toString()).div(bnOrZero(totalSupply.toString())).toFixed(),
+    precision: 18,
+  }).toBaseUnit()

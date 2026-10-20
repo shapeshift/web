@@ -60,8 +60,15 @@ export const ethFoxStakingMetadataResolver = async ({
   ) as FoxEthStakingContract<FoxEthStakingContractAbi>
   const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT)
 
+  const [totalSupply, rewardRate, periodFinish, lpTotalSupply, pair] = await Promise.all([
+    foxFarmingContract.read.totalSupply(),
+    foxFarmingContract.read.rewardRate(),
+    foxFarmingContract.read.periodFinish(),
+    uniV2LPContract.read.totalSupply(),
+    fetchUniV2PairData(foxEthLpAssetId),
+  ])
+
   // tvl
-  const totalSupply = await foxFarmingContract.read.totalSupply()
   const tvl = BigAmount.fromBaseUnit({
     value: totalSupply.toString(),
     precision: lpAssetPrecision,
@@ -70,19 +77,13 @@ export const ethFoxStakingMetadataResolver = async ({
     .toFixed(2)
 
   // apr
-  const foxRewardRatePerTokenV7 = await rewardRatePerToken(foxFarmingContract)
-
-  const pair = await fetchUniV2PairData(foxEthLpAssetId)
+  const foxRewardRatePerTokenV7 = rewardRatePerToken(rewardRate, totalSupply)
 
   // Getting the ratio of the LP token for each asset
-  const reserves = await uniV2LPContract.read.getReserves()
-  const lpTotalSupply = (await uniV2LPContract.read.totalSupply()).toString()
-  const foxReserves = bnOrZero(reserves[1].toString())
-  const ethReserves = bnOrZero(reserves[0].toString())
-  const ethPoolRatio = ethReserves.div(bnOrZero(lpTotalSupply)).toString()
-  const foxPoolRatio = foxReserves.div(bnOrZero(lpTotalSupply)).toString()
-
-  const totalSupplyV2 = await uniV2LPContract.read.totalSupply()
+  const ethReserves = bnOrZero(pair.reserve0.raw.toString())
+  const foxReserves = bnOrZero(pair.reserve1.raw.toString())
+  const ethPoolRatio = ethReserves.div(bnOrZero(lpTotalSupply.toString())).toString()
+  const foxPoolRatio = foxReserves.div(bnOrZero(lpTotalSupply.toString())).toString()
 
   const token1PoolReservesEquivalent = bn(
     BigAmount.fromPrecision({
@@ -93,7 +94,7 @@ export const ethFoxStakingMetadataResolver = async ({
 
   const foxEquivalentPerLPToken = bn(
     BigAmount.fromPrecision({
-      value: token1PoolReservesEquivalent.div(bnOrZero(totalSupplyV2.toString())).toFixed(),
+      value: token1PoolReservesEquivalent.div(bnOrZero(lpTotalSupply.toString())).toFixed(),
       precision: pair.token1.decimals,
     }).toBaseUnit(),
   ).toString()
@@ -101,8 +102,8 @@ export const ethFoxStakingMetadataResolver = async ({
     .div(100)
     .toString()
 
-  const timeStamp = await foxFarmingContract.read.periodFinish()
-  const expired = Number(timeStamp) === 0 ? false : dayjs().isAfter(dayjs.unix(Number(timeStamp)))
+  const expired =
+    Number(periodFinish) === 0 ? false : dayjs().isAfter(dayjs.unix(Number(periodFinish)))
   const version = STAKING_ID_TO_VERSION[opportunityId]
 
   const data = {
@@ -163,8 +164,10 @@ export const ethFoxStakingUserDataResolver = async ({
 
   const foxFarmingContract = getOrCreateContractByAddress(maybeContractAddress)
 
-  const stakedBalance = await foxFarmingContract.read.balanceOf([accountAddress])
-  const earned = await foxFarmingContract.read.earned([accountAddress])
+  const [stakedBalance, earned] = await Promise.all([
+    foxFarmingContract.read.balanceOf([accountAddress]),
+    foxFarmingContract.read.earned([accountAddress]),
+  ])
   const stakedAmountCryptoBaseUnit = bnOrZero(stakedBalance.toString()).toString()
   const rewardsCryptoBaseUnit = { amounts: [earned.toString()] as [string], claimable: true }
 

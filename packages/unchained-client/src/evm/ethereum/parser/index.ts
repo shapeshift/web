@@ -33,7 +33,11 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new weth.Parser({ chainId: this.chainId }),
       new uniV2.Parser({
         chainId: this.chainId,
-        client: createPublicClient({ chain: mainnet, transport: http(this.rpcUrl) }),
+        client: createPublicClient({
+          chain: mainnet,
+          transport: http(this.rpcUrl),
+          batch: { multicall: true },
+        }),
       }),
       new mayachain.Parser({
         chainId: this.chainId,

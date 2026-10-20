@@ -1080,12 +1080,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      // Fetched alongside the estimate, the no-op catch covers it being abandoned on failure
-      const gasFeeDataPromise = this.getGasFeeData()
-      gasFeeDataPromise.catch(() => undefined)
-
-      const { gasLimit, l1GasLimit } = await this.getGasLimit(input)
-      const { fast, average, slow } = await gasFeeDataPromise
+      const [{ gasLimit, l1GasLimit }, { fast, average, slow }] = await Promise.all([
+        this.getGasLimit(input),
+        this.getGasFeeData(),
+      ])
 
       const toFeeData = (gasFeeData: GasFeeData) => ({
         txFee: bnOrZero(

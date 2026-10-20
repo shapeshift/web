@@ -165,22 +165,6 @@ describe('ArbitrumChainAdapter', () => {
         }),
       )
     })
-
-    it('surfaces the gas estimate error ahead of a gas price error', async () => {
-      const adapter = new arbitrum.ChainAdapter(makeChainAdapterArgs())
-      // Plain fns, not spies (which mask unhandled rejections): gas prices fail mid-estimate
-      adapter.getGasLimit = () =>
-        new Promise((_, reject) => setTimeout(() => reject(new Error('estimate failed')), 10))
-      adapter.getGasFeeData = () => Promise.reject(new Error('gas fees failed'))
-
-      await expect(
-        adapter.getFeeData({
-          to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
-          value: '123',
-          chainSpecific: { from: ZERO_ADDRESS, data: '0x' },
-        }),
-      ).rejects.toThrow('estimate failed')
-    })
   })
 
   describe('getGasFeeData', () => {

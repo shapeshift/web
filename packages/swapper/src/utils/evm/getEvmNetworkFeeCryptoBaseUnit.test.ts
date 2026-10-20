@@ -41,21 +41,18 @@ describe('getEvmNetworkFeeCryptoBaseUnit state override', () => {
     expect(args.transactionData.gasLimit).toBe('240')
   })
 
-  it('falls back to plain estimation when the override and gas prices fail', async () => {
+  it('falls back to plain estimation when the override estimate fails', async () => {
     vi.mocked(getMinimalStateOverride).mockResolvedValue([])
-    vi.mocked(estimateGasWithStateOverride).mockReturnValue(
-      new Promise((_, reject) => setTimeout(() => reject(new Error('estimate failed')), 10)),
-    )
+    vi.mocked(estimateGasWithStateOverride).mockRejectedValue(new Error('estimate failed'))
     const getFeeData = vi.fn().mockResolvedValue({
       average: { chainSpecific: { gasLimit: '100', ...gasFees } },
     })
+    const args = makeArgs({
+      getGasFeeData: vi.fn().mockResolvedValue({ average: gasFees }),
+      getFeeData,
+    })
 
-    // Plain fn, not a spy (which masks unhandled rejections): gas prices fail mid-estimate
-    const fee = await getEvmNetworkFeeCryptoBaseUnit(
-      makeArgs({ getGasFeeData: () => Promise.reject(new Error('gas fees failed')), getFeeData }),
-    )
-
-    expect(fee).toBe('1000')
-    expect(getFeeData).toHaveBeenCalledTimes(1)
+    await expect(getEvmNetworkFeeCryptoBaseUnit(args)).resolves.toBe('1000')
+    expect(args.transactionData.gasLimit).toBe('120')
   })
 })

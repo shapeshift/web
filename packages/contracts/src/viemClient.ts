@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
-import type { PublicClient } from 'viem'
+import type { Chain, PublicClient } from 'viem'
 import { createPublicClient, defineChain, fallback, http } from 'viem'
 import {
   abstract,
@@ -49,135 +49,95 @@ import { PUBLIC_RPC_URLS } from './publicRpcUrls'
 const createRpcTransport = (privateUrl: string | undefined, publicUrls: readonly string[]) =>
   fallback([privateUrl, ...publicUrls].filter(Boolean).map(url => http(url)))
 
+// Same-tick contract reads are batched into one multicall3 call
+const createRpcClient = (
+  chain: Chain,
+  privateUrl: string | undefined,
+  publicUrls: readonly string[],
+) =>
+  createPublicClient({
+    chain,
+    transport: createRpcTransport(privateUrl, publicUrls),
+    batch: { multicall: true },
+  }) as PublicClient
+
 const multicall3 = { address: '0xcA11bde05977b3631167028862bE2a173976CA11' } as const
 
 // First-class EVM chains
-export const viemEthMainnetClient = createPublicClient({
-  chain: mainnet,
-  transport: createRpcTransport(process.env.VITE_ETHEREUM_NODE_URL, PUBLIC_RPC_URLS.ethereum),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemEthMainnetClient = createRpcClient(
+  mainnet,
+  process.env.VITE_ETHEREUM_NODE_URL,
+  PUBLIC_RPC_URLS.ethereum,
+)
 
-export const viemBscClient = createPublicClient({
-  chain: bsc,
-  transport: createRpcTransport(process.env.VITE_BNBSMARTCHAIN_NODE_URL, PUBLIC_RPC_URLS.bsc),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemBscClient = createRpcClient(
+  bsc,
+  process.env.VITE_BNBSMARTCHAIN_NODE_URL,
+  PUBLIC_RPC_URLS.bsc,
+)
 
-export const viemAvalancheClient = createPublicClient({
-  chain: avalanche,
-  transport: createRpcTransport(process.env.VITE_AVALANCHE_NODE_URL, PUBLIC_RPC_URLS.avalanche),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemAvalancheClient = createRpcClient(
+  avalanche,
+  process.env.VITE_AVALANCHE_NODE_URL,
+  PUBLIC_RPC_URLS.avalanche,
+)
 
-export const viemArbitrumClient = createPublicClient({
-  chain: arbitrum,
-  transport: createRpcTransport(process.env.VITE_ARBITRUM_NODE_URL, PUBLIC_RPC_URLS.arbitrum),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemArbitrumClient = createRpcClient(
+  arbitrum,
+  process.env.VITE_ARBITRUM_NODE_URL,
+  PUBLIC_RPC_URLS.arbitrum,
+)
 
-export const viemOptimismClient = createPublicClient({
-  chain: optimism,
-  transport: createRpcTransport(process.env.VITE_OPTIMISM_NODE_URL, PUBLIC_RPC_URLS.optimism),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemOptimismClient = createRpcClient(
+  optimism,
+  process.env.VITE_OPTIMISM_NODE_URL,
+  PUBLIC_RPC_URLS.optimism,
+)
 
-export const viemGnosisClient = createPublicClient({
-  chain: gnosis,
-  transport: createRpcTransport(process.env.VITE_GNOSIS_NODE_URL, PUBLIC_RPC_URLS.gnosis),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemGnosisClient = createRpcClient(
+  gnosis,
+  process.env.VITE_GNOSIS_NODE_URL,
+  PUBLIC_RPC_URLS.gnosis,
+)
 
-export const viemPolygonClient = createPublicClient({
-  chain: polygon,
-  transport: createRpcTransport(process.env.VITE_POLYGON_NODE_URL, PUBLIC_RPC_URLS.polygon),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemPolygonClient = createRpcClient(
+  polygon,
+  process.env.VITE_POLYGON_NODE_URL,
+  PUBLIC_RPC_URLS.polygon,
+)
 
-export const viemBaseClient = createPublicClient({
-  chain: base,
-  transport: createRpcTransport(process.env.VITE_BASE_NODE_URL, PUBLIC_RPC_URLS.base),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemBaseClient = createRpcClient(
+  base,
+  process.env.VITE_BASE_NODE_URL,
+  PUBLIC_RPC_URLS.base,
+)
 
 // Second-class EVM chains (public RPCs only)
-export const viemMonadClient = createPublicClient({
-  chain: monad,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.monad),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemMonadClient = createRpcClient(monad, undefined, PUBLIC_RPC_URLS.monad)
 
-export const viemHyperEvmClient = createPublicClient({
-  chain: hyperEvm,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.hyperEvm),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemHyperEvmClient = createRpcClient(hyperEvm, undefined, PUBLIC_RPC_URLS.hyperEvm)
 
-export const viemPlasmaClient = createPublicClient({
-  chain: plasma,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.plasma),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemPlasmaClient = createRpcClient(plasma, undefined, PUBLIC_RPC_URLS.plasma)
 
-export const viemPlumeClient = createPublicClient({
-  chain: plumeMainnet,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.plume),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemPlumeClient = createRpcClient(plumeMainnet, undefined, PUBLIC_RPC_URLS.plume)
 
-export const viemMantleClient = createPublicClient({
-  chain: mantle,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.mantle),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemMantleClient = createRpcClient(mantle, undefined, PUBLIC_RPC_URLS.mantle)
 
-export const viemInkClient = createPublicClient({
-  chain: ink,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.ink),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemInkClient = createRpcClient(ink, undefined, PUBLIC_RPC_URLS.ink)
 
-export const viemMegaEthClient = createPublicClient({
-  chain: megaeth,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.megaEth),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemMegaEthClient = createRpcClient(megaeth, undefined, PUBLIC_RPC_URLS.megaEth)
 
-export const viemBerachainClient = createPublicClient({
-  chain: berachain,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.berachain),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemBerachainClient = createRpcClient(berachain, undefined, PUBLIC_RPC_URLS.berachain)
 
-export const viemScrollClient = createPublicClient({
-  chain: scroll,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.scroll),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemScrollClient = createRpcClient(scroll, undefined, PUBLIC_RPC_URLS.scroll)
 
-export const viemCronosClient = createPublicClient({
-  chain: cronos,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.cronos),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemCronosClient = createRpcClient(cronos, undefined, PUBLIC_RPC_URLS.cronos)
 
-export const viemFlowEvmClient = createPublicClient({
-  chain: flowMainnet,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.flowEvm),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemFlowEvmClient = createRpcClient(flowMainnet, undefined, PUBLIC_RPC_URLS.flowEvm)
 
-export const viemCeloClient = createPublicClient({
-  chain: celo,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.celo),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemCeloClient = createRpcClient(celo, undefined, PUBLIC_RPC_URLS.celo)
 
-export const viemKatanaClient = createPublicClient({
-  chain: katana,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.katana),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemKatanaClient = createRpcClient(katana, undefined, PUBLIC_RPC_URLS.katana)
 
 export const ethereal = defineChain({
   id: 5064014,
@@ -193,95 +153,39 @@ export const ethereal = defineChain({
 // viem's hemi definition omits the multicall3 deployment
 const hemi = defineChain({ ...viemHemi, contracts: { multicall3 } })
 
-export const viemEtherealClient = createPublicClient({
-  chain: ethereal,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.ethereal),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemEtherealClient = createRpcClient(ethereal, undefined, PUBLIC_RPC_URLS.ethereal)
 
-export const viemStoryClient = createPublicClient({
-  chain: story,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.story),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemStoryClient = createRpcClient(story, undefined, PUBLIC_RPC_URLS.story)
 
-export const viemZkSyncEraClient = createPublicClient({
-  chain: zksync,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.zkSyncEra),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemZkSyncEraClient = createRpcClient(zksync, undefined, PUBLIC_RPC_URLS.zkSyncEra)
 
-export const viemBlastClient = createPublicClient({
-  chain: blast,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.blast),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemBlastClient = createRpcClient(blast, undefined, PUBLIC_RPC_URLS.blast)
 
-export const viemWorldChainClient = createPublicClient({
-  chain: worldchain,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.worldChain),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemWorldChainClient = createRpcClient(
+  worldchain,
+  undefined,
+  PUBLIC_RPC_URLS.worldChain,
+)
 
-export const viemHemiClient = createPublicClient({
-  chain: hemi,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.hemi),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemHemiClient = createRpcClient(hemi, undefined, PUBLIC_RPC_URLS.hemi)
 
-export const viemSeiClient = createPublicClient({
-  chain: sei,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.sei),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemSeiClient = createRpcClient(sei, undefined, PUBLIC_RPC_URLS.sei)
 
-export const viemAbstractClient = createPublicClient({
-  chain: abstract,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.abstract),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemAbstractClient = createRpcClient(abstract, undefined, PUBLIC_RPC_URLS.abstract)
 
-export const viemLineaClient = createPublicClient({
-  chain: linea,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.linea),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemLineaClient = createRpcClient(linea, undefined, PUBLIC_RPC_URLS.linea)
 
-export const viemSonicClient = createPublicClient({
-  chain: sonic,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.sonic),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemSonicClient = createRpcClient(sonic, undefined, PUBLIC_RPC_URLS.sonic)
 
-export const viemUnichainClient = createPublicClient({
-  chain: unichain,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.unichain),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemUnichainClient = createRpcClient(unichain, undefined, PUBLIC_RPC_URLS.unichain)
 
-export const viemBobClient = createPublicClient({
-  chain: bob,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.bob),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemBobClient = createRpcClient(bob, undefined, PUBLIC_RPC_URLS.bob)
 
-export const viemModeClient = createPublicClient({
-  chain: mode,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.mode),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemModeClient = createRpcClient(mode, undefined, PUBLIC_RPC_URLS.mode)
 
-export const viemSoneiumClient = createPublicClient({
-  chain: soneium,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.soneium),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemSoneiumClient = createRpcClient(soneium, undefined, PUBLIC_RPC_URLS.soneium)
 
-export const viemRobinhoodClient = createPublicClient({
-  chain: robinhood,
-  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.robinhood),
-  batch: { multicall: true },
-}) as PublicClient
+export const viemRobinhoodClient = createRpcClient(robinhood, undefined, PUBLIC_RPC_URLS.robinhood)
 
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,

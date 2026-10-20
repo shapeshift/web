@@ -15,7 +15,6 @@ export interface TxMetadata extends BaseTxMetadata {
 
 interface ParserArgs {
   chainId: ChainId
-  provider: ethers.JsonRpcProvider
 }
 
 interface SupportedFunctions {
@@ -23,15 +22,12 @@ interface SupportedFunctions {
 }
 
 export class Parser<T extends Tx> implements SubParser<T> {
-  provider: ethers.JsonRpcProvider
-
   readonly chainId: ChainId
   readonly abiInterface = new ethers.Interface(erc20Abi)
 
   private readonly supportedFunctions: SupportedFunctions
 
   constructor(args: ParserArgs) {
-    this.provider = args.provider
     this.chainId = args.chainId
 
     const approveSigHash = this.abiInterface.getFunction('approve')?.selector

@@ -928,9 +928,6 @@ importers:
       '@uniswap/sdk':
         specifier: ^3.0.3
         version: 3.0.3(@ethersproject/address@5.8.0)(@ethersproject/contracts@5.8.0)(@ethersproject/networks@5.8.0)(@ethersproject/providers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(@ethersproject/solidity@5.8.0)
-      ethers:
-        specifier: 6.11.1
-        version: 6.11.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ethers5:
         specifier: npm:ethers@5.7.2
         version: ethers@5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)

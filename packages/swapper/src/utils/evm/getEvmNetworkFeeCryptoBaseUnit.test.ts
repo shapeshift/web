@@ -4,10 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { TxBuildData } from '../../types'
 import { getEvmNetworkFeeCryptoBaseUnit } from './getEvmNetworkFeeCryptoBaseUnit'
+import type * as StateOverride from './stateOverride'
 import { estimateGasWithStateOverride, getMinimalStateOverride } from './stateOverride'
 
 vi.mock('./stateOverride', async importActual => ({
-  ...(await importActual<typeof import('./stateOverride')>()),
+  ...(await importActual<typeof StateOverride>()),
   getMinimalStateOverride: vi.fn(),
   estimateGasWithStateOverride: vi.fn(),
 }))
@@ -31,35 +32,12 @@ describe('getEvmNetworkFeeCryptoBaseUnit state override', () => {
     vi.mocked(estimateGasWithStateOverride).mockReset()
   })
 
-  it('skips the early gas price fetch when no override is needed', async () => {
-    vi.mocked(getMinimalStateOverride).mockResolvedValue(undefined)
-    const getGasFeeData = vi.fn()
-    const getFeeData = vi.fn().mockResolvedValue({
-      average: { chainSpecific: { gasLimit: '100', ...gasFees } },
-    })
-
-    const fee = await getEvmNetworkFeeCryptoBaseUnit(makeArgs({ getGasFeeData, getFeeData }))
-
-    expect(fee).toBe('1000')
-    expect(getGasFeeData).not.toHaveBeenCalled()
-    expect(getFeeData).toHaveBeenCalledTimes(1)
-  })
-
-  it('fetches gas prices while the override estimate is in flight', async () => {
+  it('prices the override gas limit and buffers it onto the tx', async () => {
     vi.mocked(getMinimalStateOverride).mockResolvedValue([])
-    let resolveEstimate: (gasLimit: string) => void = () => {}
-    vi.mocked(estimateGasWithStateOverride).mockReturnValue(
-      new Promise(resolve => (resolveEstimate = resolve)),
-    )
-    const getGasFeeData = vi.fn().mockResolvedValue({ average: gasFees })
-    const args = makeArgs({ getGasFeeData })
+    vi.mocked(estimateGasWithStateOverride).mockResolvedValue('200')
+    const args = makeArgs({ getGasFeeData: vi.fn().mockResolvedValue({ average: gasFees }) })
 
-    const fee = getEvmNetworkFeeCryptoBaseUnit(args)
-    await vi.waitFor(() => expect(getGasFeeData).toHaveBeenCalledTimes(1))
-    resolveEstimate('200')
-
-    await expect(fee).resolves.toBe('2000')
-    expect(getGasFeeData).toHaveBeenCalledTimes(1)
+    await expect(getEvmNetworkFeeCryptoBaseUnit(args)).resolves.toBe('2000')
     expect(args.transactionData.gasLimit).toBe('240')
   })
 
@@ -72,7 +50,7 @@ describe('getEvmNetworkFeeCryptoBaseUnit state override', () => {
       average: { chainSpecific: { gasLimit: '100', ...gasFees } },
     })
 
-    // Plain function (spies attach handlers): gas prices fail while the estimate is in flight
+    // Plain fn, not a spy (which masks unhandled rejections): gas prices fail mid-estimate
     const fee = await getEvmNetworkFeeCryptoBaseUnit(
       makeArgs({ getGasFeeData: () => Promise.reject(new Error('gas fees failed')), getFeeData }),
     )

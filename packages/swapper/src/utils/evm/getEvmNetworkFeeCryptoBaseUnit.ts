@@ -36,9 +36,9 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
   // Price a provider gas limit with fresh gas prices - no on chain estimation
   const priceProviderGasLimit = async (
     gasLimit: string,
-    gasFeeData = adapter.getGasFeeData(),
+    gasFeeDataPromise = adapter.getGasFeeData(),
   ): Promise<string> => {
-    const { average: gasPrices } = await gasFeeData
+    const { average: gasPrices } = await gasFeeDataPromise
     return evm.calcNetworkFeeCryptoBaseUnit({ ...gasPrices, supportsEIP1559, gasLimit })
   }
 
@@ -73,9 +73,9 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
         const stateOverride = await getMinimalStateOverride(overrideArgs)
         if (!stateOverride) return undefined
 
-        // Gas prices are fetched alongside the estimate and awaited only once it succeeds
-        const gasFeeData = adapter.getGasFeeData()
-        gasFeeData.catch(() => undefined)
+        // Fetched alongside the estimate, the no-op catch covers it being abandoned on failure
+        const gasFeeDataPromise = adapter.getGasFeeData()
+        gasFeeDataPromise.catch(() => undefined)
 
         const gasLimit = await estimateGasWithStateOverride({
           ...overrideArgs,
@@ -84,13 +84,13 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
           stateOverride,
         })
 
-        return { gasLimit, gasFeeData }
+        return { gasLimit, gasFeeDataPromise }
       })(),
     ).catch(() => undefined)
 
     if (overridden) {
       transactionData.gasLimit = bnOrZero(overridden.gasLimit).times(gasLimitBuffer).toFixed(0)
-      return priceProviderGasLimit(overridden.gasLimit, overridden.gasFeeData)
+      return priceProviderGasLimit(overridden.gasLimit, overridden.gasFeeDataPromise)
     }
   }
 

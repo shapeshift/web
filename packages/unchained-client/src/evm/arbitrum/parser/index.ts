@@ -23,7 +23,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
     super(args)
 
     this.registerParsers([
-      new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
+      new erc20.Parser({ chainId: this.chainId }),
       new mayachain.Parser({
         chainId: this.chainId,
         midgardUrl: args.mayaMidgardUrl,

@@ -293,11 +293,14 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   preferences.selectors.selectBalanceThresholdUserCurrency,
-  (assetsById, marketData, balances, balanceThresholdUserCurrency) =>
-    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (assetsById, marketData, balances, balanceThresholdUserCurrency, spamMarkedAssetIds) => {
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
+    return Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
       const asset = assetsById[assetId]
 
       if (!asset) return acc
+      if (spamAssetIdsSet.has(assetId)) return acc
       if (acc[assetId]) return acc
       const precision = asset.precision
       if (precision === undefined) return acc
@@ -310,7 +313,8 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
       if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed()
       return acc
-    }, {}),
+    }, {})
+  },
 )
 
 export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
@@ -320,8 +324,18 @@ export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
     selectPortfolioAssetBalancesBaseUnit,
     selectRelatedAssetIdsByAssetIdInclusive,
     preferences.selectors.selectBalanceThresholdUserCurrency,
-    (assetsById, marketData, balances, relatedAssetIdsById, balanceThresholdUserCurrency) =>
-      Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
+    preferences.selectors.selectSpamMarkedAssetIds,
+    (
+      assetsById,
+      marketData,
+      balances,
+      relatedAssetIdsById,
+      balanceThresholdUserCurrency,
+      spamMarkedAssetIds,
+    ) => {
+      const spamAssetIdsSet = new Set(spamMarkedAssetIds)
+      return Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId]) => {
+        if (spamAssetIdsSet.has(assetId)) return acc
         const asset = assetsById[assetId]
         const primaryAsset = asset?.isPrimary ? asset : assetsById[asset?.relatedAssetKey ?? '']
         const primaryAssetId = primaryAsset?.assetId
@@ -335,6 +349,7 @@ export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
 
         const totalCryptoBalanceCryptoPrecision = relatedAssetIdsById[primaryAssetId]?.reduce(
           (acc, relatedAssetId) => {
+            if (spamAssetIdsSet.has(relatedAssetId)) return acc
             return acc.plus(
               fromBaseUnit(balances[relatedAssetId], assetsById[relatedAssetId]?.precision ?? 0),
             )
@@ -351,7 +366,8 @@ export const selectPortfolioPrimaryAssetBalancesByAssetIdUserCurrency =
         acc[primaryAssetId] = assetUserCurrencyBalance.toFixed()
 
         return acc
-      }, {}),
+      }, {})
+    },
   )
 
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(

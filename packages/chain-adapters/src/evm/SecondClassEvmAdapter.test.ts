@@ -101,9 +101,8 @@ describe('SecondClassEvmAdapter', () => {
 
       const account = await adapter.getAccount(pubkey)
 
-      expect(account.chainSpecific.tokens).toEqual([])
-      // Native balance is still trustworthy, it doesn't come from the known tokens
       expect(account.balance).toBe('42')
+      expect(account.chainSpecific.tokens).toEqual([])
       expect(multicall).not.toHaveBeenCalled()
     })
 
@@ -135,6 +134,46 @@ describe('SecondClassEvmAdapter', () => {
       const account = await adapter.getAccount(pubkey)
 
       expect(account.chainSpecific.tokens).toEqual([])
+    })
+
+    it('keeps the native balance when the token batch fails', async () => {
+      vi.spyOn(mockViemClient, 'multicall').mockResolvedValue([
+        { status: 'failure', error: new Error('rpc failed') },
+      ])
+      const adapter = makeAdapter(() => [FOO_TOKEN])
+
+      const account = await adapter.getAccount(pubkey)
+
+      expect(account.balance).toBe('42')
+      expect(account.chainSpecific.tokens).toEqual([])
+    })
+
+    it('skips known tokens with malformed addresses', async () => {
+      const multicall = vi
+        .spyOn(mockViemClient, 'multicall')
+        .mockResolvedValue([{ status: 'success', result: BigInt(1000) }])
+      const adapter = makeAdapter(() => [{ ...FOO_TOKEN, contractAddress: '0xnope' }, FOO_TOKEN])
+
+      const account = await adapter.getAccount(pubkey)
+
+      expect(multicall.mock.calls[0][0].contracts).toHaveLength(1)
+      expect(account.chainSpecific.tokens).toHaveLength(1)
+    })
+
+    it('reads token balances individually on chains without multicall3', async () => {
+      const multicall = vi.spyOn(mockViemClient, 'multicall')
+      vi.spyOn(mockViemClient, 'readContract').mockResolvedValue(BigInt(1000))
+      const { chain } = mockViemClient
+      mockViemClient.chain = { contracts: {} } as typeof chain
+      const adapter = makeAdapter(() => [FOO_TOKEN])
+
+      const account = await adapter.getAccount(pubkey).finally(() => {
+        mockViemClient.chain = chain
+      })
+
+      expect(account.balance).toBe('42')
+      expect(account.chainSpecific.tokens).toHaveLength(1)
+      expect(multicall).not.toHaveBeenCalled()
     })
   })
 })

@@ -5,6 +5,7 @@ import {
   WETH_TOKEN_CONTRACT,
   ZRX_ETHEREUM_PROXY_CONTRACT,
 } from '@shapeshiftoss/contracts'
+import type * as Viem from 'viem'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Trade } from '../../../../types'
@@ -133,24 +134,30 @@ const mockTokenData: Record<string, { decimals: number; name: string; symbol: st
   },
 }
 
-vi.mock('ethers', async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const actual = await vi.importActual<any>('ethers')
-
-  const MockContract = vi.fn().mockImplementation(function (address: string) {
-    const checksumAddress = actual.getAddress(address.toLowerCase())
-    const data = mockTokenData[checksumAddress] ?? { decimals: 18, name: 'Unknown', symbol: 'UNK' }
-
-    return {
-      decimals: vi.fn().mockResolvedValue(data.decimals),
-      name: vi.fn().mockResolvedValue(data.name),
-      symbol: vi.fn().mockResolvedValue(data.symbol),
-    }
-  })
+vi.mock('viem', async () => {
+  const actual = await vi.importActual<typeof Viem>('viem')
 
   return {
     ...actual,
-    Contract: MockContract,
+    createPublicClient: vi.fn(() => ({
+      readContract: vi.fn(
+        ({
+          address,
+          functionName,
+        }: {
+          address: string
+          functionName: 'decimals' | 'name' | 'symbol'
+        }) => {
+          const checksumAddress = actual.getAddress(address.toLowerCase())
+          const data = mockTokenData[checksumAddress] ?? {
+            decimals: 18,
+            name: 'Unknown',
+            symbol: 'UNK',
+          }
+          return Promise.resolve(data[functionName])
+        },
+      ),
+    })),
   }
 })
 

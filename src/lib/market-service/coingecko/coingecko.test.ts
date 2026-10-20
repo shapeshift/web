@@ -283,6 +283,22 @@ describe('CoinGecko market service', () => {
       assetId: 'eip155:1/slip44:60',
     }
 
+    const toMarket = (
+      id: string,
+      result: MarketData,
+      maxSupply: number | null,
+      totalSupply: number | null,
+    ) => ({
+      id,
+      current_price: Number(result.price),
+      market_cap: Number(result.marketCap),
+      price_change_percentage_24h: result.changePercent24Hr,
+      total_volume: Number(result.volume),
+      circulating_supply: Number(result.supply),
+      max_supply: maxSupply,
+      total_supply: totalSupply,
+    })
+
     it('should return market data for ETH', async () => {
       const result: MarketData = {
         price: '3611.19',
@@ -291,22 +307,7 @@ describe('CoinGecko market service', () => {
         volume: '21999495657',
         supply: '120839129.44',
       }
-      const market_data = {
-        current_price: {
-          usd: Number(result.price),
-        },
-        market_cap: {
-          usd: Number(result.marketCap),
-        },
-        price_change_percentage_24h: result.changePercent24Hr,
-        total_volume: {
-          usd: Number(result.volume),
-        },
-        circulating_supply: Number(result.supply),
-        max_supply: null,
-        total_supply: null,
-      }
-      mocks.get.mockResolvedValue({ data: { market_data } })
+      mocks.get.mockResolvedValue({ data: [toMarket('ethereum', result, null, null)] })
       expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
     })
 
@@ -319,26 +320,17 @@ describe('CoinGecko market service', () => {
         supply: '18840237',
         maxSupply: '21000000',
       }
-      const market_data = {
-        current_price: {
-          usd: Number(result.price),
-        },
-        market_cap: {
-          usd: Number(result.marketCap),
-        },
-        price_change_percentage_24h: result.changePercent24Hr,
-        total_volume: {
-          usd: Number(result.volume),
-        },
-        circulating_supply: Number(result.supply),
-        max_supply: Number(result.maxSupply),
-        total_supply: Number(result.maxSupply),
-      }
-      mocks.get.mockResolvedValue({ data: { market_data } })
-      expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
+      mocks.get.mockResolvedValue({
+        data: [toMarket('bitcoin', result, Number(result.maxSupply), Number(result.maxSupply))],
+      })
+      expect(
+        await coinGeckoMarketService.findByAssetId({
+          assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+        }),
+      ).toEqual(result)
     })
 
-    it('should return market data for FOX', async () => {
+    it('should fall back to total supply when max supply is missing', async () => {
       const result: MarketData = {
         price: '0.25007',
         marketCap: '59502764',
@@ -347,23 +339,49 @@ describe('CoinGecko market service', () => {
         supply: '368444695.88',
         maxSupply: '1000001337',
       }
-      const market_data = {
-        current_price: {
-          usd: Number(result.price),
-        },
-        market_cap: {
-          usd: Number(result.marketCap),
-        },
-        price_change_percentage_24h: result.changePercent24Hr,
-        total_volume: {
-          usd: Number(result.volume),
-        },
-        circulating_supply: Number(result.supply),
-        max_supply: null,
-        total_supply: Number(result.maxSupply),
-      }
-      mocks.get.mockResolvedValue({ data: { market_data } })
+      mocks.get.mockResolvedValue({
+        data: [toMarket('ethereum', result, null, Number(result.maxSupply))],
+      })
       expect(await coinGeckoMarketService.findByAssetId(args)).toEqual(result)
+    })
+
+    it('should batch concurrent lookups into a single request', async () => {
+      const eth: MarketData = {
+        price: '1',
+        marketCap: '1',
+        changePercent24Hr: 1,
+        volume: '1',
+        supply: '1',
+      }
+      const btc: MarketData = {
+        price: '2',
+        marketCap: '2',
+        changePercent24Hr: 2,
+        volume: '2',
+        supply: '2',
+      }
+      mocks.get.mockResolvedValue({
+        data: [toMarket('bitcoin', btc, null, null), toMarket('ethereum', eth, null, null)],
+      })
+
+      const results = await Promise.all([
+        coinGeckoMarketService.findByAssetId(args),
+        coinGeckoMarketService.findByAssetId({
+          assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+        }),
+        coinGeckoMarketService.findByAssetId(args),
+      ])
+
+      expect(results).toEqual([eth, btc, eth])
+      expect(mocks.get).toHaveBeenCalledTimes(1)
+      expect(mocks.get).toHaveBeenCalledWith(
+        `${adapters.coingeckoBaseUrl}/coins/markets?vs_currency=usd&ids=bitcoin,ethereum&per_page=2`,
+      )
+    })
+
+    it('should return null when coingecko has no market data', async () => {
+      mocks.get.mockResolvedValue({ data: [] })
+      expect(await coinGeckoMarketService.findByAssetId(args)).toBeNull()
     })
 
     it('should return null on network error', async () => {

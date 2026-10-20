@@ -8,7 +8,7 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
-import { getAddress, JsonRpcProvider } from 'ethers'
+import { getAddress } from 'ethers'
 
 import type { Token, TxStatus } from '../../types'
 import { TransferType } from '../../types'
@@ -33,7 +33,7 @@ export class BaseTransactionParser<T extends Tx> {
   assetId: AssetId
 
   protected readonly api: Api
-  protected readonly provider: JsonRpcProvider
+  protected readonly rpcUrl: string
 
   private parsers: SubParser<T>[] = []
 
@@ -41,7 +41,7 @@ export class BaseTransactionParser<T extends Tx> {
     this.chainId = args.chainId
     this.assetId = args.assetId
     this.api = args.api
-    this.provider = new JsonRpcProvider(args.rpcUrl, undefined, { staticNetwork: true })
+    this.rpcUrl = args.rpcUrl
   }
 
   /**

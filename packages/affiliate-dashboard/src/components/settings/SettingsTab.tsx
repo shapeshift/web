@@ -5,6 +5,7 @@ import type {
   useAffiliateActions,
 } from '../../hooks/useAffiliateActions'
 import type { AffiliateConfig } from '../../hooks/useAffiliateConfig'
+import { AccessManagementCard } from './AccessManagementCard'
 import { ActionMessage } from './ActionMessage'
 import { AffiliateBpsCard } from './AffiliateBpsCard'
 import { AuthBanner } from './AuthBanner'
@@ -17,6 +18,7 @@ interface SettingsTabProps {
   affiliateAddress: string
   config: AffiliateConfig | undefined
   actions: ReturnType<typeof useAffiliateActions>
+  authHeaders: Record<string, string>
   isAuthenticated: boolean
   isAuthenticating: boolean
   authError: string | null
@@ -25,10 +27,22 @@ interface SettingsTabProps {
   onValidationError: (message: ActionMessageType) => void
 }
 
+const scrollbarSx = {
+  scrollbarWidth: 'thin',
+  scrollbarColor: 'var(--chakra-colors-border-input) transparent',
+  '&::-webkit-scrollbar': { width: '6px' },
+  '&::-webkit-scrollbar-track': { background: 'transparent' },
+  '&::-webkit-scrollbar-thumb': {
+    background: 'var(--chakra-colors-border-input)',
+    borderRadius: 'full',
+  },
+}
+
 export const SettingsTab = ({
   affiliateAddress,
   config,
   actions,
+  authHeaders,
   isAuthenticated,
   isAuthenticating,
   authError,
@@ -36,7 +50,7 @@ export const SettingsTab = ({
   onSignOut,
   onValidationError,
 }: SettingsTabProps): React.JSX.Element => (
-  <Stack spacing={5}>
+  <Stack spacing={5} flex={1} minH={0} overflowY='auto' pr={2} sx={scrollbarSx}>
     {actions.message && (
       <ActionMessage message={actions.message} onDismiss={() => actions.clearMessage()} />
     )}
@@ -60,20 +74,25 @@ export const SettingsTab = ({
       <>
         <ConfigSummaryCard config={config} />
         {isAuthenticated && (
-          <AffiliateBpsCard
-            currentBps={config.partnerBps}
-            isLoading={actions.isLoading}
-            onUpdate={bps => actions.updateBps(bps)}
-            onValidationError={onValidationError}
-          />
-        )}
-        {isAuthenticated && (
-          <ReceiveAddressCard
-            config={config}
-            isLoading={actions.isLoading}
-            onUpdate={addr => actions.updateReceiveAddress(addr)}
-            onValidationError={onValidationError}
-          />
+          <>
+            <AffiliateBpsCard
+              currentBps={config.partnerBps}
+              isLoading={actions.isLoading}
+              onUpdate={bps => actions.updateBps(bps)}
+              onValidationError={onValidationError}
+            />
+            <ReceiveAddressCard
+              config={config}
+              isLoading={actions.isLoading}
+              onUpdate={addr => actions.updateReceiveAddress(addr)}
+              onValidationError={onValidationError}
+            />
+            <AccessManagementCard
+              affiliateAddress={affiliateAddress}
+              authHeaders={authHeaders}
+              setMessage={actions.setMessage}
+            />
+          </>
         )}
       </>
     )}

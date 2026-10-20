@@ -8,6 +8,7 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { SwapperName, TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
+import { getActiveRate } from '../utils/depositFlow'
 import { shouldFetchRates, shouldPollRates } from '../utils/ratesPolling'
 import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
@@ -19,6 +20,7 @@ import { useSwapRates } from './useSwapRates'
 type UseSwapDisplayValuesParams = {
   apiClient: ApiClient
   allowedSwapperNames?: SwapperName[]
+  allowShapeshiftRedirect: boolean
   ratesRefetchInterval?: number
 }
 
@@ -51,6 +53,7 @@ export type SwapDisplayValues = {
 export const useSwapDisplayValues = ({
   apiClient,
   allowedSwapperNames,
+  allowShapeshiftRedirect,
   ratesRefetchInterval,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const context = SwapMachineCtx.useSelector(s => s.context)
@@ -73,7 +76,9 @@ export const useSwapDisplayValues = ({
     error: ratesError,
   } = useSwapRates(apiClient, {
     sellAssetId: sellAsset.assetId,
+    sellChainId: sellAsset.chainId,
     buyAssetId: buyAsset.assetId,
+    allowShapeshiftRedirect,
     sellAmountCryptoBaseUnit: context.sellAmountBaseUnit,
     buyAmountCryptoBaseUnit: buyAmountBaseUnit,
     allowedSwapperNames,
@@ -121,7 +126,10 @@ export const useSwapDisplayValues = ({
   const { data: sellChainInfo } = useChainInfo(sellAsset.chainId)
   const { data: buyChainInfo } = useChainInfo(buyAsset.chainId)
 
-  const displayRate = useMemo(() => selectedRate ?? rates?.[0], [selectedRate, rates])
+  const displayRate = useMemo(
+    () => getActiveRate(rates, selectedRate, sellAsset.chainId),
+    [rates, selectedRate, sellAsset.chainId],
+  )
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit
 
   // Exact output has no user-entered sell amount - it only exists once a route has priced it

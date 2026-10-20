@@ -124,7 +124,6 @@ export type TradeRate = {
     code: string
     message: string
   }
-  id?: string
 }
 
 export type ThemeMode = 'light' | 'dark'
@@ -165,8 +164,8 @@ export type SwapWidgetProps = ReceiveAddressProps &
     partnerCode?: string
     apiBaseUrl?: string
     allowShapeshiftRedirect?: boolean
-    defaultSellAsset?: Asset
-    defaultBuyAsset?: Asset
+    defaultSellAsset?: Asset | AssetId
+    defaultBuyAsset?: Asset | AssetId
     sellFilters?: SwapWidgetFilters
     buyFilters?: SwapWidgetFilters
     allowedSwapperNames?: SwapperName[]
@@ -331,6 +330,9 @@ const EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET: ReadonlySet<string> = new Set([zecChai
 
 export const isExternalPaymentSellChainId = (chainId: string): boolean =>
   EXTERNAL_PAYMENT_SELL_CHAIN_ID_SET.has(chainId)
+
+export const isWidgetSwappableChainId = (chainId: string): boolean =>
+  isWidgetExecutableChainId(chainId) || isExternalPaymentSellChainId(chainId)
 
 const SUPPORTED_CHAIN_ID_SET: ReadonlySet<string> = new Set([
   ...Object.values(EVM_CHAIN_IDS),

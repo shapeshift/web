@@ -12,7 +12,8 @@ registry.registerPath({
   path: '/v1/affiliate/{address}',
   operationId: 'getAffiliate',
   summary: 'Get affiliate config',
-  description: 'Retrieve affiliate configuration for a given wallet address.',
+  description:
+    'Retrieve affiliate configuration for a wallet address. The wallet may be the owner or an admin; the response role says which.',
   tags: ['Affiliate'],
   request: {
     params: AffiliateAddressParamsSchema,

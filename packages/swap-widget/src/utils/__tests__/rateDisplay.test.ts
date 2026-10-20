@@ -29,25 +29,43 @@ describe('rateDisplay', () => {
   describe('sortRatesByValue', () => {
     // Every exact-output route buys the same amount, so the cheapest input is the best one
     it('puts the cheapest sell amount first on exact output', () => {
-      const cheap = makeRate({ id: 'cheap', sellAmountCryptoBaseUnit: '64265399' })
-      const dear = makeRate({ id: 'dear', sellAmountCryptoBaseUnit: '64412212' })
+      const cheap = makeRate({
+        swapperName: SwapperName.Relay,
+        sellAmountCryptoBaseUnit: '64265399',
+      })
+      const dear = makeRate({
+        swapperName: SwapperName.Chainflip,
+        sellAmountCryptoBaseUnit: '64412212',
+      })
 
-      expect(sortRatesByValue([dear, cheap], true).map(r => r.id)).toEqual(['cheap', 'dear'])
+      expect(sortRatesByValue([dear, cheap], true)).toEqual([cheap, dear])
     })
 
     it('puts the largest buy amount first otherwise', () => {
-      const small = makeRate({ id: 'small', buyAmountCryptoBaseUnit: '90000' })
-      const large = makeRate({ id: 'large', buyAmountCryptoBaseUnit: '100000' })
+      const small = makeRate({
+        swapperName: SwapperName.Relay,
+        buyAmountCryptoBaseUnit: '90000',
+      })
+      const large = makeRate({
+        swapperName: SwapperName.Chainflip,
+        buyAmountCryptoBaseUnit: '100000',
+      })
 
-      expect(sortRatesByValue([small, large], false).map(r => r.id)).toEqual(['large', 'small'])
+      expect(sortRatesByValue([small, large], false)).toEqual([large, small])
     })
 
     it('drops errored rates and zero amounts on the side that matters', () => {
-      const errored = makeRate({ id: 'errored', error: { code: 'x', message: 'y' } })
-      const zeroSell = makeRate({ id: 'zeroSell', sellAmountCryptoBaseUnit: '0' })
-      const ok = makeRate({ id: 'ok' })
+      const errored = makeRate({
+        swapperName: SwapperName.Relay,
+        error: { code: 'x', message: 'y' },
+      })
+      const zeroSell = makeRate({
+        swapperName: SwapperName.Chainflip,
+        sellAmountCryptoBaseUnit: '0',
+      })
+      const ok = makeRate({})
 
-      expect(sortRatesByValue([errored, zeroSell, ok], true).map(r => r.id)).toEqual(['ok'])
+      expect(sortRatesByValue([errored, zeroSell, ok], true)).toEqual([ok])
     })
   })
 

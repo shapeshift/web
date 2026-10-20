@@ -19,7 +19,7 @@ export const AuthStatusBar = ({ onSignOut }: AuthStatusBarProps): React.JSX.Elem
           Authenticated
         </Heading>
         <Text fontSize='sm' color='fg.muted' lineHeight={1.5}>
-          You&apos;re signed in and can manage settings for this wallet.
+          You&apos;re signed in and can manage this affiliate configuration.
         </Text>
       </Stack>
       <Button

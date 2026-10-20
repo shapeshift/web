@@ -91,30 +91,33 @@ describe('SecondClassEvmAdapter', () => {
     const pubkey = '0x1111111111111111111111111111111111111111'
 
     beforeEach(() => {
-      vi.spyOn(mockViemClient, 'getBalance').mockResolvedValue(BigInt(42))
       vi.spyOn(mockViemClient, 'getTransactionCount').mockResolvedValue(7)
     })
 
-    it('scans nothing and reports no tokens when there are no known tokens', async () => {
-      const multicall = vi.spyOn(mockViemClient, 'multicall')
+    it('reads only the native balance when there are no known tokens', async () => {
+      const multicall = vi
+        .spyOn(mockViemClient, 'multicall')
+        .mockResolvedValue([{ status: 'success', result: BigInt(42) }])
       const adapter = makeAdapter(() => [])
 
       const account = await adapter.getAccount(pubkey)
 
-      expect(account.chainSpecific.tokens).toEqual([])
-      // Native balance is still trustworthy, it doesn't come from the known tokens
       expect(account.balance).toBe('42')
-      expect(multicall).not.toHaveBeenCalled()
+      expect(account.chainSpecific.tokens).toEqual([])
+      expect(multicall).toHaveBeenCalledTimes(1)
+      expect(multicall.mock.calls[0][0].contracts).toHaveLength(1)
     })
 
     it('returns token balances when there are known tokens', async () => {
       vi.spyOn(mockViemClient, 'multicall').mockResolvedValue([
+        { status: 'success', result: BigInt(42) },
         { status: 'success', result: BigInt(1000) },
       ])
       const adapter = makeAdapter(() => [FOO_TOKEN])
 
       const account = await adapter.getAccount(pubkey)
 
+      expect(account.balance).toBe('42')
       expect(account.chainSpecific.tokens).toEqual([
         {
           assetId: FOO_TOKEN.assetId,
@@ -128,6 +131,7 @@ describe('SecondClassEvmAdapter', () => {
 
     it('omits zero balances from the known tokens', async () => {
       vi.spyOn(mockViemClient, 'multicall').mockResolvedValue([
+        { status: 'success', result: BigInt(42) },
         { status: 'success', result: BigInt(0) },
       ])
       const adapter = makeAdapter(() => [FOO_TOKEN])
@@ -135,6 +139,41 @@ describe('SecondClassEvmAdapter', () => {
       const account = await adapter.getAccount(pubkey)
 
       expect(account.chainSpecific.tokens).toEqual([])
+    })
+
+    it('reads balances individually on chains without multicall3', async () => {
+      const multicall = vi.spyOn(mockViemClient, 'multicall')
+      vi.spyOn(mockViemClient, 'getBalance').mockResolvedValue(BigInt(42))
+      vi.spyOn(mockViemClient, 'readContract').mockResolvedValue(BigInt(1000))
+      const { chain } = mockViemClient
+      mockViemClient.chain = { contracts: {} } as typeof chain
+      const adapter = makeAdapter(() => [FOO_TOKEN])
+
+      const account = await adapter.getAccount(pubkey).finally(() => {
+        mockViemClient.chain = chain
+      })
+
+      expect(account.balance).toBe('42')
+      expect(account.chainSpecific.tokens).toEqual([
+        {
+          assetId: FOO_TOKEN.assetId,
+          balance: '1000',
+          symbol: 'FOO',
+          name: 'Foo',
+          precision: 18,
+        },
+      ])
+      expect(multicall).not.toHaveBeenCalled()
+    })
+
+    it('fails when the native balance read fails', async () => {
+      vi.spyOn(mockViemClient, 'multicall').mockResolvedValue([
+        { status: 'failure', error: new Error('boom') },
+        { status: 'success', result: BigInt(1000) },
+      ])
+      const adapter = makeAdapter(() => [FOO_TOKEN])
+
+      await expect(adapter.getAccount(pubkey)).rejects.toThrow('boom')
     })
   })
 })

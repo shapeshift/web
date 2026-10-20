@@ -13,7 +13,7 @@ export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLP
     .toString()
 
 // Rate of FOX given per second for 1 staked LP token
-export const rewardRatePerToken = (rewardRate: bigint, totalSupply: bigint) =>
+export const rewardRatePerToken = (rewardRate: bigint, totalSupply: bigint): string =>
   BigAmount.fromPrecision({
     value: bnOrZero(rewardRate.toString()).div(bnOrZero(totalSupply.toString())).toFixed(),
     precision: 18,

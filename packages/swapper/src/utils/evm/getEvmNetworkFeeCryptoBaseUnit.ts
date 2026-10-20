@@ -57,7 +57,7 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
 
     // Best effort - a timeout, undiscoverable slot, or an rpc without stateOverride support falls
     // through to plain estimation, which succeeds whenever the seller's state was sufficient anyway
-    const overridden = await withTimeout(
+    const overriddenGasLimit = await withTimeout(
       (async () => {
         const overrideArgs = {
           sellAsset,
@@ -70,22 +70,13 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
         const stateOverride = await getMinimalStateOverride(overrideArgs)
         if (!stateOverride) return undefined
 
-        const [gasLimit, gasFeeData] = await Promise.all([
-          estimateGasWithStateOverride({ ...overrideArgs, to, data, stateOverride }),
-          adapter.getGasFeeData(),
-        ])
-
-        return { gasLimit, gasFeeData }
+        return estimateGasWithStateOverride({ ...overrideArgs, to, data, stateOverride })
       })(),
     ).catch(() => undefined)
 
-    if (overridden) {
-      transactionData.gasLimit = bnOrZero(overridden.gasLimit).times(gasLimitBuffer).toFixed(0)
-      return evm.calcNetworkFeeCryptoBaseUnit({
-        ...overridden.gasFeeData.average,
-        supportsEIP1559,
-        gasLimit: overridden.gasLimit,
-      })
+    if (overriddenGasLimit) {
+      transactionData.gasLimit = bnOrZero(overriddenGasLimit).times(gasLimitBuffer).toFixed(0)
+      return priceProviderGasLimit(overriddenGasLimit)
     }
   }
 

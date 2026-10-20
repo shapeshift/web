@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -19,7 +19,6 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -49,7 +48,6 @@ export const Deposit: React.FC<DepositProps> = ({
   onNext,
 }) => {
   'use no memo'
-  const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -86,13 +84,6 @@ export const Deposit: React.FC<DepositProps> = ({
     selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter),
   )
 
-  const { getLpTokenPrice } = useUniV2LiquidityPool({
-    accountId: accountId ?? '',
-    assetId0: foxFarmingOpportunity?.underlyingAssetIds[0] ?? '',
-    assetId1: foxFarmingOpportunity?.underlyingAssetIds[1] ?? '',
-    lpAssetId: underlyingAssetId ?? '',
-  })
-
   assertIsFoxEthStakingContractAddress(contractAddress)
 
   const {
@@ -119,13 +110,6 @@ export const Deposit: React.FC<DepositProps> = ({
 
   // notify
   const toast = useNotificationToast({ desktopPosition: 'top-right' })
-
-  useEffect(() => {
-    ;(async () => {
-      const lpPrice = await getLpTokenPrice()
-      if (lpPrice) setLpTokenPrice(lpPrice.toString())
-    })()
-  }, [getLpTokenPrice])
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
@@ -293,7 +277,7 @@ export const Deposit: React.FC<DepositProps> = ({
       onContinue={handleContinue}
       percentOptions={percentOptions}
       enableSlippage={false}
-      isLoading={state.loading || !lpTokenPrice}
+      isLoading={state.loading}
     />
   )
 }

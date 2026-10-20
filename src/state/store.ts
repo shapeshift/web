@@ -143,19 +143,8 @@ export const createStore = () =>
 
 export const store = createStore()
 
-// only focus is tracked (for skipPollingIfUnfocused), so refetchOnReconnect stays dormant
-setupListeners(store.dispatch, (dispatch, { onFocus, onFocusLost }) => {
-  const handleVisibilityChange = () =>
-    dispatch(document.visibilityState === 'visible' ? onFocus() : onFocusLost())
-
-  window.addEventListener('visibilitychange', handleVisibilityChange, false)
-  window.addEventListener('focus', handleVisibilityChange, false)
-
-  return () => {
-    window.removeEventListener('visibilitychange', handleVisibilityChange)
-    window.removeEventListener('focus', handleVisibilityChange)
-  }
-})
+// tracks focus for skipPollingIfUnfocused
+setupListeners(store.dispatch)
 export const persistor = persistStore(store)
 
 BigAmount.configure({

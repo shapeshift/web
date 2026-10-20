@@ -150,9 +150,6 @@ export const ethereal = defineChain({
   contracts: { multicall3 },
 })
 
-// viem's hemi definition omits the multicall3 deployment
-const hemi = defineChain({ ...viemHemi, contracts: { multicall3 } })
-
 export const viemEtherealClient = createRpcClient(ethereal, undefined, PUBLIC_RPC_URLS.ethereal)
 
 export const viemStoryClient = createRpcClient(story, undefined, PUBLIC_RPC_URLS.story)
@@ -166,6 +163,8 @@ export const viemWorldChainClient = createRpcClient(
   undefined,
   PUBLIC_RPC_URLS.worldChain,
 )
+
+const hemi = defineChain({ ...viemHemi, contracts: { multicall3 } })
 
 export const viemHemiClient = createRpcClient(hemi, undefined, PUBLIC_RPC_URLS.hemi)
 

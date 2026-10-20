@@ -105,6 +105,7 @@ export const App = (): React.JSX.Element => {
                 affiliateAddress={affiliateAddress}
                 config={configQuery.data}
                 actions={actions}
+                authHeaders={authHeaders}
                 isAuthenticated={isAuthenticated}
                 isAuthenticating={isAuthenticating}
                 authError={authError}

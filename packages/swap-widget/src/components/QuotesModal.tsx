@@ -1,12 +1,12 @@
 import './QuotesModal.css'
 
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
 import { formatUsdValue } from '../hooks/useMarketData'
 import type { Asset, TradeRate } from '../types'
 import { formatAmount } from '../types'
-import { getRateAmountBaseUnit, getRateDiffPercent, sortRatesByValue } from '../utils/rateDisplay'
+import { getRateAmountBaseUnit, getRateDiffPercent } from '../utils/rateDisplay'
 
 const useLockBodyScroll = (isLocked: boolean) => {
   useEffect(() => {
@@ -23,7 +23,7 @@ type QuotesModalProps = {
   isOpen: boolean
   onClose: () => void
   rates: TradeRate[]
-  selectedRate: TradeRate | null
+  selectedRate: TradeRate | undefined
   onSelectRate: (rate: TradeRate) => void
   buyAsset: Asset
   sellAsset: Asset
@@ -67,9 +67,7 @@ export const QuotesModal = ({
     [onSelectRate, onClose],
   )
 
-  const sortedRates = useMemo(() => sortRatesByValue(rates, isExactOutput), [rates, isExactOutput])
-
-  const bestRate = useMemo(() => sortedRates[0], [sortedRates])
+  const bestRate = rates[0]
   const bestAmountBaseUnit = bestRate ? getRateAmountBaseUnit(bestRate, isExactOutput) : '0'
 
   const asset = isExactOutput ? sellAsset : buyAsset
@@ -122,11 +120,11 @@ export const QuotesModal = ({
         </div>
 
         <div className='ssw-quotes-modal-list'>
-          {sortedRates.map((rate, index) => {
+          {rates.map((rate, index) => {
             const amountBaseUnit = getRateAmountBaseUnit(rate, isExactOutput)
             const estimatedTime = rate.estimatedExecutionTimeMs
             const isBest = index === 0
-            const isSelected = selectedRate?.id === rate.id
+            const isSelected = selectedRate?.swapperName === rate.swapperName
             const swapperIcon = getSwapperIcon(rate.swapperName)
             const swapperColor = getSwapperColor(rate.swapperName)
             const formattedAmount = formatAmount(amountBaseUnit, asset.precision)
@@ -139,10 +137,8 @@ export const QuotesModal = ({
 
             return (
               <button
-                key={rate.id}
-                className={`ssw-quote-row ${isSelected ? 'ssw-selected' : ''} ${
-                  isBest ? 'ssw-best' : ''
-                }`}
+                key={rate.swapperName}
+                className={`ssw-quote-row ${isSelected ? 'ssw-selected' : ''}`}
                 onClick={() => handleSelectRate(rate)}
                 type='button'
               >

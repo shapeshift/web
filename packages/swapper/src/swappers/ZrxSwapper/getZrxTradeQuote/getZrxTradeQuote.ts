@@ -13,9 +13,13 @@ import { assertQuoteAddresses, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { ZrxTradeQuoteInput } from '../types'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
+import { getZrxNativeCheckDeadline } from '../utils/getZrxNativeCheckDeadline'
 import { getZrxStepData } from '../utils/getZrxStepData'
 import { getZrxTradeContext } from '../utils/getZrxTradeContext'
 import { assertValidTrade, isWrappedNativeSell } from '../utils/helpers'
+
+const isValidDeadlineSeconds = (deadline: number): boolean =>
+  Number.isSafeInteger(deadline) && deadline > 0 && Number.isSafeInteger(deadline * 1000)
 
 export const getZrxTradeQuote = async (
   input: ZrxTradeQuoteInput,
@@ -72,9 +76,7 @@ export const getZrxTradeQuote = async (
     permit2Deadline !== undefined &&
     ((typeof permit2Eip712?.message.deadline !== 'string' &&
       typeof permit2Eip712?.message.deadline !== 'number') ||
-      !Number.isSafeInteger(permit2Deadline) ||
-      permit2Deadline <= 0 ||
-      !Number.isSafeInteger(permit2Deadline * 1000))
+      !isValidDeadlineSeconds(permit2Deadline))
   ) {
     return Err(
       makeSwapErrorRight({
@@ -104,6 +106,22 @@ export const getZrxTradeQuote = async (
     )
   }
 
+  // Permit2 calldata is not decodable until the signature is spliced in, so only native sells are read
+  const nativeCheckDeadline = permit2Eip712
+    ? undefined
+    : getZrxNativeCheckDeadline(transaction.data)
+
+  if (nativeCheckDeadline !== undefined && !isValidDeadlineSeconds(nativeCheckDeadline)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Invalid NATIVE_CHECK deadline in 0x calldata',
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
+
+  const deadlineSeconds = permit2Deadline ?? nativeCheckDeadline
+
   const maybeContext = getZrxTradeContext({
     input,
     deps,
@@ -129,7 +147,7 @@ export const getZrxTradeQuote = async (
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
     quoteOrRate: 'quote' as const,
-    deadline: permit2Deadline === undefined ? undefined : permit2Deadline * 1000,
+    deadline: deadlineSeconds === undefined ? undefined : deadlineSeconds * 1000,
     receiveAddress,
     steps: [
       {

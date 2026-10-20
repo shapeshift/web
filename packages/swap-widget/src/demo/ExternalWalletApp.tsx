@@ -94,7 +94,7 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
   const themeState = useDemoTheme(theme)
   const { themeConfig, partnerCode, demoStyle, displayMode } = themeState
 
-  const { isReady: areIntegratorAssetsReady, props: integratorProps } = useIntegratorParams()
+  const integratorProps = useIntegratorParams()
 
   const handleSwapSuccess = useCallback((txHash: string) => {
     console.log('Swap successful:', txHash)
@@ -189,11 +189,7 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
                 displayMode === 'modal' ? ' demo-widget-container-modal' : ''
               }`}
             >
-              {!areIntegratorAssetsReady ? null : displayMode === 'modal' ? (
-                <WidgetModal>{widget}</WidgetModal>
-              ) : (
-                widget
-              )}
+              {displayMode === 'modal' ? <WidgetModal>{widget}</WidgetModal> : widget}
             </div>
           </div>
         </div>

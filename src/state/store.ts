@@ -143,8 +143,8 @@ export const createStore = () =>
 
 export const store = createStore()
 
-// tracks focus for skipPollingIfUnfocused
 setupListeners(store.dispatch)
+
 export const persistor = persistStore(store)
 
 BigAmount.configure({

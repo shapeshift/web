@@ -36,6 +36,7 @@ export type CoinGeckoSortKey =
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 const BATCH_WINDOW_MS = 50
+const MAX_BATCH_IDS = 100
 
 type PendingLookup = {
   resolve: (data: CoinGeckoMarketCap | undefined) => void
@@ -136,7 +137,7 @@ export class CoinGeckoMarketService implements MarketService {
     return new Promise((resolve, reject) => {
       this.pendingLookups.set(id, [...(this.pendingLookups.get(id) ?? []), { resolve, reject }])
 
-      if (this.pendingLookups.size >= this.maxPerPage) return this.flushLookups()
+      if (this.pendingLookups.size >= MAX_BATCH_IDS) return this.flushLookups()
       if (!this.batchTimeout) {
         this.batchTimeout = setTimeout(() => this.flushLookups(), BATCH_WINDOW_MS)
       }

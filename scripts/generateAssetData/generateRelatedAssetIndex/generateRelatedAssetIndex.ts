@@ -55,7 +55,12 @@ const BATCH_SIZE = 100
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
 const axiosInstance = axios.create()
-axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
+axiosRetry(axiosInstance, {
+  retries: 5,
+  // coingecko limits per minute, so a 429 needs to wait for the window to reset
+  retryDelay: (retryCount, error) =>
+    error.response?.status === 429 ? 30_000 : axiosRetry.exponentialDelay(retryCount, error),
+})
 
 const ZERION_API_KEY = process.env.ZERION_API_KEY
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
@@ -356,6 +361,8 @@ const processRelatedAssetIds = async (
     }
   }
 
+  await throttle()
+
   const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(
     assetId,
     assetData,
@@ -479,8 +486,6 @@ const processRelatedAssetIds = async (
     // If there are no related assets, set relatedAssetKey to null
     assetData[assetId].relatedAssetKey = null
   }
-
-  await throttle()
 }
 
 // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
@@ -543,10 +548,11 @@ export const generateRelatedAssetIndex = async () => {
   const categoryToCoinIds = await fetchBridgedCategoryMappings()
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
-    capacity: 50, // Reduced initial capacity to allow for a burst but not too high
-    costPerReq: 1, // Keeping the cost per request as 1 for simplicity
-    drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
-    intervalMs: 2000,
+    // ~300 req/min, leaving coingecko's 500 req/min limit headroom for user traffic
+    capacity: 5,
+    costPerReq: 1,
+    drainPerInterval: 5,
+    intervalMs: 1000,
   })
 
   const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)

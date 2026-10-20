@@ -50,7 +50,12 @@ const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
 const axiosInstance = axios.create()
-axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
+axiosRetry(axiosInstance, {
+  retries: 5,
+  // coingecko limits per minute, so a 429 needs to wait for the window to reset
+  retryDelay: (retryCount, error) =>
+    error.response?.status === 429 ? 30_000 : axiosRetry.exponentialDelay(retryCount, error),
+})
 
 const BRIDGED_CATEGORY_MAPPINGS: Record<string, AssetId> = {
   'bridged-usdc': 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -322,6 +327,8 @@ const processRelatedAssetIds = async (
     }
   }
 
+  await throttle()
+
   const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(
     assetId,
     assetData,
@@ -424,8 +431,6 @@ const processRelatedAssetIds = async (
   } else {
     assetData[assetId].relatedAssetKey = null
   }
-
-  await throttle()
 }
 
 /**
@@ -467,10 +472,11 @@ export const generateChainRelatedAssetIndex = async (chainId: ChainId) => {
   const categoryToCoinIds = await fetchBridgedCategoryMappings()
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
-    capacity: 50,
+    // ~300 req/min, leaving coingecko's 500 req/min limit headroom for user traffic
+    capacity: 5,
     costPerReq: 1,
-    drainPerInterval: 25,
-    intervalMs: 2000,
+    drainPerInterval: 5,
+    intervalMs: 1000,
   })
 
   // Process only chain assets in batches of 100

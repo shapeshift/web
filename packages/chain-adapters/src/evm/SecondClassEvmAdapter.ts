@@ -26,6 +26,7 @@ import type { evm } from '@shapeshiftoss/common-api'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import chunk from 'lodash/chunk'
 import PQueue from 'p-queue'
 import type { Address, Hex, PublicClient } from 'viem'
 import {
@@ -192,25 +193,26 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     const multicallAddress = this.viemClient.chain?.contracts?.multicall3?.address
     if (!multicallAddress) return this.getTokenBalancesIndividually(address, knownTokens)
 
-    const results = []
-    for (let i = 0; i < knownTokens.length; i += BATCH_SIZE) {
-      const batchResults = await this.requestQueue.add(
-        () =>
-          this.viemClient.multicall({
-            contracts: knownTokens.slice(i, i + BATCH_SIZE).map(token => ({
-              address: getAddress(token.contractAddress),
-              abi: erc20Abi,
-              functionName: 'balanceOf' as const,
-              args: [address],
-            })),
-            allowFailure: true,
-            multicallAddress,
-            batchSize: 0,
-          }),
-        { throwOnTimeout: true },
-      )
-      results.push(...batchResults)
-    }
+    const batchResults = await Promise.all(
+      chunk(knownTokens, BATCH_SIZE).map(batch =>
+        this.requestQueue.add(
+          () =>
+            this.viemClient.multicall({
+              contracts: batch.map(token => ({
+                address: getAddress(token.contractAddress),
+                abi: erc20Abi,
+                functionName: 'balanceOf' as const,
+                args: [address],
+              })),
+              allowFailure: true,
+              multicallAddress,
+              batchSize: 0,
+            }),
+          { throwOnTimeout: true },
+        ),
+      ),
+    )
+    const results = batchResults.flat()
 
     return knownTokens.flatMap((token, i) => {
       const result = results[i]

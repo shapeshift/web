@@ -27,6 +27,14 @@ export function getLcxLibertyStepData(
 export function getLcxLibertyStepData(
   args: Extract<GetLcxLibertyStepDataArgs, { type: 'quote' }>,
 ): Promise<Result<LcxLibertyQuoteStepData, SwapErrorRight>>
+/**
+ * Builds the step data for an LCX Liberty DEX trade.
+ *
+ * A rate has no transaction yet, so it carries only the network fee the provider estimated.
+ * A quote turns the provider's transaction into EVM tx build data and prices its gas limit. Before
+ * an approval the build has no gas limit, so it is estimated with the sell asset's balance and
+ * allowance overridden.
+ */
 export async function getLcxLibertyStepData(
   args: GetLcxLibertyStepDataArgs,
 ): Promise<Result<LcxLibertyRateStepData | LcxLibertyQuoteStepData, SwapErrorRight>> {

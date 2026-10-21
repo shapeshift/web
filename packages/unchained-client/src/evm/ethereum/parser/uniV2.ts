@@ -9,8 +9,8 @@ import {
   WETH_TOKEN_CONTRACT,
 } from '@shapeshiftoss/contracts'
 import assert from 'assert'
-import type { JsonRpcProvider } from 'ethers'
-import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
+import { getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
+import type { Address, PublicClient } from 'viem'
 import { erc20Abi } from 'viem'
 
 import type { Tx } from '../../../generated/ethereum'
@@ -24,7 +24,7 @@ export interface TxMetadata extends BaseTxMetadata {
 
 export interface ParserArgs {
   chainId: ChainId
-  provider: JsonRpcProvider
+  client: PublicClient
 }
 
 interface SupportedFunctions {
@@ -38,7 +38,7 @@ interface SupportedStakingRewardsFunctions {
 }
 
 export class Parser implements SubParser<Tx> {
-  provider: JsonRpcProvider
+  client: PublicClient
   readonly chainId: ChainId
   readonly wethContract: string
   readonly abiInterface = new Interface(UNISWAP_V2_ROUTER_02_ABI)
@@ -48,7 +48,7 @@ export class Parser implements SubParser<Tx> {
 
   constructor(args: ParserArgs) {
     this.chainId = args.chainId
-    this.provider = args.provider
+    this.client = args.client
 
     assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
 
@@ -106,10 +106,7 @@ export class Parser implements SubParser<Tx> {
     const transfers = await (async () => {
       switch (getSigHash(tx.inputData)) {
         case this.supportedFunctions.addLiquidityEthSigHash: {
-          const contract = new Contract(tokenAddress, erc20Abi, this.provider)
-          const decimals = await contract.decimals()
-          const name = await contract.name()
-          const symbol = await contract.symbol()
+          const { decimals, name, symbol } = await this.getTokenMetadata(tokenAddress)
           const value = decoded.args.amountTokenDesired.toString()
 
           const assetId = toAssetId({
@@ -131,10 +128,7 @@ export class Parser implements SubParser<Tx> {
           ]
         }
         case this.supportedFunctions.removeLiquidityEthSigHash: {
-          const contract = new Contract(lpTokenAddress, erc20Abi, this.provider)
-          const decimals = await contract.decimals()
-          const name = await contract.name()
-          const symbol = await contract.symbol()
+          const { decimals, name, symbol } = await this.getTokenMetadata(lpTokenAddress)
           const value = decoded.args.liquidity.toString()
 
           const assetId = toAssetId({
@@ -203,6 +197,20 @@ export class Parser implements SubParser<Tx> {
     )
 
     if (isFoxStakingRewards) return await Promise.resolve(this.parseStakingRewards(tx))
+  }
+
+  private async getTokenMetadata(
+    address: string,
+  ): Promise<{ decimals: number; name: string; symbol: string }> {
+    const contract = { address: address as Address, abi: erc20Abi } as const
+
+    const [decimals, name, symbol] = await Promise.all([
+      this.client.readContract({ ...contract, functionName: 'decimals' }),
+      this.client.readContract({ ...contract, functionName: 'name' }),
+      this.client.readContract({ ...contract, functionName: 'symbol' }),
+    ])
+
+    return { decimals, name, symbol }
   }
 
   private static pairFor(tokenA: string, tokenB: string): string {

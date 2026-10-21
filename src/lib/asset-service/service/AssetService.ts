@@ -266,7 +266,15 @@ class _AssetService {
       const url = adapters.makeCoingeckoAssetUrl(assetId)
       if (!url) throw new Error()
 
-      const { data } = await axios.get<CoinData>(url)
+      const { data } = await axios.get<CoinData>(url, {
+        params: {
+          tickers: false,
+          market_data: false,
+          community_data: false,
+          developer_data: false,
+          sparkline: false,
+        },
+      })
 
       if (!data?.description) return { description: '' }
 

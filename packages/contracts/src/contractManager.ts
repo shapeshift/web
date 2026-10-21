@@ -6,7 +6,7 @@ import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { erc20Abi, getAddress, getContract } from 'viem'
 
 import { EVERGREEN_FARMING_ABI, FARMING_ABI, I_UNISWAP_V2_PAIR_ABI } from './abis'
-import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from './constants'
+import { ETH_FOX_POOL_CONTRACT, ETH_FOX_STAKING_EVERGREEN_CONTRACT } from './constants'
 import type { FoxEthStakingContractAbi, FoxEthStakingContractAddress } from './types'
 import { assertGetViemClient, viemEthMainnetClient } from './viemClient'
 
@@ -16,6 +16,13 @@ export const getFoxEthStakingContract = (
   getContract({
     abi: address === ETH_FOX_STAKING_EVERGREEN_CONTRACT ? EVERGREEN_FARMING_ABI : FARMING_ABI,
     address: getAddress(address),
+    client: viemEthMainnetClient,
+  })
+
+export const getEthFoxPoolContract = () =>
+  getContract({
+    abi: I_UNISWAP_V2_PAIR_ABI,
+    address: ETH_FOX_POOL_CONTRACT,
     client: viemEthMainnetClient,
   })
 

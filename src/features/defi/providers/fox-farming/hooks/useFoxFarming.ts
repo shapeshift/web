@@ -1,18 +1,12 @@
 import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
-import {
-  ETH_FOX_POOL_CONTRACT,
-  getFoxEthStakingContract,
-  I_UNISWAP_V2_PAIR_ABI,
-  viemEthMainnetClient,
-} from '@shapeshiftoss/contracts'
+import { getEthFoxPoolContract, getFoxEthStakingContract } from '@shapeshiftoss/contracts'
 import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { encodeFunctionData, getAddress, getContract, maxUint256 } from 'viem'
+import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 
 import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -31,11 +25,7 @@ type UseFoxFarmingOptions = {
   skip?: boolean
 }
 
-const uniV2LPContract = getContract({
-  abi: I_UNISWAP_V2_PAIR_ABI,
-  address: ETH_FOX_POOL_CONTRACT,
-  client: viemEthMainnetClient,
-})
+const uniV2LPContract = getEthFoxPoolContract()
 
 /**
  * useFoxFarming hook
@@ -384,12 +374,6 @@ export const useFoxFarming = (
     skipDeviceDerivation,
   ])
 
-  const periodFinishQuery = useQuery({
-    queryKey: ['getPeriodFinish'],
-    queryFn: () => foxFarmingContract.read.periodFinish(),
-    enabled: !!foxFarmingContract,
-  })
-
   return {
     allowance,
     approve,
@@ -400,7 +384,6 @@ export const useFoxFarming = (
     stake,
     unstake,
     claimRewards,
-    periodFinishQuery,
     foxFarmingContract,
     skip,
   }

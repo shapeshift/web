@@ -1,14 +1,12 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  ETH_FOX_POOL_CONTRACT,
   fetchUniV2PairData,
+  getEthFoxPoolContract,
   getFoxEthStakingContract,
-  I_UNISWAP_V2_PAIR_ABI,
-  viemEthMainnetClient,
 } from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
-import { getAddress, getContract } from 'viem'
+import { getAddress } from 'viem'
 
 import {
   assertIsFoxEthStakingContractAddress,
@@ -53,11 +51,7 @@ export const ethFoxStakingMetadataResolver = async ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
   const foxFarmingContract = getFoxEthStakingContract(contractAddress)
-  const uniV2LPContract = getContract({
-    abi: I_UNISWAP_V2_PAIR_ABI,
-    address: ETH_FOX_POOL_CONTRACT,
-    client: viemEthMainnetClient,
-  })
+  const uniV2LPContract = getEthFoxPoolContract()
 
   const [totalSupply, rewardRate, periodFinish, lpTotalSupply, pair] = await Promise.all([
     foxFarmingContract.read.totalSupply(),

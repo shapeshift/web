@@ -91,7 +91,6 @@ export async function getRelayStepData({
       to,
       value,
       data: callData,
-      gasLimit: bnOrZero(relayGasLimit).gt(0) ? relayGasLimit : undefined,
     }
 
     const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
@@ -103,19 +102,19 @@ export async function getRelayStepData({
     }
 
     if (type === 'rate') {
-      const networkFeeCryptoBaseUnit = await (async () => {
-        try {
-          return await getEvmNetworkFeeCryptoBaseUnit({
-            adapter,
-            transactionData,
-            from,
-            supportsEIP1559,
-            stateOverride,
-          })
-        } catch {
-          return fallbackNetworkFeeCryptoBaseUnit
-        }
-      })()
+      const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+        adapter,
+        transactionData,
+        from,
+        supportsEIP1559,
+        stateOverride,
+      })
+        .catch(() =>
+          relayGasLimit && bnOrZero(relayGasLimit).gt(0)
+            ? getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit: relayGasLimit })
+            : fallbackNetworkFeeCryptoBaseUnit,
+        )
+        .catch(() => fallbackNetworkFeeCryptoBaseUnit)
 
       const stepData: RelayRateStepData = { networkFeeCryptoBaseUnit }
 

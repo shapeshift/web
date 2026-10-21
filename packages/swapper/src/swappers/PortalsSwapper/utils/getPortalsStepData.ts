@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { estimateGasWithStateOverride, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { PortalsTx } from './fetchPortalsTradeOrder'
 import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 
@@ -42,50 +42,54 @@ export async function getPortalsStepData(
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
+  const transactionData: TxBuildData = {
+    type: 'evm',
+    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+    to: tx.to,
+    data: tx.data,
+    value: tx.value,
+  }
+
+  const stateOverride = {
+    sellAsset,
+    sellAmountCryptoBaseUnit,
+    spenderAddress,
+  }
+
   if (args.type === 'rate') {
+    // Portals only carry a tx gas limit on the bridge routes their estimate endpoint zeroes
+    const getProviderGasLimit = async () => {
+      if (tx.gasLimit && bnOrZero(tx.gasLimit).gt(0)) return tx.gasLimit
+
+      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+        inputToken: args.inputToken,
+        outputToken: args.outputToken,
+        inputAmount: args.inputAmount,
+        slippageTolerancePercentage: args.slippageTolerancePercentage,
+        swapperConfig: deps.config,
+      })
+
+      const estimatedGasLimit = quoteEstimateResponse.context.gasLimit.toString()
+
+      if (bnOrZero(estimatedGasLimit).lte(0)) throw new Error('no Portals gas limit')
+
+      return estimatedGasLimit
+    }
+
     try {
-      // No placeholder estimation for provider built routes - overridden estimation (approval
-      // state need not exist yet) with the Portals order and estimate endpoint as fallbacks
-      const gasLimit = await (async () => {
-        try {
-          const gasLimit = await estimateGasWithStateOverride({
-            sellAsset,
-            sellAmountCryptoBaseUnit,
-            from: tx.from,
-            spenderAddress,
-            to: tx.to,
-            data: tx.data,
-            value: tx.value,
-          })
-
-          return gasLimit
-        } catch {
-          // Portals only carry a tx gas limit on the bridge routes their estimate endpoint zeroes
-          const { gasLimit: txGasLimit } = tx
-
-          if (txGasLimit && bnOrZero(txGasLimit).gt(0)) return txGasLimit
-
-          const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-            inputToken: args.inputToken,
-            outputToken: args.outputToken,
-            inputAmount: args.inputAmount,
-            slippageTolerancePercentage: args.slippageTolerancePercentage,
-            swapperConfig: deps.config,
-          })
-
-          const estimatedGasLimit = quoteEstimateResponse.context.gasLimit.toString()
-
-          if (bnOrZero(estimatedGasLimit).lte(0)) throw new Error('no Portals gas limit')
-
-          return estimatedGasLimit
-        }
-      })()
-
       const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
         adapter,
+        transactionData,
+        from: tx.from,
         supportsEIP1559,
-        gasLimit,
-      })
+        stateOverride,
+      }).catch(async () =>
+        getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          supportsEIP1559,
+          gasLimit: await getProviderGasLimit(),
+        }),
+      )
 
       const stepData: PortalsRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -95,28 +99,13 @@ export async function getPortalsStepData(
     }
   }
 
-  const transactionData: TxBuildData = {
-    type: 'evm',
-    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    to: tx.to,
-    data: tx.data,
-    value: tx.value,
-    // Portals simulate and pad their gas limit when the order was validated, so no additional
-    // buffer - an unvalidated order carries no gas limit and estimates below instead
-    gasLimit: tx.gasLimit,
-  }
-
   try {
     const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
       adapter,
       transactionData,
       from: args.from,
       supportsEIP1559,
-      stateOverride: {
-        sellAsset,
-        sellAmountCryptoBaseUnit,
-        spenderAddress,
-      },
+      stateOverride,
     })
 
     const stepData: PortalsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

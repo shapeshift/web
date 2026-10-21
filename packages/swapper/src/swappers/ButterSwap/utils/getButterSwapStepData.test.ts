@@ -116,7 +116,7 @@ describe('getButterSwapStepData', () => {
 
       // gasEstimatedTarget 1159118 is ignored - the tx carries the buffered on chain estimate
       expect(actual.unwrap()).toEqual({
-        networkFeeCryptoBaseUnit: '500000000000000',
+        networkFeeCryptoBaseUnit: '600000000000000',
         transactionData: {
           type: 'evm',
           chainId: 1,
@@ -146,7 +146,7 @@ describe('getButterSwapStepData', () => {
 
       // The buffered limit is set on the tx data in place, so the executable tx always carries one
       expect(transactionData).toMatchObject({ gasLimit: '600000' })
-      expect(networkFeeCryptoBaseUnit).toBe('500000000000000')
+      expect(networkFeeCryptoBaseUnit).toBe('600000000000000')
     })
 
     it('errors rather than falling back to the provider fee when quote estimation fails', async () => {

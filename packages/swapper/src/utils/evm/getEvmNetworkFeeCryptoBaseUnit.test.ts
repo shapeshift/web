@@ -32,12 +32,12 @@ describe('getEvmNetworkFeeCryptoBaseUnit state override', () => {
     vi.mocked(estimateGasWithStateOverride).mockReset()
   })
 
-  it('prices the override gas limit and buffers it onto the tx', async () => {
+  it('buffers the override gas limit onto the tx and prices the buffered limit', async () => {
     vi.mocked(getMinimalStateOverride).mockResolvedValue([])
     vi.mocked(estimateGasWithStateOverride).mockResolvedValue('200')
     const args = makeArgs({ getGasFeeData: vi.fn().mockResolvedValue({ average: gasFees }) })
 
-    await expect(getEvmNetworkFeeCryptoBaseUnit(args)).resolves.toBe('2000')
+    await expect(getEvmNetworkFeeCryptoBaseUnit(args)).resolves.toBe('2400')
     expect(args.transactionData.gasLimit).toBe('240')
   })
 
@@ -52,7 +52,17 @@ describe('getEvmNetworkFeeCryptoBaseUnit state override', () => {
       getFeeData,
     })
 
-    await expect(getEvmNetworkFeeCryptoBaseUnit(args)).resolves.toBe('1000')
+    await expect(getEvmNetworkFeeCryptoBaseUnit(args)).resolves.toBe('1200')
     expect(args.transactionData.gasLimit).toBe('120')
+  })
+
+  it('estimates over a provider gas limit already set on the tx', async () => {
+    vi.mocked(getMinimalStateOverride).mockResolvedValue([])
+    vi.mocked(estimateGasWithStateOverride).mockResolvedValue('200')
+    const args = makeArgs({ getGasFeeData: vi.fn().mockResolvedValue({ average: gasFees }) })
+    args.transactionData.gasLimit = '150'
+
+    await expect(getEvmNetworkFeeCryptoBaseUnit(args)).resolves.toBe('2400')
+    expect(args.transactionData.gasLimit).toBe('240')
   })
 })

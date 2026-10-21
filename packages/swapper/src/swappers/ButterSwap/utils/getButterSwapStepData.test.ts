@@ -79,8 +79,8 @@ describe('getButterSwapStepData', () => {
         spenderAddress: '',
       })
 
-      // gasEstimatedTarget 1159118 * 1.2 buffer * gasPrice 1000000000
-      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '1390942000000000' })
+      // gasEstimatedTarget 1159118 * gasPrice 1000000000
+      expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '1159118000000000' })
     })
 
     it('falls back to the provider fee when rate estimation fails', async () => {

@@ -50,7 +50,6 @@ type NormalizedDebridgeQuote = {
   isSameChainSwap: boolean
   slippageTolerancePercentageDecimal: string | undefined
   tx: DebridgeTx
-  gasLimit: string | undefined
   fallbackNetworkFeeCryptoBaseUnit: string | undefined
 }
 
@@ -157,7 +156,6 @@ export const getDebridgeTradeContext = async ({
     stepDataArgs: {
       tx: quote.tx,
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      gasLimit: quote.gasLimit,
       fallbackNetworkFeeCryptoBaseUnit: quote.fallbackNetworkFeeCryptoBaseUnit,
       sellAsset,
       spenderAddress: allowanceContract,
@@ -231,7 +229,6 @@ const fetchCrossChainQuote = async ({
     isSameChainSwap: false,
     slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
     tx: quote.tx,
-    gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
     fallbackNetworkFeeCryptoBaseUnit: quote.estimatedTransactionFee?.total,
   })
 }
@@ -308,7 +305,6 @@ const fetchSameChainQuote = async ({
       input.slippageTolerancePercentageDecimal ??
       (quote.slippage ? bnOrZero(quote.slippage).div(100).toString() : undefined),
     tx: quote.tx,
-    gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
     fallbackNetworkFeeCryptoBaseUnit: quote.estimatedTransactionFee?.total,
   })
 }

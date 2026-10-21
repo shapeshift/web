@@ -1,12 +1,15 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import { tron } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
+import { contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeTradeStepBuildFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
   getSolanaNetworkFeeCryptoBaseUnit,
@@ -102,19 +105,12 @@ export async function getRelayStepData({
     }
 
     if (type === 'rate') {
-      const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
         adapter,
-        transactionData,
-        from,
         supportsEIP1559,
-        stateOverride,
-      })
-        .catch(() =>
-          relayGasLimit && bnOrZero(relayGasLimit).gt(0)
-            ? getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit: relayGasLimit })
-            : fallbackNetworkFeeCryptoBaseUnit,
-        )
-        .catch(() => fallbackNetworkFeeCryptoBaseUnit)
+        providerGasLimit: relayGasLimit,
+        simulation: { transactionData, from, stateOverride },
+      }).catch(() => fallbackNetworkFeeCryptoBaseUnit)
 
       const stepData: RelayRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -129,6 +125,7 @@ export async function getRelayStepData({
         from,
         supportsEIP1559,
         stateOverride,
+        providerGasLimit: relayGasLimit,
       })
 
       const stepData: RelayQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

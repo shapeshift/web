@@ -5,7 +5,11 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { EVM_GAS_LIMIT_BUFFER, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  bufferGasLimit,
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { ZrxQuoteResponse } from '../types'
 
 export type GetZrxStepDataArgs = StepDataArgs<
@@ -39,14 +43,11 @@ export async function getZrxStepData(
   if (args.type === 'rate') {
     const { gas, totalNetworkFee } = args
 
-    const fallbackNetworkFeeCryptoBaseUnit = bnOrZero(totalNetworkFee).toFixed()
-
-    const networkFeeCryptoBaseUnit =
-      gas && bnOrZero(gas).gt(0)
-        ? await getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit: gas }).catch(
-            () => fallbackNetworkFeeCryptoBaseUnit,
-          )
-        : fallbackNetworkFeeCryptoBaseUnit
+    const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
+      adapter,
+      supportsEIP1559,
+      providerGasLimit: gas,
+    }).catch(() => bnOrZero(totalNetworkFee).toFixed())
 
     const stepData: ZrxRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -73,9 +74,10 @@ export async function getZrxStepData(
     const networkFeeCryptoBaseUnit = await (() => {
       // Permit2 calldata needs the signature, so it can't be simulated before signing
       if (permit2Eip712) {
-        if (!bnOrZero(transaction.gas).gt(0)) throw new Error('missing 0x gas limit')
+        if (!transaction.gas || !bnOrZero(transaction.gas).gt(0))
+          throw new Error('missing 0x gas limit')
 
-        transactionData.gasLimit = bnOrZero(transaction.gas).times(EVM_GAS_LIMIT_BUFFER).toFixed(0)
+        transactionData.gasLimit = bufferGasLimit(transaction.gas)
 
         return getEvmNetworkFeeCryptoBaseUnit({
           adapter,
@@ -90,6 +92,7 @@ export async function getZrxStepData(
         from,
         supportsEIP1559,
         stateOverride: { sellAsset, sellAmountCryptoBaseUnit },
+        providerGasLimit: transaction.gas,
       })
     })()
 

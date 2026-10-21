@@ -6,7 +6,10 @@ import { fromHex } from 'viem'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { BebopQuoteResponse } from '../types'
 
 type BaseArgs = {
@@ -49,21 +52,12 @@ export async function getBebopStepData(
   }
 
   if (type === 'rate') {
-    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+    const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
       adapter,
-      transactionData,
-      from,
       supportsEIP1559,
-      stateOverride,
-    })
-      .catch(() =>
-        getEvmNetworkFeeCryptoBaseUnit({
-          adapter,
-          supportsEIP1559,
-          gasLimit: bnOrZero(tx.gas).toString(),
-        }),
-      )
-      .catch(() => bnOrZero(tx.gas).times(bnOrZero(tx.gasPrice)).toFixed(0))
+      providerGasLimit: tx.gas?.toString(),
+      simulation: { transactionData, from, stateOverride },
+    }).catch(() => bnOrZero(tx.gas).times(bnOrZero(tx.gasPrice)).toFixed(0))
 
     const stepData: BebopRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -77,6 +71,7 @@ export async function getBebopStepData(
       from,
       supportsEIP1559,
       stateOverride,
+      providerGasLimit: tx.gas?.toString(),
     })
 
     const stepData: BebopQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

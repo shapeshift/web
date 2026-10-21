@@ -68,7 +68,6 @@ export const useArbitrumClaimTx = (
     from: claimAccountId ? fromAccountId(claimAccountId).account : undefined,
     chainId: claim?.destinationChainId,
     data: executeTransactionDataResult.data,
-    staleTime: 15_000,
     refetchInterval: 15_000,
     to: getAddress(arbitrumNetwork.ethBridge.outbox),
     value: '0',

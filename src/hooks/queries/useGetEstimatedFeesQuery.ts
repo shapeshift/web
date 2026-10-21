@@ -75,7 +75,7 @@ export const useGetEstimatedFeesQuery = ({
           estimateFeesInput.amountCryptoPrecision,
       ),
     refetchInterval: estimateFeesInput.disableRefetch ? false : 15_000,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: !estimateFeesInput.disableRefetch,
   })
 
   return getEstimatedFeesQuery

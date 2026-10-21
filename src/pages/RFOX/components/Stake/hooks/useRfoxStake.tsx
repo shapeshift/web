@@ -211,7 +211,6 @@ export const useRfoxStake = ({
   const approvalFeesQuery = useEvmFees({
     ...approvalFeesQueryInput,
     enabled: isGetApprovalFeesEnabled,
-    staleTime: 15_000,
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: 15_000,
   })
@@ -337,7 +336,6 @@ export const useRfoxStake = ({
   const stakeFeesQuery = useEvmFees({
     ...stakeFeesQueryInput,
     enabled: isGetStakeFeesEnabled,
-    staleTime: 15_000,
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: 15_000,
   })

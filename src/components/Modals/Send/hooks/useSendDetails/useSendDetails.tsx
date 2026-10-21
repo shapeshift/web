@@ -270,7 +270,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     staleTime: 15 * 1000,
     enabled: false,
     retry: false,
-    refetchInterval: 15_000,
   })
 
   useEffect(() => {

@@ -255,7 +255,6 @@ export const useRfoxUnstake = ({
   const unstakeFeesQuery = useEvmFees({
     ...unstakeFeesQueryInput,
     enabled: isGetUnstakeFeesEnabled,
-    staleTime: 15_000,
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: 15_000,
   })

@@ -12,7 +12,5 @@ type ApproveInput = {
   pubKey?: string
 }
 
-export type MaybeApproveInput = MaybeUndefinedFields<ApproveInput>
-
 export type ApproveInputWithWallet = ApproveInput & { wallet: HDWallet }
 export type MaybeApproveInputWithWallet = MaybeUndefinedFields<ApproveInputWithWallet>

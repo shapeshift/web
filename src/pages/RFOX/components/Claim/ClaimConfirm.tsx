@@ -258,7 +258,6 @@ export const ClaimConfirm: FC<
   } = useEvmFees({
     ...claimFeesQueryInput,
     enabled: isGetClaimFeesEnabled,
-    staleTime: 15_000,
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: isGetClaimFeesEnabled ? 15_000 : false,
   })

@@ -71,7 +71,7 @@ export const useApprovalFees = ({
     enabled: Boolean(enabled && chainId === tronChainId && approveContractData && to && from),
     staleTime: 15_000,
     refetchInterval: isRefetchEnabled ? 15_000 : false,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: isRefetchEnabled,
   })
 
   const evmFeesResult = useEvmFees({
@@ -81,7 +81,6 @@ export const useApprovalFees = ({
     chainId,
     data: approveContractData,
     enabled: Boolean(enabled && chainId && isEvmChainId(chainId)),
-    staleTime: 15_000,
     refetchInterval: isRefetchEnabled ? 15_000 : false,
   })
 

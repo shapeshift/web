@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
 import assert from 'assert'
 import memoize from 'lodash/memoize'
@@ -68,14 +67,17 @@ const getUniV2PairTokens = memoize(async (pairAssetId: AssetId) => {
   const pair = getOrCreateContractByType({
     address: getAddress(assetReference),
     type: ContractType.UniV2Pair,
-    chainId: KnownChainIds.EthereumMainnet,
+    chainId,
   })
 
   const [token0Address, token1Address] = await Promise.all([pair.read.token0(), pair.read.token1()])
 
+  const client = viemClientByChainId[chainId]
+  assert(client !== undefined, `no public client found for chainId '${chainId}'`)
+
   const [decimals0, decimals1] = await Promise.all(
     [token0Address, token1Address].map(address =>
-      viemEthMainnetClient.readContract({ address, abi: erc20Abi, functionName: 'decimals' }),
+      client.readContract({ address, abi: erc20Abi, functionName: 'decimals' }),
     ),
   )
 

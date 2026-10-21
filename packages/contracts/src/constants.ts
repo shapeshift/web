@@ -4,12 +4,9 @@ import { erc20Abi } from 'viem'
 import { EVERGREEN_FARMING_ABI } from './abis/evergreenFarming'
 import { FARMING_ABI } from './abis/farming'
 import { I_UNISWAP_V2_PAIR_ABI } from './abis/iUniswapV2Pair'
-import { THORCHAIN_ROUTER_ABI } from './abis/thorchainRouter'
-import { UNISWAP_V2_ROUTER_02_ABI } from './abis/uniswapV2Router02'
 import { ContractType } from './types'
 
 export const WETH_TOKEN_CONTRACT = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-export const FOX_TOKEN_CONTRACT = '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
 
 // Staking contract addresses as string literals
 export const ETH_FOX_STAKING_V1_CONTRACT = '0xdd80e21669a664bce83e3ad9a0d74f8dad5d9e72' as const
@@ -73,16 +70,11 @@ export const CONTRACT_ADDRESS_TO_ABI = {
   [ETH_FOX_STAKING_V8_CONTRACT]: FARMING_ABI,
   [ETH_FOX_STAKING_V9_CONTRACT]: FARMING_ABI,
   [ETH_FOX_STAKING_EVERGREEN_CONTRACT]: EVERGREEN_FARMING_ABI,
-  [FOX_TOKEN_CONTRACT]: erc20Abi,
-  [UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET]: UNISWAP_V2_ROUTER_02_ABI,
-  // THOR Router Mainnet
-  [THOR_ROUTER_CONTRACT_MAINNET]: THORCHAIN_ROUTER_ABI,
 } as const
 
 export const CONTRACT_TYPE_TO_ABI = {
   [ContractType.UniV2Pair]: I_UNISWAP_V2_PAIR_ABI,
   [ContractType.ERC20]: erc20Abi,
-  [ContractType.ThorRouter]: THORCHAIN_ROUTER_ABI,
 } as const
 
 // 0x proxy contracts - all EVM chains except Optimism have the same address

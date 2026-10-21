@@ -215,9 +215,7 @@ export const Foxy = () => {
             FOXY_TOKEN,
             getApproveContractData({
               approvalAmountCryptoBaseUnit: account.staked.toString(),
-              to: FOXY_TOKEN,
               spender: FOXY_STAKING_CONTRACT,
-              chainId: ethChainId,
             }),
           )
         }

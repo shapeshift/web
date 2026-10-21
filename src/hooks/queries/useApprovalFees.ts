@@ -62,7 +62,7 @@ export const useApprovalFees = ({
     }
 
     if (isEvmChainId(chainId)) {
-      return getApproveContractData({ approvalAmountCryptoBaseUnit, chainId, spender, to })
+      return getApproveContractData({ approvalAmountCryptoBaseUnit, spender })
     }
   }, [approvalAmountCryptoBaseUnit, chainId, enabled, spender, to])
 

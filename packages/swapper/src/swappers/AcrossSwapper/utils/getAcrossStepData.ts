@@ -1,5 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import {
@@ -65,7 +65,6 @@ export async function getAcrossStepData(
         to: swapTx.to,
         data: swapTx.data,
         value: swapTx.value ?? '0',
-        gasLimit: swapTx.gas,
       }
 
       const stateOverride = {
@@ -75,19 +74,19 @@ export async function getAcrossStepData(
       }
 
       if (type === 'rate') {
-        const networkFeeCryptoBaseUnit = await (async () => {
-          try {
-            return await getEvmNetworkFeeCryptoBaseUnit({
-              adapter,
-              transactionData,
-              from,
-              supportsEIP1559,
-              stateOverride,
-            })
-          } catch {
-            return fallbackNetworkFeeCryptoBaseUnit
-          }
-        })()
+        const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          transactionData,
+          from,
+          supportsEIP1559,
+          stateOverride,
+        })
+          .catch(() =>
+            swapTx.gas && bnOrZero(swapTx.gas).gt(0)
+              ? getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit: swapTx.gas })
+              : fallbackNetworkFeeCryptoBaseUnit,
+          )
+          .catch(() => fallbackNetworkFeeCryptoBaseUnit)
 
         const stepData: AcrossRateStepData = { networkFeeCryptoBaseUnit }
 

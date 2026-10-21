@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -52,7 +53,6 @@ export async function getDebridgeStepData(
     to: tx.to,
     data: tx.data,
     value: tx.value,
-    gasLimit,
   }
 
   const stateOverride = {
@@ -62,19 +62,19 @@ export async function getDebridgeStepData(
   }
 
   if (type === 'rate') {
-    const networkFeeCryptoBaseUnit = await (async () => {
-      try {
-        return await getEvmNetworkFeeCryptoBaseUnit({
-          adapter,
-          transactionData,
-          from,
-          supportsEIP1559,
-          stateOverride,
-        })
-      } catch {
-        return fallbackNetworkFeeCryptoBaseUnit
-      }
-    })()
+    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      adapter,
+      transactionData,
+      from,
+      supportsEIP1559,
+      stateOverride,
+    })
+      .catch(() =>
+        gasLimit && bnOrZero(gasLimit).gt(0)
+          ? getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit })
+          : fallbackNetworkFeeCryptoBaseUnit,
+      )
+      .catch(() => fallbackNetworkFeeCryptoBaseUnit)
 
     const stepData: DebridgeRateStepData = { networkFeeCryptoBaseUnit }
 

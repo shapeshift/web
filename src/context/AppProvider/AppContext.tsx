@@ -51,7 +51,7 @@ import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-const MARKET_DATA_POLLING_INTERVAL_MS = 60 * 1000 // refetch market-data every minute
+const MARKET_DATA_POLLING_INTERVAL_MS = 5 * 60 * 1000 // refetch market-data every 5 minutes
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -207,6 +207,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const findAllQueryData = useFindAllMarketDataQuery(undefined, {
     skip: modal,
     pollingInterval: MARKET_DATA_POLLING_INTERVAL_MS,
+    skipPollingIfUnfocused: true,
   })
 
   useDiscoverAccounts()

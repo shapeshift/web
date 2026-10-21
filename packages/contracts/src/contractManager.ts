@@ -1,16 +1,14 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Token } from '@uniswap/sdk'
-import { Fetcher } from '@uniswap/sdk'
+import { Pair, Token, TokenAmount } from '@uniswap/sdk'
 import assert from 'assert'
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
-import { getAddress, getContract } from 'viem'
+import { erc20Abi, getAddress, getContract } from 'viem'
 
 import { CONTRACT_ADDRESS_TO_ABI, CONTRACT_TYPE_TO_ABI } from './constants'
-import { getEthersV5Provider } from './ethersProviderSingleton'
 import type {
   KnownContract,
   KnownContractAbiByAddress,
@@ -79,44 +77,42 @@ export const getOrCreateContractByType: <A extends KnownContractAddress, T exten
   return contract as unknown as KnownContractByType<A, T>
 }
 
-export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
+const getUniV2PairTokens = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
-  const checksumAddress = getAddress(assetReference)
   const pair = getOrCreateContractByType({
-    address: checksumAddress,
+    address: getAddress(assetReference),
     type: ContractType.UniV2Pair,
     chainId: KnownChainIds.EthereumMainnet,
   })
-  const ethersV5Provider = getEthersV5Provider()
 
-  const token0Address = await pair.read.token0()
-  const token1Address = await pair.read.token1()
-  const token0AssetId = toAssetId({
-    chainId,
-    assetNamespace: 'erc20',
-    assetReference: token0Address,
-  })
-  const token1AssetId = toAssetId({
-    chainId,
-    assetNamespace: 'erc20',
-    assetReference: token1Address,
-  })
+  const [token0Address, token1Address] = await Promise.all([pair.read.token0(), pair.read.token1()])
 
-  const { chainReference: asset0EvmChainId, assetReference: asset0Address } =
-    fromAssetId(token0AssetId)
-  const { chainReference: asset1EvmChainId, assetReference: asset1Address } =
-    fromAssetId(token1AssetId)
-
-  const token0: Token = await Fetcher.fetchTokenData(
-    Number(asset0EvmChainId),
-    asset0Address,
-    ethersV5Provider,
-  )
-  const token1: Token = await Fetcher.fetchTokenData(
-    Number(asset1EvmChainId),
-    asset1Address,
-    ethersV5Provider,
+  const [decimals0, decimals1] = await Promise.all(
+    [token0Address, token1Address].map(address =>
+      viemEthMainnetClient.readContract({ address, abi: erc20Abi, functionName: 'decimals' }),
+    ),
   )
 
-  return Fetcher.fetchPairData(token0, token1, ethersV5Provider)
+  const evmChainId = Number(fromChainId(chainId).chainReference)
+
+  return {
+    pair,
+    token0: new Token(evmChainId, token0Address, decimals0),
+    token1: new Token(evmChainId, token1Address, decimals1),
+  }
 })
+
+export const fetchUniV2PairData = async (pairAssetId: AssetId) => {
+  const { pair, token0, token1 } = await getUniV2PairTokens(pairAssetId).catch(err => {
+    getUniV2PairTokens.cache.delete(pairAssetId)
+    throw err
+  })
+
+  const [reserve0, reserve1] = await pair.read.getReserves()
+
+  // a uniswap v2 pair's token0 always sorts before token1, so reserves are already in token order
+  return new Pair(
+    new TokenAmount(token0, reserve0.toString()),
+    new TokenAmount(token1, reserve1.toString()),
+  )
+}

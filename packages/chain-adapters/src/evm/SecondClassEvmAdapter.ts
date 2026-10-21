@@ -26,11 +26,13 @@ import type { evm } from '@shapeshiftoss/common-api'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import chunk from 'lodash/chunk'
 import PQueue from 'p-queue'
-import type { Hex, PublicClient } from 'viem'
+import type { Address, Hex, PublicClient } from 'viem'
 import {
   erc20Abi,
   getAddress,
+  isAddress,
   isAddressEqual,
   parseEventLogs,
   TransactionReceiptNotFoundError,
@@ -52,7 +54,7 @@ import { CONTRACT_INTERACTION } from '../types'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { EvmBaseAdapter } from './EvmBaseAdapter'
-import type { GasFeeDataEstimate, GasLimitEstimate } from './types'
+import type { GasFeeDataEstimate, GasLimitEstimate, Token } from './types'
 
 const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [berachainChainId]: '0x6969696969696969696969696969696969696969',
@@ -155,28 +157,17 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
-      const [balance, nonce] = await Promise.all([
-        this.requestQueue.add(() => this.viemClient.getBalance({ address: getAddress(pubkey) }), {
+      const address = getAddress(pubkey)
+
+      const [balance, nonce, tokens] = await Promise.all([
+        this.requestQueue.add(() => this.viemClient.getBalance({ address }), {
           throwOnTimeout: true,
         }),
-        this.requestQueue.add(
-          () => this.viemClient.getTransactionCount({ address: getAddress(pubkey) }),
-          { throwOnTimeout: true },
-        ),
+        this.requestQueue.add(() => this.viemClient.getTransactionCount({ address }), {
+          throwOnTimeout: true,
+        }),
+        this.getTokenBalances(address),
       ])
-
-      let tokens: {
-        assetId: AssetId
-        balance: string
-        symbol: string
-        name: string
-        precision: number
-      }[] = []
-
-      const knownTokens = this.getKnownTokens()
-      if (knownTokens.length > 0) {
-        tokens = await this.getTokenBalancesMulticall(pubkey, knownTokens)
-      }
 
       return {
         balance: balance.toString(),
@@ -194,101 +185,59 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     }
   }
 
-  private async getTokenBalancesMulticall(
-    pubkey: string,
-    tokens: TokenInfo[],
-  ): Promise<
-    {
-      assetId: AssetId
-      balance: string
-      symbol: string
-      name: string
-      precision: number
-    }[]
-  > {
-    try {
-      const results: {
-        assetId: AssetId
-        balance: string
-        symbol: string
-        name: string
-        precision: number
-      }[] = []
-
-      for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-        const batch = tokens.slice(i, i + BATCH_SIZE)
-        const batchResults = await this.multicallBatch(pubkey, batch)
-        results.push(...batchResults)
-      }
-
-      return results
-    } catch (error) {
-      console.warn(`[${this.getName()}] Multicall failed, falling back to individual calls:`, error)
-      return this.getTokenBalancesIndividual(pubkey, tokens)
-    }
-  }
-
-  private async multicallBatch(
-    pubkey: string,
-    tokens: TokenInfo[],
-  ): Promise<
-    {
-      assetId: AssetId
-      balance: string
-      symbol: string
-      name: string
-      precision: number
-    }[]
-  > {
-    const multicallAddress = this.viemClient.chain?.contracts?.multicall3?.address
-    if (!multicallAddress) throw new Error(`No multicall address on chain: ${this.chainId}`)
-
-    const results = await this.requestQueue.add(
-      () =>
-        this.viemClient.multicall({
-          contracts: tokens.map(token => ({
-            address: getAddress(token.contractAddress),
-            abi: erc20Abi,
-            functionName: 'balanceOf' as const,
-            args: [getAddress(pubkey)],
-          })),
-          allowFailure: true,
-          multicallAddress,
-        }),
-      { throwOnTimeout: true },
+  private async getTokenBalances(address: Address): Promise<Token[]> {
+    const knownTokens = this.getKnownTokens().filter(token =>
+      isAddress(token.contractAddress, { strict: false }),
     )
 
-    return tokens
-      .map((token, i) => {
-        const result = results[i]
+    const multicallAddress = this.viemClient.chain?.contracts?.multicall3?.address
+    if (!multicallAddress) return this.getTokenBalancesIndividually(address, knownTokens)
 
-        if (result.status !== 'success') return null
+    const results = (
+      await Promise.all(
+        chunk(knownTokens, BATCH_SIZE).map(batch =>
+          this.requestQueue.add(
+            () =>
+              this.viemClient.multicall({
+                contracts: batch.map(token => ({
+                  address: getAddress(token.contractAddress),
+                  abi: erc20Abi,
+                  functionName: 'balanceOf' as const,
+                  args: [address],
+                })),
+                allowFailure: true,
+                multicallAddress,
+                batchSize: 0,
+              }),
+            { throwOnTimeout: true },
+          ),
+        ),
+      )
+    ).flat()
 
-        return {
+    return knownTokens.flatMap((token, i) => {
+      const result = results[i]
+      if (result.status !== 'success') return []
+
+      return [
+        {
           assetId: token.assetId,
           balance: result.result.toString(),
           symbol: token.symbol,
           name: token.name,
           precision: token.precision,
-        }
-      })
-      .filter((result): result is NonNullable<typeof result> => result !== null)
+        },
+      ]
+    })
   }
 
-  private async getTokenBalancesIndividual(
-    pubkey: string,
-    tokens: TokenInfo[],
-  ): Promise<
-    {
-      assetId: AssetId
-      balance: string
-      symbol: string
-      name: string
-      precision: number
-    }[]
-  > {
-    const results = await Promise.all(
-      tokens.map(async token => {
+  // Fallback for chains without multicall3
+  private async getTokenBalancesIndividually(
+    address: Address,
+    knownTokens: TokenInfo[],
+  ): Promise<Token[]> {
+    const tokens = await Promise.all(
+      knownTokens.map(async token => {
         try {
           const balance = await this.requestQueue.add(
             () =>
@@ -296,25 +245,27 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
                 address: getAddress(token.contractAddress),
                 abi: erc20Abi,
                 functionName: 'balanceOf',
-                args: [getAddress(pubkey)],
+                args: [address],
               }),
             { throwOnTimeout: true },
           )
 
-          return {
-            assetId: token.assetId,
-            balance: balance.toString(),
-            symbol: token.symbol,
-            name: token.name,
-            precision: token.precision,
-          }
+          return [
+            {
+              assetId: token.assetId,
+              balance: balance.toString(),
+              symbol: token.symbol,
+              name: token.name,
+              precision: token.precision,
+            },
+          ]
         } catch {
-          return null
+          return []
         }
       }),
     )
 
-    return results.filter((result): result is NonNullable<typeof result> => result !== null)
+    return tokens.flat()
   }
 
   getGasFeeData(): Promise<GasFeeDataEstimate> {

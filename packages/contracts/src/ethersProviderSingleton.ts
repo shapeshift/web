@@ -2,12 +2,11 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
-import { JsonRpcProvider } from 'ethers'
 import { ethers as ethersV5 } from 'ethers5'
 
 import { PUBLIC_RPC_URLS } from './publicRpcUrls'
 
-export const rpcUrlByChainId = (chainId: EvmChainId): string => {
+const rpcUrlByChainId = (chainId: EvmChainId): string => {
   const url = (() => {
     switch (chainId) {
       // First-class chains: env-driven with public fallback
@@ -96,26 +95,7 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   return url
 }
 
-const ethersProviders: Map<ChainId, JsonRpcProvider> = new Map()
 const ethersV5Providers: Map<ChainId, ethersV5.providers.StaticJsonRpcProvider> = new Map()
-
-export const getEthersProvider = (chainId: EvmChainId): JsonRpcProvider => {
-  if (!ethersProviders.has(chainId)) {
-    const provider = new JsonRpcProvider(rpcUrlByChainId(chainId), undefined, {
-      staticNetwork: true,
-    })
-    ethersProviders.set(chainId, provider)
-    return provider
-  } else {
-    // This really should be defined but I guess enough safety never hurts mang...
-    const provider = ethersProviders.get(chainId)
-    if (!provider) {
-      throw new Error(`No provider found for chainId ${chainId}`)
-    }
-
-    return provider
-  }
-}
 
 // For backwards-compatibility for libraries still stuck in v5
 export const getEthersV5Provider = (

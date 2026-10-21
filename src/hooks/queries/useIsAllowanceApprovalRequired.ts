@@ -23,6 +23,7 @@ export const useIsAllowanceApprovalRequired = ({
     assetId,
     from,
     spender,
+    amountCryptoBaseUnit,
     isDisabled,
     isRefetchEnabled: true,
   })

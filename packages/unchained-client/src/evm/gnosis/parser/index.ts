@@ -7,6 +7,6 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: BaseTransactionParserArgs) {
     super(args)
 
-    this.registerParsers([new erc20.Parser({ chainId: this.chainId, provider: this.provider })])
+    this.registerParsers([new erc20.Parser({ chainId: this.chainId })])
   }
 }

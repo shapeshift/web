@@ -13,17 +13,11 @@ import { setupCache } from 'axios-cache-interceptor'
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
-import type { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
+import type { CoinGeckoMarketCap } from './coingecko-types'
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTimeFrameBounds } from '@/lib/utils'
-
-// tons more params here: https://www.coingecko.com/en/api/documentation
-type CoinGeckoAssetData = {
-  chain: adapters.CoingeckoAssetPlatform
-  market_data: CoinGeckoMarketData
-}
 
 type CoinGeckoHistoryData = {
   prices: [number, number][]
@@ -41,9 +35,20 @@ export type CoinGeckoSortKey =
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
+const BATCH_WINDOW_MS = 50
+const MAX_BATCH_IDS = 100
+
+type PendingLookup = {
+  resolve: (data: CoinGeckoMarketCap | undefined) => void
+  reject: (err: unknown) => void
+}
+
 export class CoinGeckoMarketService implements MarketService {
   private readonly maxPerPage = 250
   private readonly defaultCount = 2500
+
+  private pendingLookups = new Map<string, PendingLookup[]>()
+  private batchTimeout: ReturnType<typeof setTimeout> | undefined
 
   baseUrl: string
 
@@ -101,16 +106,12 @@ export class CoinGeckoMarketService implements MarketService {
   async findByAssetId({ assetId: _assetId }: MarketDataArgs): Promise<MarketData | null> {
     // Monkey patch Arb FOX to mainnet FOX until we have market-data for it
     const assetId = _assetId === foxOnArbitrumOneAssetId ? foxAssetId : _assetId
-    if (!adapters.assetIdToCoingecko(assetId)) return null
 
-    const url = adapters.makeCoingeckoAssetUrl(assetId)
-    if (!url) return null
+    const id = adapters.assetIdToCoingecko(assetId)
+    if (!id) return null
 
     try {
-      const { data } = await axios.get<CoinGeckoAssetData>(url)
-
-      const currency = 'usd'
-      const marketData = data?.market_data
+      const marketData = await this.findMarketById(id)
 
       if (!marketData) return null
 
@@ -119,10 +120,10 @@ export class CoinGeckoMarketService implements MarketService {
       Also a lot of time when max_supply is null, total_supply is the maximum supply on coingecko
       We can reassess in the future the degree of precision we want on that field */
       return {
-        price: bnOrZero(marketData.current_price?.[currency]).toString(),
-        marketCap: bnOrZero(marketData.market_cap?.[currency]).toString(),
+        price: bnOrZero(marketData.current_price).toString(),
+        marketCap: bnOrZero(marketData.market_cap).toString(),
         changePercent24Hr: marketData.price_change_percentage_24h,
-        volume: bnOrZero(marketData.total_volume?.[currency]).toString(),
+        volume: bnOrZero(marketData.total_volume).toString(),
         supply: bnOrZero(marketData.circulating_supply).toString(),
         maxSupply:
           marketData.max_supply?.toString() ?? marketData.total_supply?.toString() ?? undefined,
@@ -130,6 +131,43 @@ export class CoinGeckoMarketService implements MarketService {
     } catch (e) {
       throw new Error('CoinGeckoMarketService(findByAssetId): error fetching market data')
     }
+  }
+
+  private findMarketById(id: string): Promise<CoinGeckoMarketCap | undefined> {
+    return new Promise((resolve, reject) => {
+      this.pendingLookups.set(id, [...(this.pendingLookups.get(id) ?? []), { resolve, reject }])
+
+      if (this.pendingLookups.size >= MAX_BATCH_IDS) return this.flushLookups()
+      if (!this.batchTimeout) {
+        this.batchTimeout = setTimeout(() => this.flushLookups(), BATCH_WINDOW_MS)
+      }
+    })
+  }
+
+  private flushLookups(): void {
+    clearTimeout(this.batchTimeout)
+    this.batchTimeout = undefined
+
+    const lookups = this.pendingLookups
+    this.pendingLookups = new Map()
+
+    // sorted so the same set of ids always produces the same cacheable url
+    const ids = [...lookups.keys()].sort()
+    if (!ids.length) return
+
+    axios
+      .get<CoinGeckoMarketCap[]>(
+        `${this.baseUrl}/coins/markets?vs_currency=usd&ids=${ids
+          .map(encodeURIComponent)
+          .join(',')}&per_page=${ids.length}`,
+      )
+      .then(({ data }) => {
+        const marketsById = new Map((data ?? []).map(market => [market.id, market]))
+        lookups.forEach((pending, id) =>
+          pending.forEach(({ resolve }) => resolve(marketsById.get(id))),
+        )
+      })
+      .catch(err => lookups.forEach(pending => pending.forEach(({ reject }) => reject(err))))
   }
 
   async findPriceHistoryByAssetId({

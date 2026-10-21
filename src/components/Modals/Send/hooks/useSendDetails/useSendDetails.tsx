@@ -254,8 +254,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // If the user get back and forth between the address and the amount form, we want to refetch the fees so it revalidate the form
     refetchOnMount: 'always',
     gcTime: 0,
-    refetchIntervalInBackground: true,
     refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   })
 
   const {
@@ -270,8 +270,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     staleTime: 15 * 1000,
     enabled: false,
     retry: false,
-    refetchIntervalInBackground: true,
-    refetchInterval: 15_000,
   })
 
   useEffect(() => {

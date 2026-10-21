@@ -550,7 +550,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return { gasPrice: toHex(BigInt(gasPrice)) }
       })()
 
-      const nonce = toHex(BigInt(customNonce || (await this.getNonce(from))))
+      const nonce = toHex(BigInt(customNonce?.trim() || (await this.getNonce(from))))
 
       const txToSign = {
         addressNList: input.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber })),

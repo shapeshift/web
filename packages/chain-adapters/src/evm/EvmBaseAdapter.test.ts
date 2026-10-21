@@ -292,8 +292,8 @@ describe('EvmBaseAdapter', () => {
       expect(adapter.getNonce).not.toHaveBeenCalled()
     })
 
-    it('fetches the nonce when the custom nonce is empty', async () => {
-      const { result } = await buildSend({ customNonce: '' })
+    it.each(['', '  '])('fetches the nonce when the custom nonce is %j', async customNonce => {
+      const { result } = await buildSend({ customNonce })
 
       await expect(result).resolves.toMatchObject({ txToSign: { nonce: '0x2' } })
     })

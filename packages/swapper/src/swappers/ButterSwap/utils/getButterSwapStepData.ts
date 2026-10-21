@@ -18,7 +18,10 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
   getSolanaNetworkFeeCryptoBaseUnit,
@@ -86,10 +89,10 @@ export async function getButterSwapStepData(
       if (args.type === 'rate') {
         const networkFeeCryptoBaseUnit = await (async () => {
           try {
-            return await getEvmNetworkFeeCryptoBaseUnit({
+            return await getEvmRateNetworkFeeCryptoBaseUnit({
               adapter,
               supportsEIP1559,
-              gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
+              providerGasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
             })
           } catch {
             return getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })

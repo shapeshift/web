@@ -5,7 +5,10 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { PortalsTx } from './fetchPortalsTradeOrder'
 import { fetchPortalsTradeEstimate } from './fetchPortalsTradeOrder'
 
@@ -57,10 +60,7 @@ export async function getPortalsStepData(
   }
 
   if (args.type === 'rate') {
-    // Portals only carry a tx gas limit on the bridge routes their estimate endpoint zeroes
-    const getProviderGasLimit = async () => {
-      if (tx.gasLimit && bnOrZero(tx.gasLimit).gt(0)) return tx.gasLimit
-
+    const getEstimateEndpointGasLimit = async () => {
       const quoteEstimateResponse = await fetchPortalsTradeEstimate({
         inputToken: args.inputToken,
         outputToken: args.outputToken,
@@ -77,17 +77,17 @@ export async function getPortalsStepData(
     }
 
     try {
-      const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      // Portals only carry a tx gas limit on the bridge routes their estimate endpoint zeroes
+      const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
         adapter,
-        transactionData,
-        from: tx.from,
         supportsEIP1559,
-        stateOverride,
+        providerGasLimit: tx.gasLimit,
+        simulation: { transactionData, from: tx.from, stateOverride },
       }).catch(async () =>
-        getEvmNetworkFeeCryptoBaseUnit({
+        getEvmRateNetworkFeeCryptoBaseUnit({
           adapter,
           supportsEIP1559,
-          gasLimit: await getProviderGasLimit(),
+          providerGasLimit: await getEstimateEndpointGasLimit(),
         }),
       )
 
@@ -106,6 +106,7 @@ export async function getPortalsStepData(
       from: args.from,
       supportsEIP1559,
       stateOverride,
+      providerGasLimit: tx.gasLimit,
     })
 
     const stepData: PortalsQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

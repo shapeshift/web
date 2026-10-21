@@ -7,12 +7,13 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { toHex } from 'viem'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
+import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import * as optimism from './OptimismChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -95,6 +96,10 @@ const makeChainAdapterArgs = (overrideArgs?: {
   )
 
 describe('OptimismChainAdapter', () => {
+  beforeEach(() => {
+    vi.spyOn(EvmBaseAdapter.prototype, 'getNonce').mockResolvedValue(2)
+  })
+
   describe('constructor', () => {
     it('should return chainAdapter with Optimism mainnet chainId if called with no chainId', () => {
       const adapter = new optimism.ChainAdapter(makeChainAdapterArgs())
@@ -481,7 +486,7 @@ describe('OptimismChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
 
     it("should build a tx with value: '0' for ERC20 txs without sendMax", async () => {
@@ -517,7 +522,7 @@ describe('OptimismChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
   })
 

@@ -7,11 +7,12 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { toHex } from 'viem'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
+import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -36,6 +37,10 @@ const getWallet = async (): Promise<ETHWallet> => {
 }
 
 describe('EthereumChainAdapter', () => {
+  beforeEach(() => {
+    vi.spyOn(EvmBaseAdapter.prototype, 'getNonce').mockResolvedValue(2)
+  })
+
   const gasPrice = '42'
   const gasLimit = '42000'
   const contractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -578,7 +583,7 @@ describe('EthereumChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
 
     it("should build a tx with value: '0' for ERC20 txs without sendMax", async () => {
@@ -615,7 +620,7 @@ describe('EthereumChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
   })
 

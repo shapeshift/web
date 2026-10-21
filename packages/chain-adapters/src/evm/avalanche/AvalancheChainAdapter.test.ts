@@ -12,11 +12,12 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { toHex } from 'viem'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
+import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import * as avalanche from './AvalancheChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -98,6 +99,10 @@ const makeChainAdapterArgs = (overrideArgs?: {
   )
 
 describe('AvalancheChainAdapter', () => {
+  beforeEach(() => {
+    vi.spyOn(EvmBaseAdapter.prototype, 'getNonce').mockResolvedValue(2)
+  })
+
   describe('constructor', () => {
     it('should return chainAdapter with Avalanche mainnet chainId if called with no chainId', () => {
       const adapter = new avalanche.ChainAdapter(makeChainAdapterArgs())
@@ -475,7 +480,7 @@ describe('AvalancheChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
 
     it("should build a tx with value: '0' for ERC20 txs without sendMax", async () => {
@@ -511,7 +516,7 @@ describe('AvalancheChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
   })
 

@@ -7,11 +7,12 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { toHex } from 'viem'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
+import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import * as bsc from './BscChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -93,6 +94,10 @@ const makeChainAdapterArgs = (overrideArgs?: {
   )
 
 describe('BscChainAdapter', () => {
+  beforeEach(() => {
+    vi.spyOn(EvmBaseAdapter.prototype, 'getNonce').mockResolvedValue(2)
+  })
+
   describe('constructor', () => {
     it('should return chainAdapter with mainnet chainId if called with no chainId', () => {
       const adapter = new bsc.ChainAdapter(makeChainAdapterArgs())
@@ -452,7 +457,7 @@ describe('BscChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
 
     it("should build a tx with value: '0' without sendMax", async () => {
@@ -488,7 +493,7 @@ describe('BscChainAdapter', () => {
         },
       })
 
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).not.toHaveBeenCalled()
     })
   })
 

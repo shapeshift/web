@@ -15,15 +15,10 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import {
-  ContractType,
-  FOXY_STAKING_CONTRACT,
-  getOrCreateContractByType,
-  viemEthMainnetClient,
-} from '@shapeshiftoss/contracts'
+import { FOXY_STAKING_CONTRACT, viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Address } from 'viem'
-import { encodeFunctionData, formatUnits, getAddress } from 'viem'
+import { encodeFunctionData, erc20Abi, formatUnits, getAddress, getContract } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Main } from '@/components/Layout/Main'
@@ -92,10 +87,10 @@ export const Foxy = () => {
   const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
   const foxyToken = useMemo(
     () =>
-      getOrCreateContractByType({
-        address: FOXY_TOKEN,
-        type: ContractType.ERC20,
-        chainId: ethChainId,
+      getContract({
+        abi: erc20Abi,
+        address: getAddress(FOXY_TOKEN),
+        client: viemEthMainnetClient,
       }),
     [],
   )

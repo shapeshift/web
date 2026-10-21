@@ -2,7 +2,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
 import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm, evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { viemClientByChainId } from '@shapeshiftoss/contracts'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
@@ -167,10 +167,7 @@ export const getErc20Allowance = async ({
   spender,
   chainId,
 }: GetErc20AllowanceArgs): Promise<string> => {
-  const client = viemClientByChainId[chainId]
-  if (!client) throw new Error(`no public client found for chainId '${chainId}'`)
-
-  const allowance = await client.readContract({
+  const allowance = await assertGetViemClient(chainId).readContract({
     address: getAddress(address),
     abi: erc20Abi,
     functionName: 'allowance',

@@ -1,13 +1,18 @@
 import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
-import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftoss/contracts'
+import {
+  ETH_FOX_POOL_CONTRACT,
+  getFoxEthStakingContract,
+  I_UNISWAP_V2_PAIR_ABI,
+  viemEthMainnetClient,
+} from '@shapeshiftoss/contracts'
 import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
+import { encodeFunctionData, getAddress, getContract, maxUint256 } from 'viem'
 
 import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -26,7 +31,11 @@ type UseFoxFarmingOptions = {
   skip?: boolean
 }
 
-const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT)
+const uniV2LPContract = getContract({
+  abi: I_UNISWAP_V2_PAIR_ABI,
+  address: ETH_FOX_POOL_CONTRACT,
+  client: viemEthMainnetClient,
+})
 
 /**
  * useFoxFarming hook
@@ -53,7 +62,7 @@ export const useFoxFarming = (
   const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
 
   const foxFarmingContract = useMemo(
-    () => getOrCreateContractByAddress(contractAddress),
+    () => getFoxEthStakingContract(contractAddress),
     [contractAddress],
   )
 

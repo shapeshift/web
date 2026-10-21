@@ -1,79 +1,34 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
-import assert from 'assert'
 import memoize from 'lodash/memoize'
-import type { Address } from 'viem'
+import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { erc20Abi, getAddress, getContract } from 'viem'
 
-import { CONTRACT_ADDRESS_TO_ABI, CONTRACT_TYPE_TO_ABI } from './constants'
-import type {
-  KnownContractAbiByAddress,
-  KnownContractAddress,
-  KnownContractByAddress,
-  KnownContractByType,
-} from './types'
-import { ContractType } from './types'
-import { viemClientByChainId, viemEthMainnetClient } from './viemClient'
+import { EVERGREEN_FARMING_ABI, FARMING_ABI, I_UNISWAP_V2_PAIR_ABI } from './abis'
+import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from './constants'
+import type { FoxEthStakingContractAbi, FoxEthStakingContractAddress } from './types'
+import { assertGetViemClient, viemEthMainnetClient } from './viemClient'
 
-export const getOrCreateContractByAddress: <A extends KnownContractAddress>(
-  address: A,
-) => KnownContractByAddress<A> = <A extends KnownContractAddress>(
-  address: A,
-): KnownContractByAddress<A> => {
-  const checksumAddress = getAddress(address) as A
-  const contractAbi: KnownContractAbiByAddress<A> = CONTRACT_ADDRESS_TO_ABI[address]
-
-  const contract = getContract({
-    abi: contractAbi,
-    address: checksumAddress,
+export const getFoxEthStakingContract = (
+  address: FoxEthStakingContractAddress,
+): GetContractReturnType<FoxEthStakingContractAbi, PublicClient, Address> =>
+  getContract({
+    abi: address === ETH_FOX_STAKING_EVERGREEN_CONTRACT ? EVERGREEN_FARMING_ABI : FARMING_ABI,
+    address: getAddress(address),
     client: viemEthMainnetClient,
   })
-  return contract as KnownContractByAddress<A>
-}
-
-export const getOrCreateContractByType: <A extends KnownContractAddress, T extends ContractType>({
-  address,
-  type,
-  chainId,
-}: {
-  address: string | Address
-  type: T
-  chainId: ChainId
-}) => KnownContractByType<A, T> = <A extends KnownContractAddress, T extends ContractType>({
-  address,
-  type,
-  chainId,
-}: {
-  address: string | Address
-  type: T
-  chainId: ChainId
-}): KnownContractByType<A, T> => {
-  const checksumAddress = getAddress(address) as A
-
-  const publicClient = viemClientByChainId[chainId]
-  assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
-
-  const contract = getContract({
-    abi: CONTRACT_TYPE_TO_ABI[type],
-    address: checksumAddress,
-    client: publicClient,
-  })
-  return contract as unknown as KnownContractByType<A, T>
-}
 
 const getUniV2PairTokens = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
-  const pair = getOrCreateContractByType({
+  const client = assertGetViemClient(chainId)
+  const pair = getContract({
+    abi: I_UNISWAP_V2_PAIR_ABI,
     address: getAddress(assetReference),
-    type: ContractType.UniV2Pair,
-    chainId,
+    client,
   })
 
   const [token0Address, token1Address] = await Promise.all([pair.read.token0(), pair.read.token1()])
-
-  const client = viemClientByChainId[chainId]
-  assert(client !== undefined, `no public client found for chainId '${chainId}'`)
 
   const [decimals0, decimals1] = await Promise.all(
     [token0Address, token1Address].map(address =>

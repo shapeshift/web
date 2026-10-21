@@ -39,7 +39,7 @@ export async function getZrxStepData(
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
-  // The price endpoint has no tx data to simulate
+  // 0x's price endpoint returns no tx data, so there's nothing to simulate
   if (args.type === 'rate') {
     const { gas, totalNetworkFee } = args
 

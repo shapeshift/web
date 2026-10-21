@@ -77,7 +77,7 @@ export async function getPortalsStepData(
     }
 
     try {
-      // Portals only carry a tx gas limit on the bridge routes their estimate endpoint zeroes
+      // Portals only set a tx gas limit on bridge routes, where their estimate endpoint is zero
       const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
         adapter,
         supportsEIP1559,

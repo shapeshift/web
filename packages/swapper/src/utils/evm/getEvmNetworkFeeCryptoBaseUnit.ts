@@ -22,7 +22,7 @@ type EvmFeeArgs = {
 type EvmSimulationArgs = {
   transactionData: Extract<TxBuildData, { type: 'evm' }>
   from: string
-  // Patches missing allowance/balance so unapproved or unfunded sells still estimate
+  // Overrides missing allowance or balance so unapproved or unfunded sells can still be estimated
   stateOverride?: {
     sellAsset: Asset
     sellAmountCryptoBaseUnit: string
@@ -30,12 +30,12 @@ type EvmSimulationArgs = {
   }
 }
 
-// Priced as-is: swapper constants, or a limit the caller already buffered
+// A swapper constant or an already buffered limit, priced as-is
 type FixedGasLimitArgs = { gasLimit: string }
 
-// Estimates and sets the buffered limit on the tx data
+// Simulates the tx and sets the buffered estimate as its gas limit
 type SimulatedGasLimitArgs = EvmSimulationArgs & {
-  // Buffered fallback when missing state can't be overridden, so the tx can't be simulated
+  // Used, buffered, only when missing state can't be overridden and the tx can't be simulated
   providerGasLimit?: string | null
 }
 
@@ -49,7 +49,7 @@ const priceGasLimit = async (
   return evm.calcNetworkFeeCryptoBaseUnit({ ...gasPrices, supportsEIP1559, gasLimit })
 }
 
-// Prices the buffered limit, since that's what the signer must hold to broadcast
+// Prices the buffered limit, since the signer must hold enough to cover the full limit
 export const getEvmNetworkFeeCryptoBaseUnit = async (
   args: GetEvmNetworkFeeCryptoBaseUnitArgs,
 ): Promise<string> => {
@@ -64,7 +64,7 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
     const { sellAsset, sellAmountCryptoBaseUnit, spenderAddress } = args.stateOverride
     const overrideArgs = { sellAsset, sellAmountCryptoBaseUnit, from, spenderAddress, value }
 
-    // null = the override couldn't be built (undiscoverable slot or failed read)
+    // null when the override can't be built (an undiscoverable storage slot or a failed read)
     const stateOverride = await withTimeout(getMinimalStateOverride(overrideArgs)).catch(() => null)
 
     if (stateOverride === null && isPositiveGasLimit(providerGasLimit)) {
@@ -72,7 +72,7 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
       return priceGasLimit(args, transactionData.gasLimit)
     }
 
-    // An rpc without stateOverride support falls through to plain estimation
+    // If the overridden estimate fails (e.g. no rpc stateOverride support), estimate normally
     const overriddenGasLimit = stateOverride
       ? await estimateGasWithStateOverride({ ...overrideArgs, to, data, stateOverride }).catch(
           () => undefined,
@@ -103,7 +103,7 @@ type GetEvmRateNetworkFeeCryptoBaseUnitArgs = EvmFeeArgs & {
   simulation?: EvmSimulationArgs
 }
 
-// Rates price a buffered provider limit before simulating, so they compare with simulated rates
+// Rates price the provider's limit when there is one, and only simulate without it
 export const getEvmRateNetworkFeeCryptoBaseUnit = ({
   providerGasLimit,
   simulation,

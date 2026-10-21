@@ -25,7 +25,6 @@ type UseEvmFeesProps = {
   data: string | undefined
   enabled?: boolean
   refetchInterval: number | false | undefined
-  refetchIntervalInBackground?: boolean
   staleTime?: number
   to: string | undefined
   value: string
@@ -42,7 +41,6 @@ export const useEvmFees = ({
   chainId,
   data,
   refetchInterval,
-  refetchIntervalInBackground,
   to,
   value,
   enabled = true,
@@ -75,7 +73,7 @@ export const useEvmFees = ({
         : undefined,
     staleTime,
     refetchInterval,
-    refetchIntervalInBackground,
+    refetchOnWindowFocus: true,
   })
 
   return query

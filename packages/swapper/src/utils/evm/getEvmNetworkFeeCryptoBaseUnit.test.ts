@@ -104,7 +104,7 @@ describe('getEvmRateNetworkFeeCryptoBaseUnit', () => {
     vi.mocked(estimateGasWithStateOverride).mockReset()
   })
 
-  it('prices the buffered provider limit without simulating', async () => {
+  it('prices the provider limit as given without simulating', async () => {
     const { transactionData, from, stateOverride, ...feeArgs } = makeArgs({
       getGasFeeData: vi.fn().mockResolvedValue({ average: gasFees }),
     })
@@ -115,7 +115,7 @@ describe('getEvmRateNetworkFeeCryptoBaseUnit', () => {
         providerGasLimit: '300',
         simulation: { transactionData, from, stateOverride },
       }),
-    ).resolves.toBe('3600')
+    ).resolves.toBe('3000')
     expect(getMinimalStateOverride).not.toHaveBeenCalled()
   })
 

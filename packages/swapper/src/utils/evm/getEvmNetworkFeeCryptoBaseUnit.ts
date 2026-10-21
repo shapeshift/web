@@ -103,14 +103,14 @@ type GetEvmRateNetworkFeeCryptoBaseUnitArgs = EvmFeeArgs & {
   simulation?: EvmSimulationArgs
 }
 
-// Rates price the provider's limit when there is one, and only simulate without it
+// Rates price a provider's limit as given (it carries its own margin) and simulate without one
 export const getEvmRateNetworkFeeCryptoBaseUnit = ({
   providerGasLimit,
   simulation,
   ...feeArgs
 }: GetEvmRateNetworkFeeCryptoBaseUnitArgs): Promise<string> => {
   if (isPositiveGasLimit(providerGasLimit)) {
-    return priceGasLimit(feeArgs, bufferGasLimit(providerGasLimit))
+    return priceGasLimit(feeArgs, providerGasLimit)
   }
 
   if (simulation) return getEvmNetworkFeeCryptoBaseUnit({ ...feeArgs, ...simulation })

@@ -4,16 +4,12 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import {
-  getEvmNetworkFeeCryptoBaseUnit,
-  getEvmRateNetworkFeeCryptoBaseUnit,
-} from '../../../utils/evm'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import type { DebridgeTx } from './types'
 
 type BaseArgs = {
   tx: DebridgeTx
   sellAmountCryptoBaseUnit: string
-  gasLimit: string | undefined
   spenderAddress: string
   fallbackNetworkFeeCryptoBaseUnit: string | undefined
 }
@@ -36,7 +32,6 @@ export async function getDebridgeStepData(
   const {
     tx,
     sellAmountCryptoBaseUnit,
-    gasLimit,
     spenderAddress,
     fallbackNetworkFeeCryptoBaseUnit,
     sellAsset,
@@ -64,11 +59,13 @@ export async function getDebridgeStepData(
   }
 
   if (type === 'rate') {
-    const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
+    // deBridge returns a flat gas limit far above actual usage, so rates simulate instead
+    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
       adapter,
+      transactionData,
+      from,
       supportsEIP1559,
-      providerGasLimit: gasLimit,
-      simulation: { transactionData, from, stateOverride },
+      stateOverride,
     }).catch(() => fallbackNetworkFeeCryptoBaseUnit)
 
     const stepData: DebridgeRateStepData = { networkFeeCryptoBaseUnit }
@@ -83,7 +80,6 @@ export async function getDebridgeStepData(
       from,
       supportsEIP1559,
       stateOverride,
-      providerGasLimit: gasLimit,
     })
 
     const stepData: DebridgeQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

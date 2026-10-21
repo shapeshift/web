@@ -255,9 +255,7 @@ export const useRfoxUnstake = ({
   const unstakeFeesQuery = useEvmFees({
     ...unstakeFeesQueryInput,
     enabled: isGetUnstakeFeesEnabled,
-    staleTime: 30_000,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
+    staleTime: 15_000,
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: 15_000,
   })

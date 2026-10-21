@@ -155,6 +155,13 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     }
   }
 
+  async getNonce(address: string): Promise<number> {
+    return await this.requestQueue.add(
+      () => this.viemClient.getTransactionCount({ address: getAddress(address) }),
+      { throwOnTimeout: true },
+    )
+  }
+
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const address = getAddress(pubkey)
@@ -163,9 +170,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         this.requestQueue.add(() => this.viemClient.getBalance({ address }), {
           throwOnTimeout: true,
         }),
-        this.requestQueue.add(() => this.viemClient.getTransactionCount({ address }), {
-          throwOnTimeout: true,
-        }),
+        this.getNonce(address),
         this.getTokenBalances(address),
       ])
 

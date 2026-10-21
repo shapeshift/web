@@ -550,7 +550,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return { gasPrice: toHex(BigInt(gasPrice)) }
       })()
 
-      const nonce = toHex(BigInt(customNonce ?? (await this.getNonce(from))))
+      const nonce = toHex(BigInt(customNonce || (await this.getNonce(from))))
 
       const txToSign = {
         addressNList: input.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber })),
@@ -613,7 +613,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const [balance, nonce] = await Promise.all([
         viemClient.getBalance({ address: pubkey as `0x${string}` }),
-        viemClient.getTransactionCount({ address: pubkey as `0x${string}` }),
+        this.getNonce(pubkey),
       ])
 
       return {
@@ -637,7 +637,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  // Same eth_getTransactionCount (latest) unchained runs for the account nonce, without the balance/token fetch
   async getNonce(address: string): Promise<number> {
     return await assertGetViemClient(this.chainId).getTransactionCount({
       address: getAddress(address),

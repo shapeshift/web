@@ -19,7 +19,11 @@ export const getFoxEthStakingContract = (
     client: viemEthMainnetClient,
   })
 
-export const getEthFoxPoolContract = () =>
+export const getEthFoxPoolContract = (): GetContractReturnType<
+  typeof I_UNISWAP_V2_PAIR_ABI,
+  PublicClient,
+  Address
+> =>
   getContract({
     abi: I_UNISWAP_V2_PAIR_ABI,
     address: ETH_FOX_POOL_CONTRACT,

@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { PartialRecord } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Pair, Token, TokenAmount } from '@uniswap/sdk'
 import assert from 'assert'
@@ -10,7 +9,6 @@ import { erc20Abi, getAddress, getContract } from 'viem'
 
 import { CONTRACT_ADDRESS_TO_ABI, CONTRACT_TYPE_TO_ABI } from './constants'
 import type {
-  KnownContract,
   KnownContractAbiByAddress,
   KnownContractAddress,
   KnownContractByAddress,
@@ -19,18 +17,12 @@ import type {
 import { ContractType } from './types'
 import { viemClientByChainId, viemEthMainnetClient } from './viemClient'
 
-const definedContracts: PartialRecord<Address, KnownContract> = {}
-
 export const getOrCreateContractByAddress: <A extends KnownContractAddress>(
   address: A,
 ) => KnownContractByAddress<A> = <A extends KnownContractAddress>(
   address: A,
 ): KnownContractByAddress<A> => {
   const checksumAddress = getAddress(address) as A
-  const definedContract = definedContracts[checksumAddress]
-  if (definedContract !== undefined) {
-    return definedContract as unknown as KnownContractByAddress<A>
-  }
   const contractAbi: KnownContractAbiByAddress<A> = CONTRACT_ADDRESS_TO_ABI[address]
 
   const contract = getContract({
@@ -38,7 +30,6 @@ export const getOrCreateContractByAddress: <A extends KnownContractAddress>(
     address: checksumAddress,
     client: viemEthMainnetClient,
   })
-  definedContracts[checksumAddress] = contract as unknown as KnownContract
   return contract as KnownContractByAddress<A>
 }
 
@@ -60,10 +51,6 @@ export const getOrCreateContractByType: <A extends KnownContractAddress, T exten
   chainId: ChainId
 }): KnownContractByType<A, T> => {
   const checksumAddress = getAddress(address) as A
-  const definedContract = definedContracts[checksumAddress]
-  if (definedContract !== undefined) {
-    return definedContract as unknown as KnownContractByType<A, T>
-  }
 
   const publicClient = viemClientByChainId[chainId]
   assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
@@ -73,7 +60,6 @@ export const getOrCreateContractByType: <A extends KnownContractAddress, T exten
     address: checksumAddress,
     client: publicClient,
   })
-  definedContracts[checksumAddress] = contract as unknown as KnownContract
   return contract as unknown as KnownContractByType<A, T>
 }
 

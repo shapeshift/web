@@ -27,8 +27,6 @@ export type KnownContractByAddress<T extends KnownContractAddress> = GetContract
   T
 >
 
-export type KnownContract = KnownContractByAddress<KnownContractAddress>
-
 export type KnownContractByType<
   A extends KnownContractAddress,
   T extends ContractType,

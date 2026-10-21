@@ -6,17 +6,15 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import type { TxBuildData } from '../../types'
 import { estimateGasWithStateOverride, getMinimalStateOverride, withTimeout } from './stateOverride'
 
-// Estimated limits carry a safety margin against state moving before execution (an OOG revert
-// burns the full limit, an unused one refunds)
+// Margin for state moving between quote and execution; unused gas is refunded
 export const EVM_GAS_LIMIT_BUFFER = 1.2
 
 type GetEvmNetworkFeeCryptoBaseUnitArgs = {
   adapter: EvmChainAdapter
   supportsEIP1559: boolean
-} & ( // Price a known gas limit (rate fallbacks, or a tx that can't be simulated before signing)
+} & ( // Rate fallbacks, or txs that can't be simulated before signing
   | { gasLimit: string }
-  // Executable tx data: estimate on chain and set the buffered limit on the tx data - any provider
-  // gas limit is ignored, so an estimation failure throws instead of signing an unverified tx
+  // Estimates and sets the buffered limit on the tx data, ignoring any provider limit
   | {
       transactionData: Extract<TxBuildData, { type: 'evm' }>
       from: string
@@ -30,7 +28,7 @@ type GetEvmNetworkFeeCryptoBaseUnitArgs = {
     }
 )
 
-// The fee prices the buffered limit, as that's what the signer must hold to broadcast
+// Prices the buffered limit, since that's what the signer must hold to broadcast
 export const getEvmNetworkFeeCryptoBaseUnit = async (
   args: GetEvmNetworkFeeCryptoBaseUnitArgs,
 ): Promise<string> => {

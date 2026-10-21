@@ -35,7 +35,7 @@ export async function getZrxStepData(
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
-  // The price endpoint returns no tx data to simulate, so rates price the 0x gas limit
+  // The price endpoint has no tx data to simulate
   if (args.type === 'rate') {
     const { gas, totalNetworkFee } = args
 
@@ -70,9 +70,8 @@ export async function getZrxStepData(
   }
 
   try {
-    const networkFeeCryptoBaseUnit = await (async () => {
-      // Permit2 calldata isn't final until the signature is spliced in, so it can't be simulated
-      // before signing - buffer the gas limit 0x simulated with a valid signature instead
+    const networkFeeCryptoBaseUnit = await (() => {
+      // Permit2 calldata needs the signature, so it can't be simulated before signing
       if (permit2Eip712) {
         if (!bnOrZero(transaction.gas).gt(0)) throw new Error('missing 0x gas limit')
 

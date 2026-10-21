@@ -4,6 +4,4 @@ import { fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 export const BASE_RTK_CREATE_API_CONFIG = {
   // not actually used, only used to satisfy createApi, we use a custom queryFn
   baseQuery: fakeBaseQuery(),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
 }

@@ -151,6 +151,7 @@ export const useRfoxStake = ({
     assetId: stakingAsset?.assetId,
     spender: getStakingContract(stakingAssetId),
     from: stakingAssetAccountAddress,
+    amountCryptoBaseUnit,
     isRefetchEnabled: true,
   })
 

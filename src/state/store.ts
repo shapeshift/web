@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import type { TypedUseSelectorHook } from 'react-redux'
@@ -141,6 +142,9 @@ export const createStore = () =>
   })
 
 export const store = createStore()
+
+setupListeners(store.dispatch)
+
 export const persistor = persistStore(store)
 
 BigAmount.configure({

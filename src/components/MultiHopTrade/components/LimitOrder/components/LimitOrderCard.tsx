@@ -153,6 +153,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     assetId: sellAssetId,
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     from,
+    amountCryptoBaseUnit: sellAmountCryptoBaseUnit,
     // Don't fetch allowance if there is insufficient balance, because we wont display the allowance
     // warning in this case.
     isDisabled: !hasSufficientBalance || status !== OrderStatus.OPEN,

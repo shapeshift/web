@@ -11,7 +11,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
     super(args)
 
     this.registerParsers([
-      new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
+      new erc20.Parser({ chainId: this.chainId }),
       new zrx.Parser({ proxyContract: ZRX_OPTIMISM_PROXY_CONTRACT }),
     ])
   }

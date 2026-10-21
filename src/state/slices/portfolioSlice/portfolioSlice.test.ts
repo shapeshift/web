@@ -1,14 +1,16 @@
-import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import type { Bip44Params } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
+  selectPortfolioAssetsByChainId,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
 } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
+import { preferences as preferencesSlice } from '../preferencesSlice/preferencesSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
   selectHighestUserCurrencyBalanceAccountByAssetId,
@@ -425,6 +427,84 @@ describe('portfolioSlice', () => {
 
         const userCurrencyAccountBalance = selectPortfolioUserCurrencyBalancesByAccountId(state)
         expect(userCurrencyAccountBalance).toEqual(returnValue)
+      })
+    })
+
+    describe('selectPortfolioAssetsByChainId', () => {
+      const setup = () => {
+        const store = createStore()
+        const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
+          ethAccountObj: { balance: '1000000000000000000' },
+          ethAccount2Obj: { balance: '200000000000000000' },
+        })
+
+        store.dispatch(
+          portfolioSlice.actions.setWalletMeta({
+            walletId: 'fakeWalletId',
+            walletName: 'fakeWalletName',
+          }),
+        )
+        store.dispatch(
+          portfolioSlice.actions.upsertAccountMetadata({
+            walletId: 'fakeWalletId',
+            accountMetadataByAccountId: {
+              [ethAccountId]: { bip44Params },
+              [ethAccount2Id]: { bip44Params },
+            },
+          }),
+        )
+        const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+        for (const accountId of portfolio.accounts.ids) {
+          store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+        }
+
+        store.dispatch(
+          marketDataSlice.actions.setCryptoMarketData({
+            [ethAssetId]: mockMarketData({ price: '1000' }),
+            [foxAssetId]: mockMarketData({ price: '10' }),
+            [usdcAssetId]: mockMarketData({ price: '1' }),
+          }),
+        )
+
+        const assetData = mockAssetState()
+        for (const assetId of [ethAssetId, foxAssetId, usdcAssetId]) {
+          const asset = assetData.byId[assetId]
+          if (asset)
+            assetData.byId[assetId] = { ...asset, isPrimary: true, relatedAssetKey: assetId }
+        }
+        store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+
+        return store
+      }
+
+      const ids = (assets: { assetId: string }[]) => assets.map(asset => asset.assetId)
+
+      it('sorts portfolio assets by user currency balance', () => {
+        const state = setup().getState()
+
+        expect(ids(selectPortfolioAssetsByChainId(state, ethChainId))).toEqual([
+          ethAssetId,
+          foxAssetId,
+          usdcAssetId,
+        ])
+        expect(ids(selectPortfolioAssetsByChainId(state, 'All'))).toEqual([
+          ethAssetId,
+          foxAssetId,
+          usdcAssetId,
+        ])
+      })
+
+      it('leaves out hidden assets', () => {
+        const store = setup()
+        store.dispatch(preferencesSlice.actions.toggleSpamMarkedAssetId(foxAssetId))
+        const state = store.getState()
+
+        expect(ids(selectPortfolioAssetsByChainId(state, ethChainId))).toEqual([
+          ethAssetId,
+          usdcAssetId,
+        ])
+        expect(ids(selectPortfolioAssetsByChainId(state, 'All'))).toEqual([ethAssetId, usdcAssetId])
       })
     })
 

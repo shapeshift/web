@@ -190,8 +190,6 @@ const getFirstHopApprovalNetworkFeeCryptoBaseUnit = async (
     const data = getApproveContractData({
       approvalAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       spender: allowanceContract,
-      to: contractAddress,
-      chainId: sellAsset.chainId,
     })
 
     // Legacy pricing - wallet EIP1559 support is unknown here, and the oracle's gasPrice is the

@@ -25,8 +25,6 @@ type UseEvmFeesProps = {
   data: string | undefined
   enabled?: boolean
   refetchInterval: number | false | undefined
-  refetchIntervalInBackground?: boolean
-  staleTime?: number
   to: string | undefined
   value: string
 }
@@ -42,11 +40,9 @@ export const useEvmFees = ({
   chainId,
   data,
   refetchInterval,
-  refetchIntervalInBackground,
   to,
   value,
   enabled = true,
-  staleTime,
 }: UseEvmFeesProps) => {
   const wallet = useWallet().state.wallet
 
@@ -73,9 +69,10 @@ export const useEvmFees = ({
       feeAsset && feeAssetMarketData
         ? fees => selectEvmFees(fees, feeAsset, feeAssetMarketData)
         : undefined,
-    staleTime,
     refetchInterval,
-    refetchIntervalInBackground,
+    // Refetch on tab return only while polling, and no sooner than the next poll would
+    staleTime: refetchInterval || undefined,
+    refetchOnWindowFocus: Boolean(refetchInterval),
   })
 
   return query

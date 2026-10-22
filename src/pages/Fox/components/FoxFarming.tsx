@@ -15,7 +15,10 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
+import {
+  ETH_FOX_STAKING_EVERGREEN_CONTRACT,
+  getFoxEthStakingContract,
+} from '@shapeshiftoss/contracts'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -31,7 +34,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -124,12 +126,13 @@ export const FoxFarming = () => {
   )
 
   const {
-    periodFinishQuery: {
-      data: periodFinish,
-      isLoading: isGetPeriodFinishQueryLoading,
-      isFetching: isGetPeriodFetchingLoading,
-    },
-  } = useFoxFarming(ETH_FOX_STAKING_EVERGREEN_CONTRACT)
+    data: periodFinish,
+    isLoading: isGetPeriodFinishQueryLoading,
+    isFetching: isGetPeriodFetchingLoading,
+  } = useQuery({
+    queryKey: ['getPeriodFinish', ETH_FOX_STAKING_EVERGREEN_CONTRACT],
+    queryFn: () => getFoxEthStakingContract(ETH_FOX_STAKING_EVERGREEN_CONTRACT).read.periodFinish(),
+  })
 
   const isGetPeriodFinishLoading = useMemo(
     () => isGetPeriodFinishQueryLoading || isGetPeriodFetchingLoading,

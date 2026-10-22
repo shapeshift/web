@@ -15,15 +15,10 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import {
-  ContractType,
-  FOXY_STAKING_CONTRACT,
-  getOrCreateContractByType,
-  viemEthMainnetClient,
-} from '@shapeshiftoss/contracts'
+import { FOXY_STAKING_CONTRACT, viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Address } from 'viem'
-import { encodeFunctionData, formatUnits, getAddress } from 'viem'
+import { encodeFunctionData, erc20Abi, formatUnits, getAddress } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Main } from '@/components/Layout/Main'
@@ -90,16 +85,6 @@ type FoxyAccount = BaseAccount & {
 export const Foxy = () => {
   const wallet = useWallet().state.wallet
   const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
-  const foxyToken = useMemo(
-    () =>
-      getOrCreateContractByType({
-        address: FOXY_TOKEN,
-        type: ContractType.ERC20,
-        chainId: ethChainId,
-      }),
-    [],
-  )
-
   const ethAccountIds = useAppSelector(state =>
     selectAccountIdsByChainIdFilter(state, { chainId: ethChainId }),
   )
@@ -144,8 +129,18 @@ export const Foxy = () => {
       const next = await Promise.all(
         baseAccounts.map(async base => {
           const [staked, allowance, cd] = await Promise.all([
-            foxyToken.read.balanceOf([base.address]),
-            foxyToken.read.allowance([base.address, getAddress(FOXY_STAKING_CONTRACT)]),
+            viemEthMainnetClient.readContract({
+              address: getAddress(FOXY_TOKEN),
+              abi: erc20Abi,
+              functionName: 'balanceOf',
+              args: [base.address],
+            }),
+            viemEthMainnetClient.readContract({
+              address: getAddress(FOXY_TOKEN),
+              abi: erc20Abi,
+              functionName: 'allowance',
+              args: [base.address, getAddress(FOXY_STAKING_CONTRACT)],
+            }),
             viemEthMainnetClient.readContract({
               address: getAddress(FOXY_STAKING_CONTRACT),
               abi: stakingAbi,
@@ -165,7 +160,7 @@ export const Foxy = () => {
     } finally {
       if (reqId === reqRef.current) setLoaded(true)
     }
-  }, [baseAccounts, foxyToken])
+  }, [baseAccounts])
 
   useEffect(() => {
     if (!isPortfolioLoaded) return
@@ -215,9 +210,7 @@ export const Foxy = () => {
             FOXY_TOKEN,
             getApproveContractData({
               approvalAmountCryptoBaseUnit: account.staked.toString(),
-              to: FOXY_TOKEN,
               spender: FOXY_STAKING_CONTRACT,
-              chainId: ethChainId,
             }),
           )
         }

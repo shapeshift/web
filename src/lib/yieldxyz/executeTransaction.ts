@@ -171,8 +171,7 @@ const executeEvmTransaction = async ({
 
   if (!addressNList) throw new Error('Failed to get address derivation path')
 
-  const account = await adapter.getAccount(parsed.from)
-  const currentNonce = account.chainSpecific.nonce
+  const currentNonce = await adapter.getNonce(parsed.from)
 
   const baseTxToSign = {
     to: toHexData(parsed.to),

@@ -62,14 +62,16 @@ export const useApprovalFees = ({
     }
 
     if (isEvmChainId(chainId)) {
-      return getApproveContractData({ approvalAmountCryptoBaseUnit, chainId, spender, to })
+      return getApproveContractData({ approvalAmountCryptoBaseUnit, spender })
     }
   }, [approvalAmountCryptoBaseUnit, chainId, enabled, spender, to])
 
   const tronFeesResult = useQuery({
     ...reactQueries.common.tronFees({ chainId, to, from, value: '0', data: approveContractData }),
     enabled: Boolean(enabled && chainId === tronChainId && approveContractData && to && from),
+    staleTime: 15_000,
     refetchInterval: isRefetchEnabled ? 15_000 : false,
+    refetchOnWindowFocus: isRefetchEnabled,
   })
 
   const evmFeesResult = useEvmFees({
@@ -79,7 +81,6 @@ export const useApprovalFees = ({
     chainId,
     data: approveContractData,
     enabled: Boolean(enabled && chainId && isEvmChainId(chainId)),
-    refetchIntervalInBackground: isRefetchEnabled ? true : false,
     refetchInterval: isRefetchEnabled ? 15_000 : false,
   })
 

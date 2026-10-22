@@ -25,8 +25,6 @@ export const approve = async ({
   const data = getApproveContractData({
     approvalAmountCryptoBaseUnit: amountCryptoBaseUnit,
     spender,
-    to,
-    chainId,
   })
 
   const buildCustomTxInput = await createBuildCustomTxInput({

@@ -5,14 +5,19 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  bufferGasLimit,
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { ZrxQuoteResponse } from '../types'
 
 export type GetZrxStepDataArgs = StepDataArgs<
   unknown,
-  { totalNetworkFee: string | null },
+  { gas: string | null; totalNetworkFee: string | null },
   {
     transaction: ZrxQuoteResponse['transaction']
+    sellAmountCryptoBaseUnit: string
     permit2Eip712: NonNullable<ZrxQuoteResponse['permit2']>['eip712'] | undefined
   }
 >
@@ -29,24 +34,34 @@ export function getZrxStepData(
 export async function getZrxStepData(
   args: GetZrxStepDataArgs,
 ): Promise<Result<ZrxRateStepData | ZrxQuoteStepData, SwapErrorRight>> {
+  const { sellAsset, input, deps } = args
+
+  const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+  const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
+
+  // 0x's price endpoint returns no tx data, so there's nothing to simulate
   if (args.type === 'rate') {
-    const stepData: ZrxRateStepData = {
-      networkFeeCryptoBaseUnit: bnOrZero(args.totalNetworkFee).toFixed(),
-    }
+    const { gas, totalNetworkFee } = args
+
+    const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
+      adapter,
+      supportsEIP1559,
+      providerGasLimit: gas,
+    }).catch(() => bnOrZero(totalNetworkFee).toFixed())
+
+    const stepData: ZrxRateStepData = { networkFeeCryptoBaseUnit }
 
     return Ok(stepData)
   }
 
-  const { sellAsset, transaction, permit2Eip712, from, input, deps } = args
+  const { sellAmountCryptoBaseUnit, transaction, permit2Eip712, from } = args
 
-  const transactionData: TxBuildData = {
+  const transactionData: Extract<TxBuildData, { type: 'evm' }> = {
     type: 'evm',
     chainId: Number(fromChainId(sellAsset.chainId).chainReference),
     to: transaction.to,
     data: transaction.data,
     value: transaction.value,
-    // 0x simulate with a valid permit2 signature, which can't be reproduced before signing, so trust their gas limit
-    gasLimit: transaction.gas || undefined,
     ...(permit2Eip712 && {
       signatureRequired: {
         type: 'permit2' as const,
@@ -56,12 +71,30 @@ export async function getZrxStepData(
   }
 
   try {
-    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
-      adapter: deps.assertGetEvmChainAdapter(sellAsset.chainId),
-      transactionData,
-      from,
-      supportsEIP1559: 'supportsEIP1559' in input ? input.supportsEIP1559 : false,
-    })
+    const networkFeeCryptoBaseUnit = await (() => {
+      // Permit2 calldata needs the signature, so it can't be simulated before signing
+      if (permit2Eip712) {
+        if (!transaction.gas || !bnOrZero(transaction.gas).gt(0))
+          throw new Error('missing 0x gas limit')
+
+        transactionData.gasLimit = bufferGasLimit(transaction.gas)
+
+        return getEvmNetworkFeeCryptoBaseUnit({
+          adapter,
+          supportsEIP1559,
+          gasLimit: transactionData.gasLimit,
+        })
+      }
+
+      return getEvmNetworkFeeCryptoBaseUnit({
+        adapter,
+        transactionData,
+        from,
+        supportsEIP1559,
+        stateOverride: { sellAsset, sellAmountCryptoBaseUnit },
+        providerGasLimit: transaction.gas,
+      })
+    })()
 
     const stepData: ZrxQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }
 

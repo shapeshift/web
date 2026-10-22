@@ -137,6 +137,7 @@ export const getZrxTradeQuote = async (
     type: 'quote',
     input,
     transaction,
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     permit2Eip712,
     from: receiveAddress,
   })

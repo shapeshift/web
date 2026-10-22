@@ -5,12 +5,8 @@ export enum DeviceType {
 
 export type Device = {
   id: string
-  deviceToken: string
   deviceType: DeviceType
   isActive: boolean
-  createdAt: string
-  updatedAt: string
-  userId: string
 }
 
 export type UserAccount = {
@@ -24,8 +20,6 @@ export type User = {
   id: string
   createdAt: string
   updatedAt: string
-  userAccounts: UserAccount[]
-  devices: Device[]
 }
 
 export type GetOrCreateUserRequest = {

@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { viemClientByChainId } from '@shapeshiftoss/contracts'
+import { assertGetViemClient, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type {
   ETHSignMessage,
   ETHSignTx,
@@ -536,8 +536,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       if (!value) throw new Error('value is required')
       if (!gasLimit) throw new Error('gasLimit is required')
 
-      const account = await this.getAccount(from)
-
       const isTokenSend = !!contractAddress
 
       const fees = ((): NetworkFees => {
@@ -552,10 +550,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return { gasPrice: toHex(BigInt(gasPrice)) }
       })()
 
-      const nonce =
-        customNonce !== undefined
-          ? toHex(BigInt(customNonce))
-          : toHex(BigInt(account.chainSpecific.nonce))
+      const nonce = toHex(BigInt((customNonce ?? '').trim() || (await this.getNonce(from))))
 
       const txToSign = {
         addressNList: input.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber })),
@@ -618,7 +613,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const [balance, nonce] = await Promise.all([
         viemClient.getBalance({ address: pubkey as `0x${string}` }),
-        viemClient.getTransactionCount({ address: pubkey as `0x${string}` }),
+        this.getNonce(pubkey),
       ])
 
       return {
@@ -640,6 +635,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         options: { pubkey },
       })
     }
+  }
+
+  async getNonce(address: string): Promise<number> {
+    return await assertGetViemClient(this.chainId).getTransactionCount({
+      address: getAddress(address),
+    })
   }
 
   async getAccount(pubkey: string): Promise<Account<T>> {
@@ -949,7 +950,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const { to, from, accountNumber, data, value } = input
       const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = input
 
-      const account = await this.getAccount(from)
+      const nonce = await this.getNonce(from)
 
       const fees: NetworkFees =
         maxFeePerGas && maxPriorityFeePerGas
@@ -965,7 +966,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,
-        nonce: toHex(BigInt(account.chainSpecific.nonce)),
+        nonce: toHex(nonce),
         gasLimit: toHex(BigInt(gasLimit)),
         ...fees,
       } as SignTx<T>

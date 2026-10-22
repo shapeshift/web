@@ -1,15 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, baseAssetId } from '@shapeshiftoss/caip'
-import { viemBaseClient } from '@shapeshiftoss/contracts'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import type { Hex } from 'viem'
 
-import { ErrorHandler } from '../../error/ErrorHandler'
-import type { BroadcastTransactionInput, GetFeeDataInput } from '../../types'
-import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
-import { assertAddressNotSanctioned } from '../../utils/validateAddress'
+import type { GetFeeDataInput } from '../../types'
+import { ChainAdapterDisplayName } from '../../types'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate, GasLimitEstimate } from '../types'
@@ -88,29 +84,6 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BaseMainnet> {
     } catch (err) {
       // RPC fallback has no L1 data, so the L1 fee reads 0 until unchained recovers
       return { gasLimit: await this.estimateGasRpcFallback(estimateGasBody, err) }
-    }
-  }
-
-  async broadcastTransaction({
-    senderAddress,
-    receiverAddress,
-    hex,
-  }: BroadcastTransactionInput): Promise<string> {
-    try {
-      await Promise.all([
-        assertAddressNotSanctioned(senderAddress),
-        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-      ])
-
-      const txHash = await viemBaseClient.sendRawTransaction({
-        serializedTransaction: hex as Hex,
-      })
-
-      return txHash
-    } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
-      })
     }
   }
 }

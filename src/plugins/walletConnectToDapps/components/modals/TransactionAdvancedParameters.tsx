@@ -56,8 +56,7 @@ export const TransactionAdvancedParameters = ({
             const chainAdapterManager = getChainAdapterManager()
             const adapter = chainAdapterManager.get(chainId) as EvmChainAdapter
             if (!adapter) throw new Error(`No adapter found for chainId: ${chainId}`)
-            const account = await adapter.getAccount(address)
-            return account.chainSpecific.nonce
+            return await adapter.getNonce(address)
           }
         : skipToken,
     // Always refetch on mount to get the latest nonce

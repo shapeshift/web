@@ -2,11 +2,11 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
 import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm, evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
 
 import { getSupportedChainIdsByChainNamespace } from '..'
 
@@ -15,9 +15,7 @@ import type { PartialFields } from '@/lib/types'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
-  to: string
   spender: string
-  chainId: ChainId
 }
 
 type BuildArgs = {
@@ -153,18 +151,10 @@ export const signAndBroadcast = async ({
 
 export const getApproveContractData = ({
   approvalAmountCryptoBaseUnit,
-  to,
   spender,
-  chainId,
 }: GetApproveContractDataArgs): string => {
-  const address = getAddress(to)
-  const contract = getOrCreateContractByType({
-    address,
-    type: ContractType.ERC20,
-    chainId,
-  })
   const data = encodeFunctionData({
-    abi: contract.abi,
+    abi: erc20Abi,
     functionName: 'approve',
     args: [getAddress(spender), BigInt(approvalAmountCryptoBaseUnit)],
   })
@@ -177,13 +167,12 @@ export const getErc20Allowance = async ({
   spender,
   chainId,
 }: GetErc20AllowanceArgs): Promise<string> => {
-  const contract = getOrCreateContractByType({
-    address,
-    type: ContractType.ERC20,
-    chainId,
+  const allowance = await assertGetViemClient(chainId).readContract({
+    address: getAddress(address),
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: [getAddress(from), getAddress(spender)],
   })
-  const allowance = await contract.read.allowance([getAddress(from), getAddress(spender)])
-  // TODO(gomes): fix types
   return allowance.toString()
 }
 

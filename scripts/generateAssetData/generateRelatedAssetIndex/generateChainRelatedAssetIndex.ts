@@ -365,8 +365,9 @@ const processRelatedAssetIds = async (
       coinsByAssetId,
     )
     happyCount++
-  } catch {
+  } catch (err) {
     sadCount++
+    console.warn(`[CoinGecko] ${assetId}: ${err instanceof Error ? err.message : err}`)
   }
 
   const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
@@ -378,8 +379,9 @@ const processRelatedAssetIds = async (
       happyCount++
       return result
     })
-    .catch(() => {
+    .catch(err => {
       sadCount++
+      console.warn(`[Zerion] ${assetId}: ${err instanceof Error ? err.message : err}`)
       return undefined
     })
 

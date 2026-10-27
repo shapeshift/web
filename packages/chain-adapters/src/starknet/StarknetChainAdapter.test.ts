@@ -115,6 +115,32 @@ describe('StarknetChainAdapter', () => {
     })
   })
 
+  it('keeps the wallet reason when an extension refuses to send', async () => {
+    const adapter = makeAdapter()
+    const wallet = {
+      _supportsStarknet: true,
+      getVendor: () => 'Braavos',
+      starknetSendTx: vi.fn().mockRejectedValue(
+        Object.assign(new Error('Braavos must be set to Starknet Mainnet'), {
+          code: 'WRONG_NETWORK',
+        }),
+      ),
+    } as unknown as HDWallet
+
+    await expect(
+      adapter.signAndBroadcastTransaction({
+        senderAddress: ADDRESS,
+        receiverAddress: ADDRESS,
+        signTxInput: { txToSign: { addressNList: [], txHash: '' }, wallet },
+      }),
+    ).rejects.toMatchObject({
+      metadata: {
+        translation: 'chainAdapters.errors.starknetWrongNetwork',
+        options: { name: 'Braavos' },
+      },
+    })
+  })
+
   describe('buildSendApiTransaction', () => {
     it('returns only the calls for an undeployed account, without estimating fees', async () => {
       const adapter = makeAdapter()

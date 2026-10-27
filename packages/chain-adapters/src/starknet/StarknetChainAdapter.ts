@@ -49,6 +49,12 @@ import {
   STRK_TOKEN_ADDRESS,
 } from './utils'
 
+// Error codes thrown by extension wallets, see hdwallet-starknet-injected
+const STARKNET_SEND_TX_ERROR_TRANSLATIONS: Record<string, string | undefined> = {
+  WRONG_NETWORK: 'chainAdapters.errors.starknetWrongNetwork',
+  ACCOUNT_CHANGED: 'chainAdapters.errors.starknetAccountChanged',
+}
+
 export interface ChainAdapterArgs {
   rpcUrl: string
   getKnownTokens?: () => TokenInfo[]
@@ -1165,9 +1171,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
       // Extension wallets can't sign a precomputed hash, they submit the unencoded calls themselves
       if (wallet.starknetSendTx) {
-        const tx = await wallet.starknetSendTx(txToSign)
-        if (!tx?.hash) throw new Error('error sending tx - missing transaction hash')
-        return tx.hash
+        try {
+          const tx = await wallet.starknetSendTx(txToSign)
+          if (!tx?.hash) throw new Error('error sending tx - missing transaction hash')
+          return tx.hash
+        } catch (err) {
+          // Keep the wallet's actionable reason instead of the generic broadcast error
+          const translation =
+            STARKNET_SEND_TX_ERROR_TRANSLATIONS[(err as { code?: string }).code ?? '']
+          if (!translation) throw err
+          throw new ChainAdapterError(err, { translation, options: { name: wallet.getVendor() } })
+        }
       }
 
       const signedHex = await this.signTransaction(signTxInput)

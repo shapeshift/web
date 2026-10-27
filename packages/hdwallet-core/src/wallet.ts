@@ -421,6 +421,10 @@ export function isPhantom(wallet: HDWallet | null): boolean {
   return isObject(wallet) && (wallet as any)._isPhantom
 }
 
+export function isStarknetInjected(wallet: HDWallet | null): boolean {
+  return isObject(wallet) && (wallet as any)._isStarknetInjected
+}
+
 export function isVultisig(wallet: HDWallet | null): boolean {
   return isObject(wallet) && (wallet as any)._isVultisig
 }

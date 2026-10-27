@@ -159,6 +159,7 @@ const validators = {
   VITE_FEATURE_TREZOR_WALLET: bool({ default: false }),
   VITE_FEATURE_VULTISIG_WALLET: bool({ default: false }),
   VITE_FEATURE_GRIDPLUS_WALLET: bool({ default: false }),
+  VITE_FEATURE_STARKNET_WALLETS: bool({ default: false }),
   VITE_FEATURE_WALLET_CONNECT_V2: bool({ default: false }),
   VITE_FEATURE_WC_DIRECT_CONNECTION: bool({ default: false }),
   VITE_WALLET_CONNECT_TO_DAPPS_PROJECT_ID: str({ default: '' }),

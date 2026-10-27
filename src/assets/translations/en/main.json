@@ -2075,6 +2075,27 @@
         "header": "Connection Failed",
         "body": "Unable to connect to Seeker wallet. Please ensure the Seeker app is available and try again."
       }
+    },
+    "starknetInjected": {
+      "sectionTitle": "Starknet Wallets",
+      "connect": {
+        "header": "Connect %{name}",
+        "body": "Approve the connection in your %{name} extension to use your Starknet account with ShapeShift.",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "%{name} Not Found",
+        "body": "%{name} was not found. Install the %{name} extension, then reload the page and try again."
+      },
+      "errors": {
+        "wrongNetwork": "Switch %{name} to Starknet Mainnet and try again.",
+        "noAccount": "No account found in %{name}. Create or unlock a Starknet Mainnet account and try again.",
+        "connectionFailed": "The connection to %{name} was rejected or failed. Approve the request in %{name} and try again."
+      },
+      "wrongNetwork": {
+        "button": "Wrong Network",
+        "tooltip": "%{name} is not set to Starknet Mainnet. Click to switch back."
+      }
     }
   },
   "graph": {

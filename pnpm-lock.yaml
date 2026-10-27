@@ -218,6 +218,9 @@ importers:
       '@shapeshiftoss/hdwallet-seeker':
         specifier: workspace:^
         version: link:packages/hdwallet-seeker
+      '@shapeshiftoss/hdwallet-starknet-injected':
+        specifier: workspace:^
+        version: link:packages/hdwallet-starknet-injected
       '@shapeshiftoss/hdwallet-trezor':
         specifier: workspace:^
         version: link:packages/hdwallet-trezor
@@ -1795,6 +1798,22 @@ importers:
       hash-wasm:
         specifier: ^4.11.0
         version: 4.12.0
+
+  packages/hdwallet-starknet-injected:
+    dependencies:
+      '@shapeshiftoss/hdwallet-core':
+        specifier: workspace:^
+        version: link:../hdwallet-core
+      lodash:
+        specifier: ^4.17.23
+        version: 4.17.23
+      starknet:
+        specifier: ^9.3.0
+        version: 9.4.0(typescript@5.8.2)(zod@3.25.76)
+    devDependencies:
+      '@types/lodash':
+        specifier: 4.14.182
+        version: 4.14.182
 
   packages/hdwallet-trezor:
     dependencies:

@@ -887,6 +887,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
       }
 
+      const calldataArray = Array.isArray(call.calldata) ? call.calldata : []
+      const calls = [
+        {
+          contractAddress: call.contractAddress,
+          entrypoint: call.entrypoint,
+          calldata: calldataArray.map(String),
+        },
+      ]
+
+      // Undeployed accounts can't be fee-estimated - only extensions get here, and deploy on first send
+      if (!(await this.isAccountDeployed(from))) {
+        return {
+          addressNList: toAddressNList(this.getBip44Params({ accountNumber: input.accountNumber })),
+          txHash: '',
+          calls,
+        }
+      }
+
       // Get account nonce - use '0x0' for undeployed accounts
       let nonce = '0x0'
       try {
@@ -900,7 +918,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const version = '0x3' as const // v3 is the transaction version current RPC specs accept
 
       // Build the invoke transaction calldata
-      const calldataArray = Array.isArray(call.calldata) ? call.calldata : []
       const fullCalldata = [
         '1', // call array length
         call.contractAddress,
@@ -1021,6 +1038,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber: input.accountNumber })),
         txHash,
+        calls,
         _txDetails: {
           fromAddress: from,
           calldata: formattedCalldata,
@@ -1073,6 +1091,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
       // TODO: Re-enable once Starknet is added to verifyLedgerAppOpen
       // await verifyLedgerAppOpen(this.chainId, wallet)
+
+      // Calls-only tx built for an undeployed account, see buildSendApiTransaction
+      if (!txToSign.txHash) throw new Error('account must be deployed before signing')
 
       // Extract just the signature fields for wallet signing
       const signatureResult = await wallet.starknetSignTx({
@@ -1137,6 +1158,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.StarknetMainnet>): Promise<string> {
     try {
+      const { txToSign, wallet } = signTxInput
+
+      if (!wallet) throw new Error('wallet is required')
+      this.assertSupportsChain(wallet)
+
+      // Extension wallets can't sign a precomputed hash, they submit the unencoded calls themselves
+      if (wallet.starknetSendTx) {
+        const tx = await wallet.starknetSendTx(txToSign)
+        if (!tx?.hash) throw new Error('error sending tx - missing transaction hash')
+        return tx.hash
+      }
+
       const signedHex = await this.signTransaction(signTxInput)
       return await this.broadcastTransaction({
         hex: signedHex,

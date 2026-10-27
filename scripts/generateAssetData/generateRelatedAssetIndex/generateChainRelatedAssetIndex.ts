@@ -131,24 +131,34 @@ const getManualRelatedAssetIds = (
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
 
-type CoingeckoCoin = Pick<CoingeckoAssetDetails, 'id' | 'platforms'>
+type CoingeckoCoin = { id: string; assetIds: AssetId[] }
+
+const coingeckoPlatformDetailsToSupportedAssetId = (
+  platformDetails: [string, string],
+): AssetId | undefined => {
+  try {
+    return coingeckoPlatformDetailsToMaybeAssetId(platformDetails)
+  } catch {
+    // chains without an asset namespace and malformed addresses throw
+    return
+  }
+}
 
 const fetchCoingeckoCoinsByAssetId = async (): Promise<Record<AssetId, CoingeckoCoin>> => {
-  const { data } = await axiosInstance.get<CoingeckoCoin[]>(`${coingeckoBaseUrl}/coins/list`, {
-    params: { include_platform: true },
-  })
+  const { data } = await axiosInstance.get<Pick<CoingeckoAssetDetails, 'id' | 'platforms'>[]>(
+    `${coingeckoBaseUrl}/coins/list`,
+    { params: { include_platform: true } },
+  )
 
   const coinsByAssetId: Record<AssetId, CoingeckoCoin> = {}
 
-  for (const coin of data) {
-    for (const platformDetails of Object.entries(coin.platforms)) {
-      try {
-        const assetId = coingeckoPlatformDetailsToMaybeAssetId(platformDetails)
-        if (assetId) coinsByAssetId[assetId] = coin
-      } catch {
-        // platforms on chains we don't support have no asset namespace
-      }
-    }
+  for (const { id, platforms } of data) {
+    const assetIds = Object.entries(platforms)
+      .map(coingeckoPlatformDetailsToSupportedAssetId)
+      .filter(isSome)
+
+    const coin = { id, assetIds }
+    for (const assetId of assetIds) coinsByAssetId[assetId] = coin
   }
 
   if (!Object.keys(coinsByAssetId).length) throw new Error('CoinGecko coin list has no platforms')
@@ -244,13 +254,11 @@ const getCoingeckoRelatedAssetIds = (
   const coin = coinsByAssetId[assetId]
   if (!coin) return
 
-  const platforms = coin.platforms
   const coinId = coin.id
 
-  let allRelatedAssetIds = Object.entries(platforms)
-    ?.map(coingeckoPlatformDetailsToMaybeAssetId)
-    .filter(isSome)
-    .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
+  let allRelatedAssetIds = coin.assetIds.filter(
+    relatedAssetId => assetData[relatedAssetId] !== undefined,
+  )
 
   let bridgedCanonical: AssetId | undefined
 
@@ -356,19 +364,12 @@ const processRelatedAssetIds = async (
     }
   }
 
-  let coingeckoRelatedAssetsResult: ReturnType<typeof getCoingeckoRelatedAssetIds>
-  try {
-    coingeckoRelatedAssetsResult = getCoingeckoRelatedAssetIds(
-      assetId,
-      assetData,
-      categoryToCoinIds,
-      coinsByAssetId,
-    )
-    happyCount++
-  } catch (err) {
-    sadCount++
-    console.warn(`[CoinGecko] ${assetId}: ${err instanceof Error ? err.message : err}`)
-  }
+  const coingeckoRelatedAssetsResult = getCoingeckoRelatedAssetIds(
+    assetId,
+    assetData,
+    categoryToCoinIds,
+    coinsByAssetId,
+  )
 
   const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
     coingeckoRelatedAssetsResult?.relatedAssetKey ?? assetId,

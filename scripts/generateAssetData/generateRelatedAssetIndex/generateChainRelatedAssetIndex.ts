@@ -30,7 +30,7 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
-import axiosRetry from 'axios-retry'
+import axiosRetry, { retryAfter } from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
@@ -55,7 +55,7 @@ axiosRetry(axiosInstance, {
   // coingecko limits per minute, so a 429 needs to wait for the window to reset
   retryDelay: (retryCount, error) =>
     error.response?.status === 429 && error.config?.url?.startsWith(coingeckoBaseUrl)
-      ? Math.max(30_000, axiosRetry.retryAfter(error))
+      ? Math.max(30_000, retryAfter(error))
       : axiosRetry.exponentialDelay(retryCount, error),
 })
 

@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  adapters,
   arbitrumAssetId,
   baseAssetId,
   blastAssetId,
@@ -30,7 +29,7 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
-import axiosRetry, { retryAfter } from 'axios-retry'
+import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
@@ -50,14 +49,7 @@ const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
 const axiosInstance = axios.create()
-axiosRetry(axiosInstance, {
-  retries: 5,
-  // coingecko limits per minute, so a 429 needs to wait for the window to reset
-  retryDelay: (retryCount, error) =>
-    error.response?.status === 429 && error.config?.url?.startsWith(coingeckoBaseUrl)
-      ? Math.max(30_000, retryAfter(error))
-      : axiosRetry.exponentialDelay(retryCount, error),
-})
+axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
 
 const BRIDGED_CATEGORY_MAPPINGS: Record<string, AssetId> = {
   'bridged-usdc': 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -139,6 +131,31 @@ const getManualRelatedAssetIds = (
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
 
+type CoingeckoCoin = Pick<CoingeckoAssetDetails, 'id' | 'platforms'>
+
+const fetchCoingeckoCoinsByAssetId = async (): Promise<Record<AssetId, CoingeckoCoin>> => {
+  const { data } = await axiosInstance.get<CoingeckoCoin[]>(`${coingeckoBaseUrl}/coins/list`, {
+    params: { include_platform: true },
+  })
+
+  const coinsByAssetId: Record<AssetId, CoingeckoCoin> = {}
+
+  for (const coin of data) {
+    for (const platformDetails of Object.entries(coin.platforms)) {
+      try {
+        const assetId = coingeckoPlatformDetailsToMaybeAssetId(platformDetails)
+        if (assetId) coinsByAssetId[assetId] = coin
+      } catch {
+        // platforms on chains we don't support have no asset namespace
+      }
+    }
+  }
+
+  if (!Object.keys(coinsByAssetId).length) throw new Error('CoinGecko coin list has no platforms')
+
+  return coinsByAssetId
+}
+
 const fetchBridgedCategoryMappings = async (): Promise<Record<string, string[]>> => {
   const categoryToCoinIds: Record<string, string[]> = {}
 
@@ -215,26 +232,20 @@ const getZerionRelatedAssetIds = async (
   return { relatedAssetIds, relatedAssetKey }
 }
 
-const getCoingeckoRelatedAssetIds = async (
+const getCoingeckoRelatedAssetIds = (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   categoryToCoinIds: Record<string, string[]>,
-  throttle: () => Promise<void>,
-): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
+  coinsByAssetId: Record<AssetId, CoingeckoCoin>,
+): { relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined => {
   if (!isToken(assetId)) return
   if (FEE_ASSET_IDS.includes(assetId)) return
-  const { chainId, assetReference: contractAddress } = fromAssetId(assetId)
-  const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
-  const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
 
-  await throttle()
+  const coin = coinsByAssetId[assetId]
+  if (!coin) return
 
-  const { data } = await axiosInstance.get<CoingeckoAssetDetails>(
-    `${coingeckoBaseUrl}/coins/${coinUri}`,
-  )
-
-  const platforms = data.platforms
-  const coinId = data.id
+  const platforms = coin.platforms
+  const coinId = coin.id
 
   let allRelatedAssetIds = Object.entries(platforms)
     ?.map(coingeckoPlatformDetailsToMaybeAssetId)
@@ -266,6 +277,15 @@ const getCoingeckoRelatedAssetIds = async (
     }
   }
 
+  // CoinGecko's platform order is arbitrary, so prefer joining an existing group over starting one
+  const groupedRelatedAssetId = allRelatedAssetIds.find(id => assetData[id]?.relatedAssetKey)
+  if (groupedRelatedAssetId) {
+    allRelatedAssetIds = [
+      groupedRelatedAssetId,
+      ...allRelatedAssetIds.filter(id => id !== groupedRelatedAssetId),
+    ]
+  }
+
   if (bridgedCanonical && assetData[bridgedCanonical]) {
     allRelatedAssetIds.unshift(bridgedCanonical)
     allRelatedAssetIds = Array.from(new Set(allRelatedAssetIds))
@@ -292,6 +312,7 @@ const processRelatedAssetIds = async (
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
   categoryToCoinIds: Record<string, string[]>,
+  coinsByAssetId: Record<AssetId, CoingeckoCoin>,
   zerionApiKey: string,
   throttle: () => Promise<void>,
 ): Promise<void> => {
@@ -335,20 +356,18 @@ const processRelatedAssetIds = async (
     }
   }
 
-  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(
-    assetId,
-    assetData,
-    categoryToCoinIds,
-    throttle,
-  )
-    .then(result => {
-      happyCount++
-      return result
-    })
-    .catch(() => {
-      sadCount++
-      return undefined
-    })
+  let coingeckoRelatedAssetsResult: ReturnType<typeof getCoingeckoRelatedAssetIds>
+  try {
+    coingeckoRelatedAssetsResult = getCoingeckoRelatedAssetIds(
+      assetId,
+      assetData,
+      categoryToCoinIds,
+      coinsByAssetId,
+    )
+    happyCount++
+  } catch {
+    sadCount++
+  }
 
   const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
     coingeckoRelatedAssetsResult?.relatedAssetKey ?? assetId,
@@ -438,6 +457,8 @@ const processRelatedAssetIds = async (
   } else {
     assetData[assetId].relatedAssetKey = null
   }
+
+  await throttle()
 }
 
 /**
@@ -477,13 +498,13 @@ export const generateChainRelatedAssetIndex = async (chainId: ChainId) => {
   console.log(`[generate:chain] ${chainAssetIds.length} assets to process for related index`)
 
   const categoryToCoinIds = await fetchBridgedCategoryMappings()
+  const coinsByAssetId = await fetchCoingeckoCoinsByAssetId()
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
-    // ~300 req/min, leaving coingecko's 500 req/min limit headroom for user traffic
-    capacity: 5,
+    capacity: 50,
     costPerReq: 1,
-    drainPerInterval: 5,
-    intervalMs: 1000,
+    drainPerInterval: 25,
+    intervalMs: 2000,
   })
 
   // Process only chain assets in batches of 100
@@ -502,6 +523,7 @@ export const generateChainRelatedAssetIndex = async (chainId: ChainId) => {
           generatedAssetData,
           relatedAssetIndex,
           categoryToCoinIds,
+          coinsByAssetId,
           zerionApiKey,
           throttle,
         ),

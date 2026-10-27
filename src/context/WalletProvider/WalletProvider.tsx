@@ -23,6 +23,7 @@ import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandle
 import type { AdaptersByKeyManager, GetAdapter } from './types'
 import { NativeWalletRoutes } from './types'
 import { useEip1993EventHandler } from './useEip1993EventHandler'
+import { useStarknetInjectedEventHandler } from './useStarknetInjectedEventHandler'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 
@@ -844,6 +845,58 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
+          case KeyManager.Ready:
+          case KeyManager.Braavos:
+          case KeyManager.Bramble: {
+            const isStarknetWalletsEnabled =
+              selectFeatureFlag(store.getState(), 'Starknet') &&
+              selectFeatureFlag(store.getState(), 'StarknetWallets')
+            if (!isStarknetWalletsEnabled) {
+              disconnect()
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            }
+
+            const starknetInjectedAdapter = await getAdapter(localWalletType)
+
+            if (starknetInjectedAdapter) {
+              // Mutate in place like the other cases - a new object re-creates load() and re-runs it
+              Object.assign(currentAdapters, { [localWalletType]: starknetInjectedAdapter })
+              dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+              // Fixes issue with wallet `type` being null when the wallet is loaded from state
+              dispatch({
+                type: WalletActions.SET_CONNECTOR_TYPE,
+                payload: { modalType: localWalletType, isMipdProvider: false },
+              })
+            }
+
+            try {
+              // Silent - only restores a previously authorized session, never prompts on load
+              const localStarknetInjectedWallet = await starknetInjectedAdapter?.pairDevice(true)
+              if (localStarknetInjectedWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[localWalletType]
+                const deviceId = await localStarknetInjectedWallet.getDeviceID()
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: localStarknetInjectedWallet,
+                    name,
+                    icon,
+                    deviceId,
+                    connectedType: localWalletType,
+                  },
+                })
+                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+              } else {
+                disconnect()
+              }
+            } catch (e) {
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
+          }
           case KeyManager.GridPlus: {
             // GridPlus wallet persists in keyring after pairing
             // Check if wallet exists in keyring from previous session
@@ -1046,6 +1099,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
   useLedgerEventHandler(state, dispatch, load, setDeviceState)
   useEip1993EventHandler({ state, getAdapter, dispatch })
+  useStarknetInjectedEventHandler({ state, getAdapter, dispatch })
 
   const value: IWalletContext = useMemo(
     () => ({

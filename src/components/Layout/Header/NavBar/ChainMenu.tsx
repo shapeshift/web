@@ -3,9 +3,12 @@ import { Box } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isStarknetInjected, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core/wallet'
+import type { StarknetInjectedHDWallet } from '@shapeshiftoss/hdwallet-starknet-injected'
 import { memo, useCallback, useMemo } from 'react'
 import { toHex } from 'viem'
+
+import { StarknetWrongNetworkButton } from './StarknetWrongNetworkButton'
 
 import { ChainMenu as BasicChainMenu } from '@/components/ChainMenu'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -86,6 +89,18 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
   )
 
   if (!state.wallet) return null
+
+  // Starknet extensions have a single supported network, only surface when they're off it
+  if (isStarknetInjected(state.wallet)) {
+    return (
+      <StarknetWrongNetworkButton
+        wallet={state.wallet as StarknetInjectedHDWallet}
+        buttonProps={buttonProps}
+        {...props}
+      />
+    )
+  }
+
   if (!supportsEthSwitchChain(state.wallet)) return null
 
   // don't show the menu if there is only one chain

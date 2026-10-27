@@ -8,6 +8,11 @@ import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichai
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
+import type {
+  BraavosAdapter,
+  BrambleAdapter,
+  ReadyAdapter,
+} from '@shapeshiftoss/hdwallet-starknet-injected'
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -28,6 +33,9 @@ export type AdaptersByKeyManager = {
   [KeyManager.Coinbase]: CoinbaseAdapter
   [KeyManager.Vultisig]: VultisigAdapter
   [KeyManager.GridPlus]: GridPlusAdapter
+  [KeyManager.Ready]: ReadyAdapter
+  [KeyManager.Braavos]: BraavosAdapter
+  [KeyManager.Bramble]: BrambleAdapter
 }
 
 export enum NativeWalletRoutes {

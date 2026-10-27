@@ -1,0 +1,40 @@
+{
+  "name": "@shapeshiftoss/hdwallet-starknet-injected",
+  "version": "1.62.41",
+  "repository": "https://github.com/shapeshift/web",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf dist && pnpm exec tsc --build && pnpm run postbuild",
+    "clean": "rm -rf dist node_modules",
+    "dev": "pnpm exec tsc --build --watch",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "lodash": "^4.17.23",
+    "starknet": "^9.3.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.178"
+  },
+  "sideEffects": false
+}

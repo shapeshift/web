@@ -19,7 +19,7 @@ export type ConnectModalProps = {
   onPairDeviceClick: () => void
   loading: boolean
   isButtonDisabled?: boolean
-  error: string | null
+  error: string | [string, InterpolationOptions] | null
   children?: ReactNode
 }
 

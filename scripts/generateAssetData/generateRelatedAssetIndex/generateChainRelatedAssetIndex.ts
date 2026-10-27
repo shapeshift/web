@@ -54,7 +54,9 @@ axiosRetry(axiosInstance, {
   retries: 5,
   // coingecko limits per minute, so a 429 needs to wait for the window to reset
   retryDelay: (retryCount, error) =>
-    error.response?.status === 429 ? 30_000 : axiosRetry.exponentialDelay(retryCount, error),
+    error.response?.status === 429 && error.config?.url?.startsWith(coingeckoBaseUrl)
+      ? Math.max(30_000, axiosRetry.retryAfter(error))
+      : axiosRetry.exponentialDelay(retryCount, error),
 })
 
 const BRIDGED_CATEGORY_MAPPINGS: Record<string, AssetId> = {
@@ -217,13 +219,19 @@ const getCoingeckoRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   categoryToCoinIds: Record<string, string[]>,
+  throttle: () => Promise<void>,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
   if (!isToken(assetId)) return
   if (FEE_ASSET_IDS.includes(assetId)) return
   const { chainId, assetReference: contractAddress } = fromAssetId(assetId)
   const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
   const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
-  const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)
+
+  await throttle()
+
+  const { data } = await axiosInstance.get<CoingeckoAssetDetails>(
+    `${coingeckoBaseUrl}/coins/${coinUri}`,
+  )
 
   const platforms = data.platforms
   const coinId = data.id
@@ -327,12 +335,11 @@ const processRelatedAssetIds = async (
     }
   }
 
-  await throttle()
-
   const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(
     assetId,
     assetData,
     categoryToCoinIds,
+    throttle,
   )
     .then(result => {
       happyCount++

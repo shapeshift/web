@@ -59,7 +59,9 @@ axiosRetry(axiosInstance, {
   retries: 5,
   // coingecko limits per minute, so a 429 needs to wait for the window to reset
   retryDelay: (retryCount, error) =>
-    error.response?.status === 429 ? 30_000 : axiosRetry.exponentialDelay(retryCount, error),
+    error.response?.status === 429 && error.config?.url?.startsWith(coingeckoBaseUrl)
+      ? Math.max(30_000, axiosRetry.retryAfter(error))
+      : axiosRetry.exponentialDelay(retryCount, error),
 })
 
 const ZERION_API_KEY = process.env.ZERION_API_KEY
@@ -239,6 +241,7 @@ const getCoingeckoRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   categoryToCoinIds: Record<string, string[]>,
+  throttle: () => Promise<void>,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
   if (!isToken(assetId)) return
   // Yes, this means effectively the same but double wrap never hurts
@@ -246,6 +249,9 @@ const getCoingeckoRelatedAssetIds = async (
   const { chainId, assetReference: contractAddress } = fromAssetId(assetId)
   const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
   const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
+
+  await throttle()
+
   const { data } = await axiosInstance.get<CoingeckoAssetDetails>(
     `${coingeckoBaseUrl}/coins/${coinUri}`,
   )
@@ -361,12 +367,11 @@ const processRelatedAssetIds = async (
     }
   }
 
-  await throttle()
-
   const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(
     assetId,
     assetData,
     categoryToCoinIds,
+    throttle,
   )
     .then(result => {
       happyCount++

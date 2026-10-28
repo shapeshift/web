@@ -24,6 +24,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.BobGateway:
     case SwapperName.Symbiosis:
     case SwapperName.Fynd:
+    case SwapperName.LcxLiberty:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -46,6 +47,7 @@ export const getEnabledSwappers = (
     ThorSwap,
     ZrxSwap,
     FyndSwap,
+    LcxLibertySwap,
     ArbitrumBridge,
     Cowswap,
     RelaySwapper,
@@ -83,6 +85,9 @@ export const getEnabledSwappers = (
       ZrxSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Zrx)),
     [SwapperName.Fynd]:
       FyndSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Fynd)),
+    [SwapperName.LcxLiberty]:
+      LcxLibertySwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.LcxLiberty)),
     [SwapperName.CowSwap]:
       Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
     [SwapperName.ArbitrumBridge]:

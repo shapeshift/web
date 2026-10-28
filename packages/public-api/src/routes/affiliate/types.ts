@@ -78,6 +78,35 @@ export const AffiliateMembersResponseSchema = registry.register(
 
 // --- Affiliate Swaps ---
 
+export const AffiliateFeeStatusSchema = z.enum(['earned', 'pending', 'review', 'failed']).openapi({
+  example: 'earned',
+  description:
+    'earned: the verified on-chain fee that will be paid. pending: still settling, fee is an estimate. review: verified but held for review, fee is an estimate. failed: will not be paid, no fee',
+})
+
+export type AffiliateFeeStatus = z.infer<typeof AffiliateFeeStatusSchema>
+
+export const AffiliateFeeStatusReasonSchema = z
+  .enum([
+    'swap-pending',
+    'verification-pending',
+    'attribution-pending',
+    'no-partner-share',
+    'fee-under-review',
+    'swap-failed',
+    'not-attributed',
+    'fee-not-verified',
+    'no-affiliate-fee',
+    'fee-waived',
+  ])
+  .nullable()
+  .openapi({
+    example: null,
+    description: 'Why the fee is pending, under review or not paid; null once earned',
+  })
+
+export type AffiliateFeeStatusReason = NonNullable<z.infer<typeof AffiliateFeeStatusReasonSchema>>
+
 export const AffiliateSwapSchema = registry.register(
   'AffiliateSwap',
   z.object({
@@ -90,6 +119,8 @@ export const AffiliateSwapSchema = registry.register(
     buyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
     buyAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
     affiliateFeeAmountUsd: z.string().nullable().openapi({ example: '3.70' }),
+    affiliateFeeStatus: AffiliateFeeStatusSchema,
+    affiliateFeeStatusReason: AffiliateFeeStatusReasonSchema,
     affiliateBps: z.number().int().min(0).openapi({ example: 60 }),
     partnerBps: z.number().int().min(0).nullable().openapi({ example: 20 }),
     shapeshiftBps: z.number().int().min(0).openapi({ example: 10 }),
@@ -114,6 +145,9 @@ export const SwapServiceAffiliateSwapSchema = z.object({
   actualAffiliateFeeAmountCryptoBaseUnit: z.string().nullable(),
   affiliateAssetUsd: z.string().nullable(),
   affiliateFeeAssetId: z.string().nullable(),
+  partnerFeeUsd: z.string().nullable(),
+  attributionStatus: z.string(),
+  verificationStatus: z.string(),
   affiliateBps: z.number().int().min(0),
   partnerBps: z.number().int().min(0),
   shapeshiftBps: z.number().int().min(0),

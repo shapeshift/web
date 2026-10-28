@@ -23,7 +23,7 @@ export type GetZrxStepDataArgs = StepDataArgs<
   }
 >
 
-type ZrxRateStepData = { networkFeeCryptoBaseUnit: string }
+type ZrxRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
 type ZrxQuoteStepData = { transactionData: TxBuildData; networkFeeCryptoBaseUnit: string }
 
 export function getZrxStepData(
@@ -38,7 +38,7 @@ export async function getZrxStepData(
   // 0x's total includes the L1 data fee on OP-stack chains, which pricing their gas limit would drop
   if (args.type === 'rate') {
     const stepData: ZrxRateStepData = {
-      networkFeeCryptoBaseUnit: bnOrZero(args.totalNetworkFee).toFixed(),
+      networkFeeCryptoBaseUnit: args.totalNetworkFee ?? undefined,
     }
 
     return Ok(stepData)

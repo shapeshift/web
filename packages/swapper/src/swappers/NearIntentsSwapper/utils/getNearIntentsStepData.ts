@@ -34,7 +34,7 @@ type BaseArgs = {
 
 export type GetNearIntentsStepDataArgs = StepDataArgs<BaseArgs>
 
-// Un-migrated namespaces (sui/starknet/near/ton) never build transactionData - exec does; a
+// Un-migrated namespaces (sui/starknet/near/ton/aptos) never build transactionData - exec does; a
 // walletless rate can also come back without a fee
 type NearIntentsRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
 type NearIntentsQuoteStepData = {
@@ -293,6 +293,23 @@ export async function getNearIntentsStepData(
             from,
             contractAddress: contractAddressOrUndefined(sellAsset.assetId),
           },
+        })
+
+        const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+        return Ok(stepData)
+      }
+      case CHAIN_NAMESPACE.Aptos: {
+        if (!from) {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
+
+          return Ok(stepData)
+        }
+
+        const { fast } = await deps.assertGetAptosChainAdapter(sellAsset.chainId).getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: { from },
         })
 
         const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }

@@ -828,12 +828,7 @@ export const useTradeExecution = (
         case CHAIN_NAMESPACE.Aptos: {
           const adapter = assertGetAptosChainAdapter(stepSellAssetChainId)
 
-          const from = await adapter.getAddress({
-            accountNumber,
-            wallet,
-            pubKey:
-              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
-          })
+          const from = await adapter.getAddress({ accountNumber, wallet })
 
           const output = await execution.execAptosTransaction({
             swapperName,
@@ -842,8 +837,9 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: AptosSignTx) => {
-              const signTxInput = { txToSign, wallet }
-              const hex = await adapter.signTransaction(signTxInput)
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              assertQuoteNotExpired()
 
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
@@ -851,7 +847,6 @@ export const useTradeExecution = (
                 hex,
               })
 
-              trackMixpanelEventOnExecute()
               return output
             },
           })

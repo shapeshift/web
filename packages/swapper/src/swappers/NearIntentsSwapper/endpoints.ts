@@ -1,3 +1,4 @@
+import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type {
@@ -237,12 +238,13 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, nearIntentsSpecific } = step
-    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    const { accountNumber, sellAsset } = step
+
+    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
 
     const adapter = assertGetAptosChainAdapter(sellAsset.chainId)
 
-    const to = nearIntentsSpecific.depositAddress
+    const to = depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
     // Native APT lives at the slip44 namespace; non-native Aptos coins encode

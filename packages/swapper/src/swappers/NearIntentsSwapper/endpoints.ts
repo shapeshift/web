@@ -1,4 +1,3 @@
-import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type {
@@ -247,19 +246,14 @@ export const nearIntentsApi: SwapperApi = {
     const to = depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-    // Native APT lives at the slip44 namespace; non-native Aptos coins encode
-    // their Move CoinStore type as the asset reference and must be passed
-    // through to the adapter so the typeArguments target the right coin.
-    const { assetNamespace, assetReference } = fromAssetId(sellAsset.assetId)
-    const chainSpecific =
-      assetNamespace === ASSET_NAMESPACE.slip44 ? {} : { coinType: assetReference }
-
     return adapter.buildSendApiTransaction({
       to,
       from,
       value,
       accountNumber,
-      chainSpecific,
+      chainSpecific: {
+        contractAddress: contractAddressOrUndefined(sellAsset.assetId),
+      },
     })
   },
 

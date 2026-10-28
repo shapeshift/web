@@ -205,6 +205,7 @@ export const estimateFees = async ({
         value,
         chainSpecific: {
           from: account,
+          contractAddress,
         },
         sendMax,
       }
@@ -537,8 +538,10 @@ export const handleSendWithMetadata = async ({
         wallet,
         accountNumber,
         sendMax: sendInput.sendMax,
-        chainSpecific: { memo },
-      } as BuildSendTxInput<KnownChainIds.AptosMainnet>)
+        chainSpecific: {
+          contractAddress: contractAddressOrUndefined(asset.assetId),
+        },
+      })
     }
 
     throw new Error(`${chainId} not supported`)

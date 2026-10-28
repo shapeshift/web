@@ -309,7 +309,10 @@ export async function getNearIntentsStepData(
         const { fast } = await deps.assertGetAptosChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
           value: sellAmountCryptoBaseUnit,
-          chainSpecific: { from },
+          chainSpecific: {
+            from,
+            contractAddress: contractAddressOrUndefined(sellAsset.assetId),
+          },
         })
 
         const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }

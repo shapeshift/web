@@ -13,16 +13,14 @@ export type AptosAccount = {
   tokens?: AptosToken[]
 }
 
+// contractAddress is required (undefined for native APT) so callers can't silently send APT
 export type BuildTxInput = {
-  memo?: string
-  // Aptos CoinStore-style coin type to transfer (e.g. '0x1::aptos_coin::AptosCoin').
-  // Defaults to APT when omitted.
-  coinType?: string
+  contractAddress: string | undefined
 }
 
 export type AptosGetFeeDataInput = {
   from: string
-  memo?: string
+  contractAddress: string | undefined
 }
 
 export type AptosFeeData = {

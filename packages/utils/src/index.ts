@@ -40,6 +40,8 @@ export const isToken = (assetId: AssetId) => {
     case ASSET_NAMESPACE.starknetToken:
     case ASSET_NAMESPACE.nep141:
     case ASSET_NAMESPACE.jetton:
+    case ASSET_NAMESPACE.aptosCoin:
+    case ASSET_NAMESPACE.aptosFungible:
       return true
     default:
       return false

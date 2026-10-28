@@ -241,7 +241,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
     try {
       const { from, accountNumber, to, value, chainSpecific } = input
-      const coinType = chainSpecific?.coinType ?? APT_COIN_TYPE
+      const coinType = chainSpecific.contractAddress ?? APT_COIN_TYPE
 
       const data: InputEntryFunctionData = {
         function: '0x1::aptos_account::transfer_coins',

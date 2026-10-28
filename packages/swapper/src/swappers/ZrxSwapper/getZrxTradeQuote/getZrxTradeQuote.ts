@@ -66,7 +66,7 @@ export const getZrxTradeQuote = async (
   })
 
   if (maybeZrxQuoteResponse.isErr()) return Err(maybeZrxQuoteResponse.unwrapErr())
-  const { sellAmount, buyAmount, fees, permit2, transaction, route } =
+  const { sellAmount, buyAmount, fees, permit2, transaction, totalNetworkFee, route } =
     maybeZrxQuoteResponse.unwrap()
 
   const permit2Eip712 = permit2?.eip712
@@ -137,6 +137,7 @@ export const getZrxTradeQuote = async (
     type: 'quote',
     input,
     transaction,
+    totalNetworkFee,
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     permit2Eip712,
     from: receiveAddress,

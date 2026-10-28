@@ -1,5 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { BigNumber, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -17,6 +17,7 @@ export type GetZrxStepDataArgs = StepDataArgs<
   { totalNetworkFee: string | null },
   {
     transaction: ZrxQuoteResponse['transaction']
+    totalNetworkFee: string | null
     sellAmountCryptoBaseUnit: string
     permit2Eip712: NonNullable<ZrxQuoteResponse['permit2']>['eip712'] | undefined
   }
@@ -43,8 +44,16 @@ export async function getZrxStepData(
     return Ok(stepData)
   }
 
-  const { sellAsset, sellAmountCryptoBaseUnit, transaction, permit2Eip712, from, input, deps } =
-    args
+  const {
+    sellAsset,
+    sellAmountCryptoBaseUnit,
+    transaction,
+    totalNetworkFee,
+    permit2Eip712,
+    from,
+    input,
+    deps,
+  } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
@@ -64,18 +73,26 @@ export async function getZrxStepData(
   }
 
   try {
-    const networkFeeCryptoBaseUnit = await (() => {
+    const networkFeeCryptoBaseUnit = await (async () => {
       // Permit2 calldata needs the signature, so it can't be simulated before signing
       if (permit2Eip712) {
         if (!isPositiveGasLimit(transaction.gas)) throw new Error('missing 0x gas limit')
 
         transactionData.gasLimit = bufferGasLimit(transaction.gas)
 
-        return getEvmNetworkFeeCryptoBaseUnit({
+        // 0x's total is their gas cost plus the L1 data fee on OP-stack chains
+        const l1FeeCryptoBaseUnit = BigNumber.max(
+          bnOrZero(totalNetworkFee).minus(bnOrZero(transaction.gas).times(transaction.gasPrice)),
+          0,
+        )
+
+        const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
           adapter,
           supportsEIP1559,
           gasLimit: transactionData.gasLimit,
         })
+
+        return bnOrZero(networkFeeCryptoBaseUnit).plus(l1FeeCryptoBaseUnit).toFixed(0)
       }
 
       return getEvmNetworkFeeCryptoBaseUnit({

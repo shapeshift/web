@@ -16,6 +16,14 @@ interface SwapsTableProps {
 const parseUsd = (v: string | null): number => parseFloat(v ?? '') || 0
 const formatUsdOrDash = (v: string | null): string => (v == null ? '—' : formatUsd(parseUsd(v)))
 const formatBpsOrDash = (v: number | null): string => (v == null ? '—' : String(v))
+// an estimate is marked with ~ so it doesn't read as a fee already earned; no fee is a grey dash
+const feeColor = (swap: AffiliateSwap): string =>
+  swap.affiliateFeeAmountUsd == null ? 'fg.muted' : 'success'
+const formatFee = (swap: AffiliateSwap): string => {
+  const fee = formatUsdOrDash(swap.affiliateFeeAmountUsd)
+  const isEstimate = swap.affiliateFeeStatus === 'pending' || swap.affiliateFeeStatus === 'review'
+  return isEstimate && swap.affiliateFeeAmountUsd != null ? `~${fee}` : fee
+}
 
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   <Tr>
@@ -37,8 +45,8 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
     <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {formatUsdOrDash(swap.sellAmountUsd)}
     </Td>
-    <Td fontFamily='mono' color='success' textAlign='center'>
-      {formatUsdOrDash(swap.affiliateFeeAmountUsd)}
+    <Td fontFamily='mono' color={feeColor(swap)} textAlign='center'>
+      {formatFee(swap)}
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {formatBpsOrDash(swap.partnerBps)}
@@ -50,7 +58,7 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       <TxLinks swap={swap} />
     </Td>
     <Td textAlign='center'>
-      <VerifiedBadge isAffiliateVerified={swap.isAffiliateVerified} />
+      <VerifiedBadge status={swap.affiliateFeeStatus} reason={swap.affiliateFeeStatusReason} />
     </Td>
     <Td>
       <StatusBadge status={swap.status} />
@@ -87,7 +95,7 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
           {formatDate(swap.createdAt)} · {swap.swapperName}
         </Text>
         <Box display='flex' gap={2} alignItems='center'>
-          <VerifiedBadge isAffiliateVerified={swap.isAffiliateVerified} />
+          <VerifiedBadge status={swap.affiliateFeeStatus} reason={swap.affiliateFeeStatusReason} />
           <StatusBadge status={swap.status} />
         </Box>
       </Box>
@@ -102,12 +110,7 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
 
       <SimpleGrid columns={2} spacing={3}>
         <Stat label='Volume' value={formatUsdOrDash(swap.sellAmountUsd)} />
-        <Stat
-          label='Fee'
-          value={formatUsdOrDash(swap.affiliateFeeAmountUsd)}
-          align='right'
-          color='success'
-        />
+        <Stat label='Fee' value={formatFee(swap)} align='right' color={feeColor(swap)} />
         <Stat label='ShapeShift BPS' value={swap.shapeshiftBps} />
         <Stat label='Partner BPS' value={formatBpsOrDash(swap.partnerBps)} align='right' />
       </SimpleGrid>

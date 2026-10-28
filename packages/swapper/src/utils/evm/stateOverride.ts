@@ -44,16 +44,19 @@ const rawDiscoveredSlots = new Map<string, Hex>()
 const failedSlotDiscoveries = new Map<string, number>()
 const FAILED_DISCOVERY_TTL_MS = 60_000
 
+export class EstimationTimeoutError extends Error {
+  constructor() {
+    super('State override estimation timed out')
+  }
+}
+
 export const withTimeout = async <T>(promise: Promise<T>): Promise<T> => {
   let timer: ReturnType<typeof setTimeout> | undefined
   try {
     return await Promise.race([
       promise,
       new Promise<never>((_, reject) => {
-        timer = setTimeout(
-          () => reject(new Error('State override estimation timed out')),
-          ESTIMATION_TIMEOUT_MS,
-        )
+        timer = setTimeout(() => reject(new EstimationTimeoutError()), ESTIMATION_TIMEOUT_MS)
       }),
     ])
   } finally {
@@ -389,25 +392,22 @@ export type EstimateGasWithStateOverrideArgs = GetMinimalStateOverrideArgs & {
 // only the missing state. Estimation runs on our own RPCs - the node applies the same engine over
 // the patched pre-state, so the only systematic delta is the unrealized allowance-decrement refund
 // (a few k gas high, conservative).
-export const estimateGasWithStateOverride = ({
+export const estimateGasWithStateOverride = async ({
   to,
   data,
   stateOverride: prebuiltStateOverride,
   ...overrideArgs
-}: EstimateGasWithStateOverrideArgs): Promise<string> =>
-  withTimeout(
-    (async () => {
-      const client = assertGetViemClient(overrideArgs.sellAsset.chainId)
-      const stateOverride = prebuiltStateOverride ?? (await getMinimalStateOverride(overrideArgs))
+}: EstimateGasWithStateOverrideArgs): Promise<string> => {
+  const client = assertGetViemClient(overrideArgs.sellAsset.chainId)
+  const stateOverride = prebuiltStateOverride ?? (await getMinimalStateOverride(overrideArgs))
 
-      const gasLimit = await client.estimateGas({
-        account: getAddress(overrideArgs.from),
-        to: getAddress(to),
-        data: data as Hex,
-        value: BigInt(overrideArgs.value || '0'),
-        ...(stateOverride ? { stateOverride } : {}),
-      })
+  const gasLimit = await client.estimateGas({
+    account: getAddress(overrideArgs.from),
+    to: getAddress(to),
+    data: data as Hex,
+    value: BigInt(overrideArgs.value || '0'),
+    ...(stateOverride ? { stateOverride } : {}),
+  })
 
-      return gasLimit.toString()
-    })(),
-  )
+  return gasLimit.toString()
+}

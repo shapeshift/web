@@ -14,14 +14,6 @@ export type ZerionMarketData = {
   }
 }
 
-export type ZerionFungibles = {
-  data: {
-    attributes: {
-      market_data: ZerionMarketData
-    }
-  }
-}
-
 export type ZerionChartResponse = {
   links: {
     self: string

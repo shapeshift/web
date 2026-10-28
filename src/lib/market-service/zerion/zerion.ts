@@ -1,5 +1,12 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  CHAIN_NAMESPACE,
+  fromAssetId,
+  fromChainId,
+  toAssetId,
+  tronChainId,
+} from '@shapeshiftoss/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -7,6 +14,7 @@ import type {
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
+  ZerionChainId,
 } from '@shapeshiftoss/types'
 import { HistoryTimeframe, ZERION_CHAINS_MAP } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -16,26 +24,44 @@ import qs from 'qs'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
-import type {
-  ListFungiblesResponse,
-  ZerionChartResponse,
-  ZerionFungibles,
-  ZerionMarketData,
-} from './types'
+import type { ListFungiblesResponse, ZerionChartResponse, ZerionMarketData } from './types'
 import { zerionMarketDataToMarketData } from './utils'
 
 import { getConfig } from '@/config'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable } from '@/lib/utils'
 
-const { throttle, clear } = createThrottle({
-  capacity: 1000, // Production keys are stated to have "200+ RPS"
+// The production key allows 300 RPS shared org-wide, so each client stays well below it
+const { throttle } = createThrottle({
+  capacity: 30,
   costPerReq: 1,
-  drainPerInterval: 125, // Replenish 125 requests every 15 seconds
-  intervalMs: 15000, // 15 seconds
+  drainPerInterval: 10,
+  intervalMs: 1000,
 })
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
+
+const LOOKUP_BATCH_WINDOW_MS = 50
+const MAX_IMPLEMENTATIONS_PER_REQUEST = 25
+
+const ZERION_CHAIN_ID_BY_CHAIN_ID = Object.fromEntries(
+  Object.entries(ZERION_CHAINS_MAP).map(([zerionChainId, chainId]) => [chainId, zerionChainId]),
+) as Partial<Record<ChainId, ZerionChainId>>
+
+type FungibleLookup = { id: string; marketData: ZerionMarketData } | null
+
+type PendingLookup = {
+  resolve: (lookup: FungibleLookup) => void
+  reject: (err: unknown) => void
+}
+
+// evm addresses are case insensitive, while other chains (e.g. solana mints) are not
+const toImplementationKey = (zerionChainId: string, address: string, chainId?: ChainId): string =>
+  `${zerionChainId}:${
+    !chainId || fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm
+      ? address.toLowerCase()
+      : address
+  }`
 
 export class ZerionMarketService implements MarketService {
   baseUrl = getConfig().VITE_ZERION_BASE_URL
@@ -44,23 +70,68 @@ export class ZerionMarketService implements MarketService {
     count: 250,
   }
 
-  private getZerionTokenMarketData = async (
-    assetId: AssetId,
-  ): Promise<ZerionMarketData | undefined> => {
-    const { assetReference } = fromAssetId(assetId)
-    if (!isToken(assetId)) return undefined
+  private pendingLookups = new Map<string, PendingLookup[]>()
+  private lookupTimer: ReturnType<typeof setTimeout> | undefined
 
-    const url = `${this.baseUrl}/fungibles/${assetReference}`
-    try {
-      const { data: res } = await axios.get<ZerionFungibles>(url)
-      return res.data.attributes.market_data
-    } catch (error) {
-      // Silently handle 404s - token not found in Zerion's database is expected for many tokens
-      if (Axios.isAxiosError(error) && error.response?.status === 404) {
-        return undefined
-      }
-      throw error
-    }
+  private getFungible = (assetId: AssetId): Promise<FungibleLookup> => {
+    if (!isToken(assetId)) return Promise.resolve(null)
+
+    const { chainId, assetReference } = fromAssetId(assetId)
+    const zerionChainId = ZERION_CHAIN_ID_BY_CHAIN_ID[chainId]
+
+    // zerion indexes no trc20 tokens and rejects the whole request for a base58 address
+    if (!zerionChainId || chainId === tronChainId) return Promise.resolve(null)
+
+    const key = toImplementationKey(zerionChainId, assetReference, chainId)
+
+    return new Promise((resolve, reject) => {
+      this.pendingLookups.set(key, [...(this.pendingLookups.get(key) ?? []), { resolve, reject }])
+      this.lookupTimer ??= setTimeout(() => this.flushLookups(), LOOKUP_BATCH_WINDOW_MS)
+    })
+  }
+
+  private flushLookups = async (): Promise<void> => {
+    const pending = this.pendingLookups
+
+    this.pendingLookups = new Map()
+    this.lookupTimer = undefined
+
+    const keys = [...pending.keys()]
+    const batches = Array.from(
+      { length: Math.ceil(keys.length / MAX_IMPLEMENTATIONS_PER_REQUEST) },
+      (_, i) =>
+        keys.slice(i * MAX_IMPLEMENTATIONS_PER_REQUEST, (i + 1) * MAX_IMPLEMENTATIONS_PER_REQUEST),
+    )
+
+    await Promise.all(
+      batches.map(async batch => {
+        try {
+          await throttle()
+
+          const { data: res } = await axios.get<ListFungiblesResponse>(
+            `${this.baseUrl}/fungibles`,
+            {
+              params: { 'filter[fungible_implementations]': batch.join(',') },
+            },
+          )
+
+          const found = new Map<string, FungibleLookup>()
+          for (const fungible of res.data) {
+            const lookup = { id: fungible.id, marketData: fungible.attributes.market_data }
+            for (const { chain_id, address } of fungible.attributes.implementations) {
+              found.set(toImplementationKey(chain_id, address, ZERION_CHAINS_MAP[chain_id]), lookup)
+            }
+          }
+
+          for (const key of batch) {
+            const lookup = found.get(key) ?? null
+            pending.get(key)?.forEach(({ resolve }) => resolve(lookup))
+          }
+        } catch (err) {
+          batch.forEach(key => pending.get(key)?.forEach(({ reject }) => reject(err)))
+        }
+      }),
+    )
   }
 
   getZerionPriceHistory = async ({
@@ -68,8 +139,8 @@ export class ZerionMarketService implements MarketService {
     timeframe,
   }: PriceHistoryArgs): Promise<ZerionChartResponse | null> => {
     // Fee assets aren't supported in this implementation
-    const { assetReference } = fromAssetId(assetId)
-    if (!isToken(assetReference)) return null
+    const fungible = await this.getFungible(assetId)
+    if (!fungible) return null
 
     const period = (() => {
       switch (timeframe) {
@@ -90,7 +161,7 @@ export class ZerionMarketService implements MarketService {
       }
     })()
 
-    const url = `${this.baseUrl}/fungibles/${assetReference}/charts/${period}`
+    const url = `${this.baseUrl}/fungibles/${fungible.id}/charts/${period}`
     const { data: res } = await axios.get<ZerionChartResponse>(url)
     return res
   }
@@ -179,8 +250,6 @@ export class ZerionMarketService implements MarketService {
     } catch (e) {
       console.error('Error fetching Zerion data:', e)
       return marketCapResult
-    } finally {
-      clear()
     }
   }
 
@@ -200,11 +269,10 @@ export class ZerionMarketService implements MarketService {
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     try {
-      const zerionMarketData = await this.getZerionTokenMarketData(assetId)
-      if (!zerionMarketData)
-        throw new Error('MarketService(findByAssetId): error fetching market data')
+      const fungible = await this.getFungible(assetId)
+      if (!fungible) throw new Error('MarketService(findByAssetId): error fetching market data')
 
-      return zerionMarketDataToMarketData(zerionMarketData)
+      return zerionMarketDataToMarketData(fungible.marketData)
     } catch (e) {
       throw new Error(`MarketService(findByAssetId): error fetching market data: ${e}`)
     }

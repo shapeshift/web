@@ -1,13 +1,13 @@
 import { BigAmount } from '@shapeshiftoss/utils'
 import type { Request, Response } from 'express'
 
-import { getAsset } from '../../assets'
 import { env } from '../../env'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { rateLimitResponse } from '../../types'
-import { calculatePartnerFeeAmountUsd } from './calculatePartnerFeeAmountUsd'
+import { estimatePartnerFeeAmountUsd } from './estimatePartnerFeeAmountUsd'
+import { resolveAffiliateFeeStatus } from './resolveAffiliateFeeStatus'
 import type { AffiliateSwapsResponse } from './types'
 import {
   AffiliateSwapsRequestSchema,
@@ -104,12 +104,14 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
         const affiliateBps = swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps
         const partnerBps = swap.partnerBps
 
-        const affiliateFeeAmountUsd = calculatePartnerFeeAmountUsd(
-          partnerBps,
-          affiliateBps,
-          swap,
-          swap.affiliateFeeAssetId ? getAsset(swap.affiliateFeeAssetId) : undefined,
-        )
+        // the on-chain fee once earned, nothing for a swap that won't be paid, an estimate otherwise
+        const { status: affiliateFeeStatus, reason: affiliateFeeStatusReason } =
+          resolveAffiliateFeeStatus(swap)
+        const affiliateFeeAmountUsd = (() => {
+          if (affiliateFeeStatus === 'earned') return swap.partnerFeeUsd
+          if (affiliateFeeStatus === 'failed') return null
+          return estimatePartnerFeeAmountUsd(partnerBps, affiliateBps, swap)
+        })()
 
         return {
           swapId: swap.swapId,
@@ -121,6 +123,8 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
           buyAmountCryptoPrecision: buyAmount.toPrecision(),
           buyAmountUsd: swap.buyAssetUsd ? buyAmount.times(swap.buyAssetUsd).toFixed() : null,
           affiliateFeeAmountUsd,
+          affiliateFeeStatus,
+          affiliateFeeStatusReason,
           affiliateBps,
           partnerBps,
           shapeshiftBps: swap.shapeshiftBps,

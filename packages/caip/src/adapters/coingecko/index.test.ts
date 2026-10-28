@@ -360,6 +360,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'nep141',
         assetReference: '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
       })
+      const usdcOnAptos = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Aptos,
+        chainReference: CHAIN_REFERENCE.AptosMainnet,
+        assetNamespace: 'fungible',
+        assetReference: '0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -383,6 +389,7 @@ describe('adapters:coingecko', () => {
         usdcOnStarknet,
         usdcOnSui,
         usdcOnNear,
+        usdcOnAptos,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {

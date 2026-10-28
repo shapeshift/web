@@ -64,7 +64,7 @@ export enum KnownChainIds {
   TonMainnet = 'ton:mainnet',
   AbstractMainnet = 'eip155:2741',
   RobinhoodMainnet = 'eip155:4663',
-  AptosMainnet = 'aptos:861fb8e6',
+  AptosMainnet = 'aptos:1',
 }
 
 export type EvmChainId =

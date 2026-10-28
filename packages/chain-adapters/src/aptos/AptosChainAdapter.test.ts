@@ -13,12 +13,14 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
   const actual = await vi.importActual<typeof AptosSdkActual>('@aptos-labs/ts-sdk')
   return {
     ...actual,
-    Aptos: vi.fn().mockImplementation(() => ({
-      getAccountCoinsData: vi.fn(),
-      getGasPriceEstimation: vi.fn(),
-      account: { getAccountInfo: vi.fn() },
-      transaction: { getTransactionByHash: vi.fn() },
-    })),
+    Aptos: vi.fn().mockImplementation(function () {
+      return {
+        getAccountCoinsData: vi.fn(),
+        getGasPriceEstimation: vi.fn(),
+        account: { getAccountInfo: vi.fn() },
+        transaction: { getTransactionByHash: vi.fn() },
+      }
+    }),
     AptosConfig: vi.fn(),
     Network: { MAINNET: 'mainnet' },
   }
@@ -131,7 +133,7 @@ describe('AptosChainAdapter', () => {
       expect(acct.balance).toBe('103970825')
       expect(acct.chainSpecific.tokens).toEqual([
         {
-          assetId: `aptos:861fb8e6/coin:${USDC_FA}`,
+          assetId: `aptos:1/fungible:${USDC_FA}`,
           balance: '5000000',
           symbol: 'USDC',
           name: 'USD Coin',
@@ -236,7 +238,7 @@ describe('AptosChainAdapter', () => {
       const tx = await adapter.parseTx('0xtxhash', ADDR)
       expect(tx.transfers).toEqual([
         {
-          assetId: `aptos:861fb8e6/coin:${USDC_FA}`,
+          assetId: `aptos:1/fungible:${USDC_FA}`,
           from: [SENDER],
           to: [ADDR],
           type: TransferType.Receive,

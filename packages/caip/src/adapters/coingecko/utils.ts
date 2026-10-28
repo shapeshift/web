@@ -296,11 +296,14 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
 
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Aptos)) {
         try {
+          const assetReference = platforms[CoingeckoAssetPlatform.Aptos]
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Aptos,
             chainReference: CHAIN_REFERENCE.AptosMainnet,
-            assetNamespace: ASSET_NAMESPACE.aptosCoin,
-            assetReference: platforms[CoingeckoAssetPlatform.Aptos],
+            assetNamespace: assetReference.includes('::')
+              ? ASSET_NAMESPACE.aptosCoin
+              : ASSET_NAMESPACE.aptosFungible,
+            assetReference,
           })
           prev[aptosChainId][assetId] = id
         } catch {

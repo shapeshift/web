@@ -166,7 +166,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
         const assetId = toAssetId({
           chainId: this.chainId,
-          assetNamespace: ASSET_NAMESPACE.aptosCoin,
+          assetNamespace: entry.asset_type.includes('::')
+            ? ASSET_NAMESPACE.aptosCoin
+            : ASSET_NAMESPACE.aptosFungible,
           assetReference: entry.asset_type,
         })
 
@@ -458,7 +460,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       if (!ref) return undefined
       return toAssetId({
         chainId: this.chainId,
-        assetNamespace: ASSET_NAMESPACE.aptosCoin,
+        assetNamespace: ASSET_NAMESPACE.aptosFungible,
         assetReference: ref,
       })
     }

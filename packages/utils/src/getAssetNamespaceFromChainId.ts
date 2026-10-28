@@ -56,7 +56,7 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.TonMainnet:
       return ASSET_NAMESPACE.jetton
     case KnownChainIds.AptosMainnet:
-      return ASSET_NAMESPACE.aptosCoin
+      return ASSET_NAMESPACE.aptosFungible
     case KnownChainIds.CosmosMainnet:
     case KnownChainIds.BitcoinMainnet:
     case KnownChainIds.BitcoinCashMainnet:

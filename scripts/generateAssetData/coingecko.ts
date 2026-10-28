@@ -454,6 +454,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: robinhood.explorer,
           explorerAddressLink: robinhood.explorerAddressLink,
           explorerTxLink: robinhood.explorerTxLink,
+        }
       case aptosChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.aptosCoin,
@@ -477,7 +478,10 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
     try {
       const assetId = toAssetId({
         chainId,
-        assetNamespace,
+        assetNamespace:
+          chainId === aptosChainId && !token.address.includes('::')
+            ? ASSET_NAMESPACE.aptosFungible
+            : assetNamespace,
         assetReference: token.address,
       })
 

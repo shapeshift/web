@@ -61,13 +61,13 @@ const estimateEndpointGasLimit = (gasLimit: number) =>
 describe('getPortalsStepData rate gas limit', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('falls back to the order gas limit on bridge routes the estimate endpoint zeroes', async () => {
-    vi.mocked(estimateGasWithStateOverride).mockRejectedValue(new Error('execution reverted'))
+  it('prices the order gas limit on bridge routes without simulating', async () => {
     estimateEndpointGasLimit(0)
 
     const actual = await rate(tx('76384'))
 
     expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '76384000000000' })
+    expect(estimateGasWithStateOverride).not.toHaveBeenCalled()
     expect(fetchPortalsTradeEstimate).not.toHaveBeenCalled()
   })
 

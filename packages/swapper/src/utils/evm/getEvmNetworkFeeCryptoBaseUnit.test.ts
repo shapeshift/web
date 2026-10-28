@@ -8,7 +8,11 @@ import {
   getEvmRateNetworkFeeCryptoBaseUnit,
 } from './getEvmNetworkFeeCryptoBaseUnit'
 import type * as StateOverride from './stateOverride'
-import { estimateGasWithStateOverride, getMinimalStateOverride } from './stateOverride'
+import {
+  estimateGasWithStateOverride,
+  EstimationTimeoutError,
+  getMinimalStateOverride,
+} from './stateOverride'
 
 vi.mock('./stateOverride', async importActual => ({
   ...(await importActual<typeof StateOverride>()),
@@ -44,9 +48,9 @@ describe('getEvmNetworkFeeCryptoBaseUnit state override', () => {
     expect(args.transactionData.gasLimit).toBe('240')
   })
 
-  it('falls back to plain estimation when the override estimate fails', async () => {
+  it('falls back to plain estimation when the override simulation times out', async () => {
     vi.mocked(getMinimalStateOverride).mockResolvedValue([])
-    vi.mocked(estimateGasWithStateOverride).mockRejectedValue(new Error('estimate failed'))
+    vi.mocked(estimateGasWithStateOverride).mockRejectedValue(new EstimationTimeoutError())
     const getFeeData = vi.fn().mockResolvedValue({
       average: { chainSpecific: { gasLimit: '100', ...gasFees } },
     })
@@ -86,15 +90,14 @@ describe('getEvmNetworkFeeCryptoBaseUnit state override', () => {
   it('fails rather than trusting the provider limit when the overridden simulation reverts', async () => {
     vi.mocked(getMinimalStateOverride).mockResolvedValue([])
     vi.mocked(estimateGasWithStateOverride).mockRejectedValue(new Error('execution reverted'))
+    const getFeeData = vi.fn()
     const args = {
-      ...makeArgs({
-        getGasFeeData: vi.fn().mockResolvedValue({ average: gasFees }),
-        getFeeData: vi.fn().mockRejectedValue(new Error('execution reverted')),
-      }),
+      ...makeArgs({ getGasFeeData: vi.fn().mockResolvedValue({ average: gasFees }), getFeeData }),
       providerGasLimit: '300',
     }
 
     await expect(getEvmNetworkFeeCryptoBaseUnit(args)).rejects.toThrow('execution reverted')
+    expect(getFeeData).not.toHaveBeenCalled()
   })
 })
 

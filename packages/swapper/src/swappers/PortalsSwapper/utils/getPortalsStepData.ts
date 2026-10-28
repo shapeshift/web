@@ -1,5 +1,4 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -69,11 +68,7 @@ export async function getPortalsStepData(
         swapperConfig: deps.config,
       })
 
-      const estimatedGasLimit = quoteEstimateResponse.context.gasLimit.toString()
-
-      if (bnOrZero(estimatedGasLimit).lte(0)) throw new Error('no Portals gas limit')
-
-      return estimatedGasLimit
+      return quoteEstimateResponse.context.gasLimit.toString()
     }
 
     try {

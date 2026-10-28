@@ -4,14 +4,19 @@ import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
 import type { TxBuildData } from '../../types'
-import { estimateGasWithStateOverride, getMinimalStateOverride, withTimeout } from './stateOverride'
+import {
+  estimateGasWithStateOverride,
+  EstimationTimeoutError,
+  getMinimalStateOverride,
+  withTimeout,
+} from './stateOverride'
 
 export const EVM_GAS_LIMIT_BUFFER = 1.2
 
 export const bufferGasLimit = (gasLimit: string): string =>
   bnOrZero(gasLimit).times(EVM_GAS_LIMIT_BUFFER).toFixed(0)
 
-const isPositiveGasLimit = (gasLimit: string | null | undefined): gasLimit is string =>
+export const isPositiveGasLimit = (gasLimit: string | null | undefined): gasLimit is string =>
   bnOrZero(gasLimit).gt(0)
 
 type EvmFeeArgs = {
@@ -64,20 +69,25 @@ export const getEvmNetworkFeeCryptoBaseUnit = async (
     const { sellAsset, sellAmountCryptoBaseUnit, spenderAddress } = args.stateOverride
     const overrideArgs = { sellAsset, sellAmountCryptoBaseUnit, from, spenderAddress, value }
 
-    // null when the override can't be built (an undiscoverable storage slot or a failed read)
-    const stateOverride = await withTimeout(getMinimalStateOverride(overrideArgs)).catch(() => null)
+    // null when the override can't be built (an undiscoverable storage slot or a failed read),
+    // undefined when nothing needs overriding or the simulation timed out
+    const overriddenGasLimit = await withTimeout(
+      getMinimalStateOverride(overrideArgs).then(
+        stateOverride =>
+          stateOverride &&
+          estimateGasWithStateOverride({ ...overrideArgs, to, data, stateOverride }),
+        () => null,
+      ),
+    ).catch(error => {
+      // The missing state makes a plain estimate revert too, so only a timeout falls through to it
+      if (error instanceof EstimationTimeoutError) return undefined
+      throw error
+    })
 
-    if (stateOverride === null && isPositiveGasLimit(providerGasLimit)) {
+    if (overriddenGasLimit === null && isPositiveGasLimit(providerGasLimit)) {
       transactionData.gasLimit = bufferGasLimit(providerGasLimit)
       return priceGasLimit(args, transactionData.gasLimit)
     }
-
-    // If the overridden estimate fails (e.g. no rpc stateOverride support), estimate normally
-    const overriddenGasLimit = stateOverride
-      ? await estimateGasWithStateOverride({ ...overrideArgs, to, data, stateOverride }).catch(
-          () => undefined,
-        )
-      : undefined
 
     if (overriddenGasLimit) {
       transactionData.gasLimit = bufferGasLimit(overriddenGasLimit)

@@ -8,13 +8,13 @@ import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
 import {
   bufferGasLimit,
   getEvmNetworkFeeCryptoBaseUnit,
-  getEvmRateNetworkFeeCryptoBaseUnit,
+  isPositiveGasLimit,
 } from '../../../utils/evm'
 import type { ZrxQuoteResponse } from '../types'
 
 export type GetZrxStepDataArgs = StepDataArgs<
   unknown,
-  { gas: string | null; totalNetworkFee: string | null },
+  { totalNetworkFee: string | null },
   {
     transaction: ZrxQuoteResponse['transaction']
     sellAmountCryptoBaseUnit: string
@@ -34,27 +34,20 @@ export function getZrxStepData(
 export async function getZrxStepData(
   args: GetZrxStepDataArgs,
 ): Promise<Result<ZrxRateStepData | ZrxQuoteStepData, SwapErrorRight>> {
-  const { sellAsset, input, deps } = args
-
-  const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-  const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
-
-  // 0x's price endpoint returns no tx data, so there's nothing to simulate
+  // 0x's total includes the L1 data fee on OP-stack chains, which pricing their gas limit would drop
   if (args.type === 'rate') {
-    const { gas, totalNetworkFee } = args
-
-    const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
-      adapter,
-      supportsEIP1559,
-      providerGasLimit: gas,
-    }).catch(() => bnOrZero(totalNetworkFee).toFixed())
-
-    const stepData: ZrxRateStepData = { networkFeeCryptoBaseUnit }
+    const stepData: ZrxRateStepData = {
+      networkFeeCryptoBaseUnit: bnOrZero(args.totalNetworkFee).toFixed(),
+    }
 
     return Ok(stepData)
   }
 
-  const { sellAmountCryptoBaseUnit, transaction, permit2Eip712, from } = args
+  const { sellAsset, sellAmountCryptoBaseUnit, transaction, permit2Eip712, from, input, deps } =
+    args
+
+  const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+  const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
   const transactionData: Extract<TxBuildData, { type: 'evm' }> = {
     type: 'evm',
@@ -74,8 +67,7 @@ export async function getZrxStepData(
     const networkFeeCryptoBaseUnit = await (() => {
       // Permit2 calldata needs the signature, so it can't be simulated before signing
       if (permit2Eip712) {
-        if (!transaction.gas || !bnOrZero(transaction.gas).gt(0))
-          throw new Error('missing 0x gas limit')
+        if (!isPositiveGasLimit(transaction.gas)) throw new Error('missing 0x gas limit')
 
         transactionData.gasLimit = bufferGasLimit(transaction.gas)
 

@@ -47,8 +47,7 @@ export const getZrxTradeRate = async (
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
-  const { buyAmount, sellAmount, fees, gas, totalNetworkFee, route } =
-    maybeZrxPriceResponse.unwrap()
+  const { buyAmount, sellAmount, fees, totalNetworkFee, route } = maybeZrxPriceResponse.unwrap()
 
   const maybeContext = getZrxTradeContext({
     input,
@@ -64,7 +63,6 @@ export const getZrxTradeRate = async (
     ...stepDataArgs,
     type: 'rate',
     input,
-    gas,
     totalNetworkFee,
   })
 

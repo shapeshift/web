@@ -1,4 +1,5 @@
 import type * as AptosSdkActual from '@aptos-labs/ts-sdk'
+import { Deserializer, RawTransaction } from '@aptos-labs/ts-sdk'
 import { aptosAssetId } from '@shapeshiftoss/caip'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -19,9 +20,19 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
         transaction: {
           getTransactionByHash: vi.fn(),
           build: {
-            simple: vi
-              .fn()
-              .mockResolvedValue({ rawTransaction: { bcsToBytes: () => new Uint8Array() } }),
+            simple: vi.fn().mockResolvedValue({
+              rawTransaction: new actual.RawTransaction(
+                actual.AccountAddress.ONE,
+                0n,
+                new actual.TransactionPayloadEntryFunction(
+                  actual.EntryFunction.build('0x1::aptos_account', 'transfer_coins', [], []),
+                ),
+                2000n,
+                100n,
+                0n,
+                new actual.ChainId(1),
+              ),
+            }),
           },
           simulate: { simple: vi.fn() },
         },
@@ -193,12 +204,12 @@ describe('AptosChainAdapter', () => {
 
     const getBuiltData = () => client.transaction.build.simple.mock.calls.at(-1)[0].data
 
-    it('builds with the supplied gas price and limit without simulating', async () => {
-      await build(undefined)
-      expect(client.transaction.build.simple.mock.calls.at(-1)[0].options).toEqual({
-        gasUnitPrice: 150,
-        maxGasAmount: 210,
-      })
+    it('signs the supplied gas price and limit below the sdk floor without simulating', async () => {
+      const { rawTransactionBytes } = await build(undefined)
+      const rawTransaction = RawTransaction.deserialize(new Deserializer(rawTransactionBytes))
+
+      expect(rawTransaction.gas_unit_price).toBe(150n)
+      expect(rawTransaction.max_gas_amount).toBe(210n)
       expect(client.transaction.simulate.simple).not.toHaveBeenCalled()
     })
 
@@ -279,9 +290,9 @@ describe('AptosChainAdapter', () => {
         functionArguments: [USDC_FA, ADDR, 1000n],
       })
       expect(fees).toEqual({
-        fast: { txFee: '556650', chainSpecific: { gasUnitPrice: '150', maxGasAmount: '4453' } },
-        average: { txFee: '548500', chainSpecific: { gasUnitPrice: '100', maxGasAmount: '6582' } },
-        slow: { txFee: '540450', chainSpecific: { gasUnitPrice: '50', maxGasAmount: '12970' } },
+        fast: { txFee: '667950', chainSpecific: { gasUnitPrice: '150', maxGasAmount: '4453' } },
+        average: { txFee: '658200', chainSpecific: { gasUnitPrice: '100', maxGasAmount: '6582' } },
+        slow: { txFee: '648500', chainSpecific: { gasUnitPrice: '50', maxGasAmount: '12970' } },
       })
     })
 

@@ -267,15 +267,28 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const { from, accountNumber, to, value, chainSpecific } = input
       const { contractAddress, gasUnitPrice, maxGasAmount } = chainSpecific
 
-      const transaction = await this.client.transaction.build.simple({
+      const { rawTransaction } = await this.client.transaction.build.simple({
         sender: from,
         data: getTransferPayload(to, value, contractAddress),
-        options: { gasUnitPrice: Number(gasUnitPrice), maxGasAmount: Number(maxGasAmount) },
       })
+
+      // the sdk floors max gas at 2000 units, which would reserve far more apt than the fee
+      const { sender, sequence_number, payload, expiration_timestamp_secs, chain_id } =
+        rawTransaction
+
+      const transaction = new RawTransaction(
+        sender,
+        sequence_number,
+        payload,
+        BigInt(maxGasAmount),
+        BigInt(gasUnitPrice),
+        expiration_timestamp_secs,
+        chain_id,
+      )
 
       return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
-        rawTransactionBytes: transaction.rawTransaction.bcsToBytes(),
+        rawTransactionBytes: transaction.bcsToBytes(),
       }
     } catch (err) {
       return ErrorHandler(err, {
@@ -406,12 +419,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         const gasUnitPrice = BigInt(price)
         // storage is charged in octas, so the gas units it takes depend on the price
         const gasUnits = computeGasUnits + (storageFeeOctas + gasUnitPrice - 1n) / gasUnitPrice
+        // 1.2x buffer over the simulated gas, in case state changes before the tx executes
+        const maxGasAmount = (gasUnits * 12n) / 10n
 
         return {
-          txFee: (gasUnits * gasUnitPrice).toString(),
+          txFee: (maxGasAmount * gasUnitPrice).toString(),
           chainSpecific: {
             gasUnitPrice: gasUnitPrice.toString(),
-            maxGasAmount: ((gasUnits * 6n) / 5n).toString(),
+            maxGasAmount: maxGasAmount.toString(),
           },
         }
       }

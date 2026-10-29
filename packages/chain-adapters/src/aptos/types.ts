@@ -13,9 +13,10 @@ export type AptosAccount = {
   tokens?: AptosToken[]
 }
 
-// contractAddress is required (undefined for native APT) so callers can't silently send APT
 export type BuildTxInput = {
   contractAddress: string | undefined
+  gasUnitPrice: string
+  maxGasAmount: string
 }
 
 export type AptosGetFeeDataInput = {
@@ -24,7 +25,6 @@ export type AptosGetFeeDataInput = {
 }
 
 export type AptosFeeData = {
-  gasEstimate: string
   gasUnitPrice: string
   maxGasAmount: string
 }

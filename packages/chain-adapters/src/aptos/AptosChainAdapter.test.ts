@@ -22,7 +22,7 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
         transaction: {
           getTransactionByHash: vi.fn(),
           build: { simple: vi.fn().mockResolvedValue({ bcsToBytes: () => new Uint8Array() }) },
-          simulate: { simple: vi.fn().mockResolvedValue([{ gas_used: '0' }]) },
+          simulate: { simple: vi.fn() },
         },
       }
     }),
@@ -189,10 +189,19 @@ describe('AptosChainAdapter', () => {
         to: ADDR,
         value: '1000',
         accountNumber: 0,
-        chainSpecific: { contractAddress },
+        chainSpecific: { contractAddress, gasUnitPrice: '150', maxGasAmount: '210' },
       })
 
     const getBuiltData = () => client.transaction.build.simple.mock.calls.at(-1)[0].data
+
+    it('builds with the supplied gas price and limit without simulating', async () => {
+      await build(undefined)
+      expect(client.transaction.build.simple.mock.calls.at(-1)[0].options).toEqual({
+        gasUnitPrice: 150,
+        maxGasAmount: 210,
+      })
+      expect(client.transaction.simulate.simple).not.toHaveBeenCalled()
+    })
 
     it('sends APT with transfer_coins<AptosCoin>', async () => {
       await build(undefined)
@@ -219,6 +228,48 @@ describe('AptosChainAdapter', () => {
         typeArguments: ['0x1::fungible_asset::Metadata'],
         functionArguments: [USDC_FA, ADDR, 1000n],
       })
+    })
+  })
+
+  describe('getFeeData', () => {
+    const getFeeData = () =>
+      adapter.getFeeData({
+        to: ADDR,
+        value: '1000',
+        chainSpecific: { from: SENDER, contractAddress: USDC_FA },
+      })
+
+    beforeEach(() => {
+      client.getGasPriceEstimation.mockResolvedValue({
+        deprioritized_gas_estimate: 100,
+        gas_estimate: 100,
+        prioritized_gas_estimate: 150,
+      })
+    })
+
+    it('prices each tier from the simulated gas of the actual transfer plus 50%', async () => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([{ success: true, gas_used: '140' }])
+
+      const fees = await getFeeData()
+
+      expect(client.transaction.build.simple.mock.calls[0][0].data).toMatchObject({
+        function: '0x1::primary_fungible_store::transfer',
+        functionArguments: [USDC_FA, ADDR, 1000n],
+      })
+      expect(fees.fast).toEqual({
+        txFee: '31500',
+        chainSpecific: { gasUnitPrice: '150', maxGasAmount: '210' },
+      })
+      expect(fees.average.txFee).toBe('21000')
+      expect(fees.slow.txFee).toBe('21000')
+    })
+
+    it('throws when the simulation fails', async () => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([
+        { success: false, gas_used: '0', vm_status: 'INSUFFICIENT_BALANCE' },
+      ])
+
+      await expect(getFeeData()).rejects.toThrow()
     })
   })
 

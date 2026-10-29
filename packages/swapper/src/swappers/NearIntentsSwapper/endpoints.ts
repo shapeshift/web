@@ -1,7 +1,6 @@
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type {
-  GetUnsignedAptosTransactionArgs,
   GetUnsignedNearTransactionArgs,
   GetUnsignedSuiTransactionArgs,
   GetUnsignedTonTransactionArgs,
@@ -14,6 +13,7 @@ import {
   getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
+import { getAptosTransactionFees, getUnsignedAptosTransaction } from '../../utils/aptos'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
@@ -227,45 +227,8 @@ export const nearIntentsApi: SwapperApi = {
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
 
-  getUnsignedAptosTransaction: ({
-    stepIndex,
-    tradeQuote,
-    from,
-    assertGetAptosChainAdapter,
-  }: GetUnsignedAptosTransactionArgs) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { accountNumber, sellAsset } = step
-
-    const { depositAddress } = getSwapMetadata(step.swapperMetadata, 'nearIntents')
-
-    const adapter = assertGetAptosChainAdapter(sellAsset.chainId)
-
-    const to = depositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-
-    return adapter.buildSendApiTransaction({
-      to,
-      from,
-      value,
-      accountNumber,
-      chainSpecific: {
-        contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-      },
-    })
-  },
-
-  getAptosTransactionFees: ({ tradeQuote, stepIndex }: GetUnsignedAptosTransactionArgs) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-    if (!step.feeData.networkFeeCryptoBaseUnit) {
-      throw new Error('Missing network fee in quote')
-    }
-    return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
-  },
+  getUnsignedAptosTransaction,
+  getAptosTransactionFees,
 
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     if (!swap) throw new Error('Missing swap')

@@ -531,6 +531,7 @@ export const handleSendWithMetadata = async ({
     if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Aptos) {
       const { accountNumber } = bip44Params
       const adapter = assertGetAptosChainAdapter(chainId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.AptosMainnet>
 
       return adapter.buildSendTransaction({
         to,
@@ -540,6 +541,8 @@ export const handleSendWithMetadata = async ({
         sendMax: sendInput.sendMax,
         chainSpecific: {
           contractAddress: contractAddressOrUndefined(asset.assetId),
+          gasUnitPrice: fees.chainSpecific.gasUnitPrice,
+          maxGasAmount: fees.chainSpecific.maxGasAmount,
         },
       })
     }

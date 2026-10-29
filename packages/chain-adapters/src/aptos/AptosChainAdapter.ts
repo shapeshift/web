@@ -60,7 +60,6 @@ export interface ChainAdapterArgs {
 }
 
 const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
-const MIN_MAX_GAS_AMOUNT = 20_000n
 
 const FA_TRANSFER_FUNCTIONS = [
   '0x1::primary_fungible_store::transfer',
@@ -262,26 +261,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     sender: string,
     data: InputEntryFunctionData,
   ): Promise<bigint> {
-    const tx = await this.client.transaction.build.simple({
-      sender,
-      data,
-      options: { maxGasAmount: 2_000_000 },
-    })
-    const dummyPubKey = new Ed25519PublicKey('0x' + '00'.repeat(32))
+    const transaction = await this.client.transaction.build.simple({ sender, data })
+
+    // caps simulated gas at what the sender can afford, so the default cap can't fail the simulation
     const [sim] = await this.client.transaction.simulate.simple({
-      signerPublicKey: dummyPubKey,
-      transaction: tx,
+      transaction,
       options: { estimateGasUnitPrice: true, estimateMaxGasAmount: true },
     })
-    // sim.max_gas_amount with estimateMaxGasAmount=true is the AFFORDABILITY ceiling
-    // (sender balance / gas_unit_price), NOT a recommendation. The real consumption is
-    // sim.gas_used. Apply the Aptos CLI 1.5x safety factor, capped by affordability.
-    const gasUsed = BigInt(sim?.gas_used ?? 0)
-    if (gasUsed === 0n) return MIN_MAX_GAS_AMOUNT
-    const ceiling = BigInt(sim?.max_gas_amount ?? 0)
-    const withBuffer = (gasUsed * 3n) / 2n
-    const recommended = ceiling > 0n && ceiling < withBuffer ? ceiling : withBuffer
-    return recommended > MIN_MAX_GAS_AMOUNT ? recommended : MIN_MAX_GAS_AMOUNT
+
+    if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
+
+    // 50% headroom on simulated gas
+    return (BigInt(sim.gas_used) * 3n) / 2n
   }
 
   async buildSendApiTransaction(
@@ -289,14 +280,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
     try {
       const { from, accountNumber, to, value, chainSpecific } = input
-
-      const data = getTransferPayload(to, value, chainSpecific.contractAddress)
-      const maxGasAmount = Number(await this.estimateMaxGasAmount(from, data))
+      const { contractAddress, gasUnitPrice, maxGasAmount } = chainSpecific
 
       const transaction = await this.client.transaction.build.simple({
         sender: from,
-        data,
-        options: { maxGasAmount },
+        data: getTransferPayload(to, value, contractAddress),
+        options: { gasUnitPrice: Number(gasUnitPrice), maxGasAmount: Number(maxGasAmount) },
       })
 
       const signingMessageBytes = this.client.getSigningMessage({ transaction })
@@ -413,50 +402,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const { to, value, chainSpecific } = input
       const { from, contractAddress } = chainSpecific
 
-      const { gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate } =
-        await this.client.getGasPriceEstimation()
+      const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, maxGasAmount] =
+        await Promise.all([
+          this.client.getGasPriceEstimation(),
+          this.estimateMaxGasAmount(from, getTransferPayload(to, value, contractAddress)),
+        ])
 
-      let maxGasAmount: string
-      try {
-        const estimate = await this.estimateMaxGasAmount(
-          from,
-          getTransferPayload(to, value, contractAddress),
-        )
-        maxGasAmount = estimate.toString()
-      } catch {
-        maxGasAmount = MIN_MAX_GAS_AMOUNT.toString()
-      }
-
-      const slowPrice = String(deprioritized_gas_estimate ?? gas_estimate ?? 100)
-      const averagePrice = String(gas_estimate ?? 100)
-      const fastPrice = String(prioritized_gas_estimate ?? gas_estimate ?? 100)
-      const calcTxFee = (price: string) => (BigInt(maxGasAmount) * BigInt(price)).toString()
+      const toFeeData = (gasUnitPrice: number) => ({
+        txFee: (maxGasAmount * BigInt(gasUnitPrice)).toString(),
+        chainSpecific: {
+          gasUnitPrice: gasUnitPrice.toString(),
+          maxGasAmount: maxGasAmount.toString(),
+        },
+      })
 
       return {
-        fast: {
-          txFee: calcTxFee(fastPrice),
-          chainSpecific: {
-            gasEstimate: calcTxFee(fastPrice),
-            gasUnitPrice: fastPrice,
-            maxGasAmount,
-          },
-        },
-        average: {
-          txFee: calcTxFee(averagePrice),
-          chainSpecific: {
-            gasEstimate: calcTxFee(averagePrice),
-            gasUnitPrice: averagePrice,
-            maxGasAmount,
-          },
-        },
-        slow: {
-          txFee: calcTxFee(slowPrice),
-          chainSpecific: {
-            gasEstimate: calcTxFee(slowPrice),
-            gasUnitPrice: slowPrice,
-            maxGasAmount,
-          },
-        },
+        fast: toFeeData(prioritized_gas_estimate ?? gas_estimate),
+        average: toFeeData(gas_estimate),
+        slow: toFeeData(deprioritized_gas_estimate ?? gas_estimate),
       }
     } catch (err) {
       return ErrorHandler(err, {

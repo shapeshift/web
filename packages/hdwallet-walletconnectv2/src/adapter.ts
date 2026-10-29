@@ -5,6 +5,13 @@ import type { EthereumProviderOptions } from '@walletconnect/ethereum-provider/d
 
 import { WalletConnectV2HDWallet } from './walletconnectV2'
 
+export type DirectPairingOptions = {
+  onDisplayUri: (uri: string) => void
+  signal: AbortSignal
+}
+
+const cancelled = () => new DOMException('Wallet connection cancelled', 'AbortError')
+
 export class WalletConnectV2Adapter {
   keyring: Keyring
   private readonly providerConfig: EthereumProviderOptions
@@ -22,18 +29,90 @@ export class WalletConnectV2Adapter {
     return Object.keys(this.keyring.wallets).length
   }
 
-  public async pairDevice(): Promise<WalletConnectV2HDWallet> {
+  private async initializeDirectWallet(
+    wallet: WalletConnectV2HDWallet,
+    provider: Awaited<ReturnType<typeof EthereumProvider.init>>,
+    { onDisplayUri, signal }: DirectPairingOptions,
+  ): Promise<void> {
+    if (signal.aborted) throw cancelled()
+    const attempt = { pairingTopic: undefined as string | undefined }
+    const disconnectPairing = async () => {
+      if (!attempt.pairingTopic) return
+      try {
+        await provider.signer.client.core.pairing.disconnect({
+          topic: attempt.pairingTopic,
+        })
+      } catch {
+        console.warn('Could not clean up cancelled WalletConnect pairing')
+      }
+    }
+    const displayUri = (uri: string) => {
+      attempt.pairingTopic = uri.slice(3, uri.indexOf('@'))
+      if (signal.aborted) {
+        void disconnectPairing()
+        return
+      }
+      onDisplayUri(uri)
+    }
+    provider.on('display_uri', displayUri)
+    const abort = new AbortController()
+    const cancellation = new Promise<never>((_, reject) => {
+      signal.addEventListener(
+        'abort',
+        () => {
+          void disconnectPairing()
+          reject(cancelled())
+        },
+        { once: true, signal: abort.signal },
+      )
+    })
+    try {
+      const pairing = wallet
+        .initialize()
+        .then(async () => {
+          if (!signal.aborted) return
+          const topic = provider.session?.topic
+          if (topic) {
+            await provider.signer.client.disconnect({
+              topic,
+              reason: { code: 6000, message: 'Wallet connection cancelled' },
+            })
+          }
+          throw cancelled()
+        })
+        .finally(() => provider.removeListener('display_uri', displayUri))
+      await Promise.race([pairing, cancellation])
+      if (signal.aborted) throw cancelled()
+    } finally {
+      abort.abort()
+    }
+  }
+
+  public async pairDevice(options?: DirectPairingOptions): Promise<WalletConnectV2HDWallet> {
     try {
       if (!this.providerConfig) {
         throw new Error('WalletConnectV2 provider configuration not set.')
       }
 
-      const provider = await EthereumProvider.init(this.providerConfig)
+      if (options?.signal.aborted) throw cancelled()
+      const provider = await EthereumProvider.init(
+        options ? { ...this.providerConfig, showQrModal: false } : this.providerConfig,
+      )
+      if (options?.signal.aborted) throw cancelled()
+      if (options && provider.session) await provider.disconnect()
       const wallet = new WalletConnectV2HDWallet(provider)
 
       //  Enable session (triggers QR Code modal)
-      await wallet.initialize()
+      if (options) {
+        await this.initializeDirectWallet(wallet, provider, options)
+      } else {
+        await wallet.initialize()
+      }
       const deviceID = await wallet.getDeviceID()
+      if (options?.signal.aborted) {
+        await wallet.disconnect()
+        throw cancelled()
+      }
       this.keyring.add(wallet, deviceID)
       this.keyring.emit(['WalletConnectV2', deviceID, Events.CONNECT], deviceID)
       return wallet

@@ -187,7 +187,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   validateAddress(address: string): Promise<ValidAddressResult> {
     try {
-      AccountAddress.fromString(address)
+      // user accounts are always the long form; reserved framework addresses (0x0-0xf) can't safely receive funds
+      if (AccountAddress.fromStringStrict(address).isSpecial()) {
+        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
+      }
+
       return Promise.resolve({ valid: true, result: ValidAddressResultType.Valid })
     } catch {
       return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })

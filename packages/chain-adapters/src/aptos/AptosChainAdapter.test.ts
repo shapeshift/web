@@ -85,15 +85,23 @@ describe('AptosChainAdapter', () => {
       expect(r).toEqual({ valid: true, result: ValidAddressResultType.Valid })
     })
 
-    it('accepts 64-hex address without 0x prefix (Aptos SDK normalizes)', async () => {
+    it('rejects a 64-hex address without the 0x prefix', async () => {
       const r = await adapter.validateAddress(ADDR.slice(2))
-      expect(r).toEqual({ valid: true, result: ValidAddressResultType.Valid })
+      expect(r.valid).toBe(false)
     })
 
-    it('accepts Aptos special short-form addresses (e.g. 0x1)', async () => {
-      const r = await adapter.validateAddress('0x1')
-      expect(r).toEqual({ valid: true, result: ValidAddressResultType.Valid })
+    it('rejects a short-form address', async () => {
+      const r = await adapter.validateAddress(`0x${ADDR.slice(3)}`)
+      expect(r.valid).toBe(false)
     })
+
+    it.each(['0x1', 'a', `0x${'0'.repeat(63)}a`])(
+      'rejects reserved framework address %s',
+      async address => {
+        const r = await adapter.validateAddress(address)
+        expect(r.valid).toBe(false)
+      },
+    )
 
     it('rejects non-hex content', async () => {
       const r = await adapter.validateAddress('0x' + 'z'.repeat(64))

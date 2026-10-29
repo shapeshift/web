@@ -8,8 +8,7 @@ export interface AptosGetAddress {
 
 export interface AptosSignTx {
   addressNList: BIP32Path
-  // BCS-serialized RawTransaction
-  rawTransactionBytes: Uint8Array
+  rawTransactionBytes: Uint8Array // BCS-serialized RawTransaction
 }
 
 export interface AptosSignedTx {
@@ -49,6 +48,7 @@ export function aptosDescribePath(path: BIP32Path): PathDescription {
 
   const slip44 = slip44ByCoin('Aptos')
   if (slip44 === undefined) return unknown
+
   if (path.length != 5) return unknown
   if (path[0] != 0x80000000 + 44) return unknown
   if (path[1] != 0x80000000 + slip44) return unknown
@@ -57,6 +57,7 @@ export function aptosDescribePath(path: BIP32Path): PathDescription {
   if (path[4] != 0x80000000 + 0) return unknown
 
   const index = path[2] & 0x7fffffff
+
   return {
     verbose: `Aptos Account #${index}`,
     accountIdx: index,
@@ -70,6 +71,7 @@ export function aptosDescribePath(path: BIP32Path): PathDescription {
 export function aptosGetAccountPaths(msg: AptosGetAccountPaths): AptosAccountPath[] {
   const slip44 = slip44ByCoin('Aptos')
   if (slip44 === undefined) return []
+
   return [
     {
       addressNList: [
@@ -85,7 +87,7 @@ export function aptosGetAccountPaths(msg: AptosGetAccountPaths): AptosAccountPat
 
 export function aptosNextAccountPath(msg: AptosAccountPath): AptosAccountPath | undefined {
   const description = aptosDescribePath(msg.addressNList)
-  if (!description.isKnown || description.accountIdx === undefined) return undefined
+  if (!description.isKnown || description.accountIdx === undefined) return
 
   return aptosGetAccountPaths({ accountIdx: description.accountIdx + 1 })[0]
 }

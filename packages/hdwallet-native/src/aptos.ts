@@ -7,7 +7,6 @@ import type { NativeHDWalletBase } from './native'
 export function MixinNativeAptosWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(
   Base: TBase,
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeAptosWalletInfo extends Base implements core.AptosWalletInfo {
     readonly _supportsAptosInfo = true
 
@@ -24,7 +23,6 @@ export function MixinNativeAptosWalletInfo<TBase extends core.Constructor<core.H
 export function MixinNativeAptosWallet<TBase extends core.Constructor<NativeHDWalletBase>>(
   Base: TBase,
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeAptosWallet extends Base {
     readonly _supportsAptos = true
 

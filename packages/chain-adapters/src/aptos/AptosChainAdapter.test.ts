@@ -8,8 +8,7 @@ import { ValidAddressResultType } from '../types'
 import { ChainAdapter } from './AptosChainAdapter'
 
 vi.mock('@aptos-labs/ts-sdk', async () => {
-  // Keep real exports (AccountAddress, Ed25519PublicKey, BCS helpers, etc.) and only
-  // mock the network-using Aptos client + AptosConfig + Network enum.
+  // keep the real bcs and key classes, mock only the network client
   const actual = await vi.importActual<typeof AptosSdkActual>('@aptos-labs/ts-sdk')
   return {
     ...actual,

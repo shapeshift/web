@@ -24,6 +24,7 @@ export class AptosAdapter {
     const sha3 = await createSHA3(256)
     sha3.init()
     sha3.update(flaggedPublicKey)
+
     return `0x${sha3.digest('hex')}`
   }
 
@@ -31,8 +32,8 @@ export class AptosAdapter {
     const nodeAdapter = await this.nodeAdapter.derivePath(
       core.addressNListToHardenedBIP32(addressNList),
     )
-    const publicKey = await nodeAdapter.getPublicKey()
 
+    const publicKey = await nodeAdapter.getPublicKey()
     if (publicKey.length !== ED25519_PUBLIC_KEY_SIZE) {
       throw new Error(`Invalid Ed25519 public key size: ${publicKey.length}`)
     }
@@ -47,11 +48,13 @@ export class AptosAdapter {
     const nodeAdapter = await this.nodeAdapter.derivePath(
       core.addressNListToHardenedBIP32(addressNList),
     )
+
     const publicKey = await nodeAdapter.getPublicKey()
 
     const sha3 = await createSHA3(256)
     sha3.init()
     sha3.update(RAW_TRANSACTION_SALT)
+
     const signingMessage = Buffer.concat([sha3.digest('binary'), rawTransactionBytes])
     const signature = await nodeAdapter.node.sign(signingMessage)
 

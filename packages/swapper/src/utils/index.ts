@@ -11,12 +11,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
 import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
-import type {
-  AptosSignTx,
-  SolanaSignTx,
-  StarknetSignTx,
-  SuiSignTx,
-} from '@shapeshiftoss/hdwallet-core'
+import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
@@ -28,7 +23,6 @@ import { setupCache } from 'axios-cache-interceptor'
 import type { TypedData } from 'eip-712'
 
 import type {
-  AptosTransactionExecutionProps,
   CommonSwapMetadata,
   EvmTransactionExecutionProps,
   NearTransactionExecutionProps,
@@ -283,13 +277,6 @@ export const executeStarknetTransaction = (
 export const executeTonTransaction = (
   txToSign: ton.TonSignTx,
   callbacks: TonTransactionExecutionProps,
-) => {
-  return callbacks.signAndBroadcastTransaction(txToSign)
-}
-
-export const executeAptosTransaction = (
-  txToSign: AptosSignTx,
-  callbacks: AptosTransactionExecutionProps,
 ) => {
   return callbacks.signAndBroadcastTransaction(txToSign)
 }

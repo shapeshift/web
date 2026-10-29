@@ -1,6 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type {
-  aptos,
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
@@ -14,7 +13,6 @@ import type {
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import type {
-  AptosSignTx,
   HDWallet,
   SolanaSignTx,
   StarknetSignTx,
@@ -385,10 +383,6 @@ export type TonSwapperDeps = {
   assertGetTonChainAdapter: (chainId: ChainId) => ton.ChainAdapter
 }
 
-export type AptosSwapperDeps = {
-  assertGetAptosChainAdapter: (chainId: ChainId) => aptos.ChainAdapter
-}
-
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
@@ -402,8 +396,7 @@ export type SwapperDeps = {
   SuiSwapperDeps &
   NearSwapperDeps &
   StarknetSwapperDeps &
-  TonSwapperDeps &
-  AptosSwapperDeps
+  TonSwapperDeps
 
 export type AffiliateFee = {
   assetId: AssetId
@@ -440,7 +433,6 @@ export type TxBuildData =
   | { type: 'cosmossdk_msg_deposit'; chainId: string; value: string; memo: string; coin: string }
   | { type: 'ton'; message: Uint8Array; seqno?: number; expireAt?: number }
   | { type: 'tron'; to: string; value: string; data?: string; memo?: string }
-  | { type: 'aptos'; to: string; value: string; gasUnitPrice: string; maxGasAmount: string }
   // CowSwap signs an off-chain EIP-712 order and posts it to the CoW API - there is nothing to broadcast
   | { type: 'cowswap'; chainId: ChainId; orderToSign: Omit<OrderCreation, 'signature'> }
 
@@ -694,10 +686,6 @@ export type TonTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: ton.TonSignTx) => Promise<string>
 }
 
-export type AptosTransactionExecutionProps = {
-  signAndBroadcastTransaction: (txToSign: AptosSignTx) => Promise<string>
-}
-
 type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
@@ -748,11 +736,6 @@ export type GetUnsignedTonTransactionArgs = CommonGetUnsignedTransactionArgs &
   TonAccountMetadata &
   TonSwapperDeps
 
-type AptosAccountMetadata = { from: string }
-export type GetUnsignedAptosTransactionArgs = CommonGetUnsignedTransactionArgs &
-  AptosAccountMetadata &
-  AptosSwapperDeps
-
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
@@ -779,8 +762,7 @@ export type CheckTradeStatusInput = {
   SuiSwapperDeps &
   NearSwapperDeps &
   StarknetSwapperDeps &
-  TonSwapperDeps &
-  AptosSwapperDeps
+  TonSwapperDeps
 
 export type TradeStatus = {
   status: TxStatus
@@ -853,10 +835,6 @@ export type Swapper = {
     txToSign: ton.TonSignTx,
     callbacks: TonTransactionExecutionProps,
   ) => Promise<string>
-  executeAptosTransaction?: (
-    txToSign: AptosSignTx,
-    callbacks: AptosTransactionExecutionProps,
-  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -892,7 +870,6 @@ export type SwapperApi = {
     input: GetUnsignedStarknetTransactionArgs,
   ) => Promise<StarknetSignTx>
   getUnsignedTonTransaction?: (input: GetUnsignedTonTransactionArgs) => Promise<ton.TonSignTx>
-  getUnsignedAptosTransaction?: (input: GetUnsignedAptosTransactionArgs) => Promise<AptosSignTx>
 
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
@@ -903,7 +880,6 @@ export type SwapperApi = {
   getNearTransactionFees?: (input: GetUnsignedNearTransactionArgs) => Promise<string>
   getStarknetTransactionFees?: (input: GetUnsignedStarknetTransactionArgs) => Promise<string>
   getTonTransactionFees?: (input: GetUnsignedTonTransactionArgs) => Promise<string>
-  getAptosTransactionFees?: (input: GetUnsignedAptosTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -964,10 +940,6 @@ export type StarknetTransactionExecutionInput = CommonTradeExecutionInput &
 export type TonTransactionExecutionInput = CommonTradeExecutionInput &
   TonTransactionExecutionProps &
   TonAccountMetadata
-
-export type AptosTransactionExecutionInput = CommonTradeExecutionInput &
-  AptosTransactionExecutionProps &
-  AptosAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',

@@ -1,6 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
-  AptosTransactionExecutionInput,
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
   CosmosSdkTransactionExecutionInput,
@@ -36,7 +35,6 @@ import {
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { EventEmitter } from 'node:events'
 
-import { assertGetAptosChainAdapter } from './utils/aptos'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetNearChainAdapter } from './utils/near'
@@ -95,7 +93,6 @@ export const fetchTradeStatus = async ({
       assertGetSuiChainAdapter,
       assertGetNearChainAdapter,
       assertGetStarknetChainAdapter,
-      assertGetAptosChainAdapter,
       fetchIsSmartContractAddressQuery,
     })
 
@@ -846,57 +843,6 @@ export class TradeExecution {
       })
 
       return await swapper.executeTonTransaction(unsignedTxResult, {
-        signAndBroadcastTransaction,
-      })
-    }
-
-    return await this._execWalletAgnostic(
-      {
-        swapperName,
-        tradeQuote,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-      },
-      buildSignBroadcast,
-    )
-  }
-
-  async execAptosTransaction({
-    swapperName,
-    tradeQuote,
-    stepIndex,
-    slippageTolerancePercentageDecimal,
-    from,
-    signAndBroadcastTransaction,
-  }: AptosTransactionExecutionInput) {
-    const buildSignBroadcast = async (
-      swapper: Swapper & SwapperApi,
-      {
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-        config,
-      }: CommonGetUnsignedTransactionArgs,
-    ) => {
-      if (!swapper.getUnsignedAptosTransaction) {
-        throw Error('missing implementation for getUnsignedAptosTransaction')
-      }
-      if (!swapper.executeAptosTransaction) {
-        throw Error('missing implementation for executeAptosTransaction')
-      }
-
-      const unsignedTxResult = await swapper.getUnsignedAptosTransaction({
-        tradeQuote,
-        chainId,
-        stepIndex,
-        slippageTolerancePercentageDecimal,
-        from,
-        config,
-        assertGetAptosChainAdapter,
-      })
-
-      return await swapper.executeAptosTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

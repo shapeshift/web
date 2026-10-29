@@ -15,7 +15,6 @@ import { useMemo } from 'react'
 import { getConfig } from '@/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
-import { assertGetAptosChainAdapter } from '@/lib/utils/aptos'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
@@ -318,27 +317,8 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 })
                 return output
               }
-              case CHAIN_NAMESPACE.Aptos: {
-                if (!swapper.getAptosTransactionFees) throw Error('missing getAptosTransactionFees')
-
-                const adapter = assertGetAptosChainAdapter(stepSellAssetChainId)
-                const from = await adapter.getAddress({
-                  accountNumber,
-                  wallet,
-                  ...(skipDeviceDerivation ? { pubKey } : {}),
-                })
-
-                const output = await swapper.getAptosTransactionFees({
-                  tradeQuote,
-                  from,
-                  stepIndex: hopIndex,
-                  slippageTolerancePercentageDecimal,
-                  chainId: hop.sellAsset.chainId,
-                  config: getConfig(),
-                  assertGetAptosChainAdapter,
-                })
-                return output
-              }
+              case CHAIN_NAMESPACE.Aptos:
+                throw new Error('Aptos trading is not supported')
               default:
                 assertUnreachable(stepSellAssetChainNamespace)
             }

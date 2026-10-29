@@ -99,7 +99,7 @@ export enum CoingeckoAssetPlatform {
   Starknet = 'starknet',
   Tron = 'tron',
   Sui = 'sui',
-  Aptos = 'aptos-network',
+  Aptos = 'aptos',
   Ton = 'the-open-network',
   Near = 'near-protocol',
   Abstract = 'abstract',

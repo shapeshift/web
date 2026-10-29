@@ -458,11 +458,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
       case aptosChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.aptosCoin,
-          // CoinGecko uses two different platform slugs for Aptos: their /api/v3
-          // endpoints (and our adapter) use 'aptos-network', but the static tokenlist
-          // at tokens.coingecko.com only responds to 'aptos' (the 'aptos-network'
-          // slug returns 403 there). Hardcoded to keep the token fetch working.
-          category: 'aptos',
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: aptos.explorer,
           explorerAddressLink: aptos.explorerAddressLink,
           explorerTxLink: aptos.explorerTxLink,

@@ -224,6 +224,7 @@ describe('AptosChainAdapter', () => {
 
   describe('parseTx', () => {
     const makeTx = (overrides: Record<string, unknown> = {}) => ({
+      type: 'user_transaction',
       hash: '0xtxhash',
       version: '5276796244',
       timestamp: '1747000000000000', // microseconds
@@ -232,6 +233,7 @@ describe('AptosChainAdapter', () => {
       gas_unit_price: '100',
       sender: SENDER,
       payload: {
+        type: 'entry_function_payload',
         function: '0x1::aptos_account::transfer_coins',
         type_arguments: [APT_COIN_TYPE],
         arguments: [ADDR, '9423057'],
@@ -275,6 +277,7 @@ describe('AptosChainAdapter', () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce(
         makeTx({
           payload: {
+            type: 'entry_function_payload',
             function: '0x1::primary_fungible_store::transfer',
             type_arguments: [],
             arguments: [{ inner: USDC_FA }, ADDR, '5000000'],
@@ -298,6 +301,7 @@ describe('AptosChainAdapter', () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce(
         makeTx({
           payload: {
+            type: 'entry_function_payload',
             function: '0x1::aptos_account::transfer_fungible_assets',
             type_arguments: [],
             arguments: [USDC_FA, ADDR, '5000000'],
@@ -321,6 +325,7 @@ describe('AptosChainAdapter', () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce(
         makeTx({
           payload: {
+            type: 'entry_function_payload',
             function: '0x1::aptos_account::transfer',
             type_arguments: [],
             arguments: [ADDR, '1000'],
@@ -353,6 +358,7 @@ describe('AptosChainAdapter', () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce(
         makeTx({
           payload: {
+            type: 'entry_function_payload',
             function: '0x123::some_dapp::do_thing',
             type_arguments: [],
             arguments: [],
@@ -362,6 +368,21 @@ describe('AptosChainAdapter', () => {
 
       const tx = await adapter.parseTx('0xtxhash', ADDR)
       expect(tx.transfers).toEqual([])
+    })
+
+    it('marks pending transactions as Pending with no fee or block', async () => {
+      client.transaction.getTransactionByHash.mockResolvedValueOnce({
+        type: 'pending_transaction',
+        hash: '0xtxhash',
+        sender: SENDER,
+        gas_unit_price: '100',
+        payload: makeTx().payload,
+      })
+      const tx = await adapter.parseTx('0xtxhash', ADDR)
+      expect(tx.status).toBe(TxStatus.Pending)
+      expect(tx.fee).toEqual({ assetId: aptosAssetId, value: '0' })
+      expect(tx.blockHeight).toBe(0)
+      expect(tx.transfers).toHaveLength(1)
     })
 
     it('marks failed transactions as Failed with zero confirmations', async () => {

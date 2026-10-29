@@ -1,4 +1,8 @@
-import type { EntryFunctionABI, InputEntryFunctionData } from '@aptos-labs/ts-sdk'
+import type {
+  EntryFunctionABI,
+  EntryFunctionPayloadResponse,
+  InputEntryFunctionData,
+} from '@aptos-labs/ts-sdk'
 import {
   AccountAddress,
   AccountAuthenticatorEd25519,
@@ -7,6 +11,8 @@ import {
   Deserializer,
   Ed25519PublicKey,
   Ed25519Signature,
+  isPendingTransactionResponse,
+  isUserTransactionResponse,
   Network,
   parseTypeTag,
   SimpleTransaction,
@@ -471,13 +477,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     return
   }
 
-  private getPayloadAssetId(payload: {
-    function?: string
-    type_arguments?: string[]
-    arguments?: unknown[]
-  }): AssetId | undefined {
-    const fn = payload?.function
-    if (!fn) return undefined
+  private getPayloadAssetId(payload: EntryFunctionPayloadResponse): AssetId | undefined {
+    const fn = payload.function
 
     if (fn === '0x1::coin::transfer' || fn === '0x1::aptos_account::transfer_coins') {
       const coinType = payload.type_arguments?.[0]
@@ -508,54 +509,40 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     return undefined
   }
 
-  async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
+  async parseTx(txHash: unknown, pubkey: string): Promise<Transaction> {
     try {
-      const tx = (
-        typeof txHashOrTx === 'string'
-          ? await this.client.transaction.getTransactionByHash({ transactionHash: txHashOrTx })
-          : txHashOrTx
-      ) as {
-        hash?: string
-        version?: string | number
-        timestamp?: string | number
-        success?: boolean
-        gas_used?: string
-        gas_unit_price?: string
-        sender?: string
-        payload?: { function?: string; type_arguments?: string[]; arguments?: unknown[] }
+      if (typeof txHash !== 'string') {
+        throw new Error(`parseTx expects a string tx hash, got ${typeof txHash}`)
       }
 
-      const txid = tx.hash ?? (typeof txHashOrTx === 'string' ? txHashOrTx : '')
-      const blockHeight = Number(tx.version ?? 0)
-      const blockTime = tx.timestamp ? Math.floor(Number(tx.timestamp) / 1_000_000) : 0
+      const tx = await this.client.transaction.getTransactionByHash({ transactionHash: txHash })
 
-      // Pending Aptos txs have undefined `success` until executed on-chain.
-      // Only mark Confirmed/Failed when we have a definitive answer.
-      const status =
-        tx.success === true
+      const isUserTx = isUserTransactionResponse(tx)
+      if (!isUserTx && !isPendingTransactionResponse(tx)) {
+        throw new Error(`unsupported transaction type: ${tx.type}`)
+      }
+
+      const status = isUserTx
+        ? tx.success
           ? TxStatus.Confirmed
-          : tx.success === false
-          ? TxStatus.Failed
-          : TxStatus.Pending
+          : TxStatus.Failed
+        : TxStatus.Pending
 
-      const gasUsed = tx.gas_used ?? '0'
-      const gasUnitPrice = tx.gas_unit_price ?? '0'
       const fee = {
         assetId: this.assetId,
-        value: (BigInt(gasUsed) * BigInt(gasUnitPrice)).toString(),
+        value: isUserTx ? (BigInt(tx.gas_used) * BigInt(tx.gas_unit_price)).toString() : '0',
       }
 
       const transfers: Transaction['transfers'] = []
-      const payload = tx.payload ?? {}
-      const transferAssetId = this.getPayloadAssetId(payload)
+      const payload = 'function' in tx.payload ? tx.payload : undefined
+      const transferAssetId = payload && this.getPayloadAssetId(payload)
 
-      if (transferAssetId) {
-        const args = payload.arguments ?? []
-        const fn = payload.function ?? ''
-        const isFaTransfer = FA_TRANSFER_FUNCTIONS.includes(fn)
+      if (payload && transferAssetId) {
+        const args = payload.arguments
+        const isFaTransfer = FA_TRANSFER_FUNCTIONS.includes(payload.function)
         const recipient = String(args[isFaTransfer ? 1 : 0] ?? '')
         const amount = String(args[isFaTransfer ? 2 : 1] ?? '0')
-        const sender = tx.sender ?? ''
+        const sender = tx.sender
 
         // Aptos addresses may differ in casing/length but refer to the same account.
         // Use SDK normalization via AccountAddress for reliable equality.
@@ -588,9 +575,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       }
 
       return {
-        txid,
-        blockHeight,
-        blockTime,
+        txid: tx.hash,
+        blockHeight: isUserTx ? Number(tx.version) : 0,
+        // aptos timestamps are in microseconds
+        blockTime: isUserTx ? Math.floor(Number(tx.timestamp) / 1_000_000) : 0,
         blockHash: undefined,
         chainId: this.chainId,
         confirmations: status === TxStatus.Confirmed ? 1 : 0,

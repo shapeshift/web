@@ -250,16 +250,33 @@ describe('AptosChainAdapter', () => {
         chainSpecific: { from: SENDER, contractAddress: USDC_FA },
       })
 
+    // mainnet fee statement of an apt transfer that creates the recipient account
+    const simulation = {
+      success: true,
+      events: [
+        {
+          type: '0x1::transaction_fee::FeeStatement',
+          data: {
+            execution_gas_units: '55',
+            io_gas_units: '106',
+            storage_fee_octas: '532400',
+            storage_fee_refund_octas: '0',
+            total_charge_gas_units: '5484',
+          },
+        },
+      ],
+    }
+
     beforeEach(() => {
       client.getGasPriceEstimation.mockResolvedValue({
-        deprioritized_gas_estimate: 100,
+        deprioritized_gas_estimate: 50,
         gas_estimate: 100,
         prioritized_gas_estimate: 150,
       })
     })
 
-    it('prices each tier from the simulated gas of the actual transfer plus 50%', async () => {
-      client.transaction.simulate.simple.mockResolvedValueOnce([{ success: true, gas_used: '140' }])
+    it('prices each tier from the simulated fee statement at its own gas price', async () => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([simulation])
 
       const fees = await getFeeData()
 
@@ -267,16 +284,21 @@ describe('AptosChainAdapter', () => {
         function: '0x1::primary_fungible_store::transfer',
         functionArguments: [USDC_FA, ADDR, 1000n],
       })
-      expect(fees.fast).toEqual({
-        txFee: '31500',
-        chainSpecific: { gasUnitPrice: '150', maxGasAmount: '210' },
+      expect(fees).toEqual({
+        fast: { txFee: '556650', chainSpecific: { gasUnitPrice: '150', maxGasAmount: '4453' } },
+        average: { txFee: '548500', chainSpecific: { gasUnitPrice: '100', maxGasAmount: '6582' } },
+        slow: { txFee: '540450', chainSpecific: { gasUnitPrice: '50', maxGasAmount: '12970' } },
       })
-      expect(fees.average.txFee).toBe('21000')
-      expect(fees.slow.txFee).toBe('21000')
+    })
+
+    it('throws when the simulation has no fee statement', async () => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([{ success: true, events: [] }])
+
+      await expect(getFeeData()).rejects.toThrow()
     })
 
     it('simulates a 1 octa transfer for a max apt send', async () => {
-      client.transaction.simulate.simple.mockResolvedValueOnce([{ success: true, gas_used: '140' }])
+      client.transaction.simulate.simple.mockResolvedValueOnce([simulation])
 
       await adapter.getFeeData({
         to: ADDR,

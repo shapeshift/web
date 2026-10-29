@@ -42,7 +42,7 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
-import { APT_COIN_TYPE } from './constants'
+import { APT_COIN_TYPE, FEE_STATEMENT_EVENT_TYPE } from './constants'
 import { parseAptosTx } from './parser'
 import type { AptosToken } from './types'
 import { getTokenAssetNamespace, getTransferPayload } from './utils'
@@ -333,7 +333,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
           }),
         ])
 
-      const toFeeData = (gasUnitPrice: number) => ({
       // caps simulated gas at what the sender can afford, so the default cap can't fail the simulation
       const [sim] = await this.client.transaction.simulate.simple({
         transaction,
@@ -342,15 +341,26 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
       if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
 
-      // 50% headroom on simulated gas
-      const maxGasAmount = (BigInt(sim.gas_used) * 3n) / 2n
+      const feeStatement = sim.events.find(event => event.type === FEE_STATEMENT_EVENT_TYPE)?.data
+      if (!feeStatement) throw new Error('transaction simulation is missing its fee statement')
 
-        txFee: (maxGasAmount * BigInt(gasUnitPrice)).toString(),
-        chainSpecific: {
-          gasUnitPrice: gasUnitPrice.toString(),
-          maxGasAmount: maxGasAmount.toString(),
-        },
-      })
+      const computeGasUnits =
+        BigInt(feeStatement.execution_gas_units) + BigInt(feeStatement.io_gas_units)
+      const storageFeeOctas = BigInt(feeStatement.storage_fee_octas)
+
+      const toFeeData = (price: number) => {
+        const gasUnitPrice = BigInt(price)
+        // storage is charged in octas, so the gas units it takes depend on the price
+        const gasUnits = computeGasUnits + (storageFeeOctas + gasUnitPrice - 1n) / gasUnitPrice
+
+        return {
+          txFee: (gasUnits * gasUnitPrice).toString(),
+          chainSpecific: {
+            gasUnitPrice: gasUnitPrice.toString(),
+            maxGasAmount: ((gasUnits * 6n) / 5n).toString(),
+          },
+        }
+      }
 
       return {
         fast: toFeeData(prioritized_gas_estimate ?? gas_estimate),

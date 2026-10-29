@@ -6,7 +6,10 @@ import { fromHex } from 'viem'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { BebopQuoteResponse } from '../types'
 
 type BaseArgs = {
@@ -34,31 +37,31 @@ export async function getBebopStepData(
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
-  if (type === 'rate') {
-    const networkFeeCryptoBaseUnit = await (async () => {
-      try {
-        return await getEvmNetworkFeeCryptoBaseUnit({
-          adapter,
-          supportsEIP1559,
-          gasLimit: bnOrZero(tx.gas).toString(),
-        })
-      } catch {
-        return bnOrZero(tx.gas).times(bnOrZero(tx.gasPrice)).toFixed(0)
-      }
-    })()
-
-    const stepData: BebopRateStepData = { networkFeeCryptoBaseUnit }
-
-    return Ok(stepData)
-  }
-
   const transactionData = {
     type: 'evm' as const,
     chainId: Number(fromChainId(sellAsset.chainId).chainReference),
     to: tx.to,
     data: tx.data,
     value: fromHex(tx.value, 'bigint').toString(),
-    gasLimit: tx.gas?.toString(),
+  }
+
+  const stateOverride = {
+    sellAsset,
+    sellAmountCryptoBaseUnit,
+    spenderAddress,
+  }
+
+  if (type === 'rate') {
+    const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
+      adapter,
+      supportsEIP1559,
+      providerGasLimit: tx.gas?.toString(),
+      simulation: { transactionData, from, stateOverride },
+    }).catch(() => bnOrZero(tx.gas).times(bnOrZero(tx.gasPrice)).toFixed(0))
+
+    const stepData: BebopRateStepData = { networkFeeCryptoBaseUnit }
+
+    return Ok(stepData)
   }
 
   try {
@@ -67,11 +70,8 @@ export async function getBebopStepData(
       transactionData,
       from,
       supportsEIP1559,
-      stateOverride: {
-        sellAsset,
-        sellAmountCryptoBaseUnit,
-        spenderAddress,
-      },
+      stateOverride,
+      providerGasLimit: tx.gas?.toString(),
     })
 
     const stepData: BebopQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

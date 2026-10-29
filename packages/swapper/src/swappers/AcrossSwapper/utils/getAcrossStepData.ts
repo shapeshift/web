@@ -16,7 +16,10 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import { getSolanaNetworkFeeCryptoBaseUnit } from '../../../utils/solana'
 import type { AcrossSwapTx } from './types'
 
@@ -65,7 +68,6 @@ export async function getAcrossStepData(
         to: swapTx.to,
         data: swapTx.data,
         value: swapTx.value ?? '0',
-        gasLimit: swapTx.gas,
       }
 
       const stateOverride = {
@@ -75,19 +77,12 @@ export async function getAcrossStepData(
       }
 
       if (type === 'rate') {
-        const networkFeeCryptoBaseUnit = await (async () => {
-          try {
-            return await getEvmNetworkFeeCryptoBaseUnit({
-              adapter,
-              transactionData,
-              from,
-              supportsEIP1559,
-              stateOverride,
-            })
-          } catch {
-            return fallbackNetworkFeeCryptoBaseUnit
-          }
-        })()
+        const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
+          adapter,
+          supportsEIP1559,
+          providerGasLimit: swapTx.gas,
+          simulation: { transactionData, from, stateOverride },
+        }).catch(() => fallbackNetworkFeeCryptoBaseUnit)
 
         const stepData: AcrossRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -101,6 +96,7 @@ export async function getAcrossStepData(
           from,
           supportsEIP1559,
           stateOverride,
+          providerGasLimit: swapTx.gas,
         })
 
         const stepData: AcrossQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

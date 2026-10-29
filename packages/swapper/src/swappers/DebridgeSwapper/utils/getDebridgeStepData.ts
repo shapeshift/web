@@ -10,7 +10,6 @@ import type { DebridgeTx } from './types'
 type BaseArgs = {
   tx: DebridgeTx
   sellAmountCryptoBaseUnit: string
-  gasLimit: string | undefined
   spenderAddress: string
   fallbackNetworkFeeCryptoBaseUnit: string | undefined
 }
@@ -33,7 +32,6 @@ export async function getDebridgeStepData(
   const {
     tx,
     sellAmountCryptoBaseUnit,
-    gasLimit,
     spenderAddress,
     fallbackNetworkFeeCryptoBaseUnit,
     sellAsset,
@@ -52,7 +50,6 @@ export async function getDebridgeStepData(
     to: tx.to,
     data: tx.data,
     value: tx.value,
-    gasLimit,
   }
 
   const stateOverride = {
@@ -62,19 +59,14 @@ export async function getDebridgeStepData(
   }
 
   if (type === 'rate') {
-    const networkFeeCryptoBaseUnit = await (async () => {
-      try {
-        return await getEvmNetworkFeeCryptoBaseUnit({
-          adapter,
-          transactionData,
-          from,
-          supportsEIP1559,
-          stateOverride,
-        })
-      } catch {
-        return fallbackNetworkFeeCryptoBaseUnit
-      }
-    })()
+    // deBridge returns a flat gas limit far above actual usage, so rates simulate instead
+    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+      adapter,
+      transactionData,
+      from,
+      supportsEIP1559,
+      stateOverride,
+    }).catch(() => fallbackNetworkFeeCryptoBaseUnit)
 
     const stepData: DebridgeRateStepData = { networkFeeCryptoBaseUnit }
 

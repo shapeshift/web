@@ -10,6 +10,7 @@ import {
   isPendingTransactionResponse,
   isUserTransactionResponse,
   Network,
+  RawTransaction,
   SimpleTransaction,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
@@ -215,13 +216,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         options: { gasUnitPrice: Number(gasUnitPrice), maxGasAmount: Number(maxGasAmount) },
       })
 
-      const signingMessageBytes = this.client.getSigningMessage({ transaction })
-      const rawTransactionBytes = transaction.bcsToBytes()
-
       return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
-        signingMessageBytes,
-        rawTransactionBytes,
+        rawTransactionBytes: transaction.rawTransaction.bcsToBytes(),
       }
     } catch (err) {
       return ErrorHandler(err, {
@@ -258,7 +255,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
       const signedTx = await wallet.aptosSignTx({
         addressNList: txToSign.addressNList,
-        signingMessageBytes: txToSign.signingMessageBytes,
         rawTransactionBytes: txToSign.rawTransactionBytes,
       })
 
@@ -303,7 +299,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       }
 
       const rawBytes = new Uint8Array(parsed.rawTransactionBytes)
-      const transaction = SimpleTransaction.deserialize(new Deserializer(rawBytes))
+      const transaction = new SimpleTransaction(
+        RawTransaction.deserialize(new Deserializer(rawBytes)),
+      )
 
       const publicKey = new Ed25519PublicKey(parsed.publicKey)
       const signature = new Ed25519Signature(parsed.signature)

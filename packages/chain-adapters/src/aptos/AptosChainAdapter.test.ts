@@ -18,10 +18,13 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
         getAccountCoinsData: vi.fn(),
         getGasPriceEstimation: vi.fn(),
         account: { getAccountInfo: vi.fn() },
-        getSigningMessage: vi.fn().mockReturnValue(new Uint8Array()),
         transaction: {
           getTransactionByHash: vi.fn(),
-          build: { simple: vi.fn().mockResolvedValue({ bcsToBytes: () => new Uint8Array() }) },
+          build: {
+            simple: vi
+              .fn()
+              .mockResolvedValue({ rawTransaction: { bcsToBytes: () => new Uint8Array() } }),
+          },
           simulate: { simple: vi.fn() },
         },
       }

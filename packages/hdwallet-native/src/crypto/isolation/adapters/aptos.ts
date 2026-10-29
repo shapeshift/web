@@ -4,6 +4,7 @@ import { createSHA3 } from 'hash-wasm'
 import type { Isolation } from '../..'
 
 const ED25519_PUBLIC_KEY_SIZE = 32
+const RAW_TRANSACTION_SALT = 'APTOS::RawTransaction'
 
 /**
  * Aptos uses Ed25519 signing with BIP44 derivation path m/44'/637'/<account>'/0'/0'
@@ -50,14 +51,19 @@ export class AptosAdapter {
   }
 
   async signTransaction(
-    txBytes: Uint8Array,
+    rawTransactionBytes: Uint8Array,
     addressNList: core.BIP32Path,
   ): Promise<{ signature: string; publicKey: string }> {
     const nodeAdapter = await this.nodeAdapter.derivePath(
       core.addressNListToHardenedBIP32(addressNList),
     )
     const publicKey = await nodeAdapter.getPublicKey()
-    const signature = await nodeAdapter.node.sign(txBytes)
+
+    const sha3 = await createSHA3(256)
+    sha3.init()
+    sha3.update(RAW_TRANSACTION_SALT)
+    const signingMessage = Buffer.concat([sha3.digest('binary'), rawTransactionBytes])
+    const signature = await nodeAdapter.node.sign(signingMessage)
 
     return {
       signature: Buffer.from(signature).toString('hex'),

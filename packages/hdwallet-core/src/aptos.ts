@@ -8,9 +8,7 @@ export interface AptosGetAddress {
 
 export interface AptosSignTx {
   addressNList: BIP32Path
-  /** Signing message bytes (sha3-256 prefix + BCS raw transaction) for off-device signers */
-  signingMessageBytes: Uint8Array
-  /** BCS-serialized SimpleTransaction for on-device signers and broadcast reconstruction */
+  /** BCS-serialized RawTransaction */
   rawTransactionBytes: Uint8Array
 }
 

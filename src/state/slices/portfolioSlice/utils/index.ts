@@ -109,7 +109,19 @@ import {
   supportsWorldChain,
   supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
-import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
+import type {
+  AptosChainId,
+  Asset,
+  EvmChainId,
+  KnownChainIds,
+  NearChainId,
+  SolanaChainId,
+  StarknetChainId,
+  SuiChainId,
+  TonChainId,
+  TronChainId,
+  UtxoChainId,
+} from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { bech32 } from 'bech32'
@@ -518,6 +530,15 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
   return portfolio
 }
 
+type TokenAccountChainId =
+  | SolanaChainId
+  | TronChainId
+  | SuiChainId
+  | NearChainId
+  | StarknetChainId
+  | TonChainId
+  | AptosChainId
+
 export const checkAccountHasActivity = (account: Account<ChainId>) => {
   const { chainId } = account
   const { chainNamespace } = fromChainId(chainId)
@@ -551,48 +572,19 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
 
       return hasActivity
     }
-    case CHAIN_NAMESPACE.Solana: {
-      const solanaAccount = account as Account<KnownChainIds.SolanaMainnet>
-
-      const hasActivity = bnOrZero(solanaAccount.balance).gt(0)
-
-      return hasActivity
-    }
-    case CHAIN_NAMESPACE.Tron: {
-      const tronAccount = account as Account<KnownChainIds.TronMainnet>
-      const hasActivity =
-        bnOrZero(tronAccount.balance).gt(0) ||
-        (tronAccount.chainSpecific.tokens ?? []).some(token => bnOrZero(token.balance).gt(0))
-      return hasActivity
-    }
-    case CHAIN_NAMESPACE.Sui: {
-      const suiAccount = account as Account<KnownChainIds.SuiMainnet>
-
-      const hasActivity = bnOrZero(suiAccount.balance).gt(0)
-
-      return hasActivity
-    }
-    case CHAIN_NAMESPACE.Near: {
-      const nearAccount = account as Account<KnownChainIds.NearMainnet>
-      const hasActivity = bnOrZero(nearAccount.balance).gt(0)
-      return hasActivity
-    }
-    case CHAIN_NAMESPACE.Starknet: {
-      const starknetAccount = account as Account<KnownChainIds.StarknetMainnet>
-
-      const hasActivity = bnOrZero(starknetAccount.balance).gt(0)
-
-      return hasActivity
-    }
-    case CHAIN_NAMESPACE.Ton: {
-      const hasActivity = bnOrZero(account.balance).gt(0)
-
-      return hasActivity
-    }
+    case CHAIN_NAMESPACE.Solana:
+    case CHAIN_NAMESPACE.Tron:
+    case CHAIN_NAMESPACE.Sui:
+    case CHAIN_NAMESPACE.Near:
+    case CHAIN_NAMESPACE.Starknet:
+    case CHAIN_NAMESPACE.Ton:
     case CHAIN_NAMESPACE.Aptos: {
-      const hasActivity = bnOrZero(account.balance).gt(0)
+      const { tokens } = (account as Account<TokenAccountChainId>).chainSpecific
 
-      return hasActivity
+      return (
+        bnOrZero(account.balance).gt(0) ||
+        (tokens ?? []).some(token => bnOrZero(token.balance).gt(0))
+      )
     }
     default:
       assertUnreachable(chainNamespace)

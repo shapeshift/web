@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, toAssetId } from '@shapeshiftoss/caip'
+import { adapters, aptosChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds, ZerionChainId } from '@shapeshiftoss/types'
 import { zerionChainIdToChainId } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
@@ -27,3 +27,9 @@ export const coingeckoPlatformDetailsToMaybeAssetId = (
   const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, contractAddress)
   return toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
 }
+
+// aptos paired fungible assets are re-keyed to their coin type, which only the caip adapter knows
+export const coingeckoIdToAptosAssetIds = (coingeckoId: string): AssetId[] =>
+  (adapters.coingeckoToAssetIds(coingeckoId) ?? []).filter(
+    assetId => fromAssetId(assetId).chainId === aptosChainId,
+  )

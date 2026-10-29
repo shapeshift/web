@@ -57,7 +57,7 @@ import * as adapters from './generated'
 
 export {
   fetchData as fetchCoingeckoData,
-  getAptosPairedCoinType,
+  getAptosIndexedAssetId,
   parseData as parseCoingeckoData,
 } from './utils'
 

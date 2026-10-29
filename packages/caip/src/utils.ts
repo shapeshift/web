@@ -13,6 +13,12 @@ export const accountIdToChainId = (accountId: AccountId): ChainId =>
 export const accountIdToSpecifier = (accountId: AccountId): string =>
   fromAccountId(accountId).account
 
+// aptos coins are referenced by move struct type, fungible assets by metadata address
+export const getAptosAssetNamespace = (assetReference: string) =>
+  assetReference.includes('::')
+    ? constants.ASSET_NAMESPACE.aptosCoin
+    : constants.ASSET_NAMESPACE.aptosFungible
+
 export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
   chainReference: ChainReference,

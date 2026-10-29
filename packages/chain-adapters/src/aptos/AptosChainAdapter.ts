@@ -17,7 +17,13 @@ import {
   TransactionAuthenticatorEd25519,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { aptosAssetId, aptosChainId, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import {
+  aptosAssetId,
+  aptosChainId,
+  ASSET_REFERENCE,
+  getAptosAssetNamespace,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { AptosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsAptos } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
@@ -44,8 +50,8 @@ import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
 import { APT_COIN_TYPE, FEE_STATEMENT_EVENT_TYPE, INDEXER_PAGE_LIMIT } from './constants'
 import { parseAptosTx } from './parser'
-import type { AptosToken } from './types'
-import { getTokenAssetNamespace, getTransferPayload, isFungibleAssetReference } from './utils'
+import type { Token } from './types'
+import { getBalancePayload, getTransferPayload } from './utils'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -149,7 +155,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const balances = await this.getBalances(pubkey)
 
       let nativeBalance = '0'
-      const tokens: AptosToken[] = []
+      const tokens: Token[] = []
 
       for (const { asset_type, balance, metadata } of balances) {
         if (asset_type === APT_COIN_TYPE) {
@@ -159,7 +165,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
         const assetId = toAssetId({
           chainId: this.chainId,
-          assetNamespace: getTokenAssetNamespace(asset_type),
+          assetNamespace: getAptosAssetNamespace(asset_type),
           assetReference: asset_type,
         })
 
@@ -208,13 +214,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     }
 
     return Promise.all(
-      entries
-        .filter(entry => entry.asset_type)
-        .map(async entry => ({
-          asset_type: entry.asset_type as string,
-          metadata: entry.metadata,
-          balance: await this.getExactBalance(pubkey, entry.asset_type as string, entry.amount),
-        })),
+      entries.flatMap(({ asset_type, amount, metadata }) =>
+        asset_type
+          ? [
+              this.getExactBalance(pubkey, asset_type, amount).then(balance => ({
+                asset_type,
+                balance,
+                metadata,
+              })),
+            ]
+          : [],
+      ),
     )
   }
 
@@ -223,17 +233,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     if (Number.isSafeInteger(Number(amount))) return String(amount)
 
     const [balance] = await this.client.view<[string]>({
-      payload: isFungibleAssetReference(assetType)
-        ? {
-            function: '0x1::primary_fungible_store::balance',
-            typeArguments: ['0x1::fungible_asset::Metadata'],
-            functionArguments: [pubkey, assetType],
-          }
-        : {
-            function: '0x1::coin::balance',
-            typeArguments: [assetType],
-            functionArguments: [pubkey],
-          },
+      payload: getBalancePayload(pubkey, assetType),
     })
 
     return balance

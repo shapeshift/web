@@ -1,8 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   abstractAssetId,
-  adapters,
-  aptosChainId,
   arbitrumAssetId,
   baseAssetId,
   blastAssetId,
@@ -41,6 +39,7 @@ import uniq from 'lodash/uniq'
 
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
 import {
+  coingeckoIdToAptosAssetIds,
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,
 } from './mapping'
@@ -166,13 +165,9 @@ const fetchCoingeckoCoinsByAssetId = async (): Promise<Record<AssetId, Coingecko
   const coinsByAssetId: Record<AssetId, CoingeckoCoin> = {}
 
   for (const { id, platforms } of data) {
-    // aptos paired fungible assets are re-keyed to their coin type, which only the caip adapter knows
-    const aptosAssetIds = (adapters.coingeckoToAssetIds(id) ?? []).filter(
-      assetId => fromAssetId(assetId).chainId === aptosChainId,
-    )
     const assetIds = uniq([
       ...Object.entries(platforms).map(coingeckoPlatformDetailsToSupportedAssetId).filter(isSome),
-      ...aptosAssetIds,
+      ...coingeckoIdToAptosAssetIds(id),
     ])
 
     const coin = { id, assetIds }

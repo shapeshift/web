@@ -1,10 +1,4 @@
-import {
-  adapters,
-  aptosChainId,
-  ASSET_NAMESPACE,
-  fromAssetId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { adapters, aptosChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { aptos, unfreeze } from '@shapeshiftoss/utils'
 import uniqBy from 'lodash/uniqBy'
@@ -12,24 +6,6 @@ import uniqBy from 'lodash/uniqBy'
 import * as coingecko from '../coingecko'
 
 const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
-
-// paired fungible assets are re-keyed to their coin type, which is how balances are indexed
-const toIndexedAsset = async (asset: Asset): Promise<Asset | undefined> => {
-  const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
-  if (assetNamespace !== ASSET_NAMESPACE.aptosFungible) return asset
-
-  const coinType = await adapters.getAptosPairedCoinType(assetReference)
-  if (coinType === null) return
-  if (!coinType) return asset
-
-  const assetId = toAssetId({
-    chainId: aptosChainId,
-    assetNamespace: ASSET_NAMESPACE.aptosCoin,
-    assetReference: coinType,
-  })
-
-  return { ...asset, assetId }
-}
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([coingecko.getAssets(aptosChainId)])
@@ -44,10 +20,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   const rekeyedAssets: Asset[] = []
 
   for (const asset of assets) {
-    const indexedAsset = await toIndexedAsset(asset)
-    if (!indexedAsset) continue
-    if (indexedAsset.assetId === asset.assetId) listedAssets.push(asset)
-    else rekeyedAssets.push(indexedAsset)
+    const assetId = await adapters.getAptosIndexedAssetId(asset.assetId)
+    if (!assetId) continue
+    if (assetId === asset.assetId) listedAssets.push(asset)
+    else rekeyedAssets.push({ ...asset, assetId })
   }
 
   // coingecko's coin type listing wins over its paired fungible asset listing

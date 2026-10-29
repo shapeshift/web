@@ -1,5 +1,5 @@
 import type { AssetNamespace } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, getAptosAssetNamespace } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from './assertUnreachable'
@@ -59,10 +59,7 @@ export const getAssetNamespaceFromChainId = (
     case KnownChainIds.TonMainnet:
       return ASSET_NAMESPACE.jetton
     case KnownChainIds.AptosMainnet:
-      // legacy coins are referenced by move struct type, fungible assets by metadata address
-      return assetReference.includes('::')
-        ? ASSET_NAMESPACE.aptosCoin
-        : ASSET_NAMESPACE.aptosFungible
+      return getAptosAssetNamespace(assetReference)
     case KnownChainIds.CosmosMainnet:
     case KnownChainIds.BitcoinMainnet:
     case KnownChainIds.BitcoinCashMainnet:

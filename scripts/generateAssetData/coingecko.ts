@@ -15,6 +15,7 @@ import {
   cronosChainId,
   ethChainId,
   flowEvmChainId,
+  getAptosAssetNamespace,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -475,9 +476,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
       const assetId = toAssetId({
         chainId,
         assetNamespace:
-          chainId === aptosChainId && !token.address.includes('::')
-            ? ASSET_NAMESPACE.aptosFungible
-            : assetNamespace,
+          chainId === aptosChainId ? getAptosAssetNamespace(token.address) : assetNamespace,
         assetReference: token.address,
       })
 

@@ -8,7 +8,7 @@ export interface AptosGetAddress {
 
 export interface AptosSignTx {
   addressNList: BIP32Path
-  /** BCS-serialized RawTransaction */
+  // BCS-serialized RawTransaction
   rawTransactionBytes: Uint8Array
 }
 
@@ -28,15 +28,7 @@ export interface AptosAccountPath {
 export interface AptosWalletInfo extends HDWalletInfo {
   readonly _supportsAptosInfo: boolean
 
-  /**
-   * Returns a list of bip32 paths for a given account index in preferred order
-   * from most to least preferred.
-   */
   aptosGetAccountPaths(msg: AptosGetAccountPaths): AptosAccountPath[]
-
-  /**
-   * Returns the "next" account path, if any.
-   */
   aptosNextAccountPath(msg: AptosAccountPath): AptosAccountPath | undefined
 }
 
@@ -74,8 +66,7 @@ export function aptosDescribePath(path: BIP32Path): PathDescription {
   }
 }
 
-// Aptos derives m/44'/637'/<account>'/0'/0', matching Petra and the Aptos SDK
-// Aptos uses the Ed25519 elliptic curve, which requires all levels of the derivation path to be hardened.
+// m/44'/637'/<account>'/0'/0' matches Petra and the aptos sdk (ed25519 requires every level hardened)
 export function aptosGetAccountPaths(msg: AptosGetAccountPaths): AptosAccountPath[] {
   const slip44 = slip44ByCoin('Aptos')
   if (slip44 === undefined) return []

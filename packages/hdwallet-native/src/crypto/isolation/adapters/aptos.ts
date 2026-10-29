@@ -5,12 +5,8 @@ import type { Isolation } from '../..'
 
 const ED25519_PUBLIC_KEY_SIZE = 32
 const RAW_TRANSACTION_SALT = 'APTOS::RawTransaction'
+const SIGNATURE_SCHEME_FLAG_ED25519 = 0x00
 
-/**
- * Aptos uses Ed25519 signing with BIP44 derivation path m/44'/637'/<account>'/0'/0'
- * Addresses are derived from the Ed25519 public key using SHA3-256 truncated to 32 bytes.
- * The @aptos-labs/ts-sdk handles BCS serialization and transaction construction.
- */
 export class AptosAdapter {
   protected readonly nodeAdapter: Isolation.Adapters.Ed25519
 
@@ -19,9 +15,8 @@ export class AptosAdapter {
   }
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const publicKey = await this.getPublicKeyRaw(addressNList)
+    const publicKey = await this.getPublicKey(addressNList)
 
-    const SIGNATURE_SCHEME_FLAG_ED25519 = 0x00
     const flaggedPublicKey = new Uint8Array(publicKey.length + 1)
     flaggedPublicKey.set(publicKey, 0)
     flaggedPublicKey[publicKey.length] = SIGNATURE_SCHEME_FLAG_ED25519
@@ -32,12 +27,7 @@ export class AptosAdapter {
     return `0x${sha3.digest('hex')}`
   }
 
-  async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
-    const publicKey = await this.getPublicKeyRaw(addressNList)
-    return Buffer.from(publicKey).toString('hex')
-  }
-
-  private async getPublicKeyRaw(addressNList: core.BIP32Path): Promise<Buffer> {
+  private async getPublicKey(addressNList: core.BIP32Path): Promise<Buffer> {
     const nodeAdapter = await this.nodeAdapter.derivePath(
       core.addressNListToHardenedBIP32(addressNList),
     )

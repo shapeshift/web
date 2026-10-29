@@ -1,17 +1,20 @@
-import type { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
+import type { InputEntryFunctionData, PendingTransactionResponse } from '@aptos-labs/ts-sdk'
 import {
   AccountAddress,
-  AccountAuthenticatorEd25519,
   Aptos,
   AptosConfig,
   Deserializer,
   Ed25519PublicKey,
   Ed25519Signature,
+  Hex,
   isPendingTransactionResponse,
   isUserTransactionResponse,
+  MimeType,
   Network,
+  postAptosFullNode,
   RawTransaction,
-  SimpleTransaction,
+  SignedTransaction,
+  TransactionAuthenticatorEd25519,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { aptosAssetId, aptosChainId, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
@@ -249,8 +252,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const { txToSign, wallet } = signTxInput
 
       if (!wallet) throw new Error('wallet is required')
-      this.assertSupportsChain(wallet)
 
+      this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.aptosSignTx({
@@ -262,11 +265,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         throw new Error('error signing tx - missing signature or publicKey')
       }
 
-      return JSON.stringify({
-        signature: signedTx.signature,
-        publicKey: signedTx.publicKey,
-        rawTransactionBytes: Array.from(signedTx.rawTransactionBytes),
-      })
+      const signedTransaction = new SignedTransaction(
+        RawTransaction.deserialize(new Deserializer(txToSign.rawTransactionBytes)),
+        new TransactionAuthenticatorEd25519(
+          new Ed25519PublicKey(signedTx.publicKey),
+          new Ed25519Signature(signedTx.signature),
+        ),
+      )
+
+      return signedTransaction.bcsToHex().toString()
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signTransaction',
@@ -291,28 +298,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   async broadcastTransaction(input: BroadcastTransactionInput): Promise<string> {
     try {
-      const { hex } = input
-      const parsed = JSON.parse(hex) as {
-        signature: string
-        publicKey: string
-        rawTransactionBytes: number[]
-      }
-
-      const rawBytes = new Uint8Array(parsed.rawTransactionBytes)
-      const transaction = new SimpleTransaction(
-        RawTransaction.deserialize(new Deserializer(rawBytes)),
-      )
-
-      const publicKey = new Ed25519PublicKey(parsed.publicKey)
-      const signature = new Ed25519Signature(parsed.signature)
-      const senderAuthenticator = new AccountAuthenticatorEd25519(publicKey, signature)
-
-      const pending = await this.client.transaction.submit.simple({
-        transaction,
-        senderAuthenticator,
+      const { data } = await postAptosFullNode<Uint8Array, PendingTransactionResponse>({
+        aptosConfig: this.client.config,
+        path: 'transactions',
+        originMethod: 'broadcastTransaction',
+        contentType: MimeType.BCS_SIGNED_TRANSACTION,
+        body: Hex.fromHexInput(input.hex).toUint8Array(),
       })
 
-      return pending.hash
+      return data.hash
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.broadcastTransaction',

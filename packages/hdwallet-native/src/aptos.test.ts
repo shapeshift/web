@@ -48,7 +48,6 @@ describe('NativeAptosWallet', () => {
     await expect(wallet.aptosSignTx({ addressNList, rawTransactionBytes })).resolves.toEqual({
       signature: SDK_SIGNATURE,
       publicKey: SDK_PUBLIC_KEY,
-      rawTransactionBytes,
     })
   })
 })

@@ -15,7 +15,6 @@ export interface AptosSignTx {
 export interface AptosSignedTx {
   signature: string
   publicKey: string
-  rawTransactionBytes: Uint8Array
 }
 
 export interface AptosGetAccountPaths {

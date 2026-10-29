@@ -165,6 +165,7 @@ describe('AptosChainAdapter', () => {
         asset_type: `0x${(i + 1).toString(16)}::coin::T`,
         amount: '1',
         metadata: null,
+        storage_id: `0x${(i + 1).toString(16).padStart(4, '0')}`,
       }))
       client.getAccountCoinsData
         .mockResolvedValueOnce(page)
@@ -174,8 +175,7 @@ describe('AptosChainAdapter', () => {
       expect(acct.chainSpecific.tokens).toHaveLength(101)
       expect(client.getAccountCoinsData).toHaveBeenCalledTimes(2)
       expect(client.getAccountCoinsData.mock.calls[1][0].options).toMatchObject({
-        where: { amount: { _gt: 0 }, is_primary: { _eq: true } },
-        offset: 100,
+        where: { amount: { _gt: 0 }, is_primary: { _eq: true }, storage_id: { _gt: '0x0064' } },
         limit: 100,
       })
     })

@@ -47,9 +47,31 @@ export const useSendActionSubscriber = () => {
 
   const allActions = useAppSelector(actionSlice.selectors.selectActionsById)
 
+  // second class chains have no tx history subscription, and failed txs still charge fees
+  const refetchSecondClassAccounts = useCallback(
+    (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
+      const { accountId, accountIdsToRefetch } = action.transactionMetadata
+      const chainId = fromAccountId(accountId).chainId
+
+      if (!SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) return
+
+      const { getAccount } = portfolioApi.endpoints
+
+      ;(accountIdsToRefetch ?? [accountId]).forEach(accountIdToRefresh => {
+        dispatch(
+          getAccount.initiate(
+            { accountId: accountIdToRefresh, upsertOnFetch: true },
+            { forceRefetch: true },
+          ),
+        )
+      })
+    },
+    [dispatch],
+  )
+
   const completeAction = useCallback(
     (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
-      const { txHash, accountId, accountIdsToRefetch } = action.transactionMetadata
+      const { txHash } = action.transactionMetadata
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -89,22 +111,7 @@ export const useSendActionSubscriber = () => {
         }
       }
 
-      const chainId = fromAccountId(accountId).chainId
-      const isSecondClassChain = SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)
-
-      if (isSecondClassChain) {
-        const { getAccount } = portfolioApi.endpoints
-        const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
-
-        accountIdsToRefreshList.forEach(accountIdToRefresh => {
-          dispatch(
-            getAccount.initiate(
-              { accountId: accountIdToRefresh, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
-          )
-        })
-      }
+      refetchSecondClassAccounts(action)
 
       const isActive = toast.isActive(txHash)
 
@@ -131,7 +138,7 @@ export const useSendActionSubscriber = () => {
         },
       })
     },
-    [allActions, dispatch, toast, isDrawerOpen, openActionCenter],
+    [allActions, dispatch, refetchSecondClassAccounts, toast, isDrawerOpen, openActionCenter],
   )
 
   const failAction = useCallback(
@@ -149,6 +156,8 @@ export const useSendActionSubscriber = () => {
           },
         }),
       )
+
+      refetchSecondClassAccounts(action)
 
       const isActive = toast.isActive(txHash)
 
@@ -175,7 +184,7 @@ export const useSendActionSubscriber = () => {
         },
       })
     },
-    [dispatch, toast, isDrawerOpen, openActionCenter],
+    [dispatch, refetchSecondClassAccounts, toast, isDrawerOpen, openActionCenter],
   )
 
   useEffect(() => {

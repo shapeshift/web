@@ -138,11 +138,11 @@ const getAptosPairedCoinType = async (
   metadataAddress: string,
 ): Promise<string | null | undefined> => {
   try {
-    const { data } = await axios.post<[{ vec: AptosTypeInfo[] }]>(`${APTOS_NODE_URL}/view`, {
-      function: '0x1::coin::paired_coin',
-      type_arguments: [],
-      arguments: [metadataAddress],
-    })
+    const { data } = await axios.post<[{ vec: AptosTypeInfo[] }]>(
+      `${APTOS_NODE_URL}/view`,
+      { function: '0x1::coin::paired_coin', type_arguments: [], arguments: [metadataAddress] },
+      { timeout: 10_000 },
+    )
 
     const [typeInfo] = data[0].vec
     if (!typeInfo) return

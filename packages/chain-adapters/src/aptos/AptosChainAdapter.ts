@@ -190,14 +190,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   private async getBalances(pubkey: string) {
     const entries: GetAccountCoinsDataResponse = []
 
-    // the indexer caps each page, so page through non-zero primary store balances
-    for (let offset = 0; ; offset += INDEXER_PAGE_LIMIT) {
+    // the indexer caps each page, so page through non-zero primary store balances by storage id
+    while (true) {
+      const cursor = entries.at(-1)?.storage_id
       const page = await this.client.getAccountCoinsData({
         accountAddress: pubkey,
         options: {
-          where: { amount: { _gt: 0 }, is_primary: { _eq: true } },
+          where: {
+            amount: { _gt: 0 },
+            is_primary: { _eq: true },
+            ...(cursor && { storage_id: { _gt: cursor } }),
+          },
           orderBy: [{ storage_id: 'asc' }],
-          offset,
           limit: INDEXER_PAGE_LIMIT,
         },
       })

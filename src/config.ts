@@ -288,7 +288,7 @@ const validators = {
   VITE_FEATURE_ROBINHOOD: bool({ default: false }),
   VITE_FEATURE_APTOS: bool({ default: false }),
   VITE_APTOS_NODE_URL: url(),
-  VITE_APTOS_INDEXER_URL: url({ default: 'https://api.mainnet.aptoslabs.com/v1/graphql' }),
+  VITE_APTOS_INDEXER_URL: url(),
   VITE_AGENTIC_SERVER_BASE_URL: url({
     default: 'https://api.agent.shapeshift.com',
   }),

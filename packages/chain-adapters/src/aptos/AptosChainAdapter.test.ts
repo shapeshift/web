@@ -40,8 +40,8 @@ const LEGACY_USDC =
 
 const newAdapter = () =>
   new ChainAdapter({
-    rpcUrl: 'https://fullnode.mainnet.aptoslabs.com/v1',
-    indexerUrl: 'https://api.mainnet.aptoslabs.com/v1/graphql',
+    rpcUrl: 'https://fullnode.mainnet.aptoslabs.com',
+    indexerUrl: 'https://api.mainnet.aptoslabs.com',
   })
 
 const getMockedClient = (adapter: ChainAdapter) =>

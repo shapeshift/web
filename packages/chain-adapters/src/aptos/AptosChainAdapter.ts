@@ -63,8 +63,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     this.client = new Aptos(
       new AptosConfig({
         network: Network.MAINNET,
-        fullnode: args.rpcUrl,
-        indexer: args.indexerUrl,
+        fullnode: `${args.rpcUrl}/v1`,
+        indexer: `${args.indexerUrl}/v1/graphql`,
       }),
     )
   }

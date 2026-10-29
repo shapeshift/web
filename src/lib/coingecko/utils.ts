@@ -17,6 +17,7 @@ import {
   dogeChainId,
   ethChainId,
   flowEvmChainId,
+  fromAssetId,
   gnosisChainId,
   hemiChainId,
   inkChainId,
@@ -119,6 +120,14 @@ const getCoinDetails = async (
         asset_platform_id as adapters.CoingeckoAssetPlatform,
       )
       if (!chainId) return
+
+      // aptos paired fungible assets are re-keyed to their coin type, which only the caip adapter knows
+      if (chainId === aptosChainId) {
+        const aptosAssetId = adapters
+          .coingeckoToAssetIds(id)
+          ?.find(assetId => fromAssetId(assetId).chainId === aptosChainId)
+        if (aptosAssetId) return aptosAssetId
+      }
 
       const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, address)
 

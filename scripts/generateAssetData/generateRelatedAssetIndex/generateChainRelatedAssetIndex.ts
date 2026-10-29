@@ -1,5 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  adapters,
+  aptosChainId,
   arbitrumAssetId,
   baseAssetId,
   blastAssetId,
@@ -33,6 +35,7 @@ import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
+import uniq from 'lodash/uniq'
 
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
 import {
@@ -155,9 +158,14 @@ const fetchCoingeckoCoinsByAssetId = async (): Promise<Record<AssetId, Coingecko
   const coinsByAssetId: Record<AssetId, CoingeckoCoin> = {}
 
   for (const { id, platforms } of data) {
-    const assetIds = Object.entries(platforms)
-      .map(coingeckoPlatformDetailsToSupportedAssetId)
-      .filter(isSome)
+    // aptos paired fungible assets are re-keyed to their coin type, which only the caip adapter knows
+    const aptosAssetIds = (adapters.coingeckoToAssetIds(id) ?? []).filter(
+      assetId => fromAssetId(assetId).chainId === aptosChainId,
+    )
+    const assetIds = uniq([
+      ...Object.entries(platforms).map(coingeckoPlatformDetailsToSupportedAssetId).filter(isSome),
+      ...aptosAssetIds,
+    ])
 
     const coin = { id, assetIds }
     for (const assetId of assetIds) coinsByAssetId[assetId] = coin

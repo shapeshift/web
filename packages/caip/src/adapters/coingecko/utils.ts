@@ -151,13 +151,13 @@ const getAptosPairedCoinType = async (
 
     return `${account_address}::${hexToUtf8(module_name)}::${hexToUtf8(struct_name)}`
   } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.data?.vm_error_code !== undefined) return null
+    if (axios.isAxiosError(err) && typeof err.response?.data?.vm_error_code === 'number')
+      return null
     throw err
   }
 }
 
-// a coin's paired fungible asset is the same token, and balances are indexed under the coin type
-// returns null when the asset isn't a real coin or fungible asset
+// paired fungible assets are indexed under their coin type, and non fungible asset addresses are null
 export const getAptosIndexedAssetId = async (assetId: AssetId): Promise<AssetId | null> => {
   const { assetNamespace, assetReference } = fromAssetId(assetId)
   if (assetNamespace !== ASSET_NAMESPACE.aptosFungible) return assetId

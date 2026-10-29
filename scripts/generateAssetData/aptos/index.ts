@@ -23,7 +23,8 @@ export const getAssets = async (): Promise<Asset[]> => {
     const assetId = await adapters.getAptosIndexedAssetId(asset.assetId)
     if (!assetId) continue
     if (assetId === asset.assetId) listedAssets.push(asset)
-    else rekeyedAssets.push({ ...asset, assetId })
+    else
+      rekeyedAssets.push({ ...asset, assetId, color: coingecko.colorMap[assetId] ?? asset.color })
   }
 
   // coingecko's coin type listing wins over its paired fungible asset listing

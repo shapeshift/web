@@ -154,29 +154,22 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     try {
       const balances = await this.getBalances(pubkey)
 
-      let nativeBalance = '0'
-      const tokens: Token[] = []
+      const nativeBalance =
+        balances.find(({ asset_type }) => asset_type === APT_COIN_TYPE)?.balance ?? '0'
 
-      for (const { asset_type, balance, metadata } of balances) {
-        if (asset_type === APT_COIN_TYPE) {
-          nativeBalance = balance
-          continue
-        }
-
-        const assetId = toAssetId({
-          chainId: this.chainId,
-          assetNamespace: getAptosAssetNamespace(asset_type),
-          assetReference: asset_type,
-        })
-
-        tokens.push({
-          assetId,
+      const tokens: Token[] = balances
+        .filter(({ asset_type }) => asset_type !== APT_COIN_TYPE)
+        .map(({ asset_type, balance, metadata }) => ({
+          assetId: toAssetId({
+            chainId: this.chainId,
+            assetNamespace: getAptosAssetNamespace(asset_type),
+            assetReference: asset_type,
+          }),
           balance,
           symbol: metadata?.symbol ?? 'UNKNOWN',
           name: metadata?.name ?? asset_type,
           precision: metadata?.decimals ?? 0,
-        })
-      }
+        }))
 
       return {
         balance: nativeBalance,
@@ -368,11 +361,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     input: GetFeeDataInput<KnownChainIds.AptosMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
-      const { to, value, chainSpecific, sendMax } = input
+      const { to, value, chainSpecific } = input
       const { from, contractAddress } = chainSpecific
 
-      // a full balance apt send can't cover gas in simulation, and gas doesn't depend on the amount
-      const simulatedValue = sendMax && !contractAddress ? '1' : value
+      // gas doesn't depend on the amount, and an apt amount near the balance can't cover gas in simulation
+      const simulatedValue = contractAddress ? value : '1'
 
       const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
         await Promise.all([

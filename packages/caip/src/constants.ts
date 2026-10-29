@@ -232,8 +232,8 @@ export const ASSET_NAMESPACE = {
   nep141: 'nep141', // NEAR fungible token standard: https://nomicon.io/Standards/Tokens/FungibleToken/Core
   starknetToken: 'token',
   jetton: 'jetton', // TON fungible token standard (TEP-74)
-  aptosCoin: 'coin', // Aptos legacy coin standard, referenced by Move struct type
-  aptosFungible: 'fungible', // Aptos fungible asset standard, referenced by metadata address
+  aptosCoin: 'coin', // Aptos legacy coin standard
+  aptosFungible: 'fungible', // Aptos fungible asset standard
 } as const
 
 export const ASSET_REFERENCE = {

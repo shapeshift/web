@@ -202,24 +202,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     throw new Error('Aptos transaction history not yet implemented')
   }
 
-  private async estimateMaxGasAmount(
-    sender: string,
-    data: InputEntryFunctionData,
-  ): Promise<bigint> {
-    const transaction = await this.client.transaction.build.simple({ sender, data })
-
-    // caps simulated gas at what the sender can afford, so the default cap can't fail the simulation
-    const [sim] = await this.client.transaction.simulate.simple({
-      transaction,
-      options: { estimateGasUnitPrice: true, estimateMaxGasAmount: true },
-    })
-
-    if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
-
-    // 50% headroom on simulated gas
-    return (BigInt(sim.gas_used) * 3n) / 2n
-  }
-
   async buildSendApiTransaction(
     input: BuildSendApiTxInput<KnownChainIds.AptosMainnet>,
   ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
@@ -302,8 +284,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.AptosMainnet>): Promise<string> {
     try {
-      const signedTxHex = await this.signTransaction(signTxInput)
-      return this.broadcastTransaction({ senderAddress, receiverAddress, hex: signedTxHex })
+      const hex = await this.signTransaction(signTxInput)
+      return this.broadcastTransaction({ senderAddress, receiverAddress, hex })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signAndBroadcastTransaction',
@@ -374,6 +356,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         translation: 'chainAdapters.errors.getFeeData',
       })
     }
+  }
+
+  private async estimateMaxGasAmount(
+    sender: string,
+    data: InputEntryFunctionData,
+  ): Promise<bigint> {
+    const transaction = await this.client.transaction.build.simple({ sender, data })
+
+    // caps simulated gas at what the sender can afford, so the default cap can't fail the simulation
+    const [sim] = await this.client.transaction.simulate.simple({
+      transaction,
+      options: { estimateGasUnitPrice: true, estimateMaxGasAmount: true },
+    })
+
+    if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
+
+    // 50% headroom on simulated gas
+    return (BigInt(sim.gas_used) * 3n) / 2n
   }
 
   subscribeTxs(): Promise<void> {

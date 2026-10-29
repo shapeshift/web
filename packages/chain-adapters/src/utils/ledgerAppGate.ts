@@ -86,9 +86,6 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
 }
 
 export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wallet: HDWallet) => {
-  // Bail out for non-Ledger wallets BEFORE any chain lookup so we don't throw
-  // for chains that aren't enumerated in the getCoin/getLedgerAppName switches
-  // (e.g. Aptos, which is intentionally unsupported on Ledger in this PR).
   if (!isLedger(wallet)) return
 
   const coin = getCoin(chainId)

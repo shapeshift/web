@@ -299,6 +299,40 @@ export async function getNearIntentsStepData(
 
         return Ok(stepData)
       }
+      case CHAIN_NAMESPACE.Aptos: {
+        if (!from) {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
+
+          return Ok(stepData)
+        }
+
+        const { fast } = await deps.assertGetAptosChainAdapter(sellAsset.chainId).getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: { from, contractAddress },
+        })
+
+        const networkFeeCryptoBaseUnit = fast.txFee
+
+        if (type === 'rate') {
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
+
+          return Ok(stepData)
+        }
+
+        const stepData: NearIntentsQuoteStepData = {
+          transactionData: {
+            type: 'aptos',
+            to: depositAddress,
+            value: sellAmountCryptoBaseUnit,
+            gasUnitPrice: fast.chainSpecific.gasUnitPrice,
+            maxGasAmount: fast.chainSpecific.maxGasAmount,
+          },
+          networkFeeCryptoBaseUnit,
+        }
+
+        return Ok(stepData)
+      }
       default:
         return Err(
           makeSwapErrorRight({

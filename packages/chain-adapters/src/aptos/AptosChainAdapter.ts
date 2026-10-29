@@ -51,7 +51,7 @@ import { toAddressNList, verifyLedgerAppOpen } from '../utils'
 import { APT_COIN_TYPE, FEE_STATEMENT_EVENT_TYPE, INDEXER_PAGE_LIMIT } from './constants'
 import { parseAptosTx } from './parser'
 import type { Token } from './types'
-import { getBalancePayload, getTransferPayload } from './utils'
+import { getBalancePayload, getDecimalsPayload, getTransferPayload } from './utils'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -157,19 +157,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const nativeBalance =
         balances.find(({ asset_type }) => asset_type === APT_COIN_TYPE)?.balance ?? '0'
 
-      const tokens: Token[] = balances
-        .filter(({ asset_type }) => asset_type !== APT_COIN_TYPE)
-        .map(({ asset_type, balance, metadata }) => ({
-          assetId: toAssetId({
-            chainId: this.chainId,
-            assetNamespace: getAptosAssetNamespace(asset_type),
-            assetReference: asset_type,
-          }),
-          balance,
-          symbol: metadata?.symbol ?? 'UNKNOWN',
-          name: metadata?.name ?? asset_type,
-          precision: metadata?.decimals ?? 0,
-        }))
+      const tokens: Token[] = await Promise.all(
+        balances
+          .filter(({ asset_type }) => asset_type !== APT_COIN_TYPE)
+          .map(async ({ asset_type, balance, metadata }) => ({
+            assetId: toAssetId({
+              chainId: this.chainId,
+              assetNamespace: getAptosAssetNamespace(asset_type),
+              assetReference: asset_type,
+            }),
+            balance,
+            symbol: metadata?.symbol ?? 'UNKNOWN',
+            name: metadata?.name ?? asset_type,
+            precision: metadata?.decimals ?? (await this.getTokenPrecision(asset_type)),
+          })),
+      )
 
       return {
         balance: nativeBalance,
@@ -185,6 +187,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         options: { pubkey },
       })
     }
+  }
+
+  private async getTokenPrecision(assetType: string): Promise<number> {
+    const [decimals] = await this.client.view<[number]>({ payload: getDecimalsPayload(assetType) })
+    return decimals
   }
 
   private async getBalances(pubkey: string) {

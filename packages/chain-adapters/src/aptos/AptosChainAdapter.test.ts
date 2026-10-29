@@ -120,12 +120,16 @@ describe('AptosChainAdapter', () => {
       const page = Array.from({ length: 100 }, (_, i) => ({
         asset_type: `0x${(i + 1).toString(16)}::coin::T`,
         amount: '1',
-        metadata: null,
+        metadata: { symbol: 'T', name: 'T', decimals: 8 },
         storage_id: `0x${(i + 1).toString(16).padStart(4, '0')}`,
       }))
-      client.getAccountCoinsData
-        .mockResolvedValueOnce(page)
-        .mockResolvedValueOnce([{ asset_type: USDC_FA, amount: '7', metadata: null }])
+      client.getAccountCoinsData.mockResolvedValueOnce(page).mockResolvedValueOnce([
+        {
+          asset_type: USDC_FA,
+          amount: '7',
+          metadata: { symbol: 'USDC', name: 'USDC', decimals: 6 },
+        },
+      ])
 
       const acct = await adapter.getAccount(ADDR)
       expect(acct.chainSpecific.tokens).toHaveLength(101)
@@ -139,7 +143,11 @@ describe('AptosChainAdapter', () => {
     it('reads balances past 2^53 from the node', async () => {
       client.getAccountCoinsData.mockResolvedValueOnce([
         { asset_type: APT_COIN_TYPE, amount: 29744182751680730, metadata: null },
-        { asset_type: USDC_FA, amount: 103013109704767620, metadata: null },
+        {
+          asset_type: USDC_FA,
+          amount: 103013109704767620,
+          metadata: { symbol: 'USDC', name: 'USDC', decimals: 6 },
+        },
       ])
       client.view
         .mockResolvedValueOnce(['29744182751680726'])
@@ -155,6 +163,20 @@ describe('AptosChainAdapter', () => {
       expect(client.view.mock.calls[1][0].payload).toMatchObject({
         function: '0x1::primary_fungible_store::balance',
         functionArguments: [ADDR, USDC_FA],
+      })
+    })
+
+    it('reads precision from the node when the indexer has no metadata', async () => {
+      client.getAccountCoinsData.mockResolvedValueOnce([
+        { asset_type: LEGACY_USDC, amount: '42', metadata: null },
+      ])
+      client.view.mockResolvedValueOnce([6])
+
+      const acct = await adapter.getAccount(ADDR)
+      expect(acct.chainSpecific.tokens?.[0]?.precision).toBe(6)
+      expect(client.view.mock.calls[0][0].payload).toMatchObject({
+        function: '0x1::coin::decimals',
+        typeArguments: [LEGACY_USDC],
       })
     })
   })

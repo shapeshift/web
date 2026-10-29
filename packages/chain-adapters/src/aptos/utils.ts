@@ -38,6 +38,18 @@ export const getTransferPayload = (
   }
 }
 
+export const getDecimalsPayload = (assetType: string): InputViewFunctionData => {
+  if (isFungibleAssetReference(assetType)) {
+    return {
+      function: '0x1::fungible_asset::decimals',
+      typeArguments: ['0x1::fungible_asset::Metadata'],
+      functionArguments: [assetType],
+    }
+  }
+
+  return { function: '0x1::coin::decimals', typeArguments: [assetType], functionArguments: [] }
+}
+
 export const getBalancePayload = (owner: string, assetType: string): InputViewFunctionData => {
   if (isFungibleAssetReference(assetType)) {
     return {

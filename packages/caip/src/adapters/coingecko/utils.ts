@@ -125,6 +125,8 @@ export type AssetMap = Record<ChainId, Record<AssetId, string>>
 export const fetchData = async (URL: string) => (await axios.get<CoingeckoCoin[]>(URL)).data
 
 const APTOS_NODE_URL = 'https://fullnode.mainnet.aptoslabs.com/v1'
+// paired_coin aborts when the address isn't fungible asset metadata
+const MOVE_ABORT_VM_ERROR_CODE = 4016
 
 type AptosTypeInfo = { account_address: string; module_name: string; struct_name: string }
 
@@ -151,7 +153,7 @@ const getAptosPairedCoinType = async (
 
     return `${account_address}::${hexToUtf8(module_name)}::${hexToUtf8(struct_name)}`
   } catch (err) {
-    if (axios.isAxiosError(err) && typeof err.response?.data?.vm_error_code === 'number') {
+    if (axios.isAxiosError(err) && err.response?.data?.vm_error_code === MOVE_ABORT_VM_ERROR_CODE) {
       return null
     }
 

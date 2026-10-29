@@ -129,6 +129,12 @@ const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> = invertBy
 export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
   generatedCoingeckoToAssetIdsMap[id]
 
+// aptos paired fungible assets are re-keyed to their coin type, so coingecko platform addresses can't be used
+export const coingeckoToAptosAssetIds = (id: CoinGeckoId): AssetId[] =>
+  (generatedCoingeckoToAssetIdsMap[id] ?? []).filter(
+    assetId => fromAssetId(assetId).chainId === aptosChainId,
+  )
+
 export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
   generatedAssetIdToCoingeckoMap[assetId]
 

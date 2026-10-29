@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  adapters,
   arbitrumAssetId,
   baseAssetId,
   blastAssetId,
@@ -37,7 +38,6 @@ import uniq from 'lodash/uniq'
 
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
 import {
-  coingeckoIdToAptosAssetIds,
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,
 } from './mapping'
@@ -159,7 +159,7 @@ const fetchCoingeckoCoinsByAssetId = async (): Promise<Record<AssetId, Coingecko
   for (const { id, platforms } of data) {
     const assetIds = uniq([
       ...Object.entries(platforms).map(coingeckoPlatformDetailsToSupportedAssetId).filter(isSome),
-      ...coingeckoIdToAptosAssetIds(id),
+      ...adapters.coingeckoToAptosAssetIds(id),
     ])
 
     const coin = { id, assetIds }

@@ -10,7 +10,6 @@ import orderBy from 'lodash/orderBy'
 import uniq from 'lodash/uniq'
 
 import blacklist from '../blacklist.json'
-import { coingeckoIdToAptosAssetIds } from '../generateRelatedAssetIndex/mapping'
 
 import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
 
@@ -57,9 +56,8 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
   const remappedOutput = Object.entries(chainIdAssetIdMap).reduce<Record<string, AssetId[]>>(
     (acc, [chainId, assetIdMap]) => {
       Object.entries(assetIdMap).forEach(([assetId, coingeckoId]) => {
-        // aptos paired fungible assets are re-keyed to their coin type, which only the caip adapter knows
         const assetIds =
-          chainId === aptosChainId ? coingeckoIdToAptosAssetIds(coingeckoId) : [assetId]
+          chainId === aptosChainId ? adapters.coingeckoToAptosAssetIds(coingeckoId) : [assetId]
         acc[coingeckoId] = uniq([...(acc[coingeckoId] ?? []), ...assetIds])
       })
       return acc

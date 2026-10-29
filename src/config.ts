@@ -289,6 +289,7 @@ const validators = {
   VITE_FEATURE_APTOS: bool({ default: false }),
   VITE_APTOS_NODE_URL: url(),
   VITE_APTOS_INDEXER_URL: url(),
+  VITE_APTOS_API_KEY: str({ default: '' }),
   VITE_AGENTIC_SERVER_BASE_URL: url({
     default: 'https://api.agent.shapeshift.com',
   }),

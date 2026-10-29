@@ -50,6 +50,7 @@ import { getTokenAssetNamespace, getTransferPayload } from './utils'
 export interface ChainAdapterArgs {
   rpcUrl: string
   indexerUrl: string
+  apiKey?: string
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
@@ -69,6 +70,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         network: Network.MAINNET,
         fullnode: `${args.rpcUrl}/v1`,
         indexer: `${args.indexerUrl}/v1/graphql`,
+        clientConfig: args.apiKey ? { API_KEY: args.apiKey } : undefined,
       }),
     )
   }

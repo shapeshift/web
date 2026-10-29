@@ -20,6 +20,7 @@ export default function register(): Plugins {
                 return new aptos.ChainAdapter({
                   rpcUrl: getConfig().VITE_APTOS_NODE_URL,
                   indexerUrl: getConfig().VITE_APTOS_INDEXER_URL,
+                  apiKey: getConfig().VITE_APTOS_API_KEY,
                 })
               },
             ],

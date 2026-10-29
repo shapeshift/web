@@ -191,7 +191,7 @@ describe('AptosChainAdapter', () => {
 
       const acct = await adapter.getAccount(ADDR)
       expect(acct.balance).toBe('29744182751680726')
-      expect(acct.chainSpecific.tokens[0].balance).toBe('103013109704767616')
+      expect(acct.chainSpecific.tokens?.[0]?.balance).toBe('103013109704767616')
       expect(client.view.mock.calls[0][0].payload).toMatchObject({
         function: '0x1::coin::balance',
         typeArguments: [APT_COIN_TYPE],

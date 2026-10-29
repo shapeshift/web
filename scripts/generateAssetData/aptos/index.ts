@@ -1,11 +1,15 @@
-import { adapters, aptosChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { adapters, aptosChainId, ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { aptos, unfreeze } from '@shapeshiftoss/utils'
 import uniqBy from 'lodash/uniqBy'
 
 import * as coingecko from '../coingecko'
 
-const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
+const APT_COIN_ASSET_ID = toAssetId({
+  chainId: aptosChainId,
+  assetNamespace: ASSET_NAMESPACE.aptosCoin,
+  assetReference: '0x1::aptos_coin::AptosCoin',
+})
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([coingecko.getAssets(aptosChainId)])
@@ -30,10 +34,7 @@ export const getAssets = async (): Promise<Asset[]> => {
   // coingecko's coin type listing wins over its paired fungible asset listing
   const tokens = uniqBy([...listedAssets, ...rekeyedAssets], 'assetId')
 
-  // native APT is the slip44 base asset
-  const tokensOnly = tokens.filter(
-    asset => fromAssetId(asset.assetId).assetReference !== APT_COIN_TYPE,
-  )
+  const tokensOnly = tokens.filter(asset => asset.assetId !== APT_COIN_ASSET_ID)
 
   return [unfreeze(aptos), ...tokensOnly]
 }

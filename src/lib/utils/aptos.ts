@@ -17,9 +17,7 @@ export const assertGetAptosChainAdapter = (
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(chainId)
 
-  if (!isAptosChainAdapter(adapter)) {
-    throw Error('invalid chain adapter')
-  }
+  if (!isAptosChainAdapter(adapter)) throw Error('invalid chain adapter')
 
   return adapter
 }
@@ -27,6 +25,7 @@ export const assertGetAptosChainAdapter = (
 export const getAptosTransactionStatus = async (txHash: string): Promise<TxStatus> => {
   try {
     const client = assertGetAptosChainAdapter(aptosChainId).getAptosClient()
+
     const tx = await client.transaction.getTransactionByHash({ transactionHash: txHash })
 
     return aptos.getAptosTxStatus(tx)

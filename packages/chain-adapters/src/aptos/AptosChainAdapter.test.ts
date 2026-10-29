@@ -18,7 +18,12 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
         getAccountCoinsData: vi.fn(),
         getGasPriceEstimation: vi.fn(),
         account: { getAccountInfo: vi.fn() },
-        transaction: { getTransactionByHash: vi.fn() },
+        getSigningMessage: vi.fn().mockReturnValue(new Uint8Array()),
+        transaction: {
+          getTransactionByHash: vi.fn(),
+          build: { simple: vi.fn().mockResolvedValue({ bcsToBytes: () => new Uint8Array() }) },
+          simulate: { simple: vi.fn().mockResolvedValue([{ gas_used: '0' }]) },
+        },
       }
     }),
     AptosConfig: vi.fn(),
@@ -30,6 +35,8 @@ const ADDR = '0x304ba231cacfd0b8ee2b3b3b0aa8ef3648f4efffa7080be996c57c107750eb22
 const SENDER = '0xd1a1c1804e91ba85a569c7f018bb7502d2f13d4742d2611953c9c14681af6446'
 const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
 const USDC_FA = '0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b'
+const LEGACY_USDC =
+  '0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC'
 
 const newAdapter = () =>
   new ChainAdapter({
@@ -175,6 +182,46 @@ describe('AptosChainAdapter', () => {
     })
   })
 
+  describe('buildSendApiTransaction', () => {
+    const build = (contractAddress: string | undefined) =>
+      adapter.buildSendApiTransaction({
+        from: SENDER,
+        to: ADDR,
+        value: '1000',
+        accountNumber: 0,
+        chainSpecific: { contractAddress },
+      })
+
+    const getBuiltData = () => client.transaction.build.simple.mock.calls.at(-1)[0].data
+
+    it('sends APT with transfer_coins<AptosCoin>', async () => {
+      await build(undefined)
+      expect(getBuiltData()).toMatchObject({
+        function: '0x1::aptos_account::transfer_coins',
+        typeArguments: [APT_COIN_TYPE],
+        functionArguments: [ADDR, 1000n],
+      })
+    })
+
+    it('sends a legacy coin with transfer_coins<T>', async () => {
+      await build(LEGACY_USDC)
+      expect(getBuiltData()).toMatchObject({
+        function: '0x1::aptos_account::transfer_coins',
+        typeArguments: [LEGACY_USDC],
+        functionArguments: [ADDR, 1000n],
+      })
+    })
+
+    it('sends a fungible asset with primary_fungible_store::transfer', async () => {
+      await build(USDC_FA)
+      expect(getBuiltData()).toMatchObject({
+        function: '0x1::primary_fungible_store::transfer',
+        typeArguments: ['0x1::fungible_asset::Metadata'],
+        functionArguments: [USDC_FA, ADDR, 1000n],
+      })
+    })
+  })
+
   describe('parseTx', () => {
     const makeTx = (overrides: Record<string, unknown> = {}) => ({
       hash: '0xtxhash',
@@ -231,6 +278,29 @@ describe('AptosChainAdapter', () => {
             function: '0x1::primary_fungible_store::transfer',
             type_arguments: [],
             arguments: [{ inner: USDC_FA }, ADDR, '5000000'],
+          },
+        }),
+      )
+
+      const tx = await adapter.parseTx('0xtxhash', ADDR)
+      expect(tx.transfers).toEqual([
+        {
+          assetId: `aptos:1/fungible:${USDC_FA}`,
+          from: [SENDER],
+          to: [ADDR],
+          type: TransferType.Receive,
+          value: '5000000',
+        },
+      ])
+    })
+
+    it('maps a FA aptos_account::transfer_fungible_assets to the right assetId and arg offsets', async () => {
+      client.transaction.getTransactionByHash.mockResolvedValueOnce(
+        makeTx({
+          payload: {
+            function: '0x1::aptos_account::transfer_fungible_assets',
+            type_arguments: [],
+            arguments: [USDC_FA, ADDR, '5000000'],
           },
         }),
       )

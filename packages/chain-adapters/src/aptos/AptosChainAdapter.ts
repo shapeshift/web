@@ -1,4 +1,4 @@
-import type { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
+import type { EntryFunctionABI, InputEntryFunctionData } from '@aptos-labs/ts-sdk'
 import {
   AccountAddress,
   AccountAuthenticatorEd25519,
@@ -8,7 +8,10 @@ import {
   Ed25519PublicKey,
   Ed25519Signature,
   Network,
+  parseTypeTag,
   SimpleTransaction,
+  TypeTagAddress,
+  TypeTagU64,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
@@ -52,6 +55,45 @@ export interface ChainAdapterArgs {
 
 const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
 const MIN_MAX_GAS_AMOUNT = 20_000n
+
+const FA_TRANSFER_FUNCTIONS = [
+  '0x1::primary_fungible_store::transfer',
+  '0x1::aptos_account::transfer_fungible_assets',
+]
+
+// local abis (mirroring the sdk's transfer helpers) skip a remote abi fetch per build
+const COIN_TRANSFER_ABI: EntryFunctionABI = {
+  typeParameters: [{ constraints: [] }],
+  parameters: [new TypeTagAddress(), new TypeTagU64()],
+}
+
+const FA_TRANSFER_ABI: EntryFunctionABI = {
+  typeParameters: [{ constraints: [] }],
+  parameters: [parseTypeTag('0x1::object::Object'), new TypeTagAddress(), new TypeTagU64()],
+}
+
+const getTransferPayload = (
+  to: string,
+  value: string,
+  contractAddress: string | undefined,
+): InputEntryFunctionData => {
+  // fungible assets are referenced by metadata address, apt and legacy coins by move struct type
+  if (contractAddress && !contractAddress.includes('::')) {
+    return {
+      function: '0x1::primary_fungible_store::transfer',
+      typeArguments: ['0x1::fungible_asset::Metadata'],
+      functionArguments: [contractAddress, to, BigInt(value)],
+      abi: FA_TRANSFER_ABI,
+    }
+  }
+
+  return {
+    function: '0x1::aptos_account::transfer_coins',
+    typeArguments: [contractAddress ?? APT_COIN_TYPE],
+    functionArguments: [to, BigInt(value)],
+    abi: COIN_TRANSFER_ABI,
+  }
+}
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -241,13 +283,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
     try {
       const { from, accountNumber, to, value, chainSpecific } = input
-      const coinType = chainSpecific.contractAddress ?? APT_COIN_TYPE
 
-      const data: InputEntryFunctionData = {
-        function: '0x1::aptos_account::transfer_coins',
-        typeArguments: [coinType],
-        functionArguments: [to, BigInt(value)],
-      }
+      const data = getTransferPayload(to, value, chainSpecific.contractAddress)
       const maxGasAmount = Number(await this.estimateMaxGasAmount(from, data))
 
       const transaction = await this.client.transaction.build.simple({
@@ -367,19 +404,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     input: GetFeeDataInput<KnownChainIds.AptosMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
-      const { chainSpecific } = input
-      const { from } = chainSpecific
+      const { to, value, chainSpecific } = input
+      const { from, contractAddress } = chainSpecific
 
       const { gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate } =
         await this.client.getGasPriceEstimation()
 
       let maxGasAmount: string
       try {
-        const estimate = await this.estimateMaxGasAmount(from, {
-          function: '0x1::aptos_account::transfer_coins',
-          typeArguments: [APT_COIN_TYPE],
-          functionArguments: [from, 0n],
-        })
+        const estimate = await this.estimateMaxGasAmount(
+          from,
+          getTransferPayload(to, value, contractAddress),
+        )
         maxGasAmount = estimate.toString()
       } catch {
         maxGasAmount = MIN_MAX_GAS_AMOUNT.toString()
@@ -454,7 +490,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       })
     }
 
-    if (fn === '0x1::primary_fungible_store::transfer') {
+    if (FA_TRANSFER_FUNCTIONS.includes(fn)) {
       const metadata = payload.arguments?.[0]
       const ref = typeof metadata === 'string' ? metadata : (metadata as { inner?: string })?.inner
       if (!ref) return undefined
@@ -516,7 +552,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       if (transferAssetId) {
         const args = payload.arguments ?? []
         const fn = payload.function ?? ''
-        const isFaTransfer = fn === '0x1::primary_fungible_store::transfer'
+        const isFaTransfer = FA_TRANSFER_FUNCTIONS.includes(fn)
         const recipient = String(args[isFaTransfer ? 1 : 0] ?? '')
         const amount = String(args[isFaTransfer ? 2 : 1] ?? '0')
         const sender = tx.sender ?? ''

@@ -98,8 +98,8 @@ describe('adapters:coingecko:utils', () => {
   })
 
   describe('parseData', () => {
-    it('can parse all data', () => {
-      const result = parseData([
+    it('can parse all data', async () => {
+      const result = await parseData([
         makeEthMockCoingeckoResponse(),
         makeWethMockCoingeckoResponse(),
         makeFoxMockCoingeckoResponse(),

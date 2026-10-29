@@ -151,8 +151,10 @@ const getAptosPairedCoinType = async (
 
     return `${account_address}::${hexToUtf8(module_name)}::${hexToUtf8(struct_name)}`
   } catch (err) {
-    if (axios.isAxiosError(err) && typeof err.response?.data?.vm_error_code === 'number')
+    if (axios.isAxiosError(err) && typeof err.response?.data?.vm_error_code === 'number') {
       return null
+    }
+
     throw err
   }
 }
@@ -173,7 +175,7 @@ export const getAptosIndexedAssetId = async (assetId: AssetId): Promise<AssetId 
   })
 }
 
-export const rekeyAptosPairedFungibleAssets = async (assetMap: AssetMap): Promise<AssetMap> => {
+const rekeyAptosPairedFungibleAssets = async (assetMap: AssetMap): Promise<AssetMap> => {
   const aptosAssets: Record<AssetId, string> = {}
 
   for (const [assetId, coingeckoId] of Object.entries(assetMap[aptosChainId])) {
@@ -189,7 +191,7 @@ export const rekeyAptosPairedFungibleAssets = async (assetMap: AssetMap): Promis
   return { ...assetMap, [aptosChainId]: aptosAssets }
 }
 
-export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
+export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
   const assetMap = coins.reduce<AssetMap>(
     (prev, { id, platforms }) => {
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ethereum)) {
@@ -830,7 +832,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     },
   )
 
-  return {
+  return rekeyAptosPairedFungibleAssets({
     ...assetMap,
     [btcChainId]: bitcoinAssetMap,
     [bchChainId]: bitcoinCashAssetMap,
@@ -840,5 +842,5 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [cosmosChainId]: cosmosAssetMap,
     [thorchainChainId]: thorchainAssetMap,
     [mayachainChainId]: mayachainAssetMap,
-  }
+  })
 }

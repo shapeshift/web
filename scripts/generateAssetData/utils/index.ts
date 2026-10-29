@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, aptosChainId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import assert from 'assert'
 import axios from 'axios'
@@ -7,7 +7,6 @@ import { intersection } from 'lodash'
 import difference from 'lodash/difference'
 import filter from 'lodash/filter'
 import orderBy from 'lodash/orderBy'
-import uniq from 'lodash/uniq'
 
 import blacklist from '../blacklist.json'
 
@@ -49,16 +48,15 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
   }
 
   const data = await adapters.fetchCoingeckoData(adapters.coingeckoUrl)
-  const chainIdAssetIdMap = adapters.parseCoingeckoData(data)
+  const chainIdAssetIdMap = await adapters.parseCoingeckoData(data)
 
   // Keyed by coingecko id, not chainId - one chain can hold several assets for the same id, e.g.
   // Toncoin is both the TON native asset and a jetton on TON
   const remappedOutput = Object.entries(chainIdAssetIdMap).reduce<Record<string, AssetId[]>>(
-    (acc, [chainId, assetIdMap]) => {
+    (acc, [_chainId, assetIdMap]) => {
       Object.entries(assetIdMap).forEach(([assetId, coingeckoId]) => {
-        const assetIds =
-          chainId === aptosChainId ? adapters.coingeckoToAptosAssetIds(coingeckoId) : [assetId]
-        acc[coingeckoId] = uniq([...(acc[coingeckoId] ?? []), ...assetIds])
+        if (!acc[coingeckoId]) acc[coingeckoId] = []
+        acc[coingeckoId].push(assetId)
       })
       return acc
     },

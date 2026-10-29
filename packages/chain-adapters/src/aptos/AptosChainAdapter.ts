@@ -255,7 +255,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
-      return { txToSign: { ...txToSign, ...(input.pubKey ? { pubKey: input.pubKey } : {}) } }
+      return { txToSign }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',

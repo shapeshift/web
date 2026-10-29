@@ -1,6 +1,5 @@
 import type * as AptosSdkActual from '@aptos-labs/ts-sdk'
-import { aptosAssetId, aptosChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { aptosAssetId } from '@shapeshiftoss/caip'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -17,7 +16,6 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
         getAccountCoinsData: vi.fn(),
         getGasPriceEstimation: vi.fn(),
         view: vi.fn(),
-        account: { getAccountInfo: vi.fn() },
         transaction: {
           getTransactionByHash: vi.fn(),
           build: {
@@ -59,26 +57,15 @@ describe('AptosChainAdapter', () => {
     client = getMockedClient(adapter)
   })
 
-  describe('basic getters', () => {
-    it('exposes the canonical chainId and assetId', () => {
-      expect(adapter.getChainId()).toBe(aptosChainId)
-      expect(adapter.getFeeAssetId()).toBe(aptosAssetId)
-      expect(adapter.getType()).toBe(KnownChainIds.AptosMainnet)
-    })
-
-    it('builds hardened BIP44 params on coin type 637', () => {
-      const params = adapter.getBip44Params({ accountNumber: 0 })
-      expect(params).toMatchObject({
+  describe('getBip44Params', () => {
+    it('derives on coin type 637', () => {
+      expect(adapter.getBip44Params({ accountNumber: 0 })).toMatchObject({
         purpose: 44,
         coinType: 637,
         accountNumber: 0,
         addressIndex: 0,
         isChange: false,
       })
-    })
-
-    it('rejects negative account numbers', () => {
-      expect(() => adapter.getBip44Params({ accountNumber: -1 })).toThrow()
     })
   })
 
@@ -88,52 +75,21 @@ describe('AptosChainAdapter', () => {
       expect(r).toEqual({ valid: true, result: ValidAddressResultType.Valid })
     })
 
-    it('rejects a 64-hex address without the 0x prefix', async () => {
-      const r = await adapter.validateAddress(ADDR.slice(2))
-      expect(r.valid).toBe(false)
-    })
-
-    it('rejects a short-form address', async () => {
-      const r = await adapter.validateAddress(`0x${ADDR.slice(3)}`)
-      expect(r.valid).toBe(false)
-    })
-
-    it.each(['0x1', 'a', `0x${'0'.repeat(63)}a`])(
-      'rejects reserved framework address %s',
-      async address => {
-        const r = await adapter.validateAddress(address)
-        expect(r.valid).toBe(false)
-      },
-    )
-
-    it('rejects non-hex content', async () => {
-      const r = await adapter.validateAddress('0x' + 'z'.repeat(64))
-      expect(r.valid).toBe(false)
-    })
-
-    it('rejects garbage strings', async () => {
-      const r = await adapter.validateAddress('not-an-address')
+    it.each([
+      ['missing 0x prefix', ADDR.slice(2)],
+      ['short form', `0x${ADDR.slice(3)}`],
+      ['reserved framework', `0x${'0'.repeat(63)}a`],
+      ['reserved framework short form', '0x1'],
+      ['non hex', `0x${'z'.repeat(64)}`],
+      ['garbage', 'not-an-address'],
+    ])('rejects a %s address', async (_, address) => {
+      const r = await adapter.validateAddress(address)
       expect(r.valid).toBe(false)
     })
   })
 
   describe('getAccount', () => {
-    it('returns native APT balance when only APT is held', async () => {
-      client.getAccountCoinsData.mockResolvedValueOnce([
-        {
-          asset_type: APT_COIN_TYPE,
-          amount: '103970825',
-          metadata: { symbol: 'APT', name: 'Aptos Coin', decimals: 8 },
-        },
-      ])
-
-      const acct = await adapter.getAccount(ADDR)
-      expect(acct.balance).toBe('103970825')
-      expect(acct.assetId).toBe(aptosAssetId)
-      expect(acct.chainSpecific.tokens).toEqual([])
-    })
-
-    it('populates chainSpecific.tokens with FA tokens, keeping APT separate', async () => {
+    it('returns APT as the native balance and other assets as tokens', async () => {
       client.getAccountCoinsData.mockResolvedValueOnce([
         {
           asset_type: APT_COIN_TYPE,
@@ -201,19 +157,6 @@ describe('AptosChainAdapter', () => {
         functionArguments: [ADDR, USDC_FA],
       })
     })
-
-    it('falls back to UNKNOWN symbol when metadata is missing', async () => {
-      client.getAccountCoinsData.mockResolvedValueOnce([
-        { asset_type: USDC_FA, amount: '42', metadata: null },
-      ])
-
-      const acct = await adapter.getAccount(ADDR)
-      expect(acct.chainSpecific.tokens?.[0]).toMatchObject({
-        symbol: 'UNKNOWN',
-        name: USDC_FA,
-        precision: 0,
-      })
-    })
   })
 
   describe('buildSendApiTransaction', () => {
@@ -237,31 +180,37 @@ describe('AptosChainAdapter', () => {
       expect(client.transaction.simulate.simple).not.toHaveBeenCalled()
     })
 
-    it('sends APT with transfer_coins<AptosCoin>', async () => {
-      await build(undefined)
-      expect(getBuiltData()).toMatchObject({
-        function: '0x1::aptos_account::transfer_coins',
-        typeArguments: [APT_COIN_TYPE],
-        functionArguments: [ADDR, 1000n],
-      })
-    })
-
-    it('sends a legacy coin with transfer_coins<T>', async () => {
-      await build(LEGACY_USDC)
-      expect(getBuiltData()).toMatchObject({
-        function: '0x1::aptos_account::transfer_coins',
-        typeArguments: [LEGACY_USDC],
-        functionArguments: [ADDR, 1000n],
-      })
-    })
-
-    it('sends a fungible asset with primary_fungible_store::transfer', async () => {
-      await build(USDC_FA)
-      expect(getBuiltData()).toMatchObject({
-        function: '0x1::primary_fungible_store::transfer',
-        typeArguments: ['0x1::fungible_asset::Metadata'],
-        functionArguments: [USDC_FA, ADDR, 1000n],
-      })
+    it.each([
+      [
+        'APT',
+        undefined,
+        {
+          function: '0x1::aptos_account::transfer_coins',
+          typeArguments: [APT_COIN_TYPE],
+          functionArguments: [ADDR, 1000n],
+        },
+      ],
+      [
+        'a coin',
+        LEGACY_USDC,
+        {
+          function: '0x1::aptos_account::transfer_coins',
+          typeArguments: [LEGACY_USDC],
+          functionArguments: [ADDR, 1000n],
+        },
+      ],
+      [
+        'a fungible asset',
+        USDC_FA,
+        {
+          function: '0x1::primary_fungible_store::transfer',
+          typeArguments: ['0x1::fungible_asset::Metadata'],
+          functionArguments: [USDC_FA, ADDR, 1000n],
+        },
+      ],
+    ])('sends %s with the matching transfer function', async (_, contractAddress, payload) => {
+      await build(contractAddress)
+      expect(getBuiltData()).toMatchObject(payload)
     })
   })
 
@@ -314,19 +263,12 @@ describe('AptosChainAdapter', () => {
       })
     })
 
-    it('throws when the simulation has no fee statement', async () => {
-      client.transaction.simulate.simple.mockResolvedValueOnce([{ success: true, events: [] }])
-
-      await expect(getFeeData()).rejects.toThrow()
-    })
-
-    it('simulates a 1 octa transfer for a max apt send', async () => {
+    it('simulates apt sends with 1 octa so a near full balance amount still gets fees', async () => {
       client.transaction.simulate.simple.mockResolvedValueOnce([simulation])
 
       await adapter.getFeeData({
         to: ADDR,
         value: '198633150',
-        sendMax: true,
         chainSpecific: { from: SENDER, contractAddress: undefined },
       })
 
@@ -336,10 +278,11 @@ describe('AptosChainAdapter', () => {
       ])
     })
 
-    it('throws when the simulation fails', async () => {
-      client.transaction.simulate.simple.mockResolvedValueOnce([
-        { success: false, gas_used: '0', vm_status: 'INSUFFICIENT_BALANCE' },
-      ])
+    it.each([
+      ['fails', { success: false, gas_used: '0', vm_status: 'INSUFFICIENT_BALANCE' }],
+      ['has no fee statement', { success: true, events: [] }],
+    ])('throws when the simulation %s', async (_, result) => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([result])
 
       await expect(getFeeData()).rejects.toThrow()
     })

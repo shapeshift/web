@@ -120,7 +120,7 @@ const getCoinDetails = async (
       )
       if (!chainId) return
 
-      const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
+      const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, address)
 
       const assetId = toAssetId({
         chainId,

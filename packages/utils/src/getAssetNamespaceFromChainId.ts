@@ -4,7 +4,10 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from './assertUnreachable'
 
-export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNamespace => {
+export const getAssetNamespaceFromChainId = (
+  chainId: KnownChainIds,
+  assetReference: string,
+): AssetNamespace => {
   switch (chainId) {
     case KnownChainIds.SolanaMainnet:
       return ASSET_NAMESPACE.splToken
@@ -56,7 +59,10 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.TonMainnet:
       return ASSET_NAMESPACE.jetton
     case KnownChainIds.AptosMainnet:
-      return ASSET_NAMESPACE.aptosFungible
+      // legacy coins are referenced by move struct type, fungible assets by metadata address
+      return assetReference.includes('::')
+        ? ASSET_NAMESPACE.aptosCoin
+        : ASSET_NAMESPACE.aptosFungible
     case KnownChainIds.CosmosMainnet:
     case KnownChainIds.BitcoinMainnet:
     case KnownChainIds.BitcoinCashMainnet:

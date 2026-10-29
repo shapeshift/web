@@ -20,7 +20,11 @@ vi.mock('./walletconnectV2', () => ({
   },
 }))
 
-const deferred = () => {
+const deferred = (): {
+  promise: Promise<void>
+  resolve: () => void
+  reject: (reason: Error) => void
+} => {
   const callbacks = {
     resolve: () => {},
     reject: (reason: Error) => {
@@ -37,6 +41,7 @@ const setup = () => {
   const listeners = new Map<string, (uri: string) => void>()
   const provider = {
     session: undefined as { topic: string } | undefined,
+    connect: vi.fn().mockResolvedValue(undefined),
     disconnect: vi.fn(async () => {
       provider.session = undefined
     }),
@@ -65,6 +70,90 @@ const setup = () => {
 beforeEach(() => vi.resetAllMocks())
 
 describe('WalletConnect direct pairing', () => {
+  it('preserves the restored session when a new pairing is cancelled, including late approval', async () => {
+    const { adapter, provider, keyring } = setup()
+    provider.session = { topic: 'existing-session' }
+    const approval = deferred()
+    provider.connect.mockReturnValue(approval.promise)
+    const controller = new AbortController()
+    const pending = adapter.pairDevice({ signal: controller.signal, onDisplayUri: vi.fn() })
+    const rejected = pending.catch(error => error)
+    await vi.waitFor(() => expect(provider.connect).toHaveBeenCalledOnce())
+    expect(mocks.initialize).not.toHaveBeenCalled()
+    controller.abort()
+    expect(await rejected).toMatchObject({ name: 'AbortError' })
+    expect(provider.session?.topic).toBe('existing-session')
+    expect(provider.disconnect).not.toHaveBeenCalled()
+    expect(provider.signer.client.disconnect).not.toHaveBeenCalled()
+    provider.session = { topic: 'new-late-session' }
+    approval.resolve()
+    await vi.waitFor(() =>
+      expect(provider.signer.client.disconnect).toHaveBeenCalledWith({
+        topic: 'new-late-session',
+        reason: { code: 6000, message: 'Wallet connection cancelled' },
+      }),
+    )
+    expect(provider.signer.client.disconnect).toHaveBeenCalledOnce()
+    expect(keyring.add).not.toHaveBeenCalled()
+  })
+
+  it('preserves the restored session when the replacement is rejected', async () => {
+    const { adapter, provider, keyring } = setup()
+    provider.session = { topic: 'existing-session' }
+    provider.connect.mockRejectedValueOnce(new Error('Rejected'))
+    await expect(
+      adapter.pairDevice({ signal: new AbortController().signal, onDisplayUri: vi.fn() }),
+    ).rejects.toThrow('Rejected')
+    expect(provider.session?.topic).toBe('existing-session')
+    expect(provider.disconnect).not.toHaveBeenCalled()
+    expect(provider.signer.client.disconnect).not.toHaveBeenCalled()
+    expect(keyring.add).not.toHaveBeenCalled()
+  })
+
+  it('retires the restored session only after the new wallet is approved and registered', async () => {
+    const { adapter, provider, keyring } = setup()
+    provider.session = { topic: 'existing-session' }
+    const approval = deferred()
+    provider.connect.mockReturnValue(approval.promise)
+    provider.signer.client.disconnect.mockImplementation(async () => {
+      expect(keyring.add).toHaveBeenCalledOnce()
+      expect(provider.session?.topic).toBe('new-session')
+    })
+    const pending = adapter.pairDevice({
+      signal: new AbortController().signal,
+      onDisplayUri: vi.fn(),
+    })
+    await vi.waitFor(() => expect(provider.connect).toHaveBeenCalledOnce())
+    expect(provider.disconnect).not.toHaveBeenCalled()
+    expect(provider.signer.client.disconnect).not.toHaveBeenCalled()
+    provider.session = { topic: 'new-session' }
+    approval.resolve()
+    await pending
+    expect(provider.signer.client.disconnect).toHaveBeenCalledWith({
+      topic: 'existing-session',
+      reason: { code: 6000, message: 'Wallet connection replaced' },
+    })
+    expect(provider.disconnect).not.toHaveBeenCalled()
+  })
+
+  it('cleans up only the new session when account initialization fails', async () => {
+    const { adapter, provider, keyring } = setup()
+    provider.session = { topic: 'existing-session' }
+    provider.connect.mockImplementation(async () => {
+      provider.session = { topic: 'new-session' }
+    })
+    mocks.initialize.mockRejectedValueOnce(new Error('Account request failed'))
+    await expect(
+      adapter.pairDevice({ signal: new AbortController().signal, onDisplayUri: vi.fn() }),
+    ).rejects.toThrow('Account request failed')
+    expect(provider.signer.client.disconnect).toHaveBeenCalledExactlyOnceWith({
+      topic: 'new-session',
+      reason: { code: 6000, message: 'Wallet connection failed' },
+    })
+    expect(provider.disconnect).not.toHaveBeenCalled()
+    expect(keyring.add).not.toHaveBeenCalled()
+  })
+
   it('leaves the generic modal path and configuration unchanged', async () => {
     const { adapter, config, keyring } = setup()
     await adapter.pairDevice()

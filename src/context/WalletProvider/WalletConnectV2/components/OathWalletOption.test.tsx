@@ -69,6 +69,7 @@ describe('Oath direct selector', () => {
     renderOption()
     fireEvent.click(screen.getByRole('button', { name: 'Oath Wallet' }))
     expect((await screen.findByTestId('qr-value')).textContent).toBe(uri)
+    expect(screen.getByText('walletProvider.oath.connectInstructions')).toBeTruthy()
     expect(
       screen.getByRole('link', { name: 'walletProvider.oath.openApp' }).getAttribute('href'),
     ).toBe(oathWalletLink(uri))
@@ -105,6 +106,7 @@ describe('Oath direct selector', () => {
     )
     renderOption()
     fireEvent.click(screen.getByRole('button', { name: 'Oath Wallet' }))
+    expect(screen.queryByText('walletProvider.oath.connectInstructions')).toBeNull()
     fireEvent.click(await screen.findByRole('button', { name: 'common.close' }))
     await act(async () => {
       resolveAdapter.current({ pairDevice: mocks.pairDevice })
@@ -123,7 +125,9 @@ describe('Oath direct selector', () => {
       })
     renderOption()
     fireEvent.click(screen.getByRole('button', { name: 'Oath Wallet' }))
-    fireEvent.click(await screen.findByRole('button', { name: 'walletProvider.oath.retry' }))
+    const retry = await screen.findByRole('button', { name: 'walletProvider.oath.retry' })
+    expect(screen.queryByText('walletProvider.oath.connectInstructions')).toBeNull()
+    fireEvent.click(retry)
     expect((await screen.findByTestId('qr-value')).textContent).toBe(uri)
     expect(mocks.pairDevice).toHaveBeenCalledTimes(2)
     expect(mocks.setLocalWallet).not.toHaveBeenCalled()

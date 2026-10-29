@@ -1,5 +1,5 @@
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 
 export const WalletOptionRow = ({
   icon,
@@ -13,7 +13,7 @@ export const WalletOptionRow = ({
   onClick: () => void
   isDisabled?: boolean
   isSelected?: boolean
-}) => {
+}): ReactElement => {
   const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   return (
     <Box

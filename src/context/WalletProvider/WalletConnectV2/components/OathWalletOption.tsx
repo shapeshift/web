@@ -29,7 +29,8 @@ import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { WalletConnectV2Config } from '@/context/WalletProvider/WalletConnectV2/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-export const oathWalletLink = (uri: string) => `oathwallet://wc?uri=${encodeURIComponent(uri)}`
+export const oathWalletLink = (uri: string): string =>
+  `oathwallet://wc?uri=${encodeURIComponent(uri)}`
 const closeIcon = <CloseIcon />
 const oathLogo = <Image src={oathIcon} alt='' boxSize='24px' borderRadius='md' />
 
@@ -144,7 +145,6 @@ export const OathWalletOption = ({
         </Flex>
         <DialogBody pb={6}>
           <Stack align='center' spacing={4}>
-            <Text translation='walletProvider.oath.connectInstructions' textAlign='center' />
             {error ? (
               <>
                 <Alert status='error'>
@@ -155,6 +155,7 @@ export const OathWalletOption = ({
               </>
             ) : uri ? (
               <>
+                <Text translation='walletProvider.oath.connectInstructions' textAlign='center' />
                 <Box
                   bg='white'
                   p={3}

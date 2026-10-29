@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
 
-const WalletConnectBadge = () => (
+const WalletConnectBadge = (): ReactElement => (
   <Circle size='16px' bg='#3B99FC'>
     <WalletConnectCurrentColorIcon boxSize='10px' color='white' />
   </Circle>
@@ -28,7 +28,7 @@ export const DirectWalletCard = ({
   isLoading = false,
   isDisabled = false,
   onClick,
-}: DirectWalletCardProps) => {
+}: DirectWalletCardProps): ReactElement => {
   const icon = useMemo(() => {
     if (isLoading) {
       return <Avatar icon={spinner} size='xl' borderRadius='lg' bg='white' />

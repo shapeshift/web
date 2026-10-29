@@ -37,6 +37,21 @@ export class WalletConnectV2Adapter {
     if (signal.aborted) throw cancelled()
     const restoredTopic = provider.session?.topic
     const attempt = { pairingTopic: undefined as string | undefined }
+    const disconnectedTopics = new Set<string>()
+    const disconnectNewSession = async (): Promise<void> => {
+      const topic = provider.session?.topic
+      if (!topic || topic === restoredTopic || disconnectedTopics.has(topic)) return
+      disconnectedTopics.add(topic)
+      await provider.signer.client
+        .disconnect({
+          topic,
+          reason: {
+            code: 6000,
+            message: signal.aborted ? 'Wallet connection cancelled' : 'Wallet connection failed',
+          },
+        })
+        .catch(() => console.warn('Could not clean up failed WalletConnect session'))
+    }
     const disconnectPairing = async () => {
       if (!attempt.pairingTopic) return
       try {
@@ -71,30 +86,20 @@ export class WalletConnectV2Adapter {
       const pairing = provider
         .connect()
         .then(() => wallet.initialize())
-        .then(async () => {
-          if (!signal.aborted) return
-          const topic = provider.session?.topic
-          if (topic && topic !== restoredTopic) {
-            await provider.signer.client.disconnect({
-              topic,
-              reason: { code: 6000, message: 'Wallet connection cancelled' },
-            })
-          }
-          throw cancelled()
+        .then(() => {
+          if (signal.aborted) throw cancelled()
+        })
+        .catch(async error => {
+          // This may settle after the cancellation race has already returned.
+          await disconnectNewSession()
+          throw error
         })
         .finally(() => provider.removeListener('display_uri', displayUri))
       await Promise.race([pairing, cancellation])
       if (signal.aborted) throw cancelled()
     } catch (error) {
-      if (!signal.aborted) {
-        await disconnectPairing()
-        const topic = provider.session?.topic
-        if (topic && topic !== restoredTopic) {
-          await provider.signer.client
-            .disconnect({ topic, reason: { code: 6000, message: 'Wallet connection failed' } })
-            .catch(() => console.warn('Could not clean up failed WalletConnect session'))
-        }
-      }
+      if (!signal.aborted) await disconnectPairing()
+      await disconnectNewSession()
       throw error
     } finally {
       abort.abort()

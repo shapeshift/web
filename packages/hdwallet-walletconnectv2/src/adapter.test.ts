@@ -154,6 +154,63 @@ describe('WalletConnect direct pairing', () => {
     expect(keyring.add).not.toHaveBeenCalled()
   })
 
+  it('cleans up a late approved session when account initialization rejects after cancellation', async () => {
+    const { adapter, provider, keyring } = setup()
+    provider.session = { topic: 'existing-session' }
+    const approval = deferred()
+    const initialization = deferred()
+    provider.connect.mockReturnValue(approval.promise)
+    mocks.initialize.mockReturnValue(initialization.promise)
+    const controller = new AbortController()
+    const pending = adapter.pairDevice({
+      signal: controller.signal,
+      onDisplayUri: vi.fn(),
+    })
+    const rejected = pending.catch(error => error)
+    await vi.waitFor(() => expect(provider.connect).toHaveBeenCalledOnce())
+    controller.abort()
+    expect(await rejected).toMatchObject({ name: 'AbortError' })
+    expect(provider.signer.client.disconnect).not.toHaveBeenCalled()
+    provider.session = { topic: 'late-session' }
+    approval.resolve()
+    await vi.waitFor(() => expect(mocks.initialize).toHaveBeenCalledOnce())
+    initialization.reject(new Error('Account request failed'))
+    await vi.waitFor(() =>
+      expect(provider.signer.client.disconnect).toHaveBeenCalledExactlyOnceWith({
+        topic: 'late-session',
+        reason: { code: 6000, message: 'Wallet connection cancelled' },
+      }),
+    )
+    expect(keyring.add).not.toHaveBeenCalled()
+    expect(provider.disconnect).not.toHaveBeenCalled()
+  })
+
+  it('cleans an approved session once when cancellation races with initialization failure', async () => {
+    const { adapter, provider, keyring } = setup()
+    provider.session = { topic: 'existing-session' }
+    provider.connect.mockImplementation(async () => {
+      provider.session = { topic: 'new-session' }
+    })
+    const initialization = deferred()
+    mocks.initialize.mockReturnValue(initialization.promise)
+    const controller = new AbortController()
+    const pending = adapter.pairDevice({
+      signal: controller.signal,
+      onDisplayUri: vi.fn(),
+    })
+    const rejected = pending.catch(error => error)
+    await vi.waitFor(() => expect(mocks.initialize).toHaveBeenCalledOnce())
+    controller.abort()
+    expect(await rejected).toMatchObject({ name: 'AbortError' })
+    initialization.reject(new Error('Account request failed'))
+    await vi.waitFor(() => expect(provider.removeListener).toHaveBeenCalled())
+    expect(provider.signer.client.disconnect).toHaveBeenCalledExactlyOnceWith({
+      topic: 'new-session',
+      reason: { code: 6000, message: 'Wallet connection cancelled' },
+    })
+    expect(keyring.add).not.toHaveBeenCalled()
+  })
+
   it('leaves the generic modal path and configuration unchanged', async () => {
     const { adapter, config, keyring } = setup()
     await adapter.pairDevice()

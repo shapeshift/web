@@ -56,8 +56,9 @@ export const useSendActionSubscriber = () => {
       if (!SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) return
 
       const { getAccount } = portfolioApi.endpoints
+      const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
 
-      ;(accountIdsToRefetch ?? [accountId]).forEach(accountIdToRefresh => {
+      accountIdsToRefreshList.forEach(accountIdToRefresh => {
         dispatch(
           getAccount.initiate(
             { accountId: accountIdToRefresh, upsertOnFetch: true },

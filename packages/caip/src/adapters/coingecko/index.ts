@@ -6,6 +6,7 @@ import type { ChainId } from '../../chainId/chainId'
 import { fromChainId, toChainId } from '../../chainId/chainId'
 import {
   abstractChainId,
+  aptosChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -54,7 +55,11 @@ import {
 } from '../../constants'
 import * as adapters from './generated'
 
-export { fetchData as fetchCoingeckoData, parseData as parseCoingeckoData } from './utils'
+export {
+  fetchData as fetchCoingeckoData,
+  getAptosIndexedAssetId,
+  parseData as parseCoingeckoData,
+} from './utils'
 
 // https://api.coingecko.com/api/v3/asset_platforms
 export enum CoingeckoAssetPlatform {
@@ -98,6 +103,7 @@ export enum CoingeckoAssetPlatform {
   Starknet = 'starknet',
   Tron = 'tron',
   Sui = 'sui',
+  Aptos = 'aptos',
   Ton = 'the-open-network',
   Near = 'near-protocol',
   Abstract = 'abstract',
@@ -122,6 +128,12 @@ const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> = invertBy
 
 export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
   generatedCoingeckoToAssetIdsMap[id]
+
+// aptos paired fungible assets are re-keyed to their coin type, so coingecko platform addresses can't be used
+export const coingeckoToAptosAssetIds = (id: CoinGeckoId): AssetId[] =>
+  (generatedCoingeckoToAssetIdsMap[id] ?? []).filter(
+    assetId => fromAssetId(assetId).chainId === aptosChainId,
+  )
 
 export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
   generatedAssetIdToCoingeckoMap[assetId]
@@ -247,6 +259,15 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Aptos:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.AptosMainnet:
+          return CoingeckoAssetPlatform.Aptos
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     case CHAIN_NAMESPACE.Near:
       switch (chainReference) {
         case CHAIN_REFERENCE.NearMainnet:
@@ -367,6 +388,8 @@ export const coingeckoAssetPlatformToChainId = (
       return tronChainId
     case CoingeckoAssetPlatform.Sui:
       return suiChainId
+    case CoingeckoAssetPlatform.Aptos:
+      return aptosChainId
     case CoingeckoAssetPlatform.Ton:
       return tonChainId
     case CoingeckoAssetPlatform.Near:

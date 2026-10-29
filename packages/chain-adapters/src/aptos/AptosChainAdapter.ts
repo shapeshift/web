@@ -1,0 +1,473 @@
+import type { GetAccountCoinsDataResponse, PendingTransactionResponse } from '@aptos-labs/ts-sdk'
+import {
+  AccountAddress,
+  Aptos,
+  AptosConfig,
+  Deserializer,
+  Ed25519PublicKey,
+  Ed25519Signature,
+  Hex,
+  isPendingTransactionResponse,
+  isUserTransactionResponse,
+  MimeType,
+  Network,
+  postAptosFullNode,
+  RawTransaction,
+  SignedTransaction,
+  TransactionAuthenticatorEd25519,
+} from '@aptos-labs/ts-sdk'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import {
+  aptosAssetId,
+  aptosChainId,
+  ASSET_REFERENCE,
+  getAptosAssetNamespace,
+  toAssetId,
+} from '@shapeshiftoss/caip'
+import type { AptosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsAptos } from '@shapeshiftoss/hdwallet-core'
+import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+
+import type { ChainAdapter as IChainAdapter } from '../api'
+import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
+import type {
+  Account,
+  BroadcastTransactionInput,
+  BuildSendApiTxInput,
+  BuildSendTxInput,
+  FeeDataEstimate,
+  GetAddressInput,
+  GetBip44ParamsInput,
+  GetFeeDataInput,
+  SignAndBroadcastTransactionInput,
+  SignTx,
+  SignTxInput,
+  Transaction,
+  ValidAddressResult,
+} from '../types'
+import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
+import { toAddressNList, verifyLedgerAppOpen } from '../utils'
+import { APT_COIN_TYPE, FEE_STATEMENT_EVENT_TYPE, INDEXER_PAGE_LIMIT } from './constants'
+import { parseAptosTx } from './parser'
+import type { Token } from './types'
+import { getBalancePayload, getDecimalsPayload, getTransferPayload } from './utils'
+
+export interface ChainAdapterArgs {
+  rpcUrl: string
+  indexerUrl: string
+  apiKey?: string
+}
+
+export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
+  static readonly rootBip44Params: RootBip44Params = {
+    purpose: 44,
+    coinType: Number(ASSET_REFERENCE.Aptos),
+    accountNumber: 0,
+  }
+
+  protected readonly chainId = aptosChainId
+  protected readonly assetId = aptosAssetId
+  protected readonly client: Aptos
+
+  constructor(args: ChainAdapterArgs) {
+    this.client = new Aptos(
+      new AptosConfig({
+        network: Network.MAINNET,
+        fullnode: `${args.rpcUrl}/v1`,
+        indexer: `${args.indexerUrl}/v1/graphql`,
+        clientConfig: args.apiKey ? { API_KEY: args.apiKey } : undefined,
+      }),
+    )
+  }
+
+  private assertSupportsChain(wallet: HDWallet): asserts wallet is AptosWallet {
+    if (!supportsAptos(wallet)) {
+      throw new ChainAdapterError(`wallet does not support: ${this.getDisplayName()}`, {
+        translation: 'chainAdapters.errors.unsupportedChain',
+        options: { chain: this.getDisplayName() },
+      })
+    }
+  }
+
+  getName() {
+    return ChainAdapterDisplayName.Aptos
+  }
+
+  getDisplayName() {
+    return ChainAdapterDisplayName.Aptos
+  }
+
+  getAptosClient(): Aptos {
+    return this.client
+  }
+
+  getType(): KnownChainIds.AptosMainnet {
+    return KnownChainIds.AptosMainnet
+  }
+
+  getFeeAssetId(): AssetId {
+    return this.assetId
+  }
+
+  getChainId(): ChainId {
+    return this.chainId
+  }
+
+  getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
+    if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
+
+    return {
+      ...ChainAdapter.rootBip44Params,
+      accountNumber,
+      isChange: false,
+      addressIndex: 0,
+    }
+  }
+
+  async getAddress(input: GetAddressInput): Promise<string> {
+    try {
+      const { accountNumber, pubKey, wallet, showOnDevice = false } = input
+
+      if (pubKey) return pubKey
+      if (!wallet) throw new Error('wallet is required')
+
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      const address = await wallet.aptosGetAddress({
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+        showDisplay: showOnDevice,
+      })
+
+      if (!address) throw new Error('error getting address from wallet')
+
+      return address
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAddress',
+      })
+    }
+  }
+
+  async getAccount(pubkey: string): Promise<Account<KnownChainIds.AptosMainnet>> {
+    try {
+      const balances = await this.getBalances(pubkey)
+
+      const nativeBalance =
+        balances.find(({ asset_type }) => asset_type === APT_COIN_TYPE)?.balance ?? '0'
+
+      const tokens: Token[] = await Promise.all(
+        balances
+          .filter(({ asset_type }) => asset_type !== APT_COIN_TYPE)
+          .map(async ({ asset_type, balance, metadata }) => ({
+            assetId: toAssetId({
+              chainId: this.chainId,
+              assetNamespace: getAptosAssetNamespace(asset_type),
+              assetReference: asset_type,
+            }),
+            balance,
+            symbol: metadata?.symbol ?? 'UNKNOWN',
+            name: metadata?.name ?? asset_type,
+            precision: metadata?.decimals ?? (await this.getTokenPrecision(asset_type)),
+          })),
+      )
+
+      return {
+        balance: nativeBalance,
+        chainId: this.chainId,
+        assetId: this.assetId,
+        chain: this.getType(),
+        chainSpecific: { tokens },
+        pubkey,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAccount',
+        options: { pubkey },
+      })
+    }
+  }
+
+  private async getTokenPrecision(assetType: string): Promise<number> {
+    const [decimals] = await this.client.view<[number]>({ payload: getDecimalsPayload(assetType) })
+    return decimals
+  }
+
+  private async getBalances(pubkey: string) {
+    const entries: GetAccountCoinsDataResponse = []
+
+    // the indexer caps each page, so page through non-zero primary store balances by storage id
+    while (true) {
+      const cursor = entries.at(-1)?.storage_id
+      const page = await this.client.getAccountCoinsData({
+        accountAddress: pubkey,
+        options: {
+          where: {
+            amount: { _gt: 0 },
+            is_primary: { _eq: true },
+            ...(cursor && { storage_id: { _gt: cursor } }),
+          },
+          orderBy: [{ storage_id: 'asc' }],
+          limit: INDEXER_PAGE_LIMIT,
+        },
+      })
+
+      entries.push(...page)
+      if (page.length < INDEXER_PAGE_LIMIT) break
+    }
+
+    return Promise.all(
+      entries.flatMap(({ asset_type, amount, metadata }) =>
+        asset_type
+          ? [
+              this.getExactBalance(pubkey, asset_type, amount).then(balance => ({
+                asset_type,
+                balance,
+                metadata,
+              })),
+            ]
+          : [],
+      ),
+    )
+  }
+
+  // indexer amounts are json numbers, so anything past 2^53 is read from the node instead
+  private async getExactBalance(pubkey: string, assetType: string, amount: unknown) {
+    if (Number.isSafeInteger(Number(amount))) return String(amount)
+
+    const [balance] = await this.client.view<[string]>({
+      payload: getBalancePayload(pubkey, assetType),
+    })
+
+    return balance
+  }
+
+  validateAddress(address: string): Promise<ValidAddressResult> {
+    try {
+      // strict long form only, and reserved framework addresses (0x0-0xf) aren't user accounts
+      if (AccountAddress.fromStringStrict(address).isSpecial()) {
+        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
+      }
+
+      return Promise.resolve({ valid: true, result: ValidAddressResultType.Valid })
+    } catch {
+      return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
+    }
+  }
+
+  getTxHistory(): Promise<never> {
+    throw new Error('Aptos transaction history not yet implemented')
+  }
+
+  async buildSendApiTransaction(
+    input: BuildSendApiTxInput<KnownChainIds.AptosMainnet>,
+  ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
+    try {
+      const { from, accountNumber, to, value, chainSpecific } = input
+      const { contractAddress, gasUnitPrice, maxGasAmount } = chainSpecific
+
+      const { rawTransaction } = await this.client.transaction.build.simple({
+        sender: from,
+        data: getTransferPayload(to, value, contractAddress),
+      })
+
+      // the sdk floors max gas at 2000 units, which would reserve far more apt than the fee
+      const { sender, sequence_number, payload, expiration_timestamp_secs, chain_id } =
+        rawTransaction
+
+      const transaction = new RawTransaction(
+        sender,
+        sequence_number,
+        payload,
+        BigInt(maxGasAmount),
+        BigInt(gasUnitPrice),
+        expiration_timestamp_secs,
+        chain_id,
+      )
+
+      return {
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+        rawTransactionBytes: transaction.bcsToBytes(),
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
+  }
+
+  async buildSendTransaction(input: BuildSendTxInput<KnownChainIds.AptosMainnet>): Promise<{
+    txToSign: SignTx<KnownChainIds.AptosMainnet>
+  }> {
+    try {
+      const from = await this.getAddress(input)
+      const txToSign = await this.buildSendApiTransaction({ ...input, from })
+
+      return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
+  }
+
+  async signTransaction({
+    txToSign,
+    wallet,
+  }: SignTxInput<SignTx<KnownChainIds.AptosMainnet>>): Promise<string> {
+    try {
+      if (!wallet) throw new Error('wallet is required')
+
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      const signedTx = await wallet.aptosSignTx({
+        addressNList: txToSign.addressNList,
+        rawTransactionBytes: txToSign.rawTransactionBytes,
+      })
+
+      if (!signedTx?.signature || !signedTx?.publicKey) {
+        throw new Error('error signing tx - missing signature or publicKey')
+      }
+
+      const signedTransaction = new SignedTransaction(
+        RawTransaction.deserialize(new Deserializer(txToSign.rawTransactionBytes)),
+        new TransactionAuthenticatorEd25519(
+          new Ed25519PublicKey(signedTx.publicKey),
+          new Ed25519Signature(signedTx.signature),
+        ),
+      )
+
+      return signedTransaction.bcsToHex().toString()
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signTransaction',
+      })
+    }
+  }
+
+  async signAndBroadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    signTxInput,
+  }: SignAndBroadcastTransactionInput<KnownChainIds.AptosMainnet>): Promise<string> {
+    try {
+      const hex = await this.signTransaction(signTxInput)
+
+      return this.broadcastTransaction({ senderAddress, receiverAddress, hex })
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signAndBroadcastTransaction',
+      })
+    }
+  }
+
+  async broadcastTransaction({ hex }: BroadcastTransactionInput): Promise<string> {
+    try {
+      const { data } = await postAptosFullNode<Uint8Array, PendingTransactionResponse>({
+        aptosConfig: this.client.config,
+        path: 'transactions',
+        originMethod: 'broadcastTransaction',
+        contentType: MimeType.BCS_SIGNED_TRANSACTION,
+        body: Hex.fromHexInput(hex).toUint8Array(),
+      })
+
+      return data.hash
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.broadcastTransaction',
+      })
+    }
+  }
+
+  async getFeeData(
+    input: GetFeeDataInput<KnownChainIds.AptosMainnet>,
+  ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
+    try {
+      const { to, value, chainSpecific } = input
+      const { from, contractAddress } = chainSpecific
+
+      // gas doesn't depend on the amount, and an apt amount near the balance can't cover gas in simulation
+      const simulatedValue = contractAddress ? value : '1'
+
+      const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
+        await Promise.all([
+          this.client.getGasPriceEstimation(),
+          this.client.transaction.build.simple({
+            sender: from,
+            data: getTransferPayload(to, simulatedValue, contractAddress),
+          }),
+        ])
+
+      // caps simulated gas at what the sender can afford, so the default cap can't fail the simulation
+      const [sim] = await this.client.transaction.simulate.simple({
+        transaction,
+        options: { estimateGasUnitPrice: true, estimateMaxGasAmount: true },
+      })
+
+      if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
+
+      const feeStatement = sim.events.find(event => event.type === FEE_STATEMENT_EVENT_TYPE)?.data
+      if (!feeStatement) throw new Error('transaction simulation is missing its fee statement')
+
+      const computeGasUnits =
+        BigInt(feeStatement.execution_gas_units) + BigInt(feeStatement.io_gas_units)
+      const storageFeeOctas = BigInt(feeStatement.storage_fee_octas)
+
+      const toFeeData = (price: number) => {
+        const gasUnitPrice = BigInt(price)
+        // storage is charged in octas, so the gas units it takes depend on the price
+        const gasUnits = computeGasUnits + (storageFeeOctas + gasUnitPrice - 1n) / gasUnitPrice
+        // 1.2x buffer over the simulated gas, in case state changes before the tx executes
+        const maxGasAmount = (gasUnits * 12n) / 10n
+
+        return {
+          txFee: (maxGasAmount * gasUnitPrice).toString(),
+          chainSpecific: {
+            gasUnitPrice: gasUnitPrice.toString(),
+            maxGasAmount: maxGasAmount.toString(),
+          },
+        }
+      }
+
+      return {
+        fast: toFeeData(prioritized_gas_estimate ?? gas_estimate),
+        average: toFeeData(gas_estimate),
+        slow: toFeeData(deprioritized_gas_estimate ?? gas_estimate),
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getFeeData',
+      })
+    }
+  }
+
+  subscribeTxs(): Promise<void> {
+    return Promise.resolve()
+  }
+
+  unsubscribeTxs(): void {
+    return
+  }
+
+  closeTxs(): void {
+    return
+  }
+
+  async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
+    try {
+      const tx = await this.client.transaction.getTransactionByHash({ transactionHash: txHash })
+
+      if (!isUserTransactionResponse(tx) && !isPendingTransactionResponse(tx)) {
+        throw new Error(`unsupported transaction type: ${tx.type}`)
+      }
+
+      return parseAptosTx(tx, pubkey, this.chainId, this.assetId)
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.parseTx',
+      })
+    }
+  }
+}

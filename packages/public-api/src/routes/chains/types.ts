@@ -12,6 +12,7 @@ export const ChainTypeSchema = z.enum([
   'near',
   'starknet',
   'ton',
+  'aptos',
 ])
 
 export const ChainSchema = registry.register(

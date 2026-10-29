@@ -5,6 +5,7 @@ import * as eventemitter2 from 'eventemitter2'
 import isObject from 'lodash/isObject'
 
 import type { NativeAdapterArgs } from './adapter'
+import { MixinNativeAptosWallet, MixinNativeAptosWalletInfo } from './aptos'
 import { MixinNativeArkeoWallet, MixinNativeArkeoWalletInfo } from './arkeo'
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from './bitcoin'
 import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from './cosmos'
@@ -133,15 +134,17 @@ class NativeHDWalletInfo
           MixinNativeStarknetWalletInfo(
             MixinNativeTronWalletInfo(
               MixinNativeTonWalletInfo(
-                MixinNativeSuiWalletInfo(
-                  MixinNativeNearWalletInfo(
-                    MixinNativeThorchainWalletInfo(
-                      MixinNativeMayachainWalletInfo(
-                        MixinNativeSecretWalletInfo(
-                          MixinNativeTerraWalletInfo(
-                            MixinNativeKavaWalletInfo(
-                              MixinNativeArkeoWalletInfo(
-                                MixinNativeOsmosisWalletInfo(NativeHDWalletBase),
+                MixinNativeAptosWalletInfo(
+                  MixinNativeSuiWalletInfo(
+                    MixinNativeNearWalletInfo(
+                      MixinNativeThorchainWalletInfo(
+                        MixinNativeMayachainWalletInfo(
+                          MixinNativeSecretWalletInfo(
+                            MixinNativeTerraWalletInfo(
+                              MixinNativeKavaWalletInfo(
+                                MixinNativeArkeoWalletInfo(
+                                  MixinNativeOsmosisWalletInfo(NativeHDWalletBase),
+                                ),
                               ),
                             ),
                           ),
@@ -174,7 +177,8 @@ class NativeHDWalletInfo
     core.TerraWalletInfo,
     core.KavaWalletInfo,
     core.ArkeoWalletInfo,
-    core.OsmosisWalletInfo
+    core.OsmosisWalletInfo,
+    core.AptosWalletInfo
 {
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin.toLowerCase()) {
@@ -232,6 +236,8 @@ class NativeHDWalletInfo
         return core.tronDescribePath(msg.path)
       case 'ton':
         return core.tonDescribePath(msg.path)
+      case 'aptos':
+        return core.aptosDescribePath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -246,14 +252,18 @@ export class NativeHDWallet
           MixinNativeStarknetWallet(
             MixinNativeTronWallet(
               MixinNativeTonWallet(
-                MixinNativeSuiWallet(
-                  MixinNativeNearWallet(
-                    MixinNativeThorchainWallet(
-                      MixinNativeMayachainWallet(
-                        MixinNativeSecretWallet(
-                          MixinNativeTerraWallet(
-                            MixinNativeKavaWallet(
-                              MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)),
+                MixinNativeAptosWallet(
+                  MixinNativeSuiWallet(
+                    MixinNativeNearWallet(
+                      MixinNativeThorchainWallet(
+                        MixinNativeMayachainWallet(
+                          MixinNativeSecretWallet(
+                            MixinNativeTerraWallet(
+                              MixinNativeKavaWallet(
+                                MixinNativeOsmosisWallet(
+                                  MixinNativeArkeoWallet(NativeHDWalletInfo),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -285,7 +295,8 @@ export class NativeHDWallet
     core.TerraWallet,
     core.KavaWallet,
     core.OsmosisWallet,
-    core.ArkeoWallet
+    core.ArkeoWallet,
+    core.AptosWallet
 {
   readonly _isNative = true
 
@@ -453,6 +464,7 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
+            super.aptosInitializeWallet(ed25519MasterKey),
           ]
 
           if (this.#tonMasterKey) {
@@ -517,6 +529,7 @@ export class NativeHDWallet
     super.terraWipe()
     super.kavaWipe()
     super.arkeoWipe()
+    super.aptosWipe()
     ;(await oldSecp256k1MasterKey)?.revoke?.()
     ;(await oldEd25519MasterKey)?.revoke?.()
   }

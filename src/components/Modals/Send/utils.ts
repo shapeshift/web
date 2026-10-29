@@ -31,6 +31,7 @@ import {
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter } from '@/lib/utils'
+import { assertGetAptosChainAdapter } from '@/lib/utils/aptos'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
@@ -187,6 +188,19 @@ export const estimateFees = async ({
     case CHAIN_NAMESPACE.Ton: {
       const adapter = assertGetTonChainAdapter(asset.chainId)
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.TonMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
+          contractAddress,
+        },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Aptos: {
+      const adapter = assertGetAptosChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.AptosMainnet> = {
         to,
         value,
         chainSpecific: {
@@ -512,6 +526,25 @@ export const handleSendWithMetadata = async ({
           memo,
         },
       } as BuildSendTxInput<KnownChainIds.TonMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Aptos) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetAptosChainAdapter(chainId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.AptosMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          contractAddress: contractAddressOrUndefined(asset.assetId),
+          gasUnitPrice: fees.chainSpecific.gasUnitPrice,
+          maxGasAmount: fees.chainSpecific.maxGasAmount,
+        },
+      })
     }
 
     throw new Error(`${chainId} not supported`)

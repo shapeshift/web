@@ -24,6 +24,7 @@ import orderBy from 'lodash/orderBy'
 import path from 'path'
 
 import * as abstract from './abstract'
+import * as aptos from './aptos'
 import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
@@ -125,6 +126,7 @@ const generateAssetData = async () => {
   const tonAssets = await tonModule.getAssets()
   const nearAssets = await near.getAssets()
   const robinhoodAssets = await robinhood.getAssets()
+  const aptosAssets = await aptos.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -181,6 +183,7 @@ const generateAssetData = async () => {
     ...tonAssets,
     ...nearAssets,
     ...robinhoodAssets,
+    ...aptosAssets,
   ]
 
   // remove blacklisted assets

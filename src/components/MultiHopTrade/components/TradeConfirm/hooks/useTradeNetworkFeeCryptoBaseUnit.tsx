@@ -317,6 +317,8 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 })
                 return output
               }
+              case CHAIN_NAMESPACE.Aptos:
+                throw new Error('Aptos trading is not supported')
               default:
                 assertUnreachable(stepSellAssetChainNamespace)
             }

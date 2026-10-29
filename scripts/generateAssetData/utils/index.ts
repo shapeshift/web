@@ -48,7 +48,7 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
   }
 
   const data = await adapters.fetchCoingeckoData(adapters.coingeckoUrl)
-  const chainIdAssetIdMap = adapters.parseCoingeckoData(data)
+  const chainIdAssetIdMap = await adapters.parseCoingeckoData(data)
 
   // Keyed by coingecko id, not chainId - one chain can hold several assets for the same id, e.g.
   // Toncoin is both the TON native asset and a jetton on TON

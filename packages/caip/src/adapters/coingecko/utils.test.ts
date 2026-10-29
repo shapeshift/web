@@ -98,8 +98,8 @@ describe('adapters:coingecko:utils', () => {
   })
 
   describe('parseData', () => {
-    it('can parse all data', () => {
-      const result = parseData([
+    it('can parse all data', async () => {
+      const result = await parseData([
         makeEthMockCoingeckoResponse(),
         makeWethMockCoingeckoResponse(),
         makeFoxMockCoingeckoResponse(),
@@ -269,6 +269,9 @@ describe('adapters:coingecko:utils', () => {
         },
         'ton:mainnet': {
           'ton:mainnet/slip44:607': 'the-open-network',
+        },
+        'aptos:1': {
+          'aptos:1/slip44:637': 'aptos',
         },
       }
       expect(result).toEqual(expected)

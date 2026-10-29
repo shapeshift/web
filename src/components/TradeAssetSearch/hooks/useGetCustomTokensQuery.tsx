@@ -57,7 +57,7 @@ export const useGetCustomTokensQuery = ({
 
         const assetId = toAssetId({
           chainId,
-          assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+          assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds, contractAddress),
           assetReference: contractAddress,
         })
 

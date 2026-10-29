@@ -53,7 +53,10 @@ export const portalsApi = createApi({
 
             return toAssetId({
               chainId,
-              assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+              assetNamespace: getAssetNamespaceFromChainId(
+                chainId as KnownChainIds,
+                tokenData.address,
+              ),
               assetReference: tokenData.address,
             })
           })

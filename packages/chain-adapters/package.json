@@ -29,6 +29,7 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
+    "@aptos-labs/ts-sdk": "6.3.1",
     "@mysten/sui": "1.45.0",
     "@near-js/crypto": "^2.5.1",
     "@near-js/providers": "^2.5.1",

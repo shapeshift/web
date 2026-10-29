@@ -12,6 +12,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getAptosTransactionStatus, isAptosChainAdapter } from '@/lib/utils/aptos'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
@@ -46,9 +47,32 @@ export const useSendActionSubscriber = () => {
 
   const allActions = useAppSelector(actionSlice.selectors.selectActionsById)
 
+  // second class chains have no tx history subscription, and failed txs still charge fees
+  const refetchSecondClassAccounts = useCallback(
+    (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
+      const { accountId, accountIdsToRefetch } = action.transactionMetadata
+      const chainId = fromAccountId(accountId).chainId
+
+      if (!SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) return
+
+      const { getAccount } = portfolioApi.endpoints
+      const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
+
+      accountIdsToRefreshList.forEach(accountIdToRefresh => {
+        dispatch(
+          getAccount.initiate(
+            { accountId: accountIdToRefresh, upsertOnFetch: true },
+            { forceRefetch: true },
+          ),
+        )
+      })
+    },
+    [dispatch],
+  )
+
   const completeAction = useCallback(
     (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
-      const { txHash, accountId, accountIdsToRefetch } = action.transactionMetadata
+      const { txHash } = action.transactionMetadata
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -88,22 +112,7 @@ export const useSendActionSubscriber = () => {
         }
       }
 
-      const chainId = fromAccountId(accountId).chainId
-      const isSecondClassChain = SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)
-
-      if (isSecondClassChain) {
-        const { getAccount } = portfolioApi.endpoints
-        const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
-
-        accountIdsToRefreshList.forEach(accountIdToRefresh => {
-          dispatch(
-            getAccount.initiate(
-              { accountId: accountIdToRefresh, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
-          )
-        })
-      }
+      refetchSecondClassAccounts(action)
 
       const isActive = toast.isActive(txHash)
 
@@ -130,7 +139,7 @@ export const useSendActionSubscriber = () => {
         },
       })
     },
-    [allActions, dispatch, toast, isDrawerOpen, openActionCenter],
+    [allActions, dispatch, refetchSecondClassAccounts, toast, isDrawerOpen, openActionCenter],
   )
 
   const failAction = useCallback(
@@ -148,6 +157,8 @@ export const useSendActionSubscriber = () => {
           },
         }),
       )
+
+      refetchSecondClassAccounts(action)
 
       const isActive = toast.isActive(txHash)
 
@@ -174,7 +185,7 @@ export const useSendActionSubscriber = () => {
         },
       })
     },
-    [dispatch, toast, isDrawerOpen, openActionCenter],
+    [dispatch, refetchSecondClassAccounts, toast, isDrawerOpen, openActionCenter],
   )
 
   useEffect(() => {
@@ -209,6 +220,38 @@ export const useSendActionSubscriber = () => {
                   const suiTxStatus = await getSuiTransactionStatus(txHash)
                   isConfirmed =
                     suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.AptosMainnet: {
+                  const aptosTxStatus = await getAptosTransactionStatus(txHash)
+
+                  if (aptosTxStatus === TxStatus.Failed) {
+                    const adapter = getChainAdapterManager().get(chainId)
+                    if (isAptosChainAdapter(adapter)) {
+                      try {
+                        const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                        dispatch(
+                          txHistory.actions.onMessage({
+                            message: parsedTx,
+                            accountId,
+                          }),
+                        )
+                      } catch (error) {
+                        console.error('Failed to parse failed Aptos Tx:', error)
+                      }
+                    }
+
+                    failAction(action)
+
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
+                  }
+
+                  isConfirmed = aptosTxStatus === TxStatus.Confirmed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

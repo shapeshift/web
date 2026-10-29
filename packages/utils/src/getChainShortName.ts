@@ -104,6 +104,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'ABS'
     case KnownChainIds.RobinhoodMainnet:
       return 'RH'
+    case KnownChainIds.AptosMainnet:
+      return 'APT'
     default: {
       assertUnreachable(chainId)
     }

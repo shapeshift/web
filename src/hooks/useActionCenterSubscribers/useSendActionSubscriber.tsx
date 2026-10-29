@@ -12,7 +12,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { getAptosTransactionStatus } from '@/lib/utils/aptos'
+import { getAptosTransactionStatus, isAptosChainAdapter } from '@/lib/utils/aptos'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
@@ -214,8 +214,34 @@ export const useSendActionSubscriber = () => {
                 }
                 case KnownChainIds.AptosMainnet: {
                   const aptosTxStatus = await getAptosTransactionStatus(txHash)
-                  isConfirmed =
-                    aptosTxStatus === TxStatus.Confirmed || aptosTxStatus === TxStatus.Failed
+
+                  if (aptosTxStatus === TxStatus.Failed) {
+                    const adapter = getChainAdapterManager().get(chainId)
+                    if (isAptosChainAdapter(adapter)) {
+                      try {
+                        const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                        dispatch(
+                          txHistory.actions.onMessage({
+                            message: parsedTx,
+                            accountId,
+                          }),
+                        )
+                      } catch (error) {
+                        console.error('Failed to parse failed Aptos Tx:', error)
+                      }
+                    }
+
+                    failAction(action)
+
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
+                  }
+
+                  isConfirmed = aptosTxStatus === TxStatus.Confirmed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

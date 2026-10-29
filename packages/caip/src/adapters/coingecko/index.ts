@@ -55,7 +55,11 @@ import {
 } from '../../constants'
 import * as adapters from './generated'
 
-export { fetchData as fetchCoingeckoData, parseData as parseCoingeckoData } from './utils'
+export {
+  fetchData as fetchCoingeckoData,
+  getAptosPairedCoinType,
+  parseData as parseCoingeckoData,
+} from './utils'
 
 // https://api.coingecko.com/api/v3/asset_platforms
 export enum CoingeckoAssetPlatform {

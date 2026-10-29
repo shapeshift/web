@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import type { AssetId } from '../../assetId/assetId'
-import { toAssetId } from '../../assetId/assetId'
+import { fromAssetId, toAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
   abstractAssetId,
@@ -122,6 +122,69 @@ export type CoingeckoCoin = {
 export type AssetMap = Record<ChainId, Record<AssetId, string>>
 
 export const fetchData = async (URL: string) => (await axios.get<CoingeckoCoin[]>(URL)).data
+
+const APTOS_NODE_URL = 'https://fullnode.mainnet.aptoslabs.com/v1'
+
+type AptosTypeInfo = { account_address: string; module_name: string; struct_name: string }
+
+const hexToUtf8 = (hex: string) =>
+  new TextDecoder().decode(
+    Uint8Array.from(hex.replace(/^0x/, '').match(/../g) ?? [], byte => parseInt(byte, 16)),
+  )
+
+// a coin's paired fungible asset is the same token, and balances are indexed under the coin type
+// returns null when the address isn't fungible asset metadata
+export const getAptosPairedCoinType = async (
+  metadataAddress: string,
+): Promise<string | null | undefined> => {
+  try {
+    const { data } = await axios.post<[{ vec: AptosTypeInfo[] }]>(`${APTOS_NODE_URL}/view`, {
+      function: '0x1::coin::paired_coin',
+      type_arguments: [],
+      arguments: [metadataAddress],
+    })
+
+    const [typeInfo] = data[0].vec
+    if (!typeInfo) return
+
+    const { account_address, module_name, struct_name } = typeInfo
+
+    return `${account_address}::${hexToUtf8(module_name)}::${hexToUtf8(struct_name)}`
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.data?.vm_error_code !== undefined) return null
+    throw err
+  }
+}
+
+export const rekeyAptosPairedFungibleAssets = async (assetMap: AssetMap): Promise<AssetMap> => {
+  const aptosAssets: Record<AssetId, string> = {}
+
+  for (const [assetId, coingeckoId] of Object.entries(assetMap[aptosChainId])) {
+    const { assetNamespace, assetReference } = fromAssetId(assetId)
+    const coinType =
+      assetNamespace === ASSET_NAMESPACE.aptosFungible
+        ? await getAptosPairedCoinType(assetReference)
+        : undefined
+
+    if (coinType === null) continue
+
+    if (!coinType) {
+      aptosAssets[assetId] = coingeckoId
+      continue
+    }
+
+    const coinAssetId = toAssetId({
+      chainId: aptosChainId,
+      assetNamespace: ASSET_NAMESPACE.aptosCoin,
+      assetReference: coinType,
+    })
+
+    // coingecko's coin type listing wins over its paired fungible asset listing
+    if (!assetMap[aptosChainId][coinAssetId]) aptosAssets[coinAssetId] = coingeckoId
+  }
+
+  return { ...assetMap, [aptosChainId]: aptosAssets }
+}
 
 export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
   const assetMap = coins.reduce<AssetMap>(

@@ -1,8 +1,6 @@
-import { AccountAddress } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { aptosChainId, solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
+import { solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
 import type {
-  aptos,
   EvmChainAdapter,
   near,
   SignTx,
@@ -20,7 +18,7 @@ import type {
   SuiSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
-import { evm, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -30,8 +28,8 @@ import { setupCache } from 'axios-cache-interceptor'
 import type { TypedData } from 'eip-712'
 
 import type {
-  CommonSwapMetadata,
   AptosTransactionExecutionProps,
+  CommonSwapMetadata,
   EvmTransactionExecutionProps,
   NearTransactionExecutionProps,
   SolanaTransactionExecutionProps,
@@ -564,49 +562,6 @@ export const checkStarknetSwapStatus = async ({
     }
   } catch (e) {
     // Don't log expected errors during status polling (tx might still be pending)
-    return createDefaultStatusResponse(txHash)
-  }
-}
-
-export const checkAptosSwapStatus = async ({
-  txHash,
-  address,
-  assertGetAptosChainAdapter,
-}: {
-  txHash: string
-  address: string | undefined
-  assertGetAptosChainAdapter: (chainId: ChainId) => aptos.ChainAdapter
-}): Promise<TradeStatus> => {
-  try {
-    if (!address) throw new Error('Missing address')
-
-    const adapter = assertGetAptosChainAdapter(aptosChainId)
-    const tx = await adapter.parseTx(txHash, address)
-
-    // Aptos addresses can differ in casing/length but refer to the same account.
-    // Normalize via AccountAddress for reliable equality.
-    const target = AccountAddress.fromString(address)
-    const isTargetAddress = (candidate: string) => {
-      try {
-        return AccountAddress.fromString(candidate).equals(target)
-      } catch {
-        return false
-      }
-    }
-
-    const receiveTransfer = tx.transfers.find(
-      t => t.type === TransferType.Receive && t.to.some(isTargetAddress),
-    )
-    const actualBuyAmountCryptoBaseUnit = receiveTransfer?.value
-
-    return {
-      status: tx.status,
-      buyTxHash: txHash,
-      message: undefined,
-      actualBuyAmountCryptoBaseUnit,
-    }
-  } catch (e) {
-    console.error(e)
     return createDefaultStatusResponse(txHash)
   }
 }

@@ -29,6 +29,9 @@ const AffiliateSwapSchema = z.object({
   buyAmountCryptoPrecision: z.string().nullable(),
   buyAmountUsd: z.string().nullable(),
   affiliateFeeAmountUsd: z.string().nullable(),
+  // read as pending until the public api reports it, so nothing shows as earned early
+  affiliateFeeStatus: z.enum(['earned', 'pending', 'review', 'failed']).default('pending'),
+  affiliateFeeStatusReason: z.string().nullable().default(null),
   affiliateBps: z.number(),
   partnerBps: z.number().nullable(),
   shapeshiftBps: z.number(),

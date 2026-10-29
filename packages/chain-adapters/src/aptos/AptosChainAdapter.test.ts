@@ -272,6 +272,22 @@ describe('AptosChainAdapter', () => {
       expect(fees.slow.txFee).toBe('21000')
     })
 
+    it('simulates a 1 octa transfer for a max apt send', async () => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([{ success: true, gas_used: '140' }])
+
+      await adapter.getFeeData({
+        to: ADDR,
+        value: '198633150',
+        sendMax: true,
+        chainSpecific: { from: SENDER, contractAddress: undefined },
+      })
+
+      expect(client.transaction.build.simple.mock.calls[0][0].data.functionArguments).toEqual([
+        ADDR,
+        1n,
+      ])
+    })
+
     it('throws when the simulation fails', async () => {
       client.transaction.simulate.simple.mockResolvedValueOnce([
         { success: false, gas_used: '0', vm_status: 'INSUFFICIENT_BALANCE' },

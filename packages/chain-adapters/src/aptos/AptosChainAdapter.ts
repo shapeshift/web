@@ -344,13 +344,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     input: GetFeeDataInput<KnownChainIds.AptosMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
-      const { to, value, chainSpecific } = input
+      const { to, value, chainSpecific, sendMax } = input
       const { from, contractAddress } = chainSpecific
+
+      // a full balance apt send can't cover gas in simulation, and gas doesn't depend on the amount
+      const simulatedValue = sendMax && !contractAddress ? '1' : value
 
       const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, maxGasAmount] =
         await Promise.all([
           this.client.getGasPriceEstimation(),
-          this.estimateMaxGasAmount(from, getTransferPayload(to, value, contractAddress)),
+          this.estimateMaxGasAmount(from, getTransferPayload(to, simulatedValue, contractAddress)),
         ])
 
       const toFeeData = (gasUnitPrice: number) => ({

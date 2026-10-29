@@ -4,7 +4,10 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { FyndEncodedQuote } from '../types'
 
 type BaseArgs = {
@@ -44,17 +47,12 @@ export async function getFyndStepData(
   const stateOverride = { sellAsset, sellAmountCryptoBaseUnit, spenderAddress }
 
   if (type === 'rate') {
-    const networkFeeCryptoBaseUnit = await getEvmNetworkFeeCryptoBaseUnit({
+    const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
       adapter,
-      transactionData,
-      from,
       supportsEIP1559,
-      stateOverride,
-    })
-      .catch(() =>
-        getEvmNetworkFeeCryptoBaseUnit({ adapter, supportsEIP1559, gasLimit: quote.gas_estimate }),
-      )
-      .catch(() => undefined)
+      providerGasLimit: quote.gas_estimate,
+      simulation: { transactionData, from, stateOverride },
+    }).catch(() => undefined)
 
     const stepData: FyndRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -68,6 +66,7 @@ export async function getFyndStepData(
       from,
       supportsEIP1559,
       stateOverride,
+      providerGasLimit: quote.gas_estimate,
     })
 
     const stepData: FyndQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

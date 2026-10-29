@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   abstractAssetId,
-  adapters,
   arbitrumAssetId,
   baseAssetId,
   blastAssetId,
@@ -140,6 +139,41 @@ export const getManualRelatedAssetIds = (
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
 
+type CoingeckoCoin = { id: string; assetIds: AssetId[] }
+
+const coingeckoPlatformDetailsToSupportedAssetId = (
+  platformDetails: [string, string],
+): AssetId | undefined => {
+  try {
+    return coingeckoPlatformDetailsToMaybeAssetId(platformDetails)
+  } catch {
+    // chains without an asset namespace and malformed addresses throw
+    return
+  }
+}
+
+const fetchCoingeckoCoinsByAssetId = async (): Promise<Record<AssetId, CoingeckoCoin>> => {
+  const { data } = await axiosInstance.get<Pick<CoingeckoAssetDetails, 'id' | 'platforms'>[]>(
+    `${coingeckoBaseUrl}/coins/list`,
+    { params: { include_platform: true } },
+  )
+
+  const coinsByAssetId: Record<AssetId, CoingeckoCoin> = {}
+
+  for (const { id, platforms } of data) {
+    const assetIds = Object.entries(platforms)
+      .map(coingeckoPlatformDetailsToSupportedAssetId)
+      .filter(isSome)
+
+    const coin = { id, assetIds }
+    for (const assetId of assetIds) coinsByAssetId[assetId] = coin
+  }
+
+  if (!Object.keys(coinsByAssetId).length) throw new Error('CoinGecko coin list has no platforms')
+
+  return coinsByAssetId
+}
+
 // Pre-fetch bridged category mappings
 // Returns mapping of category → array of coin IDs in that category
 const fetchBridgedCategoryMappings = async (): Promise<Record<string, string[]>> => {
@@ -230,29 +264,25 @@ const getZerionRelatedAssetIds = async (
   return { relatedAssetIds, relatedAssetKey }
 }
 
-const getCoingeckoRelatedAssetIds = async (
+const getCoingeckoRelatedAssetIds = (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   categoryToCoinIds: Record<string, string[]>,
-): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
+  coinsByAssetId: Record<AssetId, CoingeckoCoin>,
+): { relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined => {
   if (!isToken(assetId)) return
   // Yes, this means effectively the same but double wrap never hurts
   if (FEE_ASSET_IDS.includes(assetId)) return
-  const { chainId, assetReference: contractAddress } = fromAssetId(assetId)
-  const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
-  const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
-  const { data } = await axiosInstance.get<CoingeckoAssetDetails>(
-    `${coingeckoBaseUrl}/coins/${coinUri}`,
-  )
 
-  const platforms = data.platforms
-  const coinId = data.id
+  const coin = coinsByAssetId[assetId]
+  if (!coin) return
+
+  const coinId = coin.id
 
   // Use all assetIds actually present in the dataset
-  let allRelatedAssetIds = Object.entries(platforms)
-    ?.map(coingeckoPlatformDetailsToMaybeAssetId)
-    .filter(isSome)
-    .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
+  let allRelatedAssetIds = coin.assetIds.filter(
+    relatedAssetId => assetData[relatedAssetId] !== undefined,
+  )
 
   // Determine canonical asset in THREE ways:
   let bridgedCanonical: AssetId | undefined
@@ -282,6 +312,15 @@ const getCoingeckoRelatedAssetIds = async (
         break
       }
     }
+  }
+
+  // CoinGecko's platform order is arbitrary, so prefer joining an existing group over starting one
+  const groupedRelatedAssetId = allRelatedAssetIds.find(id => assetData[id]?.relatedAssetKey)
+  if (groupedRelatedAssetId) {
+    allRelatedAssetIds = [
+      groupedRelatedAssetId,
+      ...allRelatedAssetIds.filter(id => id !== groupedRelatedAssetId),
+    ]
   }
 
   // Add canonical FIRST to ensure it becomes the primary (relatedAssetKey)
@@ -315,6 +354,7 @@ const processRelatedAssetIds = async (
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
   categoryToCoinIds: Record<string, string[]>,
+  coinsByAssetId: Record<AssetId, CoingeckoCoin>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
@@ -356,19 +396,12 @@ const processRelatedAssetIds = async (
     }
   }
 
-  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(
+  const coingeckoRelatedAssetsResult = getCoingeckoRelatedAssetIds(
     assetId,
     assetData,
     categoryToCoinIds,
+    coinsByAssetId,
   )
-    .then(result => {
-      happyCount++
-      return result
-    })
-    .catch(() => {
-      sadCount++
-      return undefined
-    })
 
   const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
     // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. cg may not have
@@ -383,8 +416,9 @@ const processRelatedAssetIds = async (
       happyCount++
       return result
     })
-    .catch(() => {
+    .catch(err => {
       sadCount++
+      console.warn(`[Zerion] ${assetId}: ${err instanceof Error ? err.message : err}`)
       return undefined
     })
 
@@ -541,6 +575,7 @@ export const generateRelatedAssetIndex = async () => {
   })
 
   const categoryToCoinIds = await fetchBridgedCategoryMappings()
+  const coinsByAssetId = await fetchCoingeckoCoinsByAssetId()
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
@@ -559,6 +594,7 @@ export const generateRelatedAssetIndex = async () => {
           generatedAssetData,
           relatedAssetIndex,
           categoryToCoinIds,
+          coinsByAssetId,
           throttle,
         )
         return

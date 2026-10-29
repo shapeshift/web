@@ -18,7 +18,10 @@ import {
   makeSwapErrorRight,
   makeTradeStepBuildFailedErr,
 } from '../../../utils'
-import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import {
+  getEvmNetworkFeeCryptoBaseUnit,
+  getEvmRateNetworkFeeCryptoBaseUnit,
+} from '../../../utils/evm'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
 import {
   getSolanaNetworkFeeCryptoBaseUnit,
@@ -86,10 +89,10 @@ export async function getButterSwapStepData(
       if (args.type === 'rate') {
         const networkFeeCryptoBaseUnit = await (async () => {
           try {
-            return await getEvmNetworkFeeCryptoBaseUnit({
+            return await getEvmRateNetworkFeeCryptoBaseUnit({
               adapter,
               supportsEIP1559,
-              gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
+              providerGasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
             })
           } catch {
             return getProviderNetworkFeeCryptoBaseUnit({ route, feeAsset })
@@ -117,13 +120,12 @@ export async function getButterSwapStepData(
           supportsEIP1559,
           transactionData,
           from,
-          // Butter's gasEstimatedTarget lands short on chain (observed 24% under actual, causing
-          // in-flight OOG/SWAP_FAIL reverts) - estimate ourselves instead
           stateOverride: {
             sellAsset,
             sellAmountCryptoBaseUnit,
             spenderAddress,
           },
+          providerGasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
         })
 
         const stepData: ButterSwapQuoteStepData = { transactionData, networkFeeCryptoBaseUnit }

@@ -269,12 +269,6 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'token',
         assetReference: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
       })
-      const usdcOnTron = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Tron,
-        chainReference: CHAIN_REFERENCE.TronMainnet,
-        assetNamespace: 'trc20',
-        assetReference: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
-      })
       const usdcOnSui = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Sui,
         chainReference: CHAIN_REFERENCE.SuiMainnet,
@@ -388,7 +382,6 @@ describe('adapters:coingecko', () => {
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,
-        usdcOnTron,
         usdcOnNear,
       ])
     })

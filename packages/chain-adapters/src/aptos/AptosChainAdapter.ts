@@ -1,4 +1,4 @@
-import type { PendingTransactionResponse } from '@aptos-labs/ts-sdk'
+import type { GetAccountCoinsDataResponse, PendingTransactionResponse } from '@aptos-labs/ts-sdk'
 import {
   AccountAddress,
   Aptos,
@@ -42,10 +42,10 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
-import { APT_COIN_TYPE, FEE_STATEMENT_EVENT_TYPE } from './constants'
+import { APT_COIN_TYPE, FEE_STATEMENT_EVENT_TYPE, INDEXER_PAGE_LIMIT } from './constants'
 import { parseAptosTx } from './parser'
 import type { AptosToken } from './types'
-import { getTokenAssetNamespace, getTransferPayload } from './utils'
+import { getTokenAssetNamespace, getTransferPayload, isFungibleAssetReference } from './utils'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -146,33 +146,29 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.AptosMainnet>> {
     try {
-      const balances = await this.client.getAccountCoinsData({
-        accountAddress: pubkey,
-      })
+      const balances = await this.getBalances(pubkey)
 
       let nativeBalance = '0'
       const tokens: AptosToken[] = []
 
-      for (const entry of balances) {
-        if (!entry.asset_type || BigInt(entry.amount ?? 0) === 0n) continue
-
-        if (entry.asset_type === APT_COIN_TYPE) {
-          nativeBalance = String(entry.amount)
+      for (const { asset_type, balance, metadata } of balances) {
+        if (asset_type === APT_COIN_TYPE) {
+          nativeBalance = balance
           continue
         }
 
         const assetId = toAssetId({
           chainId: this.chainId,
-          assetNamespace: getTokenAssetNamespace(entry.asset_type),
-          assetReference: entry.asset_type,
+          assetNamespace: getTokenAssetNamespace(asset_type),
+          assetReference: asset_type,
         })
 
         tokens.push({
           assetId,
-          balance: String(entry.amount),
-          symbol: entry.metadata?.symbol ?? 'UNKNOWN',
-          name: entry.metadata?.name ?? entry.asset_type,
-          precision: entry.metadata?.decimals ?? 0,
+          balance,
+          symbol: metadata?.symbol ?? 'UNKNOWN',
+          name: metadata?.name ?? asset_type,
+          precision: metadata?.decimals ?? 0,
         })
       }
 
@@ -190,6 +186,57 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         options: { pubkey },
       })
     }
+  }
+
+  private async getBalances(pubkey: string) {
+    const entries: GetAccountCoinsDataResponse = []
+
+    // the indexer caps each page, so page through non-zero primary store balances
+    for (let offset = 0; ; offset += INDEXER_PAGE_LIMIT) {
+      const page = await this.client.getAccountCoinsData({
+        accountAddress: pubkey,
+        options: {
+          where: { amount: { _gt: 0 }, is_primary: { _eq: true } },
+          orderBy: [{ storage_id: 'asc' }],
+          offset,
+          limit: INDEXER_PAGE_LIMIT,
+        },
+      })
+
+      entries.push(...page)
+      if (page.length < INDEXER_PAGE_LIMIT) break
+    }
+
+    return Promise.all(
+      entries
+        .filter(entry => entry.asset_type)
+        .map(async entry => ({
+          asset_type: entry.asset_type as string,
+          metadata: entry.metadata,
+          balance: await this.getExactBalance(pubkey, entry.asset_type as string, entry.amount),
+        })),
+    )
+  }
+
+  // indexer amounts are json numbers, so anything past 2^53 is read from the node instead
+  private async getExactBalance(pubkey: string, assetType: string, amount: unknown) {
+    if (Number.isSafeInteger(Number(amount))) return String(amount)
+
+    const [balance] = await this.client.view<[string]>({
+      payload: isFungibleAssetReference(assetType)
+        ? {
+            function: '0x1::primary_fungible_store::balance',
+            typeArguments: ['0x1::fungible_asset::Metadata'],
+            functionArguments: [pubkey, assetType],
+          }
+        : {
+            function: '0x1::coin::balance',
+            typeArguments: [assetType],
+            functionArguments: [pubkey],
+          },
+    })
+
+    return balance
   }
 
   validateAddress(address: string): Promise<ValidAddressResult> {

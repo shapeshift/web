@@ -16,6 +16,7 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
       return {
         getAccountCoinsData: vi.fn(),
         getGasPriceEstimation: vi.fn(),
+        view: vi.fn(),
         account: { getAccountInfo: vi.fn() },
         transaction: {
           getTransactionByHash: vi.fn(),
@@ -159,23 +160,46 @@ describe('AptosChainAdapter', () => {
       ])
     })
 
-    it('filters out zero-amount entries', async () => {
-      client.getAccountCoinsData.mockResolvedValueOnce([
-        {
-          asset_type: APT_COIN_TYPE,
-          amount: '0',
-          metadata: { symbol: 'APT', name: 'Aptos Coin', decimals: 8 },
-        },
-        {
-          asset_type: USDC_FA,
-          amount: '0',
-          metadata: { symbol: 'USDC', name: 'USD Coin', decimals: 6 },
-        },
-      ])
+    it('pages through non-zero primary store balances', async () => {
+      const page = Array.from({ length: 100 }, (_, i) => ({
+        asset_type: `0x${(i + 1).toString(16)}::coin::T`,
+        amount: '1',
+        metadata: null,
+      }))
+      client.getAccountCoinsData
+        .mockResolvedValueOnce(page)
+        .mockResolvedValueOnce([{ asset_type: USDC_FA, amount: '7', metadata: null }])
 
       const acct = await adapter.getAccount(ADDR)
-      expect(acct.balance).toBe('0')
-      expect(acct.chainSpecific.tokens).toEqual([])
+      expect(acct.chainSpecific.tokens).toHaveLength(101)
+      expect(client.getAccountCoinsData).toHaveBeenCalledTimes(2)
+      expect(client.getAccountCoinsData.mock.calls[1][0].options).toMatchObject({
+        where: { amount: { _gt: 0 }, is_primary: { _eq: true } },
+        offset: 100,
+        limit: 100,
+      })
+    })
+
+    it('reads balances past 2^53 from the node', async () => {
+      client.getAccountCoinsData.mockResolvedValueOnce([
+        { asset_type: APT_COIN_TYPE, amount: 29744182751680730, metadata: null },
+        { asset_type: USDC_FA, amount: 103013109704767620, metadata: null },
+      ])
+      client.view
+        .mockResolvedValueOnce(['29744182751680726'])
+        .mockResolvedValueOnce(['103013109704767616'])
+
+      const acct = await adapter.getAccount(ADDR)
+      expect(acct.balance).toBe('29744182751680726')
+      expect(acct.chainSpecific.tokens[0].balance).toBe('103013109704767616')
+      expect(client.view.mock.calls[0][0].payload).toMatchObject({
+        function: '0x1::coin::balance',
+        typeArguments: [APT_COIN_TYPE],
+      })
+      expect(client.view.mock.calls[1][0].payload).toMatchObject({
+        function: '0x1::primary_fungible_store::balance',
+        functionArguments: [ADDR, USDC_FA],
+      })
     })
 
     it('falls back to UNKNOWN symbol when metadata is missing', async () => {

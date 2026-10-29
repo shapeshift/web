@@ -5,6 +5,8 @@ export const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
 
 export const FEE_STATEMENT_EVENT_TYPE = '0x1::transaction_fee::FeeStatement'
 
+export const INDEXER_PAGE_LIMIT = 100
+
 export const COIN_TRANSFER_FUNCTIONS = [
   '0x1::aptos_account::transfer',
   '0x1::aptos_account::transfer_coins',

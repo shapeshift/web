@@ -108,6 +108,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
+
     return {
       ...ChainAdapter.rootBip44Params,
       accountNumber,
@@ -245,12 +246,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     }
   }
 
-  async signTransaction(
-    signTxInput: SignTxInput<SignTx<KnownChainIds.AptosMainnet>>,
-  ): Promise<string> {
+  async signTransaction({
+    txToSign,
+    wallet,
+  }: SignTxInput<SignTx<KnownChainIds.AptosMainnet>>): Promise<string> {
     try {
-      const { txToSign, wallet } = signTxInput
-
       if (!wallet) throw new Error('wallet is required')
 
       this.assertSupportsChain(wallet)
@@ -288,6 +288,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   }: SignAndBroadcastTransactionInput<KnownChainIds.AptosMainnet>): Promise<string> {
     try {
       const hex = await this.signTransaction(signTxInput)
+
       return this.broadcastTransaction({ senderAddress, receiverAddress, hex })
     } catch (err) {
       return ErrorHandler(err, {
@@ -296,14 +297,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     }
   }
 
-  async broadcastTransaction(input: BroadcastTransactionInput): Promise<string> {
+  async broadcastTransaction({ hex }: BroadcastTransactionInput): Promise<string> {
     try {
       const { data } = await postAptosFullNode<Uint8Array, PendingTransactionResponse>({
         aptosConfig: this.client.config,
         path: 'transactions',
         originMethod: 'broadcastTransaction',
         contentType: MimeType.BCS_SIGNED_TRANSACTION,
-        body: Hex.fromHexInput(input.hex).toUint8Array(),
+        body: Hex.fromHexInput(hex).toUint8Array(),
       })
 
       return data.hash

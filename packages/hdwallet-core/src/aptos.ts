@@ -58,18 +58,16 @@ export function aptosDescribePath(path: BIP32Path): PathDescription {
     isKnown: false,
   }
 
-  // Aptos uses m/44'/637'/0'/0'/0' - standard BIP44 with SLIP-44 = 637
-  // https://github.com/aptos-labs/aptos-core/blob/main/sdk/src/wallet.rs
   const slip44 = slip44ByCoin('Aptos')
   if (slip44 === undefined) return unknown
   if (path.length != 5) return unknown
   if (path[0] != 0x80000000 + 44) return unknown
   if (path[1] != 0x80000000 + slip44) return unknown
-  if (path[2] != 0x80000000 + 0) return unknown
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown
   if (path[3] != 0x80000000 + 0) return unknown
-  if ((path[4] & 0x80000000) >>> 0 !== 0) return unknown
+  if (path[4] != 0x80000000 + 0) return unknown
 
-  const index = path[4] & 0x7fffffff
+  const index = path[2] & 0x7fffffff
   return {
     verbose: `Aptos Account #${index}`,
     accountIdx: index,
@@ -79,8 +77,8 @@ export function aptosDescribePath(path: BIP32Path): PathDescription {
   }
 }
 
-// Aptos uses standard BIP44 derivation: m/44'/637'/0'/0'/<address_index>
-// https://github.com/satoshilabs/slips/blob/master/slip-0044.md (637 = Aptos)
+// Aptos derives m/44'/637'/<account>'/0'/0', matching Petra and the Aptos SDK
+// Aptos uses the Ed25519 elliptic curve, which requires all levels of the derivation path to be hardened.
 export function aptosGetAccountPaths(msg: AptosGetAccountPaths): AptosAccountPath[] {
   const slip44 = slip44ByCoin('Aptos')
   if (slip44 === undefined) return []
@@ -89,27 +87,17 @@ export function aptosGetAccountPaths(msg: AptosGetAccountPaths): AptosAccountPat
       addressNList: [
         0x80000000 + 44,
         0x80000000 + slip44,
+        0x80000000 + msg.accountIdx,
         0x80000000 + 0,
         0x80000000 + 0,
-        msg.accountIdx,
       ],
     },
   ]
 }
 
 export function aptosNextAccountPath(msg: AptosAccountPath): AptosAccountPath | undefined {
-  const slip44 = slip44ByCoin('Aptos')
-  if (slip44 === undefined) return undefined
-  // Only return next if the path looks like m/44'/637'/0'/0'/n
-  if (msg.addressNList.length !== 5) return undefined
-  if (msg.addressNList[0] !== 0x80000000 + 44) return undefined
-  if (msg.addressNList[1] !== 0x80000000 + slip44) return undefined
-  if (msg.addressNList[2] !== 0x80000000 + 0) return undefined
-  if (msg.addressNList[3] !== 0x80000000 + 0) return undefined
-  if ((msg.addressNList[4] & 0x80000000) >>> 0 !== 0) return undefined
+  const description = aptosDescribePath(msg.addressNList)
+  if (!description.isKnown || description.accountIdx === undefined) return undefined
 
-  const nextIndex = (msg.addressNList[4] & 0x7fffffff) + 1
-  return {
-    addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0, 0x80000000 + 0, nextIndex],
-  }
+  return aptosGetAccountPaths({ accountIdx: description.accountIdx + 1 })[0]
 }

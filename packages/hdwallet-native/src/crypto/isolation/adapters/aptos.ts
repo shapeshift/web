@@ -6,7 +6,7 @@ import type { Isolation } from '../..'
 const ED25519_PUBLIC_KEY_SIZE = 32
 
 /**
- * Aptos uses Ed25519 signing with BIP44 derivation path m/44'/637'/0'/0'/0'
+ * Aptos uses Ed25519 signing with BIP44 derivation path m/44'/637'/<account>'/0'/0'
  * Addresses are derived from the Ed25519 public key using SHA3-256 truncated to 32 bytes.
  * The @aptos-labs/ts-sdk handles BCS serialization and transaction construction.
  */

@@ -297,7 +297,7 @@ describe('AptosChainAdapter', () => {
       const tx = await adapter.parseTx('0xtxhash', ADDR)
 
       expect(tx.status).toBe(TxStatus.Confirmed)
-      expect(tx.fee).toEqual({ assetId: aptosAssetId, value: '15100' })
+      expect(tx.fee).toBeUndefined()
       expect(tx.transfers).toEqual([
         {
           assetId: aptosAssetId,
@@ -313,6 +313,7 @@ describe('AptosChainAdapter', () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce(makeTx())
       const tx = await adapter.parseTx('0xtxhash', SENDER)
 
+      expect(tx.fee).toEqual({ assetId: aptosAssetId, value: '15100' })
       expect(tx.transfers).toEqual([
         {
           assetId: aptosAssetId,
@@ -322,6 +323,23 @@ describe('AptosChainAdapter', () => {
           value: '9423057',
         },
       ])
+    })
+
+    it('attributes the fee of a sponsored transaction to the fee payer, not the sender', async () => {
+      const sponsored = makeTx({
+        signature: {
+          type: 'fee_payer_signature',
+          fee_payer_address: ADDR,
+        },
+      })
+
+      client.transaction.getTransactionByHash.mockResolvedValueOnce(sponsored)
+      const senderTx = await adapter.parseTx('0xtxhash', SENDER)
+      expect(senderTx.fee).toBeUndefined()
+
+      client.transaction.getTransactionByHash.mockResolvedValueOnce(sponsored)
+      const feePayerTx = await adapter.parseTx('0xtxhash', ADDR)
+      expect(feePayerTx.fee).toEqual({ assetId: aptosAssetId, value: '15100' })
     })
 
     it('maps a FA primary_fungible_store::transfer to the right assetId and arg offsets', async () => {
@@ -431,16 +449,18 @@ describe('AptosChainAdapter', () => {
       })
       const tx = await adapter.parseTx('0xtxhash', ADDR)
       expect(tx.status).toBe(TxStatus.Pending)
-      expect(tx.fee).toEqual({ assetId: aptosAssetId, value: '0' })
+      expect(tx.fee).toBeUndefined()
       expect(tx.blockHeight).toBe(0)
       expect(tx.transfers).toHaveLength(1)
     })
 
-    it('marks failed transactions as Failed with zero confirmations', async () => {
+    it('marks failed transactions as Failed, keeping the attempted transfer and the spent fee', async () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce(makeTx({ success: false }))
-      const tx = await adapter.parseTx('0xtxhash', ADDR)
+      const tx = await adapter.parseTx('0xtxhash', SENDER)
       expect(tx.status).toBe(TxStatus.Failed)
       expect(tx.confirmations).toBe(0)
+      expect(tx.transfers.map(t => t.type)).toEqual([TransferType.Send])
+      expect(tx.fee).toEqual({ assetId: aptosAssetId, value: '15100' })
     })
 
     it('converts microsecond timestamps to seconds', async () => {

@@ -1,8 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { aptosChainId } from '@shapeshiftoss/caip'
-import type { aptos } from '@shapeshiftoss/chain-adapters'
+import { aptos } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from 'packages/unchained-client/src/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
@@ -32,18 +32,10 @@ export const assertGetAptosChainAdapter = (
 
 export const getAptosTransactionStatus = async (txHash: string): Promise<TxStatus> => {
   try {
-    const adapter = assertGetAptosChainAdapter(aptosChainId)
-    const rpcUrl = adapter.getRpcUrl()
+    const client = assertGetAptosChainAdapter(aptosChainId).getAptosClient()
+    const tx = await client.transaction.getTransactionByHash({ transactionHash: txHash })
 
-    const response = await fetch(`${rpcUrl}/transactions/by_hash/${txHash}`)
-    if (!response.ok) return TxStatus.Unknown
-
-    const tx = await response.json()
-
-    if (tx.success === false) return TxStatus.Failed
-    if (tx.success === true) return TxStatus.Confirmed
-
-    return TxStatus.Unknown
+    return aptos.getAptosTxStatus(tx)
   } catch (error) {
     console.error('Error getting Aptos transaction status:', error)
     return TxStatus.Unknown

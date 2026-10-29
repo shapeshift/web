@@ -1,8 +1,4 @@
-import type {
-  EntryFunctionABI,
-  EntryFunctionPayloadResponse,
-  InputEntryFunctionData,
-} from '@aptos-labs/ts-sdk'
+import type { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
 import {
   AccountAddress,
   AccountAuthenticatorEd25519,
@@ -14,24 +10,14 @@ import {
   isPendingTransactionResponse,
   isUserTransactionResponse,
   Network,
-  parseTypeTag,
   SimpleTransaction,
-  TypeTagAddress,
-  TypeTagU64,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  aptosAssetId,
-  aptosChainId,
-  ASSET_NAMESPACE,
-  ASSET_REFERENCE,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { aptosAssetId, aptosChainId, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import type { AptosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsAptos } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -52,52 +38,14 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
+import { APT_COIN_TYPE } from './constants'
+import { parseAptosTx } from './parser'
 import type { AptosToken } from './types'
+import { getTokenAssetNamespace, getTransferPayload } from './utils'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
   indexerUrl: string
-}
-
-const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
-
-const FA_TRANSFER_FUNCTIONS = [
-  '0x1::primary_fungible_store::transfer',
-  '0x1::aptos_account::transfer_fungible_assets',
-]
-
-// local abis (mirroring the sdk's transfer helpers) skip a remote abi fetch per build
-const COIN_TRANSFER_ABI: EntryFunctionABI = {
-  typeParameters: [{ constraints: [] }],
-  parameters: [new TypeTagAddress(), new TypeTagU64()],
-}
-
-const FA_TRANSFER_ABI: EntryFunctionABI = {
-  typeParameters: [{ constraints: [] }],
-  parameters: [parseTypeTag('0x1::object::Object'), new TypeTagAddress(), new TypeTagU64()],
-}
-
-const getTransferPayload = (
-  to: string,
-  value: string,
-  contractAddress: string | undefined,
-): InputEntryFunctionData => {
-  // fungible assets are referenced by metadata address, apt and legacy coins by move struct type
-  if (contractAddress && !contractAddress.includes('::')) {
-    return {
-      function: '0x1::primary_fungible_store::transfer',
-      typeArguments: ['0x1::fungible_asset::Metadata'],
-      functionArguments: [contractAddress, to, BigInt(value)],
-      abi: FA_TRANSFER_ABI,
-    }
-  }
-
-  return {
-    function: '0x1::aptos_account::transfer_coins',
-    typeArguments: [contractAddress ?? APT_COIN_TYPE],
-    functionArguments: [to, BigInt(value)],
-    abi: COIN_TRANSFER_ABI,
-  }
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
@@ -109,13 +57,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   protected readonly chainId = aptosChainId
   protected readonly assetId = aptosAssetId
-  protected readonly rpcUrl: string
-  protected readonly indexerUrl: string
   protected readonly client: Aptos
 
   constructor(args: ChainAdapterArgs) {
-    this.rpcUrl = args.rpcUrl
-    this.indexerUrl = args.indexerUrl
     this.client = new Aptos(
       new AptosConfig({
         network: Network.MAINNET,
@@ -135,15 +79,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   }
 
   getName() {
-    return 'Aptos'
+    return ChainAdapterDisplayName.Aptos
   }
 
   getDisplayName() {
     return ChainAdapterDisplayName.Aptos
   }
 
-  getRpcUrl() {
-    return this.rpcUrl
+  getAptosClient(): Aptos {
+    return this.client
   }
 
   getType(): KnownChainIds.AptosMainnet {
@@ -173,10 +117,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const { accountNumber, pubKey, wallet, showOnDevice = false } = input
 
       if (pubKey) return pubKey
-
       if (!wallet) throw new Error('wallet is required')
-      this.assertSupportsChain(wallet)
 
+      this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
       const address = await wallet.aptosGetAddress({
@@ -213,9 +156,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
         const assetId = toAssetId({
           chainId: this.chainId,
-          assetNamespace: entry.asset_type.includes('::')
-            ? ASSET_NAMESPACE.aptosCoin
-            : ASSET_NAMESPACE.aptosFungible,
+          assetNamespace: getTokenAssetNamespace(entry.asset_type),
           assetReference: entry.asset_type,
         })
 
@@ -440,116 +381,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     return
   }
 
-  private getPayloadAssetId(payload: EntryFunctionPayloadResponse): AssetId | undefined {
-    const fn = payload.function
-
-    if (fn === '0x1::coin::transfer' || fn === '0x1::aptos_account::transfer_coins') {
-      const coinType = payload.type_arguments?.[0]
-      if (!coinType) return undefined
-      if (coinType === APT_COIN_TYPE) return this.assetId
-      return toAssetId({
-        chainId: this.chainId,
-        assetNamespace: ASSET_NAMESPACE.aptosCoin,
-        assetReference: coinType,
-      })
-    }
-
-    if (FA_TRANSFER_FUNCTIONS.includes(fn)) {
-      const metadata = payload.arguments?.[0]
-      const ref = typeof metadata === 'string' ? metadata : (metadata as { inner?: string })?.inner
-      if (!ref) return undefined
-      return toAssetId({
-        chainId: this.chainId,
-        assetNamespace: ASSET_NAMESPACE.aptosFungible,
-        assetReference: ref,
-      })
-    }
-
-    if (fn === '0x1::aptos_account::transfer') {
-      return this.assetId
-    }
-
-    return undefined
-  }
-
-  async parseTx(txHash: unknown, pubkey: string): Promise<Transaction> {
+  async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
     try {
-      if (typeof txHash !== 'string') {
-        throw new Error(`parseTx expects a string tx hash, got ${typeof txHash}`)
-      }
-
       const tx = await this.client.transaction.getTransactionByHash({ transactionHash: txHash })
 
-      const isUserTx = isUserTransactionResponse(tx)
-      if (!isUserTx && !isPendingTransactionResponse(tx)) {
+      if (!isUserTransactionResponse(tx) && !isPendingTransactionResponse(tx)) {
         throw new Error(`unsupported transaction type: ${tx.type}`)
       }
 
-      const status = isUserTx
-        ? tx.success
-          ? TxStatus.Confirmed
-          : TxStatus.Failed
-        : TxStatus.Pending
-
-      const fee = {
-        assetId: this.assetId,
-        value: isUserTx ? (BigInt(tx.gas_used) * BigInt(tx.gas_unit_price)).toString() : '0',
-      }
-
-      const transfers: Transaction['transfers'] = []
-      const payload = 'function' in tx.payload ? tx.payload : undefined
-      const transferAssetId = payload && this.getPayloadAssetId(payload)
-
-      if (payload && transferAssetId) {
-        const args = payload.arguments
-        const isFaTransfer = FA_TRANSFER_FUNCTIONS.includes(payload.function)
-        const recipient = String(args[isFaTransfer ? 1 : 0] ?? '')
-        const amount = String(args[isFaTransfer ? 2 : 1] ?? '0')
-        const sender = tx.sender
-
-        // Aptos addresses may differ in casing/length but refer to the same account.
-        // Use SDK normalization via AccountAddress for reliable equality.
-        const eq = (a: string, b: string) => {
-          try {
-            return AccountAddress.fromString(a).equals(AccountAddress.fromString(b))
-          } catch {
-            return false
-          }
-        }
-
-        if (eq(sender, pubkey)) {
-          transfers.push({
-            assetId: transferAssetId,
-            from: [sender],
-            to: [recipient],
-            type: TransferType.Send,
-            value: amount,
-          })
-        }
-        if (eq(recipient, pubkey)) {
-          transfers.push({
-            assetId: transferAssetId,
-            from: [sender],
-            to: [recipient],
-            type: TransferType.Receive,
-            value: amount,
-          })
-        }
-      }
-
-      return {
-        txid: tx.hash,
-        blockHeight: isUserTx ? Number(tx.version) : 0,
-        // aptos timestamps are in microseconds
-        blockTime: isUserTx ? Math.floor(Number(tx.timestamp) / 1_000_000) : 0,
-        blockHash: undefined,
-        chainId: this.chainId,
-        confirmations: status === TxStatus.Confirmed ? 1 : 0,
-        status,
-        fee,
-        transfers,
-        pubkey,
-      }
+      return parseAptosTx(tx, pubkey, this.chainId, this.assetId)
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.parseTx',

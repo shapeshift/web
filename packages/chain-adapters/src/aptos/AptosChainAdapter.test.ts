@@ -311,6 +311,14 @@ describe('AptosChainAdapter', () => {
       ])
     })
 
+    it('simulates with a fee payer so a sender without apt still gets fees', async () => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([simulation])
+
+      await getFeeData()
+
+      expect(client.transaction.build.simple.mock.calls[0][0].withFeePayer).toBe(true)
+    })
+
     it.each([
       ['fails', { success: false, gas_used: '0', vm_status: 'INSUFFICIENT_BALANCE' }],
       ['has no fee statement', { success: true, events: [] }],

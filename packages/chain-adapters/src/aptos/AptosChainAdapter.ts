@@ -48,7 +48,12 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
-import { APT_COIN_TYPE, FEE_STATEMENT_EVENT_TYPE, INDEXER_PAGE_LIMIT } from './constants'
+import {
+  APT_COIN_TYPE,
+  FEE_STATEMENT_EVENT_TYPE,
+  INDEXER_PAGE_LIMIT,
+  TX_EXPIRY_SECS,
+} from './constants'
 import { parseAptosTx } from './parser'
 import type { Token } from './types'
 import { getBalancePayload, getDecimalsPayload, getTransferPayload } from './utils'
@@ -77,6 +82,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         fullnode: `${args.rpcUrl}/v1`,
         indexer: `${args.indexerUrl}/v1/graphql`,
         clientConfig: args.apiKey ? { API_KEY: args.apiKey } : undefined,
+        transactionGenerationConfig: { defaultTxnExpirySecFromNow: TX_EXPIRY_SECS },
       }),
     )
   }
@@ -397,14 +403,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
           this.client.transaction.build.simple({
             sender: from,
             data: getTransferPayload(to, simulatedValue, contractAddress),
+            // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
+            withFeePayer: true,
           }),
         ])
 
-      // caps simulated gas at what the sender can afford, so the default cap can't fail the simulation
-      const [sim] = await this.client.transaction.simulate.simple({
-        transaction,
-        options: { estimateGasUnitPrice: true, estimateMaxGasAmount: true },
-      })
+      const [sim] = await this.client.transaction.simulate.simple({ transaction })
 
       if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
 

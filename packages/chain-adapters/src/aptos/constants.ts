@@ -7,6 +7,9 @@ export const FEE_STATEMENT_EVENT_TYPE = '0x1::transaction_fee::FeeStatement'
 
 export const INDEXER_PAGE_LIMIT = 100
 
+// the sdk default of 20s starts at build, so it can run out while a slow signer is confirming
+export const TX_EXPIRY_SECS = 300
+
 export const COIN_TRANSFER_FUNCTIONS = [
   '0x1::aptos_account::transfer',
   '0x1::aptos_account::transfer_coins',

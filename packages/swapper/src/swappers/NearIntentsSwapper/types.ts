@@ -1,6 +1,8 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type {
+  GetAptosTradeQuoteInput,
+  GetAptosTradeRateInput,
   GetEvmTradeQuoteInput,
   GetEvmTradeRateInput,
   GetNearTradeQuoteInput,
@@ -29,6 +31,7 @@ export type NearIntentsTradeQuoteInput =
   | GetStarknetTradeQuoteInput
   | GetNearTradeQuoteInput
   | GetTonTradeQuoteInput
+  | GetAptosTradeQuoteInput
 
 export type NearIntentsTradeRateInput =
   | GetEvmTradeRateInput
@@ -39,6 +42,7 @@ export type NearIntentsTradeRateInput =
   | GetStarknetTradeRateInput
   | GetNearTradeRateInput
   | GetTonTradeRateInput
+  | GetAptosTradeRateInput
 
 export type NearIntentsExactOutputTradeQuoteInput = WithExactBuyAmount<NearIntentsTradeQuoteInput>
 export type NearIntentsExactOutputTradeRateInput = WithExactBuyAmount<NearIntentsTradeRateInput>

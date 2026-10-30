@@ -7,6 +7,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
+import { APTOS_PLACEHOLDER_ADDRESS } from '../../../utils/aptos'
 import { EVM_PLACEHOLDER_ADDRESS, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
@@ -300,16 +301,15 @@ export async function getNearIntentsStepData(
         return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Aptos: {
-        if (!from) {
-          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: undefined }
-
-          return Ok(stepData)
-        }
-
+        // Walletless rates estimate a native transfer from the funded placeholder, which holds
+        // none of the sell token; a token deposit costs ~4% more gas than this native shape
         const { fast } = await deps.assertGetAptosChainAdapter(sellAsset.chainId).getFeeData({
           to: depositAddress,
           value: sellAmountCryptoBaseUnit,
-          chainSpecific: { from, contractAddress },
+          chainSpecific: {
+            from: from ?? APTOS_PLACEHOLDER_ADDRESS,
+            contractAddress: from ? contractAddress : undefined,
+          },
         })
 
         const networkFeeCryptoBaseUnit = fast.txFee

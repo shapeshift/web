@@ -23,6 +23,7 @@ import type {
 import type {
   Asset,
   AssetsByIdPartial,
+  AptosChainId,
   CosmosSdkChainId,
   EvmChainId,
   KnownChainIds,
@@ -259,6 +260,14 @@ export type GetTonTradeRateInput = CommonTradeRateInput & {
   chainId: TonChainId
 }
 
+export type GetAptosTradeQuoteInput = CommonTradeQuoteInput & {
+  chainId: AptosChainId
+}
+
+export type GetAptosTradeRateInput = CommonTradeRateInput & {
+  chainId: AptosChainId
+}
+
 export type GetSolanaTradeQuoteInput = CommonTradeQuoteInput & {
   chainId: SolanaChainId
 }
@@ -311,6 +320,7 @@ export type GetTradeQuoteInput =
   | GetSolanaTradeQuoteInput
   | GetStarknetTradeQuoteInput
   | GetSuiTradeQuoteInput
+  | GetAptosTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -322,6 +332,7 @@ export type GetTradeRateInput =
   | GetSolanaTradeRateInput
   | GetStarknetTradeRateInput
   | GetSuiTradeRateInput
+  | GetAptosTradeRateInput
 
 export type WithExactBuyAmount<
   T extends { sellAmountIncludingProtocolFeesCryptoBaseUnit: string },

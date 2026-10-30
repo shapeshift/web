@@ -57,7 +57,7 @@ export const getNearIntentsAsset = ({
 }
 
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad', 'plasma'] as const
-const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet', 'ton'] as const
+const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet', 'ton', 'aptos'] as const
 const NEAR_CHAIN = 'near' as const
 const BTC_CHAIN = 'btc' as const
 const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const
@@ -100,7 +100,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
     return match?.assetId ?? null
   }
 
-  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, Monad), Token lookup chains (Sui, Starknet), and Solana require token lookup
+  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, Monad), Token lookup chains (Sui, Starknet, TON, Aptos), and Solana require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses
   const requiresLookup =
     isNep245Chain(nearNetwork) || isTokenLookupChain(nearNetwork) || asset.chainId === solanaChainId

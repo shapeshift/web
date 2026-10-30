@@ -1,5 +1,5 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { aptos, evm } from '@shapeshiftoss/chain-adapters'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -301,34 +301,38 @@ export async function getNearIntentsStepData(
         return Ok(stepData)
       }
       case CHAIN_NAMESPACE.Aptos: {
-        // Walletless rates estimate a native transfer from the funded placeholder, which holds
-        // none of the sell token; a token deposit costs ~4% more gas than this native shape
-        const { fast } = await deps.assertGetAptosChainAdapter(sellAsset.chainId).getFeeData({
-          to: depositAddress,
-          value: sellAmountCryptoBaseUnit,
-          chainSpecific: {
-            from: from ?? APTOS_PLACEHOLDER_ADDRESS,
-            contractAddress: from ? contractAddress : undefined,
-          },
-        })
-
-        const networkFeeCryptoBaseUnit = fast.txFee
+        const adapter = deps.assertGetAptosChainAdapter(sellAsset.chainId)
 
         if (type === 'rate') {
-          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit }
+          const { fast } = await adapter.getFeeData({
+            to: depositAddress,
+            value: sellAmountCryptoBaseUnit,
+            chainSpecific: { from: from ?? APTOS_PLACEHOLDER_ADDRESS, contractAddress },
+          })
+
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: fast.txFee }
 
           return Ok(stepData)
         }
 
+        const { fast } = await adapter.getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: { from, contractAddress },
+        })
+
         const stepData: NearIntentsQuoteStepData = {
           transactionData: {
             type: 'aptos',
-            to: depositAddress,
-            value: sellAmountCryptoBaseUnit,
+            payload: aptos.getSerializedTransferPayload(
+              depositAddress,
+              sellAmountCryptoBaseUnit,
+              contractAddress,
+            ),
             gasUnitPrice: fast.chainSpecific.gasUnitPrice,
             maxGasAmount: fast.chainSpecific.maxGasAmount,
           },
-          networkFeeCryptoBaseUnit,
+          networkFeeCryptoBaseUnit: fast.txFee,
         }
 
         return Ok(stepData)

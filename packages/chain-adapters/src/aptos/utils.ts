@@ -1,5 +1,5 @@
-import type { InputEntryFunctionData, InputViewFunctionData } from '@aptos-labs/ts-sdk'
-import { AccountAddress } from '@aptos-labs/ts-sdk'
+import type { InputEntryFunctionDataWithABI, InputViewFunctionData } from '@aptos-labs/ts-sdk'
+import { AccountAddress, generateTransactionPayloadWithABI, Hex } from '@aptos-labs/ts-sdk'
 import { ASSET_NAMESPACE, getAptosAssetNamespace } from '@shapeshiftoss/caip'
 
 import { APT_COIN_TYPE, COIN_TRANSFER_ABI, FA_TRANSFER_ABI } from './constants'
@@ -20,7 +20,7 @@ export const getTransferPayload = (
   to: string,
   value: string,
   contractAddress: string | undefined,
-): InputEntryFunctionData => {
+): InputEntryFunctionDataWithABI => {
   if (contractAddress && isFungibleAssetReference(contractAddress)) {
     return {
       function: '0x1::primary_fungible_store::transfer',
@@ -36,6 +36,16 @@ export const getTransferPayload = (
     functionArguments: [to, BigInt(value)],
     abi: COIN_TRANSFER_ABI,
   }
+}
+
+export const getSerializedTransferPayload = (
+  to: string,
+  value: string,
+  contractAddress: string | undefined,
+): string => {
+  const payload = generateTransactionPayloadWithABI(getTransferPayload(to, value, contractAddress))
+
+  return Hex.fromHexInput(payload.bcsToBytes()).toString()
 }
 
 export const getDecimalsPayload = (assetType: string): InputViewFunctionData => {

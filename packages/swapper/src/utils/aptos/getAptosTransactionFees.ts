@@ -8,8 +8,7 @@ export const getAptosTransactionFees = ({
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
-  if (!step.feeData.networkFeeCryptoBaseUnit) {
-    throw new Error('Missing network fee in quote')
-  }
+  if (!step.feeData.networkFeeCryptoBaseUnit) throw new Error('Missing network fee in quote')
+
   return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
 }

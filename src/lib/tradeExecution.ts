@@ -882,6 +882,7 @@ export class TradeExecution {
       if (!swapper.getUnsignedAptosTransaction) {
         throw Error('missing implementation for getUnsignedAptosTransaction')
       }
+
       if (!swapper.executeAptosTransaction) {
         throw Error('missing implementation for executeAptosTransaction')
       }
@@ -896,7 +897,7 @@ export class TradeExecution {
         assertGetAptosChainAdapter,
       })
 
-      return await swapper.executeAptosTransaction(unsignedTxResult, {
+      return swapper.executeAptosTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

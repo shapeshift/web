@@ -72,7 +72,7 @@ const getRate = async (
       {
         ...stepCommon,
         accountNumber,
-        feeData: { protocolFees, networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit ?? '0' },
+        feeData: { protocolFees, networkFeeCryptoBaseUnit },
       },
     ],
   }

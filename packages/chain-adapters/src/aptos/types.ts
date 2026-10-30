@@ -22,6 +22,13 @@ export type BuildTxInput = FeeData & {
   contractAddress: string | undefined
 }
 
+export type BuildCustomApiTxInput = FeeData & {
+  from: string
+  accountNumber: number
+  // hex encoded BCS TransactionPayload
+  payload: string
+}
+
 export type GetFeeDataInput = {
   from: string
   contractAddress: string | undefined

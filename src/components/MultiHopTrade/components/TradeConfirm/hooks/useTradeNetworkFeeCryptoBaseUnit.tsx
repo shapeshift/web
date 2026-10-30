@@ -322,13 +322,14 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 if (!swapper.getAptosTransactionFees) throw Error('missing getAptosTransactionFees')
 
                 const adapter = assertGetAptosChainAdapter(stepSellAssetChainId)
+
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   ...(skipDeviceDerivation ? { pubKey } : {}),
                 })
 
-                const output = await swapper.getAptosTransactionFees({
+                return swapper.getAptosTransactionFees({
                   tradeQuote,
                   from,
                   stepIndex: hopIndex,
@@ -337,7 +338,6 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   config: getConfig(),
                   assertGetAptosChainAdapter,
                 })
-                return output
               }
               default:
                 assertUnreachable(stepSellAssetChainNamespace)

@@ -6,6 +6,7 @@ import {
   Deserializer,
   Ed25519PublicKey,
   Ed25519Signature,
+  generateRawTransaction,
   Hex,
   isPendingTransactionResponse,
   isUserTransactionResponse,
@@ -15,6 +16,7 @@ import {
   RawTransaction,
   SignedTransaction,
   TransactionAuthenticatorEd25519,
+  TransactionPayload,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
@@ -52,10 +54,11 @@ import {
   APT_COIN_TYPE,
   FEE_STATEMENT_EVENT_TYPE,
   INDEXER_PAGE_LIMIT,
+  SIMULATED_TRANSFER_VALUE,
   TX_EXPIRY_SECS,
 } from './constants'
 import { parseAptosTx } from './parser'
-import type { Token } from './types'
+import type { BuildCustomApiTxInput, Token } from './types'
 import { getBalancePayload, getDecimalsPayload, getTransferPayload } from './utils'
 
 export interface ChainAdapterArgs {
@@ -278,28 +281,59 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         data: getTransferPayload(to, value, contractAddress),
       })
 
-      // the sdk floors max gas at 2000 units, which would reserve far more apt than the fee
-      const { sender, sequence_number, payload, expiration_timestamp_secs, chain_id } =
-        rawTransaction
-
-      const transaction = new RawTransaction(
-        sender,
-        sequence_number,
-        payload,
-        BigInt(maxGasAmount),
-        BigInt(gasUnitPrice),
-        expiration_timestamp_secs,
-        chain_id,
-      )
-
-      return {
-        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
-        rawTransactionBytes: transaction.bcsToBytes(),
-      }
+      return this.toSignTx(rawTransaction, { accountNumber, gasUnitPrice, maxGasAmount })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',
       })
+    }
+  }
+
+  async buildCustomApiTx(
+    input: BuildCustomApiTxInput,
+  ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
+    try {
+      const { from, accountNumber, payload, gasUnitPrice, maxGasAmount } = input
+
+      const rawTransaction = await generateRawTransaction({
+        aptosConfig: this.client.config,
+        sender: from,
+        payload: TransactionPayload.deserialize(
+          new Deserializer(Hex.fromHexInput(payload).toUint8Array()),
+        ),
+      })
+
+      return this.toSignTx(rawTransaction, { accountNumber, gasUnitPrice, maxGasAmount })
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
+  }
+
+  private toSignTx(
+    rawTransaction: RawTransaction,
+    {
+      accountNumber,
+      gasUnitPrice,
+      maxGasAmount,
+    }: Pick<BuildCustomApiTxInput, 'accountNumber' | 'gasUnitPrice' | 'maxGasAmount'>,
+  ): SignTx<KnownChainIds.AptosMainnet> {
+    const { sender, sequence_number, payload, expiration_timestamp_secs, chain_id } = rawTransaction
+
+    const transaction = new RawTransaction(
+      sender,
+      sequence_number,
+      payload,
+      BigInt(maxGasAmount),
+      BigInt(gasUnitPrice),
+      expiration_timestamp_secs,
+      chain_id,
+    )
+
+    return {
+      addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+      rawTransactionBytes: transaction.bcsToBytes(),
     }
   }
 
@@ -391,18 +425,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     input: GetFeeDataInput<KnownChainIds.AptosMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
-      const { to, value, chainSpecific } = input
+      const { to, chainSpecific } = input
       const { from, contractAddress } = chainSpecific
-
-      // gas doesn't depend on the amount, and an apt amount near the balance can't cover gas in simulation
-      const simulatedValue = contractAddress ? value : '1'
 
       const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
         await Promise.all([
           this.client.getGasPriceEstimation(),
           this.client.transaction.build.simple({
             sender: from,
-            data: getTransferPayload(to, simulatedValue, contractAddress),
+            // gas doesn't depend on the amount, and the sender may not hold it yet
+            data: getTransferPayload(to, SIMULATED_TRANSFER_VALUE, contractAddress),
             // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
             withFeePayer: true,
           }),

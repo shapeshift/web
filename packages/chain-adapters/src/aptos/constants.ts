@@ -7,6 +7,8 @@ export const FEE_STATEMENT_EVENT_TYPE = '0x1::transaction_fee::FeeStatement'
 
 export const INDEXER_PAGE_LIMIT = 100
 
+export const SIMULATED_TRANSFER_VALUE = '1'
+
 // the sdk default of 20s starts at build, so it can run out while a slow signer is confirming
 export const TX_EXPIRY_SECS = 300
 

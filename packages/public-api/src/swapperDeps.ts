@@ -282,6 +282,11 @@ const starknetAdapter = new adapters.starknet.ChainAdapter({
   ),
 })
 
+const aptosAdapter = new adapters.aptos.ChainAdapter({
+  rpcUrl: env.APTOS_NODE_URL,
+  indexerUrl: env.APTOS_INDEXER_URL,
+})
+
 const otherAdaptersById: Record<ChainId, unknown> = {
   [KnownChainIds.SolanaMainnet]: solanaAdapter,
   [KnownChainIds.TronMainnet]: tronAdapter,
@@ -289,6 +294,7 @@ const otherAdaptersById: Record<ChainId, unknown> = {
   [KnownChainIds.TonMainnet]: tonAdapter,
   [KnownChainIds.NearMainnet]: nearAdapter,
   [KnownChainIds.StarknetMainnet]: starknetAdapter,
+  [KnownChainIds.AptosMainnet]: aptosAdapter,
 }
 
 export const getSwapperDeps = (): SwapperDeps => ({
@@ -325,5 +331,6 @@ export const getSwapperDeps = (): SwapperDeps => ({
   assertGetNearChainAdapter: () => nearAdapter,
   assertGetStarknetChainAdapter: () => starknetAdapter,
   assertGetTonChainAdapter: () => tonAdapter,
+  assertGetAptosChainAdapter: () => aptosAdapter,
   fetchIsSmartContractAddressQuery: () => Promise.resolve(false),
 })

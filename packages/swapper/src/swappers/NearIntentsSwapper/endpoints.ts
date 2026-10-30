@@ -13,6 +13,7 @@ import {
   getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
+import { getAptosTransactionFees, getUnsignedAptosTransaction } from '../../utils/aptos'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getSolanaTransactionFees, getUnsignedSolanaTransaction } from '../../utils/solana'
 import { getTronTransactionFees, getUnsignedTronTransaction } from '../../utils/tron'
@@ -225,6 +226,9 @@ export const nearIntentsApi: SwapperApi = {
     }
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
+
+  getUnsignedAptosTransaction,
+  getAptosTransactionFees,
 
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     if (!swap) throw new Error('Missing swap')

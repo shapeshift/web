@@ -1,5 +1,5 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { aptos, evm } from '@shapeshiftoss/chain-adapters'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -7,6 +7,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
+import { APTOS_PLACEHOLDER_ADDRESS, APTOS_RATE_SIMULATION_VALUE } from '../../../utils/aptos'
 import { EVM_PLACEHOLDER_ADDRESS, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
@@ -296,6 +297,43 @@ export async function getNearIntentsStepData(
         })
 
         const stepData: NearIntentsQuoteStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+        return Ok(stepData)
+      }
+      case CHAIN_NAMESPACE.Aptos: {
+        const adapter = deps.assertGetAptosChainAdapter(sellAsset.chainId)
+
+        if (type === 'rate') {
+          const { fast } = await adapter.getFeeData({
+            to: depositAddress,
+            value: APTOS_RATE_SIMULATION_VALUE,
+            chainSpecific: { from: from ?? APTOS_PLACEHOLDER_ADDRESS, contractAddress },
+          })
+
+          const stepData: NearIntentsRateStepData = { networkFeeCryptoBaseUnit: fast.txFee }
+
+          return Ok(stepData)
+        }
+
+        const { fast } = await adapter.getFeeData({
+          to: depositAddress,
+          value: sellAmountCryptoBaseUnit,
+          chainSpecific: { from, contractAddress },
+        })
+
+        const stepData: NearIntentsQuoteStepData = {
+          transactionData: {
+            type: 'aptos',
+            payload: aptos.getSerializedTransferPayload(
+              depositAddress,
+              sellAmountCryptoBaseUnit,
+              contractAddress,
+            ),
+            gasUnitPrice: fast.chainSpecific.gasUnitPrice,
+            maxGasAmount: fast.chainSpecific.maxGasAmount,
+          },
+          networkFeeCryptoBaseUnit: fast.txFee,
+        }
 
         return Ok(stepData)
       }

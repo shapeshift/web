@@ -1,11 +1,19 @@
 import type * as AptosSdkActual from '@aptos-labs/ts-sdk'
-import { Deserializer, RawTransaction } from '@aptos-labs/ts-sdk'
+import {
+  AccountAddress,
+  ChainId,
+  Deserializer,
+  generateRawTransaction,
+  Hex,
+  RawTransaction,
+} from '@aptos-labs/ts-sdk'
 import { aptosAssetId } from '@shapeshiftoss/caip'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ValidAddressResultType } from '../types'
 import { ChainAdapter } from './AptosChainAdapter'
+import { getSerializedTransferPayload } from './utils'
 
 vi.mock('@aptos-labs/ts-sdk', async () => {
   // keep the real bcs and key classes, mock only the network client
@@ -39,6 +47,7 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
       }
     }),
     AptosConfig: vi.fn(),
+    generateRawTransaction: vi.fn(),
     Network: { MAINNET: 'mainnet' },
   }
 })
@@ -247,6 +256,44 @@ describe('AptosChainAdapter', () => {
     })
   })
 
+  describe('buildCustomApiTx', () => {
+    it.each([
+      ['APT', undefined],
+      ['a coin', LEGACY_USDC],
+      ['a fungible asset', USDC_FA],
+    ])('signs the serialized %s payload at the quoted gas', async (_, contractAddress) => {
+      const payload = getSerializedTransferPayload(ADDR, '1000', contractAddress)
+
+      vi.mocked(generateRawTransaction).mockImplementationOnce(args =>
+        Promise.resolve(
+          new RawTransaction(
+            AccountAddress.ONE,
+            7n,
+            args.payload as RawTransaction['payload'],
+            2000n,
+            100n,
+            99n,
+            new ChainId(1),
+          ),
+        ),
+      )
+
+      const { rawTransactionBytes } = await adapter.buildCustomApiTx({
+        from: SENDER,
+        accountNumber: 0,
+        payload,
+        gasUnitPrice: '150',
+        maxGasAmount: '4639',
+      })
+
+      const raw = RawTransaction.deserialize(new Deserializer(rawTransactionBytes))
+
+      expect(raw.max_gas_amount).toBe(4639n)
+      expect(raw.gas_unit_price).toBe(150n)
+      expect(Hex.fromHexInput(raw.payload.bcsToBytes()).toString()).toBe(payload)
+    })
+  })
+
   describe('getFeeData', () => {
     const getFeeData = () =>
       adapter.getFeeData({
@@ -296,7 +343,7 @@ describe('AptosChainAdapter', () => {
       })
     })
 
-    it('simulates apt sends with 1 octa so a near full balance amount still gets fees', async () => {
+    it('simulates the given value so a sender short of it fails', async () => {
       client.transaction.simulate.simple.mockResolvedValueOnce([simulation])
 
       await adapter.getFeeData({
@@ -307,8 +354,16 @@ describe('AptosChainAdapter', () => {
 
       expect(client.transaction.build.simple.mock.calls[0][0].data.functionArguments).toEqual([
         ADDR,
-        1n,
+        198633150n,
       ])
+    })
+
+    it('simulates with a fee payer so a sender without apt still gets fees', async () => {
+      client.transaction.simulate.simple.mockResolvedValueOnce([simulation])
+
+      await getFeeData()
+
+      expect(client.transaction.build.simple.mock.calls[0][0].withFeePayer).toBe(true)
     })
 
     it.each([

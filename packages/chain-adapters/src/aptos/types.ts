@@ -25,7 +25,6 @@ export type BuildTxInput = FeeData & {
 export type BuildCustomApiTxInput = FeeData & {
   from: string
   accountNumber: number
-  // hex encoded BCS TransactionPayload
   payload: string
 }
 

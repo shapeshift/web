@@ -334,7 +334,7 @@ describe('AptosChainAdapter', () => {
 
       expect(client.transaction.build.simple.mock.calls[0][0].data).toMatchObject({
         function: '0x1::primary_fungible_store::transfer',
-        functionArguments: [USDC_FA, ADDR, 1n],
+        functionArguments: [USDC_FA, ADDR, 1000n],
       })
       expect(fees).toEqual({
         fast: { txFee: '667950', chainSpecific: { gasUnitPrice: '150', maxGasAmount: '4453' } },
@@ -343,7 +343,7 @@ describe('AptosChainAdapter', () => {
       })
     })
 
-    it('simulates with 1 base unit so a near full or unheld balance still gets fees', async () => {
+    it('simulates the given value so a sender short of it fails', async () => {
       client.transaction.simulate.simple.mockResolvedValueOnce([simulation])
 
       await adapter.getFeeData({
@@ -354,7 +354,7 @@ describe('AptosChainAdapter', () => {
 
       expect(client.transaction.build.simple.mock.calls[0][0].data.functionArguments).toEqual([
         ADDR,
-        1n,
+        198633150n,
       ])
     })
 

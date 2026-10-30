@@ -7,7 +7,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr, makeSwapErrorRight } from '../../../utils'
-import { APTOS_PLACEHOLDER_ADDRESS } from '../../../utils/aptos'
+import { APTOS_PLACEHOLDER_ADDRESS, APTOS_RATE_SIMULATION_VALUE } from '../../../utils/aptos'
 import { EVM_PLACEHOLDER_ADDRESS, getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { SolanaComputeBudgetOptions } from '../../../utils/solana'
@@ -306,7 +306,7 @@ export async function getNearIntentsStepData(
         if (type === 'rate') {
           const { fast } = await adapter.getFeeData({
             to: depositAddress,
-            value: sellAmountCryptoBaseUnit,
+            value: APTOS_RATE_SIMULATION_VALUE,
             chainSpecific: { from: from ?? APTOS_PLACEHOLDER_ADDRESS, contractAddress },
           })
 

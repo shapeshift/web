@@ -54,7 +54,6 @@ import {
   APT_COIN_TYPE,
   FEE_STATEMENT_EVENT_TYPE,
   INDEXER_PAGE_LIMIT,
-  SIMULATED_TRANSFER_VALUE,
   TX_EXPIRY_SECS,
 } from './constants'
 import { parseAptosTx } from './parser'
@@ -425,7 +424,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     input: GetFeeDataInput<KnownChainIds.AptosMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
-      const { to, chainSpecific } = input
+      const { to, value, chainSpecific } = input
       const { from, contractAddress } = chainSpecific
 
       const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
@@ -433,8 +432,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
           this.client.getGasPriceEstimation(),
           this.client.transaction.build.simple({
             sender: from,
-            // gas doesn't depend on the amount, and the sender may not hold it yet
-            data: getTransferPayload(to, SIMULATED_TRANSFER_VALUE, contractAddress),
+            data: getTransferPayload(to, value, contractAddress),
             // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
             withFeePayer: true,
           }),

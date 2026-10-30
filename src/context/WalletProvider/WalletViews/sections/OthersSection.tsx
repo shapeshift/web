@@ -1,10 +1,12 @@
-import { Box, Button, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { CoinbaseIcon } from '@/components/Icons/CoinbaseIcon'
 import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
 import { Text } from '@/components/Text'
+import { WalletOptionRow } from '@/context/WalletProvider/components/WalletOptionRow'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { OathWalletOption } from '@/context/WalletProvider/WalletConnectV2/components/OathWalletOption'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useMipdProviders } from '@/lib/mipd'
 
@@ -17,34 +19,15 @@ const WalletConnectOption = ({
   isSelected: boolean
   isDisabled: boolean
 }) => {
-  const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-
   return (
-    <Box
-      as={Button}
-      key='walletconnect'
-      variant='ghost'
-      whiteSpace='normal'
-      px={4}
-      ml='-16px'
-      mr='-16px'
-      py={2.5}
-      borderRadius='md'
+    <WalletOptionRow
+      icon={<WalletConnectIcon />}
       onClick={connect}
-      bg={isSelected ? backgroundColor : undefined}
+      isSelected={isSelected}
       isDisabled={isDisabled}
     >
-      <Flex alignItems='center' width='full'>
-        <Box boxSize='24px' mr={3}>
-          <WalletConnectIcon />
-        </Box>
-        <Text
-          translation='plugins.walletConnectToDapps.modal.title'
-          fontSize='md'
-          fontWeight='medium'
-        />
-      </Flex>
-    </Box>
+      <Text translation='plugins.walletConnectToDapps.modal.title' />
+    </WalletOptionRow>
   )
 }
 
@@ -57,30 +40,15 @@ const CoinbaseQROption = ({
   isSelected: boolean
   isDisabled: boolean
 }) => {
-  const selectedBackgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-
   return (
-    <Box
-      as={Button}
-      key='coinbaseqr'
-      variant='ghost'
-      whiteSpace='normal'
-      px={4}
-      ml='-16px'
-      mr='-16px'
-      py={2.5}
-      borderRadius='md'
+    <WalletOptionRow
+      icon={<CoinbaseIcon />}
       onClick={connect}
-      bg={isSelected ? selectedBackgroundColor : undefined}
+      isSelected={isSelected}
       isDisabled={isDisabled}
     >
-      <Flex alignItems='center' width='full'>
-        <Box boxSize='24px' mr={3}>
-          <CoinbaseIcon />
-        </Box>
-        <Text translation='walletProvider.coinbaseQR.name' fontSize='md' fontWeight='medium' />
-      </Flex>
-    </Box>
+      <Text translation='walletProvider.coinbaseQR.name' />
+    </WalletOptionRow>
   )
 }
 
@@ -113,6 +81,7 @@ export const OthersSection = ({
   return (
     <Stack spacing={2} my={6}>
       <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='common.others' />
+      <OathWalletOption isDisabled={isLoading} />
       <WalletConnectOption
         connect={handleConnectWalletConnect}
         isSelected={selectedWalletId === KeyManager.WalletConnectV2}

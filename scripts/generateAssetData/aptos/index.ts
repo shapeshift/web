@@ -30,7 +30,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     if (assetId === asset.assetId) {
       listedAssets.push(asset)
     } else {
-      rekeyedAssets.push({ ...asset, assetId, color: coingecko.colorMap[assetId] ?? asset.color })
+      rekeyedAssets.push({ ...asset, assetId })
     }
   }
 

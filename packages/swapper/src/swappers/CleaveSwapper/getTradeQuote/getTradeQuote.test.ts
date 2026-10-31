@@ -6,8 +6,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { SwapperDeps } from '../../../types'
 import { SwapperName } from '../../../types'
-import { USDC_MAINNET, WETH } from '../../../utils/test-data/assets'
-import type { CleaveSwapQuote, CleaveTradeQuoteInput } from '../types'
+import { getEvmNetworkFeeCryptoBaseUnit } from '../../../utils/evm'
+import { ETH, USDC_MAINNET, WETH } from '../../../utils/test-data/assets'
+import type { CleaveQuoteResponse, CleaveTradeQuoteInput } from '../types'
 import { cleaveService } from '../utils/cleaveService'
 import { CLEAVE_CHAINS, CLEAVE_DEADLINE_SECONDS, CLEAVE_SWAP_SHELL_ABI } from '../utils/constants'
 import { getTradeQuote } from './getTradeQuote'
@@ -18,17 +19,19 @@ vi.mock('../../../utils/evm', async importOriginal => ({
   getEvmNetworkFeeCryptoBaseUnit: vi.fn(() => Promise.resolve('100000')),
 }))
 
-const now = 1_800_000_000_000
-const deadline = now / 1000 + CLEAVE_DEADLINE_SECONDS
-const shell = CLEAVE_CHAINS[KnownChainIds.EthereumMainnet].swapShell
-const user: Address = '0x1111111111111111111111111111111111111111'
+const now = 1_800_000_000_123
+const deadline = Math.floor(now / 1000) + CLEAVE_DEADLINE_SECONDS
+const { swapShell: shell, wrappedNative } = CLEAVE_CHAINS[KnownChainIds.EthereumMainnet]
+const sender: Address = '0x2222222222222222222222222222222222222222'
+const recipient: Address = '0x1111111111111111111111111111111111111111'
+const sellAmount = '1000000000000000000'
 
 const input: CleaveTradeQuoteInput = {
   sellAsset: WETH,
   buyAsset: USDC_MAINNET,
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
-  sendAddress: user,
-  receiveAddress: user,
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
+  sendAddress: sender,
+  receiveAddress: recipient,
   accountNumber: 0,
   affiliateBps: '60',
   slippageTolerancePercentageDecimal: '0.005',
@@ -44,29 +47,30 @@ const deps = {
   assertGetEvmChainAdapter: vi.fn(() => ({})),
 } as unknown as SwapperDeps
 
-const data = encodeFunctionData({
-  abi: CLEAVE_SWAP_SHELL_ABI,
-  functionName: 'swapWithBlob',
-  args: [
-    {
-      tokenIn: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      tokenOut: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      amountIn: 1000000000000000000n,
-      minAmountOut: 2472569030n,
-      deadline: BigInt(deadline),
-      recipient: user,
-      referrer: DAO_TREASURY_ETHEREUM_MAINNET,
-      referralFeeBps: 60,
-      wethAsErc20: true,
-    },
-    '0x01',
-  ],
-})
+const encodeSwap = (isNativeSell: boolean) =>
+  encodeFunctionData({
+    abi: CLEAVE_SWAP_SHELL_ABI,
+    functionName: 'swapWithBlob',
+    args: [
+      {
+        tokenIn: wrappedNative,
+        tokenOut: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        amountIn: BigInt(sellAmount),
+        minAmountOut: 2472569030n,
+        deadline: BigInt(deadline),
+        recipient,
+        referrer: DAO_TREASURY_ETHEREUM_MAINNET,
+        referralFeeBps: 60,
+        wethAsErc20: !isNativeSell,
+      },
+      '0x01',
+    ],
+  })
 
-const quoteResponse: CleaveSwapQuote = {
+const quoteResponse = (isNativeSell: boolean): CleaveQuoteResponse => ({
   status: 'ok',
   kind: 'swap',
-  amountIn: '1000000000000000000',
+  amountIn: sellAmount,
   amountOutGross: '2501000000',
   amountOutNet: '2484994000',
   minOut: '2472569030',
@@ -79,24 +83,23 @@ const quoteResponse: CleaveSwapQuote = {
   preferredExecution: 'classic',
   execution: {
     target: shell,
-    approval: {
-      token: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      spender: shell,
-      amount: '1000000000000000000',
-    },
+    approval: isNativeSell ? null : { token: wrappedNative, spender: shell, amount: sellAmount },
   },
-  tx: { to: shell, data, value: '0' },
+  tx: { to: shell, data: encodeSwap(isNativeSell), value: isNativeSell ? sellAmount : '0' },
   notices: [],
-}
+})
+
+const mockCleaveResponse = (response: CleaveQuoteResponse) =>
+  vi.mocked(cleaveService.get).mockResolvedValue({
+    isErr: () => false,
+    isOk: () => true,
+    unwrap: () => ({ data: response }),
+  } as unknown as Awaited<ReturnType<typeof cleaveService.get>>)
 
 describe('getTradeQuote', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'], now })
-    vi.mocked(cleaveService.get).mockResolvedValue({
-      isErr: () => false,
-      isOk: () => true,
-      unwrap: () => ({ data: quoteResponse }),
-    } as unknown as Awaited<ReturnType<typeof cleaveService.get>>)
+    vi.clearAllMocks()
   })
 
   afterEach(() => {
@@ -104,19 +107,24 @@ describe('getTradeQuote', () => {
   })
 
   it('requests the treasury referral and maps the quote', async () => {
+    mockCleaveResponse(quoteResponse(false))
+
     const result = await getTradeQuote(input, deps)
 
     expect(cleaveService.get).toHaveBeenCalledWith('https://example.com/partner/v1/quote', {
       params: expect.objectContaining({
         chainId: '1',
-        amountIn: '1000000000000000000',
+        amountIn: sellAmount,
         slippageBps: 50,
-        recipient: user,
+        recipient,
         deadline,
         referralBps: 60,
         referralRecipient: DAO_TREASURY_ETHEREUM_MAINNET,
       }),
     })
+    expect(getEvmNetworkFeeCryptoBaseUnit).toHaveBeenCalledWith(
+      expect.objectContaining({ from: sender }),
+    )
 
     const [quote] = result.unwrap()
 
@@ -125,7 +133,7 @@ describe('getTradeQuote', () => {
       swapperName: SwapperName.Cleave,
       rate: '2484.994',
       affiliateBps: '60',
-      receiveAddress: user,
+      receiveAddress: recipient,
       deadline: deadline * 1000,
     })
     expect(quote.steps).toHaveLength(1)
@@ -139,11 +147,34 @@ describe('getTradeQuote', () => {
         amountCryptoBaseUnit: '15006000',
         asset: USDC_MAINNET,
       },
-      transactionData: { type: 'evm', chainId: 1, to: shell, data, value: '0' },
+      transactionData: {
+        type: 'evm',
+        chainId: 1,
+        to: shell,
+        data: encodeSwap(false),
+        value: '0',
+      },
     })
     expect(quote.steps[0].feeData).toEqual({
       networkFeeCryptoBaseUnit: '100000',
       protocolFees: {},
+    })
+  })
+
+  it('keeps the native value on a native sell', async () => {
+    mockCleaveResponse(quoteResponse(true))
+
+    const result = await getTradeQuote({ ...input, sellAsset: ETH }, deps)
+
+    expect(cleaveService.get).toHaveBeenCalledWith('https://example.com/partner/v1/quote', {
+      params: expect.objectContaining({ tokenIn: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' }),
+    })
+
+    const [quote] = result.unwrap()
+
+    expect(quote.steps[0]).toMatchObject({
+      allowanceContract: '',
+      transactionData: { to: shell, data: encodeSwap(true), value: sellAmount },
     })
   })
 })

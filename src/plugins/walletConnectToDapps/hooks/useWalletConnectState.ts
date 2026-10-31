@@ -1,21 +1,18 @@
 import { useMemo } from 'react'
 
 import {
-  isBip122AccountParams,
-  isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
   isTransactionParamsArray,
 } from '@/plugins/walletConnectToDapps/typeGuards'
 import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletConnectToDapps/types'
 import {
-  extractAllConnectedAccounts,
+  extractConnectedAccounts,
+  getRequestAccount,
+  getRequestSigner,
   getSignParamsMessage,
-  getWalletAccountFromBip122Params,
-  getWalletAccountFromCosmosParams,
-  getWalletAccountFromEthParams,
-  getWalletAddressFromEthSignParams,
 } from '@/plugins/walletConnectToDapps/utils'
+import { selectWalletAccountIds } from '@/state/slices/common-selectors'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -33,41 +30,32 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const requestParams = request?.params
   const transaction = isTransactionParamsArray(requestParams) ? requestParams?.[0] : undefined
 
-  const connectedAccounts = extractAllConnectedAccounts(sessionsByTopic)
-
-  const address = useMemo(() => {
-    if (requestParams && isEthSignParams(requestParams))
-      return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
-    if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
-    if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-    if (requestParams && isBip122AccountParams(requestParams)) {
-      return requestParams.account
-    }
-    return undefined
-  }, [connectedAccounts, requestParams])
-
+  const walletAccountIds = useAppSelector(selectWalletAccountIds)
+  const session = requestEvent ? sessionsByTopic[requestEvent.topic] : undefined
+  const connectedAccounts = useMemo(
+    () =>
+      session
+        ? extractConnectedAccounts(session).filter(
+            id => id.startsWith('bip122:') || walletAccountIds.includes(id),
+          )
+        : [],
+    [session, walletAccountIds],
+  )
+  const address = request ? getRequestSigner(request.method, request.params) : undefined
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
-
-  const accountId = useMemo(() => {
-    if (!chainId) return
-
-    if (
-      requestParams &&
-      (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
-    )
-      return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
-    if (requestParams && 'signerAddress' in requestParams)
-      return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    if (requestParams && isBip122AccountParams(requestParams))
-      return getWalletAccountFromBip122Params(connectedAccounts, requestParams)
-    return undefined
-  }, [connectedAccounts, requestParams, chainId])
+  const accountId = useMemo(
+    () =>
+      request && chainId
+        ? getRequestAccount(connectedAccounts, request.method, request.params, chainId)
+        : undefined,
+    [connectedAccounts, request, chainId],
+  )
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 
   const message =
     request && (isSignRequest(request) || isSignTypedRequest(request))
-      ? getSignParamsMessage(request.params, true)
+      ? getSignParamsMessage(request.params, true, request.method)
       : undefined
   const method: KnownSigningMethod | undefined = requestEvent?.params.request.method
 

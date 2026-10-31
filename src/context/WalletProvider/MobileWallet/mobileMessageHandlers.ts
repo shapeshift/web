@@ -16,6 +16,7 @@ type Command =
   | 'getWalletCount'
   | 'reloadWebview'
   | 'getExpoToken'
+  | 'getPushVerification'
   | 'requestStoreReview'
   | 'getAppVersion'
   | 'getAppleAttributionData'
@@ -295,3 +296,6 @@ export const openNativeQRScanner = (): Promise<string> => {
     )
   })
 }
+
+export const getPushVerification = (registrationId: string): Promise<string | null> =>
+  postMessage<string | null>({ cmd: 'getPushVerification', key: registrationId })

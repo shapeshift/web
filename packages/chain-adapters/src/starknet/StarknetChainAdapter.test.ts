@@ -1,3 +1,4 @@
+import type { HDWallet, StarknetWallet } from '@shapeshiftoss/hdwallet-core'
 import { describe, expect, it, vi } from 'vitest'
 
 import { ChainAdapter } from './StarknetChainAdapter'
@@ -82,5 +83,100 @@ describe('StarknetChainAdapter', () => {
       await expect(adapter.getNonce(ADDRESS)).resolves.toBe('0x0')
       expect(fetch).toHaveBeenCalledTimes(1)
     })
+  })
+
+  describe('signAndBroadcastTransaction', () => {
+    const txToSign = {
+      addressNList: [],
+      txHash: '0xabc',
+      calls: [{ contractAddress: '0x1', entrypoint: 'transfer', calldata: ['0x2', '10', '0'] }],
+    }
+
+    it('lets wallets that submit their own transactions send them, without broadcasting', async () => {
+      const adapter = makeAdapter()
+      const fetch = stubFetch(adapter, {})
+      const wallet = {
+        _supportsStarknet: true,
+        starknetSignTx: vi.fn(),
+        starknetSendTx: vi.fn().mockResolvedValue({ hash: '0xdeadbeef' }),
+      } as unknown as HDWallet
+
+      await expect(
+        adapter.signAndBroadcastTransaction({
+          senderAddress: ADDRESS,
+          receiverAddress: ADDRESS,
+          signTxInput: { txToSign, wallet },
+        }),
+      ).resolves.toBe('0xdeadbeef')
+
+      expect((wallet as StarknetWallet).starknetSendTx).toHaveBeenCalledWith(txToSign)
+      expect((wallet as StarknetWallet).starknetSignTx).not.toHaveBeenCalled()
+      expect(fetch).not.toHaveBeenCalled()
+    })
+  })
+
+  it('keeps the wallet reason when an extension refuses to send', async () => {
+    const adapter = makeAdapter()
+    const wallet = {
+      _supportsStarknet: true,
+      getVendor: () => 'Braavos',
+      starknetSendTx: vi.fn().mockRejectedValue(
+        Object.assign(new Error('Braavos must be set to Starknet Mainnet'), {
+          code: 'WRONG_NETWORK',
+        }),
+      ),
+    } as unknown as HDWallet
+
+    await expect(
+      adapter.signAndBroadcastTransaction({
+        senderAddress: ADDRESS,
+        receiverAddress: ADDRESS,
+        signTxInput: { txToSign: { addressNList: [], txHash: '' }, wallet },
+      }),
+    ).rejects.toMatchObject({
+      metadata: {
+        translation: 'chainAdapters.errors.starknetWrongNetwork',
+        options: { name: 'Braavos' },
+      },
+    })
+  })
+
+  describe('buildSendApiTransaction', () => {
+    it('returns only the calls for an undeployed account, without estimating fees', async () => {
+      const adapter = makeAdapter()
+      // Every call fails like it does for a contract that doesn't exist yet
+      const fetch = vi.fn((_method: string) =>
+        Promise.resolve(jsonResponse({ error: { code: 20, message: 'Contract not found' } })),
+      )
+      ;(adapter as unknown as { provider: { fetch: unknown } }).provider.fetch = fetch
+
+      const txToSign = await adapter.buildSendApiTransaction({
+        from: ADDRESS,
+        to: ADDRESS,
+        value: '10',
+        accountNumber: 0,
+        chainSpecific: { tokenContractAddress: '0x1', maxFee: '0' },
+      })
+
+      expect(txToSign.txHash).toBe('')
+      expect(txToSign.calls).toEqual([
+        {
+          contractAddress: '0x1',
+          entrypoint: 'transfer',
+          calldata: [expect.any(String), '10', '0'],
+        },
+      ])
+      expect(fetch.mock.calls.map(([method]) => method)).not.toContain('starknet_estimateFee')
+    })
+  })
+
+  it('refuses to sign a calls-only transaction with a wallet that signs hashes', async () => {
+    const adapter = makeAdapter()
+    const wallet = { _supportsStarknet: true, starknetSignTx: vi.fn() } as unknown as HDWallet
+
+    await expect(
+      adapter.signTransaction({ txToSign: { addressNList: [], txHash: '' }, wallet }),
+    ).rejects.toThrow()
+    expect((wallet as StarknetWallet).starknetSignTx).not.toHaveBeenCalled()
   })
 })

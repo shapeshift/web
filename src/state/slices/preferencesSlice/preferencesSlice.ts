@@ -84,6 +84,7 @@ export type FeatureFlags = {
   TrezorWallet: boolean
   VultisigWallet: boolean
   GridPlusWallet: boolean
+  StarknetWallets: boolean
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
   RFOX: boolean
@@ -254,6 +255,7 @@ const initialState: Preferences = {
     TrezorWallet: getConfig().VITE_FEATURE_TREZOR_WALLET,
     VultisigWallet: getConfig().VITE_FEATURE_VULTISIG_WALLET,
     GridPlusWallet: getConfig().VITE_FEATURE_GRIDPLUS_WALLET,
+    StarknetWallets: getConfig().VITE_FEATURE_STARKNET_WALLETS,
     ThorchainSwapLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
     RFOX: getConfig().VITE_FEATURE_RFOX,

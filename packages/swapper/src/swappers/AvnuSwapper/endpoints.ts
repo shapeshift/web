@@ -1,5 +1,6 @@
 import { quoteToCalls } from '@avnu/avnu-sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { StarknetCall } from '@shapeshiftoss/hdwallet-core'
 import { CallData, hash, validateAndParseAddress } from 'starknet'
 
 import type { SwapperApi, TradeStatus } from '../../types'
@@ -61,6 +62,7 @@ export const avnuApi: SwapperApi = {
     // Build the full invoke transaction calldata from AVNU calls
     // Format: [call_array_length, contract1, selector1, calldata_len1, ...calldata1, ...]
     const fullCalldata: string[] = [avnuCalls.length.toString()]
+    const calls: StarknetCall[] = []
 
     for (const call of avnuCalls) {
       const rawCalldata = call.calldata ?? []
@@ -69,12 +71,27 @@ export const avnuApi: SwapperApi = {
       // Normalize contract address from AVNU to ensure consistent format
       const normalizedContractAddress = validateAndParseAddress(call.contractAddress)
 
+      calls.push({
+        contractAddress: normalizedContractAddress,
+        entrypoint: call.entrypoint,
+        calldata: calldataArray.map(cd => String(cd)),
+      })
+
       fullCalldata.push(
         normalizedContractAddress,
         selector,
         calldataArray.length.toString(),
         ...calldataArray.map(cd => String(cd)),
       )
+    }
+
+    // Undeployed accounts can't be fee-estimated - only extensions get here, and deploy on first send
+    if (!(await adapter.isAccountDeployed(normalizedFrom))) {
+      return {
+        addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),
+        txHash: '',
+        calls,
+      }
     }
 
     // Format calldata for RPC (convert all values to proper hex format)
@@ -196,6 +213,7 @@ export const avnuApi: SwapperApi = {
     return {
       addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),
       txHash,
+      calls,
       _txDetails: {
         fromAddress: normalizedFrom,
         calldata: formattedCalldata,

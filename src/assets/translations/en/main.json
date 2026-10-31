@@ -2075,6 +2075,27 @@
         "header": "Connection Failed",
         "body": "Unable to connect to Seeker wallet. Please ensure the Seeker app is available and try again."
       }
+    },
+    "starknetInjected": {
+      "sectionTitle": "Starknet Wallets",
+      "connect": {
+        "header": "Connect %{name}",
+        "body": "Approve the connection in your %{name} extension to use your Starknet account with ShapeShift.",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "%{name} Not Found",
+        "body": "%{name} was not found. Install the %{name} extension, then reload the page and try again."
+      },
+      "errors": {
+        "wrongNetwork": "Switch %{name} to Starknet Mainnet and try again.",
+        "noAccount": "No account found in %{name}. Create or unlock a Starknet Mainnet account and try again.",
+        "connectionFailed": "The connection to %{name} was rejected or failed. Approve the request in %{name} and try again."
+      },
+      "wrongNetwork": {
+        "button": "Wrong Network",
+        "tooltip": "%{name} is not set to Starknet Mainnet. Click to switch back."
+      }
     }
   },
   "graph": {
@@ -3191,6 +3212,8 @@
       "blindSigningRequired": "Transaction requires blind signing. Please enable Blind signing or Contract Data in your Ledger app settings and try again.",
       "ledgerTronAllowDataDisabled": "Please enable Transactions Data in your Ledger TRON app settings and try again.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
+      "starknetWrongNetwork": "%{name} must be set to Starknet Mainnet. Switch network in %{name} and try again.",
+      "starknetAccountChanged": "The active account in %{name} changed. Review the transaction again before sending.",
       "signMessage": "Failed to sign message.",
       "broadcastTransaction": "Failed to broadcast transaction.",
       "broadcastTransactionWithMessage": "Failed to broadcast transaction (%{message}).",

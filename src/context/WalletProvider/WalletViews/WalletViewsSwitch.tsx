@@ -27,6 +27,7 @@ import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
 import { SeekerRoutes } from './routes/SeekerRoutes'
+import { StarknetInjectedRoutes } from './routes/StarknetInjectedRoutes'
 import { TrezorRoutes } from './routes/TrezorRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
@@ -34,6 +35,7 @@ import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { MobileWalletsSection } from './sections/MobileWalletsSection'
 import { OthersSection } from './sections/OthersSection'
 import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
+import { StarknetWalletsSection } from './sections/StarknetWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
@@ -41,6 +43,7 @@ import { Text } from '@/components/Text'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
+import { STARKNET_INJECTED_KEYMANAGERS } from '@/context/WalletProvider/StarknetInjected/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
@@ -90,6 +93,11 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
   if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
   if (location.pathname.startsWith('/gridplus')) return <GridPlusRoutes />
   if (location.pathname.startsWith('/seeker')) return <SeekerRoutes />
+  const starknetInjectedKeyManager = STARKNET_INJECTED_KEYMANAGERS.find(keyManager =>
+    location.pathname.startsWith(`/${keyManager}/`),
+  )
+  if (starknetInjectedKeyManager)
+    return <StarknetInjectedRoutes keyManager={starknetInjectedKeyManager} />
 
   if (shouldDisplayIntro) return <NativeIntro />
 
@@ -289,6 +297,11 @@ export const WalletViewsSwitch = () => {
         <Divider mb={2} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
+          isLoading={isLoading}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
+        <StarknetWalletsSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}

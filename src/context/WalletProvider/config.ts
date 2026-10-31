@@ -9,6 +9,11 @@ import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichai
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
+import type {
+  BraavosAdapter,
+  BrambleAdapter,
+  ReadyAdapter,
+} from '@shapeshiftoss/hdwallet-starknet-injected'
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -28,6 +33,7 @@ import { NativeConfig } from './NativeWallet/config'
 import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
 import { SeekerConfig } from './Seeker/config'
+import { BraavosConfig, BrambleConfig, ReadyConfig } from './StarknetInjected/config'
 import { TrezorConfig } from './Trezor/config'
 import { NativeWalletRoutes } from './types'
 import { VultisigConfig } from './Vultisig/config'
@@ -192,6 +198,9 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Trezor]: SupportedWalletInfo<typeof TrezorAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
   [KeyManager.GridPlus]: SupportedWalletInfo<typeof GridPlusAdapter>
+  [KeyManager.Ready]: SupportedWalletInfo<typeof ReadyAdapter>
+  [KeyManager.Braavos]: SupportedWalletInfo<typeof BraavosAdapter>
+  [KeyManager.Bramble]: SupportedWalletInfo<typeof BrambleAdapter>
 }
 
 export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
@@ -284,6 +293,18 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.Keplr]: {
     ...KeplrConfig,
     routes: [{ path: '/keplr/connect' }, { path: '/keplr/failure' }],
+  },
+  [KeyManager.Ready]: {
+    ...ReadyConfig,
+    routes: [{ path: '/ready/connect' }, { path: '/ready/failure' }],
+  },
+  [KeyManager.Braavos]: {
+    ...BraavosConfig,
+    routes: [{ path: '/braavos/connect' }, { path: '/braavos/failure' }],
+  },
+  [KeyManager.Bramble]: {
+    ...BrambleConfig,
+    routes: [{ path: '/bramble/connect' }, { path: '/bramble/failure' }],
   },
   [KeyManager.Ledger]: {
     ...LedgerConfig,

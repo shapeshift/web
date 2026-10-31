@@ -8,6 +8,7 @@ import { bobGatewayApi, bobGatewaySwapper } from './swappers/BobGatewaySwapper'
 import { butterSwap, butterSwapApi } from './swappers/ButterSwap'
 import { cetusApi, cetusSwapper } from './swappers/CetusSwapper'
 import { chainflipApi, chainflipSwapper } from './swappers/ChainflipSwapper'
+import { cleaveApi, cleaveSwapper } from './swappers/CleaveSwapper'
 import { cowApi, cowSwapper } from './swappers/CowSwapper'
 import { debridgeApi, debridgeSwapper } from './swappers/DebridgeSwapper'
 import { fyndApi, fyndSwapper } from './swappers/FyndSwapper'
@@ -114,6 +115,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...fyndSwapper,
     ...fyndApi,
   },
+  [SwapperName.Cleave]: {
+    ...cleaveSwapper,
+    ...cleaveApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -145,6 +150,7 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
     case SwapperName.Zrx:
     case SwapperName.Bebop:
     case SwapperName.Fynd:
+    case SwapperName.Cleave:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.CowSwap:

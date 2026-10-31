@@ -11,6 +11,7 @@ import BobGatewayIcon from './bob-gateway-icon.png'
 import ButterSwapIcon from './butterswap.png'
 import CetusIcon from './cetus-icon.jpg'
 import ChainflipIcon from './chainflip-icon.png'
+import CleaveIcon from './cleave-icon.png'
 import CowIcon from './cow-icon.png'
 import DebridgeIcon from './debridge-icon.svg'
 import FyndIcon from './fynd-icon.png'
@@ -71,6 +72,8 @@ export const SwapperIcon = ({
         return DebridgeIcon
       case SwapperName.Fynd:
         return FyndIcon
+      case SwapperName.Cleave:
+        return CleaveIcon
       case SwapperName.BobGateway:
         return BobGatewayIcon
       case SwapperName.Symbiosis:

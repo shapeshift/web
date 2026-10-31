@@ -127,6 +127,11 @@ describe('validateCleaveQuoteResponse', () => {
     expect(validate({}).isOk()).toBe(true)
   })
 
+  it('skips null notice entries', () => {
+    const warning = { code: 'price_impact', level: 'warning' as const, title: 'Impact', text: 'Hi' }
+    expect(validate({ notices: [null, warning] }).isOk()).toBe(true)
+  })
+
   it.each([
     ['an unpinned transaction target', { tx: { ...tx, to: unpinned } }],
     ['an unpinned execution target', { execution: { ...execution, target: unpinned } }],

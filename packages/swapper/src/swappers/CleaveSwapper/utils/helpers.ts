@@ -315,7 +315,7 @@ export const validateCleaveQuoteResponse = (
     )
   }
 
-  const blockingNotice = response.notices?.find(notice => notice.level === 'blocking')
+  const blockingNotice = response.notices?.find(notice => notice?.level === 'blocking')
 
   if (blockingNotice) {
     return Err(

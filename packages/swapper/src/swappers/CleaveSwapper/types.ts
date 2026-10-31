@@ -37,7 +37,7 @@ export type CleaveSwapQuote = {
   preferredExecution: 'classic' | 'measured'
   execution: CleaveExecution | null
   tx: CleaveTransaction | null
-  notices?: CleaveNotice[]
+  notices?: (CleaveNotice | null)[]
 }
 
 export type CleaveExecutableQuote = CleaveSwapQuote & {

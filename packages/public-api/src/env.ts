@@ -75,7 +75,7 @@ const envSchema = z.object({
   PORTALS_BASE_URL: url,
   ZRX_BASE_URL: url,
   FYND_BASE_URL: url,
-  CLEAVE_BASE_URL: url,
+  CLEAVE_BASE_URL: z.union([url, z.literal('')]).default(''),
   RELAY_API_URL: url,
   ACROSS_API_URL: url,
   DEBRIDGE_API_URL: url,

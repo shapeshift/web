@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { StatItem } from './StatItem'
@@ -23,13 +23,13 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const affiliateRevenueUsdQuery = useAffiliateRevenueUsdQuery<string>({
+  const affiliateRevenueUsdQuery = useAffiliateRevenueUsdQuery({
     startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
   })
 
   const emissionsPoolUserCurrency = useMemo(() => {
-    if (!affiliateRevenueUsdQuery.data) return
+    if (affiliateRevenueUsdQuery.data === undefined) return
     if (!currentEpochMetadataQuery.data) return
 
     const distributionRate =
@@ -48,12 +48,25 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
     userCurrencyToUsdRate,
   ])
 
+  const handleRetry = useCallback(() => {
+    if (!currentEpochMetadataQuery.data) {
+      void currentEpochMetadataQuery.refetch()
+      return
+    }
+    void affiliateRevenueUsdQuery.refetch()
+  }, [currentEpochMetadataQuery, affiliateRevenueUsdQuery])
+
+  const isError = currentEpochMetadataQuery.isError || affiliateRevenueUsdQuery.isError
+  const isLoading = currentEpochMetadataQuery.isLoading || affiliateRevenueUsdQuery.isLoading
+
   return (
     <StatItem
       description={translate('RFOX.emissionsPool', { symbol: stakingAsset?.symbol })}
       helperDescription={translate('RFOX.emissionsPoolHelper', { symbol: stakingAsset?.symbol })}
       amountUserCurrency={emissionsPoolUserCurrency}
-      isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
+      isLoading={isLoading}
+      isError={isError}
+      onRetry={handleRetry}
     />
   )
 }

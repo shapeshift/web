@@ -13,6 +13,7 @@ export const getCurrentEpochMetadataQueryKey = (): CurrentEpochMetadataQueryKey 
 export const fetchCurrentEpochMetadata = async (): Promise<CurrentEpochMetadata> => {
   const { data: currentEpochMetadata } = await axios.get<CurrentEpochMetadata>(
     `${IPFS_GATEWAY}/${CURRENT_EPOCH_IPFS_HASH}`,
+    { timeout: 15_000 },
   )
 
   return currentEpochMetadata

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { chunk } from 'lodash'
 import { useMemo } from 'react'
 
 import { IPFS_GATEWAY } from '../constants'
@@ -30,12 +31,27 @@ export const fetchEpochHistory = async (): Promise<EpochWithIpfsHash[]> => {
     queryFn: fetchCurrentEpochMetadata,
   })
 
-  const epochs = await Promise.all(
-    Object.values(currentEpochMetadata.ipfsHashByEpoch).map(async hash => {
-      const { data } = await axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)
-      return { ...data, ipfsHash: hash }
-    }),
-  )
+  const epochs: EpochWithIpfsHash[] = []
+  for (const hashes of chunk(Object.values(currentEpochMetadata.ipfsHashByEpoch), 4)) {
+    const batch = await Promise.all(
+      hashes.map(hash =>
+        queryClient.fetchQuery({
+          queryKey: ['rfoxEpoch', hash],
+          queryFn: async ({ signal }) => {
+            const { data } = await axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`, {
+              timeout: 15_000,
+              signal,
+            })
+            return { ...data, ipfsHash: hash }
+          },
+          staleTime: Infinity,
+          gcTime: 24 * 60 * 60 * 1000,
+          retry: false,
+        }),
+      ),
+    )
+    epochs.push(...batch)
+  }
 
   return epochs.sort((a, b) => b.number - a.number)
 }
@@ -55,5 +71,6 @@ export const useEpochHistoryQuery = <SelectData = EpochWithIpfsHash[]>({
     staleTime: 60 * 60 * 1000, // 1 hour in milliseconds
     select,
     enabled,
+    retry: false,
   })
 }

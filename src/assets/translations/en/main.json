@@ -2924,6 +2924,8 @@
     }
   },
   "RFOX": {
+    "epochAwaitingUpdate": "Awaiting epoch update",
+    "epochAwaitingUpdateDescription": "Current epoch rewards, totals, APY and simulator estimates will return once updated epoch data is published. You can still view and manage your staking position.",
     "staking": "rFOX Staking",
     "stake": "Stake",
     "unstake": "Unstake",

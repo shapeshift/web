@@ -19,7 +19,7 @@ type StatsProps = {
   stakingAssetId: AssetId
 }
 
-export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
+const CurrentEpochStats: React.FC<StatsProps> = ({ stakingAssetId }) => {
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
@@ -61,6 +61,25 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
           amountUserCurrency={foxBuybackAmountUserCurrency}
           isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
         />
+      </SimpleGrid>
+    </Box>
+  )
+}
+
+export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
+
+  if (!currentEpochMetadataQuery.isOutdated)
+    return <CurrentEpochStats stakingAssetId={stakingAssetId} />
+
+  return (
+    <Box>
+      <Flex alignItems='center' gap={2} mb={6} mt={2}>
+        <Text translation='RFOX.totals' fontWeight='bold' fontSize='xl' />
+      </Flex>
+      <SimpleGrid spacing={6} columns={gridColumns}>
+        <TotalStaked stakingAssetId={stakingAssetId} />
+        <Text translation='RFOX.epochAwaitingUpdate' color='text.subtle' />
       </SimpleGrid>
     </Box>
   )

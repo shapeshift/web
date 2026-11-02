@@ -2981,6 +2981,7 @@
     "pendingRewardsBalance": "Pending Rewards Balance",
     "pendingRewardsBalanceTooltip": "Your rewards at this point in the epoch. This will change as revenue and total %{symbol} staked change. Paid automatically after the epoch ends.",
     "claimTooltip": "View your unstaked %{symbol} and claim it once its cooldown has passed.",
+    "lifetimeRewardsUnavailable": "Rewards unavailable",
     "lifetimeRewards": "Lifetime Rewards",
     "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
     "timeInPool": "Time in Pool",

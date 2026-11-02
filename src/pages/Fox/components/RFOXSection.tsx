@@ -338,9 +338,12 @@ export const RFOXSection = () => {
   }, [currentEpochRewardsCryptoPrecision, rewardAssetMarketData?.price])
 
   const lifetimeRewardsUserCurrencyQuery = useLifetimeRewardsUserCurrencyQuery({
-    stakingAssetId,
-    stakingAssetAccountId: isConnected ? stakingAssetAccountId : undefined,
+    accountNumber: isConnected ? assetAccountNumber : undefined,
   })
+
+  const handleRetryLifetimeRewards = useCallback(() => {
+    void lifetimeRewardsUserCurrencyQuery.retry()
+  }, [lifetimeRewardsUserCurrencyQuery])
 
   const {
     data: timeInPoolHuman,
@@ -606,7 +609,19 @@ export const RFOXSection = () => {
               mb={1}
             />
             <Skeleton isLoaded={!lifetimeRewardsUserCurrencyQuery.isLoading}>
-              <Amount.Fiat fontSize='2xl' value={lifetimeRewardsUserCurrencyQuery.data} />
+              {!isConnected ? (
+                <Amount.Fiat fontSize='2xl' value='0' />
+              ) : lifetimeRewardsUserCurrencyQuery.isError ||
+                lifetimeRewardsUserCurrencyQuery.data === undefined ? (
+                <Stack direction='row' alignItems='center'>
+                  <Text translation='RFOX.lifetimeRewardsUnavailable' color='text.subtle' />
+                  <Button size='xs' variant='link' onClick={handleRetryLifetimeRewards}>
+                    {translate('common.retry')}
+                  </Button>
+                </Stack>
+              ) : (
+                <Amount.Fiat fontSize='2xl' value={lifetimeRewardsUserCurrencyQuery.data} />
+              )}
             </Skeleton>
           </Stack>
 

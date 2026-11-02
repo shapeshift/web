@@ -44,11 +44,16 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
   }, [currentEpochMetadataQuery, totalFeesCollectedUserCurrency])
 
   const handleRetry = useCallback(() => {
-    if (!currentEpochMetadataQuery.data) {
-      void currentEpochMetadataQuery.refetch()
-      return
+    if (
+      currentEpochMetadataQuery.isError ||
+      !currentEpochMetadataQuery.data?.epochStartTimestamp ||
+      !currentEpochMetadataQuery.data?.epochEndTimestamp
+    ) {
+      void currentEpochMetadataQuery.refetch({ cancelRefetch: false })
     }
-    void affiliateRevenueUsdQuery.refetch()
+    if (affiliateRevenueUsdQuery.isError) {
+      void affiliateRevenueUsdQuery.refetch({ cancelRefetch: false })
+    }
   }, [currentEpochMetadataQuery, affiliateRevenueUsdQuery])
 
   const isError = currentEpochMetadataQuery.isError || affiliateRevenueUsdQuery.isError

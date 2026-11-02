@@ -57,7 +57,7 @@ export const StatItem = ({
           ) : (
             <Amount.Fiat value={amountUserCurrency} fontSize='xl' fontWeight='medium' />
           )}
-          {isError && onRetry && (
+          {(isError || amountUserCurrency === undefined) && onRetry && (
             <Button size='xs' variant='link' onClick={onRetry} ml={2} isDisabled={isLoading}>
               {translate('common.retry')}
             </Button>

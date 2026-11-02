@@ -1011,7 +1011,6 @@
       "insufficientFundsForProtocolFee": "%{symbol} insuficiente en %{chainName} para las tarifas",
       "unsupportedTradePair": "Par No Compatible",
       "noRouteFound": "No se encontraron rutas para este par y cantidad",
-      "quoteExpired": "Cotización caducada, intente de nuevo.",
       "quoteUnsupportedChain": "Cadena no compatible",
       "quoteCrossChainNotSupported": "Cadena cruzada no compatible",
       "quoteExactOutputNotSupported": "No se admite el importe exacto a recibir.",
@@ -3379,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

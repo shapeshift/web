@@ -1011,7 +1011,6 @@
       "insufficientFundsForProtocolFee": "Недостатньо %{symbol} на %{chainName} для оплати комісій",
       "unsupportedTradePair": "Непідтримувана торговельна пара",
       "noRouteFound": "Для цієї пари та суми не знайдено маршрутів",
-      "quoteExpired": "Термін дії пропозиції закінчився, спробуйте ще раз.",
       "quoteUnsupportedChain": "Ланцюжок не підтримується",
       "quoteCrossChainNotSupported": "Cross-ланцюжок не підтримується",
       "quoteExactOutputNotSupported": "Точна сума надходження не підтримується",
@@ -3379,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Дохідність",
     "pageSubtitle": "Відкривайте та керуйте можливостями отримання прибутку в декількох мережах",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Прибутковість",
     "apy": "APY",
     "apr": "APR",

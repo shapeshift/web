@@ -1011,7 +1011,6 @@
       "insufficientFundsForProtocolFee": "Insuficiente %{symbol} na %{chainName} para taxas",
       "unsupportedTradePair": "Par Não Suportado",
       "noRouteFound": "Nenhuma rota encontrada para este par e quantidade",
-      "quoteExpired": "Pedido expirado, tente novamente",
       "quoteUnsupportedChain": "Rede não suportada",
       "quoteCrossChainNotSupported": "Cross chain não suportada",
       "quoteExactOutputNotSupported": "Não é possível confirmar o valor exato do recebimento.",
@@ -3379,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

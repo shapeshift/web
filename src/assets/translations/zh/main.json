@@ -1011,7 +1011,6 @@
       "insufficientFundsForProtocolFee": "没有足够的 %{symbol} 来支付%{chainName} 上的费用",
       "unsupportedTradePair": "不支持的交易对",
       "noRouteFound": "没有找到该交易对和数量的路径",
-      "quoteExpired": "报价已过期，请重试。",
       "quoteUnsupportedChain": "不支持链",
       "quoteCrossChainNotSupported": "不支持跨链",
       "quoteExactOutputNotSupported": "不支持指定确切的接收数量",
@@ -3379,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {
-    },
+    "actions": {},
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

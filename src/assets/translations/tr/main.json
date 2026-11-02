@@ -1011,7 +1011,6 @@
       "insufficientFundsForProtocolFee": "%{chainName} üzerinde ücretler için yetersiz %{symbol}",
       "unsupportedTradePair": "Desteklenmeyen Takas Çifti",
       "noRouteFound": "Bu çift ve miktar için yol bulunamadı",
-      "quoteExpired": "Teklifin süresi doldu, tekrar deneyin.",
       "quoteUnsupportedChain": "Zincir desteklenmiyor",
       "quoteCrossChainNotSupported": "Çapraz zincir desteklenmiyor",
       "quoteExactOutputNotSupported": "Tam alım tutarı desteklenmiyor.",
@@ -3379,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

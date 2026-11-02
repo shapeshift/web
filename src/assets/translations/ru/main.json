@@ -1011,7 +1011,6 @@
       "insufficientFundsForProtocolFee": "Недостаточно  %{symbol} на %{chainName} для оплаты комиссии",
       "unsupportedTradePair": "Неподдерживаемая торговая пара",
       "noRouteFound": "Для этой пары и суммы маршруты не найдены",
-      "quoteExpired": "Срок действия истек, попробуйте еще раз.",
       "quoteUnsupportedChain": "Сеть не поддерживается",
       "quoteCrossChainNotSupported": "Крос чейн не поддерживается",
       "quoteExactOutputNotSupported": "Точная сумма поступления не поддерживается",
@@ -3379,8 +3378,7 @@
   "yieldXYZ": {
     "pageTitle": "Прибыль",
     "pageSubtitle": "Обнаруживайте и управляйте возможностями получения дохода в нескольких сетях",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Доходность",
     "apy": "APY",
     "apr": "APR",

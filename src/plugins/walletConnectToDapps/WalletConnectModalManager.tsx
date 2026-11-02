@@ -146,23 +146,32 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return
       }
 
-      assertRequestAuthorized()
-      const chainAdapter = assertGetEvmChainAdapter(chainId)
+      try {
+        assertRequestAuthorized()
+        const chainAdapter = assertGetEvmChainAdapter(chainId)
 
-      const response = await approveEIP155Request({
-        wallet,
-        requestEvent,
-        chainAdapter,
-        accountMetadata,
-        customTransactionData,
-        accountId,
-        assertRequestAuthorized,
-      })
-      await web3wallet.respondSessionRequest({
-        topic,
-        response,
-      })
-      handleClose()
+        const response = await approveEIP155Request({
+          wallet,
+          requestEvent,
+          chainAdapter,
+          accountMetadata,
+          customTransactionData,
+          accountId,
+          assertRequestAuthorized,
+        })
+        await web3wallet.respondSessionRequest({
+          topic,
+          response,
+        })
+      } catch (e) {
+        console.error('[WC EIP155] request failed:', e)
+        await web3wallet.respondSessionRequest({
+          topic,
+          response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
+        })
+      } finally {
+        handleClose()
+      }
     },
     [
       accountId,

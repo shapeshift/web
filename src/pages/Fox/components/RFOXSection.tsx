@@ -523,11 +523,13 @@ export const RFOXSection = () => {
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
               <RFOXIcon me={2} boxSize='32px' sx={rfoxIconStyles} />
               {translate('RFOX.staking')}
-              <Skeleton isLoaded={!currentApyQuery.isFetching} ml={2}>
-                <Tag colorScheme='green' verticalAlign='middle'>
-                  <Amount.Percent value={currentApyQuery.data ?? 0} suffix='APY' />
-                </Tag>
-              </Skeleton>
+              {!currentEpochMetadataQuery.isOutdated && (
+                <Skeleton isLoaded={!currentApyQuery.isFetching} ml={2}>
+                  <Tag colorScheme='green' verticalAlign='middle'>
+                    <Amount.Percent value={currentApyQuery.data ?? 0} suffix='APY' />
+                  </Tag>
+                </Skeleton>
+              )}
             </Heading>
             {filters.length > 1 ? (
               <ButtonGroup variant='transparent' mb={4} spacing={0} mt={2}>
@@ -553,20 +555,31 @@ export const RFOXSection = () => {
                   symbol: stakingAsset.symbol ?? '',
                 })}
               >
-                <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
+                <Text fontSize='md' fontWeight='medium' translation='RFOX.pendingRewardsBalance' />
               </HelperTooltip>
 
-              <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
-                <Amount.Crypto
-                  value={currentEpochRewardsCryptoPrecision}
-                  symbol={rewardAsset.symbol ?? ''}
+              {currentEpochMetadataQuery.isOutdated ? (
+                <Text
+                  translation='RFOX.epochAwaitingUpdate'
+                  fontSize='sm'
+                  color='text.subtle'
+                  mt={2}
                 />
-              </Skeleton>
-              <Amount.Fiat
-                fontSize='xs'
-                value={currentEpochRewardsUserCurrency}
-                color='text.subtle'
-              />
+              ) : (
+                <>
+                  <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
+                    <Amount.Crypto
+                      value={currentEpochRewardsCryptoPrecision}
+                      symbol={rewardAsset.symbol ?? ''}
+                    />
+                  </Skeleton>
+                  <Amount.Fiat
+                    fontSize='xs'
+                    value={currentEpochRewardsUserCurrency}
+                    color='text.subtle'
+                  />
+                </>
+              )}
             </CardBody>
           </Card>
         </Flex>
@@ -638,7 +651,16 @@ export const RFOXSection = () => {
             </Skeleton>
           </Stack>
         </SimpleGrid>
-        <RFOXSimulator stakingAssetId={stakingAssetId} />
+        {currentEpochMetadataQuery.isOutdated ? (
+          <Card role='status'>
+            <CardBody>
+              <Text translation='RFOX.epochAwaitingUpdate' fontWeight='bold' />
+              <Text translation='RFOX.epochAwaitingUpdateDescription' color='text.subtle' />
+            </CardBody>
+          </Card>
+        ) : (
+          <RFOXSimulator stakingAssetId={stakingAssetId} />
+        )}
         <Box py={4}>
           <Stats stakingAssetId={stakingAssetId} />
         </Box>

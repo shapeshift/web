@@ -552,11 +552,16 @@ export const RFOXSection = () => {
                   symbol: stakingAsset.symbol ?? '',
                 })}
               >
-                <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
+                <Text fontSize='md' fontWeight='medium' translation='RFOX.pendingRewardsBalance' />
               </HelperTooltip>
 
               {currentEpochMetadataQuery.isOutdated ? (
-                <Text translation='RFOX.epochAwaitingUpdate' color='text.subtle' />
+                <Text
+                  translation='RFOX.epochAwaitingUpdate'
+                  fontSize='sm'
+                  color='text.subtle'
+                  mt={2}
+                />
               ) : (
                 <>
                   <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>

@@ -1,4 +1,5 @@
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { RFOX_STAKING_CONFIG } from '../constants'
@@ -62,24 +63,14 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
     [accountIdsByChainId, pricing],
   )
 
-  const query = useEpochHistoryQuery({
+  // EVM accounts share an address across chains, so one lookup covers every program
+  const evmAccount = Object.values(accountIdsByChainId ?? {})
+    .filter(isSome)
+    .map(fromAccountId)
+    .find(({ chainNamespace }) => chainNamespace === CHAIN_NAMESPACE.Evm)
+
+  return useEpochHistoryQuery({
+    stakingAddress: evmAccount?.account,
     select,
-    enabled: Boolean(accountIdsByChainId),
   })
-
-  const retry = useCallback(async () => {
-    await Promise.all(
-      rewardAssetIds.map(assetId =>
-        dispatch(
-          marketApi.endpoints.findByAssetId.initiate(assetId, {
-            forceRefetch: true,
-            subscribe: false,
-          }),
-        ),
-      ),
-    )
-    return query.refetch()
-  }, [dispatch, query])
-
-  return { ...query, retry }
 }

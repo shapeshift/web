@@ -72,8 +72,6 @@ export const useAffiliateRevenueUsdQuery = <SelectData = TotalRevenueUsd>({
     queryKey,
     queryFn,
     select,
-    retry: false,
-    staleTime: 60_000,
   })
 
   return query

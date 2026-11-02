@@ -5,7 +5,6 @@ import { mapValues } from 'lodash'
 
 import type { RfoxStakingConfig } from './constants'
 import { RFOX_STAKING_CONFIG, RFOX_V3_UPGRADE_EPOCH } from './constants'
-import type { EpochWithIpfsHash } from './hooks/useEpochHistoryQuery'
 import type { AbiStakingInfo, StakingInfo } from './types'
 
 const parseAbiStakingInfo = (abiStakingInfo: AbiStakingInfo): StakingInfo => {
@@ -27,10 +26,6 @@ export const selectFromStakingInfo = (key: keyof StakingInfo, abiStakingInfo: Ab
 
 export const selectStakingBalance = (abiStakingInfo: AbiStakingInfo) => {
   return selectFromStakingInfo('stakingBalance', abiStakingInfo)
-}
-
-export const selectLatestEpoch = (data: EpochWithIpfsHash[]): EpochWithIpfsHash | undefined => {
-  return data[0]
 }
 
 const stakingAssetIdByContract = Object.entries(

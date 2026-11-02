@@ -20,8 +20,6 @@ export type CurrentEpochMetadata = {
   burnRate: number
   /** The current percentage of revenue (RUNE) earned by the treasury to be distributed as rewards for each staking contract */
   distributionRateByStakingContract: Record<string, number>
-  /** The IPFS hashes for each epoch */
-  ipfsHashByEpoch: Record<string, string>
 }
 
 export type RewardDistribution = {

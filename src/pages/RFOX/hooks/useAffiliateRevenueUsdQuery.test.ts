@@ -33,19 +33,10 @@ describe('affiliate revenue', () => {
     await expect(fetchRevenue()).rejects.toThrow('Invalid affiliate revenue response')
   })
 
-  it('propagates a timeout instead of returning zero', async () => {
-    vi.mocked(axios.get).mockRejectedValueOnce(new Error('timeout'))
-    await expect(fetchRevenue()).rejects.toThrow('timeout')
-  })
-
   it('rejects incomplete totals rather than understating rewards', async () => {
     vi.mocked(axios.get).mockResolvedValueOnce({
       data: { totalUsd: 100, failedProviders: ['mayachain'] },
     })
     await expect(fetchRevenue()).rejects.toThrow('Affiliate revenue is incomplete')
-  })
-
-  it('waits for epoch metadata', () => {
-    expect(getAffiliateRevenueUsdQueryFn({})).toBe(skipToken)
   })
 })

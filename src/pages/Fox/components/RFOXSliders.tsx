@@ -11,13 +11,13 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
-import type { NumberFormatValues } from 'react-number-format'
+import type { NumberFormatValues, SourceInfo } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 
 import { Text } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type RFOXSlidersProps = {
@@ -69,11 +69,15 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
     number: { localeParts },
   } = useLocaleFormatter()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+
   const handleShapeShiftRevenueChange = useCallback(
-    (values: NumberFormatValues) => {
-      setShapeShiftRevenue(bnOrZero(values.value).toNumber())
+    (values: NumberFormatValues, { event }: SourceInfo) => {
+      if (!event) return
+
+      setShapeShiftRevenue(bnOrZero(values.value).div(userCurrencyToUsdRate).toNumber())
     },
-    [setShapeShiftRevenue],
+    [setShapeShiftRevenue, userCurrencyToUsdRate],
   )
 
   const maxDeposit = bnOrZero(maxDepositAmount).toNumber() || 1
@@ -135,11 +139,11 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
               customInput={Input}
               valueIsNumericString={true}
               inputMode='decimal'
-              suffix={localeParts.postfix ? '$' : ''}
-              prefix={localeParts.prefix ? '$' : ''}
+              suffix={localeParts.postfix}
+              prefix={localeParts.prefix}
               decimalSeparator={localeParts.decimal}
               thousandSeparator={localeParts.group}
-              value={shapeShiftRevenue}
+              value={bnOrZero(shapeShiftRevenue).times(userCurrencyToUsdRate).toFixed(2)}
               onValueChange={handleShapeShiftRevenueChange}
             />
           </Box>

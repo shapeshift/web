@@ -36,7 +36,6 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
   return (
     <StatItem
       description={translate('RFOX.totalStaked', { symbol: stakingAsset?.symbol })}
-      helperDescription={translate('RFOX.totalStakedHelper', { symbol: stakingAsset?.symbol })}
       amountUserCurrency={totalStakedUserCurrencyQuery.data}
       isLoading={totalStakedUserCurrencyQuery.isLoading}
     />

@@ -1,4 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import uniq from 'lodash/uniq'
 import { useEffect, useMemo } from 'react'
 
 import { useActionCenterContext } from '../../../components/Layout/Header/ActionCenter/ActionCenterContext'
@@ -35,7 +36,7 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
 
   const actions = useAppSelector(actionSlice.selectors.selectActionsById)
   const stakingAssetAccountAddresses = useMemo(
-    () => stakingAssetAccountIds.map(accountId => fromAccountId(accountId).account),
+    () => uniq(stakingAssetAccountIds.map(accountId => fromAccountId(accountId).account)),
     [stakingAssetAccountIds],
   )
 

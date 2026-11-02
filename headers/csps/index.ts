@@ -85,7 +85,6 @@ import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
 import { csp as moralis } from './moralis'
-import { csp as pinata } from './pinata'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as railway } from './railway'
 import { csp as relay } from './relay'
@@ -121,7 +120,6 @@ export const csps = [
   mercle,
   mixPanel,
   sentry,
-  pinata,
   shapeshift,
   snapshots,
   tenderly,

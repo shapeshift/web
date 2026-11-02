@@ -70,9 +70,11 @@ const widthMdFlexStart = { base: 'flex-end', md: 'flex-start' }
 const RfoxApy: React.FC<{ stakingAssetId: AssetId }> = ({ stakingAssetId }) => {
   const currentApyQuery = useCurrentApyQuery({ stakingAssetId })
 
+  if (currentApyQuery.data === undefined) return null
+
   return (
     <Tag colorScheme='green'>
-      <Amount.Percent value={currentApyQuery?.data ?? '0'} />
+      <Amount.Percent value={currentApyQuery.data} />
     </Tag>
   )
 }

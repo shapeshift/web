@@ -1,4 +1,4 @@
-import { Button, Skeleton, Stack } from '@chakra-ui/react'
+import { Skeleton, Stack } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { ChangeTag } from '@/components/ChangeTag/ChangeTag'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 
 type StatItemProps = {
   description: string
@@ -15,7 +15,6 @@ type StatItemProps = {
   helperDescription?: string
   isLoading: boolean
   isError?: boolean
-  onRetry?: () => void
 }
 
 const helperToolTipFlexProps = {
@@ -30,7 +29,6 @@ export const StatItem = ({
   percentChangeDecimal,
   isLoading,
   isError,
-  onRetry,
 }: StatItemProps) => {
   const translate = useTranslate()
 
@@ -53,14 +51,11 @@ export const StatItem = ({
           iconProps={helperIconProps}
         >
           {isError || amountUserCurrency === undefined ? (
-            <Text translation='RFOX.dataUnavailable' color='text.subtle' />
+            <RawText fontSize='xl' fontWeight='medium'>
+              --
+            </RawText>
           ) : (
             <Amount.Fiat value={amountUserCurrency} fontSize='xl' fontWeight='medium' />
-          )}
-          {(isError || amountUserCurrency === undefined) && onRetry && (
-            <Button size='xs' variant='link' onClick={onRetry} ml={2} isDisabled={isLoading}>
-              {translate('common.retry')}
-            </Button>
           )}
           {valueChangeTag}
         </HelperTooltip>

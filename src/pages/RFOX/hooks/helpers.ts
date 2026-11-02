@@ -18,10 +18,12 @@ export const calcEpochRewardForAccountUsdcBaseUnit = (
   affiliateRevenue: string,
   currentEpochMetadata: CurrentEpochMetadata,
   stakingAssetId: AssetId,
+  closedEpochTotalRewardUnits?: bigint,
 ) => {
   // Calculate the total reward units for the current epoch thus far
   const secondsInCurrentEpoch = (Date.now() - currentEpochMetadata.epochStartTimestamp) / 1000
-  const totalRewardUnits = RFOX_REWARD_RATE * BigInt(Math.floor(secondsInCurrentEpoch))
+  const totalRewardUnits =
+    closedEpochTotalRewardUnits ?? RFOX_REWARD_RATE * BigInt(Math.floor(secondsInCurrentEpoch))
   const distributionRate =
     currentEpochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 

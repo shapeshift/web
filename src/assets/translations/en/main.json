@@ -3022,6 +3022,7 @@
     "totals": "rFOX Totals",
     "totalStaked": "Total %{symbol} Staked",
     "totalStakedHelper": "The total amount of %{symbol} staked",
+    "dataUnavailable": "Unavailable",
     "totalFeesCollected": "Total Fees Collected (This Epoch)",
     "emissionsPool": "%{symbol} Emissions Pool (This Epoch)",
     "emissionsPoolHelper": "The total amount of rewards to be distributed %{symbol} stakers",

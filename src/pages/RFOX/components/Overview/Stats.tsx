@@ -1,7 +1,7 @@
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { EmissionsPool } from './EmissionsPool'
 import { StatItem } from './StatItem'
@@ -30,7 +30,7 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
   })
 
   const totalFeesCollectedUserCurrency = useMemo(() => {
-    if (!affiliateRevenueUsdQuery.data) return
+    if (affiliateRevenueUsdQuery.data === undefined) return
     return bn(affiliateRevenueUsdQuery.data).times(userCurrencyToUsdRate).toFixed(2)
   }, [affiliateRevenueUsdQuery.data, userCurrencyToUsdRate])
 
@@ -43,6 +43,22 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
       .toFixed(2)
   }, [currentEpochMetadataQuery, totalFeesCollectedUserCurrency])
 
+  const handleRetry = useCallback(() => {
+    if (
+      currentEpochMetadataQuery.isError ||
+      !currentEpochMetadataQuery.data?.epochStartTimestamp ||
+      !currentEpochMetadataQuery.data?.epochEndTimestamp
+    ) {
+      void currentEpochMetadataQuery.refetch({ cancelRefetch: false })
+    }
+    if (affiliateRevenueUsdQuery.isError) {
+      void affiliateRevenueUsdQuery.refetch({ cancelRefetch: false })
+    }
+  }, [currentEpochMetadataQuery, affiliateRevenueUsdQuery])
+
+  const isError = currentEpochMetadataQuery.isError || affiliateRevenueUsdQuery.isError
+  const isLoading = currentEpochMetadataQuery.isLoading || affiliateRevenueUsdQuery.isLoading
+
   return (
     <Box>
       <Flex alignItems='center' gap={2} mb={6} mt={2}>
@@ -53,13 +69,17 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
         <StatItem
           description='RFOX.totalFeesCollected'
           amountUserCurrency={totalFeesCollectedUserCurrency}
-          isLoading={affiliateRevenueUsdQuery.isLoading}
+          isLoading={isLoading}
+          isError={isError}
+          onRetry={handleRetry}
         />
         <EmissionsPool stakingAssetId={stakingAssetId} />
         <StatItem
           description='RFOX.foxBuybackAmount'
           amountUserCurrency={foxBuybackAmountUserCurrency}
-          isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
+          isLoading={isLoading}
+          isError={isError}
+          onRetry={handleRetry}
         />
       </SimpleGrid>
     </Box>

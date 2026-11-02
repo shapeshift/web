@@ -170,6 +170,7 @@ export const useCurrentEpochRewardsQuery = ({
           startTimestamp: currentEpochMetadata?.epochStartTimestamp,
           endTimestamp: currentEpochMetadata?.epochEndTimestamp,
         }),
+        retry: 1,
         enabled: Boolean(currentEpochMetadata && stakingAssetAccountId && stakingAssetId),
       },
     ],

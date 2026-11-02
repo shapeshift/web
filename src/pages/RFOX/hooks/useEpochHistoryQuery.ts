@@ -25,7 +25,7 @@ export const getEpochHistoryQueryKey = (args?: EpochHistoryQueryArgs) =>
 const fetchEpochHistory = async (stakingAddress: string): Promise<EpochWithIpfsHash[]> => {
   const { data } = await axios.get<EpochWithIpfsHash[]>(
     `${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/rfox/epochs/${stakingAddress}`,
-    { timeout: 15_000 },
+    { timeout: 5_000 },
   )
 
   return data

@@ -12,7 +12,7 @@ const getCurrentEpochMetadataQueryKey = (): CurrentEpochMetadataQueryKey => ['cu
 const fetchCurrentEpochMetadata = async (): Promise<CurrentEpochMetadata> => {
   const { data: currentEpochMetadata } = await axios.get<CurrentEpochMetadata>(
     `${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/rfox/metadata`,
-    { timeout: 15_000 },
+    { timeout: 5_000 },
   )
 
   return currentEpochMetadata

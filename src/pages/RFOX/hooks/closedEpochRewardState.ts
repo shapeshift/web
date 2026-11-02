@@ -34,7 +34,7 @@ export const getClosedEpochRewardStateQueryKey = ({
 const fetchClosingBlock = async (chainId: number) => {
   const { data } = await axios.get<{ blockNumber: string; timestamp: number }>(
     `${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/rfox/closing-block/${chainId}`,
-    { timeout: 15_000 },
+    { timeout: 5_000 },
   )
 
   return data

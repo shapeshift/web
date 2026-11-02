@@ -24,7 +24,7 @@ describe('affiliate revenue', () => {
     await expect(fetchRevenue()).resolves.toBe(0)
     expect(axios.get).toHaveBeenCalledWith(
       'https://revenue.example/api/v1/affiliate/revenue?startDate=2026-10-01&endDate=2026-10-31',
-      { timeout: 30_000 },
+      { timeout: 15_000 },
     )
   })
 

@@ -40,7 +40,7 @@ export const getAffiliateRevenueUsdQueryFn = ({
 
     const url = `${baseUrl}/api/v1/affiliate/revenue?startDate=${startDate}&endDate=${endDate}`
     const { data } = await axios.get<{ totalUsd: number; failedProviders?: string[] }>(url, {
-      timeout: 30_000,
+      timeout: 15_000,
     })
 
     if (typeof data.totalUsd !== 'number' || !Number.isFinite(data.totalUsd)) {
@@ -72,6 +72,7 @@ export const useAffiliateRevenueUsdQuery = <SelectData = TotalRevenueUsd>({
     queryKey,
     queryFn,
     select,
+    retry: 1,
   })
 
   return query

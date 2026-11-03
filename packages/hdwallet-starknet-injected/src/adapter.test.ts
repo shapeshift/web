@@ -116,4 +116,13 @@ describe('StarknetInjectedAdapter', () => {
 
     await expect(adapter.pairDevice()).rejects.toMatchObject({ code: 'WRONG_NETWORK' })
   })
+
+  it('fails to connect when the extension throws on the mainnet switch', async () => {
+    request
+      .mockResolvedValueOnce([SEPOLIA_ADDRESS])
+      .mockResolvedValueOnce(constants.StarknetChainId.SN_SEPOLIA)
+      .mockRejectedValueOnce(new Error('User refused'))
+
+    await expect(adapter.pairDevice()).rejects.toMatchObject({ code: 'WRONG_NETWORK' })
+  })
 })

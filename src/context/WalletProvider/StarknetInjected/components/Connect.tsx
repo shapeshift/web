@@ -5,8 +5,8 @@ import { useTranslate } from 'react-polyglot'
 
 import type { StarknetInjectedKeyManager } from '../config'
 
-import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text'
+import type { TextPropTypes } from '@/components/Text/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
@@ -41,10 +41,10 @@ export const StarknetInjectedConnect = ({
 
     try {
       const adapter = await getAdapter(keyManager)
-      if (!adapter) throw new Error('walletProvider.errors.walletNotFound')
+      if (!adapter) throw new Error(`${name} adapter not found`)
 
       const wallet = await adapter.pairDevice()
-      if (!wallet) throw new Error('walletProvider.errors.walletNotFound')
+      if (!wallet) throw new Error(`${name} wallet not found`)
 
       const deviceId = await wallet.getDeviceID()
 
@@ -59,6 +59,9 @@ export const StarknetInjectedConnect = ({
     } catch (e: unknown) {
       console.error(e, `${name} Connect: There was an error initializing the wallet`)
       switch (getErrorCode(e)) {
+        case 'PROVIDER_NOT_FOUND':
+          setError(['walletProvider.starknetInjected.errors.notInstalled', { name }])
+          break
         case 'WRONG_NETWORK':
           setError(['walletProvider.starknetInjected.errors.wrongNetwork', { name }])
           break

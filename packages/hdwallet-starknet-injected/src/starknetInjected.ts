@@ -153,10 +153,13 @@ export class StarknetInjectedHDWallet
   public async ensureMainnet(): Promise<boolean> {
     if (await this.isMainnet()) return false
 
-    const isSwitched = await this.provider.request({
-      type: 'wallet_switchStarknetChain',
-      params: { chainId: constants.StarknetChainId.SN_MAIN },
-    })
+    // Extensions either throw or return false when the user refuses the switch
+    const isSwitched = await this.provider
+      .request({
+        type: 'wallet_switchStarknetChain',
+        params: { chainId: constants.StarknetChainId.SN_MAIN },
+      })
+      .catch(() => false)
     if (!isSwitched) {
       throw new StarknetInjectedError(
         'WRONG_NETWORK',

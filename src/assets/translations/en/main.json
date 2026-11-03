@@ -2078,6 +2078,7 @@
     },
     "starknetInjected": {
       "errors": {
+        "notInstalled": "%{name} isn't installed or is disabled. Enable it in your browser and try again.",
         "wrongNetwork": "Switch %{name} to Starknet Mainnet and try again.",
         "noAccount": "No account found in %{name}. Create or unlock a Starknet Mainnet account and try again.",
         "connectionFailed": "The connection to %{name} was rejected or failed. Approve the request in %{name} and try again."

@@ -2,27 +2,32 @@ import { useMemo } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { StarknetInjectedConnect } from '../../StarknetInjected/components/Connect'
-import { StarknetInjectedFailure } from '../../StarknetInjected/components/Failure'
 import type { StarknetInjectedKeyManager } from '../../StarknetInjected/config'
+import type { RightPanelContentProps } from '../types'
+
+type StarknetInjectedRoutesProps = Pick<RightPanelContentProps, 'isLoading' | 'setIsLoading'> & {
+  keyManager: StarknetInjectedKeyManager
+}
 
 export const StarknetInjectedRoutes = ({
   keyManager,
-}: {
-  keyManager: StarknetInjectedKeyManager
-}) => {
+  isLoading,
+  setIsLoading,
+}: StarknetInjectedRoutesProps) => {
   const connectElement = useMemo(
-    () => <StarknetInjectedConnect keyManager={keyManager} />,
-    [keyManager],
-  )
-  const failureElement = useMemo(
-    () => <StarknetInjectedFailure keyManager={keyManager} />,
-    [keyManager],
+    () => (
+      <StarknetInjectedConnect
+        keyManager={keyManager}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+      />
+    ),
+    [keyManager, isLoading, setIsLoading],
   )
 
   return (
     <Routes>
       <Route path={`/${keyManager}/connect`} element={connectElement} />
-      <Route path={`/${keyManager}/failure`} element={failureElement} />
     </Routes>
   )
 }

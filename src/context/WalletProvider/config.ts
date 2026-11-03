@@ -296,15 +296,15 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
   [KeyManager.ReadyWallet]: {
     ...ReadyWalletConfig,
-    routes: [{ path: '/ready-wallet/connect' }, { path: '/ready-wallet/failure' }],
+    routes: [{ path: '/ready-wallet/connect' }],
   },
   [KeyManager.Braavos]: {
     ...BraavosConfig,
-    routes: [{ path: '/braavos/connect' }, { path: '/braavos/failure' }],
+    routes: [{ path: '/braavos/connect' }],
   },
   [KeyManager.Bramble]: {
     ...BrambleConfig,
-    routes: [{ path: '/bramble/connect' }, { path: '/bramble/failure' }],
+    routes: [{ path: '/bramble/connect' }],
   },
   [KeyManager.Ledger]: {
     ...LedgerConfig,

@@ -1,35 +1,43 @@
+import { Alert, AlertDescription, AlertIcon, Button, Flex, Spinner } from '@chakra-ui/react'
 import type { StarknetInjectedErrorCode } from '@shapeshiftoss/hdwallet-starknet-injected'
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useTranslate } from 'react-polyglot'
 
-import type { ConnectModalProps } from '../../components/ConnectModal'
-import { ConnectModal } from '../../components/ConnectModal'
 import type { StarknetInjectedKeyManager } from '../config'
 
+import type { TextPropTypes } from '@/components/Text/Text'
+import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
+const spinner = <Spinner color='white' />
+
 const getErrorCode = (e: unknown): StarknetInjectedErrorCode | undefined =>
   (e as { code?: StarknetInjectedErrorCode } | undefined)?.code
 
+type StarknetInjectedConnectProps = {
+  keyManager: StarknetInjectedKeyManager
+  isLoading: boolean
+  setIsLoading: (loading: boolean) => void
+}
+
 export const StarknetInjectedConnect = ({
   keyManager,
-}: {
-  keyManager: StarknetInjectedKeyManager
-}) => {
-  const navigate = useNavigate()
+  isLoading,
+  setIsLoading,
+}: StarknetInjectedConnectProps) => {
+  const translate = useTranslate()
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<ConnectModalProps['error']>(null)
+  const [error, setError] = useState<TextPropTypes['translation']>(null)
 
-  const { name, icon } = SUPPORTED_WALLETS[keyManager]
+  const { name, icon: Icon } = SUPPORTED_WALLETS[keyManager]
 
   const pairDevice = useCallback(async () => {
     setError(null)
-    setLoading(true)
+    setIsLoading(true)
 
     try {
       const adapter = await getAdapter(keyManager)
@@ -42,7 +50,7 @@ export const StarknetInjectedConnect = ({
 
       dispatch({
         type: WalletActions.SET_WALLET,
-        payload: { wallet, name, icon, deviceId, connectedType: keyManager },
+        payload: { wallet, name, icon: Icon, deviceId, connectedType: keyManager },
       })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
@@ -51,9 +59,6 @@ export const StarknetInjectedConnect = ({
     } catch (e: unknown) {
       console.error(e, `${name} Connect: There was an error initializing the wallet`)
       switch (getErrorCode(e)) {
-        case 'PROVIDER_NOT_FOUND':
-          navigate(`/${keyManager}/failure`)
-          break
         case 'WRONG_NETWORK':
           setError(['walletProvider.starknetInjected.errors.wrongNetwork', { name }])
           break
@@ -65,18 +70,40 @@ export const StarknetInjectedConnect = ({
           setError(['walletProvider.starknetInjected.errors.connectionFailed', { name }])
       }
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
-  }, [dispatch, getAdapter, icon, keyManager, localWallet, name, navigate])
+  }, [dispatch, getAdapter, Icon, keyManager, localWallet, name, setIsLoading])
 
   return (
-    <ConnectModal
-      headerText={['walletProvider.starknetInjected.connect.header', { name }]}
-      bodyText={['walletProvider.starknetInjected.connect.body', { name }]}
-      buttonText={'walletProvider.starknetInjected.connect.button'}
-      onPairDeviceClick={pairDevice}
-      loading={loading}
-      error={error}
-    />
+    <Flex direction='column' alignItems='center' justifyContent='center' height='full' gap={6}>
+      <Icon boxSize='64px' />
+      <Text fontSize='xl' translation={['walletProvider.mipd.connect.header', { name }]} />
+      <Text
+        color='gray.500'
+        translation={['walletProvider.mipd.connect.body', { name }]}
+        textAlign='center'
+      />
+
+      {error && (
+        <Alert status='info'>
+          <AlertIcon />
+          <AlertDescription>
+            <Text translation={error} />
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Button
+        maxW='200px'
+        width='100%'
+        colorScheme='blue'
+        isLoading={isLoading}
+        loadingText={translate('common.pairing')}
+        spinner={spinner}
+        onClick={pairDevice}
+      >
+        {translate('walletProvider.mipd.connect.button')}
+      </Button>
+    </Flex>
   )
 }

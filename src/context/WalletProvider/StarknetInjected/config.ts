@@ -2,6 +2,7 @@ import type {
   BraavosAdapter,
   BrambleAdapter,
   ReadyWalletAdapter,
+  StarknetInjectedProviderId,
 } from '@shapeshiftoss/hdwallet-starknet-injected'
 
 import { BraavosIcon } from '@/components/Icons/BraavosIcon'
@@ -54,6 +55,15 @@ export const STARKNET_INJECTED_KEYMANAGERS: StarknetInjectedKeyManager[] = [
   KeyManager.Braavos,
   KeyManager.Bramble,
 ]
+
+export const STARKNET_INJECTED_PROVIDER_ID_BY_KEYMANAGER: Record<
+  StarknetInjectedKeyManager,
+  StarknetInjectedProviderId
+> = {
+  [KeyManager.ReadyWallet]: 'argentX',
+  [KeyManager.Braavos]: 'braavos',
+  [KeyManager.Bramble]: 'bramble',
+}
 
 export const isStarknetInjectedKeyManager = (
   keyManager: KeyManager | null | undefined,

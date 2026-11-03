@@ -35,7 +35,6 @@ import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { MobileWalletsSection } from './sections/MobileWalletsSection'
 import { OthersSection } from './sections/OthersSection'
 import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
-import { StarknetWalletsSection } from './sections/StarknetWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
@@ -97,7 +96,13 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
     location.pathname.startsWith(`/${keyManager}/`),
   )
   if (starknetInjectedKeyManager)
-    return <StarknetInjectedRoutes keyManager={starknetInjectedKeyManager} />
+    return (
+      <StarknetInjectedRoutes
+        keyManager={starknetInjectedKeyManager}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+      />
+    )
 
   if (shouldDisplayIntro) return <NativeIntro />
 
@@ -297,11 +302,6 @@ export const WalletViewsSwitch = () => {
         <Divider mb={2} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection
-          isLoading={isLoading}
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-        />
-        <StarknetWalletsSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}

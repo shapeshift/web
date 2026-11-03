@@ -461,21 +461,24 @@ export const SendAmountDetails = () => {
           )}
           <Button
             width='full'
-            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
+            colorScheme={addressError && !isValidating && !isStarknetDeploymentRequired ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
             isDisabled={
-              !currentValue ||
-              bnOrZero(currentValue).lte(0) ||
-              isLoading ||
-              Boolean(amountFieldError) ||
-              Boolean(memoFieldError) ||
-              !to ||
-              !input ||
-              addressError ||
-              hasNoAccountForAsset ||
-              isCheckingDeployment ||
-              deployAccountMutation.isPending
+              // Deploying only needs the account, not an amount or a recipient
+              isStarknetDeploymentRequired
+                ? deployAccountMutation.isPending
+                : !currentValue ||
+                  bnOrZero(currentValue).lte(0) ||
+                  isLoading ||
+                  Boolean(amountFieldError) ||
+                  Boolean(memoFieldError) ||
+                  !to ||
+                  !input ||
+                  addressError ||
+                  hasNoAccountForAsset ||
+                  isCheckingDeployment ||
+                  deployAccountMutation.isPending
             }
             isLoading={
               isLoading || isValidating || isCheckingDeployment || deployAccountMutation.isPending
@@ -487,10 +490,10 @@ export const SendAmountDetails = () => {
             }
           >
             {translate(
-              Boolean(addressError)
-                ? addressError
-                : isStarknetDeploymentRequired
+              isStarknetDeploymentRequired
                 ? 'starknet.deployAccount.deployButton'
+                : Boolean(addressError)
+                ? addressError
                 : 'common.preview',
             )}
           </Button>

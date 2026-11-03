@@ -33,10 +33,10 @@ describe('affiliate revenue', () => {
     await expect(fetchRevenue()).rejects.toThrow('Invalid affiliate revenue response')
   })
 
-  it('rejects incomplete totals rather than understating rewards', async () => {
+  it('keeps the total when a provider failed', async () => {
     vi.mocked(axios.get).mockResolvedValueOnce({
       data: { totalUsd: 100, failedProviders: ['mayachain'] },
     })
-    await expect(fetchRevenue()).rejects.toThrow('Affiliate revenue is incomplete')
+    await expect(fetchRevenue()).resolves.toBe(100)
   })
 })

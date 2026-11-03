@@ -860,7 +860,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const starknetInjectedAdapter = await getAdapter(localWalletType)
 
             if (starknetInjectedAdapter) {
-              // Mutate in place like the other cases - a new object re-creates load() and re-runs it
+              // A three-key union can't be assigned by index, Object.assign mutates in place like the others
               Object.assign(currentAdapters, { [localWalletType]: starknetInjectedAdapter })
               dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
               // Fixes issue with wallet `type` being null when the wallet is loaded from state

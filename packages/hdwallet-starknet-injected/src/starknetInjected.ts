@@ -181,7 +181,7 @@ export class StarknetInjectedHDWallet
     return msg.map(() => null)
   }
 
-  public async connect(silent = false): Promise<string | null> {
+  private async requestActiveAddress(silent: boolean): Promise<string | null> {
     const [address] = await this.provider.request({
       type: 'wallet_requestAccounts',
       // `silent` only succeeds if the dApp was previously authorized, without prompting the user
@@ -189,8 +189,11 @@ export class StarknetInjectedHDWallet
     })
 
     // Pad to 64 hex chars, matching the native wallet so AccountIds line up with tx parsing
-    this.starknetAddress = address ? validateAndParseAddress(address) : null
+    return address ? validateAndParseAddress(address) : null
+  }
 
+  public async connect(silent = false): Promise<string | null> {
+    this.starknetAddress = await this.requestActiveAddress(silent)
     return this.starknetAddress
   }
 
@@ -211,15 +214,12 @@ export class StarknetInjectedHDWallet
   public async starknetSendTx(msg: core.StarknetSignTx): Promise<core.StarknetTxHash | null> {
     if (!msg.calls?.length) throw new Error('calls are required to send a Starknet transaction')
 
+    // Like connect, accounts first so a locked extension prompts an unlock before the network check
+    await this.requestActiveAddress(false)
     await this.ensureMainnet()
 
-    // Only send from the account the tx was built for, non-silent so a locked extension prompts an unlock
-    const [activeAddress] = await this.provider.request({
-      type: 'wallet_requestAccounts',
-      params: { silent_mode: false },
-    })
-
-    if (!activeAddress || validateAndParseAddress(activeAddress) !== this.starknetAddress) {
+    // Only send from the account the tx was built for
+    if ((await this.requestActiveAddress(true)) !== this.starknetAddress) {
       throw new StarknetInjectedError(
         'ACCOUNT_CHANGED',
         `${this.vendor} account changed, please review the transaction again`,
@@ -232,7 +232,6 @@ export class StarknetInjectedHDWallet
         calls: msg.calls.map(call => ({
           contract_address: call.contractAddress,
           entry_point: call.entrypoint,
-          // The wallet API only accepts hex felts, our builders emit decimal uint256 halves
           calldata: call.calldata.map(felt => num.toHex(felt)),
         })),
       },

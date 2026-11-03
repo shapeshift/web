@@ -62,13 +62,14 @@ describe('StarknetInjectedHDWallet', () => {
 
     it('sends the calls through wallet_addInvokeTransaction with hex calldata', async () => {
       request
+        .mockResolvedValueOnce([SHORT_ADDRESS])
         .mockResolvedValueOnce(constants.StarknetChainId.SN_MAIN)
         .mockResolvedValueOnce([SHORT_ADDRESS])
         .mockResolvedValueOnce({ transaction_hash: '0xdeadbeef' })
 
       expect(await wallet.starknetSendTx(txToSign)).toEqual({ hash: '0xdeadbeef' })
-      // Not silent, so a locked extension prompts an unlock
-      expect(request).toHaveBeenCalledWith({
+      // A locked extension rejects the network check, so the unlock prompt has to come first
+      expect(request.mock.calls[0][0]).toEqual({
         type: 'wallet_requestAccounts',
         params: { silent_mode: false },
       })
@@ -84,6 +85,7 @@ describe('StarknetInjectedHDWallet', () => {
 
     it('switches back to mainnet before sending', async () => {
       request
+        .mockResolvedValueOnce([SHORT_ADDRESS])
         .mockResolvedValueOnce(constants.StarknetChainId.SN_SEPOLIA)
         .mockResolvedValueOnce(true)
         .mockResolvedValueOnce([SHORT_ADDRESS])
@@ -91,6 +93,7 @@ describe('StarknetInjectedHDWallet', () => {
 
       expect(await wallet.starknetSendTx(txToSign)).toEqual({ hash: '0xdeadbeef' })
       expect(request.mock.calls.map(([call]) => call.type)).toEqual([
+        'wallet_requestAccounts',
         'wallet_requestChainId',
         'wallet_switchStarknetChain',
         'wallet_requestAccounts',
@@ -100,6 +103,7 @@ describe('StarknetInjectedHDWallet', () => {
 
     it('does not send when the user stays on another network', async () => {
       request
+        .mockResolvedValueOnce([SHORT_ADDRESS])
         .mockResolvedValueOnce(constants.StarknetChainId.SN_SEPOLIA)
         .mockResolvedValueOnce(false)
 
@@ -111,6 +115,7 @@ describe('StarknetInjectedHDWallet', () => {
 
     it('does not send from an account other than the one the tx was built for', async () => {
       request
+        .mockResolvedValueOnce(['0x456def'])
         .mockResolvedValueOnce(constants.StarknetChainId.SN_MAIN)
         .mockResolvedValueOnce(['0x456def'])
 

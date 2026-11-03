@@ -31,19 +31,19 @@ export const useStarknetInjectedEventHandler = ({
     if (!isStarknetInjectedKeyManager(connectedType)) return
 
     const keyManager = connectedType
-    let latestRefreshId = 0
+    const latestRefreshId = { current: 0 }
 
     const refreshWallet = async () => {
-      const refreshId = ++latestRefreshId
+      const refreshId = ++latestRefreshId.current
       // Account and network events often fire together - only the latest refresh may apply
       const isStale = () =>
-        refreshId !== latestRefreshId || selectWalletType(store.getState()) !== keyManager
+        refreshId !== latestRefreshId.current || selectWalletType(store.getState()) !== keyManager
 
       if (isStale()) return
 
       try {
         // Balances and txs are mainnet only, sends switch the extension back before submitting
-        if (!(await wallet.isMainnet())) return
+        if (!(await wallet.isMainnet()) || isStale()) return
 
         const adapter = await getAdapterRef.current(keyManager)
         const nextWallet = await adapter?.pairDevice('refresh')
@@ -88,7 +88,7 @@ export const useStarknetInjectedEventHandler = ({
     const handleAccountsChanged = (accounts?: unknown) => {
       // No accounts means the extension was locked or this site was disconnected from it
       if (!Array.isArray(accounts) || !accounts.length) {
-        latestRefreshId++
+        latestRefreshId.current++
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
         return
       }
@@ -103,7 +103,7 @@ export const useStarknetInjectedEventHandler = ({
     wallet.provider.on('networkChanged', handleNetworkChanged)
 
     return () => {
-      latestRefreshId++
+      latestRefreshId.current++
       wallet.provider.off('accountsChanged', handleAccountsChanged)
       wallet.provider.off('networkChanged', handleNetworkChanged)
     }

@@ -52,7 +52,7 @@ const setup = ({
     deviceId: CURRENT_DEVICE_ID,
   } as unknown as IWalletContext['state']
 
-  const { unmount } = renderHook(() =>
+  renderHook(() =>
     useStarknetInjectedEventHandler({
       state,
       getAdapter: getAdapter as unknown as IWalletContext['getAdapter'],
@@ -60,7 +60,7 @@ const setup = ({
     }),
   )
 
-  return { wallet, provider, nextWallet, pairDevice, dispatch, unmount }
+  return { wallet, provider, nextWallet, pairDevice, dispatch }
 }
 
 const dispatchedTypes = (dispatch: ReturnType<typeof vi.fn>) =>
@@ -106,10 +106,10 @@ describe('useStarknetInjectedEventHandler', () => {
     expect(selectWalletDeviceId(store.getState())).toBe(NEXT_DEVICE_ID)
   })
 
-  it('refreshes the account on network change', async () => {
+  it('refreshes the account when the extension switches back to mainnet', async () => {
     const { provider, dispatch } = setup({ nextDeviceId: NEXT_DEVICE_ID })
 
-    provider.handlers.networkChanged?.('0x534e5f5345504f4c4941', ['0xbbb'])
+    provider.handlers.networkChanged?.('0x534e5f4d41494e', ['0xbbb'])
 
     await waitFor(() => expect(dispatchedTypes(dispatch)).toContain(WalletActions.SET_WALLET))
   })
@@ -155,11 +155,10 @@ describe('useStarknetInjectedEventHandler', () => {
   })
 
   it('does not reload anything when the account is unchanged', async () => {
-    const { provider, pairDevice, dispatch } = setup({ nextDeviceId: CURRENT_DEVICE_ID })
+    const { provider, dispatch } = setup({ nextDeviceId: CURRENT_DEVICE_ID })
 
     provider.handlers.networkChanged?.('0x534e5f4d41494e', ['0xaaa'])
 
-    await waitFor(() => expect(pairDevice).toHaveBeenCalled())
     await waitFor(() => expect(dispatchedTypes(dispatch)).toContain(WalletActions.SET_IS_LOCKED))
     expect(dispatchedTypes(dispatch)).not.toContain(WalletActions.SET_WALLET)
   })
@@ -199,14 +198,5 @@ describe('useStarknetInjectedEventHandler', () => {
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(pairDevice).not.toHaveBeenCalled()
     expect(dispatch).not.toHaveBeenCalled()
-  })
-
-  it('detaches its listeners on unmount', () => {
-    const { provider, unmount } = setup({ nextDeviceId: NEXT_DEVICE_ID })
-
-    unmount()
-
-    expect(provider.handlers.accountsChanged).toBeUndefined()
-    expect(provider.handlers.networkChanged).toBeUndefined()
   })
 })

@@ -2082,10 +2082,6 @@
         "wrongNetwork": "Switch %{name} to Starknet Mainnet and try again.",
         "noAccount": "No account found in %{name}. Create or unlock a Starknet Mainnet account and try again.",
         "connectionFailed": "The connection to %{name} was rejected or failed. Approve the request in %{name} and try again."
-      },
-      "wrongNetwork": {
-        "button": "Wrong Network",
-        "tooltip": "%{name} is not set to Starknet Mainnet. Click to switch back."
       }
     }
   },

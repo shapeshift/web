@@ -43,7 +43,7 @@ export const useStarknetInjectedEventHandler = ({
       if (isStale()) return
 
       try {
-        // Balances and txs are mainnet only - the wrong network button handles the rest
+        // Balances and txs are mainnet only, sends switch the extension back before submitting
         if (!(await wallet.isMainnet())) return
 
         const adapter = await getAdapterRef.current(keyManager)

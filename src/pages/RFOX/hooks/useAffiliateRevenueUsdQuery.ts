@@ -39,16 +39,10 @@ export const getAffiliateRevenueUsdQueryFn = ({
     const endDate = new Date(endTimestamp).toISOString().split('T')[0]
 
     const url = `${baseUrl}/api/v1/affiliate/revenue?startDate=${startDate}&endDate=${endDate}`
-    const { data } = await axios.get<{ totalUsd: number; failedProviders?: string[] }>(url, {
-      timeout: 15_000,
-    })
+    const { data } = await axios.get<{ totalUsd: number }>(url, { timeout: 15_000 })
 
     if (typeof data.totalUsd !== 'number' || !Number.isFinite(data.totalUsd)) {
       throw new Error('Invalid affiliate revenue response')
-    }
-
-    if (data.failedProviders?.length) {
-      throw new Error('Affiliate revenue is incomplete')
     }
 
     return data.totalUsd

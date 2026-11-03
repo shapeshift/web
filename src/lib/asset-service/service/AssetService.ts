@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import {
   abstractChainId,
   adapters,
+  aptosChainId,
   arbitrumChainId,
   baseChainId,
   berachainChainId,
@@ -211,6 +212,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_STARKNET && asset.chainId === starknetChainId) return false
       if (!config.VITE_FEATURE_TON && asset.chainId === tonChainId) return false
       if (!config.VITE_FEATURE_ROBINHOOD && asset.chainId === robinhoodChainId) return false
+      if (!config.VITE_FEATURE_APTOS && asset.chainId === aptosChainId) return false
       return true
     })
 

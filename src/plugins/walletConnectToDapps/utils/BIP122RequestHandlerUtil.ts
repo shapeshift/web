@@ -17,6 +17,7 @@ import { BIP122SigningMethod } from '@/plugins/walletConnectToDapps/types'
 
 type ApproveBIP122RequestArgs = {
   requestEvent: SupportedSessionRequest
+  assertRequestAuthorized: () => void
   wallet: HDWallet
   chainAdapter?: UtxoChainAdapter
 }
@@ -93,6 +94,7 @@ const serializeWitnessStack = (witness: (Buffer | Uint8Array)[]): Buffer => {
 
 export const approveBIP122Request = async ({
   requestEvent,
+  assertRequestAuthorized,
   wallet,
   chainAdapter,
 }: ApproveBIP122RequestArgs): Promise<JsonRpcResult<unknown>> => {
@@ -103,10 +105,20 @@ export const approveBIP122Request = async ({
     throw new Error('Wallet does not support Bitcoin')
   }
 
+  const account = request.params && 'account' in request.params ? request.params.account : undefined
+  if (typeof account !== 'string') throw new Error('Missing Bitcoin signer')
+  const { scriptType, addressNList } = detectBtcScriptType(account)
+  const walletAddress = await wallet.btcGetAddress({ coin: 'Bitcoin', scriptType, addressNList })
+  if (walletAddress !== account)
+    throw new Error('WalletConnect wallet does not match requested signer')
+  assertRequestAuthorized()
+
   switch (request.method) {
     case BIP122SigningMethod.BIP122_SIGN_MESSAGE: {
       const { account, message } = request.params as BIP122SignMessageCallRequestParams
       const { scriptType, addressNList } = detectBtcScriptType(account)
+
+      assertRequestAuthorized()
 
       const signedMessage = await wallet.btcSignMessage({
         addressNList,
@@ -132,11 +144,24 @@ export const approveBIP122Request = async ({
         broadcast,
       } = request.params as BIP122SignPsbtCallRequestParams
 
+      if (signInputs.some(input => input.address !== account))
+        throw new Error('PSBT signing inputs must belong to the approved signer')
       const psbt = Psbt.fromBase64(psbtBase64)
       const txInputs = psbt.txInputs
       const txOutputs = psbt.txOutputs
 
       const signInputIndices = new Set(signInputs.map(si => si.index))
+      if (
+        signInputs.length === 0 ||
+        signInputIndices.size !== signInputs.length ||
+        signInputs.some(
+          input =>
+            !Number.isInteger(input.index) || input.index < 0 || input.index >= txInputs.length,
+        )
+      )
+        throw new Error('Invalid PSBT signing input indices')
+      const approvedScript = btcAddress.toOutputScript(account)
+
       const signInputAddressMap = new Map(signInputs.map(si => [si.index, si.address]))
 
       const inputs = txInputs.map((txInput, i) => {
@@ -147,6 +172,13 @@ export const approveBIP122Request = async ({
         const txid = Buffer.from(txInput.hash).reverse().toString('hex')
         const vout = txInput.index
         const sequence = txInput.sequence
+        const previousOutput =
+          witnessUtxo ??
+          (nonWitnessUtxo
+            ? Transaction.fromBuffer(Buffer.from(nonWitnessUtxo)).outs[vout]
+            : undefined)
+        if (!previousOutput || !Buffer.from(previousOutput.script).equals(approvedScript))
+          throw new Error('Every PSBT input must belong to the approved signer')
 
         const signInputAddr = signInputAddressMap.get(i)
         const { scriptType, addressNList } = (() => {
@@ -233,6 +265,8 @@ export const approveBIP122Request = async ({
         }
       })
 
+      assertRequestAuthorized()
+
       const signedTx = await wallet.btcSignTx({
         coin: 'Bitcoin',
         inputs: inputs as any,
@@ -302,6 +336,8 @@ export const approveBIP122Request = async ({
           satoshiPerByte: feeData.average.chainSpecific.satoshiPerByte,
         },
       })
+
+      assertRequestAuthorized()
 
       const signedHex = await chainAdapter.signTransaction({ txToSign, wallet })
       const txid = await chainAdapter.broadcastTransaction({ hex: signedHex })

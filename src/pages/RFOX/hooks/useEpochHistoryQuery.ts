@@ -1,59 +1,61 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { useMemo } from 'react'
+import { getAddress } from 'viem'
 
-import { IPFS_GATEWAY } from '../constants'
 import type { Epoch } from '../types'
-import {
-  fetchCurrentEpochMetadata,
-  getCurrentEpochMetadataQueryKey,
-} from './useCurrentEpochMetadataQuery'
+import { useCurrentEpochMetadataQuery } from './useCurrentEpochMetadataQuery'
 
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
-
-type EpochHistoryQueryKey = ['epochHistory']
+import { getConfig } from '@/config'
 
 export type EpochWithIpfsHash = Epoch & { ipfsHash: string }
 
+type EpochHistoryQueryArgs = {
+  stakingAddress: string | undefined
+  epoch: number | undefined
+}
+
 type UseEpochHistoryQueryProps<SelectData = EpochWithIpfsHash[]> = {
-  enabled?: boolean
+  stakingAddress: string | undefined
   select?: (data: EpochWithIpfsHash[]) => SelectData
 }
 
-// The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.
-// Instead we will rely on staleTime to refetch at a sensible interval.
-export const getEpochHistoryQueryKey = (): EpochHistoryQueryKey => ['epochHistory']
+export const getEpochHistoryQueryKey = (args?: EpochHistoryQueryArgs) =>
+  args ? (['epochHistory', args.stakingAddress, args.epoch] as const) : (['epochHistory'] as const)
 
-export const fetchEpochHistory = async (): Promise<EpochWithIpfsHash[]> => {
-  const currentEpochMetadata = await queryClient.fetchQuery({
-    queryKey: getCurrentEpochMetadataQueryKey(),
-    queryFn: fetchCurrentEpochMetadata,
-  })
-
-  const epochs = await Promise.all(
-    Object.values(currentEpochMetadata.ipfsHashByEpoch).map(async hash => {
-      const { data } = await axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)
-      return { ...data, ipfsHash: hash }
-    }),
+const fetchEpochHistory = async (stakingAddress: string): Promise<EpochWithIpfsHash[]> => {
+  const { data } = await axios.get<EpochWithIpfsHash[]>(
+    `${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/rfox/epochs/${stakingAddress}`,
+    { timeout: 5_000 },
   )
 
-  return epochs.sort((a, b) => b.number - a.number)
+  return data
+}
+
+// Keyed by epoch so history always moves together with the metadata rewards are calculated from
+export const getEpochHistoryQueryOptions = ({ stakingAddress, epoch }: EpochHistoryQueryArgs) => {
+  const checksumAddress = stakingAddress ? getAddress(stakingAddress) : undefined
+
+  return {
+    queryKey: getEpochHistoryQueryKey({ stakingAddress: checksumAddress, epoch }),
+    queryFn: () => fetchEpochHistory(checksumAddress as string),
+    enabled: Boolean(checksumAddress && epoch !== undefined),
+  }
 }
 
 export const useEpochHistoryQuery = <SelectData = EpochWithIpfsHash[]>({
-  enabled,
+  stakingAddress,
   select,
 }: UseEpochHistoryQueryProps<SelectData>) => {
-  // This pattern looks weird but it allows us to add parameters to the query and key later without bigger refactor
-  const queryKey = useMemo(() => getEpochHistoryQueryKey(), [])
+  const metadataQuery = useCurrentEpochMetadataQuery()
 
-  const queryFn = useMemo(() => () => fetchEpochHistory(), [])
-
-  return useQuery({
-    queryKey,
-    queryFn,
-    staleTime: 60 * 60 * 1000, // 1 hour in milliseconds
+  const query = useQuery({
+    ...getEpochHistoryQueryOptions({ stakingAddress, epoch: metadataQuery.data?.epoch }),
     select,
-    enabled,
   })
+
+  return {
+    ...query,
+    isLoading: metadataQuery.isLoading || query.isLoading,
+    isError: metadataQuery.isError || query.isError,
+  }
 }

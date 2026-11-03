@@ -874,3 +874,19 @@ export const ton: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://tonscan.org/tx/',
   relatedAssetKey: null,
 })
+
+export const aptos: Readonly<Asset> = Object.freeze({
+  assetId: caip.aptosAssetId,
+  chainId: caip.aptosChainId,
+  name: 'Aptos',
+  networkName: 'Aptos',
+  symbol: 'APT',
+  precision: 8,
+  color: '#D3FAD3',
+  networkColor: '#D3FAD3',
+  icon: 'https://assets.coingecko.com/coins/images/26455/large/aptos_round.png',
+  explorer: 'https://explorer.aptoslabs.com',
+  explorerAddressLink: 'https://explorer.aptoslabs.com/account/',
+  explorerTxLink: 'https://explorer.aptoslabs.com/txn/',
+  relatedAssetKey: null,
+})

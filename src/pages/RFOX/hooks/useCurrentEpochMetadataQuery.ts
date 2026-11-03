@@ -1,18 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
-import { CURRENT_EPOCH_IPFS_HASH, IPFS_GATEWAY } from '../constants'
 import type { CurrentEpochMetadata } from '../types'
+
+import { getConfig } from '@/config'
 
 type CurrentEpochMetadataQueryKey = ['currentEpochMetadata']
 
-export const getCurrentEpochMetadataQueryKey = (): CurrentEpochMetadataQueryKey => [
-  'currentEpochMetadata',
-]
+const getCurrentEpochMetadataQueryKey = (): CurrentEpochMetadataQueryKey => ['currentEpochMetadata']
 
-export const fetchCurrentEpochMetadata = async (): Promise<CurrentEpochMetadata> => {
+const fetchCurrentEpochMetadata = async (): Promise<CurrentEpochMetadata> => {
   const { data: currentEpochMetadata } = await axios.get<CurrentEpochMetadata>(
-    `${IPFS_GATEWAY}/${CURRENT_EPOCH_IPFS_HASH}`,
+    `${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/rfox/metadata`,
+    { timeout: 5_000 },
   )
 
   return currentEpochMetadata

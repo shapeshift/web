@@ -15,6 +15,7 @@ const chainNamespaceToType: Record<ChainNamespace, ChainType> = {
   [CHAIN_NAMESPACE.Near]: 'near',
   [CHAIN_NAMESPACE.Starknet]: 'starknet',
   [CHAIN_NAMESPACE.Ton]: 'ton',
+  [CHAIN_NAMESPACE.Aptos]: 'aptos',
 }
 
 const buildChainList = (): Chain[] => {

@@ -1,4 +1,5 @@
 import abstract from '@/plugins/abstract'
+import aptos from '@/plugins/aptos'
 import arbitrum from '@/plugins/arbitrum'
 import avalanche from '@/plugins/avalanche'
 import base from '@/plugins/base'
@@ -104,4 +105,5 @@ export const activePlugins = [
   zksyncera,
   abstract,
   robinhood,
+  aptos,
 ]

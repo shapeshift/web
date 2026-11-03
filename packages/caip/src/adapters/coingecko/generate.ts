@@ -4,7 +4,7 @@ import { writeFiles } from './writeFiles'
 
 const main = async () => {
   const data = await fetchData(coingeckoUrl)
-  const output = parseData(data)
+  const output = await parseData(data)
   await writeFiles(output)
 }
 

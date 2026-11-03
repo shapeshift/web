@@ -194,20 +194,15 @@ export class StarknetInjectedHDWallet
     return this.starknetAddress
   }
 
-  // Extension wallets expose a single connected account, so the derivation path is ignored
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async starknetGetAddress(_msg?: core.StarknetGetAddress): Promise<string | null> {
     if (this.starknetAddress) return this.starknetAddress
-    return await this.connect()
+    return this.connect()
   }
 
-  // Not exposed by the wallet API, only our own deployment flow needs it
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async starknetGetPublicKey(_msg: core.StarknetGetPublicKey): Promise<string | null> {
     return null
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async starknetSignTx(_msg: core.StarknetSignTx): Promise<core.StarknetSignedTx | null> {
     console.error('Method not implemented - use starknetSendTx')
     return null
@@ -224,6 +219,7 @@ export class StarknetInjectedHDWallet
       type: 'wallet_requestAccounts',
       params: { silent_mode: false },
     })
+
     if (!activeAddress || validateAndParseAddress(activeAddress) !== this.starknetAddress) {
       throw new StarknetInjectedError(
         'ACCOUNT_CHANGED',

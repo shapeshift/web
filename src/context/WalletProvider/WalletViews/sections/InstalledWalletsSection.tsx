@@ -17,7 +17,7 @@ import { Text } from '@/components/Text'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import type { KeyManager } from '@/context/WalletProvider/KeyManager'
 import type { StarknetInjectedKeyManager } from '@/context/WalletProvider/StarknetInjected/config'
-import { useInstalledStarknetWallets } from '@/context/WalletProvider/StarknetInjected/useInstalledStarknetWallets'
+import { useInstalledStarknetWallets } from '@/context/WalletProvider/StarknetInjected/hooks/useInstalledStarknetWallets'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useMipdProviders } from '@/lib/mipd'
 

@@ -1,10 +1,10 @@
 import { cleanup, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { WalletActions } from './actions'
-import { KeyManager } from './KeyManager'
+import { WalletActions } from '../../actions'
+import { KeyManager } from '../../KeyManager'
+import type { IWalletContext } from '../../WalletContext'
 import { useStarknetInjectedEventHandler } from './useStarknetInjectedEventHandler'
-import type { IWalletContext } from './WalletContext'
 
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
 import { selectWalletDeviceId } from '@/state/slices/localWalletSlice/selectors'

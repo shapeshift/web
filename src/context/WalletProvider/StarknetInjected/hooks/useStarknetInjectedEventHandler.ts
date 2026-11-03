@@ -1,10 +1,10 @@
 import { isStarknetInjected } from '@shapeshiftoss/hdwallet-starknet-injected'
 import { useEffect, useRef } from 'react'
 
-import { WalletActions } from './actions'
-import { SUPPORTED_WALLETS } from './config'
-import { isStarknetInjectedKeyManager } from './StarknetInjected/config'
-import type { IWalletContext } from './WalletContext'
+import { WalletActions } from '../../actions'
+import { SUPPORTED_WALLETS } from '../../config'
+import type { IWalletContext } from '../../WalletContext'
+import { isStarknetInjectedKeyManager } from '../config'
 
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'

@@ -213,8 +213,7 @@ export class StarknetInjectedHDWallet
 
     await this.ensureMainnet()
 
-    // The tx (e.g. swap recipient) was built for this account - never send it from another one
-    // Not silent, so a locked extension prompts an unlock instead of returning no account
+    // Only send from the account the tx was built for, non-silent so a locked extension prompts an unlock
     const [activeAddress] = await this.provider.request({
       type: 'wallet_requestAccounts',
       params: { silent_mode: false },

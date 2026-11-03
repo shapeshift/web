@@ -34,7 +34,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable } from '@/lib/utils'
-import { isStarknetChainAdapter } from '@/lib/utils/starknet'
+import { isSelfDeployingStarknetWallet, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { selectPortfolioAccountMetadataByAccountId, selectSwapById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
@@ -98,6 +98,8 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     isLoading: isCheckingDeployment,
     refetch: refetchDeploymentStatus,
   } = useIsStarknetAccountDeployed(sellAccountId)
+  const isStarknetDeploymentRequired =
+    isStarknetAccountDeployed === false && !isSelfDeployingStarknetWallet(wallet)
 
   const deployAccountMutation = useMutation({
     mutationFn: async () => {
@@ -186,7 +188,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
       confirmedTradeExecutionState === TradeExecutionState.Initializing ||
       confirmedTradeExecutionState === TradeExecutionState.Previewing
 
-    if (isInitializingOrPreviewing && isStarknetAccountDeployed === false) {
+    if (isInitializingOrPreviewing && isStarknetDeploymentRequired) {
       return 'starknet.deployAccount.deployButton'
     }
 
@@ -201,7 +203,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
       default:
         assertUnreachable(confirmedTradeExecutionState)
     }
-  }, [confirmedTradeExecutionState, tradeButtonProps?.buttonText, isStarknetAccountDeployed])
+  }, [confirmedTradeExecutionState, tradeButtonProps?.buttonText, isStarknetDeploymentRequired])
 
   const networkFeeToTradeRatioPercentage = useMemo(
     () =>
@@ -236,7 +238,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
       confirmedTradeExecutionState === TradeExecutionState.Previewing
 
     // Check if we need to deploy Starknet account first
-    if (isInitializingOrPreviewing && isStarknetAccountDeployed === false) {
+    if (isInitializingOrPreviewing && isStarknetDeploymentRequired) {
       deployAccountMutation.mutate()
       return
     }
@@ -251,7 +253,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     isModeratePriceImpact,
     handleSubmit,
     confirmedTradeExecutionState,
-    isStarknetAccountDeployed,
+    isStarknetDeploymentRequired,
     deployAccountMutation,
   ])
 
@@ -382,7 +384,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
         {[TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
           confirmedTradeExecutionState,
         ) && tradeWarnings}
-        {isStarknetAccountDeployed === false && (
+        {isStarknetDeploymentRequired && (
           <Alert status='warning' borderRadius='lg' mb={3}>
             <AlertIcon />
             <Stack spacing={0}>

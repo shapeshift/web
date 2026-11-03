@@ -1,10 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, starknetChainId } from '@shapeshiftoss/caip'
-import { supportsStarknet } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useQuery } from '@tanstack/react-query'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isStarknetChainAdapter } from '@/lib/utils/starknet'
 
 const checkStarknetAccountDeployment = async (accountId: AccountId | undefined) => {
@@ -27,15 +25,10 @@ const checkStarknetAccountDeployment = async (accountId: AccountId | undefined) 
 }
 
 export const useIsStarknetAccountDeployed = (accountId: AccountId | undefined) => {
-  const wallet = useWallet().state.wallet
-
-  // Extension wallets deploy the account with its first transaction, so our deploy flow never applies
-  const isSelfDeployingWallet = Boolean(wallet && supportsStarknet(wallet) && wallet.starknetSendTx)
-
   return useQuery({
     queryKey: ['isStarknetAccountDeployed', accountId],
     queryFn: () => checkStarknetAccountDeployment(accountId),
-    enabled: Boolean(accountId) && !isSelfDeployingWallet,
+    enabled: Boolean(accountId),
     staleTime: 30000,
     refetchInterval: false,
   })

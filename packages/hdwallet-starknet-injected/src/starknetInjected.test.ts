@@ -50,7 +50,7 @@ describe('StarknetInjectedHDWallet', () => {
     const txToSign = {
       addressNList: [],
       txHash: '0x0',
-      // Builders emit decimal uint256 halves, the wallet API only accepts hex
+      // Builders can emit decimal felts, the wallet API only accepts hex strings
       calls: [{ contractAddress: '0x1', entrypoint: 'transfer', calldata: ['0x2', '10', '0'] }],
     }
 

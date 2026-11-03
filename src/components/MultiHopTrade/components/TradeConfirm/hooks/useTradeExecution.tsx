@@ -8,12 +8,7 @@ import type {
   StarknetSignTx,
   SuiSignTx,
 } from '@shapeshiftoss/hdwallet-core'
-import {
-  isGridPlus,
-  supportsETH,
-  supportsSolana,
-  supportsStarknet,
-} from '@shapeshiftoss/hdwallet-core/wallet'
+import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
@@ -781,27 +776,21 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: StarknetSignTx) => {
-              // Browser extension wallets sign and submit in one step, nothing to broadcast after
-              if (supportsStarknet(wallet) && wallet.starknetSendTx) {
-                assertQuoteNotExpired()
-                return adapter.signAndBroadcastTransaction({
-                  senderAddress: from,
-                  receiverAddress,
-                  signTxInput: { txToSign, wallet },
-                })
-              }
+              if (wallet.supportsOfflineSigning()) {
+                const hex = await adapter.signTransaction({ txToSign, wallet })
 
-              const hex = await adapter.signTransaction({ txToSign, wallet })
+                assertQuoteNotExpired()
+
+                return adapter.broadcastTransaction({ senderAddress: from, receiverAddress, hex })
+              }
 
               assertQuoteNotExpired()
 
-              const output = await adapter.broadcastTransaction({
+              return adapter.signAndBroadcastTransaction({
                 senderAddress: from,
                 receiverAddress,
-                hex,
+                signTxInput: { txToSign, wallet },
               })
-
-              return output
             },
           })
           cancelPollingRef.current = output?.cancelPolling

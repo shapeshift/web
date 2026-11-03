@@ -6,5 +6,4 @@ export type StarknetInjectedErrorCode =
   | 'WRONG_NETWORK'
   | 'ACCOUNT_CHANGED'
 
-// connect: the user clicked connect, restore: page load, refresh: the extension changed account
 export type StarknetInjectedPairMode = 'connect' | 'restore' | 'refresh'

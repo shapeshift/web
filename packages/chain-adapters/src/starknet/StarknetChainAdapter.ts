@@ -49,6 +49,8 @@ import {
   STRK_TOKEN_ADDRESS,
 } from './utils'
 
+const CONTRACT_NOT_FOUND_ERROR_CODE = 20
+
 // Error codes thrown by extension wallets, see hdwallet-starknet-injected
 const STARKNET_SEND_TX_ERROR_TRANSLATIONS: Record<string, string | undefined> = {
   WRONG_NETWORK: 'chainAdapters.errors.starknetWrongNetwork',
@@ -309,24 +311,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
    * Check if an account is deployed on Starknet
    * An account is considered deployed if it has code (class hash)
    */
+  // Only a missing contract means undeployed, any other failure must not pass for it
   async isAccountDeployed(address: string): Promise<boolean> {
-    try {
-      // Try to get nonce - if account is deployed, it will have a nonce
-      // If not deployed, this will return error
-      const response = await this.provider.fetch('starknet_getNonce', ['latest', address])
-      const result: RpcJsonResponse<StarknetNonceResult> = await response.json()
+    const response = await this.provider.fetch('starknet_getNonce', ['latest', address])
+    const result: RpcJsonResponse<StarknetNonceResult> = await response.json()
 
-      // If we get an error, account is not deployed
-      if (result.error) {
-        // Error code 20 = CONTRACT_NOT_FOUND means not deployed
-        return false
-      }
+    if (!result.error) return true
+    if (result.error.code === CONTRACT_NOT_FOUND_ERROR_CODE) return false
 
-      // If we got a nonce, account is deployed
-      return true
-    } catch (error) {
-      return false
-    }
+    throw new Error(`Failed to check account deployment: ${result.error.message}`)
   }
 
   /**

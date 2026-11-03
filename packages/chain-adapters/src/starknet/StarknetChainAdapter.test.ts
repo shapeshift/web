@@ -83,6 +83,16 @@ describe('StarknetChainAdapter', () => {
       await expect(adapter.getNonce(ADDRESS)).resolves.toBe('0x0')
       expect(fetch).toHaveBeenCalledTimes(1)
     })
+
+    it('throws instead of reporting an undeployed account when the rpc fails', async () => {
+      const adapter = makeAdapter()
+      stubFetch(adapter, {
+        latest: () => jsonResponse({ error: { code: -32603, message: 'Internal error' } }),
+      })
+
+      await expect(adapter.isAccountDeployed(ADDRESS)).rejects.toThrow('Internal error')
+      await expect(adapter.getNonce(ADDRESS)).rejects.toThrow('Internal error')
+    })
   })
 
   describe('signAndBroadcastTransaction', () => {

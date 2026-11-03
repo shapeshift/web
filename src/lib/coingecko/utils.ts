@@ -1,6 +1,7 @@
 import {
   abstractChainId,
   adapters,
+  aptosChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -119,7 +120,12 @@ const getCoinDetails = async (
       )
       if (!chainId) return
 
-      const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
+      if (chainId === aptosChainId) {
+        const [aptosAssetId] = adapters.coingeckoToAptosAssetIds(id)
+        if (aptosAssetId) return aptosAssetId
+      }
+
+      const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, address)
 
       const assetId = toAssetId({
         chainId,
@@ -256,5 +262,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_FLOWEVM ? [flowEvmChainId] : []),
     ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
     ...(getConfig().VITE_FEATURE_ROBINHOOD ? [robinhoodChainId] : []),
+    ...(getConfig().VITE_FEATURE_APTOS ? [aptosChainId] : []),
   ]
 }

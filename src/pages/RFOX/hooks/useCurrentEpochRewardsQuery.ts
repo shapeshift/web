@@ -2,22 +2,27 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useQueries } from '@tanstack/react-query'
+import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { getAddress } from 'viem'
 
 import { getRfoxStakingConfig, getStakingContract } from '../helpers'
 import type { CurrentEpochMetadata, Epoch } from '../types'
+import {
+  fetchClosedEpochRewardState,
+  getClosedEpochRewardStateQueryKey,
+  hasClosedEpochDistribution,
+} from './closedEpochRewardState'
 import { calcEpochRewardForAccountUsdcBaseUnit } from './helpers'
 import {
   getAffiliateRevenueUsdQueryFn,
   getAffiliateRevenueUsdQueryKey,
 } from './useAffiliateRevenueUsdQuery'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
-import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
+import { getEpochHistoryQueryOptions } from './useEpochHistoryQuery'
 
 import { mergeQueryOutputs } from '@/react-queries/helpers'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type EpochRewardsResultTuple = [
@@ -30,6 +35,7 @@ type UseCurrentEpochRewardsQueryProps = {
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
   currentEpochMetadata: CurrentEpochMetadata | undefined
+  isEpochClosed: boolean
 }
 
 /**
@@ -39,6 +45,7 @@ export const useCurrentEpochRewardsQuery = ({
   stakingAssetId,
   stakingAssetAccountId,
   currentEpochMetadata,
+  isEpochClosed,
 }: UseCurrentEpochRewardsQueryProps) => {
   const rewardAssetId = useMemo(
     () => getRfoxStakingConfig(stakingAssetId).rewardAssetId,
@@ -47,9 +54,26 @@ export const useCurrentEpochRewardsQuery = ({
 
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
 
-  const rewardAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, rewardAssetId),
-  )
+  const rewardAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, rewardAssetId))
+
+  const closedEpochRewardStateQuery = useQuery({
+    queryKey: getClosedEpochRewardStateQueryKey({
+      stakingAssetId,
+      stakingAssetAccountId,
+      metadata: currentEpochMetadata,
+    }),
+    queryFn:
+      isEpochClosed &&
+      stakingAssetAccountId &&
+      currentEpochMetadata &&
+      hasClosedEpochDistribution(stakingAssetId, currentEpochMetadata)
+        ? () =>
+            fetchClosedEpochRewardState(stakingAssetId, stakingAssetAccountId, currentEpochMetadata)
+        : skipToken,
+    staleTime: Infinity,
+  })
+
+  const closedEpochRewardState = closedEpochRewardStateQuery.data
 
   const combine = useCallback(
     (
@@ -64,14 +88,15 @@ export const useCurrentEpochRewardsQuery = ({
 
         const results = _results as EpochRewardsResultTuple
         const [epochHistory, currentEpochRewardUnits, affiliateRevenueUsd] = results
+        const earnedRewardUnits = closedEpochRewardState?.earned ?? currentEpochRewardUnits
 
         if (
           !epochHistory ||
-          !currentEpochRewardUnits ||
+          !earnedRewardUnits ||
           !affiliateRevenueUsd ||
           !currentEpochMetadata ||
           !rewardAsset ||
-          !rewardAssetMarketData
+          !rewardAssetUsdRate
         )
           return 0n
 
@@ -87,10 +112,11 @@ export const useCurrentEpochRewardsQuery = ({
           return distribution ? BigInt(distribution) : 0n
         }, 0n)
 
-        const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
+        const rewardUnits = earnedRewardUnits - previousEpochRewardUnits
+        if (rewardUnits <= 0n) return 0n
 
         const affiliateRevenueUsdcBaseUnit = BigAmount.fromPrecision({
-          value: bn(affiliateRevenueUsd).div(rewardAssetMarketData.price),
+          value: bn(affiliateRevenueUsd).div(rewardAssetUsdRate),
           precision: rewardAsset.precision,
         }).toBaseUnit()
 
@@ -99,28 +125,30 @@ export const useCurrentEpochRewardsQuery = ({
           affiliateRevenueUsdcBaseUnit,
           currentEpochMetadata,
           stakingAssetId,
+          closedEpochRewardState?.totalRewardUnits,
         )
       }
 
       return mergeQueryOutputs(queries, combineResults)
     },
     [
+      closedEpochRewardState,
       currentEpochMetadata,
       stakingAssetId,
       stakingAssetAccountId,
       rewardAsset,
-      rewardAssetMarketData,
+      rewardAssetUsdRate,
     ],
   )
 
   const combinedQueries = useQueries({
     queries: [
-      {
-        queryKey: getEpochHistoryQueryKey(),
-        queryFn: fetchEpochHistory,
-        staleTime: 60 * 1000, // 1 minute in milliseconds
-        enabled: Boolean(currentEpochMetadata && stakingAssetAccountId && stakingAssetId),
-      },
+      getEpochHistoryQueryOptions({
+        stakingAddress: stakingAssetAccountId
+          ? fromAccountId(stakingAssetAccountId).account
+          : undefined,
+        epoch: currentEpochMetadata?.epoch,
+      }),
       {
         queryKey: getEarnedQueryKey({
           stakingAssetAccountId,
@@ -142,12 +170,16 @@ export const useCurrentEpochRewardsQuery = ({
           startTimestamp: currentEpochMetadata?.epochStartTimestamp,
           endTimestamp: currentEpochMetadata?.epochEndTimestamp,
         }),
-        staleTime: 60 * 1000, // 1 minute in milliseconds
+        retry: 1,
         enabled: Boolean(currentEpochMetadata && stakingAssetAccountId && stakingAssetId),
       },
     ],
     combine,
   })
 
-  return combinedQueries
+  return {
+    data: combinedQueries.data,
+    isLoading: combinedQueries.isLoading || closedEpochRewardStateQuery.isLoading,
+    isError: combinedQueries.isError || closedEpochRewardStateQuery.isError,
+  }
 }

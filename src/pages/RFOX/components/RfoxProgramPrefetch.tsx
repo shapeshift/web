@@ -25,7 +25,6 @@ export const RfoxProgramPrefetch: React.FC<RfoxProgramPrefetchProps> = ({
 }) => {
   const dispatch = useAppDispatch()
 
-  // Also warms total staked and the staking asset's price history, which it reads
   useCurrentApyQuery({ stakingAssetId })
   useRfoxPauseStateQuery(stakingAssetId)
   useCooldownPeriodQuery(stakingAssetId)

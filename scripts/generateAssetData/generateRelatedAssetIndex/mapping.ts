@@ -12,7 +12,7 @@ export const zerionImplementationToMaybeAssetId = (
   const { chain_id, address: assetReference } = implementation
   const chainId = zerionChainIdToChainId(chain_id as ZerionChainId)
   if (!chainId || !assetReference) return undefined
-  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
+  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, assetReference)
   return toAssetId({ chainId, assetNamespace, assetReference })
 }
 
@@ -24,6 +24,6 @@ export const coingeckoPlatformDetailsToMaybeAssetId = (
     platform as adapters.CoingeckoAssetPlatform,
   )
   if (!chainId || !contractAddress) return undefined
-  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds)
+  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, contractAddress)
   return toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
 }

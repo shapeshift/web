@@ -16,12 +16,14 @@ import { CosmosSigningMethod } from '@/plugins/walletConnectToDapps/types'
 
 type ApproveCosmosRequestArgs = {
   requestEvent: SupportedSessionRequest
+  assertRequestAuthorized: () => void
   wallet: HDWallet
   accountMetadata?: AccountMetadata
 }
 
 export const approveCosmosRequest = async ({
   requestEvent,
+  assertRequestAuthorized,
   wallet,
   accountMetadata,
 }: ApproveCosmosRequestArgs): Promise<JsonRpcResult<unknown>> => {
@@ -40,11 +42,19 @@ export const approveCosmosRequest = async ({
       const chainAdapter = assertGetCosmosSdkChainAdapter(params.chainId)
       const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
 
-      const { signDoc } = request.params as CosmosSignAminoCallRequestParams
+      const { signDoc, signerAddress } = request.params as CosmosSignAminoCallRequestParams
+      const walletAddress = await chainAdapter.getAddress({
+        accountNumber: bip44Params.accountNumber,
+        wallet,
+      })
+      if (walletAddress !== signerAddress)
+        throw new Error('WalletConnect wallet does not match requested signer')
 
       if (!wallet.cosmosSignAmino) {
         throw new Error('Wallet does not support cosmosSignAmino')
       }
+
+      assertRequestAuthorized()
 
       const result = await wallet.cosmosSignAmino({
         addressNList,

@@ -1,101 +1,76 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
-import { useCallback, useMemo } from 'react'
-import { getAddress } from 'viem'
+import { CHAIN_NAMESPACE, fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { isSome } from '@shapeshiftoss/utils'
+import { useCallback, useEffect, useMemo } from 'react'
 
-import { RFOX_V3_UPGRADE_EPOCH } from '../constants'
-import { getRfoxStakingConfig, getStakingContract } from '../helpers'
+import { RFOX_STAKING_CONFIG } from '../constants'
 import type { Epoch } from '../types'
+import { calculateLifetimeRewards } from './lifetimeRewards'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
-import { bn } from '@/lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectAssets,
+  selectMarketDataUserCurrency,
+} from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const rewardAssetIds = Array.from(
+  new Set([
+    thorchainAssetId,
+    ...Object.values(RFOX_STAKING_CONFIG).map(config => config.rewardAssetId),
+  ]),
+)
 
 type UseLifetimeRewardsQueryProps = {
-  stakingAssetId: AssetId
-  stakingAssetAccountId: AccountId | undefined
+  accountNumber: number | undefined
 }
 
-/**
- * Gets the lifetime rewards in user currency for a given account address, excluding the current epoch.
- */
 export const useLifetimeRewardsUserCurrencyQuery = ({
-  stakingAssetId,
-  stakingAssetAccountId,
+  accountNumber,
 }: UseLifetimeRewardsQueryProps) => {
-  const rewardAssetId = useMemo(
-    () => getRfoxStakingConfig(stakingAssetId).rewardAssetId,
-    [stakingAssetId],
-  )
+  const dispatch = useAppDispatch()
+  const accounts = useAppSelector(selectAccountIdByAccountNumberAndChainId)
+  const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketDataUserCurrency)
+  const accountIdsByChainId = accountNumber === undefined ? undefined : accounts[accountNumber]
 
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+  useEffect(() => {
+    if (accountNumber === undefined) return
+    const subscriptions = rewardAssetIds.map(assetId =>
+      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)),
+    )
+    return () => subscriptions.forEach(subscription => subscription.unsubscribe())
+  }, [accountNumber, dispatch])
 
-  const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
-  const rewardAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, rewardAssetId),
+  const pricing = useMemo(
+    () =>
+      Object.fromEntries(
+        rewardAssetIds.map(assetId => {
+          const asset = assets[assetId]
+          const price = marketData[assetId]?.price
+          return [
+            assetId,
+            asset && price !== undefined ? { precision: asset.precision, price } : undefined,
+          ]
+        }),
+      ),
+    [assets, marketData],
   )
 
   const select = useCallback(
-    (data: Epoch[]): string => {
-      if (!stakingAssetAccountId) return '0'
-      if (!runeAsset || !runeMarketData) return '0'
-      if (!rewardAsset || !rewardAssetMarketData) return '0'
-
-      const { account: stakingAddress } = fromAccountId(stakingAssetAccountId)
-
-      const lifetimeRewardsUserCurrency = data.reduce((acc, epoch) => {
-        const distribution =
-          epoch.detailsByStakingContract[getStakingContract(stakingAssetId)]
-            ?.distributionsByStakingAddress[getAddress(stakingAddress)]
-
-        if (!distribution) return acc
-
-        // filter out genesis "distributions"
-        if (epoch.distributionStatus === 'complete' && !distribution.txId) return acc
-
-        const epochRewardUserCurrency = (() => {
-          // rFOX v3 updated rewards from rune to a stable, which varies by staking contract
-          if (epoch.number >= RFOX_V3_UPGRADE_EPOCH) {
-            return BigAmount.fromBaseUnit({
-              value: distribution.amount,
-              precision: rewardAsset?.precision ?? 0,
-            })
-              .toBN()
-              .times(rewardAssetMarketData.price)
-          }
-
-          return BigAmount.fromBaseUnit({
-            value: distribution.amount,
-            precision: runeAsset?.precision ?? 0,
-          })
-            .toBN()
-            .times(runeMarketData.price)
-        })()
-
-        return acc.plus(epochRewardUserCurrency)
-      }, bn(0))
-
-      return lifetimeRewardsUserCurrency.toFixed(2)
-    },
-    [
-      stakingAssetId,
-      stakingAssetAccountId,
-      runeAsset,
-      runeMarketData,
-      rewardAsset,
-      rewardAssetMarketData,
-    ],
+    (epochs: Epoch[]) => calculateLifetimeRewards(epochs, accountIdsByChainId ?? {}, pricing),
+    [accountIdsByChainId, pricing],
   )
 
-  const query = useEpochHistoryQuery({
-    select,
-    enabled: !!stakingAssetAccountId,
-  })
+  // EVM accounts share an address across chains, so one lookup covers every program
+  const evmAccount = Object.values(accountIdsByChainId ?? {})
+    .filter(isSome)
+    .map(fromAccountId)
+    .find(({ chainNamespace }) => chainNamespace === CHAIN_NAMESPACE.Evm)
 
-  return query
+  return useEpochHistoryQuery({
+    stakingAddress: evmAccount?.account,
+    select,
+  })
 }

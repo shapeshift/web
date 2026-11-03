@@ -8,12 +8,18 @@ import { useTranslate } from 'react-polyglot'
 import { RFOXSliders } from './RFOXSliders'
 
 import { Amount } from '@/components/Amount/Amount'
-import { Text } from '@/components/Text'
+import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { RawText, Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getRfoxStakingConfig, getStakingContract } from '@/pages/RFOX/helpers'
+import { useClosedEpochMonth } from '@/pages/RFOX/hooks/useClosedEpochMonth'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
-import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectUsdRateByAssetId,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const stackFlexDir: FlexProps['flexDir'] = { base: 'column', md: 'row' }
@@ -70,15 +76,27 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
       .toFixed(4)
   }, [totalStakedCryptoResult.data, depositAmount])
 
-  const { data: epochMetadata } = useCurrentEpochMetadataQuery()
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+  const { data: epochMetadata, isError: isEpochMetadataError } = useCurrentEpochMetadataQuery()
+  const closedEpochMonth = useClosedEpochMonth()
+  const simulatorTooltip = closedEpochMonth
+    ? translate('RFOX.closedEpochSimulatorNotice', { month: closedEpochMonth })
+    : ''
+  const simulatorTooltipIconProps = useMemo(
+    () => ({ boxSize: closedEpochMonth ? undefined : 0 }),
+    [closedEpochMonth],
+  )
 
   const estimatedBuyback = useMemo(() => {
     if (!epochMetadata) return
     if (!stakingAsset) return
     if (!stakingAssetUsdPrice) return
 
-    return bnOrZero(shapeShiftRevenue).times(epochMetadata.burnRate).toFixed(2)
-  }, [epochMetadata, shapeShiftRevenue, stakingAssetUsdPrice, stakingAsset])
+    return bnOrZero(shapeShiftRevenue)
+      .times(userCurrencyToUsdRate)
+      .times(epochMetadata.burnRate)
+      .toFixed(2)
+  }, [epochMetadata, shapeShiftRevenue, stakingAssetUsdPrice, stakingAsset, userCurrencyToUsdRate])
 
   const estimatedRewards = useMemo(() => {
     if (!epochMetadata) return
@@ -88,8 +106,19 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
     const distributionRate =
       epochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 
-    return bnOrZero(shapeShiftRevenue).times(distributionRate).times(poolShare).toFixed(2)
-  }, [epochMetadata, shapeShiftRevenue, rewardAssetUsdPrice, stakingAssetId, poolShare])
+    return bnOrZero(shapeShiftRevenue)
+      .times(userCurrencyToUsdRate)
+      .times(distributionRate)
+      .times(poolShare)
+      .toFixed(2)
+  }, [
+    epochMetadata,
+    shapeShiftRevenue,
+    rewardAssetUsdPrice,
+    stakingAssetId,
+    poolShare,
+    userCurrencyToUsdRate,
+  ])
 
   if (!(rewardAsset && stakingAsset)) return null
 
@@ -110,9 +139,11 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
         boxShadow='none'
       >
         <CardBody flex='1' p={rfoxSimulatorCardBody}>
-          <Heading as='h5' mb={1}>
-            {translate('foxPage.rfox.simulateTitle')}
-          </Heading>
+          <HelperTooltip label={simulatorTooltip} iconProps={simulatorTooltipIconProps}>
+            <Heading as='h5' mb={1}>
+              {translate('foxPage.rfox.simulateTitle')}
+            </Heading>
+          </HelperTooltip>
           <Text color='text.subtle' translation={'foxPage.rfox.simulateSubtle'} />
 
           <RFOXSliders
@@ -144,8 +175,12 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
                   translation='foxPage.rfox.estimatedRewards'
                 />
 
-                <Skeleton isLoaded={Boolean(estimatedRewards)}>
-                  <Amount.Fiat fontSize='24px' value={estimatedRewards} />
+                <Skeleton isLoaded={Boolean(estimatedRewards) || isEpochMetadataError}>
+                  {isEpochMetadataError ? (
+                    <RawText fontSize='24px'>--</RawText>
+                  ) : (
+                    <Amount.Fiat fontSize='24px' value={estimatedRewards} />
+                  )}
                 </Skeleton>
               </CardBody>
             </Card>
@@ -153,8 +188,12 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
               <CardBody py={4} px={4}>
                 <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalBuyback' />
 
-                <Skeleton isLoaded={Boolean(estimatedBuyback !== undefined)}>
-                  <Amount.Fiat fontSize='24px' value={estimatedBuyback} />
+                <Skeleton isLoaded={estimatedBuyback !== undefined || isEpochMetadataError}>
+                  {isEpochMetadataError ? (
+                    <RawText fontSize='24px'>--</RawText>
+                  ) : (
+                    <Amount.Fiat fontSize='24px' value={estimatedBuyback} />
+                  )}
                 </Skeleton>
               </CardBody>
             </Card>

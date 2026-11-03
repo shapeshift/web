@@ -4,6 +4,7 @@ import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
 import { csp as abstract } from './chains/abstract'
+import { csp as aptos } from './chains/aptos'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
@@ -84,7 +85,6 @@ import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
 import { csp as moralis } from './moralis'
-import { csp as pinata } from './pinata'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as railway } from './railway'
 import { csp as relay } from './relay'
@@ -120,7 +120,6 @@ export const csps = [
   mercle,
   mixPanel,
   sentry,
-  pinata,
   shapeshift,
   snapshots,
   tenderly,
@@ -132,6 +131,7 @@ export const csps = [
   bitcoincash,
   blast,
   abstract,
+  aptos,
   bnbsmartchain,
   cosmos,
   dogecoin,

@@ -86,10 +86,10 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
 }
 
 export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wallet: HDWallet) => {
+  if (!isLedger(wallet)) return
+
   const coin = getCoin(chainId)
   const appName = getLedgerAppName(chainId)
-
-  if (!isLedger(wallet)) return
 
   const isAppOpen = async () => {
     try {

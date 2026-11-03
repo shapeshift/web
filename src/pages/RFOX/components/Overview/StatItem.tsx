@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { ChangeTag } from '@/components/ChangeTag/ChangeTag'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 
 type StatItemProps = {
   description: string
@@ -14,6 +14,7 @@ type StatItemProps = {
   percentChangeDecimal?: string
   helperDescription?: string
   isLoading: boolean
+  isError?: boolean
 }
 
 const helperToolTipFlexProps = {
@@ -27,6 +28,7 @@ export const StatItem = ({
   amountUserCurrency,
   percentChangeDecimal,
   isLoading,
+  isError,
 }: StatItemProps) => {
   const translate = useTranslate()
 
@@ -42,13 +44,17 @@ export const StatItem = ({
 
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
-      <Skeleton isLoaded={!isLoading}>
+      <Skeleton isLoaded={!isLoading || Boolean(isError)}>
         <HelperTooltip
           label={translate(helperDescription ?? '')}
           flexProps={helperToolTipFlexProps}
           iconProps={helperIconProps}
         >
-          {amountUserCurrency && (
+          {isError || amountUserCurrency === undefined ? (
+            <RawText fontSize='xl' fontWeight='medium'>
+              --
+            </RawText>
+          ) : (
             <Amount.Fiat value={amountUserCurrency} fontSize='xl' fontWeight='medium' />
           )}
           {valueChangeTag}

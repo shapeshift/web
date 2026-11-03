@@ -63,6 +63,8 @@ const envSchema = z.object({
   NEAR_NODE_URL_FALLBACK_1: z.union([url, z.literal('')]).default(''),
   NEAR_NODE_URL_FALLBACK_2: z.union([url, z.literal('')]).default(''),
   FASTNEAR_API_URL: url,
+  APTOS_NODE_URL: url,
+  APTOS_INDEXER_URL: url,
 
   // Midgard URLs
   THORCHAIN_MIDGARD_URL: url,

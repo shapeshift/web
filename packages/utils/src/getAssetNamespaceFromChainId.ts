@@ -1,10 +1,13 @@
 import type { AssetNamespace } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, getAptosAssetNamespace } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from './assertUnreachable'
 
-export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNamespace => {
+export const getAssetNamespaceFromChainId = (
+  chainId: KnownChainIds,
+  assetReference: string,
+): AssetNamespace => {
   switch (chainId) {
     case KnownChainIds.SolanaMainnet:
       return ASSET_NAMESPACE.splToken
@@ -55,6 +58,8 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
       return ASSET_NAMESPACE.starknetToken
     case KnownChainIds.TonMainnet:
       return ASSET_NAMESPACE.jetton
+    case KnownChainIds.AptosMainnet:
+      return getAptosAssetNamespace(assetReference)
     case KnownChainIds.CosmosMainnet:
     case KnownChainIds.BitcoinMainnet:
     case KnownChainIds.BitcoinCashMainnet:

@@ -2,6 +2,7 @@ import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapes
 import type { near, SignTx, SignTypedDataInput, ton } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type {
+  AptosSignTx,
   ETHSignTypedData,
   SolanaSignTx,
   StarknetSignTx,
@@ -38,6 +39,7 @@ import { HypeLabEvent, trackHypeLabEvent } from '@/lib/hypelab/hypelabSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecution } from '@/lib/tradeExecution'
 import { assertUnreachable } from '@/lib/utils'
+import { assertGetAptosChainAdapter } from '@/lib/utils/aptos'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
@@ -807,6 +809,34 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: ton.TonSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              assertQuoteNotExpired()
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Aptos: {
+          const adapter = assertGetAptosChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({ accountNumber, wallet })
+
+          const output = await execution.execAptosTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: AptosSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
               assertQuoteNotExpired()

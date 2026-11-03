@@ -150,6 +150,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Near && chainId === KnownChainIds.NearMainnet) return false
       if (!featureFlags.Zcash && chainId === KnownChainIds.ZcashMainnet) return false
       if (!featureFlags.Robinhood && chainId === KnownChainIds.RobinhoodMainnet) return false
+      if (!featureFlags.Aptos && chainId === KnownChainIds.AptosMainnet) return false
       return true
     })
 

@@ -95,13 +95,13 @@ abstract class StarknetInjectedAdapter {
 }
 
 // Ready Wallet (formerly Argent X) still injects under the legacy `argentX` id
-export class ReadyWalletAdapter extends StarknetInjectedAdapter {
+export class ReadyAdapter extends StarknetInjectedAdapter {
   protected readonly providerId = 'argentX'
-  protected readonly vendor = 'Ready Wallet'
+  protected readonly vendor = 'Ready'
   protected readonly installUrl = 'https://www.ready.co/'
 
   public static useKeyring(keyring: core.Keyring) {
-    return new ReadyWalletAdapter(keyring)
+    return new ReadyAdapter(keyring)
   }
 }
 

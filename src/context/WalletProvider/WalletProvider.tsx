@@ -845,7 +845,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
-          case KeyManager.ReadyWallet:
+          case KeyManager.Ready:
           case KeyManager.Braavos:
           case KeyManager.Bramble: {
             const isStarknetWalletsEnabled =

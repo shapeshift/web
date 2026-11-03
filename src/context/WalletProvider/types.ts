@@ -11,7 +11,7 @@ import type { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
 import type {
   BraavosAdapter,
   BrambleAdapter,
-  ReadyWalletAdapter,
+  ReadyAdapter,
 } from '@shapeshiftoss/hdwallet-starknet-injected'
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
@@ -33,7 +33,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.Coinbase]: CoinbaseAdapter
   [KeyManager.Vultisig]: VultisigAdapter
   [KeyManager.GridPlus]: GridPlusAdapter
-  [KeyManager.ReadyWallet]: ReadyWalletAdapter
+  [KeyManager.Ready]: ReadyAdapter
   [KeyManager.Braavos]: BraavosAdapter
   [KeyManager.Bramble]: BrambleAdapter
 }

@@ -1,29 +1,29 @@
 import type {
   BraavosAdapter,
   BrambleAdapter,
-  ReadyWalletAdapter,
+  ReadyAdapter,
   StarknetInjectedProviderId,
 } from '@shapeshiftoss/hdwallet-starknet-injected'
 
 import { BraavosIcon } from '@/components/Icons/BraavosIcon'
 import { BrambleIcon } from '@/components/Icons/BrambleIcon'
-import { ReadyWalletIcon } from '@/components/Icons/ReadyWalletIcon'
+import { ReadyIcon } from '@/components/Icons/ReadyIcon'
 import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 
-type ReadyWalletConfigType = Omit<SupportedWalletInfo<typeof ReadyWalletAdapter>, 'routes'>
+type ReadyConfigType = Omit<SupportedWalletInfo<typeof ReadyAdapter>, 'routes'>
 type BraavosConfigType = Omit<SupportedWalletInfo<typeof BraavosAdapter>, 'routes'>
 type BrambleConfigType = Omit<SupportedWalletInfo<typeof BrambleAdapter>, 'routes'>
 
-export const ReadyWalletConfig: ReadyWalletConfigType = {
+export const ReadyConfig: ReadyConfigType = {
   adapters: [
     {
       loadAdapter: () =>
-        import('@shapeshiftoss/hdwallet-starknet-injected').then(m => m.ReadyWalletAdapter),
+        import('@shapeshiftoss/hdwallet-starknet-injected').then(m => m.ReadyAdapter),
     },
   ],
-  icon: ReadyWalletIcon,
-  name: 'Ready Wallet',
+  icon: ReadyIcon,
+  name: 'Ready',
 }
 
 export const BraavosConfig: BraavosConfigType = {
@@ -48,10 +48,10 @@ export const BrambleConfig: BrambleConfigType = {
   name: 'Bramble',
 }
 
-export type StarknetInjectedKeyManager = KeyManager.ReadyWallet | KeyManager.Braavos | KeyManager.Bramble
+export type StarknetInjectedKeyManager = KeyManager.Ready | KeyManager.Braavos | KeyManager.Bramble
 
 export const STARKNET_INJECTED_KEYMANAGERS: StarknetInjectedKeyManager[] = [
-  KeyManager.ReadyWallet,
+  KeyManager.Ready,
   KeyManager.Braavos,
   KeyManager.Bramble,
 ]
@@ -60,7 +60,7 @@ export const STARKNET_INJECTED_PROVIDER_ID_BY_KEYMANAGER: Record<
   StarknetInjectedKeyManager,
   StarknetInjectedProviderId
 > = {
-  [KeyManager.ReadyWallet]: 'argentX',
+  [KeyManager.Ready]: 'argentX',
   [KeyManager.Braavos]: 'braavos',
   [KeyManager.Bramble]: 'bramble',
 }

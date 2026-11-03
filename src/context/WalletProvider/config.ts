@@ -12,7 +12,7 @@ import type { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
 import type {
   BraavosAdapter,
   BrambleAdapter,
-  ReadyWalletAdapter,
+  ReadyAdapter,
 } from '@shapeshiftoss/hdwallet-starknet-injected'
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
@@ -33,7 +33,7 @@ import { NativeConfig } from './NativeWallet/config'
 import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
 import { SeekerConfig } from './Seeker/config'
-import { BraavosConfig, BrambleConfig, ReadyWalletConfig } from './StarknetInjected/config'
+import { BraavosConfig, BrambleConfig, ReadyConfig } from './StarknetInjected/config'
 import { TrezorConfig } from './Trezor/config'
 import { NativeWalletRoutes } from './types'
 import { VultisigConfig } from './Vultisig/config'
@@ -198,7 +198,7 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Trezor]: SupportedWalletInfo<typeof TrezorAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
   [KeyManager.GridPlus]: SupportedWalletInfo<typeof GridPlusAdapter>
-  [KeyManager.ReadyWallet]: SupportedWalletInfo<typeof ReadyWalletAdapter>
+  [KeyManager.Ready]: SupportedWalletInfo<typeof ReadyAdapter>
   [KeyManager.Braavos]: SupportedWalletInfo<typeof BraavosAdapter>
   [KeyManager.Bramble]: SupportedWalletInfo<typeof BrambleAdapter>
 }
@@ -294,9 +294,9 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
     ...KeplrConfig,
     routes: [{ path: '/keplr/connect' }, { path: '/keplr/failure' }],
   },
-  [KeyManager.ReadyWallet]: {
-    ...ReadyWalletConfig,
-    routes: [{ path: '/ready-wallet/connect' }],
+  [KeyManager.Ready]: {
+    ...ReadyConfig,
+    routes: [{ path: '/ready/connect' }],
   },
   [KeyManager.Braavos]: {
     ...BraavosConfig,

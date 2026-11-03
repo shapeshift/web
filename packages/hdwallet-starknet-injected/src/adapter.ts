@@ -1,7 +1,8 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import type { StarknetWindowObject } from '@starknet-io/types-js'
 
 import { StarknetInjectedError, StarknetInjectedHDWallet } from './starknetInjected'
-import type { StarknetInjectedProviderId, StarknetWindowObject } from './types'
+import type { StarknetInjectedPairMode, StarknetInjectedProviderId } from './types'
 
 declare global {
   interface Window {
@@ -18,7 +19,7 @@ export const getStarknetInjectedProvider = (
 const PROVIDER_INJECTION_TIMEOUT_MS = 1000
 const PROVIDER_INJECTION_POLL_MS = 100
 
-// Extensions can inject after the app starts restoring a session on page load
+// Extensions can inject after the app starts restoring the session
 const waitForStarknetInjectedProvider = async (
   providerId: StarknetInjectedProviderId,
 ): Promise<StarknetWindowObject | undefined> => {
@@ -46,28 +47,32 @@ abstract class StarknetInjectedAdapter {
     return Object.keys(this.keyring.wallets).length
   }
 
-  // `silent` is used to restore a previous session on load without prompting the user
-  public async pairDevice(silent = false): Promise<StarknetInjectedHDWallet | undefined> {
-    const provider = silent
-      ? await waitForStarknetInjectedProvider(this.providerId)
-      : getStarknetInjectedProvider(this.providerId)
+  // Restore may prompt an unlock like the other injected wallets, refresh never prompts
+  public async pairDevice(
+    mode: StarknetInjectedPairMode = 'connect',
+  ): Promise<StarknetInjectedHDWallet | undefined> {
+    const isConnect = mode === 'connect'
+    const provider =
+      mode === 'restore'
+        ? await waitForStarknetInjectedProvider(this.providerId)
+        : getStarknetInjectedProvider(this.providerId)
 
     if (!provider) {
-      if (silent) return undefined
+      if (!isConnect) return undefined
       window.open(this.installUrl, '_blank')
       console.error(`Please install ${this.vendor}!`)
       throw new StarknetInjectedError('PROVIDER_NOT_FOUND', `${this.vendor} provider not found`)
     }
 
     const wallet = new StarknetInjectedHDWallet(this.providerId, provider, this.vendor)
-    const address = await wallet.connect(silent)
+    const address = await wallet.connect(mode === 'refresh')
     if (!address) {
-      if (silent) return undefined
+      if (!isConnect) return undefined
       throw new StarknetInjectedError('NO_ACCOUNT', `No ${this.vendor} account found`)
     }
 
-    // Only prompt to switch network on an explicit connect, then re-read the mainnet account
-    if (!silent && (await wallet.ensureMainnet()) && !(await wallet.connect(true))) {
+    // Switching network can land on another account, so re-read it
+    if (isConnect && (await wallet.ensureMainnet()) && !(await wallet.connect(true))) {
       throw new StarknetInjectedError(
         'NO_ACCOUNT',
         `No ${this.vendor} account found on Starknet Mainnet`,
@@ -90,13 +95,13 @@ abstract class StarknetInjectedAdapter {
 }
 
 // Ready Wallet (formerly Argent X) still injects under the legacy `argentX` id
-export class ReadyAdapter extends StarknetInjectedAdapter {
+export class ReadyWalletAdapter extends StarknetInjectedAdapter {
   protected readonly providerId = 'argentX'
-  protected readonly vendor = 'Ready'
+  protected readonly vendor = 'Ready Wallet'
   protected readonly installUrl = 'https://www.ready.co/'
 
   public static useKeyring(keyring: core.Keyring) {
-    return new ReadyAdapter(keyring)
+    return new ReadyWalletAdapter(keyring)
   }
 }
 

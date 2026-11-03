@@ -1807,6 +1807,9 @@ importers:
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
+      '@starknet-io/types-js':
+        specifier: 0.10.0
+        version: 0.10.0
       lodash:
         specifier: ^4.17.23
         version: 4.17.23

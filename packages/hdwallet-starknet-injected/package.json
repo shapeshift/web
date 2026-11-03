@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@starknet-io/types-js": "0.10.0",
     "lodash": "^4.17.23",
     "starknet": "^9.3.0"
   },

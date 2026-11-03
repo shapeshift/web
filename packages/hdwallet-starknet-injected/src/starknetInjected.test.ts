@@ -1,8 +1,8 @@
+import type { StarknetWindowObject } from '@starknet-io/types-js'
 import { constants } from 'starknet'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { isStarknetInjected, StarknetInjectedHDWallet } from '.'
-import type { StarknetWindowObject } from './types'
 
 const SHORT_ADDRESS = '0x123abc'
 const PADDED_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000123abc'
@@ -95,7 +95,7 @@ describe('StarknetInjectedHDWallet', () => {
     const txToSign = {
       addressNList: [],
       txHash: '0x0',
-      calls: [{ contractAddress: '0x1', entrypoint: 'transfer', calldata: ['0x2', '10', '0'] }],
+      calls: [{ contractAddress: '0x1', entrypoint: 'transfer', calldata: ['0x2', '0xa', '0x0'] }],
     }
 
     beforeEach(async () => {
@@ -115,7 +115,7 @@ describe('StarknetInjectedHDWallet', () => {
         type: 'wallet_addInvokeTransaction',
         params: {
           calls: [
-            { contract_address: '0x1', entry_point: 'transfer', calldata: ['0x2', '10', '0'] },
+            { contract_address: '0x1', entry_point: 'transfer', calldata: ['0x2', '0xa', '0x0'] },
           ],
         },
       })

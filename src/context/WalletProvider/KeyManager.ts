@@ -12,7 +12,7 @@ export enum KeyManager {
   Trezor = 'trezor',
   Vultisig = 'vultisig',
   GridPlus = 'gridplus',
-  Ready = 'ready',
+  ReadyWallet = 'ready-wallet',
   Braavos = 'braavos',
   Bramble = 'bramble',
 }

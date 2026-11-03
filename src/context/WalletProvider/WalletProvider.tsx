@@ -845,7 +845,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
-          case KeyManager.Ready:
+          case KeyManager.ReadyWallet:
           case KeyManager.Braavos:
           case KeyManager.Bramble: {
             const isStarknetWalletsEnabled =
@@ -871,8 +871,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
 
             try {
-              // Silent - only restores a previously authorized session, never prompts on load
-              const localStarknetInjectedWallet = await starknetInjectedAdapter?.pairDevice(true)
+              const localStarknetInjectedWallet =
+                await starknetInjectedAdapter?.pairDevice('restore')
               if (localStarknetInjectedWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[localWalletType]
                 const deviceId = await localStarknetInjectedWallet.getDeviceID()

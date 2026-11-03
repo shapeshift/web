@@ -1,8 +1,8 @@
 import { createIcon } from '@chakra-ui/react'
 
 // Source: https://github.com/starknet-io/get-starknet/blob/develop/packages/wallets/src/wallets.ts
-export const ReadyIcon = createIcon({
-  displayName: 'ReadyIcon',
+export const ReadyWalletIcon = createIcon({
+  displayName: 'ReadyWalletIcon',
   path: (
     <svg width='40' height='36' viewBox='0 0 40 36' fill='none' xmlns='http://www.w3.org/2000/svg'>
       <path

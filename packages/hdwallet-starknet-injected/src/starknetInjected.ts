@@ -1,12 +1,9 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import type { StarknetWindowObject } from '@starknet-io/types-js'
 import isObject from 'lodash/isObject'
-import { constants, validateAndParseAddress } from 'starknet'
+import { constants, num, validateAndParseAddress } from 'starknet'
 
-import type {
-  StarknetInjectedErrorCode,
-  StarknetInjectedProviderId,
-  StarknetWindowObject,
-} from './types'
+import type { StarknetInjectedErrorCode, StarknetInjectedProviderId } from './types'
 
 // `code` lets the app show a translated message without parsing error strings
 export class StarknetInjectedError extends Error {
@@ -143,7 +140,7 @@ export class StarknetInjectedHDWallet
 
   public async clearSession(): Promise<void> {}
 
-  // Network is enforced in ensureMainnet() instead, so restoring a session on load never prompts
+  // Network is checked on connect and before each send (ensureMainnet), never on restore
   public async initialize(): Promise<void> {}
 
   // Read-only, never prompts
@@ -261,7 +258,8 @@ export class StarknetInjectedHDWallet
         calls: msg.calls.map(call => ({
           contract_address: call.contractAddress,
           entry_point: call.entrypoint,
-          calldata: call.calldata,
+          // The wallet API only accepts hex felts, our builders emit decimal uint256 halves
+          calldata: call.calldata.map(felt => num.toHex(felt)),
         })),
       },
     })

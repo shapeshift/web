@@ -85,7 +85,7 @@ export const avnuApi: SwapperApi = {
       )
     }
 
-    // Undeployed accounts can't be fee-estimated - only extensions get here, and deploy on first send
+    // Undeployed accounts can't be fee-estimated, so return calls only for wallets that deploy on send
     if (!(await adapter.isAccountDeployed(normalizedFrom))) {
       return {
         addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),

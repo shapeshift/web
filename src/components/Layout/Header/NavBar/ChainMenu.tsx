@@ -3,8 +3,8 @@ import { Box } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { isStarknetInjected, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core/wallet'
-import type { StarknetInjectedHDWallet } from '@shapeshiftoss/hdwallet-starknet-injected'
+import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isStarknetInjected } from '@shapeshiftoss/hdwallet-starknet-injected'
 import { memo, useCallback, useMemo } from 'react'
 import { toHex } from 'viem'
 
@@ -94,7 +94,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
   if (isStarknetInjected(state.wallet)) {
     return (
       <StarknetWrongNetworkButton
-        wallet={state.wallet as StarknetInjectedHDWallet}
+        wallet={state.wallet}
         buttonProps={buttonProps}
         {...props}
       />

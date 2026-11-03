@@ -1,5 +1,4 @@
-import { isStarknetInjected } from '@shapeshiftoss/hdwallet-core/wallet'
-import type { StarknetInjectedHDWallet } from '@shapeshiftoss/hdwallet-starknet-injected'
+import { isStarknetInjected } from '@shapeshiftoss/hdwallet-starknet-injected'
 import { useEffect, useRef } from 'react'
 
 import { WalletActions } from './actions'
@@ -11,7 +10,7 @@ import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSli
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { store } from '@/state/store'
 
-// Keeps a connected Ready/Braavos/Bramble wallet in sync with account switches made in the extension
+// Follows account switches made in the extension
 export const useStarknetInjectedEventHandler = ({
   state,
   getAdapter,
@@ -33,7 +32,6 @@ export const useStarknetInjectedEventHandler = ({
     if (!isStarknetInjectedKeyManager(connectedType)) return
 
     const keyManager = connectedType
-    const starknetWallet = wallet as StarknetInjectedHDWallet
     let latestRefreshId = 0
 
     const refreshWallet = async () => {
@@ -46,11 +44,10 @@ export const useStarknetInjectedEventHandler = ({
 
       try {
         // Balances and txs are mainnet only - the wrong network button handles the rest
-        if (!(await starknetWallet.isMainnet())) return
+        if (!(await wallet.isMainnet())) return
 
         const adapter = await getAdapterRef.current(keyManager)
-        // Silent - must never pop up a prompt the user didn't ask for
-        const nextWallet = await adapter?.pairDevice(true)
+        const nextWallet = await adapter?.pairDevice('refresh')
         if (isStale()) return
 
         if (!nextWallet) {
@@ -103,13 +100,13 @@ export const useStarknetInjectedEventHandler = ({
     // Switching back to mainnet can land on a different account
     const handleNetworkChanged = () => void refreshWallet()
 
-    starknetWallet.provider.on('accountsChanged', handleAccountsChanged)
-    starknetWallet.provider.on('networkChanged', handleNetworkChanged)
+    wallet.provider.on('accountsChanged', handleAccountsChanged)
+    wallet.provider.on('networkChanged', handleNetworkChanged)
 
     return () => {
       latestRefreshId++
-      starknetWallet.provider.off('accountsChanged', handleAccountsChanged)
-      starknetWallet.provider.off('networkChanged', handleNetworkChanged)
+      wallet.provider.off('accountsChanged', handleAccountsChanged)
+      wallet.provider.off('networkChanged', handleNetworkChanged)
     }
   }, [connectedType, dispatch, wallet])
 }

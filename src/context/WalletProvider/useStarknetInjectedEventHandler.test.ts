@@ -100,7 +100,7 @@ describe('useStarknetInjectedEventHandler', () => {
       ),
     )
     // Never prompts
-    expect(pairDevice).toHaveBeenCalledWith(true)
+    expect(pairDevice).toHaveBeenCalledWith('refresh')
     expect(dispatch).toHaveBeenCalledWith({ type: WalletActions.SET_IS_LOCKED, payload: false })
     // Persisted so a reload restores the right account
     expect(selectWalletDeviceId(store.getState())).toBe(NEXT_DEVICE_ID)

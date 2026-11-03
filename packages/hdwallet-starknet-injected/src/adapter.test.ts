@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import * as core from '@shapeshiftoss/hdwallet-core'
+import type { StarknetWindowObject } from '@starknet-io/types-js'
 import { constants } from 'starknet'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { BraavosAdapter } from '.'
-import type { StarknetWindowObject } from './types'
 
 const MAINNET_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000aaa'
 const SEPOLIA_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000bbb'
@@ -32,25 +32,37 @@ describe('StarknetInjectedAdapter', () => {
     delete window.starknet_braavos
   })
 
-  it('restores silently without ever asking to switch network', async () => {
+  it('restores without asking to switch network, letting a locked extension prompt an unlock', async () => {
     request.mockResolvedValueOnce([SEPOLIA_ADDRESS])
 
-    const wallet = await adapter.pairDevice(true)
+    const wallet = await adapter.pairDevice('restore')
 
     expect(await wallet?.getDeviceID()).toBe(`braavos:${SEPOLIA_ADDRESS}`)
-    expect(request.mock.calls.map(([call]) => call.type)).toEqual(['wallet_requestAccounts'])
+    expect(request.mock.calls).toEqual([
+      [{ type: 'wallet_requestAccounts', params: { silent_mode: false } }],
+    ])
   })
 
-  it('returns undefined on silent restore when the site is no longer authorized', async () => {
+  it('refreshes silently', async () => {
+    request.mockResolvedValueOnce([MAINNET_ADDRESS])
+
+    await adapter.pairDevice('refresh')
+
+    expect(request.mock.calls).toEqual([
+      [{ type: 'wallet_requestAccounts', params: { silent_mode: true } }],
+    ])
+  })
+
+  it('returns undefined on restore when the site is no longer authorized', async () => {
     request.mockResolvedValueOnce([])
-    expect(await adapter.pairDevice(true)).toBeUndefined()
+    expect(await adapter.pairDevice('restore')).toBeUndefined()
   })
 
-  it('returns undefined on silent restore when the extension is gone', async () => {
+  it('returns undefined on restore when the extension is gone', async () => {
     delete window.starknet_braavos
     const open = vi.spyOn(window, 'open').mockImplementation(() => null)
 
-    expect(await adapter.pairDevice(true)).toBeUndefined()
+    expect(await adapter.pairDevice('restore')).toBeUndefined()
     expect(open).not.toHaveBeenCalled()
   })
 
@@ -60,7 +72,7 @@ describe('StarknetInjectedAdapter', () => {
     setTimeout(() => (window.starknet_braavos = provider), 200)
     request.mockResolvedValueOnce([MAINNET_ADDRESS])
 
-    const wallet = await adapter.pairDevice(true)
+    const wallet = await adapter.pairDevice('restore')
 
     expect(await wallet?.getDeviceID()).toBe(`braavos:${MAINNET_ADDRESS}`)
   })
@@ -70,8 +82,8 @@ describe('StarknetInjectedAdapter', () => {
     adapter = BraavosAdapter.useKeyring(keyring)
     request.mockResolvedValueOnce([MAINNET_ADDRESS]).mockResolvedValueOnce([SEPOLIA_ADDRESS])
 
-    await adapter.pairDevice(true)
-    await adapter.pairDevice(true)
+    await adapter.pairDevice('refresh')
+    await adapter.pairDevice('refresh')
 
     expect(Object.keys(keyring.wallets)).toEqual([`braavos:${SEPOLIA_ADDRESS}`])
   })

@@ -1,28 +1,28 @@
 import type {
   BraavosAdapter,
   BrambleAdapter,
-  ReadyAdapter,
+  ReadyWalletAdapter,
 } from '@shapeshiftoss/hdwallet-starknet-injected'
 
 import { BraavosIcon } from '@/components/Icons/BraavosIcon'
 import { BrambleIcon } from '@/components/Icons/BrambleIcon'
-import { ReadyIcon } from '@/components/Icons/ReadyIcon'
+import { ReadyWalletIcon } from '@/components/Icons/ReadyWalletIcon'
 import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 
-type ReadyConfigType = Omit<SupportedWalletInfo<typeof ReadyAdapter>, 'routes'>
+type ReadyWalletConfigType = Omit<SupportedWalletInfo<typeof ReadyWalletAdapter>, 'routes'>
 type BraavosConfigType = Omit<SupportedWalletInfo<typeof BraavosAdapter>, 'routes'>
 type BrambleConfigType = Omit<SupportedWalletInfo<typeof BrambleAdapter>, 'routes'>
 
-export const ReadyConfig: ReadyConfigType = {
+export const ReadyWalletConfig: ReadyWalletConfigType = {
   adapters: [
     {
       loadAdapter: () =>
-        import('@shapeshiftoss/hdwallet-starknet-injected').then(m => m.ReadyAdapter),
+        import('@shapeshiftoss/hdwallet-starknet-injected').then(m => m.ReadyWalletAdapter),
     },
   ],
-  icon: ReadyIcon,
-  name: 'Ready',
+  icon: ReadyWalletIcon,
+  name: 'Ready Wallet',
 }
 
 export const BraavosConfig: BraavosConfigType = {
@@ -47,10 +47,10 @@ export const BrambleConfig: BrambleConfigType = {
   name: 'Bramble',
 }
 
-export type StarknetInjectedKeyManager = KeyManager.Ready | KeyManager.Braavos | KeyManager.Bramble
+export type StarknetInjectedKeyManager = KeyManager.ReadyWallet | KeyManager.Braavos | KeyManager.Bramble
 
 export const STARKNET_INJECTED_KEYMANAGERS: StarknetInjectedKeyManager[] = [
-  KeyManager.Ready,
+  KeyManager.ReadyWallet,
   KeyManager.Braavos,
   KeyManager.Bramble,
 ]

@@ -29,13 +29,13 @@ const checkStarknetAccountDeployment = async (accountId: AccountId | undefined) 
 export const useIsStarknetAccountDeployed = (accountId: AccountId | undefined) => {
   const wallet = useWallet().state.wallet
 
-  // Extension wallets deploy their own account on the first transaction
+  // Extension wallets deploy the account with its first transaction, so our deploy flow never applies
   const isSelfDeployingWallet = Boolean(wallet && supportsStarknet(wallet) && wallet.starknetSendTx)
 
   return useQuery({
-    queryKey: ['isStarknetAccountDeployed', accountId, isSelfDeployingWallet],
-    queryFn: () => isSelfDeployingWallet || checkStarknetAccountDeployment(accountId),
-    enabled: Boolean(accountId),
+    queryKey: ['isStarknetAccountDeployed', accountId],
+    queryFn: () => checkStarknetAccountDeployment(accountId),
+    enabled: Boolean(accountId) && !isSelfDeployingWallet,
     staleTime: 30000,
     refetchInterval: false,
   })

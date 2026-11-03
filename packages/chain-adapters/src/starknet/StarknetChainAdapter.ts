@@ -902,7 +902,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         },
       ]
 
-      // Undeployed accounts can't be fee-estimated - only extensions get here, and deploy on first send
+      // Undeployed accounts can't be fee-estimated, so return calls only for wallets that deploy on send
       if (!(await this.isAccountDeployed(from))) {
         return {
           addressNList: toAddressNList(this.getBip44Params({ accountNumber: input.accountNumber })),

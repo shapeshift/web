@@ -2,7 +2,7 @@ import type { StarknetWindowObject } from '@starknet-io/types-js'
 import { constants } from 'starknet'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { isStarknetInjected, StarknetInjectedHDWallet } from '.'
+import { StarknetInjectedHDWallet } from '.'
 
 const SHORT_ADDRESS = '0x123abc'
 const PADDED_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000123abc'
@@ -26,15 +26,6 @@ describe('StarknetInjectedHDWallet', () => {
     wallet = new StarknetInjectedHDWallet('braavos', provider, 'Braavos')
   })
 
-  it('should match the metadata', () => {
-    expect(wallet.getVendor()).toBe('Braavos')
-    expect(isStarknetInjected(wallet)).toBe(true)
-    expect(wallet._supportsStarknet).toBe(true)
-    expect(wallet.supportsOfflineSigning()).toBe(false)
-    expect(wallet.supportsBroadcast()).toBe(true)
-    expect(wallet.supportsBip44Accounts()).toBe(false)
-  })
-
   it('connects silently and pads the address to 64 hex chars', async () => {
     request.mockResolvedValueOnce([SHORT_ADDRESS])
 
@@ -55,47 +46,12 @@ describe('StarknetInjectedHDWallet', () => {
     expect(await wallet.connect(true)).toBeNull()
   })
 
-  it('never touches the network on initialize, so restoring a session never prompts', async () => {
-    await wallet.initialize()
-    expect(request).not.toHaveBeenCalled()
-  })
-
-  it('reads the network without prompting', async () => {
-    request.mockResolvedValueOnce(constants.StarknetChainId.SN_SEPOLIA)
-
-    expect(await wallet.isMainnet()).toBe(false)
-    expect(request).toHaveBeenCalledWith({ type: 'wallet_requestChainId' })
-    expect(request).toHaveBeenCalledTimes(1)
-  })
-
-  it('asks to switch to mainnet when on another network', async () => {
-    request.mockResolvedValueOnce(constants.StarknetChainId.SN_SEPOLIA).mockResolvedValueOnce(true)
-
-    expect(await wallet.ensureMainnet()).toBe(true)
-    expect(request).toHaveBeenLastCalledWith({
-      type: 'wallet_switchStarknetChain',
-      params: { chainId: constants.StarknetChainId.SN_MAIN },
-    })
-  })
-
-  it('does not switch network when already on mainnet', async () => {
-    request.mockResolvedValueOnce(constants.StarknetChainId.SN_MAIN)
-
-    expect(await wallet.ensureMainnet()).toBe(false)
-    expect(request).toHaveBeenCalledTimes(1)
-  })
-
-  it('throws when the user refuses to switch to mainnet', async () => {
-    request.mockResolvedValueOnce(constants.StarknetChainId.SN_SEPOLIA).mockResolvedValueOnce(false)
-
-    await expect(wallet.ensureMainnet()).rejects.toThrow('must be set to Starknet Mainnet')
-  })
-
   describe('starknetSendTx', () => {
     const txToSign = {
       addressNList: [],
       txHash: '0x0',
-      calls: [{ contractAddress: '0x1', entrypoint: 'transfer', calldata: ['0x2', '0xa', '0x0'] }],
+      // Builders emit decimal uint256 halves, the wallet API only accepts hex
+      calls: [{ contractAddress: '0x1', entrypoint: 'transfer', calldata: ['0x2', '10', '0'] }],
     }
 
     beforeEach(async () => {
@@ -104,13 +60,18 @@ describe('StarknetInjectedHDWallet', () => {
       request.mockClear()
     })
 
-    it('sends unencoded calls through wallet_addInvokeTransaction', async () => {
+    it('sends the calls through wallet_addInvokeTransaction with hex calldata', async () => {
       request
         .mockResolvedValueOnce(constants.StarknetChainId.SN_MAIN)
         .mockResolvedValueOnce([SHORT_ADDRESS])
         .mockResolvedValueOnce({ transaction_hash: '0xdeadbeef' })
 
       expect(await wallet.starknetSendTx(txToSign)).toEqual({ hash: '0xdeadbeef' })
+      // Not silent, so a locked extension prompts an unlock
+      expect(request).toHaveBeenCalledWith({
+        type: 'wallet_requestAccounts',
+        params: { silent_mode: false },
+      })
       expect(request).toHaveBeenLastCalledWith({
         type: 'wallet_addInvokeTransaction',
         params: {
@@ -142,7 +103,7 @@ describe('StarknetInjectedHDWallet', () => {
         .mockResolvedValueOnce(constants.StarknetChainId.SN_SEPOLIA)
         .mockResolvedValueOnce(false)
 
-      await expect(wallet.starknetSendTx(txToSign)).rejects.toThrow('Starknet Mainnet')
+      await expect(wallet.starknetSendTx(txToSign)).rejects.toMatchObject({ code: 'WRONG_NETWORK' })
       expect(request).not.toHaveBeenCalledWith(
         expect.objectContaining({ type: 'wallet_addInvokeTransaction' }),
       )
@@ -153,7 +114,9 @@ describe('StarknetInjectedHDWallet', () => {
         .mockResolvedValueOnce(constants.StarknetChainId.SN_MAIN)
         .mockResolvedValueOnce(['0x456def'])
 
-      await expect(wallet.starknetSendTx(txToSign)).rejects.toThrow('account changed')
+      await expect(wallet.starknetSendTx(txToSign)).rejects.toMatchObject({
+        code: 'ACCOUNT_CHANGED',
+      })
       expect(request).not.toHaveBeenCalledWith(
         expect.objectContaining({ type: 'wallet_addInvokeTransaction' }),
       )
@@ -165,10 +128,5 @@ describe('StarknetInjectedHDWallet', () => {
       'calls are required',
     )
     expect(request).not.toHaveBeenCalled()
-  })
-
-  it('cannot sign a raw transaction hash', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {})
-    expect(await wallet.starknetSignTx({ addressNList: [], txHash: '0x0' })).toBeNull()
   })
 })

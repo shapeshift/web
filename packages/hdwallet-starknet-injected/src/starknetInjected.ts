@@ -5,7 +5,6 @@ import { constants, num, validateAndParseAddress } from 'starknet'
 
 import type { StarknetInjectedErrorCode, StarknetInjectedProviderId } from './types'
 
-// `code` lets the app show a translated message without parsing error strings
 export class StarknetInjectedError extends Error {
   readonly code: StarknetInjectedErrorCode
 
@@ -49,7 +48,6 @@ export class StarknetInjectedHDWalletInfo implements core.HDWalletInfo, core.Sta
     return true
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(_srcCoin: core.Coin, _dstCoin: core.Coin): boolean {
     return false
   }
@@ -79,7 +77,6 @@ export class StarknetInjectedHDWalletInfo implements core.HDWalletInfo, core.Sta
     return core.starknetGetAccountPaths(msg)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public starknetNextAccountPath(
     _msg: core.StarknetAccountPath,
   ): core.StarknetAccountPath | undefined {
@@ -110,6 +107,19 @@ export class StarknetInjectedHDWallet
     this.provider = provider
   }
 
+  public async clearSession(): Promise<void> {}
+  public async initialize(): Promise<void> {}
+  public async sendPin(_pin: string): Promise<void> {}
+  public async sendPassphrase(_passphrase: string): Promise<void> {}
+  public async sendCharacter(_charater: string): Promise<void> {}
+  public async sendWord(_word: string): Promise<void> {}
+  public async cancel(): Promise<void> {}
+  public async wipe(): Promise<void> {}
+  public async reset(_msg: core.ResetDevice): Promise<void> {}
+  public async recover(_msg: core.RecoverDevice): Promise<void> {}
+  public async loadDevice(_msg: core.LoadDevice): Promise<void> {}
+  public async disconnect(): Promise<void> {}
+
   public async getDeviceID(): Promise<string> {
     return `${this.providerId}:${await this.starknetGetAddress()}`
   }
@@ -138,28 +148,21 @@ export class StarknetInjectedHDWallet
     return false
   }
 
-  public async clearSession(): Promise<void> {}
-
-  // Network is checked on connect and before each send (ensureMainnet), never on restore
-  public async initialize(): Promise<void> {}
-
-  // Read-only, never prompts
   public async isMainnet(): Promise<boolean> {
     const chainId = await this.provider.request({ type: 'wallet_requestChainId' })
-    return chainId === constants.StarknetChainId.SN_MAIN
+    return num.toBigInt(chainId) === num.toBigInt(constants.StarknetChainId.SN_MAIN)
   }
 
-  // Asks to switch back to mainnet if needed, returns whether a switch happened
   public async ensureMainnet(): Promise<boolean> {
     if (await this.isMainnet()) return false
 
-    // Extensions either throw or return false when the user refuses the switch
     const isSwitched = await this.provider
       .request({
         type: 'wallet_switchStarknetChain',
         params: { chainId: constants.StarknetChainId.SN_MAIN },
       })
       .catch(() => false)
+
     if (!isSwitched) {
       throw new StarknetInjectedError(
         'WRONG_NETWORK',
@@ -174,48 +177,20 @@ export class StarknetInjectedHDWallet
     return { msg: msg.msg }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendPin(_pin: string): Promise<void> {}
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendPassphrase(_passphrase: string): Promise<void> {}
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendCharacter(_charater: string): Promise<void> {}
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendWord(_word: string): Promise<void> {}
-
-  public async cancel(): Promise<void> {}
-
-  public async wipe(): Promise<void> {}
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async reset(_msg: core.ResetDevice): Promise<void> {}
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async recover(_msg: core.RecoverDevice): Promise<void> {}
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async loadDevice(_msg: core.LoadDevice): Promise<void> {}
-
-  public async disconnect(): Promise<void> {}
-
   public async getPublicKeys(msg: core.GetPublicKey[]): Promise<(core.PublicKey | null)[]> {
     return msg.map(() => null)
   }
 
-  /** Starknet */
-
-  // `silent` only succeeds if the dApp was previously authorized, without prompting the user
   public async connect(silent = false): Promise<string | null> {
     const [address] = await this.provider.request({
       type: 'wallet_requestAccounts',
+      // `silent` only succeeds if the dApp was previously authorized, without prompting the user
       params: { silent_mode: silent },
     })
 
     // Pad to 64 hex chars, matching the native wallet so AccountIds line up with tx parsing
     this.starknetAddress = address ? validateAndParseAddress(address) : null
+
     return this.starknetAddress
   }
 
@@ -244,9 +219,10 @@ export class StarknetInjectedHDWallet
     await this.ensureMainnet()
 
     // The tx (e.g. swap recipient) was built for this account - never send it from another one
+    // Not silent, so a locked extension prompts an unlock instead of returning no account
     const [activeAddress] = await this.provider.request({
       type: 'wallet_requestAccounts',
-      params: { silent_mode: true },
+      params: { silent_mode: false },
     })
     if (!activeAddress || validateAndParseAddress(activeAddress) !== this.starknetAddress) {
       throw new StarknetInjectedError(

@@ -10,7 +10,6 @@ import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSli
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { store } from '@/state/store'
 
-// Follows account switches made in the extension
 export const useStarknetInjectedEventHandler = ({
   state,
   getAdapter,

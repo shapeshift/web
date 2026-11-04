@@ -20,7 +20,13 @@ type BaseArgs = {
 // from is the dry-run sender and required on both arms (rate supplies a dummy sender walletless).
 export type GetCetusStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
 
-type CetusRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
+// The 0x0 dummy sender only holds dust SUI, so server-side gas selection exceeds the payment object limit
+const UNFUNDED_SENDER_ERRORS = [
+  'Insufficient balance of',
+  'maximum number of gas payment objects',
+]
+
+type CetusRateStepData ={ networkFeeCryptoBaseUnit: string | undefined }
 type CetusQuoteStepData = { networkFeeCryptoBaseUnit: string }
 
 export function getCetusStepData(
@@ -73,8 +79,9 @@ export async function getCetusStepData(
 
       return Ok(stepData)
     } catch (error) {
-      // Walletless rates have no coins to dry-run against - degrade to an unknown fee, but a real route/build error still fails
-      if (error instanceof Error && error.message.includes('Insufficient balance of')) {
+      // Walletless rates have no usable coins to dry-run against - degrade to an unknown fee, but a real route/build error still fails
+      const errorMessage = error instanceof Error ? error.message : ''
+      if (UNFUNDED_SENDER_ERRORS.some(message => errorMessage.includes(message))) {
         const stepData: CetusRateStepData = { networkFeeCryptoBaseUnit: undefined }
 
         return Ok(stepData)

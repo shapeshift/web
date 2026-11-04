@@ -31,6 +31,7 @@ export type SearchTermAssetListProps = {
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
   assetFilterPredicate?: (assetId: AssetId) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
   workerSearchState: WorkerSearchState
@@ -42,6 +43,7 @@ export const SearchTermAssetList = ({
   searchString,
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
+  chainIdFilterPredicate,
   onAssetClick: handleAssetClick,
   onImportClick,
   workerSearchState,
@@ -178,6 +180,8 @@ export const SearchTermAssetList = ({
           hideZeroBalanceAmounts={true}
           onImportClick={onImportClick}
           showRelatedAssets={activeChainId === 'All' && !isContractAddress(searchString)}
+          assetFilterPredicate={assetFilterPredicate}
+          chainIdFilterPredicate={chainIdFilterPredicate}
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
           height={isLargerThanMd ? '50vh' : '70vh'}
         />

@@ -226,21 +226,20 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     walletConnectedChainIds,
   ])
 
-  const chainIds: (ChainId | 'All')[] = useMemo(() => {
-    const unsortedChainIds = (() => {
-      if (allowWalletUnsupportedAssets || !hasWallet) {
-        return knownChainIds
-      }
+  // Related assets on chains the wallet can't use are hidden too, not just the top level rows
+  const walletChainIdFilterPredicate = useCallback(
+    (chainId: ChainId) => {
+      if (chainIdFilterPredicate && !chainIdFilterPredicate(chainId)) return false
+      if (!hasWallet || allowWalletUnsupportedAssets) return true
+      return walletConnectedChainIds.includes(chainId)
+    },
+    [allowWalletUnsupportedAssets, chainIdFilterPredicate, hasWallet, walletConnectedChainIds],
+  )
 
-      return walletConnectedChainIds
-    })()
-
-    const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds).filter(
-      chainId => chainIdFilterPredicate?.(chainId) ?? true,
-    )
-
-    return ['All', ...sortedChainIds]
-  }, [allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds, chainIdFilterPredicate])
+  const chainIds: (ChainId | 'All')[] = useMemo(
+    () => ['All', ...sortChainIdsByDisplayName(knownChainIds).filter(walletChainIdFilterPredicate)],
+    [walletChainIdFilterPredicate],
+  )
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {
@@ -379,6 +378,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
                   onImportClick={handleImportIntent}
                   isLoading={isPopularAssetIdsLoading}
                   assetFilterPredicate={assetFilterPredicate}
+                  chainIdFilterPredicate={walletChainIdFilterPredicate}
                   allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
                   workerSearchState={workerSearchState}
                 />
@@ -389,7 +389,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
                   onAssetClick={handleAssetClick}
                   activeChainId={activeChainId}
                   assetFilterPredicate={assetFilterPredicate}
-                  chainIdFilterPredicate={chainIdFilterPredicate}
+                  chainIdFilterPredicate={walletChainIdFilterPredicate}
                 />
               )}
             </TabPanel>
@@ -426,6 +426,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
           assetFilterPredicate={assetFilterPredicate}
+          chainIdFilterPredicate={walletChainIdFilterPredicate}
           allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
           workerSearchState={workerSearchState}
         />
@@ -439,14 +440,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
         onAssetClick={handleAssetClick}
         activeChainId={activeChainId}
         assetFilterPredicate={assetFilterPredicate}
-        chainIdFilterPredicate={chainIdFilterPredicate}
+        chainIdFilterPredicate={walletChainIdFilterPredicate}
       />
     )
   }, [
     activeChainId,
     allowWalletUnsupportedAssets,
     assetFilterPredicate,
-    chainIdFilterPredicate,
+    walletChainIdFilterPredicate,
     handleAssetClick,
     handleImportIntent,
     hasWallet,

@@ -34,7 +34,7 @@ export async function getCetusStepData(
 ): Promise<Result<CetusRateStepData | CetusQuoteStepData, SwapErrorRight>> {
   const { routerData, rpcUrl, slippageTolerancePercentageDecimal, from } = args
 
-  const client = getAggregatorClient(rpcUrl)
+  const client = getAggregatorClient(rpcUrl, from)
   const suiClient = getSuiClient(rpcUrl)
 
   const slippage = bnOrZero(
@@ -50,13 +50,16 @@ export async function getCetusStepData(
     await client.fastRouterSwap({ router: routerData, slippage, txb, refreshAllCoins: true })
 
     const transactionBytes = await txb.build({ client: suiClient })
-    const dryRunResult = await suiClient.dryRunTransactionBlock({
-      transactionBlock: transactionBytes,
+    const dryRunResult = await suiClient.simulateTransaction({
+      transaction: transactionBytes,
+      include: { effects: true },
     })
 
-    const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
-    const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
-    const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
+    const { gasUsed } = (dryRunResult.Transaction ?? dryRunResult.FailedTransaction).effects
+
+    const computationCost = BigInt(gasUsed.computationCost)
+    const storageCost = BigInt(gasUsed.storageCost)
+    const storageRebate = BigInt(gasUsed.storageRebate)
     const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
 
     return (computationCost + netStorageCost).toString()
@@ -71,7 +74,7 @@ export async function getCetusStepData(
       return Ok(stepData)
     } catch (error) {
       // Walletless rates have no coins to dry-run against - degrade to an unknown fee, but a real route/build error still fails
-      if (error instanceof Error && error.message.includes('Not enough coins of type')) {
+      if (error instanceof Error && error.message.includes('Insufficient balance of')) {
         const stepData: CetusRateStepData = { networkFeeCryptoBaseUnit: undefined }
 
         return Ok(stepData)

@@ -56,7 +56,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { isSelfDeployingStarknetWallet, isStarknetChainAdapter } from '@/lib/utils/starknet'
+import { getStarknetDeploymentStep, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -119,8 +119,9 @@ export const SendAmountDetails = () => {
     isLoading: isCheckingDeployment,
     refetch: refetchDeploymentStatus,
   } = useIsStarknetAccountDeployed(accountId)
-  const isStarknetDeploymentRequired =
-    isStarknetAccountDeployed === false && !isSelfDeployingStarknetWallet(wallet)
+  const starknetDeploymentStep = getStarknetDeploymentStep(wallet, isStarknetAccountDeployed)
+  const isStarknetDeploymentRequired = starknetDeploymentStep === 'deploy'
+  const isStarknetActivationRequired = starknetDeploymentStep === 'activateInWallet'
   // The extension deploys with the send, and a max STRK send leaves nothing to pay for it
   const isSendMaxBlocked = isStarknetAccountDeployed === false && assetId === starknetAssetId
 
@@ -430,6 +431,16 @@ export const SendAmountDetails = () => {
               </AlertDescription>
             </Alert>
           )}
+          {isStarknetActivationRequired && (
+            <Alert status='warning' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <AlertDescription>
+                <Text
+                  translation={['starknet.activateAccount.description', { name: wallet?.getVendor() }]}
+                />
+              </AlertDescription>
+            </Alert>
+          )}
           {isTronRecipientActivated === false &&
             asset?.assetId !== tronAssetId &&
             isToOwnTronAccount && (
@@ -473,7 +484,8 @@ export const SendAmountDetails = () => {
               // Deploying only needs the account, not an amount or a recipient
               isStarknetDeploymentRequired
                 ? deployAccountMutation.isPending
-                : !currentValue ||
+                : isStarknetActivationRequired ||
+                  !currentValue ||
                   bnOrZero(currentValue).lte(0) ||
                   isLoading ||
                   Boolean(amountFieldError) ||

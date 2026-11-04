@@ -2189,6 +2189,9 @@
       "deployButton": "Deploy Account",
       "deploying": "Deploying Account...",
       "deployFailed": "Deployment Failed"
+    },
+    "activateAccount": {
+      "description": "This Starknet account isn't active yet. Send any transaction from the %{name} extension to activate it, then come back."
     }
   },
   "tron": {

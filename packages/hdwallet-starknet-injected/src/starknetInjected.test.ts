@@ -23,7 +23,7 @@ describe('StarknetInjectedHDWallet', () => {
       off: vi.fn(),
     } as unknown as StarknetWindowObject
 
-    wallet = new StarknetInjectedHDWallet('braavos', provider, 'Braavos')
+    wallet = new StarknetInjectedHDWallet('braavos', provider, 'Braavos', true)
   })
 
   it('connects silently and pads the address to 64 hex chars', async () => {

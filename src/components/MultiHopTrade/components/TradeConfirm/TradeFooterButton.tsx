@@ -34,7 +34,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable } from '@/lib/utils'
-import { isSelfDeployingStarknetWallet, isStarknetChainAdapter } from '@/lib/utils/starknet'
+import { getStarknetDeploymentStep, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { selectPortfolioAccountMetadataByAccountId, selectSwapById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
@@ -98,8 +98,9 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     isLoading: isCheckingDeployment,
     refetch: refetchDeploymentStatus,
   } = useIsStarknetAccountDeployed(sellAccountId)
-  const isStarknetDeploymentRequired =
-    isStarknetAccountDeployed === false && !isSelfDeployingStarknetWallet(wallet)
+  const starknetDeploymentStep = getStarknetDeploymentStep(wallet, isStarknetAccountDeployed)
+  const isStarknetDeploymentRequired = starknetDeploymentStep === 'deploy'
+  const isStarknetActivationRequired = starknetDeploymentStep === 'activateInWallet'
 
   const deployAccountMutation = useMutation({
     mutationFn: async () => {
@@ -394,6 +395,16 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
             </Stack>
           </Alert>
         )}
+        {isStarknetActivationRequired && (
+          <Alert status='warning' borderRadius='lg' mb={3}>
+            <AlertIcon />
+            <AlertDescription>
+              <Text
+                translation={['starknet.activateAccount.description', { name: wallet?.getVendor() }]}
+              />
+            </AlertDescription>
+          </Alert>
+        )}
         {activeQuoteError && (
           <Alert status='warning' size='sm'>
             <AlertIcon />
@@ -430,6 +441,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
           isLoading={isButtonLoading}
           isDisabled={
             tradeButtonProps.isDisabled ||
+            isStarknetActivationRequired ||
             !!activeQuoteError ||
             !!networkFeeError ||
             deployAccountMutation.isPending

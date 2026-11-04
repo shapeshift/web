@@ -36,6 +36,7 @@ abstract class StarknetInjectedAdapter {
   protected abstract readonly providerId: StarknetInjectedProviderId
   protected abstract readonly vendor: string
   protected abstract readonly installUrl: string
+  protected abstract readonly supportsAutoDeploy: boolean
 
   protected constructor(keyring: core.Keyring) {
     this.keyring = keyring
@@ -66,7 +67,12 @@ abstract class StarknetInjectedAdapter {
       )
     }
 
-    const wallet = new StarknetInjectedHDWallet(this.providerId, provider, this.vendor)
+    const wallet = new StarknetInjectedHDWallet(
+      this.providerId,
+      provider,
+      this.vendor,
+      this.supportsAutoDeploy,
+    )
 
     // Restore may prompt an unlock like the other injected wallets, refresh never prompts
     const address = await wallet.connect(mode === 'refresh')
@@ -109,6 +115,7 @@ export class ReadyAdapter extends StarknetInjectedAdapter {
   protected readonly providerId = 'argentX'
   protected readonly vendor = 'Ready'
   protected readonly installUrl = 'https://www.ready.co/'
+  protected readonly supportsAutoDeploy = true
 
   public static useKeyring(keyring: core.Keyring) {
     return new ReadyAdapter(keyring)
@@ -119,6 +126,7 @@ export class BraavosAdapter extends StarknetInjectedAdapter {
   protected readonly providerId = 'braavos'
   protected readonly vendor = 'Braavos'
   protected readonly installUrl = 'https://braavos.app/'
+  protected readonly supportsAutoDeploy = true
 
   public static useKeyring(keyring: core.Keyring) {
     return new BraavosAdapter(keyring)
@@ -129,6 +137,8 @@ export class BrambleAdapter extends StarknetInjectedAdapter {
   protected readonly providerId = 'bramble'
   protected readonly vendor = 'Bramble'
   protected readonly installUrl = 'https://bramble.fi/'
+  // Bramble only deploys the account from its own UI, not for dApp requests
+  protected readonly supportsAutoDeploy = false
 
   public static useKeyring(keyring: core.Keyring) {
     return new BrambleAdapter(keyring)

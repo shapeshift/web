@@ -307,10 +307,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     return this.provider
   }
 
-  /**
-   * Check if an account is deployed on Starknet
-   * An account is considered deployed if it has code (class hash)
-   */
   // Only a missing contract means undeployed, any other failure must not pass for it
   async isAccountDeployed(address: string): Promise<boolean> {
     const response = await this.provider.fetch('starknet_getNonce', ['latest', address])
@@ -884,14 +880,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         }
       }
 
-      // Get account nonce - use '0x0' for undeployed accounts
-      let nonce = '0x0'
-      try {
-        nonce = (await this.fetchPreConfirmedNonce(from)) ?? '0x0'
-      } catch (error) {
-        // If nonce fetch fails (e.g., account not deployed, method not supported), use '0x0'
-        nonce = '0x0'
-      }
+      const nonce = (await this.fetchPreConfirmedNonce(from)) ?? '0x0'
 
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // v3 is the transaction version current RPC specs accept
@@ -1060,8 +1049,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       // TODO: Re-enable once Starknet is added to verifyLedgerAppOpen
       // await verifyLedgerAppOpen(this.chainId, wallet)
 
-      // Calls-only tx built for an undeployed account, see buildSendApiTransaction
-      if (!txToSign.txHash) throw new Error('account must be deployed before signing')
+      // callsOnly txs carry no hash, they're for wallets that submit their own transactions
+      if (!txToSign.txHash) throw new Error('calls-only transaction cannot be signed offline')
 
       // Extract just the signature fields for wallet signing
       const signatureResult = await wallet.starknetSignTx({
@@ -1264,7 +1253,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         return calculateFeeTiers(STATIC_FEE_ESTIMATES)
       }
 
-      const nonce = await this.getNonce(from)
+      const nonce = await this.fetchPreConfirmedNonce(from)
+      if (!nonce) throw new Error('Failed to fetch nonce')
 
       const estimateTx = {
         type: 'INVOKE',

@@ -46,11 +46,13 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { fiatCurrencyItems, fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
-import { sortChainIdsByDisplayName } from '@/lib/utils'
+import { isSome, sortChainIdsByDisplayName } from '@/lib/utils'
 import {
+  selectAssets,
   selectPortfolioAssetsByChainId,
   selectPortfolioTotalUserCurrencyBalance,
   selectPrimaryAssetsByChainId,
+  selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -118,16 +120,28 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
 
+  const hasPortfolio = hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
     // If a wallet is connected with zero balances everywhere, we do the same
     // Since 0-balances are not reflected in selectPortfolioUserCurrencyBalances/selectPortfolioFungibleAssetsSortedByBalance/
     state =>
-      hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
+      hasPortfolio
         ? selectPortfolioAssetsByChainId(state, activeChainId)
         : selectPrimaryAssetsByChainId(state, activeChainId),
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const assetsById = useAppSelector(selectAssets)
+  const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
+
+  const getRelatedAssets = useCallback(
+    (asset: Asset) =>
+      (relatedAssetIdsById[asset.relatedAssetKey ?? asset.assetId] ?? [])
+        .map(assetId => assetsById[assetId])
+        .filter(isSome)
+        .filter(relatedAsset => chainIdFilterPredicate?.(relatedAsset.chainId) ?? true),
+    [assetsById, chainIdFilterPredicate, relatedAssetIdsById],
+  )
 
   const { data: popularAssetsByChainId, isLoading: isPopularAssetIdsLoading } =
     useGetPopularAssetsQuery()
@@ -177,6 +191,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       allowWalletUnsupportedAssets,
       walletConnectedChainIds,
       assetFilterPredicate,
+      getRelatedAssets,
     })
   }, [
     popularAssetsByChainId,
@@ -185,6 +200,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     hasWallet,
     walletConnectedChainIds,
     assetFilterPredicate,
+    getRelatedAssets,
   ])
 
   const quickAccessAssets = useMemo(() => {
@@ -217,6 +233,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       allowWalletUnsupportedAssets,
       walletConnectedChainIds,
       assetFilterPredicate,
+      getRelatedAssets,
     })
   }, [
     portfolioAssetsSortedByBalance,
@@ -224,7 +241,19 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     hasWallet,
     allowWalletUnsupportedAssets,
     walletConnectedChainIds,
+    getRelatedAssets,
   ])
+
+  // Assets already listed under My Assets aren't repeated under Popular Assets
+  const popularAssetsNotInPortfolio = useMemo(() => {
+    if (!hasPortfolio) return popularAssets
+    const portfolioAssetKeys = new Set(
+      portfolioAssetsSortedByBalanceForChain.map(asset => asset.relatedAssetKey ?? asset.assetId),
+    )
+    return popularAssets.filter(
+      asset => !portfolioAssetKeys.has(asset.relatedAssetKey ?? asset.assetId),
+    )
+  }, [hasPortfolio, popularAssets, portfolioAssetsSortedByBalanceForChain])
 
   // Related assets on chains the wallet can't use are hidden too, not just the top level rows
   const walletChainIdFilterPredicate = useCallback(
@@ -385,7 +414,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
               ) : (
                 <DefaultAssetList
                   portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
-                  popularAssets={popularAssets}
+                  popularAssets={popularAssetsNotInPortfolio}
                   onAssetClick={handleAssetClick}
                   activeChainId={activeChainId}
                   assetFilterPredicate={assetFilterPredicate}
@@ -436,7 +465,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     return (
       <DefaultAssetList
         portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
-        popularAssets={popularAssets}
+        popularAssets={popularAssetsNotInPortfolio}
         onAssetClick={handleAssetClick}
         activeChainId={activeChainId}
         assetFilterPredicate={assetFilterPredicate}
@@ -454,7 +483,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     isPopularAssetIdsLoading,
     isSearching,
     isSwapperFiatRampsEnabled,
-    popularAssets,
+    popularAssetsNotInPortfolio,
     portfolioAssetsSortedByBalanceForChain,
     workerSearchState,
     renderFiatItem,

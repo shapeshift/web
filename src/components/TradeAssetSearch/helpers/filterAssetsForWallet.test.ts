@@ -61,6 +61,23 @@ describe('filterAssetsForWallet', () => {
     expect(result).toEqual([supportedAsset, unsupportedAsset])
   })
 
+  it('swaps an asset on an unsupported chain for its variant on a supported one', () => {
+    const variantOnSupportedChain = {
+      assetId: 'eip155:1/erc20:0xbtc',
+      chainId: KnownChainIds.EthereumMainnet,
+    } as Asset
+
+    const result = filterAssetsForWallet({
+      assets,
+      hasWallet: true,
+      walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
+      getRelatedAssets: asset =>
+        asset.assetId === btcAssetId ? [unsupportedAsset, variantOnSupportedChain] : [],
+    })
+
+    expect(result).toEqual([supportedAsset, variantOnSupportedChain])
+  })
+
   it('applies assetFilterPredicate if provided', () => {
     const result = filterAssetsForWallet({
       assets,

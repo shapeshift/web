@@ -7,6 +7,7 @@ export type FilterAssetsForWalletArgs = {
   allowWalletUnsupportedAssets?: boolean
   walletConnectedChainIds: ChainId[]
   assetFilterPredicate?: (assetId: AssetId) => boolean
+  getRelatedAssets?: (asset: Asset) => Asset[]
 }
 
 export const filterAssetsForWallet = ({
@@ -15,10 +16,20 @@ export const filterAssetsForWallet = ({
   allowWalletUnsupportedAssets,
   walletConnectedChainIds,
   assetFilterPredicate,
+  getRelatedAssets,
 }: FilterAssetsForWalletArgs): Asset[] => {
-  const filteredAssets = assets.filter(asset => assetFilterPredicate?.(asset.assetId) ?? true)
+  const isAssetAllowed = (asset: Asset) => assetFilterPredicate?.(asset.assetId) ?? true
+  const filteredAssets = assets.filter(isAssetAllowed)
 
   if (!hasWallet || allowWalletUnsupportedAssets) return filteredAssets
 
-  return filteredAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+  const isAssetSupported = (asset: Asset) =>
+    walletConnectedChainIds.includes(asset.chainId) && isAssetAllowed(asset)
+
+  // An asset on a chain the wallet can't use is swapped for its variant on one it can
+  return filteredAssets.flatMap(asset => {
+    if (walletConnectedChainIds.includes(asset.chainId)) return [asset]
+    const supportedVariant = getRelatedAssets?.(asset).find(isAssetSupported)
+    return supportedVariant ? [supportedVariant] : []
+  })
 }

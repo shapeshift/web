@@ -874,7 +874,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         }
       }
 
-      const nonce = (await this.fetchPreConfirmedNonce(from)) ?? '0x0'
+      const nonce = await this.fetchPreConfirmedNonce(from)
+      if (!nonce) throw new Error('Failed to fetch nonce')
 
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // v3 is the transaction version current RPC specs accept

@@ -59,7 +59,11 @@ abstract class StarknetInjectedAdapter {
       if (!isConnect) return undefined
       window.open(this.installUrl, '_blank')
       console.error(`Please install ${this.vendor}!`)
-      throw new StarknetInjectedError('PROVIDER_NOT_FOUND', `${this.vendor} provider not found`)
+      throw new StarknetInjectedError(
+        'PROVIDER_NOT_FOUND',
+        this.vendor,
+        `${this.vendor} provider not found`,
+      )
     }
 
     const wallet = new StarknetInjectedHDWallet(this.providerId, provider, this.vendor)
@@ -68,7 +72,7 @@ abstract class StarknetInjectedAdapter {
     const address = await wallet.connect(mode === 'refresh')
     if (!address) {
       if (!isConnect) return undefined
-      throw new StarknetInjectedError('NO_ACCOUNT', `No ${this.vendor} account found`)
+      throw new StarknetInjectedError('NO_ACCOUNT', this.vendor, `No ${this.vendor} account found`)
     }
 
     if (isConnect && (await wallet.ensureMainnet())) {
@@ -77,6 +81,7 @@ abstract class StarknetInjectedAdapter {
       if (!mainnetAddress) {
         throw new StarknetInjectedError(
           'NO_ACCOUNT',
+          this.vendor,
           `No ${this.vendor} account found on Starknet Mainnet`,
         )
       }

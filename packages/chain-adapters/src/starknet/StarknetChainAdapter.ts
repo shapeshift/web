@@ -51,11 +51,6 @@ import {
 
 const CONTRACT_NOT_FOUND_ERROR_CODE = 20
 
-const STARKNET_SEND_TX_ERROR_TRANSLATIONS: Record<string, string | undefined> = {
-  WRONG_NETWORK: 'chainAdapters.errors.starknetWrongNetwork',
-  ACCOUNT_CHANGED: 'chainAdapters.errors.starknetAccountChanged',
-}
-
 export interface ChainAdapterArgs {
   rpcUrl: string
   getKnownTokens?: () => TokenInfo[]
@@ -1124,17 +1119,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       this.assertSupportsChain(wallet)
 
       if (wallet.starknetSendTx) {
-        try {
-          const tx = await wallet.starknetSendTx(txToSign)
-          if (!tx?.hash) throw new Error('error signing & broadcasting tx')
-          return tx.hash
-        } catch (err) {
-          // Keep the wallet's actionable reason instead of the generic broadcast error
-          const translation =
-            STARKNET_SEND_TX_ERROR_TRANSLATIONS[(err as { code?: string }).code ?? '']
-          if (!translation) throw err
-          throw new ChainAdapterError(err, { translation, options: { name: wallet.getVendor() } })
-        }
+        const tx = await wallet.starknetSendTx(txToSign)
+        if (!tx?.hash) throw new Error('error signing & broadcasting tx')
+        return tx.hash
       }
 
       const signedHex = await this.signTransaction(signTxInput)

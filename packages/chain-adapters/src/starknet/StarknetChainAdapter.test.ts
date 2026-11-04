@@ -129,10 +129,11 @@ describe('StarknetChainAdapter', () => {
     const adapter = makeAdapter()
     const wallet = {
       _supportsStarknet: true,
-      getVendor: () => 'Braavos',
       starknetSendTx: vi.fn().mockRejectedValue(
         Object.assign(new Error('Braavos must be set to Starknet Mainnet'), {
+          name: 'StarknetInjectedError',
           code: 'WRONG_NETWORK',
+          vendor: 'Braavos',
         }),
       ),
     } as unknown as HDWallet

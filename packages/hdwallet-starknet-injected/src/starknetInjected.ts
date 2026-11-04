@@ -7,11 +7,13 @@ import type { StarknetInjectedErrorCode, StarknetInjectedProviderId } from './ty
 
 export class StarknetInjectedError extends Error {
   readonly code: StarknetInjectedErrorCode
+  readonly vendor: string
 
-  constructor(code: StarknetInjectedErrorCode, message: string) {
+  constructor(code: StarknetInjectedErrorCode, vendor: string, message: string) {
     super(message)
     this.name = 'StarknetInjectedError'
     this.code = code
+    this.vendor = vendor
   }
 }
 
@@ -166,6 +168,7 @@ export class StarknetInjectedHDWallet
     if (!isSwitched) {
       throw new StarknetInjectedError(
         'WRONG_NETWORK',
+        this.vendor,
         `${this.vendor} must be set to Starknet Mainnet`,
       )
     }
@@ -222,6 +225,7 @@ export class StarknetInjectedHDWallet
     if ((await this.requestActiveAddress(true)) !== this.starknetAddress) {
       throw new StarknetInjectedError(
         'ACCOUNT_CHANGED',
+        this.vendor,
         `${this.vendor} account changed, please review the transaction again`,
       )
     }

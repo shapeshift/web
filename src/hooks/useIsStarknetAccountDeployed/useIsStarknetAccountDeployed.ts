@@ -11,17 +11,10 @@ const checkStarknetAccountDeployment = async (accountId: AccountId | undefined) 
   const { chainId } = fromAccountId(accountId)
   if (chainId !== starknetChainId) return true
 
-  try {
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(chainId)
-    if (!isStarknetChainAdapter(adapter)) return true
+  const adapter = getChainAdapterManager().get(chainId)
+  if (!isStarknetChainAdapter(adapter)) return true
 
-    const fromAddress = fromAccountId(accountId).account
-    return await adapter.isAccountDeployed(fromAddress)
-  } catch (error) {
-    console.error('Failed to check Starknet account deployment status:', error)
-    return true
-  }
+  return adapter.isAccountDeployed(fromAccountId(accountId).account)
 }
 
 export const useIsStarknetAccountDeployed = (accountId: AccountId | undefined) => {

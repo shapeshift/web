@@ -2,6 +2,7 @@ import type { HDWallet, StarknetWallet } from '@shapeshiftoss/hdwallet-core'
 import { describe, expect, it, vi } from 'vitest'
 
 import { ChainAdapter } from './StarknetChainAdapter'
+import { STRK_TOKEN_ADDRESS } from './utils'
 
 const ADDRESS = '0x2a4490f9596f08ed56a6cf130a1234fe3ef462701e89f8b036786ff8e0ebb42'
 const NONCE = '0xc7'
@@ -175,6 +176,42 @@ describe('StarknetChainAdapter', () => {
         },
       ])
       expect(fetch).not.toHaveBeenCalled()
+    })
+
+    it('sends the balance minus the padded fee estimate for a calls-only STRK max send', async () => {
+      const adapter = makeAdapter()
+      const provider = (adapter as unknown as { provider: Record<string, unknown> }).provider
+      provider.callContract = vi.fn().mockResolvedValue(['0xf4240', '0x0'])
+      provider.fetch = vi.fn((method: string) =>
+        Promise.resolve(
+          method === 'starknet_estimateFee'
+            ? jsonResponse({
+                result: [
+                  {
+                    l1_gas_consumed: '0x10',
+                    l1_gas_price: '0x100',
+                    l2_gas_consumed: '0x0',
+                    l2_gas_price: '0x0',
+                    l1_data_gas_consumed: '0x10',
+                    l1_data_gas_price: '0x1',
+                  },
+                ],
+              })
+            : jsonResponse({ result: NONCE }),
+        ),
+      )
+
+      const txToSign = await adapter.buildSendApiTransaction({
+        from: ADDRESS,
+        to: ADDRESS,
+        value: '0',
+        accountNumber: 0,
+        sendMax: true,
+        chainSpecific: { tokenContractAddress: STRK_TOKEN_ADDRESS, callsOnly: true },
+      })
+
+      // 1,000,000 balance - (16 * 5) * (256 * 2) - (16 * 5) * (1 * 2)
+      expect(txToSign.calls?.[0].calldata).toEqual([expect.any(String), '958880', '0'])
     })
   })
 

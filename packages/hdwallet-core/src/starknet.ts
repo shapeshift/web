@@ -10,13 +10,25 @@ export interface StarknetGetPublicKey {
   addressNList: BIP32Path
 }
 
+export interface StarknetCall {
+  contractAddress: string
+  entrypoint: string
+  calldata: string[]
+}
+
 export interface StarknetSignTx {
   addressNList: BIP32Path
   txHash: string
+  // Unencoded calls, for wallets that build and submit the transaction themselves (e.g. browser extensions)
+  calls?: StarknetCall[]
 }
 
 export interface StarknetSignedTx {
   signature: string[]
+}
+
+export interface StarknetTxHash {
+  hash: string
 }
 
 export interface StarknetGetAccountPaths {
@@ -40,6 +52,7 @@ export interface StarknetWallet extends StarknetWalletInfo, HDWallet {
   starknetGetAddress(msg: StarknetGetAddress): Promise<string | null>
   starknetGetPublicKey(msg: StarknetGetPublicKey): Promise<string | null>
   starknetSignTx(msg: StarknetSignTx): Promise<StarknetSignedTx | null>
+  starknetSendTx?(msg: StarknetSignTx): Promise<StarknetTxHash | null>
 }
 
 export function starknetDescribePath(path: BIP32Path): PathDescription {

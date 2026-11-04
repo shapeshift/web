@@ -14,7 +14,10 @@ import { useCallback, useMemo } from 'react'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
 
 import { Text } from '@/components/Text'
+import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import type { KeyManager } from '@/context/WalletProvider/KeyManager'
+import type { StarknetInjectedKeyManager } from '@/context/WalletProvider/StarknetInjected/config'
+import { useInstalledStarknetWallets } from '@/context/WalletProvider/StarknetInjected/hooks/useInstalledStarknetWallets'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useMipdProviders } from '@/lib/mipd'
 
@@ -58,6 +61,43 @@ const MipdProviderSelectItem = ({
   )
 }
 
+const StarknetInjectedSelectItem = ({
+  keyManager,
+  connect,
+  isSelected,
+  isDisabled,
+}: {
+  keyManager: StarknetInjectedKeyManager
+  connect: (keyManager: StarknetInjectedKeyManager) => void
+  isSelected: boolean
+  isDisabled: boolean
+}) => {
+  const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  const { icon: Icon, name } = SUPPORTED_WALLETS[keyManager]
+  const handleConnect = useCallback(() => connect(keyManager), [connect, keyManager])
+
+  return (
+    <Box
+      as={Button}
+      variant='ghost'
+      whiteSpace='normal'
+      px={4}
+      ml='-16px'
+      mr='-16px'
+      py={2.5}
+      borderRadius='md'
+      onClick={handleConnect}
+      bg={isSelected ? backgroundColor : undefined}
+      isDisabled={isDisabled}
+    >
+      <Flex alignItems='center' width='full'>
+        <Icon boxSize='24px' mr={3} />
+        <CText>{name}</CText>
+      </Flex>
+    </Box>
+  )
+}
+
 export const InstalledWalletsSection = ({
   isLoading,
   selectedWalletId,
@@ -69,6 +109,7 @@ export const InstalledWalletsSection = ({
 }) => {
   const { connect } = useWallet()
   const mipdProviders = useMipdProviders()
+  const installedStarknetWallets = useInstalledStarknetWallets()
 
   // Filter out providers that have first-class implementations
   const filteredProviders = useMemo(
@@ -102,7 +143,15 @@ export const InstalledWalletsSection = ({
     [connect, onWalletSelect],
   )
 
-  if (!mipdProviders.length) return null
+  const handleConnectStarknetInjected = useCallback(
+    (keyManager: StarknetInjectedKeyManager) => {
+      onWalletSelect(keyManager, `/${keyManager}/connect`)
+      connect(keyManager, false)
+    },
+    [connect, onWalletSelect],
+  )
+
+  if (!mipdProviders.length && !installedStarknetWallets.length) return null
 
   return (
     <>
@@ -116,6 +165,15 @@ export const InstalledWalletsSection = ({
             connect={handleConnectFirstClass}
             isSelected={selectedWalletId === provider.info.rdns}
             isDisabled={isLoading && selectedWalletId !== provider.info.rdns}
+          />
+        ))}
+        {installedStarknetWallets.map(keyManager => (
+          <StarknetInjectedSelectItem
+            key={keyManager}
+            keyManager={keyManager}
+            connect={handleConnectStarknetInjected}
+            isSelected={selectedWalletId === keyManager}
+            isDisabled={isLoading && selectedWalletId !== keyManager}
           />
         ))}
         {/* MIPD providers */}

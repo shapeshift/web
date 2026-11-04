@@ -775,18 +775,23 @@ export const useTradeExecution = (
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             from,
+            callsOnly: !wallet.supportsOfflineSigning(),
             signAndBroadcastTransaction: async (txToSign: StarknetSignTx) => {
-              const hex = await adapter.signTransaction({ txToSign, wallet })
+              if (wallet.supportsOfflineSigning()) {
+                const hex = await adapter.signTransaction({ txToSign, wallet })
+
+                assertQuoteNotExpired()
+
+                return adapter.broadcastTransaction({ senderAddress: from, receiverAddress, hex })
+              }
 
               assertQuoteNotExpired()
 
-              const output = await adapter.broadcastTransaction({
+              return adapter.signAndBroadcastTransaction({
                 senderAddress: from,
                 receiverAddress,
-                hex,
+                signTxInput: { txToSign, wallet },
               })
-
-              return output
             },
           })
           cancelPollingRef.current = output?.cancelPolling

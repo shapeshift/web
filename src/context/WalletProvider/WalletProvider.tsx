@@ -20,6 +20,7 @@ import { KeyManager } from './KeyManager'
 import { useLedgerEventHandler } from './Ledger/hooks/useLedgerEventHandler'
 import { useLocalWallet } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
+import { useStarknetInjectedEventHandler } from './StarknetInjected/hooks/useStarknetInjectedEventHandler'
 import type { AdaptersByKeyManager, GetAdapter } from './types'
 import { NativeWalletRoutes } from './types'
 import { useEip1993EventHandler } from './useEip1993EventHandler'
@@ -844,6 +845,58 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
+          case KeyManager.Ready:
+          case KeyManager.Braavos:
+          case KeyManager.Bramble: {
+            const isStarknetWalletsEnabled =
+              selectFeatureFlag(store.getState(), 'Starknet') &&
+              selectFeatureFlag(store.getState(), 'StarknetWallets')
+            if (!isStarknetWalletsEnabled) {
+              disconnect()
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            }
+
+            const starknetInjectedAdapter = await getAdapter(localWalletType)
+
+            if (starknetInjectedAdapter) {
+              Object.assign(currentAdapters, { [localWalletType]: starknetInjectedAdapter })
+              dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+              // Fixes issue with wallet `type` being null when the wallet is loaded from state
+              dispatch({
+                type: WalletActions.SET_CONNECTOR_TYPE,
+                payload: { modalType: localWalletType, isMipdProvider: false },
+              })
+            }
+
+            try {
+              const localStarknetInjectedWallet =
+                await starknetInjectedAdapter?.pairDevice('restore')
+              if (localStarknetInjectedWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[localWalletType]
+                const deviceId = await localStarknetInjectedWallet.getDeviceID()
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: localStarknetInjectedWallet,
+                    name,
+                    icon,
+                    deviceId,
+                    connectedType: localWalletType,
+                  },
+                })
+                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+              } else {
+                disconnect()
+              }
+            } catch (e) {
+              console.error(e)
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
+          }
           case KeyManager.GridPlus: {
             // GridPlus wallet persists in keyring after pairing
             // Check if wallet exists in keyring from previous session
@@ -1046,6 +1099,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useKeepKeyEventHandler(state, dispatch, load, setDeviceState)
   useLedgerEventHandler(state, dispatch, load, setDeviceState)
   useEip1993EventHandler({ state, getAdapter, dispatch })
+  useStarknetInjectedEventHandler({ state, getAdapter, dispatch })
 
   const value: IWalletContext = useMemo(
     () => ({

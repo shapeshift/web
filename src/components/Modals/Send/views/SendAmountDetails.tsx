@@ -19,6 +19,7 @@ import {
   ethChainId,
   fromAccountId,
   fromAssetId,
+  starknetAssetId,
   starknetChainId,
   tronAssetId,
   tronChainId,
@@ -55,7 +56,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { isStarknetChainAdapter } from '@/lib/utils/starknet'
+import { getStarknetDeploymentStep, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -118,6 +119,11 @@ export const SendAmountDetails = () => {
     isLoading: isCheckingDeployment,
     refetch: refetchDeploymentStatus,
   } = useIsStarknetAccountDeployed(accountId)
+  const starknetDeploymentStep = getStarknetDeploymentStep(wallet, isStarknetAccountDeployed)
+  const isStarknetDeploymentRequired = starknetDeploymentStep === 'deploy'
+  const isStarknetActivationRequired = starknetDeploymentStep === 'activateInWallet'
+  // The extension deploys with the send, and a max STRK send leaves nothing to pay for it
+  const isSendMaxBlocked = isStarknetAccountDeployed === false && assetId === starknetAssetId
 
   const { data: isTronRecipientActivated } = useIsTronAddressActivated(to, asset?.chainId)
 
@@ -205,13 +211,13 @@ export const SendAmountDetails = () => {
   const handleNextClick = useCallback(() => {
     if (accountId) {
       const { chainId } = fromAccountId(accountId)
-      if (chainId === starknetChainId && isStarknetAccountDeployed === false) {
+      if (chainId === starknetChainId && isStarknetDeploymentRequired) {
         deployAccountMutation.mutate()
         return
       }
     }
     navigate(SendRoutes.Confirm)
-  }, [accountId, isStarknetAccountDeployed, deployAccountMutation, navigate])
+  }, [accountId, isStarknetDeploymentRequired, deployAccountMutation, navigate])
 
   const handleBackClick = useCallback(
     () => navigate(isFromQrCode ? SendRoutes.Scan : SendRoutes.Address),
@@ -417,11 +423,24 @@ export const SendAmountDetails = () => {
               <Text translation={noAccountsOnChainTranslation} fontSize='sm' />
             </Alert>
           )}
-          {isStarknetAccountDeployed === false && (
+          {isStarknetDeploymentRequired && (
             <Alert status='warning' borderRadius='lg' mb={3}>
               <AlertIcon />
               <AlertDescription>
                 <Text translation='starknet.deployAccount.sendDescription' />
+              </AlertDescription>
+            </Alert>
+          )}
+          {isStarknetActivationRequired && (
+            <Alert status='warning' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <AlertDescription>
+                <Text
+                  translation={[
+                    'starknet.activateAccount.description',
+                    { name: wallet?.getVendor() },
+                  ]}
+                />
               </AlertDescription>
             </Alert>
           )}
@@ -451,26 +470,35 @@ export const SendAmountDetails = () => {
                   />
                 </Box>
               </Flex>
-              <SendMaxButton onClick={handleMaxClick} isDisabled={!Boolean(to)} />
+              <SendMaxButton
+                onClick={handleMaxClick}
+                isDisabled={!Boolean(to) || isSendMaxBlocked}
+              />
             </Flex>
           )}
           <Button
             width='full'
-            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
+            colorScheme={
+              addressError && !isValidating && !isStarknetDeploymentRequired ? 'red' : 'blue'
+            }
             size='lg'
             onClick={handleNextClick}
             isDisabled={
-              !currentValue ||
-              bnOrZero(currentValue).lte(0) ||
-              isLoading ||
-              Boolean(amountFieldError) ||
-              Boolean(memoFieldError) ||
-              !to ||
-              !input ||
-              addressError ||
-              hasNoAccountForAsset ||
-              isCheckingDeployment ||
-              deployAccountMutation.isPending
+              // Deploying only needs the account, not an amount or a recipient
+              isStarknetDeploymentRequired
+                ? deployAccountMutation.isPending
+                : isStarknetActivationRequired ||
+                  !currentValue ||
+                  bnOrZero(currentValue).lte(0) ||
+                  isLoading ||
+                  Boolean(amountFieldError) ||
+                  Boolean(memoFieldError) ||
+                  !to ||
+                  !input ||
+                  addressError ||
+                  hasNoAccountForAsset ||
+                  isCheckingDeployment ||
+                  deployAccountMutation.isPending
             }
             isLoading={
               isLoading || isValidating || isCheckingDeployment || deployAccountMutation.isPending
@@ -482,10 +510,10 @@ export const SendAmountDetails = () => {
             }
           >
             {translate(
-              Boolean(addressError)
-                ? addressError
-                : isStarknetAccountDeployed === false
+              isStarknetDeploymentRequired
                 ? 'starknet.deployAccount.deployButton'
+                : Boolean(addressError)
+                ? addressError
                 : 'common.preview',
             )}
           </Button>

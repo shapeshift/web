@@ -714,7 +714,11 @@ type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
 type SuiAccountMetadata = { from: string }
 type NearAccountMetadata = { from: string }
-type StarknetAccountMetadata = { from: string }
+type StarknetAccountMetadata = {
+  from: string
+  // The wallet builds and submits the transaction from the calls itself
+  callsOnly?: boolean
+}
 type UtxoAccountMetadata = {
   senderAddress: string
   xpub: string

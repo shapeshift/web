@@ -716,7 +716,7 @@ type SuiAccountMetadata = { from: string }
 type NearAccountMetadata = { from: string }
 type StarknetAccountMetadata = {
   from: string
-  // Wallets that submit the transaction themselves only need the calls, not a fee estimate or hash
+  // The wallet builds and submits the transaction from the calls itself
   callsOnly?: boolean
 }
 type UtxoAccountMetadata = {

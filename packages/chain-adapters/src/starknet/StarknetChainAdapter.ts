@@ -51,7 +51,6 @@ import {
 
 const CONTRACT_NOT_FOUND_ERROR_CODE = 20
 
-// Error codes thrown by extension wallets, see hdwallet-starknet-injected
 const STARKNET_SEND_TX_ERROR_TRANSLATIONS: Record<string, string | undefined> = {
   WRONG_NETWORK: 'chainAdapters.errors.starknetWrongNetwork',
   ACCOUNT_CHANGED: 'chainAdapters.errors.starknetAccountChanged',
@@ -885,7 +884,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // v3 is the transaction version current RPC specs accept
 
-      const formattedCalldata = transaction.getExecuteCalldata(calls, '1').map(data => num.toHex(data))
+      const formattedCalldata = transaction
+        .getExecuteCalldata(calls, '1')
+        .map(data => num.toHex(data))
 
       // Estimate fees for v3 transaction
       const estimateTx = {
@@ -1021,7 +1022,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const txToSign = await this.buildSendApiTransaction({
         ...input,
         from,
-        chainSpecific: { ...input.chainSpecific, callsOnly: !input.wallet.supportsOfflineSigning() },
+        chainSpecific: {
+          ...input.chainSpecific,
+          callsOnly: !input.wallet.supportsOfflineSigning(),
+        },
       })
 
       return {
@@ -1049,8 +1053,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       // TODO: Re-enable once Starknet is added to verifyLedgerAppOpen
       // await verifyLedgerAppOpen(this.chainId, wallet)
 
-      // callsOnly txs carry no hash, they're for wallets that submit their own transactions
-      if (!txToSign.txHash) throw new Error('calls-only transaction cannot be signed offline')
+      if (!txToSign.txHash) throw new Error('txHash is required to sign')
 
       // Extract just the signature fields for wallet signing
       const signatureResult = await wallet.starknetSignTx({
@@ -1245,7 +1248,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
       }
 
-      const formattedCalldata = transaction.getExecuteCalldata([call], '1').map(data => num.toHex(data))
+      const formattedCalldata = transaction
+        .getExecuteCalldata([call], '1')
+        .map(data => num.toHex(data))
 
       const isDeployed = await this.isAccountDeployed(from)
 

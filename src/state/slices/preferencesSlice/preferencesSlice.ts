@@ -67,6 +67,7 @@ export type FeatureFlags = {
   Cowswap: boolean
   ZrxSwap: boolean
   FyndSwap: boolean
+  KyberSwap: boolean
   Mixpanel: boolean
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
@@ -237,6 +238,7 @@ const initialState: Preferences = {
     Cowswap: getConfig().VITE_FEATURE_COWSWAP,
     ZrxSwap: getConfig().VITE_FEATURE_ZRX_SWAP,
     FyndSwap: getConfig().VITE_FEATURE_FYND_SWAP,
+    KyberSwap: getConfig().VITE_FEATURE_KYBER_SWAP,
     Mixpanel: getConfig().VITE_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().VITE_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().VITE_FEATURE_READ_ONLY_ASSETS,

@@ -400,7 +400,10 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
             <AlertIcon />
             <AlertDescription>
               <Text
-                translation={['starknet.activateAccount.description', { name: wallet?.getVendor() }]}
+                translation={[
+                  'starknet.activateAccount.description',
+                  { name: wallet?.getVendor() },
+                ]}
               />
             </AlertDescription>
           </Alert>

@@ -891,6 +891,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 disconnect()
               }
             } catch (e) {
+              console.error(e)
               disconnect()
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })

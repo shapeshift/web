@@ -24,12 +24,10 @@ const waitForStarknetInjectedProvider = async (
   providerId: StarknetInjectedProviderId,
 ): Promise<StarknetWindowObject | undefined> => {
   const deadline = Date.now() + PROVIDER_INJECTION_TIMEOUT_MS
-  let provider = getStarknetInjectedProvider(providerId)
-  while (!provider && Date.now() < deadline) {
+  while (!getStarknetInjectedProvider(providerId) && Date.now() < deadline) {
     await new Promise(resolve => setTimeout(resolve, PROVIDER_INJECTION_POLL_MS))
-    provider = getStarknetInjectedProvider(providerId)
   }
-  return provider
+  return getStarknetInjectedProvider(providerId)
 }
 
 abstract class StarknetInjectedAdapter {
@@ -47,15 +45,15 @@ abstract class StarknetInjectedAdapter {
     return Object.keys(this.keyring.wallets).length
   }
 
-  // Restore may prompt an unlock like the other injected wallets, refresh never prompts
   public async pairDevice(
     mode: StarknetInjectedPairMode = 'connect',
   ): Promise<StarknetInjectedHDWallet | undefined> {
     const isConnect = mode === 'connect'
-    const provider =
-      mode === 'restore'
-        ? await waitForStarknetInjectedProvider(this.providerId)
-        : getStarknetInjectedProvider(this.providerId)
+    const isRestore = mode === 'restore'
+
+    const provider = isRestore
+      ? await waitForStarknetInjectedProvider(this.providerId)
+      : getStarknetInjectedProvider(this.providerId)
 
     if (!provider) {
       if (!isConnect) return undefined
@@ -65,28 +63,35 @@ abstract class StarknetInjectedAdapter {
     }
 
     const wallet = new StarknetInjectedHDWallet(this.providerId, provider, this.vendor)
+
+    // Restore may prompt an unlock like the other injected wallets, refresh never prompts
     const address = await wallet.connect(mode === 'refresh')
     if (!address) {
       if (!isConnect) return undefined
       throw new StarknetInjectedError('NO_ACCOUNT', `No ${this.vendor} account found`)
     }
 
-    // Switching network can land on another account, so re-read it
-    if (isConnect && (await wallet.ensureMainnet()) && !(await wallet.connect(true))) {
-      throw new StarknetInjectedError(
-        'NO_ACCOUNT',
-        `No ${this.vendor} account found on Starknet Mainnet`,
-      )
+    if (isConnect && (await wallet.ensureMainnet())) {
+      // Switching network can land on another account, so re-read it
+      const mainnetAddress = await wallet.connect(true)
+      if (!mainnetAddress) {
+        throw new StarknetInjectedError(
+          'NO_ACCOUNT',
+          `No ${this.vendor} account found on Starknet Mainnet`,
+        )
+      }
     }
 
     await wallet.initialize()
     const deviceID = await wallet.getDeviceID()
+
     // The extension exposes a single active account - drop wallets left over from earlier accounts
     await Promise.all(
       Object.keys(this.keyring.wallets)
         .filter(id => id.startsWith(`${this.providerId}:`))
         .map(id => this.keyring.remove(id)),
     )
+
     this.keyring.add(wallet, deviceID)
     this.keyring.emit([this.vendor, deviceID, core.Events.CONNECT], deviceID)
 

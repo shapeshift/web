@@ -1123,11 +1123,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
-      // Extension wallets can't sign a precomputed hash, they submit the unencoded calls themselves
       if (wallet.starknetSendTx) {
         try {
           const tx = await wallet.starknetSendTx(txToSign)
-          if (!tx?.hash) throw new Error('error sending tx - missing transaction hash')
+          if (!tx?.hash) throw new Error('error signing & broadcasting tx')
           return tx.hash
         } catch (err) {
           // Keep the wallet's actionable reason instead of the generic broadcast error

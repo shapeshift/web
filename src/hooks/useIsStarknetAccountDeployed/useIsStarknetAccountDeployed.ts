@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { isStarknetChainAdapter } from '@/lib/utils/starknet'
 
-const checkStarknetAccountDeployment = async (accountId: AccountId | undefined) => {
+const checkStarknetAccountDeployment = (accountId: AccountId | undefined) => {
   if (!accountId) return true
 
   const { chainId } = fromAccountId(accountId)

@@ -22,7 +22,6 @@ export const useIsStarknetAccountDeployed = (accountId: AccountId | undefined) =
     queryKey: ['isStarknetAccountDeployed', accountId],
     queryFn: () => checkStarknetAccountDeployment(accountId),
     enabled: Boolean(accountId),
-    // Extensions deploy with the first send, so an undeployed result is re-checked on every mount
     staleTime: query => (query.state.data === false ? 0 : 30000),
     refetchOnMount: true,
     refetchInterval: false,

@@ -95,6 +95,7 @@ export class StarknetInjectedHDWallet
 
   providerId: StarknetInjectedProviderId
   provider: StarknetWindowObject
+  readonly supportsAutoDeploy: boolean
 
   starknetAddress?: string | null
 
@@ -102,11 +103,13 @@ export class StarknetInjectedHDWallet
     providerId: StarknetInjectedProviderId,
     provider: StarknetWindowObject,
     vendor: string,
+    supportsAutoDeploy: boolean,
   ) {
     super(vendor)
 
     this.providerId = providerId
     this.provider = provider
+    this.supportsAutoDeploy = supportsAutoDeploy
   }
 
   public async clearSession(): Promise<void> {}

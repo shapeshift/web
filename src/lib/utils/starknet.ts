@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { starknetChainId } from '@shapeshiftoss/caip'
 import type { starknet } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsStarknet } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isStarknetInjected } from '@shapeshiftoss/hdwallet-starknet-injected'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
@@ -15,9 +15,15 @@ export const isStarknetChainAdapter = (
   return (chainAdapter as starknet.ChainAdapter).getChainId() === starknetChainId
 }
 
-// Wallets that submit their own transactions (browser extensions) deploy the account with the first one
-export const isSelfDeployingStarknetWallet = (wallet: HDWallet | null): boolean =>
-  Boolean(wallet && supportsStarknet(wallet) && wallet.starknetSendTx)
+// Extensions hold the account key, so only they can deploy it, and not all do so for dApp transactions
+export const getStarknetDeploymentStep = (
+  wallet: HDWallet | null,
+  isAccountDeployed: boolean | undefined,
+): 'deploy' | 'activateInWallet' | undefined => {
+  if (!wallet || isAccountDeployed !== false) return
+  if (!isStarknetInjected(wallet)) return 'deploy'
+  if (!wallet.supportsAutoDeploy) return 'activateInWallet'
+}
 
 export const assertGetStarknetChainAdapter = (
   chainId: ChainId | KnownChainIds,

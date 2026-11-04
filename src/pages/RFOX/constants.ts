@@ -23,9 +23,6 @@ import { arbitrum, mainnet } from 'viem/chains'
 export const stakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Stake' })
 export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
 
-export const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
-
-export const CURRENT_EPOCH_IPFS_HASH = 'bafkreifcvn6ofyeychliwcrtvdbmxix3wcp6fgzcute4c3zkr3eiqo7gqm'
 export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
 export const RFOX_V3_UPGRADE_EPOCH = 18
 

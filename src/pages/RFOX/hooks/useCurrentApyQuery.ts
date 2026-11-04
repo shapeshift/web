@@ -1,32 +1,29 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { getStakingContract } from '../helpers'
+import { useAffiliateRevenueUsdQuery } from './useAffiliateRevenueUsdQuery'
 import { useCurrentEpochMetadataQuery } from './useCurrentEpochMetadataQuery'
-import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
-import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
 
-import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn } from '@/lib/bignumber/bignumber'
-import { selectAssetById, selectPriceHistoryByAssetTimeframe } from '@/state/slices/selectors'
+import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+const TRAILING_REVENUE_DAYS = 30
+const DAYS_PER_YEAR = 365
 
 type useCurrentApyQueryProps = {
   stakingAssetId: AssetId
 }
 
 /**
- * Get the estimated APY of RFOX
+ * Get the estimated APY of RFOX from the revenue of the last 30 complete days
  */
 export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) => {
-  useFetchPriceHistories([stakingAssetId], HistoryTimeframe.MONTH)
-
-  const stakingAssetPriceHistory = useAppSelector(state =>
-    selectPriceHistoryByAssetTimeframe(state, stakingAssetId, HistoryTimeframe.MONTH),
-  )
+  const stakingAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, stakingAssetId))
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -39,49 +36,51 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
     },
   })
 
+  const { startTimestamp, endTimestamp } = useMemo(() => {
+    const startOfToday = Math.floor(Date.now() / MS_PER_DAY) * MS_PER_DAY
+
+    return {
+      startTimestamp: startOfToday - TRAILING_REVENUE_DAYS * MS_PER_DAY,
+      endTimestamp: startOfToday - 1,
+    }
+  }, [])
+
   const select = useCallback(
-    (epochs: EpochWithIpfsHash[]): string | undefined => {
-      if (!stakingAssetPriceHistory) return
+    (trailingRevenueUsd: number): string | undefined => {
+      if (!stakingAssetUsdRate) return
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
       if (!currentEpochMetadataQuery.data) return
-      if (!epochs.length) return
 
-      const latestEpoch = epochs[0]
-
-      // The current epoch's rate, as a program is only covered by a completed epoch once its first epoch closes
       const distributionRate =
         currentEpochMetadataQuery.data.distributionRateByStakingContract[
           getStakingContract(stakingAsset.assetId)
         ] ?? 0
 
-      const closestStakingAssetPrice =
-        stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
-        stakingAssetPriceHistory[0]
-
-      const rewardDistributionUsd = bn(latestEpoch.totalRevenue).times(distributionRate)
+      const rewardDistributionUsd = bn(trailingRevenueUsd).times(distributionRate)
 
       const totalStakedUsd = BigAmount.fromBaseUnit({
         value: totalStakedCryptoCurrencyQuery.data,
         precision: stakingAsset.precision,
       })
         .toBN()
-        .times(closestStakingAssetPrice.price)
+        .times(stakingAssetUsdRate)
 
       // A program with a distribution rate but nothing staked yet has no apy to report
       if (totalStakedUsd.isZero()) return
 
-      return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)
+      return rewardDistributionUsd
+        .div(totalStakedUsd)
+        .times(DAYS_PER_YEAR / TRAILING_REVENUE_DAYS)
+        .toFixed(4)
     },
     [
-      stakingAssetPriceHistory,
+      stakingAssetUsdRate,
       stakingAsset,
       totalStakedCryptoCurrencyQuery,
       currentEpochMetadataQuery.data,
     ],
   )
 
-  const query = useEpochHistoryQuery({ select })
-
-  return query
+  return useAffiliateRevenueUsdQuery({ startTimestamp, endTimestamp, select })
 }

@@ -33,7 +33,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RFOXIcon } from '@/components/Icons/RFOX'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatSecondsToDuration } from '@/lib/utils/time'
@@ -52,6 +52,7 @@ import {
   RFOX_STAKING_CONFIG,
 } from '@/pages/RFOX/constants'
 import { getRfoxChainId, getRfoxStakingConfig, selectStakingBalance } from '@/pages/RFOX/helpers'
+import { useClosedEpochMonth } from '@/pages/RFOX/hooks/useClosedEpochMonth'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
@@ -312,12 +313,17 @@ export const RFOXSection = () => {
   }, [stakingBalanceCryptoPrecisionQuery.data, stakingAssetMarketData?.price])
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
+  const closedEpochMonth = useClosedEpochMonth()
 
   const currentEpochRewardsQuery = useCurrentEpochRewardsQuery({
     stakingAssetId,
     stakingAssetAccountId: isConnected ? stakingAssetAccountId : undefined,
     currentEpochMetadata: currentEpochMetadataQuery.data,
+    isEpochClosed: closedEpochMonth !== undefined,
   })
+
+  const isCurrentEpochRewardsUnavailable =
+    currentEpochMetadataQuery.isError || currentEpochRewardsQuery.isError
 
   const currentEpochRewardsCryptoPrecision = useMemo(
     () =>
@@ -340,10 +346,6 @@ export const RFOXSection = () => {
   const lifetimeRewardsUserCurrencyQuery = useLifetimeRewardsUserCurrencyQuery({
     accountNumber: isConnected ? assetAccountNumber : undefined,
   })
-
-  const handleRetryLifetimeRewards = useCallback(() => {
-    void lifetimeRewardsUserCurrencyQuery.retry()
-  }, [lifetimeRewardsUserCurrencyQuery])
 
   const {
     data: timeInPoolHuman,
@@ -523,7 +525,7 @@ export const RFOXSection = () => {
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
               <RFOXIcon me={2} boxSize='32px' sx={rfoxIconStyles} />
               {translate('RFOX.staking')}
-              {!currentEpochMetadataQuery.isOutdated && (
+              {(currentApyQuery.isFetching || currentApyQuery.data !== undefined) && (
                 <Skeleton isLoaded={!currentApyQuery.isFetching} ml={2}>
                   <Tag colorScheme='green' verticalAlign='middle'>
                     <Amount.Percent value={currentApyQuery.data ?? 0} suffix='APY' />
@@ -551,20 +553,27 @@ export const RFOXSection = () => {
           <Card width='100%' maxWidth='400px'>
             <CardBody py={4} px={4}>
               <HelperTooltip
-                label={translate('RFOX.pendingRewardsBalanceTooltip', {
-                  symbol: stakingAsset.symbol ?? '',
-                })}
+                label={
+                  closedEpochMonth
+                    ? translate('RFOX.closedEpochRewardsTooltip', { month: closedEpochMonth })
+                    : translate('RFOX.pendingRewardsBalanceTooltip', {
+                        symbol: stakingAsset.symbol ?? '',
+                      })
+                }
               >
-                <Text fontSize='md' fontWeight='medium' translation='RFOX.pendingRewardsBalance' />
+                <Text
+                  fontSize='md'
+                  color='text.subtle'
+                  translation={
+                    closedEpochMonth
+                      ? ['RFOX.closedEpochRewards', { month: closedEpochMonth }]
+                      : 'RFOX.pendingRewardsBalance'
+                  }
+                />
               </HelperTooltip>
 
-              {currentEpochMetadataQuery.isOutdated ? (
-                <Text
-                  translation='RFOX.epochAwaitingUpdate'
-                  fontSize='sm'
-                  color='text.subtle'
-                  mt={2}
-                />
+              {isCurrentEpochRewardsUnavailable ? (
+                <RawText>--</RawText>
               ) : (
                 <>
                   <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
@@ -626,12 +635,7 @@ export const RFOXSection = () => {
                 <Amount.Fiat fontSize='2xl' value='0' />
               ) : lifetimeRewardsUserCurrencyQuery.isError ||
                 lifetimeRewardsUserCurrencyQuery.data === undefined ? (
-                <Stack direction='row' alignItems='center'>
-                  <Text translation='RFOX.lifetimeRewardsUnavailable' color='text.subtle' />
-                  <Button size='xs' variant='link' onClick={handleRetryLifetimeRewards}>
-                    {translate('common.retry')}
-                  </Button>
-                </Stack>
+                <RawText fontSize='2xl'>--</RawText>
               ) : (
                 <Amount.Fiat fontSize='2xl' value={lifetimeRewardsUserCurrencyQuery.data} />
               )}
@@ -651,16 +655,7 @@ export const RFOXSection = () => {
             </Skeleton>
           </Stack>
         </SimpleGrid>
-        {currentEpochMetadataQuery.isOutdated ? (
-          <Card role='status'>
-            <CardBody>
-              <Text translation='RFOX.epochAwaitingUpdate' fontWeight='bold' />
-              <Text translation='RFOX.epochAwaitingUpdateDescription' color='text.subtle' />
-            </CardBody>
-          </Card>
-        ) : (
-          <RFOXSimulator stakingAssetId={stakingAssetId} />
-        )}
+        <RFOXSimulator stakingAssetId={stakingAssetId} />
         <Box py={4}>
           <Stats stakingAssetId={stakingAssetId} />
         </Box>

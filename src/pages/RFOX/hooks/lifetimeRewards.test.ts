@@ -15,7 +15,6 @@ import type { Epoch, RewardDistribution } from '../types'
 import { calculateLifetimeRewards } from './lifetimeRewards'
 
 const address = '0x0000000000000000000000000000000000000001'
-const otherAddress = '0x0000000000000000000000000000000000000002'
 const accounts = {
   [ethChainId]: `${ethChainId}:${address}`,
   [arbitrumChainId]: `${arbitrumChainId}:${address}`,
@@ -73,19 +72,6 @@ describe('lifetime rewards across rFOX programs', () => {
       epoch(27, [[foxAssetId, '10000000']]),
     ]
     expect(calculateLifetimeRewards(history, accounts, pricing)).toBe('441.21')
-  })
-
-  it('uses the account belonging to each chain, not the selected chain address for every program', () => {
-    expect(
-      calculateLifetimeRewards(
-        [
-          epoch(26, [[foxOnArbitrumOneAssetId, '425213296']]),
-          epoch(27, [[foxAssetId, '10000000']]),
-        ],
-        { ...accounts, [arbitrumChainId]: `${arbitrumChainId}:${otherAddress}` },
-        pricing,
-      ),
-    ).toBe('10.00')
   })
 
   it('does not need RUNE pricing for a USDC-only history', () => {

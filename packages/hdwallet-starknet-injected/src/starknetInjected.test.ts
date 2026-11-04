@@ -64,7 +64,6 @@ describe('StarknetInjectedHDWallet', () => {
       request
         .mockResolvedValueOnce([SHORT_ADDRESS])
         .mockResolvedValueOnce(constants.StarknetChainId.SN_MAIN)
-        .mockResolvedValueOnce([SHORT_ADDRESS])
         .mockResolvedValueOnce({ transaction_hash: '0xdeadbeef' })
 
       expect(await wallet.starknetSendTx(txToSign)).toEqual({ hash: '0xdeadbeef' })
@@ -117,7 +116,6 @@ describe('StarknetInjectedHDWallet', () => {
       request
         .mockResolvedValueOnce(['0x456def'])
         .mockResolvedValueOnce(constants.StarknetChainId.SN_MAIN)
-        .mockResolvedValueOnce(['0x456def'])
 
       await expect(wallet.starknetSendTx(txToSign)).rejects.toMatchObject({
         code: 'ACCOUNT_CHANGED',

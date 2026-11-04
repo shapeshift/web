@@ -218,11 +218,15 @@ export class StarknetInjectedHDWallet
     if (!msg.calls?.length) throw new Error('calls are required to send a Starknet transaction')
 
     // Like connect, accounts first so a locked extension prompts an unlock before the network check
-    await this.requestActiveAddress(false)
-    await this.ensureMainnet()
+    const activeAddress = await this.requestActiveAddress(false)
+
+    // Switching network can land on another account, so re-read it
+    const sendingAddress = (await this.ensureMainnet())
+      ? await this.requestActiveAddress(true)
+      : activeAddress
 
     // Only send from the account the tx was built for
-    if ((await this.requestActiveAddress(true)) !== this.starknetAddress) {
+    if (sendingAddress !== this.starknetAddress) {
       throw new StarknetInjectedError(
         'ACCOUNT_CHANGED',
         this.vendor,

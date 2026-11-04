@@ -1,7 +1,7 @@
 import { quoteToCalls } from '@avnu/avnu-sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { StarknetCall } from '@shapeshiftoss/hdwallet-core'
-import { CallData, hash, validateAndParseAddress } from 'starknet'
+import { CallData, hash, transaction, validateAndParseAddress } from 'starknet'
 
 import type { SwapperApi, TradeStatus } from '../../types'
 import {
@@ -24,6 +24,7 @@ export const avnuApi: SwapperApi = {
     stepIndex,
     tradeQuote,
     from,
+    callsOnly,
     slippageTolerancePercentageDecimal,
     assertGetStarknetChainAdapter,
   }) => {
@@ -59,34 +60,18 @@ export const avnuApi: SwapperApi = {
       throw new Error('No swap calls returned from AVNU - quote may have expired')
     }
 
-    // Build the full invoke transaction calldata from AVNU calls
-    // Format: [call_array_length, contract1, selector1, calldata_len1, ...calldata1, ...]
-    const fullCalldata: string[] = [avnuCalls.length.toString()]
-    const calls: StarknetCall[] = []
-
-    for (const call of avnuCalls) {
+    const calls: StarknetCall[] = avnuCalls.map(call => {
       const rawCalldata = call.calldata ?? []
-      const calldataArray = Array.isArray(rawCalldata) ? rawCalldata : CallData.compile(rawCalldata)
-      const selector = hash.getSelectorFromName(call.entrypoint)
-      // Normalize contract address from AVNU to ensure consistent format
-      const normalizedContractAddress = validateAndParseAddress(call.contractAddress)
+      const calldata = Array.isArray(rawCalldata) ? rawCalldata : CallData.compile(rawCalldata)
 
-      calls.push({
-        contractAddress: normalizedContractAddress,
+      return {
+        contractAddress: validateAndParseAddress(call.contractAddress),
         entrypoint: call.entrypoint,
-        calldata: calldataArray.map(cd => String(cd)),
-      })
+        calldata: calldata.map(String),
+      }
+    })
 
-      fullCalldata.push(
-        normalizedContractAddress,
-        selector,
-        calldataArray.length.toString(),
-        ...calldataArray.map(cd => String(cd)),
-      )
-    }
-
-    // Undeployed accounts can't be fee-estimated, so return calls only for wallets that deploy on send
-    if (!(await adapter.isAccountDeployed(normalizedFrom))) {
+    if (callsOnly) {
       return {
         addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),
         txHash: '',
@@ -94,8 +79,7 @@ export const avnuApi: SwapperApi = {
       }
     }
 
-    // Format calldata for RPC (convert all values to proper hex format)
-    const formattedCalldata = fullCalldata.map(toHexString)
+    const formattedCalldata = transaction.getExecuteCalldata(calls, '1').map(toHexString)
 
     // Get nonce using adapter method (checks deployment status and returns appropriate nonce)
     const chainIdHex = await adapter.getStarknetProvider().getChainId()

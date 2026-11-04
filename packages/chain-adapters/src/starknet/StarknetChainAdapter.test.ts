@@ -152,12 +152,9 @@ describe('StarknetChainAdapter', () => {
   })
 
   describe('buildSendApiTransaction', () => {
-    it('returns only the calls for an undeployed account, without estimating fees', async () => {
+    it('returns only the calls for wallets that submit the transaction themselves', async () => {
       const adapter = makeAdapter()
-      // Every call fails like it does for a contract that doesn't exist yet
-      const fetch = vi.fn((_method: string) =>
-        Promise.resolve(jsonResponse({ error: { code: 20, message: 'Contract not found' } })),
-      )
+      const fetch = vi.fn()
       ;(adapter as unknown as { provider: { fetch: unknown } }).provider.fetch = fetch
 
       const txToSign = await adapter.buildSendApiTransaction({
@@ -165,7 +162,7 @@ describe('StarknetChainAdapter', () => {
         to: ADDRESS,
         value: '10',
         accountNumber: 0,
-        chainSpecific: { tokenContractAddress: '0x1', maxFee: '0' },
+        chainSpecific: { tokenContractAddress: '0x1', callsOnly: true },
       })
 
       expect(txToSign.txHash).toBe('')
@@ -176,7 +173,7 @@ describe('StarknetChainAdapter', () => {
           calldata: [expect.any(String), '10', '0'],
         },
       ])
-      expect(fetch.mock.calls.map(([method]) => method)).not.toContain('starknet_estimateFee')
+      expect(fetch).not.toHaveBeenCalled()
     })
   })
 

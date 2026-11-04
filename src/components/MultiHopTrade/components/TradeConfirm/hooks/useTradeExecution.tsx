@@ -775,6 +775,7 @@ export const useTradeExecution = (
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             from,
+            callsOnly: !wallet.supportsOfflineSigning(),
             signAndBroadcastTransaction: async (txToSign: StarknetSignTx) => {
               if (wallet.supportsOfflineSigning()) {
                 const hex = await adapter.signTransaction({ txToSign, wallet })

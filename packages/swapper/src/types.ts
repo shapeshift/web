@@ -714,7 +714,11 @@ type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
 type SuiAccountMetadata = { from: string }
 type NearAccountMetadata = { from: string }
-type StarknetAccountMetadata = { from: string }
+type StarknetAccountMetadata = {
+  from: string
+  // Wallets that submit the transaction themselves only need the calls, not a fee estimate or hash
+  callsOnly?: boolean
+}
 type UtxoAccountMetadata = {
   senderAddress: string
   xpub: string

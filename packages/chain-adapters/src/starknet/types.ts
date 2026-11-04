@@ -24,6 +24,8 @@ export type TokenInfo = {
 export type BuildTxInput = {
   maxFee?: string
   tokenContractAddress?: string
+  // Wallets that submit the transaction themselves only need the calls, not a fee estimate or hash
+  callsOnly?: boolean
 }
 
 export type GetFeeDataInput = {

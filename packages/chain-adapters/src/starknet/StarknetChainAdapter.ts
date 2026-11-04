@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, starknetAssetId, starknetChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { HDWallet, StarknetWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, StarknetCall, StarknetWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsStarknet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -8,7 +8,7 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import PQueue from 'p-queue'
 import type { Call } from 'starknet'
-import { CallData, hash, num, RpcProvider, validateAndParseAddress } from 'starknet'
+import { CallData, hash, num, RpcProvider, transaction, validateAndParseAddress } from 'starknet'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -789,21 +789,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
             calldata: [normalizedTo, dummyUint256.low.toString(), dummyUint256.high.toString()],
           }
 
-          const dummyCalldataArray = Array.isArray(dummyCall.calldata) ? dummyCall.calldata : []
-          const dummyFullCalldata = [
-            '1',
-            dummyCall.contractAddress,
-            hash.getSelectorFromName(dummyCall.entrypoint),
-            dummyCalldataArray.length.toString(),
-            ...dummyCalldataArray,
-          ]
-
-          const dummyFormattedCalldata = dummyFullCalldata.map(data => {
-            if (typeof data === 'string' && !data.startsWith('0x')) {
-              return num.toHex(data)
-            }
-            return data.toString()
-          })
+          const dummyFormattedCalldata = transaction
+            .getExecuteCalldata([dummyCall], '1')
+            .map(data => num.toHex(data))
 
           // Get nonce for fee estimation (account is already confirmed deployed)
           const nonce = (await this.fetchPreConfirmedNonce(from)) ?? '0x0'
@@ -880,23 +868,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         high: BigInt(actualValue) >> BigInt(128),
       }
 
-      const call: Call = {
-        contractAddress: tokenContractAddress,
-        entrypoint: 'transfer',
-        calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
-      }
-
-      const calldataArray = Array.isArray(call.calldata) ? call.calldata : []
-      const calls = [
+      const calls: StarknetCall[] = [
         {
-          contractAddress: call.contractAddress,
-          entrypoint: call.entrypoint,
-          calldata: calldataArray.map(String),
+          contractAddress: tokenContractAddress,
+          entrypoint: 'transfer',
+          calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
         },
       ]
 
-      // Undeployed accounts can't be fee-estimated, so return calls only for wallets that deploy on send
-      if (!(await this.isAccountDeployed(from))) {
+      if (chainSpecific.callsOnly) {
         return {
           addressNList: toAddressNList(this.getBip44Params({ accountNumber: input.accountNumber })),
           txHash: '',
@@ -916,22 +896,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // v3 is the transaction version current RPC specs accept
 
-      // Build the invoke transaction calldata
-      const fullCalldata = [
-        '1', // call array length
-        call.contractAddress,
-        hash.getSelectorFromName(call.entrypoint),
-        calldataArray.length.toString(),
-        ...calldataArray,
-      ]
-
-      // Format calldata for RPC
-      const formattedCalldata = fullCalldata.map(data => {
-        if (typeof data === 'string' && !data.startsWith('0x')) {
-          return num.toHex(data)
-        }
-        return data.toString()
-      })
+      const formattedCalldata = transaction.getExecuteCalldata(calls, '1').map(data => num.toHex(data))
 
       // Estimate fees for v3 transaction
       const estimateTx = {
@@ -1064,7 +1029,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
   }> {
     try {
       const from = await this.getAddress(input)
-      const txToSign = await this.buildSendApiTransaction({ ...input, from })
+      const txToSign = await this.buildSendApiTransaction({
+        ...input,
+        from,
+        chainSpecific: { ...input.chainSpecific, callsOnly: !input.wallet.supportsOfflineSigning() },
+      })
 
       return {
         txToSign: {
@@ -1287,23 +1256,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
       }
 
-      // Build the invoke transaction calldata for fee estimation
-      const calldataArray = Array.isArray(call.calldata) ? call.calldata : []
-      const fullCalldata = [
-        '1', // call array length
-        call.contractAddress,
-        hash.getSelectorFromName(call.entrypoint),
-        calldataArray.length.toString(),
-        ...calldataArray,
-      ]
-
-      // Format calldata for RPC
-      const formattedCalldata = fullCalldata.map(data => {
-        if (typeof data === 'string' && !data.startsWith('0x')) {
-          return num.toHex(data)
-        }
-        return data.toString()
-      })
+      const formattedCalldata = transaction.getExecuteCalldata([call], '1').map(data => num.toHex(data))
 
       const isDeployed = await this.isAccountDeployed(from)
 

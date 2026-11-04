@@ -2,7 +2,10 @@ import { getStarknetInjectedProvider } from '@shapeshiftoss/hdwallet-starknet-in
 import { useMemo } from 'react'
 
 import type { StarknetInjectedKeyManager } from '../config'
-import { STARKNET_INJECTED_KEYMANAGERS, STARKNET_INJECTED_PROVIDER_ID_BY_KEYMANAGER } from '../config'
+import {
+  STARKNET_INJECTED_KEYMANAGERS,
+  STARKNET_INJECTED_PROVIDER_ID_BY_KEYMANAGER,
+} from '../config'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 

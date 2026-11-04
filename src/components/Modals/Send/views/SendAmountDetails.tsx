@@ -456,12 +456,17 @@ export const SendAmountDetails = () => {
                   />
                 </Box>
               </Flex>
-              <SendMaxButton onClick={handleMaxClick} isDisabled={!Boolean(to) || isSendMaxBlocked} />
+              <SendMaxButton
+                onClick={handleMaxClick}
+                isDisabled={!Boolean(to) || isSendMaxBlocked}
+              />
             </Flex>
           )}
           <Button
             width='full'
-            colorScheme={addressError && !isValidating && !isStarknetDeploymentRequired ? 'red' : 'blue'}
+            colorScheme={
+              addressError && !isValidating && !isStarknetDeploymentRequired ? 'red' : 'blue'
+            }
             size='lg'
             onClick={handleNextClick}
             isDisabled={

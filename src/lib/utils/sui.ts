@@ -27,20 +27,9 @@ export const getSuiTransactionStatus = async (txHash: string): Promise<TxStatus>
     const adapter = assertGetSuiChainAdapter(suiChainId)
     const client = adapter.getSuiClient()
 
-    const txBlock = await client.getTransactionBlock({
-      digest: txHash,
-      options: {
-        showEffects: true,
-      },
-    })
+    const { Transaction } = await client.getTransaction({ digest: txHash })
 
-    if (!txBlock.effects) return TxStatus.Unknown
-
-    const status = txBlock.effects.status.status
-    if (status === 'success') return TxStatus.Confirmed
-    if (status === 'failure') return TxStatus.Failed
-
-    return TxStatus.Unknown
+    return Transaction ? TxStatus.Confirmed : TxStatus.Failed
   } catch (error) {
     console.error('Error getting SUI transaction status:', error)
     return TxStatus.Unknown

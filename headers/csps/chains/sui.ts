@@ -8,8 +8,6 @@ const env = loadEnv(mode, process.cwd(), '')
 export const csp: Csp = {
   'connect-src': [
     env.VITE_SUI_NODE_URL,
-    'https://mainnet.suiet.app/',
     'https://api-sui.cetus.zone',
-    'https://sui-rpc.publicnode.com/',
   ],
 }

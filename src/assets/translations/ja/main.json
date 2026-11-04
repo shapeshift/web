@@ -526,7 +526,12 @@
     "noProvidersBody": "そのアセットのプロバイダーはまだありません",
     "notSupported": "%{asset} は %{wallet} でサポートされていません",
     "previewPurchase": "購入内容の確認\n",
-    "previewSale": "売却プレビュー"
+    "previewSale": "売却プレビュー",
+    "onramperWalletVerification": "チェックアウトを承認するには、ウォレットの署名が必要です。トランザクションは送信されません。",
+    "onramperWalletChanged": "ウォレットが変更されました。選択したウォレットでチェックアウトを再度開始してください。",
+    "onramperWalletUnsupported": "Onramperのチェックアウトでは現在、メッセージ署名に対応したEVMウォレットが必要です。",
+    "onramperWalletMismatch": "選択したウォレットで管理できる、チェックアウトの宛先を使用してください。",
+    "onramperCheckoutFailed": "Onramperのチェックアウトを承認できませんでした。ウォレットが接続されていることを確認し、もう一度お試しください。"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1011,7 +1016,7 @@
       "insufficientFundsForProtocolFee": "%{chainName} の %{symbol} が手数料として不十分です",
       "unsupportedTradePair": "サポートされていないトレードペア",
       "noRouteFound": "このペアと金額のルートは見つかりませんでした",
-      "quoteExpired": "見積もりの​​有効期限が切れました。もう一度お試しください。",
+      "quoteExpired": "見積もりの有効期限が切れました。戻って見積もりを更新し、もう一度お試しください。",
       "quoteUnsupportedChain": "チェーンはサポートされていません",
       "quoteCrossChainNotSupported": "クロスチェーンはサポートされていません",
       "quoteExactOutputNotSupported": "正確な受取金額はサポートされていません",
@@ -2919,6 +2924,8 @@
     }
   },
   "RFOX": {
+    "epochAwaitingUpdate": "エポックの更新を待っています",
+    "epochAwaitingUpdateDescription": "更新されたエポックデータが公開されると、現在のエポックの報酬、合計、APY、シミュレーターの見積もりが再び表示されます。ステーキングポジションの確認と管理は引き続き可能です。",
     "staking": "rFOXステーキング",
     "stake": "ステーク",
     "unstake": "ステーク解除",
@@ -2976,6 +2983,7 @@
     "pendingRewardsBalance": "保留中の報酬残高",
     "pendingRewardsBalanceTooltip": "現時点での報酬額です。収益やステーキングされた総 %{symbol} の変動に伴い変化します。報酬はエポック終了後に自動的に支払われます。",
     "claimTooltip": "アンステーキングされた %{symbol} を確認し、クールダウン期間が経過したら請求してください。",
+    "lifetimeRewardsUnavailable": "報酬は利用できません",
     "lifetimeRewards": "生涯報酬",
     "lifetimeRewardsHelper": "これまでに%{symbol}をステーキングして獲得した合計報酬",
     "timeInPool": "プール中の時間",
@@ -3016,6 +3024,7 @@
     "totals": "rFOX の合計",
     "totalStaked": "合計 %{symbol} ステークされています",
     "totalStakedHelper": "賭けられた%{symbol}の合計金額",
+    "dataUnavailable": "利用できません",
     "totalFeesCollected": "徴収された合計手数料（このエポック中で）",
     "emissionsPool": "%{symbol} 排出プール (この時代)",
     "emissionsPoolHelper": "%{symbol}人のステーカーに分配される報酬の合計額",

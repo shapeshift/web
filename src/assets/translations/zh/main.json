@@ -526,7 +526,12 @@
     "noProvidersBody": "看起来我们还没有该资产的任何提供商。",
     "notSupported": "%{asset} 不被 %{wallet}  支持 ",
     "previewPurchase": "预览购买",
-    "previewSale": "预览出售"
+    "previewSale": "预览出售",
+    "onramperWalletVerification": "需要通过钱包签名授权结账。此操作不会发送任何交易。",
+    "onramperWalletChanged": "您的钱包已切换，请使用当前选中的钱包重新开始结账。",
+    "onramperWalletUnsupported": "Onramper 结账目前需要使用支持消息签名的 EVM 钱包。",
+    "onramperWalletMismatch": "请使用由当前选定的钱包控制的目标地址。",
+    "onramperCheckoutFailed": "Onramper 结账授权失败。请检查钱包是否已连接，然后重试。"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1011,7 +1016,7 @@
       "insufficientFundsForProtocolFee": "没有足够的 %{symbol} 来支付%{chainName} 上的费用",
       "unsupportedTradePair": "不支持的交易对",
       "noRouteFound": "没有找到该交易对和数量的路径",
-      "quoteExpired": "报价已过期，请重试。",
+      "quoteExpired": "报价已过期，请返回刷新报价并重试。",
       "quoteUnsupportedChain": "不支持链",
       "quoteCrossChainNotSupported": "不支持跨链",
       "quoteExactOutputNotSupported": "不支持指定确切的接收数量",
@@ -2919,6 +2924,8 @@
     }
   },
   "RFOX": {
+    "epochAwaitingUpdate": "等待时段更新中",
+    "epochAwaitingUpdateDescription": "更新后的时段数据发布后，当前时段的奖励、总量、APY 和模拟器预估数据将恢复显示。在此期间，您仍然可以查看和管理自己的质押仓位。",
     "staking": "rFOX 质押",
     "stake": "质押",
     "unstake": "取消质押",
@@ -2976,6 +2983,7 @@
     "pendingRewardsBalance": "待处理奖励余额",
     "pendingRewardsBalanceTooltip": "这是您在当前时段截至目前可获得的奖励。随着收入和 %{symbol} 总质押量的变化，该数值也会随之变化。时段结束后将自动发放。",
     "claimTooltip": "查看您取消质押的 %{symbol}，冷却期结束后即可领取",
+    "lifetimeRewardsUnavailable": "奖励不可用",
     "lifetimeRewards": "终生奖励",
     "lifetimeRewardsHelper": "截至目前，您质押 %{symbol} 所赚取的总奖励",
     "timeInPool": "在池中的时间",
@@ -3016,6 +3024,7 @@
     "totals": "rFOX 总计",
     "totalStaked": "%{symbol} 总质押",
     "totalStakedHelper": "%{symbol} 总质押数",
+    "dataUnavailable": "不可用",
     "totalFeesCollected": "收取的费用总额（当前时段）",
     "emissionsPool": "%{symbol} 排放池 (当前时段)",
     "emissionsPoolHelper": "将分发给 %{symbol} 质押者的总奖励数量。",

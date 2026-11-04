@@ -526,7 +526,12 @@
     "noProvidersBody": "Es sieht so aus, als hätten wir noch keine Anbieter für diesen Vermögenswert.",
     "notSupported": "%{asset} wird von %{wallet} nicht unterstützt",
     "previewPurchase": "Kaufvorschau",
-    "previewSale": "Verkaufsvorschau"
+    "previewSale": "Verkaufsvorschau",
+    "onramperWalletVerification": "Zur Autorisierung des Bezahlvorgangs ist eine Wallet-Signatur erforderlich. Diese sendet keine Transaktion.",
+    "onramperWalletChanged": "Ihre Wallet wurde geändert. Starten Sie den Bezahlvorgang erneut mit der ausgewählten Wallet.",
+    "onramperWalletUnsupported": "Der Onramper Checkout erfordert derzeit eine EVM Wallet, welche das Message Signing unterstützt.",
+    "onramperWalletMismatch": "Nutzen Sie eine Auszahlungsadresse, die von Ihrer gewählten Wallet kontrolliert wird.",
+    "onramperCheckoutFailed": "Der Onramper Checkout konnte nicht autorisiert werden. Überprüfen Sie, ob Ihre Wallet verbunden ist und versuchen Sie es erneut."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1011,7 +1016,7 @@
       "insufficientFundsForProtocolFee": "Nicht genügend %{symbol} auf %{chainName} für Gebühren",
       "unsupportedTradePair": "Nicht unterstütztes Handelspaar",
       "noRouteFound": "Für dieses Paar und diese Menge wurden keine Routen gefunden",
-      "quoteExpired": "Angebot abgelaufen, versuchen Sie es erneut.",
+      "quoteExpired": "Das Angebot ist abgelaufen. Bitte aktualisieren Sie Ihr Angebot und versuchen Sie es erneut.",
       "quoteUnsupportedChain": "Kette wird nicht unterstützt",
       "quoteCrossChainNotSupported": "Kette zu Kette wird nicht unterstützt",
       "quoteExactOutputNotSupported": "Der genaue Empfangsbetrag wird nicht unterstützt",
@@ -2919,6 +2924,8 @@
     }
   },
   "RFOX": {
+    "epochAwaitingUpdate": "Warte auf Epochenaktualisierung",
+    "epochAwaitingUpdateDescription": "Die aktuellen Epochenbelohnungen, Gesamtbeträge, der Jahreszins (APY) und die Simulator Schätzungen werden nach Veröffentlichung der aktualisierten Epochendaten wieder angezeigt. Sie können Ihre Staking-Position weiterhin einsehen und verwalten.",
     "staking": "rFOX Staking",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -2976,6 +2983,7 @@
     "pendingRewardsBalance": "Ausstehendes Prämienguthaben",
     "pendingRewardsBalanceTooltip": "Ihre Belohnungen zu diesem Zeitpunkt der Epoche. Diese ändern sich mit den Einnahmen und dem gesamten eingesetzten %{symbol}. Die Auszahlung erfolgt automatisch nach Ende der Epoche.",
     "claimTooltip": "Sehen Sie sich Ihre nicht gestakten %{symbol} an und beanspruchen Sie sie, sobald die Abklingzeit abgelaufen ist.",
+    "lifetimeRewardsUnavailable": "Prämien nicht verfügbar",
     "lifetimeRewards": "Bisherige Belohnungen",
     "lifetimeRewardsHelper": "Die Gesamtbelohnungen, die Sie bisher durch das Staking Ihres %{symbol} erhalten haben",
     "timeInPool": "Zeit im Pool",
@@ -3016,6 +3024,7 @@
     "totals": "rFOX Summen",
     "totalStaked": "gestaketer Gesamtbetrag %{symbol} ",
     "totalStakedHelper": "Der Gesamtbetrag der gestaketen %{symbol}",
+    "dataUnavailable": "Nicht verfügbar",
     "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
     "emissionsPool": "%{symbol} Emissionspool (diese Epoche)",
     "emissionsPoolHelper": "Die Gesamtsumme der zu verteilenden Belohnungen %{symbol} stakers",

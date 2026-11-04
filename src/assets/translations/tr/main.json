@@ -526,7 +526,12 @@
     "noProvidersBody": "Görünüşe göre henüz bu öğe için herhangi bir sağlayıcımız yok.",
     "notSupported": "%{asset}, %{wallet} tarafından desteklenmiyor",
     "previewPurchase": "Satın Alım Önizlemesi ",
-    "previewSale": "Satış Önizlemesi"
+    "previewSale": "Satış Önizlemesi",
+    "onramperWalletVerification": "Ödeme işleminin onaylanması için cüzdan imzası gereklidir. Bu, bir işlem göndermez.",
+    "onramperWalletChanged": "Cüzdanınız değişti. Lütfen seçtiğiniz cüzdanla ödeme işlemine yeniden başlayın.",
+    "onramperWalletUnsupported": "Onramper ödeme işlemi şu anda mesaj imzalama özelliğini destekleyen bir EVM cüzdanı gerektiriyor.",
+    "onramperWalletMismatch": "Seçtiğiniz cüzdan tarafından kontrol edilen bir ödeme noktası kullanın.",
+    "onramperCheckoutFailed": "Onramper ödeme işlemi yetkilendirilemedi. Cüzdanınızın bağlı olduğundan emin olun ve tekrar deneyin."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1011,7 +1016,7 @@
       "insufficientFundsForProtocolFee": "%{chainName} üzerinde ücretler için yetersiz %{symbol}",
       "unsupportedTradePair": "Desteklenmeyen Takas Çifti",
       "noRouteFound": "Bu çift ve miktar için yol bulunamadı",
-      "quoteExpired": "Teklifin süresi doldu, tekrar deneyin.",
+      "quoteExpired": "Teklifin süresi doldu. Teklifinizi yenilemek için geri dönün ve tekrar deneyin.",
       "quoteUnsupportedChain": "Zincir desteklenmiyor",
       "quoteCrossChainNotSupported": "Çapraz zincir desteklenmiyor",
       "quoteExactOutputNotSupported": "Tam alım tutarı desteklenmiyor.",
@@ -2919,6 +2924,8 @@
     }
   },
   "RFOX": {
+    "epochAwaitingUpdate": "Epoch güncellemesi bekleniyor",
+    "epochAwaitingUpdateDescription": "Güncel epoch ödülleri, toplamlar, APY ve simülatör tahminleri, güncellenmiş epoch verileri yayınlandıktan sonra geri dönecektir. Staking pozisyonunuzu görüntülemeye ve yönetmeye devam edebilirsiniz.",
     "staking": "rFOX Stake Etme",
     "stake": "Stake",
     "unstake": "Stake Kaldır",
@@ -2976,6 +2983,7 @@
     "pendingRewardsBalance": "Bekleyen Ödül Bakiyesi",
     "pendingRewardsBalanceTooltip": "Dönemin bu noktasındaki ödülleriniz. Gelir ve toplam %{symbol} stake edilen miktar değiştikçe bu da değişecektir. Dönem sona erdikten sonra otomatik olarak ödenir.",
     "claimTooltip": "Henüz stake edilmemiş %{symbol}'unuzu görüntüleyin ve bekleme süresi dolduktan sonra talep edin.",
+    "lifetimeRewardsUnavailable": "Ödüller mevcut değil.",
     "lifetimeRewards": "Ömür Boyu Ödüller",
     "lifetimeRewardsHelper": "Bugüne kadar %{symbol}'unuzu stake ederek kazandığınız toplam ödüller",
     "timeInPool": "Havuzda Kalma Süresi",
@@ -3016,6 +3024,7 @@
     "totals": "rFOX Toplamı",
     "totalStaked": "Toplam %{symbol} Stake Edildi",
     "totalStakedHelper": "Toplam %{symbol} miktarı stake edildi",
+    "dataUnavailable": "Mevcut değil",
     "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
     "emissionsPool": "%{symbol} Emisyon Havuzu (Bu Dönem)",
     "emissionsPoolHelper": "Dağıtılacak toplam ödül miktarı %{symbol} staker",

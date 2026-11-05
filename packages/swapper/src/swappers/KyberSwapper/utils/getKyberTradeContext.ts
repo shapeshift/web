@@ -11,8 +11,6 @@ import type {
   TradeStepCommon,
 } from '../../../types'
 import { SwapperName } from '../../../types'
-import { getInputOutputRate } from '../../../utils'
-import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { KyberTradeQuoteInput, KyberTradeRateInput } from '../types'
 import type { KyberBuildArgs } from './fetchFromKyber'
@@ -21,7 +19,7 @@ import type { GetKyberStepDataArgs } from './getKyberStepData'
 import {
   assertValidTrade,
   assetIdToKyberToken,
-  getKyberBuyAmountBeforeFees,
+  getKyberBuyAmounts,
   getKyberFeeParams,
 } from './helpers'
 
@@ -70,18 +68,7 @@ export const getKyberTradeContext = async ({
   if (maybeRoute.isErr()) return Err(maybeRoute.unwrapErr())
   const { routeSummary, routerAddress } = maybeRoute.unwrap()
 
-  const buyAmountAfterFeesCryptoBaseUnit = routeSummary.amountOut
-  const buyAmountBeforeFeesCryptoBaseUnit = getKyberBuyAmountBeforeFees({
-    buyAmountAfterFeesCryptoBaseUnit,
-    affiliateBps,
-  })
-
-  const rate = getInputOutputRate({
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-    sellAsset,
-    buyAsset,
-  })
+  const { rate, ...buyAmounts } = getKyberBuyAmounts({ input, amountOut: routeSummary.amountOut })
 
   const allowanceContract = isNativeEvmAsset(sellAsset.assetId) ? '' : routerAddress
 
@@ -100,17 +87,8 @@ export const getKyberTradeContext = async ({
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit,
+      ...buyAmounts,
       source: SwapperName.KyberSwap,
-      affiliateFee: buildAffiliateFee({
-        strategy: 'buy_asset',
-        affiliateBps,
-        sellAsset,
-        buyAsset,
-        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        buyAmountCryptoBaseUnit: buyAmountBeforeFeesCryptoBaseUnit,
-      }),
     },
     protocolFees: {},
     buildArgs: {

@@ -13,9 +13,10 @@ import axios from 'axios'
 import type { Address, Hex } from 'viem'
 import { decodeFunctionData, getAddress } from 'viem'
 
-import type { SwapErrorRight } from '../../../types'
+import type { SwapErrorRight, TradeStepCommon } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight, makeTradeStepBuildFailedErr } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight, makeTradeStepBuildFailedErr } from '../../../utils'
+import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../../utils/helpers'
 import type {
   KyberBuildData,
@@ -25,6 +26,8 @@ import type {
   KyberFeeParams,
   KyberRouteData,
   KyberRoutesResponse,
+  KyberTradeQuoteInput,
+  KyberTradeRateInput,
 } from '../types'
 import type { KyberSupportedChainId } from './constants'
 import {
@@ -109,6 +112,44 @@ export const getKyberBuyAmountBeforeFees = ({
     .div(bn(10_000).minus(affiliateBps))
     .integerValue(BigNumber.ROUND_DOWN)
     .toFixed()
+}
+
+export const getKyberBuyAmounts = ({
+  input,
+  amountOut,
+}: {
+  input: KyberTradeQuoteInput | KyberTradeRateInput
+  amountOut: string
+}): Pick<
+  TradeStepCommon,
+  'rate' | 'buyAmountBeforeFeesCryptoBaseUnit' | 'buyAmountAfterFeesCryptoBaseUnit' | 'affiliateFee'
+> => {
+  const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
+
+  const buyAmountAfterFeesCryptoBaseUnit = amountOut
+  const buyAmountBeforeFeesCryptoBaseUnit = getKyberBuyAmountBeforeFees({
+    buyAmountAfterFeesCryptoBaseUnit,
+    affiliateBps,
+  })
+
+  return {
+    rate: getInputOutputRate({
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    }),
+    buyAmountBeforeFeesCryptoBaseUnit,
+    buyAmountAfterFeesCryptoBaseUnit,
+    affiliateFee: buildAffiliateFee({
+      strategy: 'buy_asset',
+      affiliateBps,
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountBeforeFeesCryptoBaseUnit,
+    }),
+  }
 }
 
 export const getKyberProviderNetworkFeeCryptoBaseUnit = ({
@@ -285,6 +326,10 @@ const getBuildError = (
 
   if (!bn(build.amountIn).eq(sellAmountCryptoBaseUnit)) {
     return invalidResponse('KyberSwap built a different sell amount', { amountIn: build.amountIn })
+  }
+
+  if (!bn(build.amountOut).gt(0)) {
+    return invalidResponse('KyberSwap built no output amount', { amountOut: build.amountOut })
   }
 
   const expectedValue = isSameAddress(tokenIn, KYBER_NATIVE_TOKEN) ? sellAmountCryptoBaseUnit : '0'

@@ -8,6 +8,7 @@ import { KYBER_DEADLINE_SECONDS } from '../utils/constants'
 import { fetchKyberBuild } from '../utils/fetchFromKyber'
 import { getKyberStepData } from '../utils/getKyberStepData'
 import { getKyberTradeContext } from '../utils/getKyberTradeContext'
+import { getKyberBuyAmounts } from '../utils/helpers'
 
 export const getTradeQuote = async (
   input: KyberTradeQuoteInput,
@@ -32,25 +33,32 @@ export const getTradeQuote = async (
     deadline,
   })
   if (maybeBuild.isErr()) return Err(maybeBuild.unwrapErr())
+  const build = maybeBuild.unwrap()
+
+  // Quote the built amount, the calldata output floor is derived from it rather than from the route
+  const { rate, ...buyAmounts } = getKyberBuyAmounts({ input, amountOut: build.amountOut })
 
   const maybeStepData = await getKyberStepData({
     ...stepDataArgs,
     type: 'quote',
     input,
     from: sendAddress,
-    build: maybeBuild.unwrap(),
+    build,
   })
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 
   const tradeQuote: TradeQuote = {
     ...tradeCommon,
+    rate,
     quoteOrRate: 'quote' as const,
     receiveAddress,
     deadline: deadline * 1000,
     steps: [
       {
         ...stepCommon,
+        ...buyAmounts,
+        rate,
         accountNumber,
         transactionData,
         feeData: { networkFeeCryptoBaseUnit, protocolFees },

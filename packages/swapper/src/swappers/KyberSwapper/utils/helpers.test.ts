@@ -247,6 +247,7 @@ describe('validateKyberBuild', () => {
     ['an unpinned router', { routerAddress: '0x1111111111111111111111111111111111111111' }],
     ['no native value on a native sell', { transactionValue: '0' }],
     ['undecodable calldata', { data: '0xdeadbeef' }],
+    ['no output amount', { amountOut: '' }],
   ] as const)('rejects %s', (_label, buildOverrides) => {
     expect(validate(buildOverrides).unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
   })

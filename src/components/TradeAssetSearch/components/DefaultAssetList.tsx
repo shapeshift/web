@@ -44,12 +44,21 @@ export const DefaultAssetList = ({
       }
     }
 
+    // Every popular asset is already held, so there's nothing left to list under Popular Assets
+    if (popularAssets.length === 0 && !isPopularAssetIdsLoading) {
+      return {
+        groups: ['modals.assetSearch.myAssets'],
+        groupCounts: [portfolioAssetsSortedByBalance.length],
+        assets: portfolioAssetsSortedByBalance,
+      }
+    }
+
     return {
       groups: ['modals.assetSearch.myAssets', 'modals.assetSearch.popularAssets'],
       groupCounts: [portfolioAssetsSortedByBalance.length, popularAssets.length],
       assets: portfolioAssetsSortedByBalance.concat(popularAssets),
     }
-  }, [popularAssets, portfolioAssetsSortedByBalance])
+  }, [isPopularAssetIdsLoading, popularAssets, portfolioAssetsSortedByBalance])
 
   return (
     <GroupedAssetList

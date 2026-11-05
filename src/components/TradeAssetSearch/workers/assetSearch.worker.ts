@@ -11,20 +11,11 @@ import type {
   AssetSearchWorkerOutboundMessage,
   SearchableAsset,
 } from '@/lib/assetSearch'
-import {
-  deduplicateAssets,
-  filterAssetsByChainSupport,
-  searchAssets,
-  shouldSearchAllAssets as shouldSearchAllAssetsUtil,
-} from '@/lib/assetSearch'
-import { isContractAddress } from '@/lib/utils/isContractAddress'
+import { deduplicateAssets, filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
 
 // Internal state
 let allAssets: SearchableAsset[] = []
-let primaryAssets: SearchableAsset[] = []
-// Derived from primaryAssets for efficient lookups in shouldSearchAllAssets
-let primaryAssetIds: Set<AssetId> = new Set()
-let primarySymbols: Set<string> = new Set()
+let allAssetsById: Map<AssetId, SearchableAsset> = new Map()
 
 const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void => {
   const {
@@ -34,27 +25,16 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
     walletConnectedChainIds = [],
   } = msg.payload
 
-  const isContractAddressSearch = isContractAddress(searchString)
-
-  // Decide which asset set to search:
-  // - Contract address searches always use all assets to find related variants
-  // - Chain-specific searches use all assets (filtered by chain later)
-  // - "All" chains uses primaries unless search matches a non-primary unique symbol (e.g., AXLUSDC)
-  const useAll =
-    isContractAddressSearch ||
-    activeChainId !== 'All' ||
-    shouldSearchAllAssetsUtil(searchString, allAssets, primaryAssetIds, primarySymbols)
-
-  const searchableAssets = useAll ? allAssets : primaryAssets
-
-  const preFiltered = filterAssetsByChainSupport(searchableAssets, {
+  // Every version is searched, so "gram" finds TON's GRAM versions even though another asset's symbol is GRAM
+  const preFiltered = filterAssetsByChainSupport(allAssets, {
     activeChainId,
     allowWalletUnsupportedAssets,
     walletConnectedChainIds,
   })
-  const filtered = searchAssets(searchString, preFiltered)
-  // Deduplicate by relatedAssetKey to group related assets (e.g., USDC on multiple chains)
-  const deduplicated = deduplicateAssets(filtered, searchString)
+  const filtered = searchAssets(searchString, preFiltered, assetId => allAssetsById.get(assetId))
+  // All groups related assets under one row (e.g. USDC on multiple chains), a network tab lists each version
+  const deduplicated =
+    activeChainId === 'All' ? deduplicateAssets(filtered, searchString) : filtered
 
   const result: AssetSearchWorkerOutboundMessage = {
     type: 'searchResult',
@@ -68,14 +48,9 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
 self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
   const data = event.data
   switch (data.type) {
-    case 'updatePrimaryAssets': {
-      primaryAssets = data.payload.assets
-      primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
-      primarySymbols = new Set(primaryAssets.map(a => a.symbol.toLowerCase()))
-      break
-    }
     case 'updateAssets': {
       allAssets = data.payload.assets
+      allAssetsById = new Map(allAssets.map(asset => [asset.assetId, asset]))
       break
     }
     case 'search': {

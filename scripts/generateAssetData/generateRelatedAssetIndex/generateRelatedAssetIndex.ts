@@ -22,6 +22,7 @@ import {
   optimismAssetId,
   robinhoodAssetId,
   scrollAssetId,
+  solAssetId,
   soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
@@ -43,6 +44,7 @@ import {
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,
 } from './mapping'
+import { reconcileRelatedAssetGroups } from './reconcileRelatedAssetGroups'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 import type { CoingeckoAssetDetails } from '@/lib/coingecko/types'
@@ -100,7 +102,51 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
     'aptos:1/fungible:0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b',
   ],
+  // CoinGecko lists wrapped and pegged SOL as separate coins from native SOL
+  [solAssetId]: [
+    'eip155:56/erc20:0x570a5d26f7765ecb712c0924e4de545b89fd43df',
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112',
+    'eip155:8453/erc20:0x311935cd80b76769bf2ecc9d8ab7635b2139cf82',
+  ],
+  // Ethereum SHIB, not Binance-Peg SHIB, is the main asset
+  'eip155:1/erc20:0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce': [
+    'eip155:56/erc20:0x2859e4544c4bb03966803b044a93563bd2d0dd4d',
+  ],
+  // Ethereum USDe leads its family, not Ethereal's native USDe
+  'eip155:1/erc20:0x4c9edd5852cd905f086c759e8383e09bff1e68b3': ['eip155:5064014/slip44:60'],
+  // Ethereum weETH leads its family, and CoinGecko files Katana weETH under bridged WETH
+  'eip155:1/erc20:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee': [
+    'eip155:42161/erc20:0x35751007a407ca6feffe80b3cb397736d2cf4dbe',
+    'eip155:747474/erc20:0x9893989433e7a383cb313953e4c2365107dc19a7',
+  ],
 }
+
+// Tokens a provider put in another token's group, each left to group with its own coin
+const relatedAssetExclusions: AssetId[] = [
+  // Fiamma BTC, which CoinGecko lists as bridged WBTC
+  'eip155:1/erc20:0x22f0e0a4c97ff43546dad16d43ef854c773f0e08',
+  'eip155:1329/erc20:0x60c230c38af6d86b0277a98a1caeaa345a7b061f',
+  'eip155:8453/erc20:0x60c230c38af6d86b0277a98a1caeaa345a7b061f',
+  'aptos:1/fungible:0x75de592a7e62e6224d13763c392190fda8635ebb79c798a5e9dd0840102f3f93',
+  // Linea GNO, grouped with WBTC
+  'eip155:59144/erc20:0xe516a5cff996cc399efbb48355fd5ab83438e7a9',
+  // Senate, grouped with Sidus at the same address on Base
+  'eip155:1/erc20:0x34be5b8c30ee4fde069dc878989686abe9884470',
+  // Spiko UK T-Bills, grouped with the Spiko Cash & Carry fund
+  'eip155:1/erc20:0xf695df6c0f3bb45918a7a82e83348fc59517734e',
+  'eip155:137/erc20:0x970e2adc2fdf53aea6b5fa73ca6dc30eafedfe3d',
+  'eip155:42161/erc20:0x903d5990119bc799423e9c25c56518ba7dd19474',
+  'eip155:8453/erc20:0xa8de1f55aa0e381cb456e1dcc9ff781ea0079068',
+  'starknet:SN_MAIN/token:0x0153d6e0462080bb2842109e9b64f589ef5aa06bb32b26bbdb894aca92674395',
+  // USDai, grouped with staked USDai
+  'eip155:1/erc20:0x0a1a1a107e45b7ced86833863f482bc5f4ed82ef',
+  'eip155:8453/erc20:0x0a1a1a107e45b7ced86833863f482bc5f4ed82ef',
+  // Same-symbol tokens from unrelated projects
+  'eip155:1/erc20:0x59f4f336bf3d0c49dbfba4a74ebd2a6ace40539a', // CAT
+  'eip155:1/erc20:0x699ec925118567b6475fe495327ba0a778234aaa', // DUCKY
+  'eip155:1/erc20:0x809826cceab68c387726af962713b64cb5cb3cca', // NCASH
+  'eip155:1/erc20:0x4947b72fed037ade3365da050a9be5c063e605a7', // PEANUT
+]
 
 // Category → Canonical Asset mapping for bridged tokens
 // Maps CoinGecko bridged categories to their Ethereum canonical tokens
@@ -245,11 +291,19 @@ const getZerionRelatedAssetIds = async (
   }
 
   const validationResult = zerionFungiblesSchema.parse(res)
-  const firstEntry = validationResult.data[0]
+  // The address filter ignores the chain, so only trust a fungible that has this exact implementation
+  const matchingEntry = validationResult.data.find(
+    entry =>
+      entry.attributes.implementations?.some(
+        implementation =>
+          zerionImplementationToMaybeAssetId(implementation)?.toLowerCase() ===
+          assetId.toLowerCase(),
+      ),
+  )
 
-  if (firstEntry === undefined) return
+  if (matchingEntry === undefined) return
 
-  const implementations = firstEntry.attributes.implementations
+  const implementations = matchingEntry.attributes.implementations
 
   // Use all assetIds actually present in the dataset
   const allRelatedAssetIds = implementations
@@ -609,11 +663,42 @@ export const generateRelatedAssetIndex = async () => {
 
   clearThrottleInterval()
 
+  const coinIdByAssetId: Record<AssetId, string> = {}
+  for (const [assetId, coin] of Object.entries(coinsByAssetId)) coinIdByAssetId[assetId] = coin.id
+  for (const nativeAssetId of FEE_ASSET_IDS) {
+    const coinId = adapters.assetIdToCoingecko(nativeAssetId)
+    if (coinId) coinIdByAssetId[nativeAssetId] = coinId
+  }
+
+  const reconciled = reconcileRelatedAssetGroups({
+    relatedAssetKeyByAssetId: Object.fromEntries(
+      Object.entries(generatedAssetData).map(([assetId, asset]) => [
+        assetId,
+        asset.relatedAssetKey,
+      ]),
+    ),
+    relatedAssetIndex,
+    rankedAssetIds: sortedAssetIds,
+    coinIdByAssetId,
+    manualRelatedAssetIndex,
+    excludedAssetIds: relatedAssetExclusions,
+    nativeAssetIds: FEE_ASSET_IDS,
+    canonicalAssetIds: Object.values(BRIDGED_CATEGORY_MAPPINGS),
+  })
+
+  for (const [assetId, relatedAssetKey] of Object.entries(reconciled.relatedAssetKeyByAssetId)) {
+    const asset = generatedAssetData[assetId]
+    if ((asset.relatedAssetKey ?? null) !== relatedAssetKey) asset.relatedAssetKey = relatedAssetKey
+  }
+
   await fs.promises.writeFile(
     ASSET_DATA_PATH,
     JSON.stringify({ byId: generatedAssetData, ids: sortedAssetIds }),
   )
-  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(relatedAssetIndex))
+  await fs.promises.writeFile(
+    RELATED_ASSET_INDEX_PATH,
+    JSON.stringify(reconciled.relatedAssetIndex),
+  )
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

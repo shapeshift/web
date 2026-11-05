@@ -911,7 +911,11 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
       isPrimary: primaryAsset?.isPrimary ?? false,
     }
 
-    const allRelatedAssetIds = relatedAssetIdsByAssetId[normalizedPrimaryAssetId] || []
+    // A version's row only covers its same-symbol versions, so GRAM doesn't total TON's balance
+    const allRelatedAssetIds = (relatedAssetIdsByAssetId[normalizedPrimaryAssetId] || []).filter(
+      assetId =>
+        primaryAsset?.isPrimary !== false || assetsById[assetId]?.symbol === primaryAsset.symbol,
+    )
     const relatedAssets = allRelatedAssetIds
       .map(assetId => {
         if (spamAssetIdsSet.has(assetId)) return null

@@ -7,10 +7,7 @@ import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
 import { profiler } from '@/lib/performanceProfiler'
-import {
-  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
-  selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
-} from '@/state/slices/selectors'
+import { selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type WorkerState = 'initializing' | 'ready' | 'failed'
@@ -35,9 +32,6 @@ export const useAssetSearchWorker = ({
   walletConnectedChainIds,
   hasWallet,
 }: UseAssetSearchWorkerProps) => {
-  const primaryAssets = useAppSelector(
-    selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
-  )
   const assets = useAppSelector(
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
@@ -103,16 +97,10 @@ export const useAssetSearchWorker = ({
 
   // Update worker with new assets
   useEffect(() => {
-    if (workerRef.current && primaryAssets.length && assets.length) {
+    if (workerRef.current && assets.length) {
       workerRef.current.postMessage({
         type: 'updateAssets',
         payload: { assets },
-      })
-      workerRef.current.postMessage({
-        type: 'updatePrimaryAssets',
-        payload: {
-          assets: primaryAssets,
-        },
       })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } else {
@@ -121,7 +109,7 @@ export const useAssetSearchWorker = ({
         workerState: 'initializing',
       }))
     }
-  }, [assets, primaryAssets])
+  }, [assets])
 
   // Event-driven search function
   const performSearch = useCallback(

@@ -6,6 +6,7 @@ import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 
+import { resolveSearchResults } from '../helpers/resolveSearchResults'
 import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 
@@ -114,6 +115,8 @@ export const SearchTermAssetList = ({
     return customTokens.filter(token => !assetsById[token.assetId]).map(token => makeAsset(token))
   }, [customTokens])
 
+  const showRelatedAssets = activeChainId === 'All' && !isContractAddress(searchString)
+
   const searchTermAssets = useMemo(() => {
     const filteredAssets: Asset[] = (() => {
       // Main thread search due to dead worker
@@ -123,7 +126,13 @@ export const SearchTermAssetList = ({
 
       // Use the results from the worker
       if (workerSearchState.workerState === 'ready' && workerSearchState.searchResults) {
-        return workerSearchState.searchResults.map(assetId => assetIdMap[assetId]).filter(isSome)
+        return resolveSearchResults({
+          resultAssetIds: workerSearchState.searchResults,
+          usableAssetsById: assetIdMap,
+          relatedAssetIdsByKey: relatedAssetIdsById,
+          assetsById: selectAssets(store.getState()),
+          groupVariants: showRelatedAssets,
+        })
       }
 
       return []
@@ -160,6 +169,7 @@ export const SearchTermAssetList = ({
     assetIdMap,
     portfolioUserCurrencyBalances,
     relatedAssetIdsById,
+    showRelatedAssets,
   ])
 
   return (
@@ -177,7 +187,7 @@ export const SearchTermAssetList = ({
           handleClick={handleAssetClick}
           hideZeroBalanceAmounts={true}
           onImportClick={onImportClick}
-          showRelatedAssets={activeChainId === 'All' && !isContractAddress(searchString)}
+          showRelatedAssets={showRelatedAssets}
           assetFilterPredicate={assetFilterPredicate}
           chainIdFilterPredicate={chainIdFilterPredicate}
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}

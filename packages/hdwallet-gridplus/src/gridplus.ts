@@ -374,7 +374,6 @@ export class GridPlusHDWallet
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
   readonly _supportsZkSyncEra = true
-  readonly _supportsAbstract = false
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsFlowEvm = true

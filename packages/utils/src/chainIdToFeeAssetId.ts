@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractAssetId,
   aptosAssetId,
   arbitrumAssetId,
   avalancheAssetId,
@@ -150,8 +149,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return nearAssetId
     case KnownChainIds.TonMainnet:
       return tonAssetId
-    case KnownChainIds.AbstractMainnet:
-      return abstractAssetId
     case KnownChainIds.RobinhoodMainnet:
       return robinhoodAssetId
     case KnownChainIds.AptosMainnet:

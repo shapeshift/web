@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractAssetId,
   adapters,
   arbitrumAssetId,
   baseAssetId,
@@ -86,7 +85,6 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     bobAssetId,
     modeAssetId,
     soneiumAssetId,
-    abstractAssetId,
     robinhoodAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],

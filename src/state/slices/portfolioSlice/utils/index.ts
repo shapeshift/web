@@ -1,6 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractChainId,
   aptosChainId,
   arbitrumChainId,
   ASSET_NAMESPACE,
@@ -65,7 +64,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isGridPlus,
   isVultisig,
-  supportsAbstract,
   supportsAptos,
   supportsArbitrum,
   supportsAvalanche,
@@ -166,7 +164,6 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case baseChainId:
     case zkSyncEraChainId:
-    case abstractChainId:
     case hemiChainId:
     case hyperEvmChainId:
     case mantleChainId:
@@ -666,8 +663,6 @@ export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): bo
       return supportsStory(wallet)
     case zkSyncEraChainId:
       return supportsZkSyncEra(wallet)
-    case abstractChainId:
-      return supportsAbstract(wallet)
     case worldChainChainId:
       return supportsWorldChain(wallet)
     case hemiChainId:

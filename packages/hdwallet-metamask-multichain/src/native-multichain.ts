@@ -293,7 +293,6 @@ export class MetaMaskNativeMultiChainHDWallet
   readonly _supportsMegaEth = true
   readonly _supportsPlume = true
   readonly _supportsZkSyncEra = true
-  readonly _supportsAbstract = true
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsBerachain = true

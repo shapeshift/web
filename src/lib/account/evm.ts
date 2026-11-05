@@ -1,6 +1,5 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -41,7 +40,6 @@ import {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isMetaMask,
-  supportsAbstract,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -203,7 +201,6 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === flowEvmChainId && !supportsFlowEvm(wallet)) continue
     if (chainId === storyChainId && !supportsStory(wallet)) continue
     if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
-    if (chainId === abstractChainId && !supportsAbstract(wallet)) continue
     if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue
     if (chainId === hemiChainId && !supportsHemi(wallet)) continue
     if (chainId === seiChainId && !supportsSei(wallet)) continue

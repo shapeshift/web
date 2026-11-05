@@ -9,12 +9,6 @@ export const PUBLIC_RPC_URLS = {
   polygon: ['https://polygon-bor-rpc.publicnode.com', 'https://polygon.drpc.org'],
   base: ['https://base-rpc.publicnode.com', 'https://base.drpc.org'],
   // second class chains
-  abstract: [
-    'https://api.mainnet.abs.xyz',
-    'https://abstract.drpc.org',
-    'https://abstract.api.onfinality.io/public',
-    'https://abstract-mainnet.gateway.tatum.io',
-  ],
   berachain: [
     'https://rpc.berachain.com',
     'https://berachain-rpc.publicnode.com',

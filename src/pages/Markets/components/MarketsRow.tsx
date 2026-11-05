@@ -92,7 +92,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isPlumeEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plume'))
   const isStoryEnabled = useAppSelector(state => selectFeatureFlag(state, 'Story'))
   const isZkSyncEraEnabled = useAppSelector(state => selectFeatureFlag(state, 'ZkSyncEra'))
-  const isAbstractEnabled = useAppSelector(state => selectFeatureFlag(state, 'Abstract'))
   const isWorldChainEnabled = useAppSelector(state => selectFeatureFlag(state, 'WorldChain'))
   const isHemiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Hemi'))
   const isCronosEnabled = useAppSelector(state => selectFeatureFlag(state, 'Cronos'))
@@ -125,7 +124,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isPlumeEnabled && chainId === KnownChainIds.PlumeMainnet) return false
       if (!isStoryEnabled && chainId === KnownChainIds.StoryMainnet) return false
       if (!isZkSyncEraEnabled && chainId === KnownChainIds.ZkSyncEraMainnet) return false
-      if (!isAbstractEnabled && chainId === KnownChainIds.AbstractMainnet) return false
       if (!isWorldChainEnabled && chainId === KnownChainIds.WorldChainMainnet) return false
       if (!isHemiEnabled && chainId === KnownChainIds.HemiMainnet) return false
       if (!isSeiEnabled && chainId === KnownChainIds.SeiMainnet) return false
@@ -158,7 +156,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isKatanaEnabled,
     isStoryEnabled,
     isZkSyncEraEnabled,
-    isAbstractEnabled,
     isWorldChainEnabled,
     isHemiEnabled,
     isCronosEnabled,

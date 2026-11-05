@@ -86,7 +86,6 @@ export {
   flowevm,
   celo,
   sei,
-  abstract,
   robinhood,
   cosmos,
   thorchain,

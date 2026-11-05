@@ -4,7 +4,6 @@ export { isSecondClassEvmAdapter, SecondClassEvmAdapter } from './SecondClassEvm
 export type { SecondClassEvmAdapterArgs, TokenInfo } from './SecondClassEvmAdapter'
 
 export * as evm from './evm'
-export * as abstract from './abstract'
 
 export * as ethereum from './ethereum'
 export * as avalanche from './avalanche'

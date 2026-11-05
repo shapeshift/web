@@ -151,7 +151,6 @@ export class PhantomHDWallet
   readonly _supportsInk = false
   readonly _supportsMegaEth = false
   readonly _supportsZkSyncEra = false
-  readonly _supportsAbstract = false
   readonly _supportsWorldChain = false
   readonly _supportsHemi = false
   readonly _supportsFlowEvm = false

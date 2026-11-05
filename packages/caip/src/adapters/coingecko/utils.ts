@@ -4,8 +4,6 @@ import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId, toAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
-  abstractAssetId,
-  abstractChainId,
   aptosAssetId,
   aptosChainId,
   arbitrumAssetId,
@@ -685,20 +683,6 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
         }
       }
 
-      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Abstract)) {
-        try {
-          const assetId = toAssetId({
-            chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: CHAIN_REFERENCE.AbstractMainnet,
-            assetNamespace: 'erc20',
-            assetReference: platforms[CoingeckoAssetPlatform.Abstract],
-          })
-          prev[abstractChainId][assetId] = id
-        } catch {
-          // unable to create assetId, skip token
-        }
-      }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sei)) {
         try {
           const assetId = toAssetId({
@@ -817,7 +801,6 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
       [bobChainId]: { [bobAssetId]: 'ethereum' },
       [modeChainId]: { [modeAssetId]: 'ethereum' },
       [soneiumChainId]: { [soneiumAssetId]: 'ethereum' },
-      [abstractChainId]: { [abstractAssetId]: 'ethereum' },
       [seiChainId]: { [seiAssetId]: 'sei-network' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },

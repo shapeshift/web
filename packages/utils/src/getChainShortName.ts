@@ -96,8 +96,6 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'NEAR'
     case KnownChainIds.TonMainnet:
       return 'TON'
-    case KnownChainIds.AbstractMainnet:
-      return 'ABS'
     case KnownChainIds.RobinhoodMainnet:
       return 'RH'
     case KnownChainIds.AptosMainnet:

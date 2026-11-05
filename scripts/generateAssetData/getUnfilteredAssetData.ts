@@ -14,7 +14,6 @@ import {
   zcash,
 } from '@shapeshiftoss/utils'
 
-import * as abstract from './abstract'
 import * as aptos from './aptos'
 import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
@@ -72,7 +71,6 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
   const flowEvmAssets = await flowEvm.getAssets()
   const celoAssets = await celo.getAssets()
   const zksyncEraAssets = await zksyncera.getAssets()
-  const abstractAssets = await abstract.getAssets()
   const hemiAssets = await hemi.getAssets()
   const mantleAssets = await mantle.getAssets()
   const inkAssets = await ink.getAssets()
@@ -128,7 +126,6 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
     ...flowEvmAssets,
     ...celoAssets,
     ...zksyncEraAssets,
-    ...abstractAssets,
     ...hemiAssets,
     ...mantleAssets,
     ...inkAssets,

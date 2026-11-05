@@ -240,11 +240,6 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Sei,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
-      case CHAIN_REFERENCE.AbstractMainnet:
-        return {
-          assetReference: ASSET_REFERENCE.Abstract,
-          assetNamespace: ASSET_NAMESPACE.slip44,
-        }
       case CHAIN_REFERENCE.RobinhoodMainnet:
         return {
           assetReference: ASSET_REFERENCE.Robinhood,

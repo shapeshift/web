@@ -49,7 +49,6 @@ export const getAssetNamespaceFromChainId = (
     case KnownChainIds.SoneiumMainnet:
     case KnownChainIds.FlowEvmMainnet:
     case KnownChainIds.CeloMainnet:
-    case KnownChainIds.AbstractMainnet:
     case KnownChainIds.RobinhoodMainnet:
     case KnownChainIds.ElysiumMainnet:
       return ASSET_NAMESPACE.erc20

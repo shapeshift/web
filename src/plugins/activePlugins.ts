@@ -1,4 +1,3 @@
-import abstract from '@/plugins/abstract'
 import aptos from '@/plugins/aptos'
 import arbitrum from '@/plugins/arbitrum'
 import avalanche from '@/plugins/avalanche'
@@ -100,7 +99,6 @@ export const activePlugins = [
   worldchain,
   zcash,
   zksyncera,
-  abstract,
   robinhood,
   aptos,
   elysium,

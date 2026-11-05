@@ -98,7 +98,6 @@ const featureFlagByChainId: Record<KnownChainIds, Flag | null> = {
   [KnownChainIds.NearMainnet]: 'Near',
   [KnownChainIds.StarknetMainnet]: 'Starknet',
   [KnownChainIds.TonMainnet]: 'Ton',
-  [KnownChainIds.AbstractMainnet]: 'Abstract',
   [KnownChainIds.RobinhoodMainnet]: 'Robinhood',
   [KnownChainIds.AptosMainnet]: 'Aptos',
   [KnownChainIds.ElysiumMainnet]: 'Elysium',

@@ -1,5 +1,4 @@
 import {
-  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -41,7 +40,6 @@ import {
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
-  abstract,
   arbitrum,
   avalanche,
   base,
@@ -118,7 +116,6 @@ export const chainIdToRelayChainId = {
   [modeChainId]: mode.id,
   [soneiumChainId]: soneium.id,
   [seiChainId]: sei.id,
-  [abstractChainId]: abstract.id,
   [robinhoodChainId]: robinhood.id,
   [elysiumChainId]: 99901,
 }

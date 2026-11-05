@@ -5,7 +5,6 @@ import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import { fromChainId } from '../../chainId/chainId'
 import {
-  abstractChainId,
   aptosChainId,
   arbitrumChainId,
   avalancheChainId,
@@ -105,7 +104,6 @@ export enum CoingeckoAssetPlatform {
   Aptos = 'aptos',
   Ton = 'the-open-network',
   Near = 'near-protocol',
-  Abstract = 'abstract',
   Robinhood = 'robinhood',
   Elysium = 'elysium-kinetiq',
 }
@@ -178,8 +176,6 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Story
         case CHAIN_REFERENCE.ZkSyncEraMainnet:
           return CoingeckoAssetPlatform.ZkSyncEra
-        case CHAIN_REFERENCE.AbstractMainnet:
-          return CoingeckoAssetPlatform.Abstract
         case CHAIN_REFERENCE.WorldChainMainnet:
           return CoingeckoAssetPlatform.WorldChain
         case CHAIN_REFERENCE.HemiMainnet:
@@ -354,8 +350,6 @@ export const coingeckoAssetPlatformToChainId = (
       return megaethChainId
     case CoingeckoAssetPlatform.ZkSyncEra:
       return zkSyncEraChainId
-    case CoingeckoAssetPlatform.Abstract:
-      return abstractChainId
     case CoingeckoAssetPlatform.Hemi:
       return hemiChainId
     case CoingeckoAssetPlatform.Linea:

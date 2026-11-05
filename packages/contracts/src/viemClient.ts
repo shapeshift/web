@@ -4,7 +4,6 @@ import assert from 'assert'
 import type { Chain, PublicClient } from 'viem'
 import { createPublicClient, defineChain, fallback, http } from 'viem'
 import {
-  abstract,
   arbitrum,
   avalanche,
   base,
@@ -154,8 +153,6 @@ export const viemHemiClient = createRpcClient(hemi, undefined, PUBLIC_RPC_URLS.h
 
 export const viemSeiClient = createRpcClient(sei, undefined, PUBLIC_RPC_URLS.sei)
 
-export const viemAbstractClient = createRpcClient(abstract, undefined, PUBLIC_RPC_URLS.abstract)
-
 export const viemLineaClient = createRpcClient(linea, undefined, PUBLIC_RPC_URLS.linea)
 
 export const viemSonicClient = createRpcClient(sonic, undefined, PUBLIC_RPC_URLS.sonic)
@@ -216,7 +213,6 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.ModeMainnet]: viemModeClient,
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
-  [KnownChainIds.AbstractMainnet]: viemAbstractClient,
   [KnownChainIds.RobinhoodMainnet]: viemRobinhoodClient,
   [KnownChainIds.ElysiumMainnet]: viemElysiumClient,
 }
@@ -254,7 +250,6 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.ModeMainnet]: mode.id,
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
-  [KnownChainIds.AbstractMainnet]: abstract.id,
   [KnownChainIds.RobinhoodMainnet]: robinhood.id,
   [KnownChainIds.ElysiumMainnet]: elysium.id,
 }
@@ -292,7 +287,6 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [mode.id]: viemModeClient,
   [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
-  [abstract.id]: viemAbstractClient,
   [robinhood.id]: viemRobinhoodClient,
   [elysium.id]: viemElysiumClient,
 }

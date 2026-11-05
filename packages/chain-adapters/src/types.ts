@@ -70,7 +70,6 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.Account
     [KnownChainIds.SoneiumMainnet]: evm.Account
     [KnownChainIds.SeiMainnet]: evm.Account
-    [KnownChainIds.AbstractMainnet]: evm.Account
     [KnownChainIds.RobinhoodMainnet]: evm.Account
     [KnownChainIds.ElysiumMainnet]: evm.Account
 
@@ -148,7 +147,6 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.FeeData
     [KnownChainIds.SoneiumMainnet]: evm.FeeData
     [KnownChainIds.SeiMainnet]: evm.FeeData
-    [KnownChainIds.AbstractMainnet]: evm.FeeData
     [KnownChainIds.RobinhoodMainnet]: evm.FeeData
     [KnownChainIds.ElysiumMainnet]: evm.FeeData
 
@@ -257,7 +255,6 @@ export type ChainSignTx = {
   [KnownChainIds.ModeMainnet]: ETHSignTx
   [KnownChainIds.SoneiumMainnet]: ETHSignTx
   [KnownChainIds.SeiMainnet]: ETHSignTx
-  [KnownChainIds.AbstractMainnet]: ETHSignTx
   [KnownChainIds.RobinhoodMainnet]: ETHSignTx
   [KnownChainIds.HyperEvmMainnet]: ETHSignTx
   [KnownChainIds.ElysiumMainnet]: ETHSignTx
@@ -339,7 +336,6 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.BuildTxInput
     [KnownChainIds.SoneiumMainnet]: evm.BuildTxInput
     [KnownChainIds.SeiMainnet]: evm.BuildTxInput
-    [KnownChainIds.AbstractMainnet]: evm.BuildTxInput
     [KnownChainIds.RobinhoodMainnet]: evm.BuildTxInput
     [KnownChainIds.ElysiumMainnet]: evm.BuildTxInput
 
@@ -470,7 +466,6 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.GetFeeDataInput
     [KnownChainIds.SoneiumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.SeiMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.AbstractMainnet]: evm.GetFeeDataInput
     [KnownChainIds.RobinhoodMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ElysiumMainnet]: evm.GetFeeDataInput
 
@@ -578,7 +573,6 @@ export enum ChainAdapterDisplayName {
   Near = 'NEAR',
   Starknet = 'Starknet',
   Ton = 'TON',
-  Abstract = 'Abstract',
   Robinhood = 'Robinhood',
   Aptos = 'Aptos',
   Elysium = 'Elysium',

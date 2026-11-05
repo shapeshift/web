@@ -773,3 +773,43 @@ describe('searchAssets', () => {
     })
   })
 })
+
+describe('searchAssets family ranking', () => {
+  const TON = {
+    assetId: 'ton:mainnet/slip44:607',
+    chainId: 'ton:mainnet',
+    symbol: 'TON',
+    name: 'Toncoin',
+    isPrimary: true,
+    relatedAssetKey: 'ton:mainnet/slip44:607',
+  }
+  const GRAM_ETH = {
+    assetId: 'eip155:1/erc20:0xgram',
+    chainId: 'eip155:1',
+    symbol: 'GRAM',
+    name: 'Gram (prev. Toncoin)',
+    isPrimary: false,
+    relatedAssetKey: TON.assetId,
+  }
+  const TOKAMAK = {
+    assetId: 'eip155:1/erc20:0xtokamak',
+    chainId: 'eip155:1',
+    symbol: 'TON',
+    name: 'Tokamak Network',
+    isPrimary: true,
+    relatedAssetKey: null,
+  }
+  const familyAssets = new Map([[TON.assetId, TON]])
+
+  it("ranks a version with its family's main asset when that asset is not in the searched list", () => {
+    const returnedAssets = searchAssets('ton', [TOKAMAK, GRAM_ETH], assetId =>
+      familyAssets.get(assetId),
+    )
+    expect(returnedAssets.map(asset => asset.symbol)).toEqual(['GRAM', 'TON'])
+  })
+
+  it('ranks a version by its own name without a family lookup', () => {
+    const returnedAssets = searchAssets('ton', [TOKAMAK, GRAM_ETH])
+    expect(returnedAssets.map(asset => asset.symbol)).toEqual(['TON', 'GRAM'])
+  })
+})

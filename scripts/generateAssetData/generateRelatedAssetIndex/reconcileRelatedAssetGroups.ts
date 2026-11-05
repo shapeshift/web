@@ -68,7 +68,7 @@ export const reconcileRelatedAssetGroups = ({
 
   for (const assetId of excludedAssetIds) keyByAssetId.delete(assetId)
 
-  const chainIdOf = (assetId: AssetId) => assetId.split('/')[0]
+  const chainIdOf = (assetId: AssetId) => assetId.slice(0, assetId.indexOf('/'))
   const nativeChainIdByCoinId = new Map<string, string>()
   for (const nativeAssetId of nativeAssetIds) {
     const coinId = coinIdByAssetId[nativeAssetId]

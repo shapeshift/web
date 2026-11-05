@@ -22,17 +22,14 @@ export const filterAssetsForWallet = ({
   getRelatedAssets,
   groupVariants,
 }: FilterAssetsForWalletArgs): Asset[] => {
-  const isAssetAllowed = (asset: Asset) => assetFilterPredicate?.(asset.assetId) ?? true
-
-  if (!hasWallet || allowWalletUnsupportedAssets) return assets.filter(isAssetAllowed)
-
+  const isWalletLimited = hasWallet && !allowWalletUnsupportedAssets
   const walletChainIds = new Set(walletConnectedChainIds)
   const isAssetUsable = (asset: Asset) =>
-    walletChainIds.has(asset.chainId) &&
+    (!isWalletLimited || walletChainIds.has(asset.chainId)) &&
     (chainIdFilterPredicate?.(asset.chainId) ?? true) &&
-    isAssetAllowed(asset)
+    (assetFilterPredicate?.(asset.assetId) ?? true)
 
-  // An asset the wallet can't use here is swapped for its variants that it can
+  // An asset that can't be used here is swapped for its variants that can
   return assets.flatMap(asset => {
     if (isAssetUsable(asset)) return [asset]
     const supportedVariants = getRelatedAssets?.(asset).filter(isAssetUsable) ?? []

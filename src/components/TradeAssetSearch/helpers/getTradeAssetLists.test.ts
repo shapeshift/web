@@ -228,6 +228,30 @@ describe('getTradeAssetLists', () => {
       expect(ids(lists.popularRows)).toEqual([USDT_SN.assetId])
     })
 
+    it('applies the chain filter when the list is not limited to the wallet, e.g. fiat buy', () => {
+      const lists = getTradeAssetLists({
+        ...baseArgs,
+        allowWalletUnsupportedAssets: true,
+        chainIdFilterPredicate: chainId => chainId !== starknetChainId,
+      })
+
+      expect(ids(lists.popularRows)).not.toContain(STRK.assetId)
+      expect(ids(lists.quickAccessAssets)).not.toContain(STRK.assetId)
+    })
+
+    it('never swaps in a version from another network on a network tab', () => {
+      const lists = getTradeAssetLists({
+        ...baseArgs,
+        walletConnectedChainIds: [ethChainId, starknetChainId],
+        activeChainId: starknetChainId,
+        popularAssets: popularStarknet,
+        assetFilterPredicate: assetId => assetId !== USDT_SN.assetId,
+      })
+
+      expect(lists.popularRows.every(asset => asset.chainId === starknetChainId)).toBe(true)
+      expect(ids(lists.popularRows)).not.toContain(USDT_SN.assetId)
+    })
+
     it('does not swap in a version on a chain the chain filter rejects', () => {
       const lists = getTradeAssetLists({
         ...baseArgs,

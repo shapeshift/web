@@ -82,7 +82,8 @@ export const getTradeAssetLists = ({
     walletConnectedChainIds,
     assetFilterPredicate,
     chainIdFilterPredicate,
-    getRelatedAssets,
+    // A network tab only lists that network's assets, so nothing is swapped for a version elsewhere
+    getRelatedAssets: activeChainId === 'All' ? getRelatedAssets : undefined,
   }
 
   const quickAccessAssets = getQuickAccessAssets(

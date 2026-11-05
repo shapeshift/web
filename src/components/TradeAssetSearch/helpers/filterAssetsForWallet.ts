@@ -26,10 +26,9 @@ export const filterAssetsForWallet = ({
   const isAssetSupported = (asset: Asset) =>
     walletConnectedChainIds.includes(asset.chainId) && isAssetAllowed(asset)
 
-  // An asset on a chain the wallet can't use is swapped for its variant on one it can
+  // An asset on a chain the wallet can't use is swapped for its variants on the ones it can
   return filteredAssets.flatMap(asset => {
     if (walletConnectedChainIds.includes(asset.chainId)) return [asset]
-    const supportedVariant = getRelatedAssets?.(asset).find(isAssetSupported)
-    return supportedVariant ? [supportedVariant] : []
+    return getRelatedAssets?.(asset).filter(isAssetSupported) ?? []
   })
 }

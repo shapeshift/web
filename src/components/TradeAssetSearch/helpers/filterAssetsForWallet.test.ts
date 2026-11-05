@@ -61,9 +61,13 @@ describe('filterAssetsForWallet', () => {
     expect(result).toEqual([supportedAsset, unsupportedAsset])
   })
 
-  it('swaps an asset on an unsupported chain for its variant on a supported one', () => {
+  it('swaps an asset on an unsupported chain for all its variants on supported ones', () => {
     const variantOnSupportedChain = {
       assetId: 'eip155:1/erc20:0xbtc',
+      chainId: KnownChainIds.EthereumMainnet,
+    } as Asset
+    const bridgedVariantOnSupportedChain = {
+      assetId: 'eip155:1/erc20:0xbridgedbtc',
       chainId: KnownChainIds.EthereumMainnet,
     } as Asset
 
@@ -72,10 +76,16 @@ describe('filterAssetsForWallet', () => {
       hasWallet: true,
       walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
       getRelatedAssets: asset =>
-        asset.assetId === btcAssetId ? [unsupportedAsset, variantOnSupportedChain] : [],
+        asset.assetId === btcAssetId
+          ? [unsupportedAsset, variantOnSupportedChain, bridgedVariantOnSupportedChain]
+          : [],
     })
 
-    expect(result).toEqual([supportedAsset, variantOnSupportedChain])
+    expect(result).toEqual([
+      supportedAsset,
+      variantOnSupportedChain,
+      bridgedVariantOnSupportedChain,
+    ])
   })
 
   it('applies assetFilterPredicate if provided', () => {

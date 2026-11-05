@@ -1,7 +1,10 @@
 import { bcs } from '@mysten/sui/bcs'
 import type { SuiClientTypes } from '@mysten/sui/client'
 import { SuiGrpcClient } from '@mysten/sui/grpc'
-import type { SerializedTransactionDataV2 } from '@mysten/sui/transactions'
+import type {
+  SerializedTransactionDataV2,
+  TransactionObjectArgument,
+} from '@mysten/sui/transactions'
 import { Transaction as SuiTransaction } from '@mysten/sui/transactions'
 import { SUI_TYPE_ARG } from '@mysten/sui/utils'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
@@ -259,17 +262,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       if (tokenId) {
         // Token transfer transaction - tokenId is the coin type (e.g., 0x...::module::Type)
-        // We need to get coin objects of this type owned by the sender
-        const coins = await this.client.listCoins({
-          owner: from,
-          coinType: tokenId,
-        })
-
-        if (coins.objects.length === 0) {
-          throw new Error(`No coins found for type ${tokenId}`)
-        }
-
-        const [coinToSend] = tx.splitCoins(tx.object(coins.objects[0].objectId), [value])
+        const coinToSend = await this.splitTokenCoin(tx, from, tokenId, value)
         tx.transferObjects([coinToSend], to)
       } else {
         // Native SUI transfer
@@ -443,17 +436,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       tx.setSender(from)
 
       if (tokenId && tokenId !== '0x2::sui::SUI') {
-        // Token transfer - get coin objects for this token type
-        const coins = await this.client.listCoins({
-          owner: from,
-          coinType: tokenId,
-        })
-
-        if (coins.objects.length === 0) {
-          throw new Error(`No coins found for type ${tokenId}`)
-        }
-
-        const [coin] = tx.splitCoins(tx.object(coins.objects[0].objectId), [value])
+        const coin = await this.splitTokenCoin(tx, from, tokenId, value)
         tx.transferObjects([coin], to)
       } else {
         const [coin] = tx.splitCoins(tx.gas, [value])
@@ -544,6 +527,50 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     if (!response.hasNextPage) return response.balances
 
     return [...response.balances, ...(await this.listAllBalances(owner, response.cursor))]
+  }
+
+  private async listAllCoins(
+    owner: string,
+    coinType: string,
+    cursor: string | null = null,
+  ): Promise<SuiClientTypes.Coin[]> {
+    const response = await this.client.listCoins({ owner, coinType, cursor })
+
+    if (!response.hasNextPage) return response.objects
+
+    return [...response.objects, ...(await this.listAllCoins(owner, coinType, response.cursor))]
+  }
+
+  // A token balance can be spread over several coin objects, so merge the largest until they cover the amount
+  private async splitTokenCoin(
+    tx: SuiTransaction,
+    owner: string,
+    coinType: string,
+    value: string,
+  ): Promise<TransactionObjectArgument> {
+    const amount = BigInt(value)
+    const coins = (await this.listAllCoins(owner, coinType)).sort((a, b) =>
+      Number(BigInt(b.balance) - BigInt(a.balance)),
+    )
+
+    if (coins.length === 0) throw new Error(`No coins found for type ${coinType}`)
+
+    const sumBalances = (selected: SuiClientTypes.Coin[]) =>
+      selected.reduce((sum, coin) => sum + BigInt(coin.balance), 0n)
+
+    const selectedCoins = coins.reduce<SuiClientTypes.Coin[]>(
+      (selected, coin) =>
+        selected.length && sumBalances(selected) >= amount ? selected : [...selected, coin],
+      [],
+    )
+
+    if (sumBalances(selectedCoins) < amount) throw new Error(`Insufficient ${coinType} balance`)
+
+    const [primaryCoin, ...otherCoins] = selectedCoins.map(coin => tx.object(coin.objectId))
+    if (otherCoins.length) tx.mergeCoins(primaryCoin, otherCoins)
+
+    const [coin] = tx.splitCoins(primaryCoin, [value])
+    return coin
   }
 
   private getPureInputBytes(

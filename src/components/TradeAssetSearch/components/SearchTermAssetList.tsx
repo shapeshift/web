@@ -6,8 +6,8 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 
-import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { getCustomTokenAssets } from '../helpers/getCustomTokenAssets'
+import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'

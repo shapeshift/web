@@ -41,7 +41,12 @@ const USDC_SPAM_SN = makeTestAsset(
   'USDC',
   USDC_ETH_ID,
 )
-const AXLUSDC_ARB = makeTestAsset('eip155:42161/erc20:0xaxlusdc', arbitrumChainId, 'AXLUSDC', USDC_ETH_ID)
+const AXLUSDC_ARB = makeTestAsset(
+  'eip155:42161/erc20:0xaxlusdc',
+  arbitrumChainId,
+  'AXLUSDC',
+  USDC_ETH_ID,
+)
 
 const USDT_ETH_ID = 'eip155:1/erc20:0xusdt'
 const USDT_ETH = makeTestAsset(USDT_ETH_ID, ethChainId, 'USDT', USDT_ETH_ID)
@@ -56,7 +61,12 @@ const USDT_SPAM_SN = makeTestAsset(
 const DAI_ETH_ID = 'eip155:1/erc20:0xdai'
 const DAI_ETH = makeTestAsset(DAI_ETH_ID, ethChainId, 'DAI', DAI_ETH_ID)
 const DAI_SN = makeTestAsset('starknet:SN_MAIN/token:0xdai', starknetChainId, 'DAI', DAI_ETH_ID)
-const DAI_V0_SN = makeTestAsset('starknet:SN_MAIN/token:0xdaiv0', starknetChainId, 'DAI_V0', DAI_ETH_ID)
+const DAI_V0_SN = makeTestAsset(
+  'starknet:SN_MAIN/token:0xdaiv0',
+  starknetChainId,
+  'DAI_V0',
+  DAI_ETH_ID,
+)
 
 const TRUMP_BASE_ID = 'eip155:8453/erc20:0xtrump'
 const TRUMP_BASE = makeTestAsset(TRUMP_BASE_ID, baseChainId, 'TRUMP', TRUMP_BASE_ID)
@@ -85,12 +95,7 @@ const allAssets = [
 
 // Index order puts spam first, so the lists have to leave it out
 const relatedAssetIndex = {
-  [USDC_ETH_ID]: [
-    USDC_SPAM_SN.assetId,
-    USDC_E_SN.assetId,
-    USDC_SN.assetId,
-    AXLUSDC_ARB.assetId,
-  ],
+  [USDC_ETH_ID]: [USDC_SPAM_SN.assetId, USDC_E_SN.assetId, USDC_SN.assetId, AXLUSDC_ARB.assetId],
   [USDT_ETH_ID]: [USDT_SPAM_SN.assetId, USDT_SN.assetId],
   [DAI_ETH_ID]: [DAI_V0_SN.assetId, DAI_SN.assetId],
   [TRUMP_BASE_ID]: [TRUMP_ETH_1.assetId, TRUMP_ETH_2.assetId],

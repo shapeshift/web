@@ -76,7 +76,6 @@ const textSelectedProps = {
   color: 'text.base',
 }
 
-
 const QUICK_ACCESS_FIAT_CURRENCIES = ['EUR', 'USD', 'CAD', 'GBP', 'PLN', 'IDR', 'DKK', 'BRL']
 
 export type TradeAssetSearchProps = {

@@ -102,7 +102,9 @@ export const getTradeAssetLists = ({
 
   // A chain tab lists each variant, All lists one row per family and symbol, e.g. USDC apart from AXLUSDC
   const toRowKey = (asset: Asset) =>
-    activeChainId === 'All' ? `${asset.relatedAssetKey ?? asset.assetId}:${asset.symbol}` : asset.assetId
+    activeChainId === 'All'
+      ? `${asset.relatedAssetKey ?? asset.assetId}:${asset.symbol}`
+      : asset.assetId
   const portfolioRowKeys = new Set(portfolioRows.map(toRowKey))
 
   return {

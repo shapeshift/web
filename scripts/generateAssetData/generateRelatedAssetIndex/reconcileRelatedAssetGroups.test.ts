@@ -111,6 +111,7 @@ describe('reconcileRelatedAssetGroups', () => {
   it('merges groups of the same coin under the highest market cap key', () => {
     expect(index[ELON_BSC]).toEqual([ELON_BSC, ELON_ETH, ELON_BASE])
     expect(index[ELON_ETH]).toBeUndefined()
+    for (const assetId of [ELON_BSC, ELON_ETH, ELON_BASE]) expect(keys[assetId]).toBe(ELON_BSC)
   })
 
   it('moves excluded tokens out of the wrong group and regroups them with their own coin', () => {
@@ -137,5 +138,82 @@ describe('reconcileRelatedAssetGroups', () => {
     const correct = { ...baseArgs, manualRelatedAssetIndex: {}, excludedAssetIds: [] }
     const result = reconcileRelatedAssetGroups(correct)
     expect(result.relatedAssetIndex[WBTC_ETH]).toEqual(baseArgs.relatedAssetIndex[WBTC_ETH])
+  })
+
+  it('prefers a canonical key over a higher market cap version of the same coin', () => {
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      relatedAssetKeyByAssetId: { ...baseArgs.relatedAssetKeyByAssetId, [WBTC_ARB]: null },
+      relatedAssetIndex: {},
+      rankedAssetIds: [WBTC_ARB, WBTC_ETH],
+      coinIdByAssetId: { [WBTC_ETH]: 'wrapped-bitcoin', [WBTC_ARB]: 'wrapped-bitcoin' },
+      manualRelatedAssetIndex: {},
+      excludedAssetIds: [],
+    })
+    expect(result.relatedAssetKeyByAssetId[WBTC_ARB]).toBe(WBTC_ETH)
+  })
+
+  it('rekeys an existing token-led family to its native and drops the wrapped native from it', () => {
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      relatedAssetKeyByAssetId: {
+        ...baseArgs.relatedAssetKeyByAssetId,
+        [POL_ETH]: POL_ETH,
+        [POL_NATIVE]: POL_ETH,
+        [WPOL]: POL_ETH,
+      },
+      relatedAssetIndex: { [POL_ETH]: [POL_ETH, POL_NATIVE, WPOL] },
+    })
+    expect(result.relatedAssetIndex[POL_NATIVE]).toEqual([POL_ETH, POL_NATIVE])
+    expect(result.relatedAssetIndex[POL_ETH]).toBeUndefined()
+    expect(result.relatedAssetKeyByAssetId[WPOL]).toBeNull()
+  })
+
+  it('treats a token as the wrapped native on every chain where its coin is native', () => {
+    const ETH_MAINNET = 'eip155:1/slip44:60'
+    const ETH_ARB = 'eip155:42161/slip44:60'
+    const ETH_TOKEN_ARB = 'eip155:42161/erc20:0xeth'
+    const ETH_TOKEN_BSC = 'eip155:56/erc20:0xeth'
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      relatedAssetKeyByAssetId: {
+        [ETH_MAINNET]: null,
+        [ETH_ARB]: null,
+        [ETH_TOKEN_ARB]: null,
+        [ETH_TOKEN_BSC]: null,
+      },
+      relatedAssetIndex: {},
+      rankedAssetIds: [ETH_MAINNET, ETH_ARB, ETH_TOKEN_ARB, ETH_TOKEN_BSC],
+      coinIdByAssetId: {
+        [ETH_MAINNET]: 'ethereum',
+        [ETH_ARB]: 'ethereum',
+        [ETH_TOKEN_ARB]: 'ethereum',
+        [ETH_TOKEN_BSC]: 'ethereum',
+      },
+      manualRelatedAssetIndex: {},
+      excludedAssetIds: [],
+      nativeAssetIds: [ETH_MAINNET, ETH_ARB],
+    })
+    expect(result.relatedAssetKeyByAssetId[ETH_TOKEN_ARB]).toBeNull()
+    expect(result.relatedAssetKeyByAssetId[ETH_TOKEN_BSC]).toBe(ETH_MAINNET)
+  })
+
+  it('hands the group of an excluded key to its best remaining member', () => {
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      excludedAssetIds: [WBTC_ETH],
+    })
+    expect(result.relatedAssetKeyByAssetId[WBTC_ETH]).toBeNull()
+    expect(result.relatedAssetKeyByAssetId[WBTC_ARB]).toBe(WBTC_ARB)
+    expect(result.relatedAssetIndex[WBTC_ETH]).toBeUndefined()
+  })
+
+  it('skips a manual group whose key is not in the asset data', () => {
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      manualRelatedAssetIndex: { 'eip155:1/erc20:0xmissing': [WEETH_ARB, WEETH_ETH] },
+    })
+    expect(result.relatedAssetIndex['eip155:1/erc20:0xmissing']).toBeUndefined()
+    expect(result.relatedAssetKeyByAssetId[WEETH_ETH]).toBe(WEETH_ARB)
   })
 })

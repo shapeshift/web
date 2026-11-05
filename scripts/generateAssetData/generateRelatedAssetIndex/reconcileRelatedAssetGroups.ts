@@ -66,15 +66,20 @@ export const reconcileRelatedAssetGroups = ({
     for (const assetId of assetIdsToMove) keyByAssetId.set(assetId, key)
   }
 
-  for (const assetId of excludedAssetIds) keyByAssetId.delete(assetId)
+  for (const assetId of excludedAssetIds) {
+    // An excluded group key hands its group to the best remaining member
+    const remainingMembers = membersOf(assetId).filter(member => member !== assetId)
+    keyByAssetId.delete(assetId)
+    if (remainingMembers.length) rekey(remainingMembers, pickKey(remainingMembers))
+  }
 
   const chainIdOf = (assetId: AssetId) => assetId.slice(0, assetId.indexOf('/'))
-  const nativeChainIdByCoinId = new Map<string, string>()
+  const nativeChainIdsByCoinId = new Map<string, Set<string>>()
   for (const nativeAssetId of nativeAssetIds) {
     const coinId = coinIdByAssetId[nativeAssetId]
-    if (coinId && isKnownAsset(nativeAssetId)) {
-      nativeChainIdByCoinId.set(coinId, chainIdOf(nativeAssetId))
-    }
+    if (!coinId || !isKnownAsset(nativeAssetId)) continue
+    const chainIds = nativeChainIdsByCoinId.get(coinId) ?? new Set<string>()
+    nativeChainIdsByCoinId.set(coinId, chainIds.add(chainIdOf(nativeAssetId)))
   }
 
   const assetIdsByCoinId = new Map<string, AssetId[]>()
@@ -83,8 +88,13 @@ export const reconcileRelatedAssetGroups = ({
     if (!coinId) continue
     // A token on its native coin's own chain is the wrapped native, kept apart like WETH from ETH
     const isWrappedNative =
-      !nativeAssetIdSet.has(assetId) && nativeChainIdByCoinId.get(coinId) === chainIdOf(assetId)
-    if (isWrappedNative) continue
+      !nativeAssetIdSet.has(assetId) &&
+      Boolean(nativeChainIdsByCoinId.get(coinId)?.has(chainIdOf(assetId)))
+    if (isWrappedNative) {
+      const key = keyByAssetId.get(assetId)
+      if (key && coinIdByAssetId[key] === coinId) keyByAssetId.delete(assetId)
+      continue
+    }
     assetIdsByCoinId.set(coinId, [...(assetIdsByCoinId.get(coinId) ?? []), assetId])
   }
 
@@ -98,13 +108,23 @@ export const reconcileRelatedAssetGroups = ({
       else if (coinIdByAssetId[key] === coinId) coinGroupKeys.add(key)
     }
 
-    if (coinGroupKeys.size + ungroupedAssetIds.length < 2) continue
+    const candidates = coinAssetIds.filter(assetId => {
+      const key = keyByAssetId.get(assetId)
+      return !key || coinGroupKeys.has(key)
+    })
+    const key = pickKey(candidates)
+    const [onlyGroupKey] = coinGroupKeys
+    // A lone group stays as is unless its native coin should lead it
+    const isSettled =
+      coinGroupKeys.size + ungroupedAssetIds.length < 2 &&
+      (!nativeAssetIdSet.has(key) || onlyGroupKey === key)
+    if (candidates.length < 2 || isSettled) continue
 
-    const key = pickKey([...coinGroupKeys, ...ungroupedAssetIds])
     rekey([...[...coinGroupKeys].flatMap(membersOf), ...ungroupedAssetIds], key)
   }
 
   for (const [manualKey, manualAssetIds] of Object.entries(manualRelatedAssetIndex)) {
+    if (!isKnownAsset(manualKey)) continue
     const listedAssetIds = [manualKey, ...manualAssetIds].filter(isKnownAsset)
     if (listedAssetIds.length < 2) continue
 

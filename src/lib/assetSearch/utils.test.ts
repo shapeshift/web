@@ -19,6 +19,7 @@ import {
   USDT_ETH_PRIMARY,
   VBUSDC_KATANA,
 } from './testData'
+import type { SearchableAsset } from './types'
 import { searchAssets } from './utils'
 
 const assets: Asset[] = [
@@ -780,9 +781,9 @@ describe('searchAssets family ranking', () => {
     symbol: string,
     name: string,
     relatedAssetKey: string | null = null,
-  ) => ({
+  ): SearchableAsset => ({
     assetId,
-    chainId: assetId.split('/')[0],
+    chainId: fromAssetId(assetId).chainId,
     symbol,
     name,
     isPrimary: relatedAssetKey === null || relatedAssetKey === assetId,
@@ -799,14 +800,19 @@ describe('searchAssets family ranking', () => {
   const TOKAMAK = makeSearchable('eip155:1/erc20:0xtokamak', 'TON', 'Tokamak Network')
   const TONXX = makeSearchable('eip155:1/erc20:0xtonxx', 'TONXX', 'TON xStock')
   const GRAMPUS = makeSearchable('eip155:8453/erc20:0xgrampus', 'GRAMPUS', 'GRAM Ecosystem')
-  const SOL = makeSearchable('solana:mainnet/slip44:501', 'SOL', 'Solana')
+  const SOL = makeSearchable('solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501', 'SOL', 'Solana')
   const BSC_SOL = makeSearchable(
     'eip155:56/erc20:0xsol',
     'SOL',
     'Binance-Peg SOL',
     'eip155:56/erc20:0xsol',
   )
-  const WSOL = makeSearchable('solana:mainnet/token:wsol', 'WSOL', 'Wrapped SOL', BSC_SOL.assetId)
+  const WSOL = makeSearchable(
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112',
+    'WSOL',
+    'Wrapped SOL',
+    BSC_SOL.assetId,
+  )
 
   const familyAssets = new Map([TON, BSC_SOL].map(asset => [asset.assetId, asset]))
   const getFamilyAsset = (assetId: string) => familyAssets.get(assetId)

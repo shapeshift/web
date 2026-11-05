@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import uniqBy from 'lodash/uniqBy'
 
@@ -9,7 +9,8 @@ type ResolveSearchResultsArgs = {
   usableAssetsById: PartialRecord<AssetId, Asset>
   relatedAssetIdsByKey: PartialRecord<AssetId, AssetId[]>
   assetsById: AssetsByIdPartial
-  groupVariants: boolean
+  activeChainId: ChainId | 'All'
+  isAddressSearch: boolean
 }
 
 // Search keeps one result per family, so a result this list can't use is swapped for its versions that it can
@@ -18,19 +19,28 @@ export const resolveSearchResults = ({
   usableAssetsById,
   relatedAssetIdsByKey,
   assetsById,
-  groupVariants,
+  activeChainId,
+  isAddressSearch,
 }: ResolveSearchResultsArgs): Asset[] =>
   uniqBy(
     resultAssetIds.flatMap(assetId => {
       const usableAsset = usableAssetsById[assetId]
       if (usableAsset) return [usableAsset]
-      const asset = assetsById[assetId]
-      const relatedAssetKey = asset?.relatedAssetKey ?? assetId
+      // An address search only ever shows the token at that address
+      if (isAddressSearch) return []
+
+      const relatedAssetKey = assetsById[assetId]?.relatedAssetKey ?? assetId
       const usableVariants = (relatedAssetIdsByKey[relatedAssetKey] ?? [])
         .map(relatedAssetId => usableAssetsById[relatedAssetId])
         .filter(isSome)
-      // The asset's own row lists only the usable versions when grouped
-      if (groupVariants && asset && usableVariants.length > 1) return [asset]
+
+      if (activeChainId !== 'All') {
+        return usableVariants.filter(variant => variant.chainId === activeChainId)
+      }
+
+      // The family's main asset row lists only the usable versions when grouped
+      const familyAsset = assetsById[relatedAssetKey]
+      if (familyAsset && usableVariants.length > 1) return [familyAsset]
       return usableVariants
     }),
     asset => asset.assetId,

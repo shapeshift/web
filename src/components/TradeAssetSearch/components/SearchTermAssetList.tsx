@@ -115,7 +115,8 @@ export const SearchTermAssetList = ({
     return customTokens.filter(token => !assetsById[token.assetId]).map(token => makeAsset(token))
   }, [customTokens])
 
-  const showRelatedAssets = activeChainId === 'All' && !isContractAddress(searchString)
+  const isAddressSearch = isContractAddress(searchString)
+  const showRelatedAssets = activeChainId === 'All' && !isAddressSearch
 
   const searchTermAssets = useMemo(() => {
     const filteredAssets: Asset[] = (() => {
@@ -131,7 +132,8 @@ export const SearchTermAssetList = ({
           usableAssetsById: assetIdMap,
           relatedAssetIdsByKey: relatedAssetIdsById,
           assetsById: selectAssets(store.getState()),
-          groupVariants: showRelatedAssets,
+          activeChainId,
+          isAddressSearch,
         })
       }
 
@@ -169,7 +171,8 @@ export const SearchTermAssetList = ({
     assetIdMap,
     portfolioUserCurrencyBalances,
     relatedAssetIdsById,
-    showRelatedAssets,
+    activeChainId,
+    isAddressSearch,
   ])
 
   return (

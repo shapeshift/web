@@ -1,22 +1,34 @@
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { bscChainId, ethChainId, tonChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { describe, expect, it } from 'vitest'
 
 import { resolveSearchResults } from './resolveSearchResults'
 
-const TON_ID = 'ton:mainnet/slip44:607'
-const GRAM_ETH_ID = 'eip155:1/erc20:0xgram'
-const GRAM_BSC_ID = 'eip155:56/erc20:0xgram'
-const USDC_ID = 'eip155:1/erc20:0xusdc'
+const makeTestAsset = (
+  assetId: AssetId,
+  chainId: ChainId,
+  symbol: string,
+  relatedAssetKey?: AssetId,
+): Asset => ({ assetId, chainId, symbol, relatedAssetKey }) as Asset
 
-const TON = { assetId: TON_ID } as Asset
-const GRAM_ETH = { assetId: GRAM_ETH_ID, relatedAssetKey: TON_ID } as Asset
-const GRAM_BSC = { assetId: GRAM_BSC_ID, relatedAssetKey: TON_ID } as Asset
-const USDC = { assetId: USDC_ID } as Asset
+const TON_ID = 'ton:mainnet/slip44:607'
+const TON = makeTestAsset(TON_ID, tonChainId, 'TON', TON_ID)
+const GRAM_ETH = makeTestAsset('eip155:1/erc20:0xgram', ethChainId, 'GRAM', TON_ID)
+const GRAM_BSC = makeTestAsset('eip155:56/erc20:0xgram', bscChainId, 'GRAM', TON_ID)
+const GRAM_BSC_2 = makeTestAsset('eip155:56/erc20:0xgram2', bscChainId, 'GRAM', TON_ID)
+const USDC = makeTestAsset('eip155:1/erc20:0xusdc', ethChainId, 'USDC')
+
+const byId = (assets: Asset[]) => Object.fromEntries(assets.map(asset => [asset.assetId, asset]))
 
 const baseArgs = {
-  relatedAssetIdsByKey: { [TON_ID]: [TON_ID, GRAM_ETH_ID, GRAM_BSC_ID], [USDC_ID]: [USDC_ID] },
-  assetsById: { [TON_ID]: TON, [GRAM_ETH_ID]: GRAM_ETH, [GRAM_BSC_ID]: GRAM_BSC, [USDC_ID]: USDC },
-  groupVariants: false,
+  relatedAssetIdsByKey: {
+    [TON_ID]: [TON_ID, GRAM_ETH.assetId, GRAM_BSC.assetId, GRAM_BSC_2.assetId],
+    [USDC.assetId]: [USDC.assetId],
+  },
+  assetsById: byId([TON, GRAM_ETH, GRAM_BSC, GRAM_BSC_2, USDC]),
+  activeChainId: 'All' as const,
+  isAddressSearch: false,
 }
 
 describe('resolveSearchResults', () => {
@@ -24,50 +36,60 @@ describe('resolveSearchResults', () => {
     expect(
       resolveSearchResults({
         ...baseArgs,
-        resultAssetIds: [TON_ID, USDC_ID],
-        usableAssetsById: { [USDC_ID]: USDC, [TON_ID]: TON },
+        resultAssetIds: [TON_ID, USDC.assetId],
+        usableAssetsById: byId([USDC, TON]),
       }),
     ).toEqual([TON, USDC])
   })
 
-  it('swaps a result the list rejects for its usable version, e.g. limit order buy', () => {
+  it('swaps a result the list rejects for its one usable version, e.g. limit order buy', () => {
     expect(
       resolveSearchResults({
         ...baseArgs,
-        groupVariants: true,
-        resultAssetIds: [TON_ID, USDC_ID],
-        usableAssetsById: { [USDC_ID]: USDC, [GRAM_ETH_ID]: GRAM_ETH },
+        resultAssetIds: [TON_ID, USDC.assetId],
+        usableAssetsById: byId([USDC, GRAM_ETH]),
       }),
     ).toEqual([GRAM_ETH, USDC])
   })
 
-  it('keeps the rejected result as one row when it has several usable versions and rows are grouped', () => {
+  it('groups several usable versions under the family main asset, even when a version was the result', () => {
     expect(
       resolveSearchResults({
         ...baseArgs,
-        groupVariants: true,
-        resultAssetIds: [TON_ID],
-        usableAssetsById: { [GRAM_ETH_ID]: GRAM_ETH, [GRAM_BSC_ID]: GRAM_BSC },
+        resultAssetIds: [GRAM_BSC_2.assetId],
+        usableAssetsById: byId([GRAM_ETH, GRAM_BSC]),
       }),
     ).toEqual([TON])
   })
 
-  it('lists each usable version when rows are not grouped', () => {
+  it('only swaps in versions on the network tab', () => {
     expect(
       resolveSearchResults({
         ...baseArgs,
-        resultAssetIds: [TON_ID],
-        usableAssetsById: { [GRAM_ETH_ID]: GRAM_ETH, [GRAM_BSC_ID]: GRAM_BSC },
+        activeChainId: bscChainId,
+        resultAssetIds: [GRAM_BSC_2.assetId],
+        usableAssetsById: byId([TON, GRAM_ETH, GRAM_BSC]),
       }),
-    ).toEqual([GRAM_ETH, GRAM_BSC])
+    ).toEqual([GRAM_BSC])
+  })
+
+  it('never swaps an address search for a token at another address', () => {
+    expect(
+      resolveSearchResults({
+        ...baseArgs,
+        isAddressSearch: true,
+        resultAssetIds: [GRAM_BSC_2.assetId],
+        usableAssetsById: byId([GRAM_ETH, GRAM_BSC]),
+      }),
+    ).toEqual([])
   })
 
   it('does not repeat a version that is also its own result', () => {
     expect(
       resolveSearchResults({
         ...baseArgs,
-        resultAssetIds: [TON_ID, GRAM_ETH_ID],
-        usableAssetsById: { [GRAM_ETH_ID]: GRAM_ETH },
+        resultAssetIds: [TON_ID, GRAM_ETH.assetId],
+        usableAssetsById: byId([GRAM_ETH]),
       }),
     ).toEqual([GRAM_ETH])
   })

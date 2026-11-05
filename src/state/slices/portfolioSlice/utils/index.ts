@@ -8,7 +8,6 @@ import {
   baseChainId,
   bchChainId,
   berachainChainId,
-  blastChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -19,7 +18,6 @@ import {
   dogeChainId,
   elysiumChainId,
   ethChainId,
-  etherealChainId,
   flowEvmChainId,
   fromAccountId,
   fromAssetId,
@@ -73,7 +71,6 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
-  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsBTC,
@@ -82,7 +79,6 @@ import {
   supportsCronos,
   supportsElysium,
   supportsETH,
-  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -170,7 +166,6 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case baseChainId:
     case zkSyncEraChainId:
-    case blastChainId:
     case abstractChainId:
     case hemiChainId:
     case hyperEvmChainId:
@@ -178,7 +173,6 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case inkChainId:
     case megaethChainId:
     case berachainChainId:
-    case etherealChainId:
     case flowEvmChainId:
     case lineaChainId:
     case cronosChainId:
@@ -652,8 +646,6 @@ export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
-    case etherealChainId:
-      return supportsEthereal(wallet)
     case flowEvmChainId:
       return supportsFlowEvm(wallet)
     case mantleChainId:
@@ -674,8 +666,6 @@ export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): bo
       return supportsStory(wallet)
     case zkSyncEraChainId:
       return supportsZkSyncEra(wallet)
-    case blastChainId:
-      return supportsBlast(wallet)
     case abstractChainId:
       return supportsAbstract(wallet)
     case worldChainChainId:

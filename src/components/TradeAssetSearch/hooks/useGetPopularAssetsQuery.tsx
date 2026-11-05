@@ -3,12 +3,10 @@ import {
   abstractAssetId,
   aptosAssetId,
   berachainAssetId,
-  blastAssetId,
   bobAssetId,
   celoAssetId,
   cronosAssetId,
   elysiumAssetId,
-  etherealAssetId,
   flowEvmAssetId,
   hemiAssetId,
   hyperEvmAssetId,
@@ -72,13 +70,11 @@ export const queryFn = async () => {
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
-  if (enabledFlags.Ethereal) assetIds.push(etherealAssetId)
   if (enabledFlags.Celo) assetIds.push(celoAssetId)
   if (enabledFlags.FlowEvm) assetIds.push(flowEvmAssetId)
   if (enabledFlags.Plume) assetIds.push(plumeAssetId)
   if (enabledFlags.Story) assetIds.push(storyAssetId)
   if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
-  if (enabledFlags.Blast) assetIds.push(blastAssetId)
   if (enabledFlags.Abstract) assetIds.push(abstractAssetId)
   if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)
   if (enabledFlags.Hemi) assetIds.push(hemiAssetId)

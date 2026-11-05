@@ -27,13 +27,11 @@ export const worldChainAssetId: AssetId = 'eip155:480/slip44:60'
 export const berachainAssetId: AssetId = 'eip155:80094/slip44:60'
 export const cronosAssetId: AssetId = 'eip155:25/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
-export const etherealAssetId: AssetId = 'eip155:5064014/slip44:60'
 export const flowEvmAssetId: AssetId = 'eip155:747/slip44:60'
 export const celoAssetId: AssetId = 'eip155:42220/slip44:60'
 export const plumeAssetId: AssetId = 'eip155:98866/slip44:60'
 export const storyAssetId: AssetId = 'eip155:1514/slip44:60'
 export const zkSyncEraAssetId: AssetId = 'eip155:324/slip44:60'
-export const blastAssetId: AssetId = 'eip155:81457/slip44:60'
 export const hemiAssetId: AssetId = 'eip155:43111/slip44:60'
 export const lineaAssetId: AssetId = 'eip155:59144/slip44:60'
 export const scrollAssetId: AssetId = 'eip155:534352/slip44:60'
@@ -119,13 +117,11 @@ export const worldChainChainId: ChainId = 'eip155:480'
 export const berachainChainId: ChainId = 'eip155:80094'
 export const cronosChainId: ChainId = 'eip155:25'
 export const katanaChainId: ChainId = 'eip155:747474'
-export const etherealChainId: ChainId = 'eip155:5064014'
 export const flowEvmChainId: ChainId = 'eip155:747'
 export const celoChainId: ChainId = 'eip155:42220'
 export const plumeChainId: ChainId = 'eip155:98866'
 export const storyChainId: ChainId = 'eip155:1514'
 export const zkSyncEraChainId: ChainId = 'eip155:324'
-export const blastChainId: ChainId = 'eip155:81457'
 export const hemiChainId: ChainId = 'eip155:43111'
 export const lineaChainId: ChainId = 'eip155:59144'
 export const scrollChainId: ChainId = 'eip155:534352'
@@ -195,13 +191,11 @@ export const CHAIN_REFERENCE = {
   BerachainMainnet: '80094',
   CronosMainnet: '25',
   KatanaMainnet: '747474', // https://docs.katana.network
-  EtherealMainnet: '5064014', // https://docs.ethereal.global
   FlowEvmMainnet: '747',
   CeloMainnet: '42220',
   PlumeMainnet: '98866', // https://docs.plumenetwork.xyz
   StoryMainnet: '1514', // https://docs.story.foundation
   ZkSyncEraMainnet: '324', // https://docs.zksync.io
-  BlastMainnet: '81457', // https://docs.blast.io
   HemiMainnet: '43111', // https://docs.hemi.xyz
   LineaMainnet: '59144', // https://docs.linea.build
   ScrollMainnet: '534352', // https://scrollscan.com
@@ -266,13 +260,11 @@ export const ASSET_REFERENCE = {
   Berachain: '60', // evm chain which uses ethereum derivation path as common practice
   Cronos: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
-  Ethereal: '60', // evm chain which uses ethereum derivation path as common practice
   FlowEvm: '60', // evm chain which uses ethereum derivation path as common practice
   Celo: '60', // evm chain which uses ethereum derivation path as common practice
   Plume: '60', // evm chain which uses ethereum derivation path as common practice
   Story: '60', // evm chain which uses ethereum derivation path as common practice
   ZkSyncEra: '60', // evm chain which uses ethereum derivation path as common practice
-  Blast: '60', // evm chain which uses ethereum derivation path as common practice
   WorldChain: '60', // evm chain which uses ethereum derivation path as common practice
   Hemi: '60', // evm chain which uses ethereum derivation path as common practice
   Linea: '60', // evm chain which uses ethereum derivation path as common practice
@@ -321,12 +313,10 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BerachainMainnet,
     CHAIN_REFERENCE.CronosMainnet,
     CHAIN_REFERENCE.KatanaMainnet,
-    CHAIN_REFERENCE.EtherealMainnet,
     CHAIN_REFERENCE.FlowEvmMainnet,
     CHAIN_REFERENCE.PlumeMainnet,
     CHAIN_REFERENCE.StoryMainnet,
     CHAIN_REFERENCE.ZkSyncEraMainnet,
-    CHAIN_REFERENCE.BlastMainnet,
     CHAIN_REFERENCE.WorldChainMainnet,
     CHAIN_REFERENCE.HemiMainnet,
     CHAIN_REFERENCE.LineaMainnet,
@@ -408,7 +398,6 @@ export const FEE_ASSET_IDS = [
   plumeAssetId,
   storyAssetId,
   zkSyncEraAssetId,
-  blastAssetId,
   hemiAssetId,
   lineaAssetId,
   berachainAssetId,
@@ -429,7 +418,6 @@ export const FEE_ASSET_IDS = [
   plasmaAssetId,
   worldChainAssetId,
   katanaAssetId,
-  etherealAssetId,
   flowEvmAssetId,
   aptosAssetId,
   elysiumAssetId,

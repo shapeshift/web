@@ -16,7 +16,6 @@ import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
 import plume from "./eip155_98866/adapter.json";
 import zksyncera from "./eip155_324/adapter.json";
-import blast from "./eip155_81457/adapter.json";
 import worldchain from "./eip155_480/adapter.json";
 import hemi from "./eip155_43111/adapter.json";
 import linea from "./eip155_59144/adapter.json";
@@ -35,7 +34,6 @@ import soneium from "./eip155_1868/adapter.json";
 import flowevm from "./eip155_747/adapter.json";
 import celo from "./eip155_42220/adapter.json";
 import sei from "./eip155_1329/adapter.json";
-import ethereal from "./eip155_5064014/adapter.json";
 import abstract from "./eip155_2741/adapter.json";
 import robinhood from "./eip155_4663/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
@@ -71,7 +69,6 @@ export {
   katana,
   plume,
   zksyncera,
-  blast,
   worldchain,
   hemi,
   linea,
@@ -89,7 +86,6 @@ export {
   flowevm,
   celo,
   sei,
-  ethereal,
   abstract,
   robinhood,
   cosmos,

@@ -55,13 +55,11 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.Account
     [KnownChainIds.CronosMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
-    [KnownChainIds.EtherealMainnet]: evm.Account
     [KnownChainIds.FlowEvmMainnet]: evm.Account
     [KnownChainIds.CeloMainnet]: evm.Account
     [KnownChainIds.PlumeMainnet]: evm.Account
     [KnownChainIds.StoryMainnet]: evm.Account
     [KnownChainIds.ZkSyncEraMainnet]: evm.Account
-    [KnownChainIds.BlastMainnet]: evm.Account
     [KnownChainIds.WorldChainMainnet]: evm.Account
     [KnownChainIds.HemiMainnet]: evm.Account
     [KnownChainIds.LineaMainnet]: evm.Account
@@ -135,13 +133,11 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.FeeData
     [KnownChainIds.CronosMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
-    [KnownChainIds.EtherealMainnet]: evm.FeeData
     [KnownChainIds.FlowEvmMainnet]: evm.FeeData
     [KnownChainIds.CeloMainnet]: evm.FeeData
     [KnownChainIds.PlumeMainnet]: evm.FeeData
     [KnownChainIds.StoryMainnet]: evm.FeeData
     [KnownChainIds.ZkSyncEraMainnet]: evm.FeeData
-    [KnownChainIds.BlastMainnet]: evm.FeeData
     [KnownChainIds.WorldChainMainnet]: evm.FeeData
     [KnownChainIds.HemiMainnet]: evm.FeeData
     [KnownChainIds.LineaMainnet]: evm.FeeData
@@ -246,13 +242,11 @@ export type ChainSignTx = {
   [KnownChainIds.BerachainMainnet]: ETHSignTx
   [KnownChainIds.CronosMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
-  [KnownChainIds.EtherealMainnet]: ETHSignTx
   [KnownChainIds.FlowEvmMainnet]: ETHSignTx
   [KnownChainIds.CeloMainnet]: ETHSignTx
   [KnownChainIds.PlumeMainnet]: ETHSignTx
   [KnownChainIds.StoryMainnet]: ETHSignTx
   [KnownChainIds.ZkSyncEraMainnet]: ETHSignTx
-  [KnownChainIds.BlastMainnet]: ETHSignTx
   [KnownChainIds.WorldChainMainnet]: ETHSignTx
   [KnownChainIds.HemiMainnet]: ETHSignTx
   [KnownChainIds.LineaMainnet]: ETHSignTx
@@ -330,13 +324,11 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
     [KnownChainIds.CronosMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
-    [KnownChainIds.EtherealMainnet]: evm.BuildTxInput
     [KnownChainIds.FlowEvmMainnet]: evm.BuildTxInput
     [KnownChainIds.CeloMainnet]: evm.BuildTxInput
     [KnownChainIds.PlumeMainnet]: evm.BuildTxInput
     [KnownChainIds.StoryMainnet]: evm.BuildTxInput
     [KnownChainIds.ZkSyncEraMainnet]: evm.BuildTxInput
-    [KnownChainIds.BlastMainnet]: evm.BuildTxInput
     [KnownChainIds.WorldChainMainnet]: evm.BuildTxInput
     [KnownChainIds.HemiMainnet]: evm.BuildTxInput
     [KnownChainIds.LineaMainnet]: evm.BuildTxInput
@@ -463,13 +455,11 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.CronosMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.EtherealMainnet]: evm.GetFeeDataInput
     [KnownChainIds.FlowEvmMainnet]: evm.GetFeeDataInput
     [KnownChainIds.CeloMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PlumeMainnet]: evm.GetFeeDataInput
     [KnownChainIds.StoryMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ZkSyncEraMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.BlastMainnet]: evm.GetFeeDataInput
     [KnownChainIds.WorldChainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.HemiMainnet]: evm.GetFeeDataInput
     [KnownChainIds.LineaMainnet]: evm.GetFeeDataInput
@@ -561,13 +551,11 @@ export enum ChainAdapterDisplayName {
   Berachain = 'Berachain',
   Cronos = 'Cronos',
   Katana = 'Katana',
-  Ethereal = 'Ethereal',
   FlowEvm = 'Flow EVM',
   Celo = 'Celo',
   Plume = 'Plume',
   Story = 'Story',
   ZkSyncEra = 'zkSync Era',
-  Blast = 'Blast',
   WorldChain = 'World Chain',
   Hemi = 'Hemi',
   Linea = 'Linea',

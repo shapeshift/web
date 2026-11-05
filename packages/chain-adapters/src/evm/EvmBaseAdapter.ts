@@ -14,14 +14,12 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
-  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsCelo,
   supportsCronos,
   supportsElysium,
   supportsETH,
-  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -121,12 +119,10 @@ export const evmChainIds = [
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
-  KnownChainIds.EtherealMainnet,
   KnownChainIds.FlowEvmMainnet,
   KnownChainIds.CeloMainnet,
   KnownChainIds.StoryMainnet,
   KnownChainIds.ZkSyncEraMainnet,
-  KnownChainIds.BlastMainnet,
   KnownChainIds.WorldChainMainnet,
   KnownChainIds.HemiMainnet,
   KnownChainIds.LineaMainnet,
@@ -254,8 +250,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
-        case Number(fromChainId(KnownChainIds.EtherealMainnet).chainReference):
-          return supportsEthereal(wallet)
         case Number(fromChainId(KnownChainIds.FlowEvmMainnet).chainReference):
           return supportsFlowEvm(wallet)
         case Number(fromChainId(KnownChainIds.CeloMainnet).chainReference):
@@ -264,8 +258,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsStory(wallet)
         case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
           return supportsZkSyncEra(wallet)
-        case Number(fromChainId(KnownChainIds.BlastMainnet).chainReference):
-          return supportsBlast(wallet)
         case Number(fromChainId(KnownChainIds.AbstractMainnet).chainReference):
           return supportsAbstract(wallet)
         case Number(fromChainId(KnownChainIds.WorldChainMainnet).chainReference):
@@ -414,11 +406,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
       },
-      [KnownChainIds.EtherealMainnet]: {
-        name: 'USDe',
-        symbol: 'USDe',
-        explorer: 'https://explorer.ethereal.global',
-      },
       [KnownChainIds.FlowEvmMainnet]: {
         name: 'Flow',
         symbol: 'FLOW',
@@ -438,11 +425,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.zksync.io',
-      },
-      [KnownChainIds.BlastMainnet]: {
-        name: 'Ether',
-        symbol: 'ETH',
-        explorer: 'https://blastscan.io',
       },
       [KnownChainIds.WorldChainMainnet]: {
         name: 'Ethereum',

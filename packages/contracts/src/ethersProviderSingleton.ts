@@ -45,8 +45,6 @@ const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return PUBLIC_RPC_URLS.cronos[0]
       case KnownChainIds.KatanaMainnet:
         return PUBLIC_RPC_URLS.katana[0]
-      case KnownChainIds.EtherealMainnet:
-        return PUBLIC_RPC_URLS.ethereal[0]
       case KnownChainIds.FlowEvmMainnet:
         return PUBLIC_RPC_URLS.flowEvm[0]
       case KnownChainIds.CeloMainnet:
@@ -57,8 +55,6 @@ const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return PUBLIC_RPC_URLS.story[0]
       case KnownChainIds.ZkSyncEraMainnet:
         return PUBLIC_RPC_URLS.zkSyncEra[0]
-      case KnownChainIds.BlastMainnet:
-        return PUBLIC_RPC_URLS.blast[0]
       case KnownChainIds.WorldChainMainnet:
         return PUBLIC_RPC_URLS.worldChain[0]
       case KnownChainIds.HemiMainnet:

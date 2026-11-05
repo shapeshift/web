@@ -26,7 +26,6 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.ModeMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.ZkSyncEraMainnet,
-  KnownChainIds.BlastMainnet,
   KnownChainIds.HemiMainnet,
   KnownChainIds.BerachainMainnet,
   KnownChainIds.ScrollMainnet,
@@ -34,7 +33,6 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.SoneiumMainnet,
   KnownChainIds.NearMainnet,
   KnownChainIds.StarknetMainnet,
-  KnownChainIds.EtherealMainnet,
   KnownChainIds.FlowEvmMainnet,
   KnownChainIds.CeloMainnet,
   KnownChainIds.AbstractMainnet,
@@ -71,7 +69,6 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.MegaEthMainnet && !enabledFlags.MegaEth) return false
   if (chainId === KnownChainIds.PlumeMainnet && !enabledFlags.Plume) return false
   if (chainId === KnownChainIds.ZkSyncEraMainnet && !enabledFlags.ZkSyncEra) return false
-  if (chainId === KnownChainIds.BlastMainnet && !enabledFlags.Blast) return false
   if (chainId === KnownChainIds.AbstractMainnet && !enabledFlags.Abstract) return false
   if (chainId === KnownChainIds.HemiMainnet && !enabledFlags.Hemi) return false
   if (chainId === KnownChainIds.BerachainMainnet && !enabledFlags.Berachain) return false
@@ -80,7 +77,6 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.SoneiumMainnet && !enabledFlags.Soneium) return false
   if (chainId === KnownChainIds.NearMainnet && !enabledFlags.Near) return false
   if (chainId === KnownChainIds.StarknetMainnet && !enabledFlags.Starknet) return false
-  if (chainId === KnownChainIds.EtherealMainnet && !enabledFlags.Ethereal) return false
   if (chainId === KnownChainIds.FlowEvmMainnet && !enabledFlags.FlowEvm) return false
   if (chainId === KnownChainIds.CeloMainnet && !enabledFlags.Celo) return false
   if (chainId === KnownChainIds.TonMainnet && !enabledFlags.Ton) return false

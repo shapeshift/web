@@ -8,7 +8,6 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
-  blastChainId,
   bobChainId,
   bscChainId,
   celoChainId,
@@ -56,7 +55,6 @@ import {
   avax,
   base,
   berachain,
-  blast,
   bnbsmartchain,
   bobChain,
   celo,
@@ -321,14 +319,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: zkSyncEra.explorer,
           explorerAddressLink: zkSyncEra.explorerAddressLink,
           explorerTxLink: zkSyncEra.explorerTxLink,
-        }
-      case blastChainId:
-        return {
-          assetNamespace: ASSET_NAMESPACE.erc20,
-          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
-          explorer: blast.explorer,
-          explorerAddressLink: blast.explorerAddressLink,
-          explorerTxLink: blast.explorerTxLink,
         }
       case abstractChainId:
         return {

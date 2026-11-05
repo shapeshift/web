@@ -9,7 +9,6 @@ import {
   avalanche,
   base,
   berachain,
-  blast,
   bob,
   bsc,
   celo,
@@ -139,24 +138,9 @@ export const viemCeloClient = createRpcClient(celo, undefined, PUBLIC_RPC_URLS.c
 
 export const viemKatanaClient = createRpcClient(katana, undefined, PUBLIC_RPC_URLS.katana)
 
-export const ethereal = defineChain({
-  id: 5064014,
-  name: 'Ethereal',
-  nativeCurrency: { name: 'USDe', symbol: 'USDe', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.ethereal.trade'] } },
-  blockExplorers: {
-    default: { name: 'Ethereal Explorer', url: 'https://explorer.ethereal.global' },
-  },
-  contracts: { multicall3 },
-})
-
-export const viemEtherealClient = createRpcClient(ethereal, undefined, PUBLIC_RPC_URLS.ethereal)
-
 export const viemStoryClient = createRpcClient(story, undefined, PUBLIC_RPC_URLS.story)
 
 export const viemZkSyncEraClient = createRpcClient(zksync, undefined, PUBLIC_RPC_URLS.zkSyncEra)
-
-export const viemBlastClient = createRpcClient(blast, undefined, PUBLIC_RPC_URLS.blast)
 
 export const viemWorldChainClient = createRpcClient(
   worldchain,
@@ -218,12 +202,10 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
-  [KnownChainIds.EtherealMainnet]: viemEtherealClient,
   [KnownChainIds.FlowEvmMainnet]: viemFlowEvmClient,
   [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.StoryMainnet]: viemStoryClient,
   [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
-  [KnownChainIds.BlastMainnet]: viemBlastClient,
   [KnownChainIds.WorldChainMainnet]: viemWorldChainClient,
   [KnownChainIds.HemiMainnet]: viemHemiClient,
   [KnownChainIds.LineaMainnet]: viemLineaClient,
@@ -258,12 +240,10 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
-  [KnownChainIds.EtherealMainnet]: ethereal.id,
   [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
   [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.StoryMainnet]: story.id,
   [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
-  [KnownChainIds.BlastMainnet]: blast.id,
   [KnownChainIds.WorldChainMainnet]: worldchain.id,
   [KnownChainIds.HemiMainnet]: hemi.id,
   [KnownChainIds.LineaMainnet]: linea.id,
@@ -298,12 +278,10 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
-  [ethereal.id]: viemEtherealClient,
   [flowMainnet.id]: viemFlowEvmClient,
   [celo.id]: viemCeloClient,
   [story.id]: viemStoryClient,
   [zksync.id]: viemZkSyncEraClient,
-  [blast.id]: viemBlastClient,
   [worldchain.id]: viemWorldChainClient,
   [hemi.id]: viemHemiClient,
   [linea.id]: viemLineaClient,

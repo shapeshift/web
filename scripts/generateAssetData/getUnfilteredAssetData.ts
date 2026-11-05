@@ -20,13 +20,11 @@ import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as berachain from './berachain'
-import * as blast from './blast'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as bob from './bob'
 import * as celo from './celo'
 import * as cronos from './cronos'
 import * as elysium from './elysium'
-import * as ethereal from './ethereal'
 import * as ethereum from './ethereum'
 import * as flowEvm from './flowEvm'
 import * as gnosis from './gnosis'
@@ -71,11 +69,9 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
-  const etherealAssets = await ethereal.getAssets()
   const flowEvmAssets = await flowEvm.getAssets()
   const celoAssets = await celo.getAssets()
   const zksyncEraAssets = await zksyncera.getAssets()
-  const blastAssets = await blast.getAssets()
   const abstractAssets = await abstract.getAssets()
   const hemiAssets = await hemi.getAssets()
   const mantleAssets = await mantle.getAssets()
@@ -129,11 +125,9 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
-    ...etherealAssets,
     ...flowEvmAssets,
     ...celoAssets,
     ...zksyncEraAssets,
-    ...blastAssets,
     ...abstractAssets,
     ...hemiAssets,
     ...mantleAssets,

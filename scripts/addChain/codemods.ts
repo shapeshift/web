@@ -5,7 +5,6 @@ import {
   addImportLine,
   addNamedImport,
   appendAfterLastImport,
-  appendLineAfterAllPatterns,
   appendLineAfterLastPattern,
   appendLineAfterPattern,
   insertAtPosition,
@@ -1475,26 +1474,6 @@ export const ${c.camelName}: Readonly<Asset> = Object.freeze({
       ),
     ),
   )
-
-  // ============================================================
-  // 52. Coingecko test file - increment ETH-native chain count
-  // ============================================================
-  if (c.isNativeEth) {
-    const testFile = r('src/lib/market-service/coingecko/coingecko.test.ts')
-    if (fs.existsSync(testFile)) {
-      // Find ethOnBlastKey pattern and add ethOnNewChainKey
-      results.push(
-        wrap(testFile, 'coingecko-test-key', () =>
-          appendLineAfterAllPatterns(
-            testFile,
-            /ethOnBlastKey,/,
-            `        ethOn${c.pascalName}Key,`,
-            `ethOn${c.pascalName}Key,`,
-          ),
-        ),
-      )
-    }
-  }
 
   // ============================================================
   // NEW FILE CREATION: Chain adapter, plugin, asset generator, CSP

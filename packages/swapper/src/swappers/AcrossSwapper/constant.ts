@@ -1,7 +1,6 @@
 import {
   arbitrumChainId,
   baseChainId,
-  blastChainId,
   bscChainId,
   ethChainId,
   hyperEvmChainId,
@@ -26,7 +25,6 @@ import { zeroAddress } from 'viem'
 import {
   arbitrum,
   base,
-  blast,
   bsc,
   hyperEvm,
   ink,
@@ -63,7 +61,6 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [modeChainId]: mode.id,
   [plasmaChainId]: plasma.id,
   [zkSyncEraChainId]: zksync.id,
-  [blastChainId]: blast.id,
   [worldChainChainId]: worldchain.id,
   [unichainChainId]: unichain.id,
   [soneiumChainId]: soneium.id,

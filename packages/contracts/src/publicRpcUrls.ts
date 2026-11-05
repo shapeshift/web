@@ -21,7 +21,6 @@ export const PUBLIC_RPC_URLS = {
     'https://berachain.drpc.org',
     'https://berachain-mainnet.gateway.tatum.io',
   ],
-  blast: ['https://rpc.blast.io', 'https://blast-rpc.publicnode.com', 'https://blast.drpc.org'],
   bob: ['https://rpc.gobob.xyz', 'https://bob.drpc.org'],
   celo: [
     'https://forno.celo.org',
@@ -35,7 +34,6 @@ export const PUBLIC_RPC_URLS = {
     'https://cronos.drpc.org',
     'https://cro-mainnet.gateway.tatum.io',
   ],
-  ethereal: ['https://rpc.ethereal.trade'],
   flowEvm: ['https://mainnet.evm.nodes.onflow.org', 'https://flow-mainnet.gateway.tatum.io'],
   hemi: ['https://rpc.hemi.network/rpc', 'https://hemi.drpc.org'],
   hyperEvm: ['https://rpc.hyperliquid.xyz/evm', 'https://hyperliquid.drpc.org'],

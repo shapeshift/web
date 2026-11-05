@@ -227,7 +227,6 @@ export class VultisigHDWallet
   readonly _supportsPlasma = false
   readonly _supportsPlume = false
   readonly _supportsKatana = false
-  readonly _supportsEthereal = false
   readonly _supportsStory = false
   readonly _supportsSonic = false
   readonly _supportsBob = false
@@ -238,7 +237,6 @@ export class VultisigHDWallet
   readonly _supportsInk = false
   readonly _supportsMegaEth = false
   readonly _supportsZkSyncEra = false
-  readonly _supportsBlast = false
   readonly _supportsAbstract = false
   readonly _supportsWorldChain = false
   readonly _supportsHemi = false

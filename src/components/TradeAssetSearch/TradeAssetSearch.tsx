@@ -203,6 +203,26 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     getRelatedAssets,
   ])
 
+  const popularAssetRows = useMemo(() => {
+    return filterAssetsForWallet({
+      assets: popularAssetsByChainId?.[activeChainId] ?? [],
+      hasWallet,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      assetFilterPredicate,
+      getRelatedAssets,
+      groupVariants: true,
+    })
+  }, [
+    popularAssetsByChainId,
+    activeChainId,
+    allowWalletUnsupportedAssets,
+    hasWallet,
+    walletConnectedChainIds,
+    assetFilterPredicate,
+    getRelatedAssets,
+  ])
+
   const quickAccessAssets = useMemo(() => {
     if (activeChainId !== 'All') {
       return popularAssets.slice(0, 6)
@@ -234,6 +254,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       walletConnectedChainIds,
       assetFilterPredicate,
       getRelatedAssets,
+      groupVariants: true,
     })
   }, [
     portfolioAssetsSortedByBalance,
@@ -246,14 +267,14 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   // Assets already listed under My Assets aren't repeated under Popular Assets
   const popularAssetsNotInPortfolio = useMemo(() => {
-    if (!hasPortfolio) return popularAssets
+    if (!hasPortfolio) return popularAssetRows
     const portfolioAssetKeys = new Set(
       portfolioAssetsSortedByBalanceForChain.map(asset => asset.relatedAssetKey ?? asset.assetId),
     )
-    return popularAssets.filter(
+    return popularAssetRows.filter(
       asset => !portfolioAssetKeys.has(asset.relatedAssetKey ?? asset.assetId),
     )
-  }, [hasPortfolio, popularAssets, portfolioAssetsSortedByBalanceForChain])
+  }, [hasPortfolio, popularAssetRows, portfolioAssetsSortedByBalanceForChain])
 
   // Related assets on chains the wallet can't use are hidden too, not just the top level rows
   const walletChainIdFilterPredicate = useCallback(

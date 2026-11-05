@@ -88,6 +88,23 @@ describe('filterAssetsForWallet', () => {
     ])
   })
 
+  it('keeps an asset with several supported variants as one row when grouping', () => {
+    const variantsOnSupportedChain = [
+      { assetId: 'eip155:1/erc20:0xbtc', chainId: KnownChainIds.EthereumMainnet },
+      { assetId: 'eip155:1/erc20:0xbridgedbtc', chainId: KnownChainIds.EthereumMainnet },
+    ] as Asset[]
+
+    const result = filterAssetsForWallet({
+      assets,
+      hasWallet: true,
+      walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
+      getRelatedAssets: asset => (asset.assetId === btcAssetId ? variantsOnSupportedChain : []),
+      groupVariants: true,
+    })
+
+    expect(result).toEqual([supportedAsset, unsupportedAsset])
+  })
+
   it('applies assetFilterPredicate if provided', () => {
     const result = filterAssetsForWallet({
       assets,

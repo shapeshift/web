@@ -21,12 +21,9 @@ type BaseArgs = {
 export type GetCetusStepDataArgs = StepDataArgs<BaseArgs, { from: string }>
 
 // The 0x0 dummy sender only holds dust SUI, so server-side gas selection exceeds the payment object limit
-const UNFUNDED_SENDER_ERRORS = [
-  'Insufficient balance of',
-  'maximum number of gas payment objects',
-]
+const UNFUNDED_SENDER_ERRORS = ['Insufficient balance of', 'maximum number of gas payment objects']
 
-type CetusRateStepData ={ networkFeeCryptoBaseUnit: string | undefined }
+type CetusRateStepData = { networkFeeCryptoBaseUnit: string | undefined }
 type CetusQuoteStepData = { networkFeeCryptoBaseUnit: string }
 
 export function getCetusStepData(

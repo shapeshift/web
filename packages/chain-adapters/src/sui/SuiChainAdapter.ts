@@ -586,7 +586,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
     const coinType = (() => {
       if (!coinObjectId) return
-      const extractedCoinType = tx.objectTypes[coinObjectId]?.match(/^0x0*2::coin::Coin<(.+)>$/)?.[1]
+      const extractedCoinType =
+        tx.objectTypes[coinObjectId]?.match(/^0x0*2::coin::Coin<(.+)>$/)?.[1]
       return extractedCoinType ? this.normalizeCoinType(extractedCoinType) : undefined
     })()
 
@@ -613,7 +614,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       const { response: serviceInfo } = await this.client.ledgerService.getServiceInfo({})
       const latestCheckpoint = serviceInfo.checkpointHeight ?? 0n
-      const confirmations = tx.checkpoint ? Number(latestCheckpoint - BigInt(tx.checkpoint) + 1n) : 0
+      const confirmations = tx.checkpoint
+        ? Number(latestCheckpoint - BigInt(tx.checkpoint) + 1n)
+        : 0
 
       const status = tx.status.success ? TxStatus.Confirmed : TxStatus.Failed
 

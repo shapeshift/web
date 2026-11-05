@@ -183,17 +183,6 @@ describe('getTradeAssetLists', () => {
       expect(ids(lists.popularRows)).toEqual([USDC_ETH.assetId])
     })
 
-    it('still lists an asset when only a differently named version of it is held, on all networks', () => {
-      const lists = getTradeAssetLists({
-        ...baseArgs,
-        walletConnectedChainIds: [ethChainId, arbitrumChainId, starknetChainId],
-        hasPortfolio: true,
-        portfolioAssets: [AXLUSDC_ARB],
-      })
-
-      expect(ids(lists.popularRows)).toContain(USDC_ETH.assetId)
-    })
-
     it('still lists the other versions of a held asset on a single network', () => {
       const lists = getTradeAssetLists({
         ...baseArgs,
@@ -226,6 +215,17 @@ describe('getTradeAssetLists', () => {
 
       expect(ids(lists.popularRows)).not.toContain(USDT_SN.assetId)
       expect(ids(lists.quickAccessAssets)).not.toContain(USDT_SN.assetId)
+    })
+
+    it('swaps an asset on a connected chain the filter rejects for its allowed version, e.g. limit orders', () => {
+      const lists = getTradeAssetLists({
+        ...baseArgs,
+        walletConnectedChainIds: [ethChainId, starknetChainId],
+        popularAssets: [USDT_ETH],
+        chainIdFilterPredicate: chainId => chainId !== ethChainId,
+      })
+
+      expect(ids(lists.popularRows)).toEqual([USDT_SN.assetId])
     })
 
     it('does not swap in a version on a chain the chain filter rejects', () => {

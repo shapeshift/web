@@ -65,14 +65,15 @@ export const getTradeAssetLists = ({
   relatedAssetIndex,
   spamMarkedAssetIds,
 }: GetTradeAssetListsArgs): TradeAssetLists => {
+  const spamAssetIds = new Set(spamMarkedAssetIds)
+
   // Same variants as the grouped rows, which also leave out spam
   const getRelatedAssets = (asset: Asset) => {
     const relatedAssetKey = asset.relatedAssetKey ?? asset.assetId
     return [...new Set([relatedAssetKey, ...(relatedAssetIndex[relatedAssetKey] ?? [])])]
-      .filter(assetId => !spamMarkedAssetIds.includes(assetId))
+      .filter(assetId => !spamAssetIds.has(assetId))
       .map(assetId => assetsById[assetId])
       .filter(isSome)
-      .filter(relatedAsset => chainIdFilterPredicate?.(relatedAsset.chainId) ?? true)
   }
 
   const walletFilterArgs = {
@@ -80,6 +81,7 @@ export const getTradeAssetLists = ({
     allowWalletUnsupportedAssets,
     walletConnectedChainIds,
     assetFilterPredicate,
+    chainIdFilterPredicate,
     getRelatedAssets,
   }
 
@@ -100,11 +102,9 @@ export const getTradeAssetLists = ({
 
   if (!hasPortfolio) return { quickAccessAssets, portfolioRows, popularRows }
 
-  // A chain tab lists each variant, All lists one row per family and symbol, e.g. USDC apart from AXLUSDC
+  // A chain tab lists each variant, All lists one row per family
   const toRowKey = (asset: Asset) =>
-    activeChainId === 'All'
-      ? `${asset.relatedAssetKey ?? asset.assetId}:${asset.symbol}`
-      : asset.assetId
+    activeChainId === 'All' ? asset.relatedAssetKey ?? asset.assetId : asset.assetId
   const portfolioRowKeys = new Set(portfolioRows.map(toRowKey))
 
   return {

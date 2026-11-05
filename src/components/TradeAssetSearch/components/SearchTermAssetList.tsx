@@ -2,11 +2,10 @@ import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 
-import { getCustomTokenAssets } from '../helpers/getCustomTokenAssets'
 import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 
@@ -58,14 +57,12 @@ export const SearchTermAssetList = ({
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const chainIds = useMemo(() => {
-    if (activeChainId === 'All') {
-      return CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS
-    } else if (CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS.includes(activeChainId)) {
-      return [activeChainId]
-    } else {
-      return []
-    }
-  }, [activeChainId])
+    const searchableChainIds = CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS.filter(
+      chainId => chainIdFilterPredicate?.(chainId) ?? true,
+    )
+    if (activeChainId === 'All') return searchableChainIds
+    return searchableChainIds.includes(activeChainId) ? [activeChainId] : []
+  }, [activeChainId, chainIdFilterPredicate])
 
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
@@ -114,8 +111,8 @@ export const SearchTermAssetList = ({
 
     const assetsById = selectAssets(store.getState())
 
-    return getCustomTokenAssets(customTokens, assetsById, chainIdFilterPredicate)
-  }, [chainIdFilterPredicate, customTokens])
+    return customTokens.filter(token => !assetsById[token.assetId]).map(token => makeAsset(token))
+  }, [customTokens])
 
   const searchTermAssets = useMemo(() => {
     const filteredAssets: Asset[] = (() => {

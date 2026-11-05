@@ -127,10 +127,16 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     [allowWalletUnsupportedAssets, chainIdFilterPredicate, hasWallet, walletConnectedChainIds],
   )
 
-  const chainIds: (ChainId | 'All')[] = useMemo(
-    () => ['All', ...sortChainIdsByDisplayName(knownChainIds).filter(walletChainIdFilterPredicate)],
-    [walletChainIdFilterPredicate],
-  )
+  const chainIds: (ChainId | 'All')[] = useMemo(() => {
+    const unsortedChainIds =
+      allowWalletUnsupportedAssets || !hasWallet ? knownChainIds : walletConnectedChainIds
+    return [
+      'All',
+      ...sortChainIdsByDisplayName(unsortedChainIds).filter(
+        chainId => chainIdFilterPredicate?.(chainId) ?? true,
+      ),
+    ]
+  }, [allowWalletUnsupportedAssets, chainIdFilterPredicate, hasWallet, walletConnectedChainIds])
 
   // Shows All while the wallet can't use the requested chain, and returns to it once it can
   const activeChainId = chainIds.includes(requestedChainId) ? requestedChainId : 'All'

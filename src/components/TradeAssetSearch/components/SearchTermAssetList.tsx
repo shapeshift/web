@@ -119,6 +119,7 @@ export const SearchTermAssetList = ({
   const showRelatedAssets = activeChainId === 'All' && !isAddressSearch
 
   const searchTermAssets = useMemo(() => {
+    const assetsById = selectAssets(store.getState())
     const filteredAssets: Asset[] = (() => {
       // Main thread search due to dead worker
       if (workerSearchState.workerState === 'failed') {
@@ -131,7 +132,7 @@ export const SearchTermAssetList = ({
           resultAssetIds: workerSearchState.searchResults,
           usableAssetsById: assetIdMap,
           relatedAssetIdsByKey: relatedAssetIdsById,
-          assetsById: selectAssets(store.getState()),
+          assetsById,
           activeChainId,
           isAddressSearch,
         })
@@ -143,18 +144,21 @@ export const SearchTermAssetList = ({
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
     const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
+    // Sorts by the balance the row shows: a grouped main asset sums its family, a grouped version its same-symbol versions
     const getAssetBalance = (asset: Asset) => {
-      if (asset.isChainSpecific || !asset.isPrimary)
+      if (asset.isChainSpecific || !showRelatedAssets)
         return bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
-      const primaryAssetTotalBalance = relatedAssetIdsById[asset.assetId]?.reduce(
-        (acc, relatedAssetId) => {
-          return acc.plus(bnOrZero(portfolioUserCurrencyBalances[relatedAssetId]))
-        },
-        bnOrZero(0),
-      )
+      const rowAssetIds = (
+        relatedAssetIdsById[asset.relatedAssetKey ?? asset.assetId] ?? [asset.assetId]
+      ).filter(assetId => asset.isPrimary || assetsById[assetId]?.symbol === asset.symbol)
 
-      return primaryAssetTotalBalance.toNumber()
+      return rowAssetIds
+        .reduce(
+          (acc, assetId) => acc.plus(bnOrZero(portfolioUserCurrencyBalances[assetId])),
+          bnOrZero(0),
+        )
+        .toNumber()
     }
 
     return orderBy(
@@ -173,6 +177,7 @@ export const SearchTermAssetList = ({
     relatedAssetIdsById,
     activeChainId,
     isAddressSearch,
+    showRelatedAssets,
   ])
 
   return (

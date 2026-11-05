@@ -2,11 +2,12 @@ import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 
 import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
+import { getCustomTokenAssets } from '../helpers/getCustomTokenAssets'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
@@ -113,8 +114,8 @@ export const SearchTermAssetList = ({
 
     const assetsById = selectAssets(store.getState())
 
-    return customTokens.filter(token => !assetsById[token.assetId]).map(token => makeAsset(token))
-  }, [customTokens])
+    return getCustomTokenAssets(customTokens, assetsById, chainIdFilterPredicate)
+  }, [chainIdFilterPredicate, customTokens])
 
   const searchTermAssets = useMemo(() => {
     const filteredAssets: Asset[] = (() => {

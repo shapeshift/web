@@ -22,9 +22,10 @@ const MIN_ASSET_ID_SEARCH_LENGTH = 6
 const MATCH = {
   PRIMARY_SYMBOL_EXACT: 0,
   PRIMARY_NAME_EXACT: 1,
-  PRIMARY_SYMBOL_PREFIX: 2,
-  PRIMARY_NAME_PREFIX: 3,
-  SYMBOL_EXACT: 4,
+  // An exact symbol beats a prefix, so "gram" finds GRAM ahead of GRAMPUS
+  SYMBOL_EXACT: 2,
+  PRIMARY_SYMBOL_PREFIX: 3,
+  PRIMARY_NAME_PREFIX: 4,
   SYMBOL_PREFIX: 5,
   NAME_EXACT: 6,
   NAME_PREFIX: 7,
@@ -98,10 +99,11 @@ const matchAsset = (
   const sym = asset.symbol.toLowerCase()
   const name = asset.name.toLowerCase()
 
-  // A version ranks with its family's main asset, so "ton" finds GRAM on Ethereum
+  // A version whose family main asset matches exactly ranks as an exact match, so "ton" finds GRAM on Ethereum
+  const familyMatch = familyAsset ? matchPrimary(familyAsset, search) : MATCH.NONE
   const primaryMatch = Math.min(
     matchPrimary(asset, search),
-    familyAsset ? matchPrimary(familyAsset, search) : MATCH.NONE,
+    familyMatch <= MATCH.PRIMARY_NAME_EXACT ? MATCH.SYMBOL_EXACT : MATCH.NONE,
   )
   if (primaryMatch < MATCH.NONE) return primaryMatch
 

@@ -52,15 +52,12 @@ export const getKyberTradeContext = async ({
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.KyberSwap)
 
-  const feeParams = getKyberFeeParams({ chainId, affiliateBps })
-  const tokenIn = assetIdToKyberToken(sellAsset.assetId)
-  const tokenOut = assetIdToKyberToken(buyAsset.assetId)
   const maybeRoute = await fetchKyberRoute({
     chainId,
-    tokenIn,
-    tokenOut,
+    tokenIn: assetIdToKyberToken(sellAsset.assetId),
+    tokenOut: assetIdToKyberToken(buyAsset.assetId),
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    feeParams,
+    feeParams: getKyberFeeParams({ chainId, affiliateBps }),
     origin,
     baseUrl: deps.config.VITE_KYBER_BASE_URL,
   })
@@ -98,8 +95,7 @@ export const getKyberTradeContext = async ({
       sellAsset,
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       spenderAddress: allowanceContract,
-      providerGasLimit: routeSummary.gas,
-      providerGasPrice: routeSummary.gasPrice,
+      routeSummary,
     },
   })
 }

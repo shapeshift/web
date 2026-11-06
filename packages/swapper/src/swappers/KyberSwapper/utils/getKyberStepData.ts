@@ -9,14 +9,13 @@ import {
   getEvmNetworkFeeCryptoBaseUnit,
   getEvmRateNetworkFeeCryptoBaseUnit,
 } from '../../../utils/evm'
-import type { KyberBuildData } from '../types'
+import type { KyberBuildData, KyberRouteSummary } from '../types'
 import { KYBER_ROUTER_ADDRESS } from './constants'
 
 type BaseArgs = {
   sellAmountCryptoBaseUnit: string
   spenderAddress: string
-  providerGasLimit: string
-  providerGasPrice: string
+  routeSummary: KyberRouteSummary
 }
 
 // Swap calldata is only built for quotes, rates price from the route alone
@@ -38,15 +37,7 @@ export function getKyberStepData(
 export async function getKyberStepData(
   args: GetKyberStepDataArgs,
 ): Promise<Result<KyberRateStepData | KyberQuoteStepData, SwapErrorRight>> {
-  const {
-    sellAsset,
-    sellAmountCryptoBaseUnit,
-    spenderAddress,
-    providerGasLimit,
-    providerGasPrice,
-    input,
-    deps,
-  } = args
+  const { sellAsset, sellAmountCryptoBaseUnit, spenderAddress, routeSummary, input, deps } = args
 
   const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
   const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
@@ -55,8 +46,8 @@ export async function getKyberStepData(
     const networkFeeCryptoBaseUnit = await getEvmRateNetworkFeeCryptoBaseUnit({
       adapter,
       supportsEIP1559,
-      providerGasLimit,
-    }).catch(() => bnOrZero(providerGasLimit).times(bnOrZero(providerGasPrice)).toFixed(0))
+      providerGasLimit: routeSummary.gas,
+    }).catch(() => bnOrZero(routeSummary.gas).times(bnOrZero(routeSummary.gasPrice)).toFixed(0))
 
     const stepData: KyberRateStepData = { networkFeeCryptoBaseUnit }
 

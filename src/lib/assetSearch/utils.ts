@@ -22,9 +22,10 @@ const MIN_ASSET_ID_SEARCH_LENGTH = 6
 const MATCH = {
   PRIMARY_SYMBOL_EXACT: 0,
   PRIMARY_NAME_EXACT: 1,
-  PRIMARY_SYMBOL_PREFIX: 2,
-  PRIMARY_NAME_PREFIX: 3,
-  SYMBOL_EXACT: 4,
+  // An exact symbol beats a prefix, so "gram" finds GRAM ahead of GRAMPUS
+  SYMBOL_EXACT: 2,
+  PRIMARY_SYMBOL_PREFIX: 3,
+  PRIMARY_NAME_PREFIX: 4,
   SYMBOL_PREFIX: 5,
   NAME_EXACT: 6,
   NAME_PREFIX: 7,
@@ -77,16 +78,34 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
   })
 }
 
-const matchAsset = (asset: SearchableAsset, search: string): number => {
+const matchPrimary = (asset: SearchableAsset, search: string): number => {
+  if (!asset.isPrimary) return MATCH.NONE
+
   const sym = asset.symbol.toLowerCase()
   const name = asset.name.toLowerCase()
 
-  if (asset.isPrimary) {
-    if (sym === search) return MATCH.PRIMARY_SYMBOL_EXACT
-    if (name === search) return MATCH.PRIMARY_NAME_EXACT
-    if (sym.startsWith(search)) return MATCH.PRIMARY_SYMBOL_PREFIX
-    if (name.startsWith(search)) return MATCH.PRIMARY_NAME_PREFIX
-  }
+  if (sym === search) return MATCH.PRIMARY_SYMBOL_EXACT
+  if (name === search) return MATCH.PRIMARY_NAME_EXACT
+  if (sym.startsWith(search)) return MATCH.PRIMARY_SYMBOL_PREFIX
+  if (name.startsWith(search)) return MATCH.PRIMARY_NAME_PREFIX
+  return MATCH.NONE
+}
+
+const matchAsset = (
+  asset: SearchableAsset,
+  search: string,
+  familyAsset?: SearchableAsset,
+): number => {
+  const sym = asset.symbol.toLowerCase()
+  const name = asset.name.toLowerCase()
+
+  // A version whose family main asset matches exactly ranks as an exact match, so "ton" finds GRAM on Ethereum
+  const familyMatch = familyAsset ? matchPrimary(familyAsset, search) : MATCH.NONE
+  const primaryMatch = Math.min(
+    matchPrimary(asset, search),
+    familyMatch <= MATCH.PRIMARY_NAME_EXACT ? MATCH.SYMBOL_EXACT : MATCH.NONE,
+  )
+  if (primaryMatch < MATCH.NONE) return primaryMatch
 
   if (sym === search) return MATCH.SYMBOL_EXACT
   if (sym.startsWith(search)) return MATCH.SYMBOL_PREFIX
@@ -116,7 +135,11 @@ const matchAsset = (asset: SearchableAsset, search: string): number => {
 export const isStrongMatch = (asset: SearchableAsset, searchTerm: string): boolean =>
   matchAsset(asset, searchTerm.toLowerCase()) <= MATCH.NAME_PREFIX
 
-export const searchAssets = <T extends SearchableAsset>(searchTerm: string, assets: T[]): T[] => {
+export const searchAssets = <T extends SearchableAsset>(
+  searchTerm: string,
+  assets: T[],
+  getFamilyAsset?: (relatedAssetKey: AssetId) => SearchableAsset | undefined,
+): T[] => {
   if (!assets?.length) return []
   if (!searchTerm) return assets
 
@@ -127,7 +150,15 @@ export const searchAssets = <T extends SearchableAsset>(searchTerm: string, asse
   const search = searchTerm.toLowerCase()
 
   return assets
-    .map((asset, originalIndex) => ({ asset, match: matchAsset(asset, search), originalIndex }))
+    .map((asset, originalIndex) => ({
+      asset,
+      match: matchAsset(
+        asset,
+        search,
+        asset.relatedAssetKey ? getFamilyAsset?.(asset.relatedAssetKey) : undefined,
+      ),
+      originalIndex,
+    }))
     .filter(x => x.match < MATCH.NONE)
     .sort((a, b) => {
       if (a.match !== b.match) return a.match - b.match

@@ -1,4 +1,4 @@
-import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
+import { getProvidersExcluding, PYTH_ORACLE_BASED_DEXES } from '@cetusprotocol/aggregator-sdk'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -14,7 +14,6 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import type { CetusTradeQuoteInput, CetusTradeRateInput } from '../types'
-import { PYTH_DEPENDENT_PROVIDERS } from '../utils/constants'
 import { assertValidTrade, findBestRoute, getAggregatorClient, getCoinType } from '../utils/helpers'
 import type { GetCetusStepDataArgs } from './getCetusStepData'
 
@@ -42,7 +41,7 @@ export const getCetusTradeContext = async (
     const buyCoinType = getCoinType(buyAsset)
 
     // Exclude Pyth-dependent providers to avoid oracle failures
-    const providersWithoutPyth = getProvidersExcluding(PYTH_DEPENDENT_PROVIDERS)
+    const providersWithoutPyth = getProvidersExcluding(PYTH_ORACLE_BASED_DEXES)
 
     const routerData = await findBestRoute(
       client,

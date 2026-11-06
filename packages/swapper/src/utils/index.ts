@@ -478,41 +478,18 @@ export const checkSuiSwapStatus = async ({
     const adapter = assertGetSuiChainAdapter(suiChainId)
     const client = adapter.getSuiClient()
 
-    const txResponse = await client.getTransactionBlock({
+    const txResponse = await client.getTransaction({
       digest: txHash,
-      options: {
-        showEffects: true,
-        showBalanceChanges: true,
-      },
+      include: { balanceChanges: true },
     })
 
-    const status =
-      txResponse.effects?.status?.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
+    const status = txResponse.Transaction ? TxStatus.Confirmed : TxStatus.Failed
 
-    // Extract actual buy amount from balance changes
-    let actualBuyAmountCryptoBaseUnit: string | undefined
-
-    if (txResponse.balanceChanges) {
-      // Balance changes show the net effect on the user's balances
-      // Positive amounts are received, negative are sent
-      const receivedChanges = txResponse.balanceChanges.filter(change => {
-        // The owner field is a discriminated union - check for AddressOwner variant
-        // Handle both object and string cases
-        const ownerAddress =
-          change.owner && typeof change.owner === 'object' && 'AddressOwner' in change.owner
-            ? change.owner.AddressOwner
-            : change.owner && typeof change.owner === 'object' && 'ObjectOwner' in change.owner
-            ? change.owner.ObjectOwner
-            : null
-
-        return ownerAddress === address && Number(change.amount) > 0
-      })
-
-      if (receivedChanges.length > 0) {
-        // For swaps, we expect exactly one positive balance change (the buy asset)
-        actualBuyAmountCryptoBaseUnit = receivedChanges[0].amount
-      }
-    }
+    // For swaps, we expect exactly one positive balance change for the receiver (the buy asset)
+    const actualBuyAmountCryptoBaseUnit = (
+      txResponse.Transaction ?? txResponse.FailedTransaction
+    ).balanceChanges.find(change => change.address === address && BigInt(change.amount) > 0n)
+      ?.amount
 
     return {
       status,

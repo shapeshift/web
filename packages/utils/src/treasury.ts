@@ -23,6 +23,7 @@ export const treasuryChainIds = [
   KnownChainIds.RobinhoodMainnet,
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.MegaEthMainnet,
+  KnownChainIds.UnichainMainnet,
 ] as const
 
 export type TreasuryChainId = (typeof treasuryChainIds)[number]
@@ -50,6 +51,7 @@ export const DAO_TREASURY_BOB = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const DAO_TREASURY_ROBINHOOD = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const DAO_TREASURY_PLASMA = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const DAO_TREASURY_MEGAETH = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
+export const DAO_TREASURY_UNICHAIN = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const DAO_TREASURY_STARKNET =
   '0x07ac2252f2da7cbf085e7a5ddc1318243aa818607cdd430dd2e17dd5d487606a'
 export const DAO_TREASURY_TON = 'UQAHHeOhXst-zSGGigQ8KgDzz89nACBR4TxXwXNjU4DsriLb'

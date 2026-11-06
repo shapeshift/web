@@ -55,7 +55,7 @@ patchedDependencies:
     hash: 4214515c36a0bb955f62f20fefed1ccf057aa1d452ca41df28201db0f9b83441
     path: patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch
   '@ledgerhq/hw-app-btc@10.13.0':
-    hash: 9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533
+    hash: 048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39
     path: patches/@ledgerhq__hw-app-btc@10.13.0.patch
   '@mysten/sui@2.31.2':
     hash: 0fb03898f4328593ecac375f7494f3860b574781bf56a6bfcf5357f7758ad4dd
@@ -1320,7 +1320,7 @@ importers:
         version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)
+        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -1396,7 +1396,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)
+        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
         version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
@@ -1420,7 +1420,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)
+        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -2128,8 +2128,8 @@ importers:
         specifier: 2.31.2
         version: 2.31.2(patch_hash=0fb03898f4328593ecac375f7494f3860b574781bf56a6bfcf5357f7758ad4dd)(typescript@5.8.2)
       '@shapeshiftoss/bitcoinjs-lib':
-        specifier: 7.0.0-shapeshift.0
-        version: 7.0.0-shapeshift.0(typescript@5.8.2)
+        specifier: 7.0.0-shapeshift.2
+        version: 7.0.0-shapeshift.2(typescript@5.8.2)
       '@shapeshiftoss/caip':
         specifier: workspace:^
         version: link:../caip
@@ -5932,10 +5932,6 @@ packages:
   '@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2':
     resolution: {integrity: sha512-8bvuOUY2LXk9j779Nd/Nul6i4BupqGg4wl1VD4irHR329W6mC5rzxATYoIbzRNW3QKbtwTSG/gNZDDlgE3F8IQ==}
     engines: {node: '>=8.0.0'}
-
-  '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.0':
-    resolution: {integrity: sha512-geNWVi6PWngwTlhKVsbnGwKDBR6gaOta9Mgeu9t1QzxgCo7G7zkfCQPEXzcRylI495KnEY78T9xlZmsrQx4Fxw==}
-    engines: {node: '>=18.0.0'}
 
   '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2':
     resolution: {integrity: sha512-cWlAQpb9InD1O0FnWyy1ancwkggCtfUFNQs01znoYNy8G0NzRCweGvdVNxRVTH1IAsxDB2AzRs9Zs9GT0tmsvQ==}
@@ -18733,7 +18729,7 @@ snapshots:
       '@ethereumjs/rlp': 10.1.1
       '@ethereumjs/util': 10.1.1
       '@noble/curves': 2.0.1
-      '@noble/hashes': 2.0.1
+      '@noble/hashes': 2.4.0
 
   '@ethereumjs/tx@3.5.2':
     dependencies:
@@ -18758,7 +18754,7 @@ snapshots:
     dependencies:
       '@ethereumjs/rlp': 10.1.1
       '@noble/curves': 2.0.1
-      '@noble/hashes': 2.0.1
+      '@noble/hashes': 2.4.0
 
   '@ethereumjs/util@8.1.0':
     dependencies:
@@ -19983,7 +19979,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@ledgerhq/hw-app-btc@10.13.0(patch_hash=9188068bf984f45514ddf1ffb0ea75851e84832b8c1a1445b2d1edaacf8ac533)':
+  '@ledgerhq/hw-app-btc@10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)':
     dependencies:
       '@ledgerhq/hw-transport': 6.31.13
       '@ledgerhq/logs': 6.13.0
@@ -24979,18 +24975,6 @@ snapshots:
       typeforce: 1.18.0
       varuint-bitcoin: 1.1.2
       wif: 2.0.6
-
-  '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.0(typescript@5.8.2)':
-    dependencies:
-      '@noble/hashes': 1.8.0
-      bech32: 2.0.0
-      bip174: 3.0.0
-      bs58check: 4.0.0
-      uint8array-tools: 0.0.9
-      valibot: 0.38.0(typescript@5.8.2)
-      varuint-bitcoin: 2.0.0
-    transitivePeerDependencies:
-      - typescript
 
   '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2(typescript@5.2.2)':
     dependencies:

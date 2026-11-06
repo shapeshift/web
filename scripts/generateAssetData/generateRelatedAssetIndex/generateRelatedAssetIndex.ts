@@ -609,20 +609,41 @@ export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
   const relatedAssetIndex: Record<AssetId, AssetId[]> =
     REGEN_ALL && !chainId ? {} : relatedAssetIndexJson
 
-  // Remove stale related asset data from the assetData where the primary related asset no longer exists
-  Object.values(generatedAssetData).forEach(asset => {
-    const relatedAssetKey = asset.relatedAssetKey
-
-    if (!relatedAssetKey) return
-
-    const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
-
-    // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    if (primaryRelatedAsset === undefined) {
-      delete relatedAssetIndex[relatedAssetKey]
-      delete asset.relatedAssetKey
+  // A group whose key left the dataset passes to its highest ranked remaining member
+  const rankByAssetId = new Map(sortedAssetIds.map((assetId, rank) => [assetId, rank]))
+  const survivorsByMissingKey = new Map<AssetId, Set<AssetId>>()
+  const addSurvivor = (missingKey: AssetId, assetId: AssetId) => {
+    if (!generatedAssetData[assetId]) return
+    survivorsByMissingKey.set(
+      missingKey,
+      (survivorsByMissingKey.get(missingKey) ?? new Set<AssetId>()).add(assetId),
+    )
+  }
+  for (const [relatedAssetKey, relatedAssetIds] of Object.entries(relatedAssetIndex)) {
+    if (generatedAssetData[relatedAssetKey]) continue
+    delete relatedAssetIndex[relatedAssetKey]
+    for (const assetId of relatedAssetIds) addSurvivor(relatedAssetKey, assetId)
+  }
+  for (const [assetId, asset] of Object.entries(generatedAssetData)) {
+    if (asset.relatedAssetKey && !generatedAssetData[asset.relatedAssetKey]) {
+      addSurvivor(asset.relatedAssetKey, assetId)
     }
-  })
+  }
+  for (const survivorSet of survivorsByMissingKey.values()) {
+    const survivors = [...survivorSet].sort(
+      (a, b) =>
+        (rankByAssetId.get(a) ?? Number.MAX_SAFE_INTEGER) -
+        (rankByAssetId.get(b) ?? Number.MAX_SAFE_INTEGER),
+    )
+    const [newKey] = survivors
+    if (survivors.length > 1) {
+      relatedAssetIndex[newKey] = uniq([...(relatedAssetIndex[newKey] ?? []), ...survivors])
+    }
+    for (const assetId of survivors) {
+      if (survivors.length > 1) generatedAssetData[assetId].relatedAssetKey = newKey
+      else delete generatedAssetData[assetId].relatedAssetKey
+    }
+  }
 
   // Remove stale related asset data from the relatedAssetIndex where:
   // a) a related assetId no longer exists in the dataset

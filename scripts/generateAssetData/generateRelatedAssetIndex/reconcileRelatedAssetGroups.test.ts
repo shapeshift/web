@@ -200,6 +200,26 @@ describe('reconcileRelatedAssetGroups', () => {
     expect(result.relatedAssetKeyByAssetId[ELON_BASE]).toBe(ELON_BSC)
   })
 
+  it('settles a key cycle on one group', () => {
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      relatedAssetKeyByAssetId: {
+        ...baseArgs.relatedAssetKeyByAssetId,
+        [WEETH_ARB]: WEETH_ETH,
+        [WEETH_ETH]: WEETH_ARB,
+      },
+      coinIdByAssetId: { ...baseArgs.coinIdByAssetId, [WEETH_ARB]: 'other-coin' },
+      manualRelatedAssetIndex: {},
+    })
+    const { relatedAssetIndex, relatedAssetKeyByAssetId } = result
+    const listings = Object.values(relatedAssetIndex).flat()
+    for (const assetId of [WEETH_ARB, WEETH_ETH]) {
+      expect(listings.filter(listed => listed === assetId)).toHaveLength(1)
+      const key = relatedAssetKeyByAssetId[assetId]
+      expect(key && relatedAssetIndex[key]).toContain(assetId)
+    }
+  })
+
   it('treats a token as the wrapped native on every chain where its coin is native', () => {
     const ETH_MAINNET = 'eip155:1/slip44:60'
     const ETH_ARB = 'eip155:42161/slip44:60'

@@ -139,14 +139,17 @@ export const reconcileRelatedAssetGroups = ({
   }
 
   // A key that itself points elsewhere hands its members to where it points, so no asset sits in two groups
-  const resolveKey = (key: AssetId, visited: Set<AssetId>): AssetId => {
+  const resolveKey = (key: AssetId, path: AssetId[]): AssetId => {
     const nextKey = keyByAssetId.get(key)
-    if (!nextKey || nextKey === key || visited.has(nextKey)) return key
-    return resolveKey(nextKey, visited.add(key))
+    if (!nextKey || nextKey === key) return key
+    const cycleStart = path.indexOf(nextKey)
+    // Every asset in a key cycle settles on the same key
+    if (cycleStart !== -1) return pickKey([...path.slice(cycleStart), key].sort())
+    return resolveKey(nextKey, [...path, key])
   }
   const resolvedMembersByKey = new Map<AssetId, AssetId[]>()
   for (const [assetId, key] of keyByAssetId) {
-    const resolvedKey = resolveKey(key, new Set([assetId]))
+    const resolvedKey = resolveKey(key, [assetId])
     resolvedMembersByKey.set(resolvedKey, [
       ...(resolvedMembersByKey.get(resolvedKey) ?? []),
       assetId,

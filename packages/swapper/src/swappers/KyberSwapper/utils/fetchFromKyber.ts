@@ -51,13 +51,6 @@ export const fetchKyberRoute = async ({
   return validateKyberRoute(maybeResponse.unwrap().data, feeParams)
 }
 
-export type KyberBuildArgs = {
-  chainId: KyberSupportedChainId
-  routeSummary: KyberRouteSummary
-  slippageTolerancePercentageDecimal: string
-  baseUrl: string
-}
-
 export const fetchKyberBuild = async ({
   chainId,
   routeSummary,
@@ -66,7 +59,11 @@ export const fetchKyberBuild = async ({
   sender,
   recipient,
   deadline,
-}: KyberBuildArgs & {
+}: {
+  chainId: KyberSupportedChainId
+  routeSummary: KyberRouteSummary
+  slippageTolerancePercentageDecimal: string
+  baseUrl: string
   sender: string
   recipient: string
   deadline: number

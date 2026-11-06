@@ -6,9 +6,14 @@ import { describe, expect, it } from 'vitest'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { ETH } from '../../../utils/test-data/assets'
-import { HYPEREVM_BUILD_RESPONSE, HYPEREVM_ROUTES_RESPONSE } from '../test-data/hyperevmHypeUsdc'
-import type { KyberExtraFee, KyberFeeParams } from '../types'
-import { KYBER_NATIVE_TOKEN } from './constants'
+import type {
+  KyberBuildResponse,
+  KyberExtraFee,
+  KyberFeeParams,
+  KyberRoutesResponse,
+  KyberRouteSummary,
+} from '../types'
+import { KYBER_NATIVE_TOKEN, KYBER_ROUTER_ADDRESS } from './constants'
 import {
   assertValidTrade,
   assetIdToKyberToken,
@@ -51,6 +56,38 @@ const hyperEvmFeeParams = getKyberFeeParams({
   chainId: KnownChainIds.HyperEvmMainnet,
   affiliateBps: '60',
 })
+
+const ROUTE_SUMMARY = {
+  amountOut: '255332541',
+  gas: '679101',
+  gasPrice: '100000000',
+  extraFee: {
+    feeAmount: '60',
+    chargeFeeBy: 'currency_out',
+    isInBps: true,
+    feeReceiver: TREASURY.toLowerCase(),
+  },
+} as KyberRouteSummary
+
+const ROUTES_RESPONSE: Required<KyberRoutesResponse> = {
+  code: 0,
+  message: 'successfully',
+  data: { routeSummary: ROUTE_SUMMARY, routerAddress: KYBER_ROUTER_ADDRESS },
+  requestId: 'route-request',
+}
+
+const BUILD_RESPONSE: Required<KyberBuildResponse> = {
+  code: 0,
+  message: 'successfully',
+  data: {
+    amountOut: '255332539',
+    gas: '679101',
+    data: '0xe21fd0e9',
+    routerAddress: KYBER_ROUTER_ADDRESS,
+    transactionValue: '3000000000000000000',
+  },
+  requestId: 'build-request',
+}
 
 describe('assertValidTrade', () => {
   it('rejects cross-chain trades', () => {
@@ -110,7 +147,7 @@ describe('getKyberBuyAmountBeforeFees', () => {
 })
 
 describe('validateKyberRoute', () => {
-  const { routeSummary } = HYPEREVM_ROUTES_RESPONSE.data
+  const routeSummary = ROUTE_SUMMARY
   const validate = (
     summaryOverrides: Partial<typeof routeSummary>,
     dataOverrides = {},
@@ -118,9 +155,9 @@ describe('validateKyberRoute', () => {
   ) =>
     validateKyberRoute(
       {
-        ...HYPEREVM_ROUTES_RESPONSE,
+        ...ROUTES_RESPONSE,
         data: {
-          ...HYPEREVM_ROUTES_RESPONSE.data,
+          ...ROUTES_RESPONSE.data,
           routeSummary: { ...routeSummary, ...summaryOverrides },
           ...dataOverrides,
         },
@@ -129,9 +166,7 @@ describe('validateKyberRoute', () => {
     )
 
   it('returns the route summary', () => {
-    expect(validateKyberRoute(HYPEREVM_ROUTES_RESPONSE, hyperEvmFeeParams).unwrap()).toBe(
-      routeSummary,
-    )
+    expect(validateKyberRoute(ROUTES_RESPONSE, hyperEvmFeeParams).unwrap()).toBe(routeSummary)
   })
 
   it('rejects an unpinned router', () => {
@@ -150,9 +185,9 @@ describe('validateKyberRoute', () => {
     expect(
       validateKyberRoute(
         {
-          ...HYPEREVM_ROUTES_RESPONSE,
+          ...ROUTES_RESPONSE,
           data: {
-            ...HYPEREVM_ROUTES_RESPONSE.data,
+            ...ROUTES_RESPONSE.data,
             routeSummary: { ...routeSummary, extraFee: EMPTY_EXTRA_FEE },
           },
         },
@@ -163,7 +198,7 @@ describe('validateKyberRoute', () => {
 
   it('maps a route not found code to NoRouteFound', () => {
     const result = validateKyberRoute(
-      { ...HYPEREVM_ROUTES_RESPONSE, code: 4008, message: 'route not found' },
+      { ...ROUTES_RESPONSE, code: 4008, message: 'route not found' },
       hyperEvmFeeParams,
     )
     expect(result.unwrapErr().code).toBe(TradeQuoteError.NoRouteFound)
@@ -172,13 +207,13 @@ describe('validateKyberRoute', () => {
 
 describe('validateKyberBuild', () => {
   it('returns the build data', () => {
-    expect(validateKyberBuild(HYPEREVM_BUILD_RESPONSE).unwrap()).toBe(HYPEREVM_BUILD_RESPONSE.data)
+    expect(validateKyberBuild(BUILD_RESPONSE).unwrap()).toBe(BUILD_RESPONSE.data)
   })
 
   it('rejects an unpinned router', () => {
     const result = validateKyberBuild({
-      ...HYPEREVM_BUILD_RESPONSE,
-      data: { ...HYPEREVM_BUILD_RESPONSE.data, routerAddress: UNPINNED_ROUTER },
+      ...BUILD_RESPONSE,
+      data: { ...BUILD_RESPONSE.data, routerAddress: UNPINNED_ROUTER },
     })
     expect(result.unwrapErr().code).toBe(TradeQuoteError.InvalidResponse)
   })

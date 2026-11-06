@@ -12,9 +12,9 @@ import type {
 } from '../../../types'
 import { SwapperName } from '../../../types'
 import { isNativeEvmAsset } from '../../../utils/helpers'
-import type { KyberTradeQuoteInput, KyberTradeRateInput } from '../types'
+import type { KyberRouteSummary, KyberTradeQuoteInput, KyberTradeRateInput } from '../types'
+import type { KyberSupportedChainId } from './constants'
 import { KYBER_ROUTER_ADDRESS } from './constants'
-import type { KyberBuildArgs } from './fetchFromKyber'
 import { fetchKyberRoute } from './fetchFromKyber'
 import type { GetKyberStepDataArgs } from './getKyberStepData'
 import {
@@ -25,10 +25,11 @@ import {
 } from './helpers'
 
 type KyberTradeContext = {
-  tradeCommon: TradeCommon
+  tradeCommon: TradeCommon & { slippageTolerancePercentageDecimal: string }
   stepCommon: Omit<TradeStepCommon, 'feeData'>
   protocolFees: QuoteFeeData['protocolFees']
-  buildArgs: KyberBuildArgs
+  chainId: KyberSupportedChainId
+  routeSummary: KyberRouteSummary
   stepDataArgs: Omit<GetKyberStepDataArgs, 'type' | 'input' | 'from' | 'build'>
 }
 
@@ -54,8 +55,6 @@ export const getKyberTradeContext = async ({
   const feeParams = getKyberFeeParams({ chainId, affiliateBps })
   const tokenIn = assetIdToKyberToken(sellAsset.assetId)
   const tokenOut = assetIdToKyberToken(buyAsset.assetId)
-  const baseUrl = deps.config.VITE_KYBER_BASE_URL
-
   const maybeRoute = await fetchKyberRoute({
     chainId,
     tokenIn,
@@ -63,7 +62,7 @@ export const getKyberTradeContext = async ({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeParams,
     origin,
-    baseUrl,
+    baseUrl: deps.config.VITE_KYBER_BASE_URL,
   })
 
   if (maybeRoute.isErr()) return Err(maybeRoute.unwrapErr())
@@ -92,12 +91,8 @@ export const getKyberTradeContext = async ({
       source: SwapperName.KyberSwap,
     },
     protocolFees: {},
-    buildArgs: {
-      chainId,
-      routeSummary,
-      slippageTolerancePercentageDecimal,
-      baseUrl,
-    },
+    chainId,
+    routeSummary,
     stepDataArgs: {
       deps,
       sellAsset,

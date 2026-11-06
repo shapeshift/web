@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { GetTradeQuoteInput, GetTradeRateInput, SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { ETH } from '../../../utils/test-data/assets'
-import { HYPEREVM_BUILD_RESPONSE } from '../test-data/hyperevmHypeUsdc'
+import type { KyberBuildData } from '../types'
 import { KYBER_ROUTER_ADDRESS } from './constants'
 import { getKyberStepData } from './getKyberStepData'
 
@@ -23,7 +23,13 @@ const HYPE: Asset = {
   name: 'HYPE',
 }
 
-const build = HYPEREVM_BUILD_RESPONSE.data
+const build: KyberBuildData = {
+  amountOut: '255332539',
+  gas: '679101',
+  data: '0xe21fd0e9',
+  routerAddress: '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5',
+  transactionValue: '3000000000000000000',
+}
 
 const makeDeps = (adapter: unknown): SwapperDeps =>
   ({ assertGetEvmChainAdapter: () => adapter }) as unknown as SwapperDeps

@@ -22,12 +22,16 @@ export const getTradeQuote = async (
 
   const maybeContext = await getKyberTradeContext({ input, deps, origin: sendAddress })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
-  const { tradeCommon, stepCommon, protocolFees, buildArgs, stepDataArgs } = maybeContext.unwrap()
+  const { tradeCommon, stepCommon, protocolFees, chainId, routeSummary, stepDataArgs } =
+    maybeContext.unwrap()
 
   const deadline = Math.floor(Date.now() / 1000) + KYBER_DEADLINE_SECONDS
 
   const maybeBuild = await fetchKyberBuild({
-    ...buildArgs,
+    chainId,
+    routeSummary,
+    slippageTolerancePercentageDecimal: tradeCommon.slippageTolerancePercentageDecimal,
+    baseUrl: deps.config.VITE_KYBER_BASE_URL,
     sender: sendAddress,
     recipient: receiveAddress,
     deadline,

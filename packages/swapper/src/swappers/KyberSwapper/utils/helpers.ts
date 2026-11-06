@@ -97,7 +97,7 @@ export const getKyberBuyAmountBeforeFees = ({
     .toFixed()
 }
 
-export const getKyberBuyAmounts = ({
+export const getKyberTradeAmounts = ({
   input,
   amountOut,
 }: {

@@ -20,8 +20,8 @@ import type { GetKyberStepDataArgs } from './getKyberStepData'
 import {
   assertValidTrade,
   assetIdToKyberToken,
-  getKyberBuyAmounts,
   getKyberFeeParams,
+  getKyberTradeAmounts,
 } from './helpers'
 
 type KyberTradeContext = {
@@ -65,14 +65,14 @@ export const getKyberTradeContext = async ({
   if (maybeRoute.isErr()) return Err(maybeRoute.unwrapErr())
   const routeSummary = maybeRoute.unwrap()
 
-  const { rate, ...buyAmounts } = getKyberBuyAmounts({ input, amountOut: routeSummary.amountOut })
+  const tradeAmounts = getKyberTradeAmounts({ input, amountOut: routeSummary.amountOut })
 
   const allowanceContract = isNativeEvmAsset(sellAsset.assetId) ? '' : KYBER_ROUTER_ADDRESS
 
   return Ok<KyberTradeContext, SwapErrorRight>({
     tradeCommon: {
       id: uuid(),
-      rate,
+      rate: tradeAmounts.rate,
       swapperName: SwapperName.KyberSwap,
       affiliateBps,
       slippageTolerancePercentageDecimal,
@@ -80,11 +80,10 @@ export const getKyberTradeContext = async ({
     stepCommon: {
       estimatedExecutionTimeMs: 0,
       allowanceContract,
-      rate,
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      ...buyAmounts,
+      ...tradeAmounts,
       source: SwapperName.KyberSwap,
     },
     protocolFees: {},

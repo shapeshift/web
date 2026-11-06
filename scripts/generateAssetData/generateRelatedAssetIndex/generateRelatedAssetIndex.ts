@@ -302,29 +302,22 @@ const getZerionRelatedAssetIds = async (
   }
 
   const validationResult = zerionFungiblesSchema.parse(res)
+  const implementationAssetIdsByEntry = validationResult.data.map(entry =>
+    (entry.attributes.implementations ?? []).map(zerionImplementationToMaybeAssetId).filter(isSome),
+  )
   // The address filter ignores the chain, so only trust a fungible that has this exact implementation
-  const matchingEntry = validationResult.data.find(
-    entry =>
-      entry.attributes.implementations?.some(
-        implementation =>
-          zerionImplementationToMaybeAssetId(implementation)?.toLowerCase() ===
-          assetId.toLowerCase(),
-      ),
+  const matchingAssetIds = implementationAssetIdsByEntry.find(implementationAssetIds =>
+    implementationAssetIds.some(id => id.toLowerCase() === assetId.toLowerCase()),
   )
 
-  if (matchingEntry === undefined) return
-
-  const implementations = matchingEntry.attributes.implementations
+  if (matchingAssetIds === undefined) return
 
   // Use all assetIds actually present in the dataset
-  const allRelatedAssetIds = implementations
-    ?.map(zerionImplementationToMaybeAssetId)
-    .filter(isSome)
-    .filter(relatedAssetId => {
-      return assetData[relatedAssetId] !== undefined
-    })
+  const allRelatedAssetIds = matchingAssetIds.filter(
+    relatedAssetId => assetData[relatedAssetId] !== undefined,
+  )
 
-  if (!allRelatedAssetIds || allRelatedAssetIds.length <= 1) {
+  if (allRelatedAssetIds.length <= 1) {
     return
   }
 
@@ -425,12 +418,13 @@ const processRelatedAssetIds = async (
   relatedAssetIndex: Record<AssetId, AssetId[]>,
   categoryToCoinIds: Record<string, string[]>,
   coinsByAssetId: Record<AssetId, CoingeckoCoin>,
+  regenAll: boolean,
   throttle: () => Promise<void>,
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
   // An asset can carry a key the index no longer lists - e.g. it left the dataset and came back
-  if (!REGEN_ALL && existingRelatedAssetKey) {
+  if (!regenAll && existingRelatedAssetKey) {
     const group = relatedAssetIndex[existingRelatedAssetKey] ?? []
 
     const rejoinedGroup = Array.from(new Set([...group, existingRelatedAssetKey, assetId]))
@@ -452,7 +446,7 @@ const processRelatedAssetIds = async (
   }
 
   // Check if this asset is already in the relatedAssetIndex
-  if (!REGEN_ALL) {
+  if (!regenAll) {
     for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {
       if (relatedAssets.includes(assetId)) {
         if (existingRelatedAssetKey !== key) {
@@ -606,14 +600,15 @@ export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
 
   const generatedAssetData: Record<AssetId, Asset> = assetDataJson.byId
   const sortedAssetIds: AssetId[] = assetDataJson.ids
-  const relatedAssetIndex: Record<AssetId, AssetId[]> =
-    REGEN_ALL && !chainId ? {} : relatedAssetIndexJson
+  const regenAll = REGEN_ALL && !chainId
+  const relatedAssetIndex: Record<AssetId, AssetId[]> = regenAll ? {} : relatedAssetIndexJson
 
-  // A group whose key left the dataset passes to its highest ranked remaining member
   const rankByAssetId = new Map(sortedAssetIds.map((assetId, rank) => [assetId, rank]))
   const survivorsByMissingKey = new Map<AssetId, Set<AssetId>>()
+  const handedOffAssetIds = new Set<AssetId>()
   const addSurvivor = (missingKey: AssetId, assetId: AssetId) => {
-    if (!generatedAssetData[assetId]) return
+    if (!generatedAssetData[assetId] || handedOffAssetIds.has(assetId)) return
+    handedOffAssetIds.add(assetId)
     survivorsByMissingKey.set(
       missingKey,
       (survivorsByMissingKey.get(missingKey) ?? new Set<AssetId>()).add(assetId),
@@ -624,7 +619,6 @@ export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
     delete relatedAssetIndex[relatedAssetKey]
     for (const assetId of relatedAssetIds) {
       const currentKey = generatedAssetData[assetId]?.relatedAssetKey
-      // A member already in another live group stays there
       if (currentKey && generatedAssetData[currentKey]) continue
       addSurvivor(relatedAssetKey, assetId)
     }
@@ -695,6 +689,7 @@ export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
           relatedAssetIndex,
           categoryToCoinIds,
           coinsByAssetId,
+          regenAll,
           throttle,
         )
         return
@@ -728,8 +723,7 @@ export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
   })
 
   for (const [assetId, relatedAssetKey] of Object.entries(reconciled.relatedAssetKeyByAssetId)) {
-    const asset = generatedAssetData[assetId]
-    if ((asset.relatedAssetKey ?? null) !== relatedAssetKey) asset.relatedAssetKey = relatedAssetKey
+    generatedAssetData[assetId].relatedAssetKey = relatedAssetKey
   }
 
   await fs.promises.writeFile(

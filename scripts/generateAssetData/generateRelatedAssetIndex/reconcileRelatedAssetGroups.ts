@@ -64,7 +64,6 @@ export const reconcileRelatedAssetGroups = ({
     }
   }
   const membersOf = (key: AssetId) => [...(membersByKey.get(key) ?? [])]
-  // An asset leaving a group it leads hands that group to the best remaining member
   const leaveGroup = (assetId: AssetId) => {
     const remainingMembers = membersOf(assetId).filter(member => member !== assetId)
     clearKey(assetId)
@@ -100,7 +99,9 @@ export const reconcileRelatedAssetGroups = ({
       if (key && coinIdByAssetId[key] === coinId) leaveGroup(assetId)
       continue
     }
-    assetIdsByCoinId.set(coinId, [...(assetIdsByCoinId.get(coinId) ?? []), assetId])
+    const coinAssetIds = assetIdsByCoinId.get(coinId) ?? []
+    assetIdsByCoinId.set(coinId, coinAssetIds)
+    coinAssetIds.push(assetId)
   }
 
   for (const [coinId, coinAssetIds] of assetIdsByCoinId) {
@@ -150,10 +151,9 @@ export const reconcileRelatedAssetGroups = ({
   const resolvedMembersByKey = new Map<AssetId, AssetId[]>()
   for (const [assetId, key] of keyByAssetId) {
     const resolvedKey = resolveKey(key, [assetId])
-    resolvedMembersByKey.set(resolvedKey, [
-      ...(resolvedMembersByKey.get(resolvedKey) ?? []),
-      assetId,
-    ])
+    const members = resolvedMembersByKey.get(resolvedKey) ?? []
+    resolvedMembersByKey.set(resolvedKey, members)
+    members.push(assetId)
   }
 
   const reconciledIndex: Record<AssetId, AssetId[]> = {}

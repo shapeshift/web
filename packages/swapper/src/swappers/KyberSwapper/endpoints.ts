@@ -1,8 +1,8 @@
 import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { getTradeRate } from './getTradeRate/getTradeRate'
+import { getTradeQuote } from './swapperApi/getTradeQuote'
+import { getTradeRate } from './swapperApi/getTradeRate'
 import type { KyberTradeQuoteInput, KyberTradeRateInput } from './types'
 
 export const kyberApi: SwapperApi = {

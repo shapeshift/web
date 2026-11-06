@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   abstractAssetId,
   adapters,
@@ -31,6 +31,7 @@ import {
   zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { ZERION_CHAINS_MAP } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -65,6 +66,8 @@ if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for in
 
 const REGEN_ALL = process.env.REGEN_ALL === 'true'
 
+const zerionChainIds = new Set<ChainId>(Object.values(ZERION_CHAINS_MAP))
+
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [
     optimismAssetId,
@@ -95,12 +98,19 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
   [bscAssetId]: ['eip155:1/erc20:0xb8c77482e45f1f44de1745f52c74426c631bdd52'],
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
+    'eip155:59144/erc20:0x176211869ca2b568f2a7d4ee941e073a821ee1ff',
+    'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
     'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
     'aptos:1/fungible:0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
   ],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
+    'eip155:59144/erc20:0xa219439258ca9da29e9cc4ce5596924745e12b93',
+    'eip155:5000/erc20:0x201eba5cc46d216ce6dc03f6a759e8e766e956ae',
     'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
     'aptos:1/fungible:0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b',
+  ],
+  'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': [
+    'eip155:59144/erc20:0x4af15ec2a0bd43db75dd04e62faa3b8ef36b00d5',
   ],
   // CoinGecko lists wrapped and pegged SOL as separate coins from native SOL
   [solAssetId]: [
@@ -272,9 +282,10 @@ const getZerionRelatedAssetIds = async (
     },
   }
 
-  const { assetReference } = fromAssetId(assetId)
+  const { chainId, assetReference } = fromAssetId(assetId)
 
   if (FEE_ASSET_IDS.includes(assetId)) return
+  if (!zerionChainIds.has(chainId)) return
 
   const filter = { params: { 'filter[implementation_address]': assetReference } }
   const url = '/fungibles'
@@ -577,8 +588,8 @@ const processRelatedAssetIds = async (
 }
 
 // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
-export const generateRelatedAssetIndex = async () => {
-  console.log('generateRelatedAssetIndex() starting')
+export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
+  console.log(`generateRelatedAssetIndex(${chainId ?? ''}) starting`)
 
   const assetDataJson = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
   const relatedAssetIndexJson = JSON.parse(
@@ -595,7 +606,8 @@ export const generateRelatedAssetIndex = async () => {
 
   const generatedAssetData: Record<AssetId, Asset> = assetDataJson.byId
   const sortedAssetIds: AssetId[] = assetDataJson.ids
-  const relatedAssetIndex: Record<AssetId, AssetId[]> = REGEN_ALL ? {} : relatedAssetIndexJson
+  const relatedAssetIndex: Record<AssetId, AssetId[]> =
+    REGEN_ALL && !chainId ? {} : relatedAssetIndexJson
 
   // Remove stale related asset data from the assetData where the primary related asset no longer exists
   Object.values(generatedAssetData).forEach(asset => {
@@ -643,7 +655,10 @@ export const generateRelatedAssetIndex = async () => {
     intervalMs: 2000,
   })
 
-  const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
+  const assetIdsToProcess = Object.keys(generatedAssetData).filter(
+    assetId => !chainId || generatedAssetData[assetId].chainId === chainId,
+  )
+  const chunks = chunkArray(assetIdsToProcess, BATCH_SIZE)
   for (const [i, batch] of chunks.entries()) {
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(

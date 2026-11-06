@@ -15,7 +15,8 @@ export const zerionImplementationToMaybeAssetId = (
   try {
     const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, assetReference)
     return toAssetId({ chainId, assetNamespace, assetReference })
-  } catch {
+  } catch (err) {
+    console.warn(`[Zerion] skipping ${chain_id}:${assetReference}: ${(err as Error).message}`)
     return undefined
   }
 }

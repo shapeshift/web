@@ -169,6 +169,37 @@ describe('reconcileRelatedAssetGroups', () => {
     expect(result.relatedAssetKeyByAssetId[WPOL]).toBeNull()
   })
 
+  it('hands the group of a wrapped native key to its native', () => {
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      relatedAssetKeyByAssetId: {
+        ...baseArgs.relatedAssetKeyByAssetId,
+        [WPOL]: WPOL,
+        [POL_NATIVE]: WPOL,
+      },
+      relatedAssetIndex: { [WPOL]: [WPOL, POL_NATIVE] },
+    })
+    expect(result.relatedAssetIndex[WPOL]).toBeUndefined()
+    expect(result.relatedAssetIndex[POL_NATIVE]).toEqual([POL_ETH, POL_NATIVE])
+    expect(result.relatedAssetKeyByAssetId[WPOL]).toBeNull()
+  })
+
+  it('lists an asset in one group when its key points to another key', () => {
+    const result = reconcileRelatedAssetGroups({
+      ...baseArgs,
+      relatedAssetKeyByAssetId: {
+        ...baseArgs.relatedAssetKeyByAssetId,
+        [ELON_ETH]: ELON_BSC,
+        [ELON_BASE]: ELON_ETH,
+      },
+      coinIdByAssetId: { ...baseArgs.coinIdByAssetId, [ELON_BASE]: 'other-coin' },
+      manualRelatedAssetIndex: {},
+    })
+    const listings = Object.values(result.relatedAssetIndex).flat()
+    expect(listings.filter(assetId => assetId === ELON_ETH)).toHaveLength(1)
+    expect(result.relatedAssetKeyByAssetId[ELON_BASE]).toBe(ELON_BSC)
+  })
+
   it('treats a token as the wrapped native on every chain where its coin is native', () => {
     const ETH_MAINNET = 'eip155:1/slip44:60'
     const ETH_ARB = 'eip155:42161/slip44:60'

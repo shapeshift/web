@@ -17,12 +17,6 @@ export type ReconciledRelatedAssetGroups = {
   relatedAssetIndex: Record<AssetId, AssetId[]>
 }
 
-/**
- * Settles the groups the providers left behind:
- * - excluded assets leave groups they were wrongly put in
- * - every version of a CoinGecko coin shares one group, keyed by its native asset when it has one
- * - manual groups win over both
- */
 export const reconcileRelatedAssetGroups = ({
   relatedAssetKeyByAssetId,
   relatedAssetIndex,
@@ -41,11 +35,11 @@ export const reconcileRelatedAssetGroups = ({
   const nativeAssetIdSet = new Set(nativeAssetIds)
   const canonicalAssetIdSet = new Set(canonicalAssetIds)
 
-  // Lower sorts first: manual, then native, then canonical, then market cap
+  // Lower sorts first, canonical ahead of native so a chain paying gas in a bridged stablecoin can't lead its family
   const keyPriority = (assetId: AssetId): [number, number] => {
     if (manualKeys.has(assetId)) return [0, getRank(assetId)]
-    if (nativeAssetIdSet.has(assetId)) return [1, getRank(assetId)]
-    if (canonicalAssetIdSet.has(assetId)) return [2, getRank(assetId)]
+    if (canonicalAssetIdSet.has(assetId)) return [1, getRank(assetId)]
+    if (nativeAssetIdSet.has(assetId)) return [2, getRank(assetId)]
     return [3, getRank(assetId)]
   }
   const pickKey = (candidates: AssetId[]): AssetId =>
@@ -56,22 +50,33 @@ export const reconcileRelatedAssetGroups = ({
     })[0]
 
   const keyByAssetId = new Map<AssetId, AssetId>()
-  for (const assetId of assetIds) {
-    const key = relatedAssetKeyByAssetId[assetId]
-    if (key && isKnownAsset(key)) keyByAssetId.set(assetId, key)
-  }
-
-  const membersOf = (key: AssetId) => assetIds.filter(assetId => keyByAssetId.get(assetId) === key)
-  const rekey = (assetIdsToMove: AssetId[], key: AssetId) => {
-    for (const assetId of assetIdsToMove) keyByAssetId.set(assetId, key)
-  }
-
-  for (const assetId of excludedAssetIds) {
-    // An excluded group key hands its group to the best remaining member
-    const remainingMembers = membersOf(assetId).filter(member => member !== assetId)
+  const membersByKey = new Map<AssetId, Set<AssetId>>()
+  const clearKey = (assetId: AssetId) => {
+    const key = keyByAssetId.get(assetId)
+    if (key) membersByKey.get(key)?.delete(assetId)
     keyByAssetId.delete(assetId)
+  }
+  const rekey = (assetIdsToMove: AssetId[], key: AssetId) => {
+    for (const assetId of assetIdsToMove) {
+      clearKey(assetId)
+      keyByAssetId.set(assetId, key)
+      membersByKey.set(key, (membersByKey.get(key) ?? new Set<AssetId>()).add(assetId))
+    }
+  }
+  const membersOf = (key: AssetId) => [...(membersByKey.get(key) ?? [])]
+  // An asset leaving a group it leads hands that group to the best remaining member
+  const leaveGroup = (assetId: AssetId) => {
+    const remainingMembers = membersOf(assetId).filter(member => member !== assetId)
+    clearKey(assetId)
     if (remainingMembers.length) rekey(remainingMembers, pickKey(remainingMembers))
   }
+
+  for (const assetId of assetIds) {
+    const key = relatedAssetKeyByAssetId[assetId]
+    if (key && isKnownAsset(key)) rekey([assetId], key)
+  }
+
+  for (const assetId of excludedAssetIds) leaveGroup(assetId)
 
   const chainIdOf = (assetId: AssetId) => assetId.slice(0, assetId.indexOf('/'))
   const nativeChainIdsByCoinId = new Map<string, Set<string>>()
@@ -92,7 +97,7 @@ export const reconcileRelatedAssetGroups = ({
       Boolean(nativeChainIdsByCoinId.get(coinId)?.has(chainIdOf(assetId)))
     if (isWrappedNative) {
       const key = keyByAssetId.get(assetId)
-      if (key && coinIdByAssetId[key] === coinId) keyByAssetId.delete(assetId)
+      if (key && coinIdByAssetId[key] === coinId) leaveGroup(assetId)
       continue
     }
     assetIdsByCoinId.set(coinId, [...(assetIdsByCoinId.get(coinId) ?? []), assetId])
@@ -133,13 +138,23 @@ export const reconcileRelatedAssetGroups = ({
     rekey([...listedAssetIds, ...listedGroupKeys.flatMap(membersOf)], manualKey)
   }
 
-  const membersByKey = new Map<AssetId, AssetId[]>()
+  // A key that itself points elsewhere hands its members to where it points, so no asset sits in two groups
+  const resolveKey = (key: AssetId, visited: Set<AssetId>): AssetId => {
+    const nextKey = keyByAssetId.get(key)
+    if (!nextKey || nextKey === key || visited.has(nextKey)) return key
+    return resolveKey(nextKey, visited.add(key))
+  }
+  const resolvedMembersByKey = new Map<AssetId, AssetId[]>()
   for (const [assetId, key] of keyByAssetId) {
-    membersByKey.set(key, [...(membersByKey.get(key) ?? []), assetId])
+    const resolvedKey = resolveKey(key, new Set([assetId]))
+    resolvedMembersByKey.set(resolvedKey, [
+      ...(resolvedMembersByKey.get(resolvedKey) ?? []),
+      assetId,
+    ])
   }
 
   const reconciledIndex: Record<AssetId, AssetId[]> = {}
-  for (const [key, members] of membersByKey) {
+  for (const [key, members] of resolvedMembersByKey) {
     const memberSet = new Set([key, ...members])
     if (memberSet.size < 2) continue
     // Keep the existing order, so unchanged groups produce no diff

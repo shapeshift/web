@@ -159,10 +159,10 @@ const main = async () => {
   await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(existingData))
 
   // Generate related asset index for ONLY this chain's assets
-  const { generateChainRelatedAssetIndex } = await import(
-    './generateAssetData/generateRelatedAssetIndex/generateChainRelatedAssetIndex'
+  const { generateRelatedAssetIndex } = await import(
+    './generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex'
   )
-  await generateChainRelatedAssetIndex(chainId)
+  await generateRelatedAssetIndex(chainId)
 
   console.info('[generate:chain] generating manifest + compressing...')
   await generateManifest()

@@ -156,3 +156,107 @@ index 05a31908bbe08dabf89ccd3bb8cd847cffc63a1d..969c6212797296bebac7095f45fd7648
      if (!transaction) {
          throw new Error("getTrustedInputBIP143: missing tx");
      }
+diff --git a/lib-es/splitTransaction.js b/lib-es/splitTransaction.js
+index cead50a1857019265f6ddde20fbf6c410b41ceb9..e99b9b6fab3e0a9258e4ea1a1be8057d4801ca94 100644
+--- a/lib-es/splitTransaction.js
++++ b/lib-es/splitTransaction.js
+@@ -17,10 +17,13 @@ export function splitTransaction(transactionHex, isSegwitSupported = false, hasE
+     const isZcash = additionals.includes("zcash");
+     const transaction = Buffer.from(transactionHex, "hex");
+     const version = transaction.slice(offset, offset + 4);
++    const isZcashv6 = isZcash && version.equals(Buffer.from([0x06, 0x00, 0x00, 0x80]));
+     const overwinter = version.equals(Buffer.from([0x03, 0x00, 0x00, 0x80])) ||
+         version.equals(Buffer.from([0x04, 0x00, 0x00, 0x80])) ||
+-        version.equals(Buffer.from([0x05, 0x00, 0x00, 0x80]));
++        version.equals(Buffer.from([0x05, 0x00, 0x00, 0x80])) ||
++        isZcashv6;
+     const isZcashv5 = isZcash && version.equals(Buffer.from([0x05, 0x00, 0x00, 0x80]));
++    const isZcashv5Plus = isZcashv5 || isZcashv6;
+     offset += 4;
+     if (isSegwitSupported &&
+         transaction[offset] === 0 &&
+@@ -33,7 +36,11 @@ export function splitTransaction(transactionHex, isSegwitSupported = false, hasE
+         nVersionGroupId = transaction.slice(offset, 4 + offset);
+         offset += 4;
+     }
+-    if (isZcashv5) {
++    if (isZcashv6 && !nVersionGroupId.equals(Buffer.from([0x98, 0xb6, 0x84, 0xd8]))) {
++        throw new Error(
++            `splitTransaction: unexpected Zcash v6 version group id ${nVersionGroupId.toString("hex")}`);
++    }
++    if (isZcashv5Plus) {
+         locktime = transaction.slice(offset + 4, offset + 8);
+         nExpiryHeight = transaction.slice(offset + 8, offset + 12);
+         offset += 12;
+@@ -99,16 +106,16 @@ export function splitTransaction(transactionHex, isSegwitSupported = false, hasE
+         witnessScript = transaction.slice(offset, -4);
+         locktime = transaction.slice(transaction.length - 4);
+     }
+-    else if (!isZcashv5) {
++    else if (!isZcashv5Plus) {
+         locktime = transaction.slice(offset, offset + 4);
+     }
+     offset += 4;
+-    if ((overwinter || isDecred) && !isZcashv5) {
++    if ((overwinter || isDecred) && !isZcashv5Plus) {
+         nExpiryHeight = transaction.slice(offset, offset + 4);
+         offset += 4;
+     }
+     if (hasExtraData) {
+-        if (!isZcashv5) {
++        if (!isZcashv5Plus) {
+             extraData = transaction.slice(offset);
+         }
+     }
+diff --git a/lib/splitTransaction.js b/lib/splitTransaction.js
+index 30aa0ec41156fef5035aed6c53368cbd99e80073..ddce45f43dd4c0e73fee8a242e7169ccc33b1c7f 100644
+--- a/lib/splitTransaction.js
++++ b/lib/splitTransaction.js
+@@ -20,10 +20,13 @@ function splitTransaction(transactionHex, isSegwitSupported = false, hasExtraDat
+     const isZcash = additionals.includes("zcash");
+     const transaction = Buffer.from(transactionHex, "hex");
+     const version = transaction.slice(offset, offset + 4);
++    const isZcashv6 = isZcash && version.equals(Buffer.from([0x06, 0x00, 0x00, 0x80]));
+     const overwinter = version.equals(Buffer.from([0x03, 0x00, 0x00, 0x80])) ||
+         version.equals(Buffer.from([0x04, 0x00, 0x00, 0x80])) ||
+-        version.equals(Buffer.from([0x05, 0x00, 0x00, 0x80]));
++        version.equals(Buffer.from([0x05, 0x00, 0x00, 0x80])) ||
++        isZcashv6;
+     const isZcashv5 = isZcash && version.equals(Buffer.from([0x05, 0x00, 0x00, 0x80]));
++    const isZcashv5Plus = isZcashv5 || isZcashv6;
+     offset += 4;
+     if (isSegwitSupported &&
+         transaction[offset] === 0 &&
+@@ -36,7 +39,11 @@ function splitTransaction(transactionHex, isSegwitSupported = false, hasExtraDat
+         nVersionGroupId = transaction.slice(offset, 4 + offset);
+         offset += 4;
+     }
+-    if (isZcashv5) {
++    if (isZcashv6 && !nVersionGroupId.equals(Buffer.from([0x98, 0xb6, 0x84, 0xd8]))) {
++        throw new Error(
++            `splitTransaction: unexpected Zcash v6 version group id ${nVersionGroupId.toString("hex")}`);
++    }
++    if (isZcashv5Plus) {
+         locktime = transaction.slice(offset + 4, offset + 8);
+         nExpiryHeight = transaction.slice(offset + 8, offset + 12);
+         offset += 12;
+@@ -102,16 +109,16 @@ function splitTransaction(transactionHex, isSegwitSupported = false, hasExtraDat
+         witnessScript = transaction.slice(offset, -4);
+         locktime = transaction.slice(transaction.length - 4);
+     }
+-    else if (!isZcashv5) {
++    else if (!isZcashv5Plus) {
+         locktime = transaction.slice(offset, offset + 4);
+     }
+     offset += 4;
+-    if ((overwinter || isDecred) && !isZcashv5) {
++    if ((overwinter || isDecred) && !isZcashv5Plus) {
+         nExpiryHeight = transaction.slice(offset, offset + 4);
+         offset += 4;
+     }
+     if (hasExtraData) {
+-        if (!isZcashv5) {
++        if (!isZcashv5Plus) {
+             extraData = transaction.slice(offset);
+         }
+     }

@@ -152,14 +152,6 @@ export const getKyberBuyAmounts = ({
   }
 }
 
-export const getKyberProviderNetworkFeeCryptoBaseUnit = ({
-  gas,
-  gasPrice,
-}: {
-  gas: string
-  gasPrice: string
-}): string => bnOrZero(gas).times(bnOrZero(gasPrice)).toFixed(0)
-
 const getKyberCodeError = ({ code, message, requestId }: KyberErrorResponse): SwapErrorRight => {
   const tradeQuoteError = (() => {
     switch (code) {
@@ -168,12 +160,11 @@ const getKyberCodeError = ({ code, message, requestId }: KyberErrorResponse): Sw
       case 4010:
         return TradeQuoteError.NoRouteFound
       case 4011:
+      case 4221:
         return TradeQuoteError.UnsupportedTradePair
       case 4005:
       case 4007:
         return TradeQuoteError.SellAmountBelowTradeFee
-      case 4221:
-        return TradeQuoteError.UnsupportedChain
       default:
         return TradeQuoteError.QueryFailed
     }

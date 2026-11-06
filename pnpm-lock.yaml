@@ -55,7 +55,7 @@ patchedDependencies:
     hash: 4214515c36a0bb955f62f20fefed1ccf057aa1d452ca41df28201db0f9b83441
     path: patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch
   '@ledgerhq/hw-app-btc@10.13.0':
-    hash: 048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39
+    hash: 46cc06c8e2cf25cec3efb07e8215a88bc7d5740e30a7feb311f3ea688a097c4a
     path: patches/@ledgerhq__hw-app-btc@10.13.0.patch
   '@mysten/sui@2.31.2':
     hash: 0fb03898f4328593ecac375f7494f3860b574781bf56a6bfcf5357f7758ad4dd
@@ -63,6 +63,9 @@ patchedDependencies:
   '@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2':
     hash: e4f2073629f9722c1676758983b96101da73e2bc33971821a2d19319c0ab8ee6
     path: patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch
+  '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2':
+    hash: 10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270
+    path: patches/@shapeshiftoss__bitcoinjs-lib@7.0.0-shapeshift.2.patch
   react-dom@18.2.0:
     hash: 472f33b26781cbf66543b4c1cdf5be1c2ea4cd7232403bb255cd75e280bf3158
     path: patches/react-dom-npm-18.2.0-dd675bca1c.patch
@@ -994,7 +997,7 @@ importers:
     dependencies:
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.8.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/proto-tx-builder':
         specifier: 0.10.0
         version: 0.10.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -1134,7 +1137,7 @@ importers:
         version: 7.0.3
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.8.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -1320,7 +1323,7 @@ importers:
         version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
+        version: 10.13.0(patch_hash=46cc06c8e2cf25cec3efb07e8215a88bc7d5740e30a7feb311f3ea688a097c4a)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -1347,7 +1350,7 @@ importers:
         version: 0.7.0
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.8.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -1396,7 +1399,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
+        version: 10.13.0(patch_hash=46cc06c8e2cf25cec3efb07e8215a88bc7d5740e30a7feb311f3ea688a097c4a)
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
         version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
@@ -1420,7 +1423,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
+        version: 10.13.0(patch_hash=46cc06c8e2cf25cec3efb07e8215a88bc7d5740e30a7feb311f3ea688a097c4a)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -1462,7 +1465,7 @@ importers:
         version: 1.0.1
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.8.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/common-api':
         specifier: ^9.3.0
         version: 9.3.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -1520,7 +1523,7 @@ importers:
         version: 1.1.2
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.2.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.2.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -1877,7 +1880,7 @@ importers:
         version: 0.28.13(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.8.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -1908,7 +1911,7 @@ importers:
         version: 1.2.0
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.8.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -2129,7 +2132,7 @@ importers:
         version: 2.31.2(patch_hash=0fb03898f4328593ecac375f7494f3860b574781bf56a6bfcf5357f7758ad4dd)(typescript@5.8.2)
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.2
-        version: 7.0.0-shapeshift.2(typescript@5.8.2)
+        version: 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/caip':
         specifier: workspace:^
         version: link:../caip
@@ -19979,7 +19982,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@ledgerhq/hw-app-btc@10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)':
+  '@ledgerhq/hw-app-btc@10.13.0(patch_hash=46cc06c8e2cf25cec3efb07e8215a88bc7d5740e30a7feb311f3ea688a097c4a)':
     dependencies:
       '@ledgerhq/hw-transport': 6.31.13
       '@ledgerhq/logs': 6.13.0
@@ -24976,7 +24979,7 @@ snapshots:
       varuint-bitcoin: 1.1.2
       wif: 2.0.6
 
-  '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2(typescript@5.2.2)':
+  '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.2.2)':
     dependencies:
       '@noble/hashes': 1.8.0
       bech32: 2.0.0
@@ -24988,7 +24991,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2(typescript@5.8.2)':
+  '@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)':
     dependencies:
       '@noble/hashes': 1.8.0
       bech32: 2.0.0
@@ -25069,7 +25072,7 @@ snapshots:
 
   '@shapeshiftoss/hdwallet-core@1.62.41(bufferutil@4.1.0)(typescript@5.2.2)(utf-8-validate@5.0.10)':
     dependencies:
-      '@shapeshiftoss/bitcoinjs-lib': 7.0.0-shapeshift.2(typescript@5.2.2)
+      '@shapeshiftoss/bitcoinjs-lib': 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.2.2)
       '@shapeshiftoss/proto-tx-builder': 0.10.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@solana/web3.js': 1.95.8(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       bs58check: 4.0.0
@@ -25088,7 +25091,7 @@ snapshots:
 
   '@shapeshiftoss/hdwallet-core@1.62.41(bufferutil@4.1.0)(typescript@5.8.2)(utf-8-validate@5.0.10)':
     dependencies:
-      '@shapeshiftoss/bitcoinjs-lib': 7.0.0-shapeshift.2(typescript@5.8.2)
+      '@shapeshiftoss/bitcoinjs-lib': 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/proto-tx-builder': 0.10.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@solana/web3.js': 1.95.8(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       bs58check: 4.0.0
@@ -25110,7 +25113,7 @@ snapshots:
       '@bitcoinerlab/secp256k1': 1.2.0
       '@noble/curves': 1.9.7
       '@scure/starknet': 1.1.2
-      '@shapeshiftoss/bitcoinjs-lib': 7.0.0-shapeshift.2(typescript@5.8.2)
+      '@shapeshiftoss/bitcoinjs-lib': 7.0.0-shapeshift.2(patch_hash=10cdd40d2171cf440a4f92f74b3cba3cfffce931fcb8bbf13e37027f28511270)(typescript@5.8.2)
       '@shapeshiftoss/hdwallet-core': 1.62.41(bufferutil@4.1.0)(typescript@5.8.2)(utf-8-validate@5.0.10)
       '@shapeshiftoss/proto-tx-builder': 0.10.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@ton/core': 0.62.1(@ton/crypto@3.3.0)

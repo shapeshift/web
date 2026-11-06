@@ -61,6 +61,89 @@ describe('filterAssetsForWallet', () => {
     expect(result).toEqual([supportedAsset, unsupportedAsset])
   })
 
+  it('swaps an asset on an unsupported chain for all its variants on supported ones', () => {
+    const variantOnSupportedChain = {
+      assetId: 'eip155:1/erc20:0xbtc',
+      chainId: KnownChainIds.EthereumMainnet,
+    } as Asset
+    const bridgedVariantOnSupportedChain = {
+      assetId: 'eip155:1/erc20:0xbridgedbtc',
+      chainId: KnownChainIds.EthereumMainnet,
+    } as Asset
+
+    const result = filterAssetsForWallet({
+      assets,
+      hasWallet: true,
+      walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
+      getRelatedAssets: asset =>
+        asset.assetId === btcAssetId
+          ? [unsupportedAsset, variantOnSupportedChain, bridgedVariantOnSupportedChain]
+          : [],
+    })
+
+    expect(result).toEqual([
+      supportedAsset,
+      variantOnSupportedChain,
+      bridgedVariantOnSupportedChain,
+    ])
+  })
+
+  it('skips a variant the predicate rejects', () => {
+    const rejectedVariant = {
+      assetId: 'eip155:1/erc20:0xrejected',
+      chainId: KnownChainIds.EthereumMainnet,
+    } as Asset
+    const allowedVariant = {
+      assetId: 'eip155:1/erc20:0xallowed',
+      chainId: KnownChainIds.EthereumMainnet,
+    } as Asset
+
+    const result = filterAssetsForWallet({
+      assets,
+      hasWallet: true,
+      walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
+      assetFilterPredicate: assetId => assetId !== rejectedVariant.assetId,
+      getRelatedAssets: asset =>
+        asset.assetId === btcAssetId ? [rejectedVariant, allowedVariant] : [],
+    })
+
+    expect(result).toEqual([supportedAsset, allowedVariant])
+  })
+
+  it('still swaps an unsupported asset the predicate rejects for its allowed variant', () => {
+    const variantOnSupportedChain = {
+      assetId: 'eip155:1/erc20:0xbtc',
+      chainId: KnownChainIds.EthereumMainnet,
+    } as Asset
+
+    const result = filterAssetsForWallet({
+      assets,
+      hasWallet: true,
+      walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
+      assetFilterPredicate: assetId => assetId !== btcAssetId,
+      getRelatedAssets: asset => (asset.assetId === btcAssetId ? [variantOnSupportedChain] : []),
+    })
+
+    expect(result).toEqual([supportedAsset, variantOnSupportedChain])
+  })
+
+  it('keeps an asset with several supported variants as one row when grouping', () => {
+    const variantsOnSupportedChain = [
+      { assetId: 'eip155:1/erc20:0xbtc', chainId: KnownChainIds.EthereumMainnet },
+      { assetId: 'eip155:1/erc20:0xbridgedbtc', chainId: KnownChainIds.EthereumMainnet },
+    ] as Asset[]
+
+    const result = filterAssetsForWallet({
+      assets,
+      hasWallet: true,
+      walletConnectedChainIds: [KnownChainIds.EthereumMainnet],
+      getRelatedAssets: asset => (asset.assetId === btcAssetId ? variantsOnSupportedChain : []),
+      groupVariants: true,
+    })
+
+    expect(result).toEqual([supportedAsset, unsupportedAsset])
+  })
+
   it('applies assetFilterPredicate if provided', () => {
     const result = filterAssetsForWallet({
       assets,

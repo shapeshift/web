@@ -6,6 +6,7 @@ import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 
+import { resolveSearchResults } from '../helpers/resolveSearchResults'
 import type { WorkerSearchState } from '../hooks/useAssetSearchWorker'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 
@@ -31,6 +32,7 @@ export type SearchTermAssetListProps = {
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
   assetFilterPredicate?: (assetId: AssetId) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
   workerSearchState: WorkerSearchState
@@ -42,6 +44,7 @@ export const SearchTermAssetList = ({
   searchString,
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
+  chainIdFilterPredicate,
   onAssetClick: handleAssetClick,
   onImportClick,
   workerSearchState,
@@ -55,14 +58,12 @@ export const SearchTermAssetList = ({
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const chainIds = useMemo(() => {
-    if (activeChainId === 'All') {
-      return CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS
-    } else if (CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS.includes(activeChainId)) {
-      return [activeChainId]
-    } else {
-      return []
-    }
-  }, [activeChainId])
+    const searchableChainIds = CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS.filter(
+      chainId => chainIdFilterPredicate?.(chainId) ?? true,
+    )
+    if (activeChainId === 'All') return searchableChainIds
+    return searchableChainIds.includes(activeChainId) ? [activeChainId] : []
+  }, [activeChainId, chainIdFilterPredicate])
 
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
@@ -114,7 +115,11 @@ export const SearchTermAssetList = ({
     return customTokens.filter(token => !assetsById[token.assetId]).map(token => makeAsset(token))
   }, [customTokens])
 
+  const isAddressSearch = isContractAddress(searchString)
+  const showRelatedAssets = activeChainId === 'All' && !isAddressSearch
+
   const searchTermAssets = useMemo(() => {
+    const assetsById = selectAssets(store.getState())
     const filteredAssets: Asset[] = (() => {
       // Main thread search due to dead worker
       if (workerSearchState.workerState === 'failed') {
@@ -123,7 +128,14 @@ export const SearchTermAssetList = ({
 
       // Use the results from the worker
       if (workerSearchState.workerState === 'ready' && workerSearchState.searchResults) {
-        return workerSearchState.searchResults.map(assetId => assetIdMap[assetId]).filter(isSome)
+        return resolveSearchResults({
+          resultAssetIds: workerSearchState.searchResults,
+          usableAssetsById: assetIdMap,
+          relatedAssetIdsByKey: relatedAssetIdsById,
+          assetsById,
+          activeChainId,
+          isAddressSearch,
+        })
       }
 
       return []
@@ -132,18 +144,21 @@ export const SearchTermAssetList = ({
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
     const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
+    // Sorts by the balance the row shows: a grouped main asset sums its family, a grouped version its same-symbol versions
     const getAssetBalance = (asset: Asset) => {
-      if (asset.isChainSpecific || !asset.isPrimary)
+      if (asset.isChainSpecific || !showRelatedAssets)
         return bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
-      const primaryAssetTotalBalance = relatedAssetIdsById[asset.assetId]?.reduce(
-        (acc, relatedAssetId) => {
-          return acc.plus(bnOrZero(portfolioUserCurrencyBalances[relatedAssetId]))
-        },
-        bnOrZero(0),
-      )
+      const rowAssetIds = (
+        relatedAssetIdsById[asset.relatedAssetKey ?? asset.assetId] ?? [asset.assetId]
+      ).filter(assetId => asset.isPrimary || assetsById[assetId]?.symbol === asset.symbol)
 
-      return primaryAssetTotalBalance.toNumber()
+      return rowAssetIds
+        .reduce(
+          (acc, assetId) => acc.plus(bnOrZero(portfolioUserCurrencyBalances[assetId])),
+          bnOrZero(0),
+        )
+        .toNumber()
     }
 
     return orderBy(
@@ -160,6 +175,9 @@ export const SearchTermAssetList = ({
     assetIdMap,
     portfolioUserCurrencyBalances,
     relatedAssetIdsById,
+    activeChainId,
+    isAddressSearch,
+    showRelatedAssets,
   ])
 
   return (
@@ -177,7 +195,9 @@ export const SearchTermAssetList = ({
           handleClick={handleAssetClick}
           hideZeroBalanceAmounts={true}
           onImportClick={onImportClick}
-          showRelatedAssets={activeChainId === 'All' && !isContractAddress(searchString)}
+          showRelatedAssets={showRelatedAssets}
+          assetFilterPredicate={assetFilterPredicate}
+          chainIdFilterPredicate={chainIdFilterPredicate}
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
           height={isLargerThanMd ? '50vh' : '70vh'}
         />

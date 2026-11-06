@@ -19,6 +19,7 @@ import {
   USDT_ETH_PRIMARY,
   VBUSDC_KATANA,
 } from './testData'
+import type { SearchableAsset } from './types'
 import { searchAssets } from './utils'
 
 const assets: Asset[] = [
@@ -771,5 +772,82 @@ describe('searchAssets', () => {
         expect(results.map(a => a.symbol)).toEqual(['USDC', 'USDT', 'USDE'])
       })
     })
+  })
+})
+
+describe('searchAssets family ranking', () => {
+  const makeSearchable = (
+    assetId: string,
+    symbol: string,
+    name: string,
+    relatedAssetKey: string | null = null,
+  ): SearchableAsset => ({
+    assetId,
+    chainId: fromAssetId(assetId).chainId,
+    symbol,
+    name,
+    isPrimary: relatedAssetKey === null || relatedAssetKey === assetId,
+    relatedAssetKey,
+  })
+
+  const TON = makeSearchable('ton:mainnet/slip44:607', 'TON', 'Toncoin', 'ton:mainnet/slip44:607')
+  const GRAM_ETH = makeSearchable(
+    'eip155:1/erc20:0xgram',
+    'GRAM',
+    'Gram (prev. Toncoin)',
+    TON.assetId,
+  )
+  const TOKAMAK = makeSearchable('eip155:1/erc20:0xtokamak', 'TON', 'Tokamak Network')
+  const TONXX = makeSearchable('eip155:1/erc20:0xtonxx', 'TONXX', 'TON xStock')
+  const GRAMPUS = makeSearchable('eip155:8453/erc20:0xgrampus', 'GRAMPUS', 'GRAM Ecosystem')
+  const SOL = makeSearchable('solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501', 'SOL', 'Solana')
+  const BSC_SOL = makeSearchable(
+    'eip155:56/erc20:0xsol',
+    'SOL',
+    'Binance-Peg SOL',
+    'eip155:56/erc20:0xsol',
+  )
+  const WSOL = makeSearchable(
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112',
+    'WSOL',
+    'Wrapped SOL',
+    BSC_SOL.assetId,
+  )
+
+  const familyAssets = new Map([TON, BSC_SOL].map(asset => [asset.assetId, asset]))
+  const getFamilyAsset = (assetId: string) => familyAssets.get(assetId)
+  const symbols = (found: { symbol: string }[]) => found.map(asset => asset.symbol)
+
+  it("lifts a version whose family main asset matches exactly above prefix matches, e.g. GRAM for 'ton' on Ethereum", () => {
+    expect(symbols(searchAssets('ton', [TONXX, GRAM_ETH], getFamilyAsset))).toEqual([
+      'GRAM',
+      'TONXX',
+    ])
+  })
+
+  it("keeps a main asset's own exact match above a version lifted by its family", () => {
+    expect(symbols(searchAssets('ton', [GRAM_ETH, TOKAMAK], getFamilyAsset))).toEqual([
+      'TON',
+      'GRAM',
+    ])
+  })
+
+  it('keeps native SOL above WSOL on the Solana tab', () => {
+    expect(symbols(searchAssets('sol', [WSOL, SOL], getFamilyAsset))).toEqual(['SOL', 'WSOL'])
+  })
+
+  it("doesn't lift a version when its family main asset only partly matches", () => {
+    expect(symbols(searchAssets('tonc', [GRAM_ETH, TONXX], getFamilyAsset))).toEqual(['GRAM'])
+  })
+
+  it("ranks a version's exact symbol above a main asset's prefix, e.g. GRAM above GRAMPUS", () => {
+    expect(symbols(searchAssets('gram', [GRAMPUS, GRAM_ETH], getFamilyAsset))).toEqual([
+      'GRAM',
+      'GRAMPUS',
+    ])
+  })
+
+  it('ranks a version by its own name without a family lookup', () => {
+    expect(symbols(searchAssets('ton', [GRAM_ETH, TOKAMAK]))).toEqual(['TON', 'GRAM'])
   })
 })

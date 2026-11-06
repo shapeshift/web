@@ -1,6 +1,6 @@
 import type { RouterDataV3 } from '@cetusprotocol/aggregator-sdk'
 import { AggregatorClient, Env } from '@cetusprotocol/aggregator-sdk'
-import { SuiClient } from '@mysten/sui/client'
+import { SuiGrpcClient } from '@mysten/sui/grpc'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -11,30 +11,20 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isSupportedChainId } from './constants'
 
-let suiClientInstance: SuiClient | undefined
-let aggregatorClientInstance: AggregatorClient | undefined
+let suiClientInstance: SuiGrpcClient | undefined
 let currentRpcUrl: string | undefined
 
-export const getAggregatorClient = (rpcUrl: string): AggregatorClient => {
-  if (!aggregatorClientInstance || !suiClientInstance || currentRpcUrl !== rpcUrl) {
-    suiClientInstance = new SuiClient({ url: rpcUrl })
-    aggregatorClientInstance = new AggregatorClient({
-      client: suiClientInstance,
-      env: Env.Mainnet,
-      signer: '0x0',
-    })
-    currentRpcUrl = rpcUrl
-  }
-  return aggregatorClientInstance
-}
-
-export const getSuiClient = (rpcUrl: string): SuiClient => {
+export const getSuiClient = (rpcUrl: string): SuiGrpcClient => {
   if (!suiClientInstance || currentRpcUrl !== rpcUrl) {
-    suiClientInstance = new SuiClient({ url: rpcUrl })
+    suiClientInstance = new SuiGrpcClient({ network: 'mainnet', baseUrl: rpcUrl })
     currentRpcUrl = rpcUrl
   }
   return suiClientInstance
 }
+
+// Cetus merges the swap output into an existing coin owned by signer, so it must be the tx sender
+export const getAggregatorClient = (rpcUrl: string, signer?: string): AggregatorClient =>
+  new AggregatorClient({ client: getSuiClient(rpcUrl), env: Env.Mainnet, signer })
 
 export const assertValidTrade = ({
   sellAsset,

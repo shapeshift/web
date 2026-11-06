@@ -1,4 +1,4 @@
-import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
+import { getProvidersExcluding, PYTH_ORACLE_BASED_DEXES } from '@cetusprotocol/aggregator-sdk'
 import { Transaction } from '@mysten/sui/transactions'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -11,7 +11,6 @@ import { checkSuiSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } fr
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import type { CetusTradeQuoteInput, CetusTradeRateInput } from './types'
-import { PYTH_DEPENDENT_PROVIDERS } from './utils/constants'
 import { findBestRoute, getAggregatorClient, getCoinType, getSuiClient } from './utils/helpers'
 
 export const cetusApi: SwapperApi = {
@@ -34,14 +33,14 @@ export const cetusApi: SwapperApi = {
 
     const adapter = assertGetSuiChainAdapter(sellAsset.chainId)
     const rpcUrl = config.VITE_SUI_NODE_URL
-    const client = getAggregatorClient(rpcUrl)
+    const client = getAggregatorClient(rpcUrl, from)
     const suiClient = getSuiClient(rpcUrl)
 
     const sellCoinType = getCoinType(sellAsset)
     const buyCoinType = getCoinType(buyAsset)
 
     // Exclude Pyth-dependent providers to avoid oracle failures
-    const providersWithoutPyth = getProvidersExcluding(PYTH_DEPENDENT_PROVIDERS)
+    const providersWithoutPyth = getProvidersExcluding(PYTH_ORACLE_BASED_DEXES)
 
     const routerData = await findBestRoute(
       client,

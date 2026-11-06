@@ -5,23 +5,16 @@ import { useQuery } from '@tanstack/react-query'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { isStarknetChainAdapter } from '@/lib/utils/starknet'
 
-const checkStarknetAccountDeployment = async (accountId: AccountId | undefined) => {
+const checkStarknetAccountDeployment = (accountId: AccountId | undefined) => {
   if (!accountId) return true
 
   const { chainId } = fromAccountId(accountId)
   if (chainId !== starknetChainId) return true
 
-  try {
-    const chainAdapterManager = getChainAdapterManager()
-    const adapter = chainAdapterManager.get(chainId)
-    if (!isStarknetChainAdapter(adapter)) return true
+  const adapter = getChainAdapterManager().get(chainId)
+  if (!isStarknetChainAdapter(adapter)) return true
 
-    const fromAddress = fromAccountId(accountId).account
-    return await adapter.isAccountDeployed(fromAddress)
-  } catch (error) {
-    console.error('Failed to check Starknet account deployment status:', error)
-    return true
-  }
+  return adapter.isAccountDeployed(fromAccountId(accountId).account)
 }
 
 export const useIsStarknetAccountDeployed = (accountId: AccountId | undefined) => {
@@ -29,7 +22,8 @@ export const useIsStarknetAccountDeployed = (accountId: AccountId | undefined) =
     queryKey: ['isStarknetAccountDeployed', accountId],
     queryFn: () => checkStarknetAccountDeployment(accountId),
     enabled: Boolean(accountId),
-    staleTime: 30000,
+    staleTime: query => (query.state.data === false ? 0 : 30000),
+    refetchOnMount: true,
     refetchInterval: false,
   })
 }

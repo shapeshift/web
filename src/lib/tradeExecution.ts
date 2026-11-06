@@ -765,6 +765,7 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     from,
+    callsOnly,
     signAndBroadcastTransaction,
   }: StarknetTransactionExecutionInput) {
     const buildSignBroadcast = async (
@@ -790,6 +791,7 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
         from,
+        callsOnly,
         config,
         assertGetStarknetChainAdapter,
       })

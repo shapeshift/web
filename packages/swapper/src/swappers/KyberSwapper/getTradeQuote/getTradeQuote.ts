@@ -32,10 +32,11 @@ export const getTradeQuote = async (
     recipient: receiveAddress,
     deadline,
   })
+
   if (maybeBuild.isErr()) return Err(maybeBuild.unwrapErr())
   const build = maybeBuild.unwrap()
 
-  // Quote the built amount, the calldata output floor is derived from it rather than from the route
+  // Kyber re-prices at build time and derives the calldata's minimum return from the built amount
   const { rate, ...buyAmounts } = getKyberBuyAmounts({ input, amountOut: build.amountOut })
 
   const maybeStepData = await getKyberStepData({
@@ -45,6 +46,7 @@ export const getTradeQuote = async (
     from: sendAddress,
     build,
   })
+
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 

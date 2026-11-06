@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   abstractAssetId,
   adapters,
@@ -22,6 +22,7 @@ import {
   optimismAssetId,
   robinhoodAssetId,
   scrollAssetId,
+  solAssetId,
   soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
@@ -30,6 +31,7 @@ import {
   zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { ZERION_CHAINS_MAP } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -43,6 +45,7 @@ import {
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,
 } from './mapping'
+import { reconcileRelatedAssetGroups } from './reconcileRelatedAssetGroups'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 import type { CoingeckoAssetDetails } from '@/lib/coingecko/types'
@@ -62,6 +65,8 @@ const ZERION_API_KEY = process.env.ZERION_API_KEY
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
 
 const REGEN_ALL = process.env.REGEN_ALL === 'true'
+
+const zerionChainIds = new Set<ChainId>(Object.values(ZERION_CHAINS_MAP))
 
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [
@@ -93,14 +98,65 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
   [bscAssetId]: ['eip155:1/erc20:0xb8c77482e45f1f44de1745f52c74426c631bdd52'],
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
+    'eip155:59144/erc20:0x176211869ca2b568f2a7d4ee941e073a821ee1ff',
+    'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
     'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
     'aptos:1/fungible:0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
   ],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
+    'eip155:59144/erc20:0xa219439258ca9da29e9cc4ce5596924745e12b93',
+    'eip155:5000/erc20:0x201eba5cc46d216ce6dc03f6a759e8e766e956ae',
     'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
     'aptos:1/fungible:0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b',
   ],
+  'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': [
+    'eip155:59144/erc20:0x4af15ec2a0bd43db75dd04e62faa3b8ef36b00d5',
+  ],
+  // CoinGecko lists wrapped and pegged SOL as separate coins from native SOL
+  [solAssetId]: [
+    'eip155:56/erc20:0x570a5d26f7765ecb712c0924e4de545b89fd43df',
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112',
+    'eip155:8453/erc20:0x311935cd80b76769bf2ecc9d8ab7635b2139cf82',
+  ],
+  // Ethereum SHIB, not Binance-Peg SHIB, is the main asset
+  'eip155:1/erc20:0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce': [
+    'eip155:56/erc20:0x2859e4544c4bb03966803b044a93563bd2d0dd4d',
+  ],
+  // Ethereum USDe leads its family, not Ethereal's native USDe
+  'eip155:1/erc20:0x4c9edd5852cd905f086c759e8383e09bff1e68b3': ['eip155:5064014/slip44:60'],
+  // Ethereum weETH leads its family, and CoinGecko files Katana weETH under bridged WETH
+  'eip155:1/erc20:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee': [
+    'eip155:42161/erc20:0x35751007a407ca6feffe80b3cb397736d2cf4dbe',
+    'eip155:747474/erc20:0x9893989433e7a383cb313953e4c2365107dc19a7',
+  ],
 }
+
+// Tokens a provider put in another token's group, each left to group with its own coin
+const relatedAssetExclusions: AssetId[] = [
+  // Fiamma BTC, which CoinGecko lists as bridged WBTC
+  'eip155:1/erc20:0x22f0e0a4c97ff43546dad16d43ef854c773f0e08',
+  'eip155:1329/erc20:0x60c230c38af6d86b0277a98a1caeaa345a7b061f',
+  'eip155:8453/erc20:0x60c230c38af6d86b0277a98a1caeaa345a7b061f',
+  'aptos:1/fungible:0x75de592a7e62e6224d13763c392190fda8635ebb79c798a5e9dd0840102f3f93',
+  // Linea GNO, grouped with WBTC
+  'eip155:59144/erc20:0xe516a5cff996cc399efbb48355fd5ab83438e7a9',
+  // Senate, grouped with Sidus at the same address on Base
+  'eip155:1/erc20:0x34be5b8c30ee4fde069dc878989686abe9884470',
+  // Spiko UK T-Bills, grouped with the Spiko Cash & Carry fund
+  'eip155:1/erc20:0xf695df6c0f3bb45918a7a82e83348fc59517734e',
+  'eip155:137/erc20:0x970e2adc2fdf53aea6b5fa73ca6dc30eafedfe3d',
+  'eip155:42161/erc20:0x903d5990119bc799423e9c25c56518ba7dd19474',
+  'eip155:8453/erc20:0xa8de1f55aa0e381cb456e1dcc9ff781ea0079068',
+  'starknet:SN_MAIN/token:0x0153d6e0462080bb2842109e9b64f589ef5aa06bb32b26bbdb894aca92674395',
+  // USDai, grouped with staked USDai
+  'eip155:1/erc20:0x0a1a1a107e45b7ced86833863f482bc5f4ed82ef',
+  'eip155:8453/erc20:0x0a1a1a107e45b7ced86833863f482bc5f4ed82ef',
+  // Same-symbol tokens from unrelated projects
+  'eip155:1/erc20:0x59f4f336bf3d0c49dbfba4a74ebd2a6ace40539a', // CAT
+  'eip155:1/erc20:0x699ec925118567b6475fe495327ba0a778234aaa', // DUCKY
+  'eip155:1/erc20:0x809826cceab68c387726af962713b64cb5cb3cca', // NCASH
+  'eip155:1/erc20:0x4947b72fed037ade3365da050a9be5c063e605a7', // PEANUT
+]
 
 // Category → Canonical Asset mapping for bridged tokens
 // Maps CoinGecko bridged categories to their Ethereum canonical tokens
@@ -226,9 +282,10 @@ const getZerionRelatedAssetIds = async (
     },
   }
 
-  const { assetReference } = fromAssetId(assetId)
+  const { chainId, assetReference } = fromAssetId(assetId)
 
   if (FEE_ASSET_IDS.includes(assetId)) return
+  if (!zerionChainIds.has(chainId)) return
 
   const filter = { params: { 'filter[implementation_address]': assetReference } }
   const url = '/fungibles'
@@ -245,21 +302,22 @@ const getZerionRelatedAssetIds = async (
   }
 
   const validationResult = zerionFungiblesSchema.parse(res)
-  const firstEntry = validationResult.data[0]
+  const implementationAssetIdsByEntry = validationResult.data.map(entry =>
+    (entry.attributes.implementations ?? []).map(zerionImplementationToMaybeAssetId).filter(isSome),
+  )
+  // The address filter ignores the chain, so only trust a fungible that has this exact implementation
+  const matchingAssetIds = implementationAssetIdsByEntry.find(implementationAssetIds =>
+    implementationAssetIds.some(id => id.toLowerCase() === assetId.toLowerCase()),
+  )
 
-  if (firstEntry === undefined) return
-
-  const implementations = firstEntry.attributes.implementations
+  if (matchingAssetIds === undefined) return
 
   // Use all assetIds actually present in the dataset
-  const allRelatedAssetIds = implementations
-    ?.map(zerionImplementationToMaybeAssetId)
-    .filter(isSome)
-    .filter(relatedAssetId => {
-      return assetData[relatedAssetId] !== undefined
-    })
+  const allRelatedAssetIds = matchingAssetIds.filter(
+    relatedAssetId => assetData[relatedAssetId] !== undefined,
+  )
 
-  if (!allRelatedAssetIds || allRelatedAssetIds.length <= 1) {
+  if (allRelatedAssetIds.length <= 1) {
     return
   }
 
@@ -360,12 +418,13 @@ const processRelatedAssetIds = async (
   relatedAssetIndex: Record<AssetId, AssetId[]>,
   categoryToCoinIds: Record<string, string[]>,
   coinsByAssetId: Record<AssetId, CoingeckoCoin>,
+  regenAll: boolean,
   throttle: () => Promise<void>,
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
   // An asset can carry a key the index no longer lists - e.g. it left the dataset and came back
-  if (!REGEN_ALL && existingRelatedAssetKey) {
+  if (!regenAll && existingRelatedAssetKey) {
     const group = relatedAssetIndex[existingRelatedAssetKey] ?? []
 
     const rejoinedGroup = Array.from(new Set([...group, existingRelatedAssetKey, assetId]))
@@ -387,7 +446,7 @@ const processRelatedAssetIds = async (
   }
 
   // Check if this asset is already in the relatedAssetIndex
-  if (!REGEN_ALL) {
+  if (!regenAll) {
     for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {
       if (relatedAssets.includes(assetId)) {
         if (existingRelatedAssetKey !== key) {
@@ -523,8 +582,8 @@ const processRelatedAssetIds = async (
 }
 
 // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
-export const generateRelatedAssetIndex = async () => {
-  console.log('generateRelatedAssetIndex() starting')
+export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
+  console.log(`generateRelatedAssetIndex(${chainId ?? ''}) starting`)
 
   const assetDataJson = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
   const relatedAssetIndexJson = JSON.parse(
@@ -541,22 +600,49 @@ export const generateRelatedAssetIndex = async () => {
 
   const generatedAssetData: Record<AssetId, Asset> = assetDataJson.byId
   const sortedAssetIds: AssetId[] = assetDataJson.ids
-  const relatedAssetIndex: Record<AssetId, AssetId[]> = REGEN_ALL ? {} : relatedAssetIndexJson
+  const regenAll = REGEN_ALL && !chainId
+  const relatedAssetIndex: Record<AssetId, AssetId[]> = regenAll ? {} : relatedAssetIndexJson
 
-  // Remove stale related asset data from the assetData where the primary related asset no longer exists
-  Object.values(generatedAssetData).forEach(asset => {
-    const relatedAssetKey = asset.relatedAssetKey
-
-    if (!relatedAssetKey) return
-
-    const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
-
-    // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    if (primaryRelatedAsset === undefined) {
-      delete relatedAssetIndex[relatedAssetKey]
-      delete asset.relatedAssetKey
+  const rankByAssetId = new Map(sortedAssetIds.map((assetId, rank) => [assetId, rank]))
+  const survivorsByMissingKey = new Map<AssetId, Set<AssetId>>()
+  const handedOffAssetIds = new Set<AssetId>()
+  const addSurvivor = (missingKey: AssetId, assetId: AssetId) => {
+    if (!generatedAssetData[assetId] || handedOffAssetIds.has(assetId)) return
+    handedOffAssetIds.add(assetId)
+    survivorsByMissingKey.set(
+      missingKey,
+      (survivorsByMissingKey.get(missingKey) ?? new Set<AssetId>()).add(assetId),
+    )
+  }
+  for (const [relatedAssetKey, relatedAssetIds] of Object.entries(relatedAssetIndex)) {
+    if (generatedAssetData[relatedAssetKey]) continue
+    delete relatedAssetIndex[relatedAssetKey]
+    for (const assetId of relatedAssetIds) {
+      const currentKey = generatedAssetData[assetId]?.relatedAssetKey
+      if (currentKey && generatedAssetData[currentKey]) continue
+      addSurvivor(relatedAssetKey, assetId)
     }
-  })
+  }
+  for (const [assetId, asset] of Object.entries(generatedAssetData)) {
+    if (asset.relatedAssetKey && !generatedAssetData[asset.relatedAssetKey]) {
+      addSurvivor(asset.relatedAssetKey, assetId)
+    }
+  }
+  for (const survivorSet of survivorsByMissingKey.values()) {
+    const survivors = [...survivorSet].sort(
+      (a, b) =>
+        (rankByAssetId.get(a) ?? Number.MAX_SAFE_INTEGER) -
+        (rankByAssetId.get(b) ?? Number.MAX_SAFE_INTEGER),
+    )
+    const [newKey] = survivors
+    if (survivors.length > 1) {
+      relatedAssetIndex[newKey] = uniq([...(relatedAssetIndex[newKey] ?? []), ...survivors])
+    }
+    for (const assetId of survivors) {
+      if (survivors.length > 1) generatedAssetData[assetId].relatedAssetKey = newKey
+      else delete generatedAssetData[assetId].relatedAssetKey
+    }
+  }
 
   // Remove stale related asset data from the relatedAssetIndex where:
   // a) a related assetId no longer exists in the dataset
@@ -589,7 +675,10 @@ export const generateRelatedAssetIndex = async () => {
     intervalMs: 2000,
   })
 
-  const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
+  const assetIdsToProcess = Object.keys(generatedAssetData).filter(
+    assetId => !chainId || generatedAssetData[assetId].chainId === chainId,
+  )
+  const chunks = chunkArray(assetIdsToProcess, BATCH_SIZE)
   for (const [i, batch] of chunks.entries()) {
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
@@ -600,6 +689,7 @@ export const generateRelatedAssetIndex = async () => {
           relatedAssetIndex,
           categoryToCoinIds,
           coinsByAssetId,
+          regenAll,
           throttle,
         )
         return
@@ -609,11 +699,41 @@ export const generateRelatedAssetIndex = async () => {
 
   clearThrottleInterval()
 
+  const coinIdByAssetId: Record<AssetId, string> = {}
+  for (const [assetId, coin] of Object.entries(coinsByAssetId)) coinIdByAssetId[assetId] = coin.id
+  for (const nativeAssetId of FEE_ASSET_IDS) {
+    const coinId = adapters.assetIdToCoingecko(nativeAssetId)
+    if (coinId) coinIdByAssetId[nativeAssetId] = coinId
+  }
+
+  const reconciled = reconcileRelatedAssetGroups({
+    relatedAssetKeyByAssetId: Object.fromEntries(
+      Object.entries(generatedAssetData).map(([assetId, asset]) => [
+        assetId,
+        asset.relatedAssetKey,
+      ]),
+    ),
+    relatedAssetIndex,
+    rankedAssetIds: sortedAssetIds,
+    coinIdByAssetId,
+    manualRelatedAssetIndex,
+    excludedAssetIds: relatedAssetExclusions,
+    nativeAssetIds: FEE_ASSET_IDS,
+    canonicalAssetIds: Object.values(BRIDGED_CATEGORY_MAPPINGS),
+  })
+
+  for (const [assetId, relatedAssetKey] of Object.entries(reconciled.relatedAssetKeyByAssetId)) {
+    generatedAssetData[assetId].relatedAssetKey = relatedAssetKey
+  }
+
   await fs.promises.writeFile(
     ASSET_DATA_PATH,
     JSON.stringify({ byId: generatedAssetData, ids: sortedAssetIds }),
   )
-  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(relatedAssetIndex))
+  await fs.promises.writeFile(
+    RELATED_ASSET_INDEX_PATH,
+    JSON.stringify(reconciled.relatedAssetIndex),
+  )
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

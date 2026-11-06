@@ -139,7 +139,13 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
-import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
+import {
+  assertUnreachable,
+  isLedgerHDWallet,
+  isNativeHDWallet,
+  isTrezorHDWallet,
+  middleEllipsis,
+} from '@/lib/utils'
 import { supportsNear } from '@/lib/utils/near'
 import { supportsTon } from '@/lib/utils/ton'
 import { isBlacklistedAssetId, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
@@ -622,7 +628,10 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case bchChainId:
       return supportsBTC(wallet) && !isGridPlus(wallet)
     case zecChainId:
-      return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isTrezorHDWallet(wallet))
+      return (
+        supportsBTC(wallet) &&
+        (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
+      )
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

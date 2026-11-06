@@ -219,7 +219,7 @@ export const validateKyberRoute = (
   if (feeParams && routeSummary.extraFee.feeAmount === '') {
     return Err(
       makeSwapErrorRight({
-        message: 'KyberSwap does not support wrapping or unwrapping the native asset',
+        message: 'Wrapping or unwrapping the native asset is not supported through KyberSwap',
         code: TradeQuoteError.UnsupportedTradePair,
       }),
     )

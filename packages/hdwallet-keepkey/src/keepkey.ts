@@ -577,6 +577,7 @@ export class KeepKeyHDWallet
   readonly _supportsUnichain = false
   readonly _supportsSoneium = false
   readonly _supportsRobinhood = false
+  readonly _supportsElysium = false
   readonly _supportsBTC = true
   _supportsCosmos = true
   _supportsOsmosis = true

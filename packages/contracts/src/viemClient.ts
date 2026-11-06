@@ -186,6 +186,19 @@ export const viemSoneiumClient = createRpcClient(soneium, undefined, PUBLIC_RPC_
 
 export const viemRobinhoodClient = createRpcClient(robinhood, undefined, PUBLIC_RPC_URLS.robinhood)
 
+export const elysium = defineChain({
+  id: 99801,
+  name: 'Elysium Testnet',
+  nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
+  rpcUrls: { default: { http: ['https://testnet-rpc.elysium.kinetiq.xyz'] } },
+  blockExplorers: {
+    default: { name: 'Elysium Testnet Explorer', url: 'https://testnet.elysium.kinetiq.xyz' },
+  },
+  contracts: { multicall3 },
+})
+
+export const viemElysiumClient = createRpcClient(elysium, undefined, PUBLIC_RPC_URLS.elysium)
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -223,6 +236,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.SeiMainnet]: viemSeiClient,
   [KnownChainIds.AbstractMainnet]: viemAbstractClient,
   [KnownChainIds.RobinhoodMainnet]: viemRobinhoodClient,
+  [KnownChainIds.ElysiumMainnet]: viemElysiumClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -262,6 +276,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.SeiMainnet]: sei.id,
   [KnownChainIds.AbstractMainnet]: abstract.id,
   [KnownChainIds.RobinhoodMainnet]: robinhood.id,
+  [KnownChainIds.ElysiumMainnet]: elysium.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -301,6 +316,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [sei.id]: viemSeiClient,
   [abstract.id]: viemAbstractClient,
   [robinhood.id]: viemRobinhoodClient,
+  [elysium.id]: viemElysiumClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

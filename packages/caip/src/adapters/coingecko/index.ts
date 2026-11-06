@@ -19,6 +19,7 @@ import {
   CHAIN_REFERENCE,
   cosmosChainId,
   cronosChainId,
+  elysiumChainId,
   ethChainId,
   flowEvmChainId,
   gnosisChainId,
@@ -108,6 +109,7 @@ export enum CoingeckoAssetPlatform {
   Near = 'near-protocol',
   Abstract = 'abstract',
   Robinhood = 'robinhood',
+  Elysium = 'elysium-kinetiq',
 }
 
 type CoinGeckoId = string
@@ -214,6 +216,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Sei
         case CHAIN_REFERENCE.RobinhoodMainnet:
           return CoingeckoAssetPlatform.Robinhood
+        case CHAIN_REFERENCE.ElysiumMainnet:
+          return CoingeckoAssetPlatform.Elysium
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -396,6 +400,8 @@ export const coingeckoAssetPlatformToChainId = (
       return nearChainId
     case CoingeckoAssetPlatform.Robinhood:
       return robinhoodChainId
+    case CoingeckoAssetPlatform.Elysium:
+      return elysiumChainId
     default:
       return undefined
   }

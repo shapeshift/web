@@ -210,6 +210,7 @@ export const mockStore: ReduxState = {
       MmNativeMultichain: false,
       Robinhood: false,
       Aptos: true,
+      Elysium: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

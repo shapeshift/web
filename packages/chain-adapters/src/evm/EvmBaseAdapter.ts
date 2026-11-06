@@ -19,6 +19,7 @@ import {
   supportsBSC,
   supportsCelo,
   supportsCronos,
+  supportsElysium,
   supportsETH,
   supportsEthereal,
   supportsFlowEvm,
@@ -138,6 +139,7 @@ export const evmChainIds = [
   KnownChainIds.SeiMainnet,
   KnownChainIds.AbstractMainnet,
   KnownChainIds.RobinhoodMainnet,
+  KnownChainIds.ElysiumMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -288,6 +290,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsSei(wallet)
         case Number(fromChainId(KnownChainIds.RobinhoodMainnet).chainReference):
           return supportsRobinhood(wallet)
+        case Number(fromChainId(KnownChainIds.ElysiumMainnet).chainReference):
+          return supportsElysium(wallet)
         default:
           return false
       }
@@ -499,6 +503,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://robinhoodchain.blockscout.com',
+      },
+      [KnownChainIds.ElysiumMainnet]: {
+        name: 'HYPE',
+        symbol: 'HYPE',
+        explorer: 'https://testnet.elysium.kinetiq.xyz',
       },
     }[this.chainId]
 

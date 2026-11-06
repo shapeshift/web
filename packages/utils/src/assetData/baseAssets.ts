@@ -890,3 +890,20 @@ export const aptos: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://explorer.aptoslabs.com/txn/',
   relatedAssetKey: null,
 })
+
+export const elysium: Readonly<Asset> = Object.freeze({
+  assetId: caip.elysiumAssetId,
+  chainId: caip.elysiumChainId,
+  name: 'Hyperliquid',
+  networkName: 'Elysium',
+  symbol: 'HYPE',
+  precision: 18,
+  color: '#2D7388',
+  networkColor: '#2D7388',
+  icon: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
+  networkIcon: 'https://kinetiq.xyz/assets/brand/elysium/elysium-logomark-colorized.png',
+  explorer: 'https://testnet.elysium.kinetiq.xyz',
+  explorerAddressLink: 'https://testnet.elysium.kinetiq.xyz/address/',
+  explorerTxLink: 'https://testnet.elysium.kinetiq.xyz/tx/',
+  relatedAssetKey: null,
+})

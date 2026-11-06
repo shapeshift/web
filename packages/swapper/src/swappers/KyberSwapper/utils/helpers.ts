@@ -219,7 +219,7 @@ export const validateKyberRoute = (
   if (feeParams && routeSummary.extraFee.feeAmount === '') {
     return Err(
       makeSwapErrorRight({
-        message: 'KyberSwap does not charge the integrator fee on this route',
+        message: 'KyberSwap does not support wrapping or unwrapping the native asset',
         code: TradeQuoteError.UnsupportedTradePair,
       }),
     )

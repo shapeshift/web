@@ -22,6 +22,7 @@ import {
   DAO_TREASURY_SOLANA,
   DAO_TREASURY_STARKNET,
   DAO_TREASURY_TON,
+  DAO_TREASURY_UNICHAIN,
   isTreasuryChainId,
 } from '@shapeshiftoss/utils'
 
@@ -69,6 +70,7 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.RobinhoodMainnet]: DAO_TREASURY_ROBINHOOD,
   [KnownChainIds.PlasmaMainnet]: DAO_TREASURY_PLASMA,
   [KnownChainIds.MegaEthMainnet]: DAO_TREASURY_MEGAETH,
+  [KnownChainIds.UnichainMainnet]: DAO_TREASURY_UNICHAIN,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

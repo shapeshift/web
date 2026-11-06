@@ -10,9 +10,9 @@ export const getTradeRate = async (
   input: KyberTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const { accountNumber, sendAddress, receiveAddress } = input
+  const { accountNumber, receiveAddress } = input
 
-  const maybeContext = await getKyberTradeContext({ input, deps, origin: sendAddress })
+  const maybeContext = await getKyberTradeContext({ input, deps })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
   const { tradeCommon, stepCommon, protocolFees, stepDataArgs } = maybeContext.unwrap()
 

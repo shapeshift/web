@@ -22,7 +22,7 @@ export const fetchKyberRoute = async ({
   tokenOut,
   sellAmountCryptoBaseUnit,
   feeParams,
-  origin,
+  sendAddress,
   baseUrl,
 }: {
   chainId: KyberSupportedChainId
@@ -30,7 +30,7 @@ export const fetchKyberRoute = async ({
   tokenOut: Address
   sellAmountCryptoBaseUnit: string
   feeParams: KyberFeeParams | undefined
-  origin: string | undefined
+  sendAddress: string | undefined
   baseUrl: string
 }): Promise<Result<KyberRouteSummary, SwapErrorRight>> => {
   const maybeResponse = await kyberService.get<KyberRoutesResponse>(
@@ -40,7 +40,7 @@ export const fetchKyberRoute = async ({
         tokenIn,
         tokenOut,
         amountIn: sellAmountCryptoBaseUnit,
-        ...(origin ? { origin } : {}),
+        ...(sendAddress ? { origin: sendAddress } : {}),
         ...feeParams,
       },
     },

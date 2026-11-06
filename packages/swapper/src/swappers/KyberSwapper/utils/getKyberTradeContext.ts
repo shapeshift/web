@@ -36,11 +36,9 @@ type KyberTradeContext = {
 export const getKyberTradeContext = async ({
   input,
   deps,
-  origin,
 }: {
   input: KyberTradeQuoteInput | KyberTradeRateInput
   deps: SwapperDeps
-  origin: string | undefined
 }): Promise<Result<KyberTradeContext, SwapErrorRight>> => {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
 
@@ -58,7 +56,7 @@ export const getKyberTradeContext = async ({
     tokenOut: assetIdToKyberToken(buyAsset.assetId),
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeParams: getKyberFeeParams({ chainId, affiliateBps }),
-    origin,
+    sendAddress: input.sendAddress,
     baseUrl: deps.config.VITE_KYBER_BASE_URL,
   })
 

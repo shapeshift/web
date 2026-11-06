@@ -20,7 +20,7 @@ export const getTradeQuote = async (
   if (maybeAddresses.isErr()) return Err(maybeAddresses.unwrapErr())
   const { sendAddress, receiveAddress } = maybeAddresses.unwrap()
 
-  const maybeContext = await getKyberTradeContext({ input, deps, origin: sendAddress })
+  const maybeContext = await getKyberTradeContext({ input, deps })
   if (maybeContext.isErr()) return Err(maybeContext.unwrapErr())
   const { tradeCommon, stepCommon, protocolFees, chainId, routeSummary, stepDataArgs } =
     maybeContext.unwrap()

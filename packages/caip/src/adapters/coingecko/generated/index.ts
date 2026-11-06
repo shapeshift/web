@@ -49,6 +49,7 @@ import zcash from "./bip122_00040fe8ec8471911baa1db1266ea15d/adapter.json";
 import near from "./near_mainnet/adapter.json";
 import ton from "./ton_mainnet/adapter.json";
 import aptos from "./aptos_1/adapter.json";
+import elysium from "./eip155_99801/adapter.json";
 
 export {
   bitcoin,
@@ -102,4 +103,5 @@ export {
   near,
   ton,
   aptos,
+  elysium,
 };

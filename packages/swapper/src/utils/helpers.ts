@@ -10,6 +10,7 @@ import {
   DAO_TREASURY_BITCOIN,
   DAO_TREASURY_BOB,
   DAO_TREASURY_BSC,
+  DAO_TREASURY_ELYSIUM,
   DAO_TREASURY_ETHEREUM_MAINNET,
   DAO_TREASURY_GNOSIS,
   DAO_TREASURY_HYPEREVM,
@@ -71,6 +72,7 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.PlasmaMainnet]: DAO_TREASURY_PLASMA,
   [KnownChainIds.MegaEthMainnet]: DAO_TREASURY_MEGAETH,
   [KnownChainIds.UnichainMainnet]: DAO_TREASURY_UNICHAIN,
+  [KnownChainIds.ElysiumMainnet]: DAO_TREASURY_ELYSIUM,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

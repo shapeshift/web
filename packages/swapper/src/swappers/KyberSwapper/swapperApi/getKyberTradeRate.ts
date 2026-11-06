@@ -6,7 +6,7 @@ import type { KyberTradeRateInput } from '../types'
 import { getKyberStepData } from '../utils/getKyberStepData'
 import { getKyberTradeContext } from '../utils/getKyberTradeContext'
 
-export const getTradeRate = async (
+export const getKyberTradeRate = async (
   input: KyberTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {

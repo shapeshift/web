@@ -10,7 +10,7 @@ import { getKyberStepData } from '../utils/getKyberStepData'
 import { getKyberTradeContext } from '../utils/getKyberTradeContext'
 import { getKyberTradeAmounts } from '../utils/helpers'
 
-export const getTradeQuote = async (
+export const getKyberTradeQuote = async (
   input: KyberTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {

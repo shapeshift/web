@@ -213,12 +213,12 @@ export const validateKyberRoute = (
 
   if (!response.data) return Err(invalidResponse('KyberSwap returned no route'))
 
-  const { routeSummary, routerAddress } = response.data
+  const { routeSummary: route, routerAddress } = response.data
 
   if (!isPinnedRouter(routerAddress)) return Err(unpinnedRouterError(routerAddress))
 
   // Wrap and unwrap routes come back without the integrator fee
-  if (feeParams && routeSummary.extraFee.feeAmount === '') {
+  if (feeParams && route.extraFee.feeAmount === '') {
     return Err(
       makeSwapErrorRight({
         message: 'KyberSwap does not charge the integrator fee on this route',
@@ -227,7 +227,7 @@ export const validateKyberRoute = (
     )
   }
 
-  return Ok(routeSummary)
+  return Ok(route)
 }
 
 export const validateKyberBuild = (

@@ -29,7 +29,7 @@ type KyberTradeContext = {
   stepCommon: Omit<TradeStepCommon, 'feeData'>
   protocolFees: QuoteFeeData['protocolFees']
   chainId: KyberSupportedChainId
-  routeSummary: KyberRouteSummary
+  route: KyberRouteSummary
   stepDataArgs: Omit<GetKyberStepDataArgs, 'type' | 'input' | 'from' | 'build'>
 }
 
@@ -40,7 +40,13 @@ export const getKyberTradeContext = async ({
   input: KyberTradeQuoteInput | KyberTradeRateInput
   deps: SwapperDeps
 }): Promise<Result<KyberTradeContext, SwapErrorRight>> => {
-  const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
+  const {
+    sellAsset,
+    buyAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    affiliateBps,
+    sendAddress,
+  } = input
 
   const maybeChainId = assertValidTrade({ sellAsset, buyAsset })
   if (maybeChainId.isErr()) return Err(maybeChainId.unwrapErr())
@@ -56,15 +62,14 @@ export const getKyberTradeContext = async ({
     tokenOut: assetIdToKyberToken(buyAsset.assetId),
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeParams: getKyberFeeParams({ chainId, affiliateBps }),
-    sendAddress: input.sendAddress,
+    sendAddress,
     baseUrl: deps.config.VITE_KYBER_BASE_URL,
   })
 
   if (maybeRoute.isErr()) return Err(maybeRoute.unwrapErr())
-  const routeSummary = maybeRoute.unwrap()
+  const route = maybeRoute.unwrap()
 
-  const tradeAmounts = getKyberTradeAmounts({ input, amountOut: routeSummary.amountOut })
-
+  const tradeAmounts = getKyberTradeAmounts({ input, amountOut: route.amountOut })
   const allowanceContract = isNativeEvmAsset(sellAsset.assetId) ? '' : KYBER_ROUTER_ADDRESS
 
   return Ok<KyberTradeContext, SwapErrorRight>({
@@ -86,13 +91,13 @@ export const getKyberTradeContext = async ({
     },
     protocolFees: {},
     chainId,
-    routeSummary,
+    route,
     stepDataArgs: {
       deps,
       sellAsset,
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       spenderAddress: allowanceContract,
-      routeSummary,
+      route,
     },
   })
 }

@@ -53,7 +53,7 @@ export const fetchKyberRoute = async ({
 
 export const fetchKyberBuild = async ({
   chainId,
-  routeSummary,
+  route,
   slippageTolerancePercentageDecimal,
   baseUrl,
   sender,
@@ -61,7 +61,7 @@ export const fetchKyberBuild = async ({
   deadline,
 }: {
   chainId: KyberSupportedChainId
-  routeSummary: KyberRouteSummary
+  route: KyberRouteSummary
   slippageTolerancePercentageDecimal: string
   baseUrl: string
   sender: string
@@ -71,7 +71,7 @@ export const fetchKyberBuild = async ({
   const maybeResponse = await kyberService.post<KyberBuildResponse>(
     `${baseUrl}/${KYBER_CHAINS[chainId]}/api/v1/route/build`,
     {
-      routeSummary,
+      routeSummary: route,
       sender,
       recipient,
       origin: sender,

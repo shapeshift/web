@@ -59,7 +59,7 @@ const baseArgs = {
   sellAsset: HYPE,
   sellAmountCryptoBaseUnit: '3000000000000000000',
   spenderAddress: '',
-  routeSummary: { gas: '679101', gasPrice: '2000000000' } as KyberRouteSummary,
+  route: { gas: '679101', gasPrice: '2000000000' } as KyberRouteSummary,
 }
 
 describe('getKyberStepData', () => {

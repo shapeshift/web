@@ -57,7 +57,7 @@ const hyperEvmFeeParams = getKyberFeeParams({
   affiliateBps: '60',
 })
 
-const ROUTE_SUMMARY = {
+const ROUTE = {
   amountOut: '255332541',
   gas: '679101',
   gasPrice: '100000000',
@@ -72,7 +72,7 @@ const ROUTE_SUMMARY = {
 const ROUTES_RESPONSE: Required<KyberRoutesResponse> = {
   code: 0,
   message: 'successfully',
-  data: { routeSummary: ROUTE_SUMMARY, routerAddress: KYBER_ROUTER_ADDRESS },
+  data: { routeSummary: ROUTE, routerAddress: KYBER_ROUTER_ADDRESS },
   requestId: 'route-request',
 }
 
@@ -147,9 +147,8 @@ describe('getKyberBuyAmountBeforeFees', () => {
 })
 
 describe('validateKyberRoute', () => {
-  const routeSummary = ROUTE_SUMMARY
   const validate = (
-    summaryOverrides: Partial<typeof routeSummary>,
+    summaryOverrides: Partial<typeof ROUTE>,
     dataOverrides = {},
     feeParams: KyberFeeParams | undefined = hyperEvmFeeParams,
   ) =>
@@ -158,7 +157,7 @@ describe('validateKyberRoute', () => {
         ...ROUTES_RESPONSE,
         data: {
           ...ROUTES_RESPONSE.data,
-          routeSummary: { ...routeSummary, ...summaryOverrides },
+          routeSummary: { ...ROUTE, ...summaryOverrides },
           ...dataOverrides,
         },
       },
@@ -166,7 +165,7 @@ describe('validateKyberRoute', () => {
     )
 
   it('returns the route summary', () => {
-    expect(validateKyberRoute(ROUTES_RESPONSE, hyperEvmFeeParams).unwrap()).toBe(routeSummary)
+    expect(validateKyberRoute(ROUTES_RESPONSE, hyperEvmFeeParams).unwrap()).toBe(ROUTE)
   })
 
   it('rejects an unpinned router', () => {
@@ -188,7 +187,7 @@ describe('validateKyberRoute', () => {
           ...ROUTES_RESPONSE,
           data: {
             ...ROUTES_RESPONSE.data,
-            routeSummary: { ...routeSummary, extraFee: EMPTY_EXTRA_FEE },
+            routeSummary: { ...ROUTE, extraFee: EMPTY_EXTRA_FEE },
           },
         },
         undefined,

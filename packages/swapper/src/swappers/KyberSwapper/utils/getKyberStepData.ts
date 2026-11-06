@@ -18,7 +18,6 @@ type BaseArgs = {
   route: KyberRouteSummary
 }
 
-// Swap calldata is only built for quotes, rates price from the route alone
 export type GetKyberStepDataArgs = StepDataArgs<
   BaseArgs,
   { build?: undefined },

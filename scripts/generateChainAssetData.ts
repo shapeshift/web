@@ -127,6 +127,7 @@ const main = async () => {
       .map(([id]) => id),
   )
 
+  const oldAssetsById = new Map([...oldAssetIds].map(id => [id, existingData.byId[id]]))
   for (const id of oldAssetIds) {
     delete existingData.byId[id]
   }
@@ -135,9 +136,7 @@ const main = async () => {
   const orderedNewAssets = orderBy(filteredAssets, 'assetId')
 
   for (const asset of orderedNewAssets) {
-    const existingAsset = oldAssetIds.has(asset.assetId)
-      ? existingData.byId[asset.assetId]
-      : undefined
+    const existingAsset = oldAssetsById.get(asset.assetId)
 
     if (existingAsset?.relatedAssetKey && existingAsset.relatedAssetKey !== null) {
       asset.relatedAssetKey = existingAsset.relatedAssetKey
@@ -159,10 +158,10 @@ const main = async () => {
   await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(existingData))
 
   // Generate related asset index for ONLY this chain's assets
-  const { generateChainRelatedAssetIndex } = await import(
-    './generateAssetData/generateRelatedAssetIndex/generateChainRelatedAssetIndex'
+  const { generateRelatedAssetIndex } = await import(
+    './generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex'
   )
-  await generateChainRelatedAssetIndex(chainId)
+  await generateRelatedAssetIndex(chainId)
 
   console.info('[generate:chain] generating manifest + compressing...')
   await generateManifest()

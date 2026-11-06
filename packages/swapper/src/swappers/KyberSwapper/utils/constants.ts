@@ -7,6 +7,15 @@ export const KYBER_CLIENT_ID = 'shapeshift'
 export const KYBER_DEADLINE_SECONDS = 1200
 
 export const KYBER_CHAINS = {
+  [KnownChainIds.EthereumMainnet]: 'ethereum',
+  [KnownChainIds.OptimismMainnet]: 'optimism',
+  [KnownChainIds.BnbSmartChainMainnet]: 'bsc',
+  [KnownChainIds.PolygonMainnet]: 'polygon',
+  [KnownChainIds.ArbitrumMainnet]: 'arbitrum',
+  [KnownChainIds.BaseMainnet]: 'base',
+  [KnownChainIds.AvalancheMainnet]: 'avalanche',
+  [KnownChainIds.UnichainMainnet]: 'unichain',
+  [KnownChainIds.RobinhoodMainnet]: 'robinhood',
   [KnownChainIds.MonadMainnet]: 'monad',
   [KnownChainIds.HyperEvmMainnet]: 'hyperevm',
   [KnownChainIds.MegaEthMainnet]: 'megaeth',

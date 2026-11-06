@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { ETH, USDC_MAINNET } from '../../../utils/test-data/assets'
+import { ETH } from '../../../utils/test-data/assets'
 import { HYPEREVM_BUILD_RESPONSE, HYPEREVM_ROUTES_RESPONSE } from '../test-data/hyperevmHypeUsdc'
 import { MONAD_BUILD_RESPONSE } from '../test-data/monadUsdcMon'
 import type { KyberExtraFee } from '../types'
@@ -64,7 +64,8 @@ describe('assertValidTrade', () => {
   })
 
   it('rejects chains outside the chain map', () => {
-    const result = assertValidTrade({ sellAsset: ETH, buyAsset: USDC_MAINNET })
+    const XDAI = { ...ETH, chainId: KnownChainIds.GnosisMainnet, assetId: 'eip155:100/slip44:60' }
+    const result = assertValidTrade({ sellAsset: XDAI, buyAsset: XDAI })
     expect(result.unwrapErr().code).toBe(TradeQuoteError.UnsupportedChain)
   })
 

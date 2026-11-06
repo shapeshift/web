@@ -56,25 +56,25 @@ export const fetchKyberBuild = async ({
   route,
   slippageTolerancePercentageDecimal,
   baseUrl,
-  sender,
-  recipient,
+  sendAddress,
+  receiveAddress,
   deadline,
 }: {
   chainId: KyberSupportedChainId
   route: KyberRouteSummary
   slippageTolerancePercentageDecimal: string
   baseUrl: string
-  sender: string
-  recipient: string
+  sendAddress: string
+  receiveAddress: string
   deadline: number
 }): Promise<Result<KyberBuildData, SwapErrorRight>> => {
   const maybeResponse = await kyberService.post<KyberBuildResponse>(
     `${baseUrl}/${KYBER_CHAINS[chainId]}/api/v1/route/build`,
     {
       routeSummary: route,
-      sender,
-      recipient,
-      origin: sender,
+      sender: sendAddress,
+      recipient: receiveAddress,
+      origin: sendAddress,
       slippageTolerance: convertDecimalPercentageToBasisPoints(
         slippageTolerancePercentageDecimal,
       ).toNumber(),

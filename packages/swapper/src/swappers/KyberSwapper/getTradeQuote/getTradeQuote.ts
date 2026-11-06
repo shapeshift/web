@@ -32,8 +32,8 @@ export const getTradeQuote = async (
     route,
     slippageTolerancePercentageDecimal: tradeCommon.slippageTolerancePercentageDecimal,
     baseUrl: deps.config.VITE_KYBER_BASE_URL,
-    sender: sendAddress,
-    recipient: receiveAddress,
+    sendAddress,
+    receiveAddress,
     deadline,
   })
 

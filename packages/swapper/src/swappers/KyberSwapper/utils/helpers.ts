@@ -232,11 +232,9 @@ export const validateKyberBuild = (
   response: KyberBuildResponse,
 ): Result<KyberBuildData, SwapErrorRight> => {
   if (response.code !== 0) return Err(getKyberCodeError(response))
-
   if (!response.data) return Err(invalidResponse('KyberSwap returned no transaction'))
 
   const { routerAddress } = response.data
-
   if (!isPinnedRouter(routerAddress)) return Err(unpinnedRouterError(routerAddress))
 
   return Ok(response.data)

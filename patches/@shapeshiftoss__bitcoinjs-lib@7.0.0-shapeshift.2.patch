@@ -1,0 +1,24 @@
+diff --git a/src/cjs/psbt.cjs b/src/cjs/psbt.cjs
+index 0819612f27c0c629a56339c714a36784e21a5c45..c4952f11a948c315e6e34519bb65a41d15c9b795 100644
+--- a/src/cjs/psbt.cjs
++++ b/src/cjs/psbt.cjs
+@@ -1408,6 +1408,7 @@ function getHashForSig(
+     // non-segwit
+     if (
+       !isForkId &&
++      !(forkCoin === 'zec' && unsignedTx.overwintered && unsignedTx.version === 5) &&
+       input.nonWitnessUtxo === undefined &&
+       cache.__UNSAFE_SIGN_NONSEGWIT === false
+     )
+diff --git a/src/esm/psbt.js b/src/esm/psbt.js
+index f1384371af9803164668ee097764e907796af88d..2227e1d36b08ea9d93fbff77a550035f0b98f24a 100644
+--- a/src/esm/psbt.js
++++ b/src/esm/psbt.js
+@@ -1347,6 +1347,7 @@ function getHashForSig(
+     // non-segwit
+     if (
+       !isForkId &&
++      !(forkCoin === 'zec' && unsignedTx.overwintered && unsignedTx.version === 5) &&
+       input.nonWitnessUtxo === undefined &&
+       cache.__UNSAFE_SIGN_NONSEGWIT === false
+     )

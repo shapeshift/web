@@ -404,7 +404,8 @@
       "react-router@6.30.2": "patches/react-router-npm-6.30.0-cd12804d8c.patch",
       "react-polyglot@0.7.2": "patches/react-polyglot-npm-0.7.2-636f85156f.patch",
       "@ledgerhq/hw-app-btc@10.13.0": "patches/@ledgerhq__hw-app-btc@10.13.0.patch",
-      "@mysten/sui@2.31.2": "patches/@mysten__sui@2.31.2.patch"
+      "@mysten/sui@2.31.2": "patches/@mysten__sui@2.31.2.patch",
+      "@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2": "patches/@shapeshiftoss__bitcoinjs-lib@7.0.0-shapeshift.2.patch"
     },
     "onlyBuiltDependencies": [
       "esbuild",

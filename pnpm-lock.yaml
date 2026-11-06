@@ -55,7 +55,7 @@ patchedDependencies:
     hash: 4214515c36a0bb955f62f20fefed1ccf057aa1d452ca41df28201db0f9b83441
     path: patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch
   '@ledgerhq/hw-app-btc@10.13.0':
-    hash: fd74206f85cbea0ba8a90595f727194b8167452a6f626c746a31ba7b61c27611
+    hash: 048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39
     path: patches/@ledgerhq__hw-app-btc@10.13.0.patch
   '@mysten/sui@2.31.2':
     hash: 0fb03898f4328593ecac375f7494f3860b574781bf56a6bfcf5357f7758ad4dd
@@ -1320,7 +1320,7 @@ importers:
         version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=fd74206f85cbea0ba8a90595f727194b8167452a6f626c746a31ba7b61c27611)
+        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -1396,7 +1396,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=fd74206f85cbea0ba8a90595f727194b8167452a6f626c746a31ba7b61c27611)
+        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
         version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
@@ -1420,7 +1420,7 @@ importers:
     dependencies:
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
-        version: 10.13.0(patch_hash=fd74206f85cbea0ba8a90595f727194b8167452a6f626c746a31ba7b61c27611)
+        version: 10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)
       '@ledgerhq/hw-app-cosmos':
         specifier: 6.32.9
         version: 6.32.9
@@ -19979,7 +19979,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@ledgerhq/hw-app-btc@10.13.0(patch_hash=fd74206f85cbea0ba8a90595f727194b8167452a6f626c746a31ba7b61c27611)':
+  '@ledgerhq/hw-app-btc@10.13.0(patch_hash=048897818073302d47fcecca9fc0f75d193bbf52a25d7b8d810693592e892d39)':
     dependencies:
       '@ledgerhq/hw-transport': 6.31.13
       '@ledgerhq/logs': 6.13.0

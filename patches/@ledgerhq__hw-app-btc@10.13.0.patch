@@ -77,6 +77,20 @@ index de0c1eea030480e16387f715c875ac986b013624..bfd806d08e55ae47c5f50870b9abeb2f
      if (!transaction) {
          throw new Error("getTrustedInputBIP143: missing tx");
      }
+diff --git a/lib-es/constants.d.ts b/lib-es/constants.d.ts
+index 87e601d5301554320e6de0109844251506ec478a..b2b3d5c70d1e830b24b48876b330bf099df59a87 100644
+--- a/lib-es/constants.d.ts
++++ b/lib-es/constants.d.ts
+@@ -11,6 +11,9 @@ export declare const OP_EQUALVERIFY = 136;
+ export declare const OP_CHECKSIG = 172;
+ export declare const OP_RETURN = 106;
+ export declare const ZCASH_ACTIVATION_HEIGHTS: {
++    NU7: number;
++    NU6_3: number;
++    NU6_2: number;
+     NU6_1: number;
+     NU6: number;
+     NU5: number;
 diff --git a/lib-es/constants.js b/lib-es/constants.js
 index f5193c271bc13950aecb3b75c2bca69ed57248bd..29b66d2427417f5928264951ecee591faf66152c 100644
 --- a/lib-es/constants.js

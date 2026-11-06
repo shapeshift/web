@@ -622,7 +622,12 @@ export const generateRelatedAssetIndex = async (chainId?: ChainId) => {
   for (const [relatedAssetKey, relatedAssetIds] of Object.entries(relatedAssetIndex)) {
     if (generatedAssetData[relatedAssetKey]) continue
     delete relatedAssetIndex[relatedAssetKey]
-    for (const assetId of relatedAssetIds) addSurvivor(relatedAssetKey, assetId)
+    for (const assetId of relatedAssetIds) {
+      const currentKey = generatedAssetData[assetId]?.relatedAssetKey
+      // A member already in another live group stays there
+      if (currentKey && generatedAssetData[currentKey]) continue
+      addSurvivor(relatedAssetKey, assetId)
+    }
   }
   for (const [assetId, asset] of Object.entries(generatedAssetData)) {
     if (asset.relatedAssetKey && !generatedAssetData[asset.relatedAssetKey]) {

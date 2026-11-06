@@ -216,8 +216,30 @@ describe('reconcileRelatedAssetGroups', () => {
     for (const assetId of [WEETH_ARB, WEETH_ETH]) {
       expect(listings.filter(listed => listed === assetId)).toHaveLength(1)
       const key = relatedAssetKeyByAssetId[assetId]
+      expect(key).toBe(WEETH_ETH)
       expect(key && relatedAssetIndex[key]).toContain(assetId)
     }
+  })
+
+  it('settles a longer key cycle and the assets leading into it on one key', () => {
+    const [A, B, C, TAIL] = [
+      'eip155:1/erc20:0xa',
+      'eip155:1/erc20:0xb',
+      'eip155:1/erc20:0xc',
+      'eip155:1/erc20:0xd',
+    ]
+    const result = reconcileRelatedAssetGroups({
+      relatedAssetKeyByAssetId: { [A]: B, [B]: C, [C]: A, [TAIL]: A },
+      relatedAssetIndex: {},
+      rankedAssetIds: [C, A, B, TAIL],
+      coinIdByAssetId: {},
+      manualRelatedAssetIndex: {},
+      excludedAssetIds: [],
+      nativeAssetIds: [],
+      canonicalAssetIds: [],
+    })
+    expect(result.relatedAssetIndex).toEqual({ [C]: [C, A, B, TAIL] })
+    for (const assetId of [A, B, C, TAIL]) expect(result.relatedAssetKeyByAssetId[assetId]).toBe(C)
   })
 
   it('treats a token as the wrapped native on every chain where its coin is native', () => {

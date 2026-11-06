@@ -11,12 +11,20 @@ import {
   optimismAssetId,
   polygonAssetId,
   toAccountId,
+  zecAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { accountIdToLabel, accountToPortfolio, findAccountsByAssetId, makeAssets } from '.'
+import {
+  accountIdToLabel,
+  accountToPortfolio,
+  findAccountsByAssetId,
+  isAssetSupportedByWallet,
+  makeAssets,
+} from '.'
 
 import { trimWithEndEllipsis } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
@@ -25,6 +33,29 @@ import { mockChainAdapters } from '@/test/mocks/portfolio'
 vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,
 }))
+
+describe('isAssetSupportedByWallet', () => {
+  it.each(['Native', 'Ledger', 'Trezor'])('supports ZEC for a %s wallet', vendor => {
+    const wallet = { getVendor: () => vendor, _supportsBTC: true } as unknown as HDWallet
+
+    expect(isAssetSupportedByWallet(zecAssetId, wallet)).toBe(true)
+  })
+
+  it('does not support ZEC for a KeepKey wallet with BTC support', () => {
+    const wallet = { getVendor: () => 'KeepKey', _supportsBTC: true } as unknown as HDWallet
+
+    expect(isAssetSupportedByWallet(zecAssetId, wallet)).toBe(false)
+  })
+
+  it.each(['Native', 'Ledger', 'Trezor'])(
+    'does not support ZEC for a %s wallet without BTC support',
+    vendor => {
+      const wallet = { getVendor: () => vendor, _supportsBTC: false } as unknown as HDWallet
+
+      expect(isAssetSupportedByWallet(zecAssetId, wallet)).toBe(false)
+    },
+  )
+})
 
 describe('accountIdToFeeAssetId', () => {
   it('can get eth feeAssetId from accountId', () => {

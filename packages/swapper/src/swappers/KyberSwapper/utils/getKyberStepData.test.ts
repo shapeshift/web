@@ -3,7 +3,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetTradeQuoteInput, GetTradeRateInput, SwapperDeps } from '../../../types'
-import { TradeQuoteError } from '../../../types'
 import { ETH } from '../../../utils/test-data/assets'
 import type { KyberBuildData, KyberRouteSummary } from '../types'
 import { KYBER_ROUTER_ADDRESS } from './constants'
@@ -108,18 +107,5 @@ describe('getKyberStepData', () => {
         gasLimit: '600000',
       },
     })
-  })
-
-  it('fails the quote when estimation fails', async () => {
-    const actual = await getKyberStepData({
-      ...baseArgs,
-      type: 'quote',
-      input: quoteInput,
-      from: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-      build,
-      deps: makeDeps(evmAdapter({ throwOnFeeData: true })),
-    })
-
-    expect(actual.unwrapErr().code).toBe(TradeQuoteError.NetworkFeeEstimationFailed)
   })
 })

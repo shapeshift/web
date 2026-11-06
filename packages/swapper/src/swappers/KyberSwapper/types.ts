@@ -19,16 +19,6 @@ export type KyberFeeParams = {
   feeReceiver: Address
 }
 
-export type KyberRouteHop = {
-  pool: string
-  tokenIn: string
-  tokenOut: string
-  swapAmount: string
-  amountOut: string
-  exchange: string
-  poolType: string
-}
-
 export type KyberRouteSummary = {
   tokenIn: string
   amountIn: string
@@ -41,7 +31,7 @@ export type KyberRouteSummary = {
   gasUsd: string
   l1FeeUsd: string
   extraFee: KyberExtraFee
-  route: KyberRouteHop[][]
+  route: unknown
   routerAddress: Address
   routeID: string
   checksum: string
@@ -61,7 +51,6 @@ export type KyberRoutesResponse = {
 }
 
 export type KyberBuildData = {
-  amountIn: string
   amountOut: string
   gas: string
   data: Hex

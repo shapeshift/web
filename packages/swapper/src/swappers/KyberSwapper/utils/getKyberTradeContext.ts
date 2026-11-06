@@ -13,6 +13,7 @@ import type {
 import { SwapperName } from '../../../types'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import type { KyberTradeQuoteInput, KyberTradeRateInput } from '../types'
+import { KYBER_ROUTER_ADDRESS } from './constants'
 import type { KyberBuildArgs } from './fetchFromKyber'
 import { fetchKyberRoute } from './fetchFromKyber'
 import type { GetKyberStepDataArgs } from './getKyberStepData'
@@ -66,11 +67,11 @@ export const getKyberTradeContext = async ({
   })
 
   if (maybeRoute.isErr()) return Err(maybeRoute.unwrapErr())
-  const { routeSummary, routerAddress } = maybeRoute.unwrap()
+  const routeSummary = maybeRoute.unwrap()
 
   const { rate, ...buyAmounts } = getKyberBuyAmounts({ input, amountOut: routeSummary.amountOut })
 
-  const allowanceContract = isNativeEvmAsset(sellAsset.assetId) ? '' : routerAddress
+  const allowanceContract = isNativeEvmAsset(sellAsset.assetId) ? '' : KYBER_ROUTER_ADDRESS
 
   return Ok<KyberTradeContext, SwapErrorRight>({
     tradeCommon: {
@@ -94,11 +95,7 @@ export const getKyberTradeContext = async ({
     buildArgs: {
       chainId,
       routeSummary,
-      tokenIn,
-      tokenOut,
-      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentageDecimal,
-      feeParams,
       baseUrl,
     },
     stepDataArgs: {

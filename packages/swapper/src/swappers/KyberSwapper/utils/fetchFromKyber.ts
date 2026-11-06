@@ -1,3 +1,4 @@
+import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import type { Address } from 'viem'
@@ -7,18 +8,12 @@ import type {
   KyberBuildData,
   KyberBuildResponse,
   KyberFeeParams,
-  KyberRouteData,
   KyberRoutesResponse,
   KyberRouteSummary,
 } from '../types'
 import type { KyberSupportedChainId } from './constants'
 import { KYBER_CHAINS, KYBER_CLIENT_ID } from './constants'
-import {
-  getKyberRequestError,
-  getKyberSlippageBps,
-  validateKyberBuild,
-  validateKyberRoute,
-} from './helpers'
+import { getKyberRequestError, validateKyberBuild, validateKyberRoute } from './helpers'
 import { kyberService } from './kyberService'
 
 export const fetchKyberRoute = async ({
@@ -37,7 +32,7 @@ export const fetchKyberRoute = async ({
   feeParams: KyberFeeParams | undefined
   origin: string | undefined
   baseUrl: string
-}): Promise<Result<KyberRouteData, SwapErrorRight>> => {
+}): Promise<Result<KyberRouteSummary, SwapErrorRight>> => {
   const maybeResponse = await kyberService.get<KyberRoutesResponse>(
     `${baseUrl}/${KYBER_CHAINS[chainId]}/api/v1/routes`,
     {
@@ -53,33 +48,20 @@ export const fetchKyberRoute = async ({
 
   if (maybeResponse.isErr()) return Err(getKyberRequestError(maybeResponse.unwrapErr()))
 
-  return validateKyberRoute(maybeResponse.unwrap().data, {
-    tokenIn,
-    tokenOut,
-    sellAmountCryptoBaseUnit,
-    feeParams,
-  })
+  return validateKyberRoute(maybeResponse.unwrap().data, feeParams)
 }
 
 export type KyberBuildArgs = {
   chainId: KyberSupportedChainId
   routeSummary: KyberRouteSummary
-  tokenIn: Address
-  tokenOut: Address
-  sellAmountCryptoBaseUnit: string
   slippageTolerancePercentageDecimal: string
-  feeParams: KyberFeeParams | undefined
   baseUrl: string
 }
 
 export const fetchKyberBuild = async ({
   chainId,
   routeSummary,
-  tokenIn,
-  tokenOut,
-  sellAmountCryptoBaseUnit,
   slippageTolerancePercentageDecimal,
-  feeParams,
   baseUrl,
   sender,
   recipient,
@@ -96,7 +78,9 @@ export const fetchKyberBuild = async ({
       sender,
       recipient,
       origin: sender,
-      slippageTolerance: getKyberSlippageBps(slippageTolerancePercentageDecimal),
+      slippageTolerance: convertDecimalPercentageToBasisPoints(
+        slippageTolerancePercentageDecimal,
+      ).toNumber(),
       deadline,
       source: KYBER_CLIENT_ID,
     },
@@ -104,12 +88,5 @@ export const fetchKyberBuild = async ({
 
   if (maybeResponse.isErr()) return Err(getKyberRequestError(maybeResponse.unwrapErr()))
 
-  return validateKyberBuild(maybeResponse.unwrap().data, {
-    tokenIn,
-    tokenOut,
-    sellAmountCryptoBaseUnit,
-    feeParams,
-    recipient,
-    slippageTolerancePercentageDecimal,
-  })
+  return validateKyberBuild(maybeResponse.unwrap().data)
 }

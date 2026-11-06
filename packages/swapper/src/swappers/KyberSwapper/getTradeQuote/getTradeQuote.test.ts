@@ -12,7 +12,7 @@ import { getTradeQuote } from './getTradeQuote'
 const BUILT_AMOUNT_OUT = '250000000'
 
 vi.mock('../utils/fetchFromKyber', () => ({
-  fetchKyberRoute: vi.fn(() => Promise.resolve(Ok(HYPEREVM_ROUTES_RESPONSE.data))),
+  fetchKyberRoute: vi.fn(() => Promise.resolve(Ok(HYPEREVM_ROUTES_RESPONSE.data.routeSummary))),
   fetchKyberBuild: vi.fn(() =>
     Promise.resolve(Ok({ ...HYPEREVM_BUILD_RESPONSE.data, amountOut: BUILT_AMOUNT_OUT })),
   ),

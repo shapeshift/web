@@ -1,47 +1,33 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import {
-  BigNumber,
-  bn,
-  bnOrZero,
-  convertDecimalPercentageToBasisPoints,
-} from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
-import type { Address, Hex } from 'viem'
-import { decodeFunctionData, getAddress } from 'viem'
+import type { Address } from 'viem'
+import { getAddress, isAddress, isAddressEqual } from 'viem'
 
 import type { SwapErrorRight, TradeStepCommon } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight, makeTradeStepBuildFailedErr } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../../utils/helpers'
 import type {
   KyberBuildData,
   KyberBuildResponse,
   KyberErrorResponse,
-  KyberExtraFee,
   KyberFeeParams,
-  KyberRouteData,
   KyberRoutesResponse,
+  KyberRouteSummary,
   KyberTradeQuoteInput,
   KyberTradeRateInput,
 } from '../types'
 import type { KyberSupportedChainId } from './constants'
-import {
-  KYBER_CHAINS,
-  KYBER_FEE_FLAGS,
-  KYBER_NATIVE_TOKEN,
-  KYBER_ROUTER_ABI,
-  KYBER_ROUTER_ADDRESS,
-} from './constants'
+import { KYBER_CHAINS, KYBER_NATIVE_TOKEN, KYBER_ROUTER_ADDRESS } from './constants'
 
 const isKyberSupportedChainId = (chainId: ChainId): chainId is KyberSupportedChainId =>
   chainId in KYBER_CHAINS
-
-const isSameAddress = (a: string, b: string): boolean => a.toLowerCase() === b.toLowerCase()
 
 const invalidResponse = (message: string, details?: unknown): SwapErrorRight =>
   makeSwapErrorRight({ message, details, code: TradeQuoteError.InvalidResponse })
@@ -93,9 +79,6 @@ export const getKyberFeeParams = ({
     feeReceiver: getAddress(getTreasuryAddressFromChainId(chainId)),
   }
 }
-
-export const getKyberSlippageBps = (slippageTolerancePercentageDecimal: string): number =>
-  convertDecimalPercentageToBasisPoints(slippageTolerancePercentageDecimal).toNumber()
 
 // Kyber only returns the post-fee amountOut; the inverse is at most one base unit off
 export const getKyberBuyAmountBeforeFees = ({
@@ -216,184 +199,47 @@ export const getKyberRequestError = (error: SwapErrorRight): SwapErrorRight => {
   })
 }
 
-type KyberRouteContext = {
-  tokenIn: Address
-  tokenOut: Address
-  sellAmountCryptoBaseUnit: string
-  feeParams: KyberFeeParams | undefined
-}
+const isPinnedRouter = (routerAddress: string): boolean =>
+  isAddress(routerAddress) && isAddressEqual(routerAddress, KYBER_ROUTER_ADDRESS)
 
-const getExtraFeeError = (
-  extraFee: KyberExtraFee,
-  feeParams: KyberFeeParams | undefined,
-): SwapErrorRight | undefined => {
-  if (!feeParams) {
-    return extraFee.feeAmount === ''
-      ? undefined
-      : invalidResponse('KyberSwap returned a fee we did not request', { extraFee })
-  }
-
-  // Wrap and unwrap routes come back without the integrator fee
-  if (extraFee.feeAmount === '') {
-    return makeSwapErrorRight({
-      message: 'KyberSwap does not charge the integrator fee on this route',
-      code: TradeQuoteError.UnsupportedTradePair,
-    })
-  }
-
-  const isRequestedFee =
-    extraFee.feeAmount === feeParams.feeAmount &&
-    extraFee.chargeFeeBy === feeParams.chargeFeeBy &&
-    extraFee.isInBps === feeParams.isInBps &&
-    isSameAddress(extraFee.feeReceiver, feeParams.feeReceiver)
-
-  return isRequestedFee
-    ? undefined
-    : invalidResponse('KyberSwap returned a different fee than requested', { extraFee })
-}
+const unpinnedRouterError = (routerAddress: string): SwapErrorRight =>
+  invalidResponse(`KyberSwap router ${routerAddress} is not the pinned router`)
 
 export const validateKyberRoute = (
   response: KyberRoutesResponse,
-  { tokenIn, tokenOut, sellAmountCryptoBaseUnit, feeParams }: KyberRouteContext,
-): Result<KyberRouteData, SwapErrorRight> => {
+  feeParams: KyberFeeParams | undefined,
+): Result<KyberRouteSummary, SwapErrorRight> => {
   if (response.code !== 0) return Err(getKyberCodeError(response))
 
   if (!response.data) return Err(invalidResponse('KyberSwap returned no route'))
 
   const { routeSummary, routerAddress } = response.data
 
-  if (!isSameAddress(routerAddress, KYBER_ROUTER_ADDRESS)) {
-    return Err(invalidResponse(`KyberSwap router ${routerAddress} is not the pinned router`))
-  }
+  if (!isPinnedRouter(routerAddress)) return Err(unpinnedRouterError(routerAddress))
 
-  if (!bn(routeSummary.amountIn).eq(sellAmountCryptoBaseUnit)) {
+  // Wrap and unwrap routes come back without the integrator fee
+  if (feeParams && routeSummary.extraFee.feeAmount === '') {
     return Err(
-      invalidResponse('KyberSwap routed a different sell amount', {
-        amountIn: routeSummary.amountIn,
-        sellAmountCryptoBaseUnit,
+      makeSwapErrorRight({
+        message: 'KyberSwap does not charge the integrator fee on this route',
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }
 
-  if (
-    !isSameAddress(routeSummary.tokenIn, tokenIn) ||
-    !isSameAddress(routeSummary.tokenOut, tokenOut)
-  ) {
-    return Err(invalidResponse('KyberSwap routed a different pair'))
-  }
-
-  const feeError = getExtraFeeError(routeSummary.extraFee, feeParams)
-
-  return feeError ? Err(feeError) : Ok(response.data)
-}
-
-const decodeKyberSwapDescription = (data: Hex) => {
-  try {
-    return decodeFunctionData({ abi: KYBER_ROUTER_ABI, data }).args[0].desc
-  } catch {
-    return undefined
-  }
-}
-
-type KyberBuildContext = KyberRouteContext & {
-  recipient: string
-  slippageTolerancePercentageDecimal: string
-}
-
-const getBuildError = (
-  build: KyberBuildData,
-  {
-    tokenIn,
-    tokenOut,
-    sellAmountCryptoBaseUnit,
-    feeParams,
-    recipient,
-    slippageTolerancePercentageDecimal,
-  }: KyberBuildContext,
-): SwapErrorRight | undefined => {
-  if (!isSameAddress(build.routerAddress, KYBER_ROUTER_ADDRESS)) {
-    return invalidResponse(`KyberSwap router ${build.routerAddress} is not the pinned router`)
-  }
-
-  if (!bn(build.amountIn).eq(sellAmountCryptoBaseUnit)) {
-    return invalidResponse('KyberSwap built a different sell amount', { amountIn: build.amountIn })
-  }
-
-  if (!bn(build.amountOut).gt(0)) {
-    return invalidResponse('KyberSwap built no output amount', { amountOut: build.amountOut })
-  }
-
-  const expectedValue = isSameAddress(tokenIn, KYBER_NATIVE_TOKEN) ? sellAmountCryptoBaseUnit : '0'
-  if (!bn(build.transactionValue).eq(expectedValue)) {
-    return invalidResponse('KyberSwap transaction value does not match the sell amount', {
-      transactionValue: build.transactionValue,
-      expectedValue,
-    })
-  }
-
-  const desc = decodeKyberSwapDescription(build.data)
-  if (!desc) return makeTradeStepBuildFailedErr('validateKyberBuild')
-
-  if (
-    !isSameAddress(desc.srcToken, tokenIn) ||
-    !isSameAddress(desc.dstToken, tokenOut) ||
-    !bn(desc.amount.toString()).eq(sellAmountCryptoBaseUnit)
-  ) {
-    return invalidResponse('KyberSwap calldata swaps a different trade')
-  }
-
-  if (!isSameAddress(desc.dstReceiver, recipient)) {
-    return invalidResponse('KyberSwap calldata pays a different recipient', {
-      dstReceiver: desc.dstReceiver,
-    })
-  }
-
-  const outputFloor = bn(build.amountOut)
-    .times(bn(1).minus(slippageTolerancePercentageDecimal))
-    .integerValue(BigNumber.ROUND_DOWN)
-
-  if (bn(desc.minReturnAmount.toString()).lt(outputFloor)) {
-    return invalidResponse('KyberSwap output floor is below the requested slippage', {
-      minReturnAmount: desc.minReturnAmount.toString(),
-      outputFloor: outputFloor.toFixed(),
-    })
-  }
-
-  const feeFlags = desc.flags & KYBER_FEE_FLAGS
-
-  if (!feeParams) {
-    return desc.feeReceivers.length === 0 && feeFlags === 0n
-      ? undefined
-      : invalidResponse('KyberSwap calldata charges a fee we did not request')
-  }
-
-  const [feeReceiver] = desc.feeReceivers
-  const [feeAmount] = desc.feeAmounts
-
-  const isRequestedFee =
-    desc.feeReceivers.length === 1 &&
-    isSameAddress(feeReceiver, feeParams.feeReceiver) &&
-    desc.feeAmounts.length === 1 &&
-    feeAmount.toString() === feeParams.feeAmount &&
-    feeFlags === KYBER_FEE_FLAGS
-
-  return isRequestedFee
-    ? undefined
-    : invalidResponse('KyberSwap calldata does not pay the requested fee', {
-        feeReceivers: desc.feeReceivers,
-        feeAmounts: desc.feeAmounts.map(amount => amount.toString()),
-      })
+  return Ok(routeSummary)
 }
 
 export const validateKyberBuild = (
   response: KyberBuildResponse,
-  context: KyberBuildContext,
 ): Result<KyberBuildData, SwapErrorRight> => {
   if (response.code !== 0) return Err(getKyberCodeError(response))
 
   if (!response.data) return Err(invalidResponse('KyberSwap returned no transaction'))
 
-  const error = getBuildError(response.data, context)
+  const { routerAddress } = response.data
 
-  return error ? Err(error) : Ok(response.data)
+  if (!isPinnedRouter(routerAddress)) return Err(unpinnedRouterError(routerAddress))
+
+  return Ok(response.data)
 }

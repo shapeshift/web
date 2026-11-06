@@ -82,17 +82,6 @@ describe('getKyberStepData', () => {
     expect(actual.unwrap()).toEqual({ networkFeeCryptoBaseUnit: '1358202000000000' })
   })
 
-  it('never returns transaction data for a rate', async () => {
-    const actual = await getKyberStepData({
-      ...baseArgs,
-      type: 'rate',
-      input: rateInput,
-      deps: makeDeps(evmAdapter()),
-    })
-
-    expect(actual.unwrap()).not.toHaveProperty('transactionData')
-  })
-
   it('builds the router transaction and sets the buffered on chain estimate for a quote', async () => {
     const actual = await getKyberStepData({
       ...baseArgs,

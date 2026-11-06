@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -9,7 +10,7 @@ import {
   getEvmRateNetworkFeeCryptoBaseUnit,
 } from '../../../utils/evm'
 import type { KyberBuildData } from '../types'
-import { getKyberProviderNetworkFeeCryptoBaseUnit } from './helpers'
+import { KYBER_ROUTER_ADDRESS } from './constants'
 
 type BaseArgs = {
   sellAmountCryptoBaseUnit: string
@@ -55,12 +56,7 @@ export async function getKyberStepData(
       adapter,
       supportsEIP1559,
       providerGasLimit,
-    }).catch(() =>
-      getKyberProviderNetworkFeeCryptoBaseUnit({
-        gas: providerGasLimit,
-        gasPrice: providerGasPrice,
-      }),
-    )
+    }).catch(() => bnOrZero(providerGasLimit).times(bnOrZero(providerGasPrice)).toFixed(0))
 
     const stepData: KyberRateStepData = { networkFeeCryptoBaseUnit }
 
@@ -72,7 +68,7 @@ export async function getKyberStepData(
   const transactionData: TxBuildData = {
     type: 'evm',
     chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    to: build.routerAddress,
+    to: KYBER_ROUTER_ADDRESS,
     data: build.data,
     value: build.transactionValue,
   }

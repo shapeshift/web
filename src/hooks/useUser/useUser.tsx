@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { getExpoToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { isMobile } from '@/lib/globals'
-import { getOrCreateUser, getOrRegisterDevice } from '@/lib/user/api'
+import { getOrRegisterDevice, getUser } from '@/lib/user/api'
 import type { User } from '@/lib/user/types'
 import { DeviceType } from '@/lib/user/types'
 import { selectWalletEnabledAccountIds } from '@/state/slices/common-selectors'
@@ -43,11 +43,8 @@ export const useUser = (): UseUserData => {
     error: userError,
     refetch: refetchUser,
   } = useQuery({
-    queryKey: ['user', walletEnabledAccountIds],
-    queryFn:
-      walletEnabledAccountIds.length > 0 && isWebServicesEnabled
-        ? () => getOrCreateUser({ accountIds: walletEnabledAccountIds })
-        : skipToken,
+    queryKey: ['device-profile'],
+    queryFn: walletEnabledAccountIds.length > 0 && isWebServicesEnabled ? getUser : skipToken,
     staleTime: Infinity,
     gcTime: Infinity,
   })

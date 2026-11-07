@@ -15,6 +15,7 @@ import {
   cosmosChainId,
   cronosChainId,
   dogeChainId,
+  elysiumChainId,
   ethChainId,
   etherealChainId,
   flowEvmChainId,
@@ -71,6 +72,7 @@ import {
   supportsCelo,
   supportsCosmos,
   supportsCronos,
+  supportsElysium,
   supportsETH,
   supportsEthereal,
   supportsFlowEvm,
@@ -229,6 +231,7 @@ export const walletSupportsChain = ({
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
   const isRobinhoodEnabled = selectFeatureFlag(store.getState(), 'Robinhood')
   const isAptosEnabled = selectFeatureFlag(store.getState(), 'Aptos')
+  const isElysiumEnabled = selectFeatureFlag(store.getState(), 'Elysium')
 
   switch (chainId) {
     case btcChainId:
@@ -336,6 +339,8 @@ export const walletSupportsChain = ({
       return isTonEnabled && supportsTon(wallet)
     case robinhoodChainId:
       return isRobinhoodEnabled && supportsRobinhood(wallet)
+    case elysiumChainId:
+      return isElysiumEnabled && supportsElysium(wallet)
     default: {
       return false
     }

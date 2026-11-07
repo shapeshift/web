@@ -33,6 +33,8 @@ import {
   cronosAssetId,
   cronosChainId,
   dogeChainId,
+  elysiumAssetId,
+  elysiumChainId,
   ethAssetId,
   ethChainId,
   etherealAssetId,
@@ -785,6 +787,20 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Elysium)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ElysiumMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Elysium],
+          })
+          prev[elysiumChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -831,6 +847,7 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
       [tonChainId]: { [tonAssetId]: 'the-open-network' },
       [robinhoodChainId]: { [robinhoodAssetId]: 'ethereum' },
       [aptosChainId]: { [aptosAssetId]: 'aptos' },
+      [elysiumChainId]: { [elysiumAssetId]: 'hyperliquid' },
     },
   )
 

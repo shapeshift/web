@@ -1569,6 +1569,14 @@
     }
   },
   "walletProvider": {
+    "oath": {
+      "connectInstructions": "Scan this QR code with Oath on your iPhone, or open Oath on this device. Review and approve the connection in the app.",
+      "connectionError": "The connection could not be completed. Please try again.",
+      "qrCode": "WalletConnect QR code for Oath Wallet",
+      "openApp": "Open Oath",
+      "retry": "Try again",
+      "download": "Download Oath for iOS"
+    },
     "errors": {
       "walletNotFound": "Unable to communicate with your wallet. If problem persists, please contact Keepkey support."
     },

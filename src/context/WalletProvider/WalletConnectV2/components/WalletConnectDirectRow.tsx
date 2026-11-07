@@ -1,19 +1,14 @@
-import { Avatar, Button, Circle, Flex, Skeleton, Spinner, Text } from '@chakra-ui/react'
+import { Flex, SimpleGrid, Skeleton } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getDetectedWallets } from '../../MobileWallet/mobileMessageHandlers'
 import type { WalletConfig, WalletConnectWalletId } from '../constants'
 import { WALLET_CONFIGS } from '../constants'
 import { useDirectWalletConnect } from '../useDirectConnect'
+import { DirectWalletCard } from './DirectWalletCard'
+import { OathWalletOption } from './OathWalletOption'
 
-import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
 import { isMobile as isMobileApp } from '@/lib/globals'
-
-const WalletConnectBadge = () => (
-  <Circle size='16px' bg='#3B99FC'>
-    <WalletConnectCurrentColorIcon boxSize='10px' color='white' />
-  </Circle>
-)
 
 type DirectWalletButtonProps = {
   wallet: WalletConfig
@@ -21,49 +16,21 @@ type DirectWalletButtonProps = {
   onConnect: (walletId: WalletConnectWalletId) => void
 }
 
-const spinner = <Spinner thickness='4px' speed='0.65s' boxSize='32px' />
-
 export const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButtonProps) => {
   const handleClick = useCallback(() => onConnect(wallet.id), [onConnect, wallet.id])
-
   const walletIcon = useMemo(() => {
-    if ('IconComponent' in wallet && wallet.IconComponent) {
+    if ('IconComponent' in wallet && wallet.IconComponent)
       return <wallet.IconComponent boxSize='80%' />
-    }
     return undefined
   }, [wallet])
-
-  const icon = useMemo(() => {
-    if (isLoading) {
-      return <Avatar icon={spinner} size='xl' borderRadius='lg' bg='white' />
-    }
-    if (walletIcon) {
-      return <Avatar size='xl' icon={walletIcon} borderRadius='lg' bg='white' />
-    }
-    return <Avatar size='xl' src={wallet.imageUrl} borderRadius='lg' />
-  }, [isLoading, wallet, walletIcon])
-
   return (
-    <Button
+    <DirectWalletCard
+      name={wallet.name}
+      imageUrl={wallet.imageUrl}
+      walletIcon={walletIcon}
+      isLoading={isLoading}
       onClick={handleClick}
-      isDisabled={isLoading}
-      variant='ghost'
-      height='auto'
-      minH='120px'
-      color='text.base'
-      p={0}
-      whiteSpace='normal'
-    >
-      <Flex direction='column' align='center' justify='center' width='full'>
-        {icon}
-        <Flex align='center' gap={1.5} mt={3}>
-          <Text fontSize='sm' fontWeight='medium'>
-            {wallet.name}
-          </Text>
-          <WalletConnectBadge />
-        </Flex>
-      </Flex>
-    </Button>
+    />
   )
 }
 
@@ -134,12 +101,8 @@ export const WalletConnectDirectRow = () => {
     )
   }
 
-  if (wallets.length === 0) {
-    return null
-  }
-
   return (
-    <Flex px={6} pt={4} justifyContent='space-between' gap={6}>
+    <SimpleGrid columns={3} px={6} pt={4} spacing={6}>
       {wallets.map(wallet => (
         <DirectWalletButton
           key={wallet.id}
@@ -148,6 +111,7 @@ export const WalletConnectDirectRow = () => {
           onConnect={handleDirectConnect}
         />
       ))}
-    </Flex>
+      <OathWalletOption variant='card' isDisabled={loadingWallet !== null} />
+    </SimpleGrid>
   )
 }

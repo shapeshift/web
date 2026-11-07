@@ -102,6 +102,8 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
     'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
     'aptos:1/fungible:0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
+    // Elysium USDC is HyperEVM USDC bridged through the canonical Orbit gateway, not listed on CoinGecko yet
+    'eip155:99901/erc20:0xb47c4c8f73f009cc0c0d3f92b388d13e293f0b65',
   ],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
     'eip155:59144/erc20:0xa219439258ca9da29e9cc4ce5596924745e12b93',

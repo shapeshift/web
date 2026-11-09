@@ -2,110 +2,41 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   abstractChainId,
   aptosChainId,
-  arbitrumChainId,
-  avalancheChainId,
-  baseChainId,
-  bchChainId,
   berachainChainId,
   blastChainId,
   bobChainId,
-  bscChainId,
-  btcChainId,
   celoChainId,
-  cosmosChainId,
   cronosChainId,
-  dogeChainId,
   elysiumChainId,
-  ethChainId,
   etherealChainId,
   flowEvmChainId,
-  gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
   lineaChainId,
-  ltcChainId,
   mantleChainId,
-  mayachainChainId,
   megaethChainId,
   modeChainId,
   monadChainId,
   nearChainId,
-  optimismChainId,
   plasmaChainId,
   plumeChainId,
-  polygonChainId,
   robinhoodChainId,
   scrollChainId,
   seiChainId,
-  solanaChainId,
   soneiumChainId,
   sonicChainId,
   starknetChainId,
   storyChainId,
-  suiChainId,
-  thorchainChainId,
   tonChainId,
-  tronChainId,
   unichainChainId,
   worldChainChainId,
-  zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import {
-  isGridPlus,
-  isMetaMask,
-  isVultisig,
-  supportsAbstract,
-  supportsAptos,
-  supportsArbitrum,
-  supportsAvalanche,
-  supportsBase,
-  supportsBerachain,
-  supportsBlast,
-  supportsBob,
-  supportsBSC,
-  supportsBTC,
-  supportsCelo,
-  supportsCosmos,
-  supportsCronos,
-  supportsElysium,
-  supportsETH,
-  supportsEthereal,
-  supportsFlowEvm,
-  supportsGnosis,
-  supportsHemi,
-  supportsHyperEvm,
-  supportsInk,
-  supportsKatana,
-  supportsLinea,
-  supportsMantle,
-  supportsMayachain,
-  supportsMegaEth,
-  supportsMode,
-  supportsMonad,
-  supportsOptimism,
-  supportsPlasma,
-  supportsPlume,
-  supportsPolygon,
-  supportsRobinhood,
-  supportsScroll,
-  supportsSei,
-  supportsSolana,
-  supportsSoneium,
-  supportsSonic,
-  supportsStarknet,
-  supportsStory,
-  supportsSui,
-  supportsThorchain,
-  supportsTron,
-  supportsUnichain,
-  supportsWorldChain,
-  supportsZkSyncEra,
-} from '@shapeshiftoss/hdwallet-core/wallet'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useMemo } from 'react'
 
@@ -113,10 +44,9 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
-import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
-import { supportsNear } from '@/lib/utils/near'
-import { supportsTon } from '@/lib/utils/ton'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
+import { isChainSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
+import type { Flag } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
@@ -153,6 +83,42 @@ const checkWalletHasRuntimeSupport = ({
   // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
   // any other wallet, which supports static wallet feature-detection
   return true
+}
+
+const featureFlagByChainId: Partial<Record<ChainId, Flag>> = {
+  [monadChainId]: 'Monad',
+  [hyperEvmChainId]: 'HyperEvm',
+  [mantleChainId]: 'Mantle',
+  [inkChainId]: 'Ink',
+  [megaethChainId]: 'MegaEth',
+  [berachainChainId]: 'Berachain',
+  [plasmaChainId]: 'Plasma',
+  [katanaChainId]: 'Katana',
+  [etherealChainId]: 'Ethereal',
+  [celoChainId]: 'Celo',
+  [flowEvmChainId]: 'FlowEvm',
+  [plumeChainId]: 'Plume',
+  [storyChainId]: 'Story',
+  [zkSyncEraChainId]: 'ZkSyncEra',
+  [blastChainId]: 'Blast',
+  [abstractChainId]: 'Abstract',
+  [worldChainChainId]: 'WorldChain',
+  [hemiChainId]: 'Hemi',
+  [seiChainId]: 'Sei',
+  [lineaChainId]: 'Linea',
+  [scrollChainId]: 'Scroll',
+  [cronosChainId]: 'Cronos',
+  [sonicChainId]: 'Sonic',
+  [unichainChainId]: 'Unichain',
+  [bobChainId]: 'Bob',
+  [modeChainId]: 'Mode',
+  [soneiumChainId]: 'Soneium',
+  [aptosChainId]: 'Aptos',
+  [nearChainId]: 'Near',
+  [starknetChainId]: 'Starknet',
+  [tonChainId]: 'Ton',
+  [robinhoodChainId]: 'Robinhood',
+  [elysiumChainId]: 'Elysium',
 }
 
 type WalletSupportsChainArgs = {
@@ -199,152 +165,10 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
-  const isEtherealEnabled = selectFeatureFlag(store.getState(), 'Ethereal')
-  const isFlowEvmEnabled = selectFeatureFlag(store.getState(), 'FlowEvm')
-  const isZkSyncEraEnabled = selectFeatureFlag(store.getState(), 'ZkSyncEra')
-  const isBlastEnabled = selectFeatureFlag(store.getState(), 'Blast')
-  const isAbstractEnabled = selectFeatureFlag(store.getState(), 'Abstract')
-  const isHemiEnabled = selectFeatureFlag(store.getState(), 'Hemi')
-  const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
-  const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
-  const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
-  const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
-  const isCeloEnabled = selectFeatureFlag(store.getState(), 'Celo')
-  const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')
-  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
-  const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
-  const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
-  const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
-  const isUnichainEnabled = selectFeatureFlag(store.getState(), 'Unichain')
-  const isSoneiumEnabled = selectFeatureFlag(store.getState(), 'Soneium')
-  const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
-  const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
-  const isModeEnabled = selectFeatureFlag(store.getState(), 'Mode')
-  const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
-  const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
-  const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
-  const isPlumeEnabled = selectFeatureFlag(store.getState(), 'Plume')
-  const isSeiEnabled = selectFeatureFlag(store.getState(), 'Sei')
-  const isScrollEnabled = selectFeatureFlag(store.getState(), 'Scroll')
-  const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
-  const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
-  const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
-  const isRobinhoodEnabled = selectFeatureFlag(store.getState(), 'Robinhood')
-  const isAptosEnabled = selectFeatureFlag(store.getState(), 'Aptos')
-  const isElysiumEnabled = selectFeatureFlag(store.getState(), 'Elysium')
+  const featureFlag = featureFlagByChainId[chainId]
+  if (featureFlag && !selectFeatureFlag(store.getState(), featureFlag)) return false
 
-  switch (chainId) {
-    case btcChainId:
-      return supportsBTC(wallet)
-    case bchChainId:
-      return supportsBTC(wallet) && !isGridPlus(wallet)
-    case dogeChainId:
-      return supportsBTC(wallet) && !isGridPlus(wallet)
-    case ltcChainId:
-      return supportsBTC(wallet) && !isGridPlus(wallet)
-    case zecChainId:
-      return (
-        supportsBTC(wallet) &&
-        (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
-      )
-    case ethChainId:
-      return supportsETH(wallet)
-    case avalancheChainId:
-      return supportsAvalanche(wallet)
-    case optimismChainId:
-      return supportsOptimism(wallet)
-    case bscChainId:
-      return supportsBSC(wallet)
-    case polygonChainId:
-      return supportsPolygon(wallet)
-    case gnosisChainId:
-      return supportsGnosis(wallet)
-    case arbitrumChainId:
-      return supportsArbitrum(wallet)
-    case baseChainId:
-      return supportsBase(wallet)
-    case monadChainId:
-      return isMonadEnabled && supportsMonad(wallet)
-    case hyperEvmChainId:
-      return isHyperEvmEnabled && supportsHyperEvm(wallet)
-    case mantleChainId:
-      return isMantleEnabled && supportsMantle(wallet)
-    case inkChainId:
-      return isInkEnabled && supportsInk(wallet)
-    case megaethChainId:
-      return isMegaEthEnabled && supportsMegaEth(wallet)
-    case berachainChainId:
-      return isBerachainEnabled && supportsBerachain(wallet)
-    case plasmaChainId:
-      return isPlasmaEnabled && supportsPlasma(wallet)
-    case katanaChainId:
-      return isKatanaEnabled && supportsKatana(wallet)
-    case etherealChainId:
-      return isEtherealEnabled && supportsEthereal(wallet)
-    case celoChainId:
-      return isCeloEnabled && supportsCelo(wallet)
-    case flowEvmChainId:
-      return isFlowEvmEnabled && supportsFlowEvm(wallet)
-    case plumeChainId:
-      return isPlumeEnabled && supportsPlume(wallet)
-    case storyChainId:
-      return isStoryEnabled && supportsStory(wallet)
-    case zkSyncEraChainId:
-      return isZkSyncEraEnabled && supportsZkSyncEra(wallet)
-    case blastChainId:
-      return isBlastEnabled && supportsBlast(wallet)
-    case abstractChainId:
-      return isAbstractEnabled && supportsAbstract(wallet)
-    case worldChainChainId:
-      return isWorldChainEnabled && supportsWorldChain(wallet)
-    case hemiChainId:
-      return isHemiEnabled && supportsHemi(wallet)
-    case seiChainId:
-      return isSeiEnabled && supportsSei(wallet)
-    case lineaChainId:
-      return isLineaEnabled && supportsLinea(wallet)
-    case scrollChainId:
-      return isScrollEnabled && supportsScroll(wallet)
-    case cronosChainId:
-      return isCronosEnabled && supportsCronos(wallet)
-    case sonicChainId:
-      return isSonicEnabled && supportsSonic(wallet)
-    case unichainChainId:
-      return isUnichainEnabled && supportsUnichain(wallet)
-    case bobChainId:
-      return isBobEnabled && supportsBob(wallet)
-    case modeChainId:
-      return isModeEnabled && supportsMode(wallet)
-    case soneiumChainId:
-      return isSoneiumEnabled && supportsSoneium(wallet)
-    case cosmosChainId:
-      return supportsCosmos(wallet)
-    case thorchainChainId:
-      return supportsThorchain(wallet)
-    case mayachainChainId:
-      return supportsMayachain(wallet)
-    case solanaChainId:
-      return supportsSolana(wallet) && !isVultisig(wallet)
-    case tronChainId:
-      return supportsTron(wallet)
-    case suiChainId:
-      return supportsSui(wallet)
-    case aptosChainId:
-      return isAptosEnabled && supportsAptos(wallet)
-    case nearChainId:
-      return isNearEnabled && supportsNear(wallet)
-    case starknetChainId:
-      return isStarknetEnabled && supportsStarknet(wallet)
-    case tonChainId:
-      return isTonEnabled && supportsTon(wallet)
-    case robinhoodChainId:
-      return isRobinhoodEnabled && supportsRobinhood(wallet)
-    case elysiumChainId:
-      return isElysiumEnabled && supportsElysium(wallet)
-    default: {
-      return false
-    }
-  }
+  return isChainSupportedByWallet(chainId, wallet)
 }
 
 export const useWalletSupportsChain = (

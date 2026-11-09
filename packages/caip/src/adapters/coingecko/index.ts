@@ -3,7 +3,7 @@ import invertBy from 'lodash/invertBy'
 import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
-import { fromChainId, toChainId } from '../../chainId/chainId'
+import { fromChainId } from '../../chainId/chainId'
 import {
   abstractChainId,
   aptosChainId,
@@ -410,16 +410,6 @@ export const coingeckoAssetPlatformToChainId = (
 export const makeCoingeckoAssetUrl = (assetId: AssetId): string | undefined => {
   const id = assetIdToCoingecko(assetId)
   if (!id) return
-
-  const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
-
-  if (assetNamespace === 'erc20') {
-    const assetPlatform = chainIdToCoingeckoAssetPlatform(
-      toChainId({ chainNamespace, chainReference }),
-    )
-
-    return `${coingeckoBaseUrl}/coins/${assetPlatform}/contract/${assetReference}`
-  }
 
   return `${coingeckoBaseUrl}/coins/${id}`
 }

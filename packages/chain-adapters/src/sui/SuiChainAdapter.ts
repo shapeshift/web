@@ -1,6 +1,12 @@
-import type { SuiTransactionBlockResponse } from '@mysten/sui/client'
-import { SuiClient } from '@mysten/sui/client'
+import { bcs } from '@mysten/sui/bcs'
+import type { SuiClientTypes } from '@mysten/sui/client'
+import { SuiGrpcClient } from '@mysten/sui/grpc'
+import type {
+  SerializedTransactionDataV2,
+  TransactionObjectArgument,
+} from '@mysten/sui/transactions'
 import { Transaction as SuiTransaction } from '@mysten/sui/transactions'
+import { SUI_TYPE_ARG } from '@mysten/sui/utils'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -39,6 +45,18 @@ export interface ChainAdapterArgs {
   rpcUrl: string
 }
 
+type SuiTransactionResponse = SuiClientTypes.Transaction<{
+  balanceChanges: true
+  effects: true
+  objectTypes: true
+  transaction: true
+}>
+
+type SuiTransactionArgument = Extract<
+  SerializedTransactionDataV2['commands'][number],
+  { SplitCoins: unknown }
+>['SplitCoins']['coin']
+
 export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
@@ -49,10 +67,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
   protected readonly chainId = suiChainId
   protected readonly assetId = suiAssetId
 
-  protected client: SuiClient
+  protected client: SuiGrpcClient
 
   constructor(args: ChainAdapterArgs) {
-    this.client = new SuiClient({ url: args.rpcUrl })
+    this.client = new SuiGrpcClient({ network: 'mainnet', baseUrl: args.rpcUrl })
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is SuiWallet {
@@ -124,13 +142,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     try {
       const [nativeBalance, allBalances] = await Promise.all([
         this.client.getBalance({ owner: pubkey }),
-        this.client.getAllBalances({ owner: pubkey }),
+        this.listAllBalances(pubkey),
       ])
 
-      const nonZeroBalances = allBalances.filter(balance => {
-        const isSuiNative = balance.coinType === '0x2::sui::SUI'
-        return !isSuiNative && balance.totalBalance !== '0'
-      })
+      const nonZeroBalances = allBalances.filter(
+        balance => !this.isSuiCoinType(balance.coinType) && balance.balance !== '0',
+      )
 
       const tokens = await Promise.all(
         nonZeroBalances.map(async balance => {
@@ -144,12 +161,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
           })
 
           try {
-            const metadata = await this.client.getCoinMetadata({ coinType: balance.coinType })
+            const { coinMetadata: metadata } = await this.client.getCoinMetadata({
+              coinType: balance.coinType,
+            })
 
             if (!metadata) {
               return {
                 assetId,
-                balance: balance.totalBalance,
+                balance: balance.balance,
                 symbol,
                 name: balance.coinType,
                 precision: 0,
@@ -158,7 +177,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
             return {
               assetId,
-              balance: balance.totalBalance,
+              balance: balance.balance,
               symbol: metadata.symbol ?? symbol,
               name: metadata.name ?? balance.coinType,
               precision: metadata.decimals ?? 0,
@@ -166,7 +185,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
           } catch (err) {
             return {
               assetId,
-              balance: balance.totalBalance,
+              balance: balance.balance,
               symbol,
               name: balance.coinType,
               precision: 0,
@@ -176,7 +195,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       )
 
       return {
-        balance: nativeBalance.totalBalance,
+        balance: nativeBalance.balance.balance,
         chainId: this.chainId,
         assetId: this.assetId,
         chain: this.getType(),
@@ -214,7 +233,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     }
   }
 
-  getSuiClient(): SuiClient {
+  getSuiClient(): SuiGrpcClient {
     return this.client
   }
 
@@ -243,17 +262,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       if (tokenId) {
         // Token transfer transaction - tokenId is the coin type (e.g., 0x...::module::Type)
-        // We need to get coin objects of this type owned by the sender
-        const coins = await this.client.getCoins({
-          owner: from,
-          coinType: tokenId,
-        })
-
-        if (!coins.data || coins.data.length === 0) {
-          throw new Error(`No coins found for type ${tokenId}`)
-        }
-
-        const [coinToSend] = tx.splitCoins(tx.object(coins.data[0].coinObjectId), [value])
+        const coinToSend = await this.splitTokenCoin(tx, from, tokenId, value)
         tx.transferObjects([coinToSend], to)
       } else {
         // Native SUI transfer
@@ -362,12 +371,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       ])
       const signatureBase64 = formattedSignature.toString('base64')
 
-      const result = await this.client.executeTransactionBlock({
-        transactionBlock: Buffer.from(txBytes).toString('base64'),
-        signature: signatureBase64,
+      const result = await this.client.executeTransaction({
+        transaction: txBytes,
+        signatures: [signatureBase64],
       })
 
-      return result.digest
+      return (result.Transaction ?? result.FailedTransaction).digest
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signAndBroadcastTransaction',
@@ -399,20 +408,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       ])
       const signatureBase64 = formattedSignature.toString('base64')
 
-      // Convert transaction bytes to base64
-      const transactionBlockBase64 = Buffer.from(txBytes).toString('base64')
-
-      const result = await this.client.executeTransactionBlock({
-        transactionBlock: transactionBlockBase64,
-        signature: signatureBase64,
-        options: {
-          showEffects: true,
-          showEvents: true,
-        },
-        requestType: 'WaitForLocalExecution',
+      const result = await this.client.executeTransaction({
+        transaction: txBytes,
+        signatures: [signatureBase64],
       })
 
-      return result.digest
+      return (result.Transaction ?? result.FailedTransaction).digest
     } catch (err) {
       console.error('[SUI broadcastTransaction] error:', err)
       return ErrorHandler(err, {
@@ -428,24 +429,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const { to, value, chainSpecific } = input
       const { from, tokenId } = chainSpecific
 
-      const gasPrice = await this.client.getReferenceGasPrice()
+      const { referenceGasPrice: gasPrice } = await this.client.getReferenceGasPrice()
 
       const tx = new SuiTransaction()
 
       tx.setSender(from)
 
       if (tokenId && tokenId !== '0x2::sui::SUI') {
-        // Token transfer - get coin objects for this token type
-        const coins = await this.client.getCoins({
-          owner: from,
-          coinType: tokenId,
-        })
-
-        if (!coins.data || coins.data.length === 0) {
-          throw new Error(`No coins found for type ${tokenId}`)
-        }
-
-        const [coin] = tx.splitCoins(tx.object(coins.data[0].coinObjectId), [value])
+        const coin = await this.splitTokenCoin(tx, from, tokenId, value)
         tx.transferObjects([coin], to)
       } else {
         const [coin] = tx.splitCoins(tx.gas, [value])
@@ -454,13 +445,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       const transactionBytes = await tx.build({ client: this.client })
 
-      const dryRunResult = await this.client.dryRunTransactionBlock({
-        transactionBlock: transactionBytes,
+      const dryRunResult = await this.client.simulateTransaction({
+        transaction: transactionBytes,
+        include: { effects: true },
       })
 
-      const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
-      const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
-      const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
+      const { gasUsed } = (dryRunResult.Transaction ?? dryRunResult.FailedTransaction).effects
+
+      const computationCost = BigInt(gasUsed.computationCost)
+      const storageCost = BigInt(gasUsed.storageCost)
+      const storageRebate = BigInt(gasUsed.storageRebate)
 
       const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
 
@@ -473,15 +467,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       return {
         fast: {
           txFee,
-          chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
+          chainSpecific: { gasBudget, gasPrice },
         },
         average: {
           txFee,
-          chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
+          chainSpecific: { gasBudget, gasPrice },
         },
         slow: {
           txFee,
-          chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
+          chainSpecific: { gasBudget, gasPrice },
         },
       }
     } catch (err) {
@@ -520,77 +514,107 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     return parts.join('::')
   }
 
-  private parseProgrammableTransactionBlock(tx: SuiTransactionBlockResponse): {
+  private isSuiCoinType(coinType: string): boolean {
+    return this.normalizeCoinType(coinType) === this.normalizeCoinType(SUI_TYPE_ARG)
+  }
+
+  private async listAllBalances(
+    owner: string,
+    cursor: string | null = null,
+  ): Promise<SuiClientTypes.Balance[]> {
+    const response = await this.client.listBalances({ owner, cursor })
+
+    if (!response.hasNextPage) return response.balances
+
+    return [...response.balances, ...(await this.listAllBalances(owner, response.cursor))]
+  }
+
+  private async listAllCoins(
+    owner: string,
+    coinType: string,
+    cursor: string | null = null,
+  ): Promise<SuiClientTypes.Coin[]> {
+    const response = await this.client.listCoins({ owner, coinType, cursor })
+
+    if (!response.hasNextPage) return response.objects
+
+    return [...response.objects, ...(await this.listAllCoins(owner, coinType, response.cursor))]
+  }
+
+  // A token balance can be spread over several coin objects, so merge the largest until they cover the amount
+  private async splitTokenCoin(
+    tx: SuiTransaction,
+    owner: string,
+    coinType: string,
+    value: string,
+  ): Promise<TransactionObjectArgument> {
+    const amount = BigInt(value)
+    const coins = (await this.listAllCoins(owner, coinType)).sort((a, b) =>
+      Number(BigInt(b.balance) - BigInt(a.balance)),
+    )
+
+    if (coins.length === 0) throw new Error(`No coins found for type ${coinType}`)
+
+    const sumBalances = (selected: SuiClientTypes.Coin[]) =>
+      selected.reduce((sum, coin) => sum + BigInt(coin.balance), 0n)
+
+    const selectedCoins = coins.reduce<SuiClientTypes.Coin[]>(
+      (selected, coin) =>
+        selected.length && sumBalances(selected) >= amount ? selected : [...selected, coin],
+      [],
+    )
+
+    if (sumBalances(selectedCoins) < amount) throw new Error(`Insufficient ${coinType} balance`)
+
+    const [primaryCoin, ...otherCoins] = selectedCoins.map(coin => tx.object(coin.objectId))
+    if (otherCoins.length) tx.mergeCoins(primaryCoin, otherCoins)
+
+    const [coin] = tx.splitCoins(primaryCoin, [value])
+    return coin
+  }
+
+  private getPureInputBytes(
+    tx: SuiTransactionResponse,
+    arg: SuiTransactionArgument | undefined,
+  ): string | undefined {
+    if (!arg || !('Input' in arg)) return
+    const input = tx.transaction.inputs[arg.Input]
+    if (input && 'Pure' in input) return input.Pure.bytes
+  }
+
+  private parseProgrammableTransactionBlock(tx: SuiTransactionResponse): {
     transferAmount: string | undefined
     recipient: string | undefined
     coinType: string | undefined
   } {
-    const ptb = tx.transaction?.data.transaction
-    if (ptb?.kind !== 'ProgrammableTransaction') {
-      return { transferAmount: undefined, recipient: undefined, coinType: undefined }
-    }
+    const { inputs, commands } = tx.transaction
 
-    const inputs = ptb.inputs ?? []
-    const commands = ptb.transactions ?? []
+    const splitCoins = commands
+      .map(command => ('SplitCoins' in command ? command.SplitCoins : undefined))
+      .find(Boolean)
+    const transferObjects = commands
+      .map(command => ('TransferObjects' in command ? command.TransferObjects : undefined))
+      .find(Boolean)
 
-    let transferAmount: string | undefined
-    let recipient: string | undefined
-    let coinObjectId: string | undefined
+    const transferAmountBytes = this.getPureInputBytes(tx, splitCoins?.amounts[0])
+    const transferAmount = transferAmountBytes ? bcs.U64.fromBase64(transferAmountBytes) : undefined
 
-    for (const command of commands) {
-      if ('SplitCoins' in command) {
-        const [coinSource, amounts] = command.SplitCoins
-        const firstAmount = amounts?.[0]
-        if (!firstAmount || typeof firstAmount !== 'object' || !('Input' in firstAmount)) continue
+    const recipientBytes = this.getPureInputBytes(tx, transferObjects?.address)
+    const recipient = recipientBytes ? bcs.Address.fromBase64(recipientBytes) : undefined
 
-        const amountInput = inputs[firstAmount.Input]
-        if (amountInput?.type === 'pure' && amountInput.valueType === 'u64') {
-          const value = amountInput.value
-          if (typeof value === 'string') {
-            transferAmount = value
-          }
-        }
+    // For token transfers, the split coin source is an owned object input
+    const coinObjectId = (() => {
+      const coinSource = splitCoins?.coin
+      if (!coinSource || !('Input' in coinSource)) return
+      const coinInput = inputs[coinSource.Input]
+      if (!coinInput || !('Object' in coinInput)) return
+      if ('ImmOrOwnedObject' in coinInput.Object) return coinInput.Object.ImmOrOwnedObject.objectId
+    })()
 
-        // For token transfers, coin source is an object input
-        if (typeof coinSource === 'object' && 'Input' in coinSource) {
-          const coinInput = inputs[coinSource.Input]
-          if (coinInput?.type === 'object') {
-            const objectId = coinInput.objectId
-            if (typeof objectId === 'string') {
-              coinObjectId = objectId
-            }
-          }
-        }
-      }
-
-      if ('TransferObjects' in command) {
-        const [_objects, recipientArg] = command.TransferObjects
-        if (!recipientArg || typeof recipientArg !== 'object' || !('Input' in recipientArg))
-          continue
-
-        const recipientInput = inputs[recipientArg.Input]
-        if (recipientInput?.type === 'pure' && recipientInput.valueType === 'address') {
-          const value = recipientInput.value
-          if (typeof value === 'string') {
-            recipient = value
-          }
-        }
-      }
-    }
-
-    // Extract coin type from objectChanges if we have a coin object ID
     const coinType = (() => {
-      if (!coinObjectId) return undefined
-
-      const objectChange = tx.objectChanges?.find(
-        change => 'objectId' in change && change.objectId === coinObjectId,
-      )
-
-      if (!objectChange || !('objectType' in objectChange)) return undefined
-
-      const match = objectChange.objectType.match(/0x2::coin::Coin<(.+)>/)
-      const extractedCoinType = match?.[1]
-
+      if (!coinObjectId) return
+      const extractedCoinType =
+        tx.objectTypes[coinObjectId]?.match(/^0x0*2::coin::Coin<(.+)>$/)?.[1]
       return extractedCoinType ? this.normalizeCoinType(extractedCoinType) : undefined
     })()
 
@@ -599,45 +623,39 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
   async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
     try {
-      const tx =
-        typeof txHashOrTx === 'string'
-          ? await this.client.getTransactionBlock({
-              digest: txHashOrTx,
-              options: {
-                showInput: true,
-                showEffects: true,
-                showBalanceChanges: true,
-                showObjectChanges: true,
-              },
-            })
-          : (txHashOrTx as SuiTransactionBlockResponse)
+      const tx = await (async () => {
+        if (typeof txHashOrTx !== 'string') return txHashOrTx as SuiTransactionResponse
 
-      const sender = tx.transaction?.data.sender ?? ''
-      const txid = tx.digest
-      const blockHeight = Number(tx.checkpoint ?? 0)
-      const blockTime = tx.timestampMs ? Math.floor(Number(tx.timestampMs) / 1000) : 0
+        const result = await this.client.getTransaction({
+          digest: txHashOrTx,
+          include: { balanceChanges: true, effects: true, objectTypes: true, transaction: true },
+        })
 
-      const latestCheckpoint = await this.client.getLatestCheckpointSequenceNumber()
-      const confirmations = tx.checkpoint ? Number(latestCheckpoint) - Number(tx.checkpoint) + 1 : 0
-
-      const status = (() => {
-        const txStatus = tx.effects?.status.status
-        if (txStatus === 'success') return TxStatus.Confirmed
-        if (txStatus === 'failure') return TxStatus.Failed
-        return TxStatus.Unknown
+        return result.Transaction ?? result.FailedTransaction
       })()
 
-      const gasUsed = tx.effects?.gasUsed
-      const fee = !gasUsed
-        ? undefined
-        : {
-            assetId: this.assetId,
-            value: (
-              BigInt(gasUsed.computationCost) +
-              BigInt(gasUsed.storageCost) -
-              BigInt(gasUsed.storageRebate)
-            ).toString(),
-          }
+      const sender = tx.transaction.sender ?? ''
+      const txid = tx.digest
+      const blockHeight = Number(tx.checkpoint ?? 0)
+      const blockTime = tx.timestampMs ? Math.floor(tx.timestampMs / 1000) : 0
+
+      const { response: serviceInfo } = await this.client.ledgerService.getServiceInfo({})
+      const latestCheckpoint = serviceInfo.checkpointHeight ?? 0n
+      const confirmations = tx.checkpoint
+        ? Number(latestCheckpoint - BigInt(tx.checkpoint) + 1n)
+        : 0
+
+      const status = tx.status.success ? TxStatus.Confirmed : TxStatus.Failed
+
+      const { gasUsed } = tx.effects
+      const fee = {
+        assetId: this.assetId,
+        value: (
+          BigInt(gasUsed.computationCost) +
+          BigInt(gasUsed.storageCost) -
+          BigInt(gasUsed.storageRebate)
+        ).toString(),
+      }
 
       const {
         transferAmount: ptbTransferAmount,
@@ -645,11 +663,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         coinType: ptbCoinType,
       } = this.parseProgrammableTransactionBlock(tx)
 
-      const balanceChanges = tx.balanceChanges ?? []
-
       // Filter out balance changes that only represent gas fees
-      const actualTransferChanges = balanceChanges.filter(change => {
-        if (!fee || change.coinType !== '0x2::sui::SUI') return true
+      const actualTransferChanges = tx.balanceChanges.filter(change => {
+        if (!this.isSuiCoinType(change.coinType)) return true
 
         const changeAmount = BigInt(change.amount)
         const absoluteChange = changeAmount < 0n ? -changeAmount : changeAmount
@@ -659,21 +675,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       })
 
       const transfersFromBalanceChanges = actualTransferChanges.map(change => {
-        const ownerAddress = (() => {
-          if (typeof change.owner === 'object' && 'AddressOwner' in change.owner) {
-            return change.owner.AddressOwner
-          }
-          return null
-        })()
+        const ownerAddress = change.address
+        const isSuiCoin = this.isSuiCoinType(change.coinType)
 
-        const assetId =
-          change.coinType === '0x2::sui::SUI'
-            ? this.assetId
-            : toAssetId({
-                chainId: this.chainId,
-                assetNamespace: ASSET_NAMESPACE.suiCoin,
-                assetReference: this.normalizeCoinType(change.coinType),
-              })
+        const assetId = isSuiCoin
+          ? this.assetId
+          : toAssetId({
+              chainId: this.chainId,
+              assetNamespace: ASSET_NAMESPACE.suiCoin,
+              assetReference: this.normalizeCoinType(change.coinType),
+            })
 
         const amount = BigInt(change.amount)
         const isReceive = amount > 0n
@@ -685,8 +696,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         })()
 
         // For Send transfers of native SUI, use PTB amount to exclude gas
-        const shouldUsePtbAmount =
-          isSend && ptbTransferAmount && change.coinType === '0x2::sui::SUI'
+        const shouldUsePtbAmount = isSend && ptbTransferAmount && isSuiCoin
         const transferValue = shouldUsePtbAmount
           ? ptbTransferAmount
           : (amount < 0n ? -amount : amount).toString()
@@ -696,7 +706,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         // For Receive: from = sender, to = ownerAddress (recipient)
         const from = [sender]
         const to = (() => {
-          if (isReceive) return [ownerAddress ?? sender]
+          if (isReceive) return [ownerAddress]
           return ptbRecipient ? [ptbRecipient] : [sender]
         })()
 

@@ -205,12 +205,12 @@ Some chains have an ERC20 contract that represents the native token (e.g., Mantl
 
 40. **Related Asset Index** - `public/generated/relatedAssetIndex.json` + `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
     - If the native asset is ETH: verify it's in `manualRelatedAssetIndex[ethAssetId]` array
-    - **If the native asset is NOT ETH** (e.g., CRO, S, MNT): research whether the same token exists on Ethereum mainnet as an ERC20. If it does, add a manual mapping in `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`.
+    - **If the native asset is NOT ETH** (e.g., CRO, S, MNT): research whether the same token exists on Ethereum mainnet as an ERC20. If it does, add a manual mapping in `manualRelatedAssetIndex` in `generateRelatedAssetIndex.ts`.
     - **CRITICAL: The native chain token MUST be the KEY, not a value.** Use `[chainAssetId]: ['eip155:1/erc20:0x...']` (native = key, ETH ERC20 = value). If the ETH ERC20 is the key and the native is a value, the native asset gets `relatedAssetKey` pointing to ETH ERC20, making `isPrimary=false`, which causes it to be excluded from `selectPrimaryAssets` and missing from "Popular Assets". This is because `isPrimary = relatedAssetKey === null || relatedAssetKey === assetId` in AssetService.
     - Verify `relatedAssetIndex.json` has been regenerated and contains entries for the new chain's tokens
     - Check `generatedAssetData.json` - the chain's native asset should have `relatedAssetKey` pointing to ITSELF (self-referencing), NOT to an ETH ERC20
     - Without this, the native token won't appear in the trade modal "Popular Assets" section
-    - **Manual stablecoin mappings**: Look up the chain's native USDC, USDT, and DAI contract addresses (NOT bridged variants - CoinGecko auto-discovers those). Add them to `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`, keyed by the Ethereum canonical token's AssetId. Without this, popular stablecoins won't show for the chain in the trade modal.
+    - **Manual stablecoin mappings**: Look up the chain's native USDC, USDT, and DAI contract addresses (NOT bridged variants - CoinGecko auto-discovers those). Add them to `manualRelatedAssetIndex` in `generateRelatedAssetIndex.ts`, keyed by the Ethereum canonical token's AssetId. Without this, popular stablecoins won't show for the chain in the trade modal.
 
 41. **Trade modal "Popular Assets" verification** - after enabling the feature flag, open the trade modal "To" asset selector and filter by the new chain
     - Popular tokens (USDC, USDT, LINK, etc.) should appear WITHOUT needing to search

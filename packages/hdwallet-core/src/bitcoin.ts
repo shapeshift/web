@@ -30,11 +30,11 @@ export const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
 }
 
 /**
- * Consensus branch ID of the currently-active Zcash network upgrade (NU6.3, ZIP-258).
+ * Consensus branch ID of the currently-active Zcash network upgrade (NU7, ZIP-259).
  * Update this together with ZCASH_UPGRADE_ACTIVATION_HEIGHT on every network upgrade.
  */
-export const ZCASH_CONSENSUS_BRANCH_ID = 0x37a5165b
-export const ZCASH_UPGRADE_ACTIVATION_HEIGHT = 3428143
+export const ZCASH_CONSENSUS_BRANCH_ID = 0x77190ad9
+export const ZCASH_UPGRADE_ACTIVATION_HEIGHT = 3543405
 
 export type BTCGetAddress = {
   coin: Coin

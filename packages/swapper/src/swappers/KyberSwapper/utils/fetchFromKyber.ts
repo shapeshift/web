@@ -1,0 +1,89 @@
+import { convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
+import type { Address } from 'viem'
+
+import type { SwapErrorRight } from '../../../types'
+import type {
+  KyberBuildData,
+  KyberBuildResponse,
+  KyberFeeParams,
+  KyberRoutesResponse,
+  KyberRouteSummary,
+} from '../types'
+import type { KyberSupportedChainId } from './constants'
+import { KYBER_CHAINS, KYBER_CLIENT_ID } from './constants'
+import { getKyberRequestError, validateKyberBuild, validateKyberRoute } from './helpers'
+import { kyberService } from './kyberService'
+
+export const fetchKyberRoute = async ({
+  chainId,
+  tokenIn,
+  tokenOut,
+  sellAmountCryptoBaseUnit,
+  feeParams,
+  sendAddress,
+  baseUrl,
+}: {
+  chainId: KyberSupportedChainId
+  tokenIn: Address
+  tokenOut: Address
+  sellAmountCryptoBaseUnit: string
+  feeParams: KyberFeeParams | undefined
+  sendAddress: string | undefined
+  baseUrl: string
+}): Promise<Result<KyberRouteSummary, SwapErrorRight>> => {
+  const maybeResponse = await kyberService.get<KyberRoutesResponse>(
+    `${baseUrl}/${KYBER_CHAINS[chainId]}/api/v1/routes`,
+    {
+      params: {
+        tokenIn,
+        tokenOut,
+        amountIn: sellAmountCryptoBaseUnit,
+        ...(sendAddress ? { origin: sendAddress } : {}),
+        ...feeParams,
+      },
+    },
+  )
+
+  if (maybeResponse.isErr()) return Err(getKyberRequestError(maybeResponse.unwrapErr()))
+
+  return validateKyberRoute(maybeResponse.unwrap().data, feeParams)
+}
+
+export const fetchKyberBuild = async ({
+  chainId,
+  route,
+  slippageTolerancePercentageDecimal,
+  baseUrl,
+  sendAddress,
+  receiveAddress,
+  deadline,
+}: {
+  chainId: KyberSupportedChainId
+  route: KyberRouteSummary
+  slippageTolerancePercentageDecimal: string
+  baseUrl: string
+  sendAddress: string
+  receiveAddress: string
+  deadline: number
+}): Promise<Result<KyberBuildData, SwapErrorRight>> => {
+  const maybeResponse = await kyberService.post<KyberBuildResponse>(
+    `${baseUrl}/${KYBER_CHAINS[chainId]}/api/v1/route/build`,
+    {
+      routeSummary: route,
+      sender: sendAddress,
+      recipient: receiveAddress,
+      origin: sendAddress,
+      slippageTolerance: convertDecimalPercentageToBasisPoints(
+        slippageTolerancePercentageDecimal,
+      ).toNumber(),
+      deadline,
+      source: KYBER_CLIENT_ID,
+    },
+  )
+
+  if (maybeResponse.isErr()) return Err(getKyberRequestError(maybeResponse.unwrapErr()))
+
+  return validateKyberBuild(maybeResponse.unwrap().data)
+}

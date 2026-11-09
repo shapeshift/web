@@ -13,6 +13,7 @@ import celo from '@/plugins/celo'
 import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
+import elysium from '@/plugins/elysium'
 import ethereal from '@/plugins/ethereal'
 import ethereum from '@/plugins/ethereum'
 import flowEvm from '@/plugins/flowEvm'
@@ -106,4 +107,5 @@ export const activePlugins = [
   abstract,
   robinhood,
   aptos,
+  elysium,
 ]

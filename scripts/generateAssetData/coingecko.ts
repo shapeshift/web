@@ -13,6 +13,7 @@ import {
   bscChainId,
   celoChainId,
   cronosChainId,
+  elysiumChainId,
   ethChainId,
   flowEvmChainId,
   getAptosAssetNamespace,
@@ -60,6 +61,7 @@ import {
   bobChain,
   celo,
   cronos,
+  elysium,
   ethereum,
   flowEvm,
   gnosis,
@@ -463,6 +465,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: aptos.explorer,
           explorerAddressLink: aptos.explorerAddressLink,
           explorerTxLink: aptos.explorerTxLink,
+        }
+      case elysiumChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: elysium.explorer,
+          explorerAddressLink: elysium.explorerAddressLink,
+          explorerTxLink: elysium.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

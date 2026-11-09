@@ -7,6 +7,7 @@ import {
   bobAssetId,
   celoAssetId,
   cronosAssetId,
+  elysiumAssetId,
   etherealAssetId,
   flowEvmAssetId,
   hemiAssetId,
@@ -95,6 +96,7 @@ export const queryFn = async () => {
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
   if (enabledFlags.Robinhood) assetIds.push(robinhoodAssetId)
   if (enabledFlags.Aptos) assetIds.push(aptosAssetId)
+  if (enabledFlags.Elysium) assetIds.push(elysiumAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]

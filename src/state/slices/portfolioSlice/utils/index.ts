@@ -17,6 +17,7 @@ import {
   cosmosChainId,
   cronosChainId,
   dogeChainId,
+  elysiumChainId,
   ethChainId,
   etherealChainId,
   flowEvmChainId,
@@ -77,6 +78,7 @@ import {
   supportsCelo,
   supportsCosmos,
   supportsCronos,
+  supportsElysium,
   supportsETH,
   supportsEthereal,
   supportsFlowEvm,
@@ -195,6 +197,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case nearChainId:
     case tonChainId:
     case aptosChainId:
+    case elysiumChainId:
       return middleEllipsis(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
@@ -695,6 +698,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsRobinhood(wallet)
     case aptosChainId:
       return supportsAptos(wallet)
+    case elysiumChainId:
+      return supportsElysium(wallet)
     default:
       return false
   }

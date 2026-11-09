@@ -10,6 +10,7 @@ import {
   bscChainId,
   celoChainId,
   cronosChainId,
+  elysiumChainId,
   ethChainId,
   etherealChainId,
   flowEvmChainId,
@@ -52,6 +53,7 @@ import {
   supportsBSC,
   supportsCelo,
   supportsCronos,
+  supportsElysium,
   supportsETH,
   supportsEthereal,
   supportsFlowEvm,
@@ -218,6 +220,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === modeChainId && !supportsMode(wallet)) continue
     if (chainId === soneiumChainId && !supportsSoneium(wallet)) continue
     if (chainId === robinhoodChainId && !supportsRobinhood(wallet)) continue
+    if (chainId === elysiumChainId && !supportsElysium(wallet)) continue
     if (
       isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

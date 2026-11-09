@@ -18,6 +18,7 @@ import { csp as celo } from './chains/celo'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
+import { csp as elysium } from './chains/elysium'
 import { csp as ethereal } from './chains/ethereal'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as flowEvm } from './chains/flowEvm'
@@ -208,4 +209,5 @@ export const csps = [
   discord,
   yieldxyz,
   robinhood,
+  elysium,
 ]

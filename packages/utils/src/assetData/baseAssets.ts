@@ -902,8 +902,8 @@ export const elysium: Readonly<Asset> = Object.freeze({
   networkColor: '#2D7388',
   icon: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
   networkIcon: 'https://kinetiq.xyz/assets/brand/elysium/elysium-logomark-colorized.png',
-  explorer: 'https://testnet.elysium.kinetiq.xyz',
-  explorerAddressLink: 'https://testnet.elysium.kinetiq.xyz/address/',
-  explorerTxLink: 'https://testnet.elysium.kinetiq.xyz/tx/',
+  explorer: 'https://elysium.kinetiq.xyz',
+  explorerAddressLink: 'https://elysium.kinetiq.xyz/address/',
+  explorerTxLink: 'https://elysium.kinetiq.xyz/tx/',
   relatedAssetKey: null,
 })

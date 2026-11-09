@@ -43,7 +43,7 @@ export const bobAssetId: AssetId = 'eip155:60808/slip44:60'
 export const modeAssetId: AssetId = 'eip155:34443/slip44:60'
 export const soneiumAssetId: AssetId = 'eip155:1868/slip44:60'
 export const seiAssetId: AssetId = 'eip155:1329/slip44:60'
-export const elysiumAssetId: AssetId = 'eip155:99801/slip44:60'
+export const elysiumAssetId: AssetId = 'eip155:99901/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -135,7 +135,7 @@ export const bobChainId: ChainId = 'eip155:60808'
 export const modeChainId: ChainId = 'eip155:34443'
 export const soneiumChainId: ChainId = 'eip155:1868'
 export const seiChainId: ChainId = 'eip155:1329'
-export const elysiumChainId: ChainId = 'eip155:99801'
+export const elysiumChainId: ChainId = 'eip155:99901'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -220,7 +220,7 @@ export const CHAIN_REFERENCE = {
   AbstractMainnet: '2741', // https://abscan.org
   RobinhoodMainnet: '4663', // https://chainlist.org/chain/4663
   AptosMainnet: '1', // https://namespaces.chainagnostic.org/aptos/caip2
-  ElysiumMainnet: '99801', // https://elysium.kinetiq.xyz/docs/connecting-to-elysium
+  ElysiumMainnet: '99901', // https://elysium.kinetiq.xyz/docs/connecting-to-elysium
 } as const
 
 export const ASSET_NAMESPACE = {

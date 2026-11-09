@@ -273,8 +273,8 @@ describe('adapters:coingecko:utils', () => {
         'aptos:1': {
           'aptos:1/slip44:637': 'aptos',
         },
-        'eip155:99801': {
-          'eip155:99801/slip44:60': 'hyperliquid',
+        'eip155:99901': {
+          'eip155:99901/slip44:60': 'hyperliquid',
         },
       }
       expect(result).toEqual(expected)

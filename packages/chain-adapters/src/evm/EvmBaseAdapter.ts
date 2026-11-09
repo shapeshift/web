@@ -507,7 +507,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.ElysiumMainnet]: {
         name: 'HYPE',
         symbol: 'HYPE',
-        explorer: 'https://testnet.elysium.kinetiq.xyz',
+        explorer: 'https://elysium.kinetiq.xyz',
       },
     }[this.chainId]
 

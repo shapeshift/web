@@ -187,12 +187,12 @@ export const viemSoneiumClient = createRpcClient(soneium, undefined, PUBLIC_RPC_
 export const viemRobinhoodClient = createRpcClient(robinhood, undefined, PUBLIC_RPC_URLS.robinhood)
 
 export const elysium = defineChain({
-  id: 99801,
-  name: 'Elysium Testnet',
+  id: 99901,
+  name: 'Elysium',
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
-  rpcUrls: { default: { http: ['https://testnet-rpc.elysium.kinetiq.xyz'] } },
+  rpcUrls: { default: { http: ['https://rpc.elysium.kinetiq.xyz'] } },
   blockExplorers: {
-    default: { name: 'Elysium Testnet Explorer', url: 'https://testnet.elysium.kinetiq.xyz' },
+    default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' },
   },
   contracts: { multicall3 },
 })

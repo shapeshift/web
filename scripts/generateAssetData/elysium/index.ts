@@ -9,7 +9,7 @@ const whypeToken: Asset = {
   assetId: toAssetId({
     chainId: elysiumChainId,
     assetNamespace: 'erc20',
-    assetReference: '0xCD57F65c2B0e5881CFC2E609F7CD53b746E1F234',
+    assetReference: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81',
   }),
   chainId: elysiumChainId,
   name: 'WHYPE',
@@ -27,7 +27,7 @@ const usdcToken: Asset = {
   assetId: toAssetId({
     chainId: elysiumChainId,
     assetNamespace: 'erc20',
-    assetReference: '0x7D29d8047B905000459c0E80c34a26CeedcB47b2',
+    assetReference: '0xb47c4C8F73F009CC0C0d3f92B388d13E293F0B65',
   }),
   chainId: elysiumChainId,
   name: 'USDC',

@@ -44,5 +44,5 @@ const usdcToken: Asset = {
 export const getAssets = async (): Promise<Asset[]> => {
   const assets = await coingecko.getAssets(elysiumChainId)
 
-  return uniqBy([...assets, unfreeze(elysium), whypeToken, usdcToken], 'assetId')
+  return uniqBy([unfreeze(elysium), whypeToken, usdcToken, ...assets], 'assetId')
 }

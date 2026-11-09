@@ -1,0 +1,17 @@
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -33,6 +33,13 @@
+     "node": ">=22"
+   },
+   "type": "module",
++  "typesVersions": {
++    "*": {
++      "*": [
++        "./dist/*/index.d.mts"
++      ]
++    }
++  },
+   "exports": {
+     "./bcs": {
+       "types": "./dist/bcs/index.d.mts",

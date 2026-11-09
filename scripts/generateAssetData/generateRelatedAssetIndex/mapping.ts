@@ -12,8 +12,13 @@ export const zerionImplementationToMaybeAssetId = (
   const { chain_id, address: assetReference } = implementation
   const chainId = zerionChainIdToChainId(chain_id as ZerionChainId)
   if (!chainId || !assetReference) return undefined
-  const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, assetReference)
-  return toAssetId({ chainId, assetNamespace, assetReference })
+  try {
+    const assetNamespace = getAssetNamespaceFromChainId(chainId as KnownChainIds, assetReference)
+    return toAssetId({ chainId, assetNamespace, assetReference })
+  } catch (err) {
+    console.warn(`[Zerion] skipping ${chain_id}:${assetReference}: ${(err as Error).message}`)
+    return undefined
+  }
 }
 
 export const coingeckoPlatformDetailsToMaybeAssetId = (

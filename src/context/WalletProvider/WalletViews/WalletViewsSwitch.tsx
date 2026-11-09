@@ -27,6 +27,7 @@ import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
 import { SeekerRoutes } from './routes/SeekerRoutes'
+import { StarknetInjectedRoutes } from './routes/StarknetInjectedRoutes'
 import { TrezorRoutes } from './routes/TrezorRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
@@ -41,6 +42,7 @@ import { Text } from '@/components/Text'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
+import { STARKNET_INJECTED_KEYMANAGERS } from '@/context/WalletProvider/StarknetInjected/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
@@ -90,6 +92,17 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
   if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
   if (location.pathname.startsWith('/gridplus')) return <GridPlusRoutes />
   if (location.pathname.startsWith('/seeker')) return <SeekerRoutes />
+  const starknetInjectedKeyManager = STARKNET_INJECTED_KEYMANAGERS.find(keyManager =>
+    location.pathname.startsWith(`/${keyManager}/`),
+  )
+  if (starknetInjectedKeyManager)
+    return (
+      <StarknetInjectedRoutes
+        keyManager={starknetInjectedKeyManager}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+      />
+    )
 
   if (shouldDisplayIntro) return <NativeIntro />
 

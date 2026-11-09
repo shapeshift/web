@@ -1013,11 +1013,16 @@ case KnownChainIds.[ChainName]Mainnet:
 
 **File**: `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`
 
+Add the chain to `featureFlagByChainId`. It is an exhaustive `Record<KnownChainIds, Flag | null>`, so type-check fails until the new chain is listed:
+
 ```typescript
-// Add to switch statement
-case KnownChainIds.[ChainName]Mainnet:
-  return supports[Chain](wallet) // from hdwallet-core
+const featureFlagByChainId: Record<KnownChainIds, Flag | null> = {
+  // ... existing chains
+  [KnownChainIds.[ChainName]Mainnet]: '[ChainName]', // or null if the chain has no feature flag
+}
 ```
+
+The hook has no chain switch of its own: after the runtime and feature flag checks it defers to `isChainSupportedByWallet` (Step 3.8).
 
 ### Step 3.8: Add Asset Support Detection (CRITICAL!)
 
@@ -1025,7 +1030,7 @@ case KnownChainIds.[ChainName]Mainnet:
 
 **File**: `src/state/slices/portfolioSlice/utils/index.ts`
 
-Add your chain to the `isAssetSupportedByWallet` function around line 367:
+Add your chain to the `isChainSupportedByWallet` switch. It is the single wallet capability check, used by `isAssetSupportedByWallet` (asset search, chain dropdown) and by `walletSupportsChain` (account discovery):
 
 ```typescript
 // 1. Import your chain ID at the top
@@ -1040,10 +1045,8 @@ import {
   supports[ChainName],
 } from '@shapeshiftoss/hdwallet-core'
 
-// 3. Add case to the switch statement in isAssetSupportedByWallet
-export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
-  if (!assetId) return false
-  const { chainId } = fromAssetId(assetId)
+// 3. Add case to the switch statement in isChainSupportedByWallet
+export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): boolean => {
   switch (chainId) {
     // ... existing cases
     case [chainLower]ChainId:
@@ -1948,7 +1951,7 @@ gh pr create --title "feat: implement [chainname]" \
 **Solution**: Verify correct Ledger app is mapped
 **Example**: Use Ethereum app for EVM chains, not chain-specific app
 
-### Gotcha 8: Missing walletSupportsChain Case (CRITICAL - BLOCKS ACCOUNT DISCOVERY!)
+### Gotcha 8: Missing isChainSupportedByWallet Case (CRITICAL - BLOCKS ACCOUNT DISCOVERY!)
 
 **Problem**: Assets appear but no accounts are derived/discovered for the chain
 **Symptoms**:
@@ -1956,19 +1959,8 @@ gh pr create --title "feat: implement [chainname]" \
 - Assets show up in asset list
 - But wallet shows no accounts for the chain
 - Logs show account derivation never runs for chainId
-**Root Cause**: Missing case in `walletSupportsChain()` switch statement
-**Solution**: Add your chain to the switch statement in `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`:
-```typescript
-// 1. Import chain ID
-import { [chainLower]ChainId } from '@shapeshiftoss/caip'
-
-// 2. Import support function from hdwallet-core
-import { supports[ChainName] } from '@shapeshiftoss/hdwallet-core'
-
-// 3. Add to switch statement (around line 186+)
-case [chainLower]ChainId:
-  return supports[ChainName](wallet)
-```
+**Root Cause**: Missing case in the `isChainSupportedByWallet()` switch, which `walletSupportsChain()` defers to
+**Solution**: Add the case in `src/state/slices/portfolioSlice/utils/index.ts` (Step 3.8) and the chain's flag in `featureFlagByChainId` (Step 3.7)
 **Example**: HyperEVM was missing this - caused account discovery to skip it entirely
 **Why it matters**: `useDiscoverAccounts` filters chains using `walletSupportsChain()`. If it returns false, the chain is never passed to `deriveAccountIdsAndMetadata()` → no accounts!
 **Reference**: Same issue as Plasma PR #11361 but for wallet support instead of feature flag
@@ -2304,9 +2296,9 @@ case "Near": {
 - [ ] `src/plugins/[chainname]/index.tsx`
 - [ ] `src/plugins/activePlugins.ts`
 - [ ] `src/context/PluginProvider/PluginProvider.tsx`
-- [ ] `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`
+- [ ] `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts` (featureFlagByChainId entry)
 - [ ] `src/hooks/useActionCenterSubscribers/useSendActionSubscriber.tsx`
-- [ ] `src/state/slices/portfolioSlice/utils/index.ts` (isAssetSupportedByWallet function)
+- [ ] `src/state/slices/portfolioSlice/utils/index.ts` (isChainSupportedByWallet switch)
 
 ### Web Files (Config)
 - [ ] `.env`

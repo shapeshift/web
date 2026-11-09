@@ -40,6 +40,7 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   robinhoodChainId,
   scrollChainId,
@@ -65,6 +66,7 @@ import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isGridPlus,
+  isVultisig,
   supportsAbstract,
   supportsAptos,
   supportsArbitrum,
@@ -95,6 +97,7 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
+  supportsPlume,
   supportsPolygon,
   supportsRobinhood,
   supportsScroll,
@@ -141,7 +144,13 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
-import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
+import {
+  assertUnreachable,
+  isLedgerHDWallet,
+  isNativeHDWallet,
+  isTrezorHDWallet,
+  middleEllipsis,
+} from '@/lib/utils'
 import { supportsNear } from '@/lib/utils/near'
 import { supportsTon } from '@/lib/utils/ton'
 import { isBlacklistedAssetId, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
@@ -594,9 +603,7 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
   }
 }
 
-export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
-  if (!assetId) return false
-  const { chainId } = fromAssetId(assetId)
+export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): boolean => {
   switch (chainId) {
     case ethChainId:
       return supportsETH(wallet)
@@ -625,7 +632,10 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case bchChainId:
       return supportsBTC(wallet) && !isGridPlus(wallet)
     case zecChainId:
-      return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isTrezorHDWallet(wallet))
+      return (
+        supportsBTC(wallet) &&
+        (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
+      )
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:
@@ -633,7 +643,7 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case mayachainChainId:
       return supportsMayachain(wallet)
     case solanaChainId:
-      return supportsSolana(wallet)
+      return supportsSolana(wallet) && !isVultisig(wallet)
     case suiChainId:
       return supportsSui(wallet)
     case starknetChainId:
@@ -658,6 +668,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
+    case plumeChainId:
+      return supportsPlume(wallet)
     case storyChainId:
       return supportsStory(wallet)
     case zkSyncEraChainId:
@@ -703,6 +715,11 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     default:
       return false
   }
+}
+
+export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
+  if (!assetId) return false
+  return isChainSupportedByWallet(fromAssetId(assetId).chainId, wallet)
 }
 
 export const getHighestUserCurrencyBalanceAccountByAssetId = (

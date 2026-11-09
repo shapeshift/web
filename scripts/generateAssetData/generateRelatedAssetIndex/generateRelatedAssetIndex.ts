@@ -8,12 +8,14 @@ import {
   bobAssetId,
   bscAssetId,
   cronosAssetId,
+  elysiumAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAssetId,
   hemiAssetId,
+  hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
   lineaAssetId,
@@ -102,7 +104,6 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
     'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
     'aptos:1/fungible:0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
-    // Elysium USDC is HyperEVM USDC bridged through the canonical Orbit gateway. CoinGecko lists it under usd-coin; kept here as a safety net
     'eip155:99901/erc20:0xb47c4c8f73f009cc0c0d3f92b388d13e293f0b65',
   ],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
@@ -130,6 +131,15 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   'eip155:1/erc20:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee': [
     'eip155:42161/erc20:0x35751007a407ca6feffe80b3cb397736d2cf4dbe',
     'eip155:747474/erc20:0x9893989433e7a383cb313953e4c2365107dc19a7',
+  ],
+  // Both pay gas in HYPE, so the tie between them is broken here instead of by list order
+  [hyperEvmAssetId]: [elysiumAssetId],
+  // Elysium bridged copies of HyperEVM tokens, which CoinGecko doesn't list on its Elysium platform
+  'eip155:999/erc20:0x5555555555555555555555555555555555555555': [
+    'eip155:99901/erc20:0xba876237b0f021a6c6d852d6c26e107997cc5e81',
+  ],
+  'eip155:999/erc20:0x000000000000780555bd0bca3791f89f9542c2d6': [
+    'eip155:99901/erc20:0xe45a355d9e9cad2ad85f2d03e3ee3102a036acf0',
   ],
 }
 

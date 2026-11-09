@@ -96,5 +96,5 @@ export const PUBLIC_RPC_URLS = {
     'https://zksync.api.onfinality.io/public',
   ],
   robinhood: ['https://rpc.mainnet.chain.robinhood.com', 'https://robinhood-rpc.publicnode.com'],
-  elysium: ['https://rpc.elysium.kinetiq.xyz'],
+  elysium: ['https://rpc.elysium.kinetiq.xyz', 'https://elysium.drpc.org'],
 } as const

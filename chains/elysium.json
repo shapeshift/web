@@ -15,10 +15,10 @@
   "explorerAddressLink": "https://elysium.kinetiq.xyz/address/",
   "explorerTxLink": "https://elysium.kinetiq.xyz/tx/",
   "rpcUrl": "https://rpc.elysium.kinetiq.xyz",
-  "publicRpcUrls": ["https://rpc.elysium.kinetiq.xyz"],
+  "publicRpcUrls": ["https://rpc.elysium.kinetiq.xyz", "https://elysium.drpc.org"],
   "coingeckoPlatform": "elysium-kinetiq",
   "wrappedNativeAddress": "0xbA876237B0F021A6c6D852d6c26E107997cC5E81",
-  "relatedAssetKey": "eip155:99901/slip44:60",
+  "relatedAssetKey": "eip155:999/slip44:60",
   "shortName": "ELY",
   "swappers": {
     "relay": { "supported": true, "relayChainId": 99901 },

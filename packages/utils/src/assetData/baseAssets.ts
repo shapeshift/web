@@ -355,7 +355,7 @@ export const monad: Readonly<Asset> = Object.freeze({
 export const hyperevm: Readonly<Asset> = Object.freeze({
   assetId: caip.hyperEvmAssetId,
   chainId: caip.hyperEvmChainId,
-  name: 'HyperEVM',
+  name: 'Hyperliquid',
   networkName: 'HyperEVM',
   symbol: 'HYPE',
   precision: 18,
@@ -905,5 +905,5 @@ export const elysium: Readonly<Asset> = Object.freeze({
   explorer: 'https://elysium.kinetiq.xyz',
   explorerAddressLink: 'https://elysium.kinetiq.xyz/address/',
   explorerTxLink: 'https://elysium.kinetiq.xyz/tx/',
-  relatedAssetKey: null,
+  relatedAssetKey: 'eip155:999/slip44:60',
 })

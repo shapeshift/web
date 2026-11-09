@@ -12,7 +12,7 @@ const whypeToken: Asset = {
     assetReference: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81',
   }),
   chainId: elysiumChainId,
-  name: 'WHYPE',
+  name: 'Wrapped HYPE',
   precision: 18,
   color: '#DDFBF4',
   icon: 'https://assets.coingecko.com/coins/images/54469/large/_UP3jBsi_400x400.jpg?1739905920',
@@ -41,8 +41,26 @@ const usdcToken: Asset = {
   relatedAssetKey: null,
 }
 
+const kntqToken: Asset = {
+  assetId: toAssetId({
+    chainId: elysiumChainId,
+    assetNamespace: 'erc20',
+    assetReference: '0xe45a355d9e9cad2ad85f2d03e3ee3102a036acf0',
+  }),
+  chainId: elysiumChainId,
+  name: 'Kinetiq',
+  precision: 18,
+  color: '#0F2B31',
+  icon: 'https://assets.coingecko.com/coins/images/70252/large/kntq.png?1761279547',
+  symbol: 'KNTQ',
+  explorer: elysium.explorer,
+  explorerAddressLink: elysium.explorerAddressLink,
+  explorerTxLink: elysium.explorerTxLink,
+  relatedAssetKey: null,
+}
+
 export const getAssets = async (): Promise<Asset[]> => {
   const assets = await coingecko.getAssets(elysiumChainId)
 
-  return uniqBy([unfreeze(elysium), whypeToken, usdcToken, ...assets], 'assetId')
+  return uniqBy([unfreeze(elysium), whypeToken, usdcToken, kntqToken, ...assets], 'assetId')
 }

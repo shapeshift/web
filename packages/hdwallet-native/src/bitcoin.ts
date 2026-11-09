@@ -21,21 +21,17 @@ const supportedCoins = [
 
 const segwit = ['p2wpkh', 'p2sh-p2wpkh', 'bech32']
 
-type NonWitnessUtxo = Buffer
-
-type WitnessUtxo = {
-  script: Buffer
-  amount: number
+type UtxoData = {
+  nonWitnessUtxo?: Uint8Array
+  witnessUtxo?: { script: Uint8Array; value: bigint }
 }
-
-type UtxoData = NonWitnessUtxo | WitnessUtxo
 
 type ScriptData = {
   redeemScript?: Buffer
   witnessScript?: Buffer
 }
 
-type InputData = UtxoData | ScriptData
+type InputData = UtxoData & ScriptData
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(
   Base: TBase,
@@ -156,19 +152,36 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       this.#masterKey = undefined
     }
 
-    async buildInput(coin: core.Coin, input: core.BTCSignTxInputNative): Promise<InputData | null> {
+    async buildInput(
+      coin: core.Coin,
+      input: core.BTCSignTxInputNative,
+      version: number,
+    ): Promise<InputData | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, amount, hex, scriptType } = input
 
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType)
+        const { publicKey, network } = keyPair
+        const payment = core.createPayment(publicKey, network, scriptType)
+
+        if (coin.toLowerCase() === 'zcash') {
+          if (version === 5 && scriptType === core.BTCInputScriptType.SpendAddress) {
+            if (!amount) throw new Error('missing amount for Zcash input')
+            if (!payment.output) throw new Error('could not get Zcash input script')
+            // ZIP-244 commits to every prevout amount and script, so no parent transaction is needed.
+            return { witnessUtxo: { script: payment.output, value: BigInt(amount) } }
+          }
+        }
 
         const isSegwit = !!scriptType && segwit.includes(scriptType)
-        const nonWitnessUtxo = hex && Buffer.from(hex, 'hex')
-        const witnessUtxo = input.tx &&
-          amount && {
-            script: core.fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
-            value: BigInt(amount),
-          }
+        const nonWitnessUtxo = hex ? Buffer.from(hex, 'hex') : undefined
+        const witnessUtxo =
+          input.tx && amount
+            ? {
+                script: core.fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
+                value: BigInt(amount),
+              }
+            : undefined
         const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo }
 
         if (!(utxoData.witnessUtxo || utxoData.nonWitnessUtxo)) {
@@ -176,9 +189,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             'failed to build input - must provide prev rawTx (segwit input can provide scriptPubKey hex and value instead)',
           )
         }
-
-        const { publicKey, network } = keyPair
-        const payment = core.createPayment(publicKey, network, scriptType)
 
         const scriptData: ScriptData = {}
         switch (scriptType) {
@@ -245,7 +255,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         await Promise.all(
           inputs.map(async input => {
             try {
-              const inputData = await this.buildInput(coin, input)
+              const inputData = await this.buildInput(coin, input, version ?? 5)
 
               psbt.addInput({
                 hash: input.txid,

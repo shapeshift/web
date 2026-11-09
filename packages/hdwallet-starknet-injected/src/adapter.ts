@@ -1,0 +1,146 @@
+import * as core from '@shapeshiftoss/hdwallet-core'
+import type { StarknetWindowObject } from '@starknet-io/types-js'
+
+import { StarknetInjectedError, StarknetInjectedHDWallet } from './starknetInjected'
+import type { StarknetInjectedPairMode, StarknetInjectedProviderId } from './types'
+
+declare global {
+  interface Window {
+    starknet_argentX?: StarknetWindowObject
+    starknet_braavos?: StarknetWindowObject
+    starknet_bramble?: StarknetWindowObject
+  }
+}
+
+export const getStarknetInjectedProvider = (
+  providerId: StarknetInjectedProviderId,
+): StarknetWindowObject | undefined => window[`starknet_${providerId}`]
+
+const PROVIDER_INJECTION_TIMEOUT_MS = 1000
+const PROVIDER_INJECTION_POLL_MS = 100
+
+// Extensions can inject after the app starts restoring the session
+const waitForStarknetInjectedProvider = async (
+  providerId: StarknetInjectedProviderId,
+): Promise<StarknetWindowObject | undefined> => {
+  const deadline = Date.now() + PROVIDER_INJECTION_TIMEOUT_MS
+  while (!getStarknetInjectedProvider(providerId) && Date.now() < deadline) {
+    await new Promise(resolve => setTimeout(resolve, PROVIDER_INJECTION_POLL_MS))
+  }
+  return getStarknetInjectedProvider(providerId)
+}
+
+abstract class StarknetInjectedAdapter {
+  keyring: core.Keyring
+
+  protected abstract readonly providerId: StarknetInjectedProviderId
+  protected abstract readonly vendor: string
+  protected abstract readonly installUrl: string
+  protected abstract readonly supportsAutoDeploy: boolean
+
+  protected constructor(keyring: core.Keyring) {
+    this.keyring = keyring
+  }
+
+  public async initialize(): Promise<number> {
+    return Object.keys(this.keyring.wallets).length
+  }
+
+  public async pairDevice(
+    mode: StarknetInjectedPairMode = 'connect',
+  ): Promise<StarknetInjectedHDWallet | undefined> {
+    const isConnect = mode === 'connect'
+    const isRestore = mode === 'restore'
+
+    const provider = isRestore
+      ? await waitForStarknetInjectedProvider(this.providerId)
+      : getStarknetInjectedProvider(this.providerId)
+
+    if (!provider) {
+      if (!isConnect) return undefined
+      window.open(this.installUrl, '_blank')
+      console.error(`Please install ${this.vendor}!`)
+      throw new StarknetInjectedError(
+        'PROVIDER_NOT_FOUND',
+        this.vendor,
+        `${this.vendor} provider not found`,
+      )
+    }
+
+    const wallet = new StarknetInjectedHDWallet(
+      this.providerId,
+      provider,
+      this.vendor,
+      this.supportsAutoDeploy,
+    )
+
+    // Restore may prompt an unlock like the other injected wallets, refresh never prompts
+    const address = await wallet.connect(mode === 'refresh')
+    if (!address) {
+      if (!isConnect) return undefined
+      throw new StarknetInjectedError('NO_ACCOUNT', this.vendor, `No ${this.vendor} account found`)
+    }
+
+    if (isConnect && (await wallet.ensureMainnet())) {
+      // Switching network can land on another account, so re-read it
+      const mainnetAddress = await wallet.connect(true)
+      if (!mainnetAddress) {
+        throw new StarknetInjectedError(
+          'NO_ACCOUNT',
+          this.vendor,
+          `No ${this.vendor} account found on Starknet Mainnet`,
+        )
+      }
+    }
+
+    await wallet.initialize()
+    const deviceID = await wallet.getDeviceID()
+
+    // The extension exposes a single active account - drop wallets left over from earlier accounts
+    await Promise.all(
+      Object.keys(this.keyring.wallets)
+        .filter(id => id.startsWith(`${this.providerId}:`))
+        .map(id => this.keyring.remove(id)),
+    )
+
+    this.keyring.add(wallet, deviceID)
+    this.keyring.emit([this.vendor, deviceID, core.Events.CONNECT], deviceID)
+
+    return wallet
+  }
+}
+
+// Ready Wallet (formerly Argent X) still injects under the legacy `argentX` id
+export class ReadyAdapter extends StarknetInjectedAdapter {
+  protected readonly providerId = 'argentX'
+  protected readonly vendor = 'Ready'
+  protected readonly installUrl = 'https://www.ready.co/'
+  protected readonly supportsAutoDeploy = true
+
+  public static useKeyring(keyring: core.Keyring) {
+    return new ReadyAdapter(keyring)
+  }
+}
+
+export class BraavosAdapter extends StarknetInjectedAdapter {
+  protected readonly providerId = 'braavos'
+  protected readonly vendor = 'Braavos'
+  protected readonly installUrl = 'https://braavos.app/'
+  protected readonly supportsAutoDeploy = true
+
+  public static useKeyring(keyring: core.Keyring) {
+    return new BraavosAdapter(keyring)
+  }
+}
+
+export class BrambleAdapter extends StarknetInjectedAdapter {
+  protected readonly providerId = 'bramble'
+  protected readonly vendor = 'Bramble'
+  protected readonly installUrl = 'https://bramble.fi/'
+  // Bramble only deploys the account from its own UI, not for dApp requests
+  protected readonly supportsAutoDeploy = false
+
+  public static useKeyring(keyring: core.Keyring) {
+    return new BrambleAdapter(keyring)
+  }
+}

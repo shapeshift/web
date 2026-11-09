@@ -137,6 +137,7 @@ export const nearIntentsApi: SwapperApi = {
     stepIndex,
     tradeQuote,
     from,
+    callsOnly,
     assertGetStarknetChainAdapter,
   }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
@@ -153,25 +154,23 @@ export const nearIntentsApi: SwapperApi = {
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-    const { fast } = await adapter.getFeeData({
-      to,
-      value,
-      chainSpecific: {
-        from,
-        tokenContractAddress,
-      },
-      sendMax: false,
-    })
+    const maxFee = callsOnly
+      ? undefined
+      : (
+          await adapter.getFeeData({
+            to,
+            value,
+            chainSpecific: { from, tokenContractAddress },
+            sendMax: false,
+          })
+        ).fast.chainSpecific.maxFee
 
     return adapter.buildSendApiTransaction({
       from,
       to,
       value,
       accountNumber,
-      chainSpecific: {
-        tokenContractAddress,
-        maxFee: fast.chainSpecific.maxFee,
-      },
+      chainSpecific: { tokenContractAddress, maxFee, callsOnly },
     })
   },
 

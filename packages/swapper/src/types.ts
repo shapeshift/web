@@ -83,6 +83,7 @@ export type SwapperConfig = {
   VITE_PORTALS_BASE_URL: string
   VITE_ZRX_BASE_URL: string
   VITE_FYND_BASE_URL: string
+  VITE_KYBER_BASE_URL: string
   VITE_CHAINFLIP_API_KEY: string
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
@@ -121,6 +122,7 @@ export enum SwapperName {
   BobGateway = 'BOB Gateway',
   Symbiosis = 'Symbiosis',
   Fynd = 'Fynd',
+  KyberSwap = 'KyberSwap',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -714,7 +716,11 @@ type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
 type SuiAccountMetadata = { from: string }
 type NearAccountMetadata = { from: string }
-type StarknetAccountMetadata = { from: string }
+type StarknetAccountMetadata = {
+  from: string
+  // The wallet builds and submits the transaction from the calls itself
+  callsOnly?: boolean
+}
 type UtxoAccountMetadata = {
   senderAddress: string
   xpub: string

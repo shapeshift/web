@@ -29,7 +29,7 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
-    "@mysten/sui": "1.45.0",
+    "@mysten/sui": "2.31.2",
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@solana/web3.js": "1.98.0",
     "@ton/core": "^0.62.1",

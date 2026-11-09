@@ -526,7 +526,12 @@
     "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo.",
     "notSupported": "%{asset} não é suportado pela %{wallet}",
     "previewPurchase": "Compra Anterior",
-    "previewSale": "Venda Anterior"
+    "previewSale": "Venda Anterior",
+    "onramperWalletVerification": "É necessária uma assinatura da carteira para autorizar o pagamento. Ela não envia uma transação.",
+    "onramperWalletChanged": "Sua carteira foi alterada. Inicie o processo de finalização da compra novamente com a carteira selecionada.",
+    "onramperWalletUnsupported": "O processo de finalização de compra no Onramper atualmente exige uma carteira EVM que suporte assinatura de mensagens.",
+    "onramperWalletMismatch": "Utilize um destino de pagamento controlado pela sua carteira digital selecionada.",
+    "onramperCheckoutFailed": "A finalização da compra no Onramper não pôde ser autorizada. Verifique se sua carteira está conectada e tente novamente."
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1011,7 +1016,7 @@
       "insufficientFundsForProtocolFee": "Insuficiente %{symbol} na %{chainName} para taxas",
       "unsupportedTradePair": "Par Não Suportado",
       "noRouteFound": "Nenhuma rota encontrada para este par e quantidade",
-      "quoteExpired": "Pedido expirado, tente novamente",
+      "quoteExpired": "A cotação expirou. Volte para atualizar sua cotação e tente novamente.",
       "quoteUnsupportedChain": "Rede não suportada",
       "quoteCrossChainNotSupported": "Cross chain não suportada",
       "quoteExactOutputNotSupported": "Não é possível confirmar o valor exato do recebimento.",
@@ -2919,6 +2924,8 @@
     }
   },
   "RFOX": {
+    "epochAwaitingUpdate": "Aguardando atualização de época",
+    "epochAwaitingUpdateDescription": "As recompensas atuais da época, os totais, o APY e as estimativas do simulador serão exibidos assim que os dados atualizados da época forem publicados. Você ainda poderá visualizar e gerenciar sua posição de staking.",
     "staking": "rFOX Staking",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -2976,6 +2983,7 @@
     "pendingRewardsBalance": "Saldo de recompensas pendentes",
     "pendingRewardsBalanceTooltip": "Suas recompensas neste ponto da época. Isso mudará conforme a receita e o percentual total de %{symbol} em staking se alterarem. O pagamento será feito automaticamente após o término da época.",
     "claimTooltip": "Veja seus %{symbol} não alocados e resgate-os assim que o período de espera terminar.",
+    "lifetimeRewardsUnavailable": "Recompensas indisponíveis",
     "lifetimeRewards": "Recompensas vitalícias",
     "lifetimeRewardsHelper": "O total de recompensas que você ganhou ao fazer stake %{symbol} até o momento",
     "timeInPool": "Tempo na Pool",
@@ -3016,6 +3024,7 @@
     "totals": "Totais de rFOX",
     "totalStaked": "Total %{symbol} em stake",
     "totalStakedHelper": "O valor total em %{symbol} está em stake",
+    "dataUnavailable": "Indisponível",
     "totalFeesCollected": "Total de taxas coletadas (esta época)",
     "emissionsPool": "%{symbol} Emissões da Pool (Nesta Época)",
     "emissionsPoolHelper": "O valor total de recompensas a serem distribuídas %{symbol} stakers",

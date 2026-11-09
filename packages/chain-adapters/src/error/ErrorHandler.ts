@@ -80,6 +80,21 @@ export const ErrorHandler = async (err: unknown, metadata?: ErrorMetadata): Prom
     })
   }
 
+  if ((err as Error).name === 'StarknetInjectedError') {
+    const { code, vendor } = err as Error & { code: string; vendor: string }
+    const translation = (() => {
+      switch (code) {
+        case 'WRONG_NETWORK':
+          return 'chainAdapters.errors.starknetWrongNetwork'
+        case 'ACCOUNT_CHANGED':
+          return 'chainAdapters.errors.starknetAccountChanged'
+        default:
+          return undefined
+      }
+    })()
+    if (translation) throw new ChainAdapterError(err, { translation, options: { name: vendor } })
+  }
+
   if ((err as Error).name === 'LedgerTronAllowDataDisabled') {
     throw new ChainAdapterError(err, {
       translation: 'chainAdapters.errors.ledgerTronAllowDataDisabled',

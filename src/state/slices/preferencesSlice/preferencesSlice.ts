@@ -67,6 +67,7 @@ export type FeatureFlags = {
   Cowswap: boolean
   ZrxSwap: boolean
   FyndSwap: boolean
+  KyberSwap: boolean
   Mixpanel: boolean
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
@@ -84,6 +85,7 @@ export type FeatureFlags = {
   TrezorWallet: boolean
   VultisigWallet: boolean
   GridPlusWallet: boolean
+  StarknetWallets: boolean
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
   RFOX: boolean
@@ -237,6 +239,7 @@ const initialState: Preferences = {
     Cowswap: getConfig().VITE_FEATURE_COWSWAP,
     ZrxSwap: getConfig().VITE_FEATURE_ZRX_SWAP,
     FyndSwap: getConfig().VITE_FEATURE_FYND_SWAP,
+    KyberSwap: getConfig().VITE_FEATURE_KYBER_SWAP,
     Mixpanel: getConfig().VITE_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().VITE_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().VITE_FEATURE_READ_ONLY_ASSETS,
@@ -254,6 +257,7 @@ const initialState: Preferences = {
     TrezorWallet: getConfig().VITE_FEATURE_TREZOR_WALLET,
     VultisigWallet: getConfig().VITE_FEATURE_VULTISIG_WALLET,
     GridPlusWallet: getConfig().VITE_FEATURE_GRIDPLUS_WALLET,
+    StarknetWallets: getConfig().VITE_FEATURE_STARKNET_WALLETS,
     ThorchainSwapLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
     RFOX: getConfig().VITE_FEATURE_RFOX,

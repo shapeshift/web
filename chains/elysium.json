@@ -21,7 +21,7 @@
   "relatedAssetKey": "eip155:99901/slip44:60",
   "shortName": "ELY",
   "swappers": {
-    "relay": { "supported": false },
+    "relay": { "supported": true, "relayChainId": 99901 },
     "across": { "supported": false },
     "portals": { "supported": false },
     "zerion": { "supported": false },

@@ -275,6 +275,8 @@ describe('adapters:coingecko:utils', () => {
         },
         'eip155:99901': {
           'eip155:99901/slip44:60': 'hyperliquid',
+          'eip155:99901/erc20:0xba876237b0f021a6c6d852d6c26e107997cc5e81': 'wrapped-hype',
+          'eip155:99901/erc20:0xe45a355d9e9cad2ad85f2d03e3ee3102a036acf0': 'kinetiq',
         },
       }
       expect(result).toEqual(expected)

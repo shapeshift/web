@@ -1,4 +1,5 @@
 import type { Chain, WalletClient } from 'viem'
+import { defineChain } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -14,6 +15,25 @@ import {
   plasma,
   polygon,
 } from 'viem/chains'
+
+// Elysium (Kinetiq L2 on HyperEVM, native HYPE) is not in viem/chains or @reown/appkit/networks.
+// viem's `elysiumTestnet` is an unrelated chain (id 1338). The definition lives here once and is
+// reused by config/appkit.ts and the external wallet demo. It is a plain object rather than a viem
+// Chain because the widget's viem and AppKit's viem are different copies with incompatible types.
+export const ELYSIUM_CHAIN_DEFINITION = {
+  id: 99901,
+  name: 'Elysium',
+  nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.elysium.kinetiq.xyz'] } },
+  blockExplorers: {
+    default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' },
+  },
+  contracts: {
+    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
+  },
+} as const
+
+const elysium = defineChain(ELYSIUM_CHAIN_DEFINITION)
 
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [mainnet.id]: {
@@ -56,6 +76,7 @@ export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   },
   [plasma.id]: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
   [katana.id]: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
+  [elysium.id]: elysium,
 }
 
 export const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {

@@ -5,6 +5,7 @@ import {
   base,
   bitcoin,
   bsc,
+  defineChain,
   gnosis,
   hyperEvm,
   katana,
@@ -24,6 +25,15 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
 
+import { ELYSIUM_CHAIN_DEFINITION } from '../constants/viemChains'
+
+// Not in @reown/appkit/networks, so hosts that own AppKit must register it themselves (see README)
+export const elysium = defineChain({
+  ...ELYSIUM_CHAIN_DEFINITION,
+  caipNetworkId: 'eip155:99901',
+  chainNamespace: 'eip155',
+})
+
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
   polygon,
@@ -38,6 +48,7 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   hyperEvm,
   plasma,
   katana,
+  elysium,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

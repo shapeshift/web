@@ -9,6 +9,7 @@ import {
   CHAIN_NAMESPACE,
   cosmosChainId,
   dogeChainId,
+  elysiumChainId,
   ethChainId,
   fromChainId,
   gnosisChainId,
@@ -254,6 +255,7 @@ export const EVM_CHAIN_IDS = {
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,
   katana: katanaChainId,
+  elysium: elysiumChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {

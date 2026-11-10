@@ -1,13 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractAssetId,
   aptosAssetId,
   arbitrumAssetId,
   avalancheAssetId,
   baseAssetId,
   bchAssetId,
   berachainAssetId,
-  blastAssetId,
   bobAssetId,
   bscAssetId,
   btcAssetId,
@@ -17,7 +15,6 @@ import {
   dogeAssetId,
   elysiumAssetId,
   ethAssetId,
-  etherealAssetId,
   flowEvmAssetId,
   gnosisAssetId,
   hemiAssetId,
@@ -118,8 +115,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
-    case KnownChainIds.EtherealMainnet:
-      return etherealAssetId
     case KnownChainIds.FlowEvmMainnet:
       return flowEvmAssetId
     case KnownChainIds.CeloMainnet:
@@ -128,8 +123,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return storyAssetId
     case KnownChainIds.ZkSyncEraMainnet:
       return zkSyncEraAssetId
-    case KnownChainIds.BlastMainnet:
-      return blastAssetId
     case KnownChainIds.WorldChainMainnet:
       return worldChainAssetId
     case KnownChainIds.HemiMainnet:
@@ -156,8 +149,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return nearAssetId
     case KnownChainIds.TonMainnet:
       return tonAssetId
-    case KnownChainIds.AbstractMainnet:
-      return abstractAssetId
     case KnownChainIds.RobinhoodMainnet:
       return robinhoodAssetId
     case KnownChainIds.AptosMainnet:

@@ -19,23 +19,6 @@ export const robinhood: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
-export const abstract: Readonly<Asset> = Object.freeze({
-  assetId: caip.abstractAssetId,
-  chainId: caip.abstractChainId,
-  name: 'Ethereum',
-  networkName: 'Abstract',
-  symbol: 'ETH',
-  precision: 18,
-  color: '#00D4AA',
-  networkColor: '#00D4AA',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.relay.link/icons/2741/light.png',
-  explorer: 'https://abscan.org',
-  explorerAddressLink: 'https://abscan.org/address/',
-  explorerTxLink: 'https://abscan.org/tx/',
-  relatedAssetKey: 'eip155:1/slip44:60',
-})
-
 const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 
 export const ethereum: Readonly<Asset> = Object.freeze({
@@ -541,23 +524,6 @@ export const flowEvm: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
-export const ethereal: Readonly<Asset> = Object.freeze({
-  assetId: caip.etherealAssetId,
-  chainId: caip.etherealChainId,
-  name: 'USDe',
-  networkName: 'Ethereal',
-  symbol: 'USDe',
-  precision: 18,
-  color: '#4A90D9',
-  networkColor: '#4A90D9',
-  icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
-  networkIcon: 'https://assets.relay.link/icons/5064014/light.png',
-  explorer: 'https://explorer.ethereal.global',
-  explorerAddressLink: 'https://explorer.ethereal.global/address/',
-  explorerTxLink: 'https://explorer.ethereal.global/tx/',
-  relatedAssetKey: null,
-})
-
 export const celo: Readonly<Asset> = Object.freeze({
   assetId: caip.celoAssetId,
   chainId: caip.celoChainId,
@@ -606,23 +572,6 @@ export const zkSyncEra: Readonly<Asset> = Object.freeze({
   explorer: 'https://explorer.zksync.io',
   explorerAddressLink: 'https://explorer.zksync.io/address/',
   explorerTxLink: 'https://explorer.zksync.io/tx/',
-  relatedAssetKey: 'eip155:1/slip44:60',
-})
-
-export const blast: Readonly<Asset> = Object.freeze({
-  assetId: caip.blastAssetId,
-  chainId: caip.blastChainId,
-  name: 'Ethereum',
-  networkName: 'Blast',
-  symbol: 'ETH',
-  precision: 18,
-  color: '#FCFC03',
-  networkColor: '#FCFC03',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.relay.link/icons/81457/light.png',
-  explorer: 'https://blastscan.io',
-  explorerAddressLink: 'https://blastscan.io/address/',
-  explorerTxLink: 'https://blastscan.io/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 

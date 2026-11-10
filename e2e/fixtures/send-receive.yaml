@@ -322,13 +322,6 @@ chains:
     sendAmountUsd: "0.1"
     flag: SCROLL
 
-  - name: Blast
-    symbol: ETH
-    assetId: eip155:81457/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: BLAST
-
   - name: ZkSync Era
     symbol: ETH
     assetId: eip155:324/slip44:60
@@ -400,7 +393,7 @@ chains:
     flag: SONEIUM
 
   # EXCLUDED: Tron (too expensive for self-send testing)
-  # EXCLUDED: Ethereal, FlowEvm, Celo (.env.production disables them)
+  # EXCLUDED: FlowEvm, Celo (.env.production disables them)
 
 # ============================================================================
 # STEP TEMPLATES

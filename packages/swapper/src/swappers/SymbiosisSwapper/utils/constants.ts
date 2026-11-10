@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -48,7 +47,6 @@ const SYMBIOSIS_SUPPORTED_EVM_CHAIN_IDS: ChainId[] = [
   seiChainId,
   cronosChainId,
   sonicChainId,
-  abstractChainId,
   berachainChainId,
   unichainChainId,
   soneiumChainId,

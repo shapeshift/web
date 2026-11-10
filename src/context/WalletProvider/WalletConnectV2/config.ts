@@ -2,7 +2,6 @@ import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
 import {
-  abstract,
   arbitrum,
   avalanche,
   base,
@@ -65,7 +64,6 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     ink,
     flowMainnet,
     sei,
-    abstract,
     robinhood,
   ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
@@ -90,7 +88,6 @@ const {
   VITE_BASE_NODE_URL,
   VITE_INK_NODE_URL,
   VITE_FLOWEVM_NODE_URL,
-  VITE_ABSTRACT_NODE_URL,
   VITE_ROBINHOOD_NODE_URL,
 } = getConfig()
 
@@ -127,7 +124,6 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
     [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
     [CHAIN_REFERENCE.FlowEvmMainnet]: VITE_FLOWEVM_NODE_URL,
-    [CHAIN_REFERENCE.AbstractMainnet]: VITE_ABSTRACT_NODE_URL,
     [CHAIN_REFERENCE.RobinhoodMainnet]: VITE_ROBINHOOD_NODE_URL,
   },
 }

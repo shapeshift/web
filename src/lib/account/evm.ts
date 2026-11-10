@@ -1,18 +1,15 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
   berachainChainId,
-  blastChainId,
   bobChainId,
   bscChainId,
   celoChainId,
   cronosChainId,
   elysiumChainId,
   ethChainId,
-  etherealChainId,
   flowEvmChainId,
   fromAccountId,
   gnosisChainId,
@@ -43,19 +40,16 @@ import {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isMetaMask,
-  supportsAbstract,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
-  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsCelo,
   supportsCronos,
   supportsElysium,
   supportsETH,
-  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -204,12 +198,9 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
-    if (chainId === etherealChainId && !supportsEthereal(wallet)) continue
     if (chainId === flowEvmChainId && !supportsFlowEvm(wallet)) continue
     if (chainId === storyChainId && !supportsStory(wallet)) continue
     if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
-    if (chainId === blastChainId && !supportsBlast(wallet)) continue
-    if (chainId === abstractChainId && !supportsAbstract(wallet)) continue
     if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue
     if (chainId === hemiChainId && !supportsHemi(wallet)) continue
     if (chainId === seiChainId && !supportsSei(wallet)) continue

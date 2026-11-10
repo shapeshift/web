@@ -4,12 +4,10 @@ import assert from 'assert'
 import type { Chain, PublicClient } from 'viem'
 import { createPublicClient, defineChain, fallback, http } from 'viem'
 import {
-  abstract,
   arbitrum,
   avalanche,
   base,
   berachain,
-  blast,
   bob,
   bsc,
   celo,
@@ -139,24 +137,9 @@ export const viemCeloClient = createRpcClient(celo, undefined, PUBLIC_RPC_URLS.c
 
 export const viemKatanaClient = createRpcClient(katana, undefined, PUBLIC_RPC_URLS.katana)
 
-export const ethereal = defineChain({
-  id: 5064014,
-  name: 'Ethereal',
-  nativeCurrency: { name: 'USDe', symbol: 'USDe', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.ethereal.trade'] } },
-  blockExplorers: {
-    default: { name: 'Ethereal Explorer', url: 'https://explorer.ethereal.global' },
-  },
-  contracts: { multicall3 },
-})
-
-export const viemEtherealClient = createRpcClient(ethereal, undefined, PUBLIC_RPC_URLS.ethereal)
-
 export const viemStoryClient = createRpcClient(story, undefined, PUBLIC_RPC_URLS.story)
 
 export const viemZkSyncEraClient = createRpcClient(zksync, undefined, PUBLIC_RPC_URLS.zkSyncEra)
-
-export const viemBlastClient = createRpcClient(blast, undefined, PUBLIC_RPC_URLS.blast)
 
 export const viemWorldChainClient = createRpcClient(
   worldchain,
@@ -169,8 +152,6 @@ const hemi = defineChain({ ...viemHemi, contracts: { multicall3 } })
 export const viemHemiClient = createRpcClient(hemi, undefined, PUBLIC_RPC_URLS.hemi)
 
 export const viemSeiClient = createRpcClient(sei, undefined, PUBLIC_RPC_URLS.sei)
-
-export const viemAbstractClient = createRpcClient(abstract, undefined, PUBLIC_RPC_URLS.abstract)
 
 export const viemLineaClient = createRpcClient(linea, undefined, PUBLIC_RPC_URLS.linea)
 
@@ -218,12 +199,10 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
-  [KnownChainIds.EtherealMainnet]: viemEtherealClient,
   [KnownChainIds.FlowEvmMainnet]: viemFlowEvmClient,
   [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.StoryMainnet]: viemStoryClient,
   [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
-  [KnownChainIds.BlastMainnet]: viemBlastClient,
   [KnownChainIds.WorldChainMainnet]: viemWorldChainClient,
   [KnownChainIds.HemiMainnet]: viemHemiClient,
   [KnownChainIds.LineaMainnet]: viemLineaClient,
@@ -234,7 +213,6 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.ModeMainnet]: viemModeClient,
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
-  [KnownChainIds.AbstractMainnet]: viemAbstractClient,
   [KnownChainIds.RobinhoodMainnet]: viemRobinhoodClient,
   [KnownChainIds.ElysiumMainnet]: viemElysiumClient,
 }
@@ -258,12 +236,10 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
-  [KnownChainIds.EtherealMainnet]: ethereal.id,
   [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
   [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.StoryMainnet]: story.id,
   [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
-  [KnownChainIds.BlastMainnet]: blast.id,
   [KnownChainIds.WorldChainMainnet]: worldchain.id,
   [KnownChainIds.HemiMainnet]: hemi.id,
   [KnownChainIds.LineaMainnet]: linea.id,
@@ -274,7 +250,6 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.ModeMainnet]: mode.id,
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
-  [KnownChainIds.AbstractMainnet]: abstract.id,
   [KnownChainIds.RobinhoodMainnet]: robinhood.id,
   [KnownChainIds.ElysiumMainnet]: elysium.id,
 }
@@ -298,12 +273,10 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
-  [ethereal.id]: viemEtherealClient,
   [flowMainnet.id]: viemFlowEvmClient,
   [celo.id]: viemCeloClient,
   [story.id]: viemStoryClient,
   [zksync.id]: viemZkSyncEraClient,
-  [blast.id]: viemBlastClient,
   [worldchain.id]: viemWorldChainClient,
   [hemi.id]: viemHemiClient,
   [linea.id]: viemLineaClient,
@@ -314,7 +287,6 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [mode.id]: viemModeClient,
   [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
-  [abstract.id]: viemAbstractClient,
   [robinhood.id]: viemRobinhoodClient,
   [elysium.id]: viemElysiumClient,
 }

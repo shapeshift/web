@@ -4,8 +4,6 @@ import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId, toAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
-  abstractAssetId,
-  abstractChainId,
   aptosAssetId,
   aptosChainId,
   arbitrumAssetId,
@@ -18,8 +16,6 @@ import {
   bchChainId,
   berachainAssetId,
   berachainChainId,
-  blastAssetId,
-  blastChainId,
   bobAssetId,
   bobChainId,
   bscAssetId,
@@ -37,8 +33,6 @@ import {
   elysiumChainId,
   ethAssetId,
   ethChainId,
-  etherealAssetId,
-  etherealChainId,
   flowEvmAssetId,
   flowEvmChainId,
   gnosisAssetId,
@@ -605,20 +599,6 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
         }
       }
 
-      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Blast)) {
-        try {
-          const assetId = toAssetId({
-            chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: CHAIN_REFERENCE.BlastMainnet,
-            assetNamespace: 'erc20',
-            assetReference: platforms[CoingeckoAssetPlatform.Blast],
-          })
-          prev[blastChainId][assetId] = id
-        } catch {
-          // unable to create assetId, skip token
-        }
-      }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Hemi)) {
         try {
           const assetId = toAssetId({
@@ -698,20 +678,6 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
             assetReference: platforms[CoingeckoAssetPlatform.Soneium],
           })
           prev[soneiumChainId][assetId] = id
-        } catch {
-          // unable to create assetId, skip token
-        }
-      }
-
-      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Abstract)) {
-        try {
-          const assetId = toAssetId({
-            chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: CHAIN_REFERENCE.AbstractMainnet,
-            assetNamespace: 'erc20',
-            assetReference: platforms[CoingeckoAssetPlatform.Abstract],
-          })
-          prev[abstractChainId][assetId] = id
         } catch {
           // unable to create assetId, skip token
         }
@@ -827,7 +793,6 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
       [flowEvmChainId]: { [flowEvmAssetId]: 'flow' },
       [celoChainId]: { [celoAssetId]: 'celo' },
       [zkSyncEraChainId]: { [zkSyncEraAssetId]: 'ethereum' },
-      [blastChainId]: { [blastAssetId]: 'ethereum' },
       [worldChainChainId]: { [worldChainAssetId]: 'ethereum' },
       [hemiChainId]: { [hemiAssetId]: 'ethereum' },
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },
@@ -836,9 +801,7 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
       [bobChainId]: { [bobAssetId]: 'ethereum' },
       [modeChainId]: { [modeAssetId]: 'ethereum' },
       [soneiumChainId]: { [soneiumAssetId]: 'ethereum' },
-      [abstractChainId]: { [abstractAssetId]: 'ethereum' },
       [seiChainId]: { [seiAssetId]: 'sei-network' },
-      [etherealChainId]: { [etherealAssetId]: 'ethena-usde' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

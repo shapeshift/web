@@ -1,10 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractAssetId,
   adapters,
   arbitrumAssetId,
   baseAssetId,
-  blastAssetId,
   bobAssetId,
   bscAssetId,
   cronosAssetId,
@@ -78,7 +76,6 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     katanaAssetId,
     megaethAssetId,
     zkSyncEraAssetId,
-    blastAssetId,
     worldChainAssetId,
     hemiAssetId,
     inkAssetId,
@@ -88,7 +85,6 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     bobAssetId,
     modeAssetId,
     soneiumAssetId,
-    abstractAssetId,
     robinhoodAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
@@ -125,8 +121,6 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   'eip155:1/erc20:0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce': [
     'eip155:56/erc20:0x2859e4544c4bb03966803b044a93563bd2d0dd4d',
   ],
-  // Ethereum USDe leads its family, not Ethereal's native USDe
-  'eip155:1/erc20:0x4c9edd5852cd905f086c759e8383e09bff1e68b3': ['eip155:5064014/slip44:60'],
   // Ethereum weETH leads its family, and CoinGecko files Katana weETH under bridged WETH
   'eip155:1/erc20:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee': [
     'eip155:42161/erc20:0x35751007a407ca6feffe80b3cb397736d2cf4dbe',

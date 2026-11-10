@@ -42,14 +42,11 @@ export type FeatureFlags = {
   Berachain: boolean
   Cronos: boolean
   Katana: boolean
-  Ethereal: boolean
   Celo: boolean
   FlowEvm: boolean
   Plume: boolean
   Story: boolean
   ZkSyncEra: boolean
-  Blast: boolean
-  Abstract: boolean
   WorldChain: boolean
   Hemi: boolean
   Sei: boolean
@@ -215,14 +212,11 @@ const initialState: Preferences = {
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Cronos: getConfig().VITE_FEATURE_CRONOS,
     Katana: getConfig().VITE_FEATURE_KATANA,
-    Ethereal: getConfig().VITE_FEATURE_ETHEREAL,
     Celo: getConfig().VITE_FEATURE_CELO,
     FlowEvm: getConfig().VITE_FEATURE_FLOWEVM,
     Plume: getConfig().VITE_FEATURE_PLUME,
     Story: getConfig().VITE_FEATURE_STORY,
     ZkSyncEra: getConfig().VITE_FEATURE_ZK_SYNC_ERA,
-    Blast: getConfig().VITE_FEATURE_BLAST,
-    Abstract: getConfig().VITE_FEATURE_ABSTRACT,
     WorldChain: getConfig().VITE_FEATURE_WORLDCHAIN,
     Hemi: getConfig().VITE_FEATURE_HEMI,
     Sei: getConfig().VITE_FEATURE_SEI,

@@ -71,12 +71,6 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.ZkSyncEra,
       })
-      const ethOnBlast = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.BlastMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Blast,
-      })
       const ethOnWorldChain = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.WorldChainMainnet,
@@ -125,12 +119,6 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Mode,
       })
-      const ethOnAbstract = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.AbstractMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Abstract,
-      })
       const ethOnSoneium = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.SoneiumMainnet,
@@ -157,7 +145,6 @@ describe('adapters:coingecko', () => {
         ethOnBob,
         ethOnKatana,
         ethOnZkSyncEra,
-        ethOnBlast,
         ethOnWorldChain,
         ethOnHemi,
         ethOnLinea,
@@ -167,7 +154,6 @@ describe('adapters:coingecko', () => {
         ethOnScroll,
         ethOnUnichain,
         ethOnSoneium,
-        ethOnAbstract,
         ethOnRobinhood,
       ])
     })

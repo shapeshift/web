@@ -105,8 +105,9 @@ All integration points required when adding a new second-class EVM chain to Shap
 17. **Portfolio Utils** - `src/state/slices/portfolioSlice/utils/index.ts`
     - Chain imported and used in account labeling
 
-18. **Wallet Support Hook** - `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`
-    - Feature flag check + `supports<Chain>(wallet)` call
+18. **Wallet Support** - `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts` + `src/state/slices/portfolioSlice/utils/index.ts`
+    - Feature flag entry in the exhaustive `featureFlagByChainId` map (type-check fails without it)
+    - `supports<Chain>(wallet)` case in the shared `isChainSupportedByWallet` switch
 
 19. **EVM Account Derivation** - `src/lib/account/evm.ts`
     - Chain imported and wallet support check

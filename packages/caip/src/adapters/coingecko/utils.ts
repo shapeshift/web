@@ -33,6 +33,8 @@ import {
   cronosAssetId,
   cronosChainId,
   dogeChainId,
+  elysiumAssetId,
+  elysiumChainId,
   ethAssetId,
   ethChainId,
   etherealAssetId,
@@ -785,6 +787,20 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Elysium)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ElysiumMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Elysium],
+          })
+          prev[elysiumChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -831,6 +847,11 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
       [tonChainId]: { [tonAssetId]: 'the-open-network' },
       [robinhoodChainId]: { [robinhoodAssetId]: 'ethereum' },
       [aptosChainId]: { [aptosAssetId]: 'aptos' },
+      [elysiumChainId]: {
+        [elysiumAssetId]: 'hyperliquid',
+        'eip155:99901/erc20:0xba876237b0f021a6c6d852d6c26e107997cc5e81': 'wrapped-hype',
+        'eip155:99901/erc20:0xe45a355d9e9cad2ad85f2d03e3ee3102a036acf0': 'kinetiq',
+      },
     },
   )
 

@@ -1,0 +1,30 @@
+{
+  "camelName": "elysium",
+  "pascalName": "Elysium",
+  "upperName": "ELYSIUM",
+  "chainId": 99901,
+  "viemChainName": "elysium",
+  "nativeSymbol": "HYPE",
+  "nativeName": "Hyperliquid",
+  "nativePrecision": 18,
+  "isNativeEth": false,
+  "color": "#2D7388",
+  "networkIconUrl": "https://kinetiq.xyz/assets/brand/elysium/elysium-logomark-colorized.png",
+  "nativeIconUrl": "https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300",
+  "explorerUrl": "https://elysium.kinetiq.xyz",
+  "explorerAddressLink": "https://elysium.kinetiq.xyz/address/",
+  "explorerTxLink": "https://elysium.kinetiq.xyz/tx/",
+  "rpcUrl": "https://rpc.elysium.kinetiq.xyz",
+  "publicRpcUrls": ["https://rpc.elysium.kinetiq.xyz", "https://elysium.drpc.org"],
+  "coingeckoPlatform": "elysium-kinetiq",
+  "wrappedNativeAddress": "0xbA876237B0F021A6c6D852d6c26E107997cC5E81",
+  "relatedAssetKey": "eip155:999/slip44:60",
+  "shortName": "ELY",
+  "swappers": {
+    "relay": { "supported": true, "relayChainId": 99901 },
+    "across": { "supported": false },
+    "portals": { "supported": false },
+    "zerion": { "supported": false },
+    "yieldxyz": { "supported": false }
+  }
+}

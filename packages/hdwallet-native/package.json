@@ -40,7 +40,7 @@
     "@bitcoinerlab/secp256k1": "^1.1.1",
     "@noble/curves": "^1.4.0",
     "@scure/starknet": "^1.0.0",
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.3",
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@solana/web3.js": "1.98.0",

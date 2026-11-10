@@ -19,6 +19,7 @@ export const KYBER_CHAINS = {
   [KnownChainIds.HyperEvmMainnet]: 'hyperevm',
   [KnownChainIds.MegaEthMainnet]: 'megaeth',
   [KnownChainIds.PlasmaMainnet]: 'plasma',
+  [KnownChainIds.ElysiumMainnet]: 'elysium',
 } as const satisfies Partial<Record<TreasuryChainId, string>>
 
 export type KyberSupportedChainId = keyof typeof KYBER_CHAINS

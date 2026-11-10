@@ -25,6 +25,7 @@ import * as bnbsmartchain from './bnbsmartchain'
 import * as bob from './bob'
 import * as celo from './celo'
 import * as cronos from './cronos'
+import * as elysium from './elysium'
 import * as ethereal from './ethereal'
 import * as ethereum from './ethereum'
 import * as flowEvm from './flowEvm'
@@ -102,6 +103,7 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
   const nearAssets = await near.getAssets()
   const robinhoodAssets = await robinhood.getAssets()
   const aptosAssets = await aptos.getAssets()
+  const elysiumAssets = await elysium.getAssets()
 
   // all assets, included assets to be blacklisted
   return [
@@ -159,5 +161,6 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
     ...nearAssets,
     ...robinhoodAssets,
     ...aptosAssets,
+    ...elysiumAssets,
   ]
 }

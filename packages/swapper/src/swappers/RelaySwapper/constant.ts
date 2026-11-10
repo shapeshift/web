@@ -10,6 +10,7 @@ import {
   btcChainId,
   celoChainId,
   cronosChainId,
+  elysiumChainId,
   ethChainId,
   etherealChainId,
   flowEvmChainId,
@@ -124,6 +125,7 @@ export const chainIdToRelayChainId = {
   [seiChainId]: sei.id,
   [abstractChainId]: abstract.id,
   [robinhoodChainId]: robinhood.id,
+  [elysiumChainId]: 99901,
 }
 
 export enum RelayStatusMessage {

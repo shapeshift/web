@@ -355,7 +355,7 @@ export const monad: Readonly<Asset> = Object.freeze({
 export const hyperevm: Readonly<Asset> = Object.freeze({
   assetId: caip.hyperEvmAssetId,
   chainId: caip.hyperEvmChainId,
-  name: 'HyperEVM',
+  name: 'Hyperliquid',
   networkName: 'HyperEVM',
   symbol: 'HYPE',
   precision: 18,
@@ -889,4 +889,21 @@ export const aptos: Readonly<Asset> = Object.freeze({
   explorerAddressLink: 'https://explorer.aptoslabs.com/account/',
   explorerTxLink: 'https://explorer.aptoslabs.com/txn/',
   relatedAssetKey: null,
+})
+
+export const elysium: Readonly<Asset> = Object.freeze({
+  assetId: caip.elysiumAssetId,
+  chainId: caip.elysiumChainId,
+  name: 'Hyperliquid',
+  networkName: 'Elysium',
+  symbol: 'HYPE',
+  precision: 18,
+  color: '#2D7388',
+  networkColor: '#2D7388',
+  icon: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
+  networkIcon: 'https://kinetiq.xyz/assets/brand/elysium/elysium-logomark-colorized.png',
+  explorer: 'https://elysium.kinetiq.xyz',
+  explorerAddressLink: 'https://elysium.kinetiq.xyz/address/',
+  explorerTxLink: 'https://elysium.kinetiq.xyz/tx/',
+  relatedAssetKey: 'eip155:999/slip44:60',
 })

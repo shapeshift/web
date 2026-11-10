@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "20.5.0",
+  "version": "20.6.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -37,7 +37,7 @@
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@gobob/bob-sdk": "6.0.1",
     "@mysten/sui": "2.31.2",
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.3",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",

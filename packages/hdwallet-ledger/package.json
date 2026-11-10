@@ -41,7 +41,7 @@
     "@ledgerhq/hw-transport": "6.31.13",
     "@ledgerhq/logs": "6.13.0",
     "@mysten/ledgerjs-hw-app-sui": "^0.7.0",
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.3",
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@solana/web3.js": "1.98.0",
     "base64-js": "^1.5.1",

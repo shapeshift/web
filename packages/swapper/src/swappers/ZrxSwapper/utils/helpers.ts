@@ -70,6 +70,11 @@ export const zrxTokenToAssetId = (token: string, chainId: ChainId): AssetId => {
           assetReference: ASSET_REFERENCE.Robinhood,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case KnownChainIds.ElysiumMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Elysium,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${chainId}' not supported`)
     }

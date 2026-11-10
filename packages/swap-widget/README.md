@@ -730,6 +730,7 @@ restrict which protocols are quoted.
 - **Relay** (`SwapperName.Relay`)
 - **THORChain** (`SwapperName.Thorchain`)
 - **MAYAChain** (`SwapperName.Mayachain`)
+- **KyberSwap** (`SwapperName.KyberSwap`), same-chain EVM swaps only
 
 Protocols marked *deposit address* can be paid from any wallet — see
 [Externally Paid Swaps](#externally-paid-swaps).

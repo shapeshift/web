@@ -45,6 +45,7 @@ export enum SwapperName {
   Thorchain = 'THORChain',
   Mayachain = 'MAYAChain',
   Chainflip = 'Chainflip',
+  KyberSwap = 'KyberSwap',
   //ArbitrumBridge = 'Arbitrum Bridge',
   //Avnu = 'AVNU',
   //Bebop = 'Bebop',

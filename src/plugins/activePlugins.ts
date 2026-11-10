@@ -1,4 +1,3 @@
-import abstract from '@/plugins/abstract'
 import aptos from '@/plugins/aptos'
 import arbitrum from '@/plugins/arbitrum'
 import avalanche from '@/plugins/avalanche'
@@ -6,7 +5,6 @@ import base from '@/plugins/base'
 import berachain from '@/plugins/berachain'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
-import blast from '@/plugins/blast'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import bob from '@/plugins/bob'
 import celo from '@/plugins/celo'
@@ -14,7 +12,6 @@ import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
 import elysium from '@/plugins/elysium'
-import ethereal from '@/plugins/ethereal'
 import ethereum from '@/plugins/ethereum'
 import flowEvm from '@/plugins/flowEvm'
 import gnosis from '@/plugins/gnosis'
@@ -60,7 +57,6 @@ export const activePlugins = [
   berachain,
   bitcoin,
   bitcoincash,
-  blast,
   bnbsmartchain,
   bob,
   celo,
@@ -68,7 +64,6 @@ export const activePlugins = [
   cronos,
   dogecoin,
   ethereum,
-  ethereal,
   flowEvm,
   gnosis,
   hemi,
@@ -104,7 +99,6 @@ export const activePlugins = [
   worldchain,
   zcash,
   zksyncera,
-  abstract,
   robinhood,
   aptos,
   elysium,

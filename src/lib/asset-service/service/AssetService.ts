@@ -1,18 +1,15 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
-  abstractChainId,
   adapters,
   aptosChainId,
   arbitrumChainId,
   baseChainId,
   berachainChainId,
-  blastChainId,
   bobChainId,
   bscChainId,
   celoChainId,
   cronosChainId,
   elysiumChainId,
-  etherealChainId,
   flowEvmChainId,
   gnosisChainId,
   hemiChainId,
@@ -188,13 +185,10 @@ class _AssetService {
       if (!config.VITE_FEATURE_STORY && asset.chainId === storyChainId) return false
       if (!config.VITE_FEATURE_PLUME && asset.chainId === plumeChainId) return false
       if (!config.VITE_FEATURE_ZK_SYNC_ERA && asset.chainId === zkSyncEraChainId) return false
-      if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
-      if (!config.VITE_FEATURE_ABSTRACT && asset.chainId === abstractChainId) return false
       if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false
       if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false
       if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
-      if (!config.VITE_FEATURE_ETHEREAL && asset.chainId === etherealChainId) return false
       if (!config.VITE_FEATURE_FLOWEVM && asset.chainId === flowEvmChainId) return false
       if (!config.VITE_FEATURE_SONIC && asset.chainId === sonicChainId) return false
       if (!config.VITE_FEATURE_UNICHAIN && asset.chainId === unichainChainId) return false

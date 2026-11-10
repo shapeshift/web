@@ -1,10 +1,8 @@
 import {
-  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
   berachainChainId,
-  blastChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -12,7 +10,6 @@ import {
   cronosChainId,
   elysiumChainId,
   ethChainId,
-  etherealChainId,
   flowEvmChainId,
   gnosisChainId,
   hemiChainId,
@@ -43,12 +40,10 @@ import {
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
-  abstract,
   arbitrum,
   avalanche,
   base,
   berachain,
-  blast,
   bob,
   bsc,
   celo,
@@ -104,13 +99,11 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: megaeth.id,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
-  [etherealChainId]: 5064014,
   [celoChainId]: celo.id,
   [flowEvmChainId]: flowMainnet.id,
   [plumeChainId]: plumeMainnet.id,
   [storyChainId]: story.id,
   [zkSyncEraChainId]: zksync.id,
-  [blastChainId]: blast.id,
   [worldChainChainId]: worldchain.id,
   [hemiChainId]: hemi.id,
   [lineaChainId]: linea.id,
@@ -123,7 +116,6 @@ export const chainIdToRelayChainId = {
   [modeChainId]: mode.id,
   [soneiumChainId]: soneium.id,
   [seiChainId]: sei.id,
-  [abstractChainId]: abstract.id,
   [robinhoodChainId]: robinhood.id,
   [elysiumChainId]: 99901,
 }

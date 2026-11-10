@@ -60,8 +60,6 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'CRO'
     case KnownChainIds.KatanaMainnet:
       return 'KAT'
-    case KnownChainIds.EtherealMainnet:
-      return 'ETRL'
     case KnownChainIds.FlowEvmMainnet:
       return 'FLOW'
     case KnownChainIds.CeloMainnet:
@@ -72,8 +70,6 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'STORY'
     case KnownChainIds.ZkSyncEraMainnet:
       return 'ZKS'
-    case KnownChainIds.BlastMainnet:
-      return 'BLAST'
     case KnownChainIds.WorldChainMainnet:
       return 'WLD'
     case KnownChainIds.HemiMainnet:
@@ -100,8 +96,6 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'NEAR'
     case KnownChainIds.TonMainnet:
       return 'TON'
-    case KnownChainIds.AbstractMainnet:
-      return 'ABS'
     case KnownChainIds.RobinhoodMainnet:
       return 'RH'
     case KnownChainIds.AptosMainnet:

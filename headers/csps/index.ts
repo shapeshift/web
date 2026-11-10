@@ -3,7 +3,6 @@ import { csp as agenticChat } from './agenticChat'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
-import { csp as abstract } from './chains/abstract'
 import { csp as aptos } from './chains/aptos'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
@@ -11,7 +10,6 @@ import { csp as baseChain } from './chains/base'
 import { csp as berachain } from './chains/berachain'
 import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
-import { csp as blast } from './chains/blast'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
 import { csp as bob } from './chains/bob'
 import { csp as celo } from './chains/celo'
@@ -19,7 +17,6 @@ import { csp as cosmos } from './chains/cosmos'
 import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as elysium } from './chains/elysium'
-import { csp as ethereal } from './chains/ethereal'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as flowEvm } from './chains/flowEvm'
 import { csp as gnosis } from './chains/gnosis'
@@ -131,13 +128,10 @@ export const csps = [
   baseChain,
   bitcoin,
   bitcoincash,
-  blast,
-  abstract,
   aptos,
   bnbsmartchain,
   cosmos,
   dogecoin,
-  ethereal,
   ethereum,
   bob,
   gnosis,

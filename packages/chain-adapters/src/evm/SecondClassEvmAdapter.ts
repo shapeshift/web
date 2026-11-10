@@ -2,7 +2,6 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   berachainChainId,
-  blastChainId,
   bobChainId,
   celoChainId,
   cronosChainId,
@@ -70,7 +69,6 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [soneiumChainId]: '0x4200000000000000000000000000000000000006',
   [hemiChainId]: '0x4200000000000000000000000000000000000006',
   [worldChainChainId]: '0x4200000000000000000000000000000000000006',
-  [blastChainId]: '0x4300000000000000000000000000000000000004',
   [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
   [storyChainId]: '0x1514000000000000000000000000000000000000',
   [plumeChainId]: '0xea237441c92cae6fc17caaf9a7acb3f953be4bd1',
@@ -339,7 +337,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   ): Promise<{ from: string; to: string; value: string }[]> {
     if (
       this.chainId === hyperEvmChainId ||
-      this.chainId === blastChainId ||
       this.chainId === zkSyncEraChainId ||
       this.chainId === flowEvmChainId ||
       this.chainId === celoChainId ||

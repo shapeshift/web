@@ -15,7 +15,7 @@ type AxiosInstanceHoF = (
 ) => AxiosInstance
 
 const axiosConfig: AxiosRequestConfig = {
-  timeout: 10000,
+  timeout: 15_000,
 }
 
 export const zrxServiceFactory = ({

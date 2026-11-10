@@ -6,7 +6,6 @@ import {
   avalanche,
   base,
   bsc,
-  flowMainnet,
   gnosis,
   ink,
   mainnet,
@@ -62,7 +61,6 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     arbitrum,
     base,
     ink,
-    flowMainnet,
     sei,
     robinhood,
   ]
@@ -87,7 +85,6 @@ const {
   VITE_ARBITRUM_NODE_URL,
   VITE_BASE_NODE_URL,
   VITE_INK_NODE_URL,
-  VITE_FLOWEVM_NODE_URL,
   VITE_ROBINHOOD_NODE_URL,
 } = getConfig()
 
@@ -123,7 +120,6 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
     [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
     [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
-    [CHAIN_REFERENCE.FlowEvmMainnet]: VITE_FLOWEVM_NODE_URL,
     [CHAIN_REFERENCE.RobinhoodMainnet]: VITE_ROBINHOOD_NODE_URL,
   },
 }

@@ -6,7 +6,6 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
-  berachainChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -17,36 +16,28 @@ import {
   dogeChainId,
   elysiumChainId,
   ethChainId,
-  flowEvmChainId,
   fromAccountId,
   fromAssetId,
   fromChainId,
   gnosisChainId,
-  hemiChainId,
   hyperEvmChainId,
   inkChainId,
   isNft,
   katanaChainId,
-  lineaChainId,
   ltcChainId,
   mantleChainId,
   mayachainChainId,
   megaethChainId,
-  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
   plasmaChainId,
-  plumeChainId,
   polygonChainId,
   robinhoodChainId,
-  scrollChainId,
   seiChainId,
   solanaChainId,
-  soneiumChainId,
   sonicChainId,
   starknetChainId,
-  storyChainId,
   suiChainId,
   thorchainChainId,
   toAccountId,
@@ -54,9 +45,7 @@ import {
   tonChainId,
   tronChainId,
   unichainChainId,
-  worldChainChainId,
   zecChainId,
-  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { Account, tron } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
@@ -68,7 +57,6 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBerachain,
   supportsBob,
   supportsBSC,
   supportsBTC,
@@ -77,36 +65,26 @@ import {
   supportsCronos,
   supportsElysium,
   supportsETH,
-  supportsFlowEvm,
   supportsGnosis,
-  supportsHemi,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
-  supportsLinea,
   supportsMantle,
   supportsMayachain,
   supportsMegaEth,
-  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
-  supportsPlume,
   supportsPolygon,
   supportsRobinhood,
-  supportsScroll,
   supportsSei,
   supportsSolana,
-  supportsSoneium,
   supportsSonic,
   supportsStarknet,
-  supportsStory,
   supportsSui,
   supportsThorchain,
   supportsTron,
   supportsUnichain,
-  supportsWorldChain,
-  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type {
   AptosChainId,
@@ -163,26 +141,16 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case bscChainId:
     case arbitrumChainId:
     case baseChainId:
-    case zkSyncEraChainId:
-    case hemiChainId:
     case hyperEvmChainId:
     case mantleChainId:
     case inkChainId:
     case megaethChainId:
-    case berachainChainId:
-    case flowEvmChainId:
-    case lineaChainId:
     case cronosChainId:
     case katanaChainId:
-    case storyChainId:
-    case worldChainChainId:
     case seiChainId:
-    case scrollChainId:
     case sonicChainId:
     case unichainChainId:
     case bobChainId:
-    case modeChainId:
-    case soneiumChainId:
     case celoChainId:
     case monadChainId:
     case plasmaChainId:
@@ -643,36 +611,18 @@ export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
-    case flowEvmChainId:
-      return supportsFlowEvm(wallet)
     case mantleChainId:
       return supportsMantle(wallet)
     case inkChainId:
       return supportsInk(wallet)
     case megaethChainId:
       return supportsMegaEth(wallet)
-    case berachainChainId:
-      return supportsBerachain(wallet)
     case plasmaChainId:
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
-    case plumeChainId:
-      return supportsPlume(wallet)
-    case storyChainId:
-      return supportsStory(wallet)
-    case zkSyncEraChainId:
-      return supportsZkSyncEra(wallet)
-    case worldChainChainId:
-      return supportsWorldChain(wallet)
-    case hemiChainId:
-      return supportsHemi(wallet)
     case seiChainId:
       return supportsSei(wallet)
-    case lineaChainId:
-      return supportsLinea(wallet)
-    case scrollChainId:
-      return supportsScroll(wallet)
     case cronosChainId:
       return supportsCronos(wallet)
     case sonicChainId:
@@ -681,10 +631,6 @@ export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): bo
       return supportsUnichain(wallet)
     case bobChainId:
       return supportsBob(wallet)
-    case modeChainId:
-      return supportsMode(wallet)
-    case soneiumChainId:
-      return supportsSoneium(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:

@@ -52,42 +52,20 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Ink
           case CHAIN_REFERENCE.MegaEthMainnet:
             return ASSET_REFERENCE.MegaEth
-          case CHAIN_REFERENCE.BerachainMainnet:
-            return ASSET_REFERENCE.Berachain
           case CHAIN_REFERENCE.CronosMainnet:
             return ASSET_REFERENCE.Cronos
           case CHAIN_REFERENCE.KatanaMainnet:
             return ASSET_REFERENCE.Katana
-          case CHAIN_REFERENCE.FlowEvmMainnet:
-            return ASSET_REFERENCE.FlowEvm
           case CHAIN_REFERENCE.CeloMainnet:
             return ASSET_REFERENCE.Celo
-          case CHAIN_REFERENCE.PlumeMainnet:
-            return ASSET_REFERENCE.Plume
-          case CHAIN_REFERENCE.StoryMainnet:
-            return ASSET_REFERENCE.Story
-          case CHAIN_REFERENCE.ZkSyncEraMainnet:
-            return ASSET_REFERENCE.ZkSyncEra
-          case CHAIN_REFERENCE.WorldChainMainnet:
-            return ASSET_REFERENCE.WorldChain
-          case CHAIN_REFERENCE.HemiMainnet:
-            return ASSET_REFERENCE.Hemi
           case CHAIN_REFERENCE.SeiMainnet:
             return ASSET_REFERENCE.Sei
-          case CHAIN_REFERENCE.LineaMainnet:
-            return ASSET_REFERENCE.Linea
-          case CHAIN_REFERENCE.ScrollMainnet:
-            return ASSET_REFERENCE.Scroll
           case CHAIN_REFERENCE.SonicMainnet:
             return ASSET_REFERENCE.Sonic
           case CHAIN_REFERENCE.UnichainMainnet:
             return ASSET_REFERENCE.Unichain
           case CHAIN_REFERENCE.BobMainnet:
             return ASSET_REFERENCE.Bob
-          case CHAIN_REFERENCE.ModeMainnet:
-            return ASSET_REFERENCE.Mode
-          case CHAIN_REFERENCE.SoneiumMainnet:
-            return ASSET_REFERENCE.Soneium
           case CHAIN_REFERENCE.RobinhoodMainnet:
             return ASSET_REFERENCE.Robinhood
           case CHAIN_REFERENCE.ElysiumMainnet:

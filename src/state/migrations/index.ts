@@ -8,6 +8,7 @@ import { clearLocalWallet } from './clearLocalWallet'
 import { clearMarketData } from './clearMarketData'
 import { clearOpportunities } from './clearOpportunities'
 import { clearPortfolio } from './clearPortfolio'
+import { clearRemovedChainAddressBook, clearRemovedChainAssets } from './clearRemovedChains'
 import { clearSnapshot } from './clearSnapshot'
 import { clearSwaps } from './clearSwaps'
 import { clearTxHistory } from './clearTxHistory'
@@ -54,6 +55,7 @@ export const localWalletMigrations = {
 
 export const clearAssetsMigrations = {
   365: clearAssets,
+  366: clearRemovedChainAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {
@@ -82,4 +84,5 @@ export const clearSwapsMigrations = {
 
 export const clearAddressBookMigrations = {
   0: clearAddressBook,
+  1: clearRemovedChainAddressBook,
 } as unknown as Omit<MigrationManifest, '_persist'>

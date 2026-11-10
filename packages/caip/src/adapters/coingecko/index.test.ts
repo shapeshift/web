@@ -424,8 +424,6 @@ describe('adapters:coingecko', () => {
       expect(() => chainIdToCoingeckoAssetPlatform(chainId)).toThrow()
     })
 
-    it('can get CoinGecko asset platform for flow evm ChainId', () => {})
-
     it('can get CoinGecko asset platform for celo ChainId', () => {
       expect(chainIdToCoingeckoAssetPlatform(celoChainId)).toEqual(CoingeckoAssetPlatform.Celo)
     })

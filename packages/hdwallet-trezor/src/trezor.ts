@@ -325,6 +325,7 @@ export class TrezorHDWallet
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
   readonly _supportsRobinhood = true
+  readonly _supportsElysium = true
   readonly _isTrezor = true
 
   transport: TrezorTransport

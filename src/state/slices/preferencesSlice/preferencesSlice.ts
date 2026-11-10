@@ -138,6 +138,7 @@ export type FeatureFlags = {
   MmNativeMultichain: boolean
   Robinhood: boolean
   Aptos: boolean
+  Elysium: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -310,6 +311,7 @@ const initialState: Preferences = {
     MmNativeMultichain: getConfig().VITE_FEATURE_MM_NATIVE_MULTICHAIN,
     Robinhood: getConfig().VITE_FEATURE_ROBINHOOD,
     Aptos: getConfig().VITE_FEATURE_APTOS,
+    Elysium: getConfig().VITE_FEATURE_ELYSIUM,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

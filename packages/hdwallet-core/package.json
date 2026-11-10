@@ -41,7 +41,7 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.3",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@solana/web3.js": "1.98.0",
     "bs58check": "^4.0.0",

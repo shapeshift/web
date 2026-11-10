@@ -166,6 +166,7 @@ export class PhantomHDWallet
   readonly _supportsSoneium = false
   readonly _supportsBSC = true
   readonly _supportsRobinhood = true
+  readonly _supportsElysium = false
   readonly _supportsSolana = true
   readonly _isPhantom = true
 

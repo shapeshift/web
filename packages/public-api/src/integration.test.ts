@@ -265,6 +265,24 @@ const QUOTES: {
     receiveAddress: ADDRESS.evm,
     amount: '1000000000000000000',
   },
+  {
+    label: 'KyberSwap (native sell)',
+    sellAssetId: ASSET_IDS.ETH,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    swapperName: 'KyberSwap',
+    sendAddress: ADDRESS.evm,
+    receiveAddress: ADDRESS.evm,
+    amount: '100000000000000000',
+  },
+  {
+    label: 'KyberSwap (ERC20 sell)',
+    sellAssetId: ASSET_IDS.USDC_ETH,
+    buyAssetId: ASSET_IDS.ETH,
+    swapperName: 'KyberSwap',
+    sendAddress: ADDRESS.evm,
+    receiveAddress: ADDRESS.evm,
+    amount: '100000000',
+  },
 ]
 
 const TEST_PAIRS = {

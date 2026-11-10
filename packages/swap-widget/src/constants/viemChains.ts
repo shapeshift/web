@@ -16,10 +16,7 @@ import {
   polygon,
 } from 'viem/chains'
 
-// Elysium (Kinetiq L2 on HyperEVM, native HYPE) is not in viem/chains or @reown/appkit/networks.
-// viem's `elysiumTestnet` is an unrelated chain (id 1338). The definition lives here once and is
-// reused by config/appkit.ts and the external wallet demo. It is a plain object rather than a viem
-// Chain because the widget's viem and AppKit's viem are different copies with incompatible types.
+// Plain object (not a viem Chain) so config/appkit.ts can reuse it across AppKit's viem copy
 export const ELYSIUM_CHAIN_DEFINITION = {
   id: 99901,
   name: 'Elysium',

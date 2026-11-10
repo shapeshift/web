@@ -10,15 +10,14 @@ import {
   Hex,
   RawTransaction,
   TransactionExecutableEntryFunction,
+  TransactionExtraConfigV1,
   TransactionInnerPayloadV1,
   TransactionPayload,
   TransactionPayloadEntryFunction,
-  U64,
 } from '@aptos-labs/ts-sdk'
 import { ASSET_NAMESPACE, getAptosAssetNamespace } from '@shapeshiftoss/caip'
 
 import { APT_COIN_TYPE, COIN_TRANSFER_ABI, FA_TRANSFER_ABI } from './constants'
-import type { DecodedEntryFunction } from './types'
 
 export const isFungibleAssetReference = (reference: string): boolean =>
   getAptosAssetNamespace(reference) === ASSET_NAMESPACE.aptosFungible
@@ -102,30 +101,25 @@ const getEntryFunction = ({ payload }: RawTransaction): EntryFunction => {
     payload instanceof TransactionInnerPayloadV1 &&
     payload.executable instanceof TransactionExecutableEntryFunction
   ) {
+    // a multisig inner payload executes as the multisig account, which unwrapping would drop
+    if (
+      payload.extra_config instanceof TransactionExtraConfigV1 &&
+      payload.extra_config.multisigAddress
+    ) {
+      throw new Error('transaction is a multisig entry function call')
+    }
+
     return payload.executable.entryFunction
   }
 
   throw new Error('transaction is not an entry function call')
 }
 
-// Rewraps the entry function as a sequence number payload, dropping any orderless replay nonce
-export const decodeEntryFunctionTransaction = (rawTransaction: string): DecodedEntryFunction => {
+// Keeps only the entry function call as a standard payload; sender, gas, expiry and any orderless nonce are set again at signing
+export const extractEntryFunctionPayload = (rawTransaction: string): string => {
   const entryFunction = getEntryFunction(
     RawTransaction.deserialize(new Deserializer(Hex.fromHexInput(rawTransaction).toUint8Array())),
   )
-  const { module_name, function_name, args } = entryFunction
 
-  return {
-    function: `${module_name.address.toString()}::${module_name.name.identifier}::${
-      function_name.identifier
-    }`,
-    args: args.map(arg => arg.bcsToBytes()),
-    payload: new TransactionPayloadEntryFunction(entryFunction).bcsToHex().toString(),
-  }
+  return new TransactionPayloadEntryFunction(entryFunction).bcsToHex().toString()
 }
-
-export const deserializeAddressArg = (arg: Uint8Array): string =>
-  AccountAddress.deserialize(new Deserializer(arg)).toString()
-
-export const deserializeU64VectorArg = (arg: Uint8Array): bigint[] =>
-  new Deserializer(arg).deserializeVector(U64).map(({ value }) => value)

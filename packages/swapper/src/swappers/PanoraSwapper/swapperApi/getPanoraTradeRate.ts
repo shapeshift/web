@@ -22,6 +22,7 @@ export const getPanoraTradeRate = async (
     input,
     from: sendAddress,
   })
+
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 

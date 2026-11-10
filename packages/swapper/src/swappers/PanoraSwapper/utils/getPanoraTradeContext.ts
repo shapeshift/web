@@ -20,7 +20,6 @@ import {
   assertValidTrade,
   assetIdToPanoraToken,
   getPanoraFeeParams,
-  getPanoraIntegratorFeeAddress,
   getPanoraTradeAmounts,
   validatePanoraSwap,
 } from './helpers'
@@ -45,6 +44,7 @@ export const getPanoraTradeContext = async ({
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
     receiveAddress,
+    affiliateBps,
   } = input
 
   const maybeValidTrade = assertValidTrade({ sellAsset, buyAsset })
@@ -53,9 +53,6 @@ export const getPanoraTradeContext = async ({
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Panora)
-
-  const integratorFeeAddress = getPanoraIntegratorFeeAddress()
-  const affiliateBps = integratorFeeAddress ? input.affiliateBps : '0'
 
   // The router pays out to toWalletAddress, which a walletless rate has to fill with a placeholder
   const toWalletAddress = receiveAddress ?? sendAddress ?? APTOS_PLACEHOLDER_ADDRESS
@@ -70,20 +67,19 @@ export const getPanoraTradeContext = async ({
       ),
       toWalletAddress,
       slippagePercentage: bnOrZero(slippageTolerancePercentageDecimal).times(100).toNumber(),
-      ...getPanoraFeeParams({ affiliateBps, integratorFeeAddress }),
+      ...getPanoraFeeParams(affiliateBps),
     },
     apiKey: deps.config.VITE_PANORA_API_KEY,
   })
+
   if (maybeResponse.isErr()) return Err(maybeResponse.unwrapErr())
 
   const maybeSwap = validatePanoraSwap({
     response: maybeResponse.unwrap(),
     sellAsset,
     buyAsset,
-    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    toWalletAddress,
-    integratorFeeAddress,
   })
+
   if (maybeSwap.isErr()) return Err(maybeSwap.unwrapErr())
   const { quote, payload } = maybeSwap.unwrap()
 

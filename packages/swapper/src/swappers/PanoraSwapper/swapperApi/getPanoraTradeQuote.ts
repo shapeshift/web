@@ -27,6 +27,7 @@ export const getPanoraTradeQuote = async (
     input,
     from: sendAddress,
   })
+
   if (maybeStepData.isErr()) return Err(maybeStepData.unwrapErr())
   const { transactionData, networkFeeCryptoBaseUnit } = maybeStepData.unwrap()
 

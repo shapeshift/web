@@ -3,6 +3,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { StepDataArgs, SwapErrorRight, TxBuildData } from '../../../types'
 import { makeNetworkFeeEstimationFailedErr } from '../../../utils'
+import { getAptosNetworkFeeCryptoBaseUnit } from '../../../utils/aptos'
 import { PANORA_FALLBACK_NETWORK_FEE_CRYPTO_BASE_UNIT } from './constants'
 
 export type GetPanoraStepDataArgs = StepDataArgs<{ payload: string }>
@@ -24,11 +25,9 @@ export async function getPanoraStepData(
   const adapter = deps.assertGetAptosChainAdapter(sellAsset.chainId)
 
   if (args.type === 'rate') {
-    // Simulation needs a sender holding the sell amount, which a walletless rate doesn't have
     const networkFeeCryptoBaseUnit = from
-      ? await adapter
-          .getCustomTxFeeData({ from, payload })
-          .then(({ fast }) => fast.txFee)
+      ? await getAptosNetworkFeeCryptoBaseUnit({ adapter, from, payload })
+          .then(({ networkFeeCryptoBaseUnit }) => networkFeeCryptoBaseUnit)
           .catch(() => PANORA_FALLBACK_NETWORK_FEE_CRYPTO_BASE_UNIT)
       : PANORA_FALLBACK_NETWORK_FEE_CRYPTO_BASE_UNIT
 
@@ -38,16 +37,20 @@ export async function getPanoraStepData(
   }
 
   try {
-    const { fast } = await adapter.getCustomTxFeeData({ from: args.from, payload })
+    const { networkFeeCryptoBaseUnit, feeData } = await getAptosNetworkFeeCryptoBaseUnit({
+      adapter,
+      from: args.from,
+      payload,
+    })
 
     const stepData: PanoraQuoteStepData = {
       transactionData: {
         type: 'aptos',
         payload,
-        gasUnitPrice: fast.chainSpecific.gasUnitPrice,
-        maxGasAmount: fast.chainSpecific.maxGasAmount,
+        gasUnitPrice: feeData.chainSpecific.gasUnitPrice,
+        maxGasAmount: feeData.chainSpecific.maxGasAmount,
       },
-      networkFeeCryptoBaseUnit: fast.txFee,
+      networkFeeCryptoBaseUnit,
     }
 
     return Ok(stepData)

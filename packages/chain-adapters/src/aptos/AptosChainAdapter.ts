@@ -57,7 +57,7 @@ import {
   TX_EXPIRY_SECS,
 } from './constants'
 import { parseAptosTx } from './parser'
-import type { BuildCustomApiTxInput, GetCustomTxFeeDataInput, Token } from './types'
+import type { BuildCustomApiTxInput, Token } from './types'
 import {
   deserializePayload,
   getBalancePayload,
@@ -428,81 +428,62 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
       const { to, value, chainSpecific } = input
-      const { from, contractAddress } = chainSpecific
+      const { from, contractAddress, payload } = chainSpecific
 
-      return await this.simulateFeeData(
-        this.client.transaction.build.simple({
-          sender: from,
-          data: getTransferPayload(to, value, contractAddress),
-          // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
-          withFeePayer: true,
-        }),
-      )
-    } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getFeeData',
-      })
-    }
-  }
+      const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
+        await Promise.all([
+          this.client.getGasPriceEstimation(),
+          payload
+            ? generateRawTransaction({
+                aptosConfig: this.client.config,
+                sender: from,
+                payload: deserializePayload(payload),
+                feePayerAddress: AccountAddress.ZERO,
+              }).then(rawTransaction => new SimpleTransaction(rawTransaction, AccountAddress.ZERO))
+            : this.client.transaction.build.simple({
+                sender: from,
+                data: getTransferPayload(to, value, contractAddress),
+                // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
+                withFeePayer: true,
+              }),
+        ])
 
-  async getCustomTxFeeData(
-    input: GetCustomTxFeeDataInput,
-  ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
-    try {
-      const { from, payload } = input
+      const [sim] = await this.client.transaction.simulate.simple({ transaction })
 
-      return await this.simulateFeeData(
-        generateRawTransaction({
-          aptosConfig: this.client.config,
-          sender: from,
-          payload: deserializePayload(payload),
-          feePayerAddress: AccountAddress.ZERO,
-        }).then(rawTransaction => new SimpleTransaction(rawTransaction, AccountAddress.ZERO)),
-      )
-    } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getFeeData',
-      })
-    }
-  }
+      if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
 
-  private async simulateFeeData(
-    pendingTransaction: Promise<SimpleTransaction>,
-  ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
-    const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
-      await Promise.all([this.client.getGasPriceEstimation(), pendingTransaction])
+      const feeStatement = sim.events.find(event => event.type === FEE_STATEMENT_EVENT_TYPE)?.data
+      if (!feeStatement) throw new Error('transaction simulation is missing its fee statement')
 
-    const [sim] = await this.client.transaction.simulate.simple({ transaction })
+      const computeGasUnits =
+        BigInt(feeStatement.execution_gas_units) + BigInt(feeStatement.io_gas_units)
+      const storageFeeOctas = BigInt(feeStatement.storage_fee_octas)
 
-    if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
+      const toFeeData = (price: number) => {
+        const gasUnitPrice = BigInt(price)
+        // storage is charged in octas, so the gas units it takes depend on the price
+        const gasUnits = computeGasUnits + (storageFeeOctas + gasUnitPrice - 1n) / gasUnitPrice
+        // 1.2x buffer over the simulated gas, in case state changes before the tx executes
+        const maxGasAmount = (gasUnits * 12n) / 10n
 
-    const feeStatement = sim.events.find(event => event.type === FEE_STATEMENT_EVENT_TYPE)?.data
-    if (!feeStatement) throw new Error('transaction simulation is missing its fee statement')
-
-    const computeGasUnits =
-      BigInt(feeStatement.execution_gas_units) + BigInt(feeStatement.io_gas_units)
-    const storageFeeOctas = BigInt(feeStatement.storage_fee_octas)
-
-    const toFeeData = (price: number) => {
-      const gasUnitPrice = BigInt(price)
-      // storage is charged in octas, so the gas units it takes depend on the price
-      const gasUnits = computeGasUnits + (storageFeeOctas + gasUnitPrice - 1n) / gasUnitPrice
-      // 1.2x buffer over the simulated gas, in case state changes before the tx executes
-      const maxGasAmount = (gasUnits * 12n) / 10n
+        return {
+          txFee: (maxGasAmount * gasUnitPrice).toString(),
+          chainSpecific: {
+            gasUnitPrice: gasUnitPrice.toString(),
+            maxGasAmount: maxGasAmount.toString(),
+          },
+        }
+      }
 
       return {
-        txFee: (maxGasAmount * gasUnitPrice).toString(),
-        chainSpecific: {
-          gasUnitPrice: gasUnitPrice.toString(),
-          maxGasAmount: maxGasAmount.toString(),
-        },
+        fast: toFeeData(prioritized_gas_estimate ?? gas_estimate),
+        average: toFeeData(gas_estimate),
+        slow: toFeeData(deprioritized_gas_estimate ?? gas_estimate),
       }
-    }
-
-    return {
-      fast: toFeeData(prioritized_gas_estimate ?? gas_estimate),
-      average: toFeeData(gas_estimate),
-      slow: toFeeData(deprioritized_gas_estimate ?? gas_estimate),
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getFeeData',
+      })
     }
   }
 

@@ -2,9 +2,8 @@ import { aptosAssetId, aptosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { describe, expect, it } from 'vitest'
 
-import type { PanoraTradeRateInput } from '../types'
+import type { PanoraQuote, PanoraSwapResponse, PanoraTradeRateInput } from '../types'
 import { getPanoraTradeAmounts, validatePanoraSwap } from './helpers'
-import { swapResponse } from './testData'
 
 const APT = { assetId: aptosAssetId, chainId: aptosChainId, precision: 8, symbol: 'APT' } as Asset
 const USDC = {
@@ -14,54 +13,21 @@ const USDC = {
   symbol: 'USDC',
 } as Asset
 
-const RECIPIENT = '0xed8c46bec9dbc2b23c60568f822b95b87ea395f7e3fdb5e3adc0a30c55c0a60e'
-const FEE_ADDRESS = '0x00000000000000000000000000000000000000000000000000000000000000fe'
-
-const validArgs = {
-  response: swapResponse,
-  sellAsset: APT,
-  buyAsset: USDC,
-  sellAmountCryptoBaseUnit: '1000000000',
-  toWalletAddress: RECIPIENT,
-  integratorFeeAddress: FEE_ADDRESS,
-}
+// 10 APT -> USDC with a 0.6% integrator fee, from a live /swap response
+const quote = { toTokenAmount: '5.573706', feeTokenAmount: '0.033644' } as PanoraQuote
 
 describe('validatePanoraSwap', () => {
-  it('returns the router call as a sequence number entry function payload', () => {
-    const { payload } = validatePanoraSwap(validArgs).unwrap()
-
-    // 0x02 is the EntryFunction payload variant, not the orderless inner payload Panora returns
-    expect(payload.startsWith('0x02')).toBe(true)
-  })
-
-  it('rejects a transaction paying out to another recipient', () => {
-    const result = validatePanoraSwap({ ...validArgs, toWalletAddress: FEE_ADDRESS })
-
-    expect(result.unwrapErr().message).toMatch(/wrong recipient/)
-  })
-
-  it('rejects a transaction selling a different amount than quoted', () => {
-    const result = validatePanoraSwap({ ...validArgs, sellAmountCryptoBaseUnit: '999999999' })
-
-    expect(result.unwrapErr().message).toMatch(/different amount/)
-  })
-
-  it('rejects a transaction paying the integrator fee to another address', () => {
-    const result = validatePanoraSwap({ ...validArgs, integratorFeeAddress: RECIPIENT })
-
-    expect(result.unwrapErr().message).toMatch(/integrator fee elsewhere/)
-  })
-
   it('rejects tokens whose decimals do not match the trade assets', () => {
-    const result = validatePanoraSwap({ ...validArgs, buyAsset: { ...USDC, precision: 8 } })
+    const response = {
+      fromToken: { address: '0xa', decimals: 8 },
+      toToken: { address: USDC.assetId, decimals: 8 },
+      feeToken: { address: USDC.assetId, decimals: 8 },
+      quotes: [quote],
+    } as PanoraSwapResponse
+
+    const result = validatePanoraSwap({ response, sellAsset: APT, buyAsset: USDC })
 
     expect(result.unwrapErr().code).toBe('UnsupportedTradePair')
-  })
-
-  it('rejects an empty route', () => {
-    const result = validatePanoraSwap({ ...validArgs, response: { ...swapResponse, quotes: [] } })
-
-    expect(result.unwrapErr().code).toBe('NoRouteFound')
   })
 })
 
@@ -73,7 +39,7 @@ describe('getPanoraTradeAmounts', () => {
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000',
     } as PanoraTradeRateInput
 
-    const amounts = getPanoraTradeAmounts({ input, quote: swapResponse.quotes[0] })
+    const amounts = getPanoraTradeAmounts({ input, quote })
 
     expect(amounts.buyAmountAfterFeesCryptoBaseUnit).toBe('5573706')
     expect(amounts.buyAmountBeforeFeesCryptoBaseUnit).toBe('5607350')

@@ -2,14 +2,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { aptosChainId, ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { aptos } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn, bnOrZero, isTreasuryChainId, toBaseUnit } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 
 import type { SwapErrorRight, TradeStepCommon } from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight, makeTradeStepBuildFailedErr } from '../../../utils'
 import { getTreasuryAddressFromChainId } from '../../../utils/helpers'
 import type {
   PanoraQuote,
@@ -18,11 +18,6 @@ import type {
   PanoraTradeQuoteInput,
   PanoraTradeRateInput,
 } from '../types'
-import {
-  PANORA_NATIVE_TOKEN_ADDRESS,
-  PANORA_ROUTER_ARG_INDEX,
-  PANORA_ROUTER_FUNCTION,
-} from './constants'
 
 const invalidResponse = (message: string, details?: unknown): SwapErrorRight =>
   makeSwapErrorRight({ message, details, code: TradeQuoteError.InvalidResponse })
@@ -57,25 +52,17 @@ export const assertValidTrade = ({
 
 export const assetIdToPanoraToken = (assetId: AssetId): string => {
   const { assetNamespace, assetReference } = fromAssetId(assetId)
-  return assetNamespace === ASSET_NAMESPACE.slip44 ? PANORA_NATIVE_TOKEN_ADDRESS : assetReference
+  return assetNamespace === ASSET_NAMESPACE.slip44 ? aptos.APT_COIN_TYPE : assetReference
 }
 
-// Panora deducts the integrator fee without an address but keeps it, so it is only charged with one
-export const getPanoraIntegratorFeeAddress = (): string | undefined =>
-  isTreasuryChainId(aptosChainId) ? getTreasuryAddressFromChainId(aptosChainId) : undefined
-
-export const getPanoraFeeParams = ({
-  affiliateBps,
-  integratorFeeAddress,
-}: {
-  affiliateBps: string
-  integratorFeeAddress: string | undefined
-}): Pick<PanoraSwapRequest, 'integratorFeePercentage' | 'integratorFeeAddress'> => {
-  if (!integratorFeeAddress || bnOrZero(affiliateBps).lte(0)) return {}
+export const getPanoraFeeParams = (
+  affiliateBps: string,
+): Pick<PanoraSwapRequest, 'integratorFeePercentage' | 'integratorFeeAddress'> => {
+  if (bnOrZero(affiliateBps).lte(0)) return {}
 
   return {
     integratorFeePercentage: bn(affiliateBps).div(100).toNumber(),
-    integratorFeeAddress,
+    integratorFeeAddress: getTreasuryAddressFromChainId(aptosChainId),
   }
 }
 
@@ -85,7 +72,6 @@ export const getPanoraRequestError = (error: SwapErrorRight): SwapErrorRight => 
   if (!axios.isAxiosError(cause)) return error
 
   const status = cause.response?.status
-
   if (status === 429) {
     return makeSwapErrorRight({
       message: 'Panora rate limit exceeded',
@@ -94,13 +80,14 @@ export const getPanoraRequestError = (error: SwapErrorRight): SwapErrorRight => 
   }
 
   const body: unknown = cause.response?.data
+
   const message =
     typeof body === 'object' &&
     body !== null &&
     'message' in body &&
     typeof body.message === 'string'
       ? body.message
-      : `status ${status}`
+      : cause.message
 
   return makeSwapErrorRight({
     message: `Panora request failed: ${message}`,
@@ -118,16 +105,10 @@ export const validatePanoraSwap = ({
   response,
   sellAsset,
   buyAsset,
-  sellAmountCryptoBaseUnit,
-  toWalletAddress,
-  integratorFeeAddress,
 }: {
   response: PanoraSwapResponse
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountCryptoBaseUnit: string
-  toWalletAddress: string
-  integratorFeeAddress: string | undefined
 }): Result<ValidatedPanoraSwap, SwapErrorRight> => {
   const { fromToken, toToken, feeToken, quotes } = response
 
@@ -141,7 +122,7 @@ export const validatePanoraSwap = ({
     )
   }
 
-  // Panora reads unknown tokens back with null decimals, and its amounts are in token units
+  // Panora amounts are in whole token units, so a decimals mismatch would sell and quote the wrong base unit amounts
   if (fromToken.decimals !== sellAsset.precision || toToken.decimals !== buyAsset.precision) {
     return Err(
       makeSwapErrorRight({
@@ -156,46 +137,17 @@ export const validatePanoraSwap = ({
     return Err(invalidResponse('Panora charged its fee in a token other than the buy asset'))
   }
 
-  const maybeDecoded = (() => {
+  const maybePayload = (() => {
     try {
-      return Ok(aptos.decodeEntryFunctionTransaction(quote.rawTransaction.bcs))
+      return Ok(aptos.extractEntryFunctionPayload(quote.rawTransaction.bcs))
     } catch (error) {
-      return Err(invalidResponse('Panora returned an undecodable transaction', error))
+      return Err(makeTradeStepBuildFailedErr('validatePanoraSwap', error))
     }
   })()
-  if (maybeDecoded.isErr()) return Err(maybeDecoded.unwrapErr())
-  const { function: fn, args, payload } = maybeDecoded.unwrap()
 
-  if (fn !== PANORA_ROUTER_FUNCTION) {
-    return Err(invalidResponse(`Panora transaction calls ${fn}, not the pinned router`))
-  }
+  if (maybePayload.isErr()) return Err(maybePayload.unwrapErr())
 
-  try {
-    const recipient = aptos.deserializeAddressArg(args[PANORA_ROUTER_ARG_INDEX.recipient])
-    if (!aptos.addressesMatch(recipient, toWalletAddress)) {
-      return Err(invalidResponse('Panora transaction pays out to the wrong recipient'))
-    }
-
-    const sellAmount = aptos
-      .deserializeU64VectorArg(args[PANORA_ROUTER_ARG_INDEX.sellAmounts])
-      .reduce((sum, amount) => sum + amount, 0n)
-    if (sellAmount.toString() !== sellAmountCryptoBaseUnit) {
-      return Err(invalidResponse('Panora transaction sells a different amount than quoted'))
-    }
-
-    if (integratorFeeAddress) {
-      const feeAddress = aptos.deserializeAddressArg(
-        args[PANORA_ROUTER_ARG_INDEX.integratorFeeAddress],
-      )
-      if (!aptos.addressesMatch(feeAddress, integratorFeeAddress)) {
-        return Err(invalidResponse('Panora transaction pays the integrator fee elsewhere'))
-      }
-    }
-  } catch (error) {
-    return Err(invalidResponse('Panora transaction has unexpected router arguments', error))
-  }
-
-  return Ok({ quote, payload })
+  return Ok({ quote, payload: maybePayload.unwrap() })
 }
 
 export const getPanoraTradeAmounts = ({

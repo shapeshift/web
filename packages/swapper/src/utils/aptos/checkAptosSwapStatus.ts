@@ -12,6 +12,7 @@ export const checkAptosSwapStatus = async ({
 }): Promise<TradeStatus> => {
   try {
     const adapter = assertGetAptosChainAdapter(aptosChainId)
+
     const tx = await adapter.getAptosClient().getTransactionByHash({ transactionHash: txHash })
 
     if (tx.type === 'pending_transaction') {

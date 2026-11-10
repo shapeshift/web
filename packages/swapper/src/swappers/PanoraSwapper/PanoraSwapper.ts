@@ -1,6 +1,4 @@
-import { executeAptosTransaction } from '../..'
 import type { Swapper } from '../../types'
+import { executeAptosTransaction } from '../../utils'
 
-export const panoraSwapper: Swapper = {
-  executeAptosTransaction,
-}
+export const panoraSwapper: Swapper = { executeAptosTransaction }

@@ -28,7 +28,18 @@ export type BuildCustomApiTxInput = FeeData & {
   payload: string
 }
 
+export type GetCustomTxFeeDataInput = {
+  from: string
+  payload: string
+}
+
 export type GetFeeDataInput = {
   from: string
   contractAddress: string | undefined
+}
+
+export type DecodedEntryFunction = {
+  function: string
+  args: Uint8Array[]
+  payload: string
 }

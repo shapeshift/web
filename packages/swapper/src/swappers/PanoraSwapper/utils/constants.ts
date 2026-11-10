@@ -1,20 +1,17 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { aptosChainId } from '@shapeshiftoss/caip'
+export const PANORA_API_URL = 'https://api.panora.exchange'
 
-export const SUPPORTED_PANORA_CHAIN_IDS: readonly ChainId[] = [aptosChainId]
+export const PANORA_ROUTER_FUNCTION =
+  '0x1c3206329806286fd2223647c9f9b130e66baeb6d7224a18c1f642ffe48f3b4c::panora_swap::router_entry'
 
-export const isSupportedChainId = (
-  chainId: ChainId,
-): chainId is (typeof SUPPORTED_PANORA_CHAIN_IDS)[number] => {
-  return SUPPORTED_PANORA_CHAIN_IDS.includes(chainId)
-}
+// Positions of the router_entry arguments checked against the trade before it is quoted
+export const PANORA_ROUTER_ARG_INDEX = {
+  recipient: 1,
+  sellAmounts: 16,
+  integratorFeeAddress: 19,
+} as const
 
+// Panora's address for native APT, the fungible asset metadata object of the aptos coin
 export const PANORA_NATIVE_TOKEN_ADDRESS = '0xa'
-export const PANORA_DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 
-// Panora routes integrator fees on-chain only when integratorFeeAddress accompanies
-// integratorFeePercentage; the percentage alone is still deducted from the user but kept
-// by Panora (verified against the live /swap API). Leave unset until the DAO has an Aptos
-// treasury address (the DAO_TREASURY_APTOS placeholder was removed during review for the
-// same reason).
-export const PANORA_INTEGRATOR_FEE_ADDRESS: string | undefined = undefined
+// Mainnet routes measured 0.002 APT without storage writes and up to 0.04 APT with them
+export const PANORA_FALLBACK_NETWORK_FEE_CRYPTO_BASE_UNIT = '1000000'

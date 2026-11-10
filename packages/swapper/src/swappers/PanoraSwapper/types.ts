@@ -1,10 +1,7 @@
-export type PanoraTokenInfo = {
-  token_address: string
-  name: string
-  symbol: string
-  decimals: number
-  current_price: number | null
-}
+import type { GetAptosTradeQuoteInput, GetAptosTradeRateInput } from '../../types'
+
+export type PanoraTradeQuoteInput = GetAptosTradeQuoteInput
+export type PanoraTradeRateInput = GetAptosTradeRateInput
 
 export type PanoraSwapRequest = {
   fromTokenAddress: string
@@ -16,24 +13,27 @@ export type PanoraSwapRequest = {
   integratorFeeAddress?: string
 }
 
-export type PanoraTxData = {
-  function: string
-  type_arguments: string[]
-  arguments: string[]
+export type PanoraToken = {
+  address: string
+  symbol: string | null
+  decimals: number | null
 }
 
 export type PanoraQuote = {
   toTokenAmount: string
+  minToTokenAmount: string
   feeTokenAmount: string
-  feePercentage: number
-  priceImpact: number
-  slippagePercentage: number
-  txData: PanoraTxData
+  rawTransaction: { bcs: string }
 }
 
 export type PanoraSwapResponse = {
-  fromToken: string
-  toToken: string
-  feeToken: string
+  fromToken: PanoraToken
+  toToken: PanoraToken
+  feeToken: PanoraToken
   quotes: PanoraQuote[]
+}
+
+export type PanoraErrorResponse = {
+  statusCode?: number
+  message: string
 }

@@ -15,8 +15,8 @@ import {
   postAptosFullNode,
   RawTransaction,
   SignedTransaction,
+  SimpleTransaction,
   TransactionAuthenticatorEd25519,
-  TransactionPayload,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
@@ -57,8 +57,13 @@ import {
   TX_EXPIRY_SECS,
 } from './constants'
 import { parseAptosTx } from './parser'
-import type { BuildCustomApiTxInput, Token } from './types'
-import { getBalancePayload, getDecimalsPayload, getTransferPayload } from './utils'
+import type { BuildCustomApiTxInput, GetCustomTxFeeDataInput, Token } from './types'
+import {
+  deserializePayload,
+  getBalancePayload,
+  getDecimalsPayload,
+  getTransferPayload,
+} from './utils'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -297,9 +302,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const rawTransaction = await generateRawTransaction({
         aptosConfig: this.client.config,
         sender: from,
-        payload: TransactionPayload.deserialize(
-          new Deserializer(Hex.fromHexInput(payload).toUint8Array()),
-        ),
+        payload: deserializePayload(payload),
       })
 
       return this.toSignTx(rawTransaction, { accountNumber, gasUnitPrice, maxGasAmount })
@@ -427,53 +430,79 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const { to, value, chainSpecific } = input
       const { from, contractAddress } = chainSpecific
 
-      const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
-        await Promise.all([
-          this.client.getGasPriceEstimation(),
-          this.client.transaction.build.simple({
-            sender: from,
-            data: getTransferPayload(to, value, contractAddress),
-            // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
-            withFeePayer: true,
-          }),
-        ])
-
-      const [sim] = await this.client.transaction.simulate.simple({ transaction })
-
-      if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
-
-      const feeStatement = sim.events.find(event => event.type === FEE_STATEMENT_EVENT_TYPE)?.data
-      if (!feeStatement) throw new Error('transaction simulation is missing its fee statement')
-
-      const computeGasUnits =
-        BigInt(feeStatement.execution_gas_units) + BigInt(feeStatement.io_gas_units)
-      const storageFeeOctas = BigInt(feeStatement.storage_fee_octas)
-
-      const toFeeData = (price: number) => {
-        const gasUnitPrice = BigInt(price)
-        // storage is charged in octas, so the gas units it takes depend on the price
-        const gasUnits = computeGasUnits + (storageFeeOctas + gasUnitPrice - 1n) / gasUnitPrice
-        // 1.2x buffer over the simulated gas, in case state changes before the tx executes
-        const maxGasAmount = (gasUnits * 12n) / 10n
-
-        return {
-          txFee: (maxGasAmount * gasUnitPrice).toString(),
-          chainSpecific: {
-            gasUnitPrice: gasUnitPrice.toString(),
-            maxGasAmount: maxGasAmount.toString(),
-          },
-        }
-      }
-
-      return {
-        fast: toFeeData(prioritized_gas_estimate ?? gas_estimate),
-        average: toFeeData(gas_estimate),
-        slow: toFeeData(deprioritized_gas_estimate ?? gas_estimate),
-      }
+      return await this.simulateFeeData(
+        this.client.transaction.build.simple({
+          sender: from,
+          data: getTransferPayload(to, value, contractAddress),
+          // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
+          withFeePayer: true,
+        }),
+      )
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',
       })
+    }
+  }
+
+  async getCustomTxFeeData(
+    input: GetCustomTxFeeDataInput,
+  ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
+    try {
+      const { from, payload } = input
+
+      return await this.simulateFeeData(
+        generateRawTransaction({
+          aptosConfig: this.client.config,
+          sender: from,
+          payload: deserializePayload(payload),
+          feePayerAddress: AccountAddress.ZERO,
+        }).then(rawTransaction => new SimpleTransaction(rawTransaction, AccountAddress.ZERO)),
+      )
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getFeeData',
+      })
+    }
+  }
+
+  private async simulateFeeData(
+    pendingTransaction: Promise<SimpleTransaction>,
+  ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
+    const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
+      await Promise.all([this.client.getGasPriceEstimation(), pendingTransaction])
+
+    const [sim] = await this.client.transaction.simulate.simple({ transaction })
+
+    if (!sim?.success) throw new Error(`transaction simulation failed: ${sim?.vm_status}`)
+
+    const feeStatement = sim.events.find(event => event.type === FEE_STATEMENT_EVENT_TYPE)?.data
+    if (!feeStatement) throw new Error('transaction simulation is missing its fee statement')
+
+    const computeGasUnits =
+      BigInt(feeStatement.execution_gas_units) + BigInt(feeStatement.io_gas_units)
+    const storageFeeOctas = BigInt(feeStatement.storage_fee_octas)
+
+    const toFeeData = (price: number) => {
+      const gasUnitPrice = BigInt(price)
+      // storage is charged in octas, so the gas units it takes depend on the price
+      const gasUnits = computeGasUnits + (storageFeeOctas + gasUnitPrice - 1n) / gasUnitPrice
+      // 1.2x buffer over the simulated gas, in case state changes before the tx executes
+      const maxGasAmount = (gasUnits * 12n) / 10n
+
+      return {
+        txFee: (maxGasAmount * gasUnitPrice).toString(),
+        chainSpecific: {
+          gasUnitPrice: gasUnitPrice.toString(),
+          maxGasAmount: maxGasAmount.toString(),
+        },
+      }
+    }
+
+    return {
+      fast: toFeeData(prioritized_gas_estimate ?? gas_estimate),
+      average: toFeeData(gas_estimate),
+      slow: toFeeData(deprioritized_gas_estimate ?? gas_estimate),
     }
   }
 

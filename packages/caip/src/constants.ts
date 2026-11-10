@@ -80,7 +80,10 @@ export const usdcOnSolanaAssetId: AssetId =
 export const usdtOnSolanaAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
 export const usdtOnTronAssetId: AssetId = 'tron:0x2b6653dc/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+export const usdtOnBscAssetId: AssetId =
+  'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955'
 export const wbtcAssetId: AssetId = 'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'
+export const cbbtcAssetId: AssetId = 'eip155:1/erc20:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf'
 export const flipAssetId: AssetId = 'eip155:1/erc20:0x826180541412d574cf1336d22c0c0a287822678a'
 
 export const foxWifHatAssetId: AssetId =

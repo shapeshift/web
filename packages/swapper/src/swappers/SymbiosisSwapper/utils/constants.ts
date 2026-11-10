@@ -96,9 +96,6 @@ export const SYMBIOSIS_PARTNER_ADDRESS = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA48
 export const SYMBIOSIS_PARTNER_FEE_BPS = '60'
 export const SYMBIOSIS_PARTNER_FEE_DESCRIPTION = 'Partner fee'
 
-// Sent as X-Partner-Id so Symbiosis attributes our swaps to this client id in its explorer and metrics
-export const SYMBIOSIS_PARTNER_ID = 'shapeshift'
-
 export const DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 export const DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS = 'TLa2f6VPqDgRE67v1736s7bJ8Ray5wYjU7'
 

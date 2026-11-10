@@ -9,6 +9,7 @@ export const SUPPORTED_CHAIN_IDS: readonly KnownChainIds[] = [
   KnownChainIds.BaseMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.BobMainnet,
+  KnownChainIds.ElysiumMainnet,
   KnownChainIds.EthereumMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.HyperEvmMainnet,

@@ -8,7 +8,6 @@ import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ethChainId,
-  flowEvmChainId,
   foxOnArbitrumOneAssetId,
 } from '../../constants'
 import {
@@ -65,47 +64,11 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.MegaEth,
       })
-      const ethOnZkSyncEra = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.ZkSyncEraMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.ZkSyncEra,
-      })
-      const ethOnBlast = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.BlastMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Blast,
-      })
-      const ethOnWorldChain = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.WorldChainMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.WorldChain,
-      })
-      const ethOnHemi = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.HemiMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Hemi,
-      })
-      const ethOnLinea = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.LineaMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Linea,
-      })
       const ethOnInk = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.InkMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Ink,
-      })
-      const ethOnScroll = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.ScrollMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Scroll,
       })
       const ethOnUnichain = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -118,24 +81,6 @@ describe('adapters:coingecko', () => {
         chainReference: CHAIN_REFERENCE.BobMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Bob,
-      })
-      const ethOnMode = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.ModeMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Mode,
-      })
-      const ethOnAbstract = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.AbstractMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Abstract,
-      })
-      const ethOnSoneium = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.SoneiumMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.Soneium,
       })
       const ethOnRobinhood = toAssetId({
         chainNamespace,
@@ -156,18 +101,9 @@ describe('adapters:coingecko', () => {
         ethOnBase,
         ethOnBob,
         ethOnKatana,
-        ethOnZkSyncEra,
-        ethOnBlast,
-        ethOnWorldChain,
-        ethOnHemi,
-        ethOnLinea,
-        ethOnMode,
         ethOnMegaEth,
         ethOnInk,
-        ethOnScroll,
         ethOnUnichain,
-        ethOnSoneium,
-        ethOnAbstract,
         ethOnRobinhood,
       ])
     })
@@ -294,24 +230,6 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0x2d661c89d812261039af9764eceaaee884f5f67f',
       })
-      const usdcOnPlume = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: CHAIN_REFERENCE.PlumeMainnet,
-        assetNamespace: 'erc20',
-        assetReference: '0x222365ef19f7947e5484218551b56bb3965aa7af',
-      })
-      const usdcOnZkSyncEra = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: CHAIN_REFERENCE.ZkSyncEraMainnet,
-        assetNamespace: 'erc20',
-        assetReference: '0x1d17cbcf0d6d143135ae902365d2e5e2a16538d4',
-      })
-      const usdcOnWorldChain = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Evm,
-        chainReference: CHAIN_REFERENCE.WorldChainMainnet,
-        assetNamespace: 'erc20',
-        assetReference: '0x79a02482a880bce3f13e09da970dc34db4cd24d1',
-      })
       const usdcOnStarknet = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Starknet,
         chainReference: CHAIN_REFERENCE.StarknetMainnet,
@@ -382,9 +300,6 @@ describe('adapters:coingecko', () => {
         usdcOnMonad,
         usdcOnHyperEvm,
         usdcOnPlasma,
-        usdcOnPlume,
-        usdcOnZkSyncEra,
-        usdcOnWorldChain,
         usdcOnInk,
         usdcOnCronos,
         usdcOnSonic,
@@ -507,12 +422,6 @@ describe('adapters:coingecko', () => {
     it('throws on invalid ChainId', () => {
       const chainId = btcChainId
       expect(() => chainIdToCoingeckoAssetPlatform(chainId)).toThrow()
-    })
-
-    it('can get CoinGecko asset platform for flow evm ChainId', () => {
-      expect(chainIdToCoingeckoAssetPlatform(flowEvmChainId)).toEqual(
-        CoingeckoAssetPlatform.FlowEvm,
-      )
     })
 
     it('can get CoinGecko asset platform for celo ChainId', () => {

@@ -17,6 +17,8 @@ const ASSET_IDS = {
   USDT_ETH: 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
   BTC: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   BOB: 'eip155:60808/slip44:60',
+  ELYSIUM: 'eip155:99901/slip44:60',
+  USDC_ELYSIUM: 'eip155:99901/erc20:0xb47c4c8f73f009cc0c0d3f92b388d13e293f0b65',
   HYPEREVM: 'eip155:999/slip44:60',
   KATANA: 'eip155:747474/slip44:60',
   MEGAETH: 'eip155:4326/slip44:60',
@@ -56,6 +58,12 @@ const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: s
   {
     label: 'BOB Chain',
     sellAssetId: ASSET_IDS.BOB,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    amount: '1000000000000000000',
+  },
+  {
+    label: 'Elysium Chain',
+    sellAssetId: ASSET_IDS.ELYSIUM,
     buyAssetId: ASSET_IDS.USDC_ETH,
     amount: '1000000000000000000',
   },
@@ -238,6 +246,24 @@ const QUOTES: {
     sendAddress: BOB_GATEWAY_ADDRESS.tron,
     receiveAddress: BOB_GATEWAY_ADDRESS.btc,
     amount: '50000000',
+  },
+  {
+    label: 'Second-Class EVM Adapter (Elysium)',
+    sellAssetId: ASSET_IDS.ELYSIUM,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    swapperName: 'Relay',
+    sendAddress: ADDRESS.evm,
+    receiveAddress: ADDRESS.evm,
+    amount: '1000000000000000000',
+  },
+  {
+    label: 'Elysium same-chain (HYPE -> USDC)',
+    sellAssetId: ASSET_IDS.ELYSIUM,
+    buyAssetId: ASSET_IDS.USDC_ELYSIUM,
+    swapperName: '0x',
+    sendAddress: ADDRESS.evm,
+    receiveAddress: ADDRESS.evm,
+    amount: '1000000000000000000',
   },
 ]
 

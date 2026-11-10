@@ -35,6 +35,8 @@ describe('getTreasuryAddressFromChainId', () => {
     [KnownChainIds.StarknetMainnet]:
       '0x07ac2252f2da7cbf085e7a5ddc1318243aa818607cdd430dd2e17dd5d487606a',
     [KnownChainIds.TonMainnet]: 'UQAHHeOhXst-zSGGigQ8KgDzz89nACBR4TxXwXNjU4DsriLb',
+    [KnownChainIds.AptosMainnet]:
+      '0x7b504ecec7f738a716803a676e6d5df04d30240dcb8e5ba9a3acd70d5d91c2d8',
   }
 
   it.each(treasuryChainIds)('returns the treasury address for %s', chainId => {

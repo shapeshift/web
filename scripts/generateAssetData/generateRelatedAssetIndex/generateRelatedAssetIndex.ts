@@ -1,10 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractAssetId,
   adapters,
   arbitrumAssetId,
   baseAssetId,
-  blastAssetId,
   bobAssetId,
   bscAssetId,
   cronosAssetId,
@@ -14,23 +12,16 @@ import {
   foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAssetId,
-  hemiAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
-  lineaAssetId,
   megaethAssetId,
-  modeAssetId,
   optimismAssetId,
   robinhoodAssetId,
-  scrollAssetId,
   solAssetId,
-  soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
   unichainAssetId,
-  worldChainAssetId,
-  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { ZERION_CHAINS_MAP } from '@shapeshiftoss/types'
@@ -77,18 +68,9 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     baseAssetId,
     katanaAssetId,
     megaethAssetId,
-    zkSyncEraAssetId,
-    blastAssetId,
-    worldChainAssetId,
-    hemiAssetId,
     inkAssetId,
-    lineaAssetId,
-    scrollAssetId,
     unichainAssetId,
     bobAssetId,
-    modeAssetId,
-    soneiumAssetId,
-    abstractAssetId,
     robinhoodAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
@@ -100,20 +82,15 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
   [bscAssetId]: ['eip155:1/erc20:0xb8c77482e45f1f44de1745f52c74426c631bdd52'],
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
-    'eip155:59144/erc20:0x176211869ca2b568f2a7d4ee941e073a821ee1ff',
     'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
     'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
     'aptos:1/fungible:0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
     'eip155:99901/erc20:0xb47c4c8f73f009cc0c0d3f92b388d13e293f0b65',
   ],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
-    'eip155:59144/erc20:0xa219439258ca9da29e9cc4ce5596924745e12b93',
     'eip155:5000/erc20:0x201eba5cc46d216ce6dc03f6a759e8e766e956ae',
     'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
     'aptos:1/fungible:0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b',
-  ],
-  'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': [
-    'eip155:59144/erc20:0x4af15ec2a0bd43db75dd04e62faa3b8ef36b00d5',
   ],
   // CoinGecko lists wrapped and pegged SOL as separate coins from native SOL
   [solAssetId]: [
@@ -125,8 +102,6 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   'eip155:1/erc20:0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce': [
     'eip155:56/erc20:0x2859e4544c4bb03966803b044a93563bd2d0dd4d',
   ],
-  // Ethereum USDe leads its family, not Ethereal's native USDe
-  'eip155:1/erc20:0x4c9edd5852cd905f086c759e8383e09bff1e68b3': ['eip155:5064014/slip44:60'],
   // Ethereum weETH leads its family, and CoinGecko files Katana weETH under bridged WETH
   'eip155:1/erc20:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee': [
     'eip155:42161/erc20:0x35751007a407ca6feffe80b3cb397736d2cf4dbe',
@@ -150,8 +125,6 @@ const relatedAssetExclusions: AssetId[] = [
   'eip155:1329/erc20:0x60c230c38af6d86b0277a98a1caeaa345a7b061f',
   'eip155:8453/erc20:0x60c230c38af6d86b0277a98a1caeaa345a7b061f',
   'aptos:1/fungible:0x75de592a7e62e6224d13763c392190fda8635ebb79c798a5e9dd0840102f3f93',
-  // Linea GNO, grouped with WBTC
-  'eip155:59144/erc20:0xe516a5cff996cc399efbb48355fd5ab83438e7a9',
   // Senate, grouped with Sidus at the same address on Base
   'eip155:1/erc20:0x34be5b8c30ee4fde069dc878989686abe9884470',
   // Spiko UK T-Bills, grouped with the Spiko Cash & Carry fund

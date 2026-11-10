@@ -136,7 +136,7 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, B
   }
 
   public async ethSupportsNetwork(chainId: number): Promise<boolean> {
-    return [1, 10, 56, 100, 137, 43114, 2741, 4663].includes(chainId)
+    return [1, 10, 56, 100, 137, 43114, 4663].includes(chainId)
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -210,30 +210,16 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   readonly _supportsMonad = true
   readonly _supportsPlasma = true
   readonly _supportsKatana = true
-  readonly _supportsEthereal = true
   readonly _supportsCelo = true
-  readonly _supportsFlowEvm = true
-  readonly _supportsStory = true
   readonly _supportsSonic = true
   readonly _supportsBob = true
-  readonly _supportsMode = true
   readonly _supportsSei = true
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
-  readonly _supportsPlume = true
-  readonly _supportsZkSyncEra = true
-  readonly _supportsBlast = true
-  readonly _supportsAbstract = true
-  readonly _supportsWorldChain = true
-  readonly _supportsHemi = true
-  readonly _supportsBerachain = true
-  readonly _supportsLinea = true
-  readonly _supportsScroll = true
   readonly _supportsCronos = true
   readonly _supportsUnichain = true
-  readonly _supportsSoneium = true
   readonly _supportsRobinhood = true
   readonly _supportsElysium = true
 

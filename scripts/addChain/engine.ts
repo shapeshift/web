@@ -155,7 +155,7 @@ export function insertIntoSwitch(
 
 /**
  * Add a named import to an existing import statement for a specific module path.
- * e.g. addNamedImport(file, 'viem/chains', 'abstract')
+ * e.g. addNamedImport(file, 'viem/chains', 'base')
  */
 export function addNamedImport(filePath: string, modulePath: string, importName: string): boolean {
   const src = readFile(filePath)
@@ -297,40 +297,6 @@ export function appendLineAfterLastPattern(
   const insertPos = lineEnd === -1 ? src.length : lineEnd + 1
 
   const result = src.slice(0, insertPos) + line + '\n' + src.slice(insertPos)
-  writeFile(filePath, result)
-  return true
-}
-
-/**
- * Append a line after EVERY occurrence of a regex-matched line.
- * Used when the same line pattern appears in multiple places (e.g. destructuring + expect array).
- */
-export function appendLineAfterAllPatterns(
-  filePath: string,
-  pattern: RegExp,
-  line: string,
-  idempotencyKey: string,
-): boolean {
-  const src = readFile(filePath)
-  if (src.includes(idempotencyKey)) return false
-
-  const flags = pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g'
-  const globalPattern = new RegExp(pattern.source, flags)
-  const matches = [...src.matchAll(globalPattern)]
-  if (!matches.length) {
-    console.warn(`[engine] Pattern ${pattern} not found in ${filePath}`)
-    return false
-  }
-
-  // Process matches in reverse order to preserve positions
-  let result = src
-  for (let i = matches.length - 1; i >= 0; i--) {
-    const match = matches[i]
-    const matchEnd = (match.index ?? 0) + match[0].length
-    const lineEnd = result.indexOf('\n', matchEnd)
-    const insertPos = lineEnd === -1 ? result.length : lineEnd + 1
-    result = result.slice(0, insertPos) + line + '\n' + result.slice(insertPos)
-  }
   writeFile(filePath, result)
   return true
 }

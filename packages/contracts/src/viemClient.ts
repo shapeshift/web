@@ -7,36 +7,25 @@ import {
   arbitrum,
   avalanche,
   base,
-  berachain,
   bob,
   bsc,
   celo,
   cronos,
-  flowMainnet,
   gnosis,
-  hemi as viemHemi,
   hyperEvm,
   ink,
   katana,
-  linea,
   mainnet,
   mantle,
   megaeth,
-  mode,
   monad,
   optimism,
   plasma,
-  plumeMainnet,
   polygon,
   robinhood,
-  scroll,
   sei,
-  soneium,
   sonic,
-  story,
   unichain,
-  worldchain,
-  zksync,
 } from 'viem/chains'
 
 import { PUBLIC_RPC_URLS } from './publicRpcUrls'
@@ -117,53 +106,25 @@ export const viemHyperEvmClient = createRpcClient(hyperEvm, undefined, PUBLIC_RP
 
 export const viemPlasmaClient = createRpcClient(plasma, undefined, PUBLIC_RPC_URLS.plasma)
 
-export const viemPlumeClient = createRpcClient(plumeMainnet, undefined, PUBLIC_RPC_URLS.plume)
-
 export const viemMantleClient = createRpcClient(mantle, undefined, PUBLIC_RPC_URLS.mantle)
 
 export const viemInkClient = createRpcClient(ink, undefined, PUBLIC_RPC_URLS.ink)
 
 export const viemMegaEthClient = createRpcClient(megaeth, undefined, PUBLIC_RPC_URLS.megaEth)
 
-export const viemBerachainClient = createRpcClient(berachain, undefined, PUBLIC_RPC_URLS.berachain)
-
-export const viemScrollClient = createRpcClient(scroll, undefined, PUBLIC_RPC_URLS.scroll)
-
 export const viemCronosClient = createRpcClient(cronos, undefined, PUBLIC_RPC_URLS.cronos)
-
-export const viemFlowEvmClient = createRpcClient(flowMainnet, undefined, PUBLIC_RPC_URLS.flowEvm)
 
 export const viemCeloClient = createRpcClient(celo, undefined, PUBLIC_RPC_URLS.celo)
 
 export const viemKatanaClient = createRpcClient(katana, undefined, PUBLIC_RPC_URLS.katana)
 
-export const viemStoryClient = createRpcClient(story, undefined, PUBLIC_RPC_URLS.story)
-
-export const viemZkSyncEraClient = createRpcClient(zksync, undefined, PUBLIC_RPC_URLS.zkSyncEra)
-
-export const viemWorldChainClient = createRpcClient(
-  worldchain,
-  undefined,
-  PUBLIC_RPC_URLS.worldChain,
-)
-
-const hemi = defineChain({ ...viemHemi, contracts: { multicall3 } })
-
-export const viemHemiClient = createRpcClient(hemi, undefined, PUBLIC_RPC_URLS.hemi)
-
 export const viemSeiClient = createRpcClient(sei, undefined, PUBLIC_RPC_URLS.sei)
-
-export const viemLineaClient = createRpcClient(linea, undefined, PUBLIC_RPC_URLS.linea)
 
 export const viemSonicClient = createRpcClient(sonic, undefined, PUBLIC_RPC_URLS.sonic)
 
 export const viemUnichainClient = createRpcClient(unichain, undefined, PUBLIC_RPC_URLS.unichain)
 
 export const viemBobClient = createRpcClient(bob, undefined, PUBLIC_RPC_URLS.bob)
-
-export const viemModeClient = createRpcClient(mode, undefined, PUBLIC_RPC_URLS.mode)
-
-export const viemSoneiumClient = createRpcClient(soneium, undefined, PUBLIC_RPC_URLS.soneium)
 
 export const viemRobinhoodClient = createRpcClient(robinhood, undefined, PUBLIC_RPC_URLS.robinhood)
 
@@ -192,26 +153,15 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.MonadMainnet]: viemMonadClient,
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
-  [KnownChainIds.PlumeMainnet]: viemPlumeClient,
   [KnownChainIds.MantleMainnet]: viemMantleClient,
   [KnownChainIds.InkMainnet]: viemInkClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
-  [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
-  [KnownChainIds.FlowEvmMainnet]: viemFlowEvmClient,
   [KnownChainIds.CeloMainnet]: viemCeloClient,
-  [KnownChainIds.StoryMainnet]: viemStoryClient,
-  [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
-  [KnownChainIds.WorldChainMainnet]: viemWorldChainClient,
-  [KnownChainIds.HemiMainnet]: viemHemiClient,
-  [KnownChainIds.LineaMainnet]: viemLineaClient,
-  [KnownChainIds.ScrollMainnet]: viemScrollClient,
   [KnownChainIds.SonicMainnet]: viemSonicClient,
   [KnownChainIds.UnichainMainnet]: viemUnichainClient,
   [KnownChainIds.BobMainnet]: viemBobClient,
-  [KnownChainIds.ModeMainnet]: viemModeClient,
-  [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
   [KnownChainIds.RobinhoodMainnet]: viemRobinhoodClient,
   [KnownChainIds.ElysiumMainnet]: viemElysiumClient,
@@ -229,26 +179,15 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.MonadMainnet]: monad.id,
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
-  [KnownChainIds.PlumeMainnet]: plumeMainnet.id,
   [KnownChainIds.MantleMainnet]: mantle.id,
   [KnownChainIds.InkMainnet]: ink.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
-  [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
-  [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
   [KnownChainIds.CeloMainnet]: celo.id,
-  [KnownChainIds.StoryMainnet]: story.id,
-  [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
-  [KnownChainIds.WorldChainMainnet]: worldchain.id,
-  [KnownChainIds.HemiMainnet]: hemi.id,
-  [KnownChainIds.LineaMainnet]: linea.id,
-  [KnownChainIds.ScrollMainnet]: scroll.id,
   [KnownChainIds.SonicMainnet]: sonic.id,
   [KnownChainIds.UnichainMainnet]: unichain.id,
   [KnownChainIds.BobMainnet]: bob.id,
-  [KnownChainIds.ModeMainnet]: mode.id,
-  [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
   [KnownChainIds.RobinhoodMainnet]: robinhood.id,
   [KnownChainIds.ElysiumMainnet]: elysium.id,
@@ -266,26 +205,15 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [monad.id]: viemMonadClient,
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
-  [plumeMainnet.id]: viemPlumeClient,
   [mantle.id]: viemMantleClient,
   [ink.id]: viemInkClient,
   [megaeth.id]: viemMegaEthClient,
-  [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
-  [flowMainnet.id]: viemFlowEvmClient,
   [celo.id]: viemCeloClient,
-  [story.id]: viemStoryClient,
-  [zksync.id]: viemZkSyncEraClient,
-  [worldchain.id]: viemWorldChainClient,
-  [hemi.id]: viemHemiClient,
-  [linea.id]: viemLineaClient,
-  [scroll.id]: viemScrollClient,
   [sonic.id]: viemSonicClient,
   [unichain.id]: viemUnichainClient,
   [bob.id]: viemBobClient,
-  [mode.id]: viemModeClient,
-  [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
   [robinhood.id]: viemRobinhoodClient,
   [elysium.id]: viemElysiumClient,

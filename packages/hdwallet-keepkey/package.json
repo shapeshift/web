@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey",
-  "version": "1.62.43",
+  "version": "1.62.44",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-gridplus",
-  "version": "1.62.42",
+  "version": "1.62.43",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",

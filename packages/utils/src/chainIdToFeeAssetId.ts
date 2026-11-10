@@ -15,6 +15,7 @@ import {
   cosmosAssetId,
   cronosAssetId,
   dogeAssetId,
+  elysiumAssetId,
   ethAssetId,
   etherealAssetId,
   flowEvmAssetId,
@@ -161,6 +162,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return robinhoodAssetId
     case KnownChainIds.AptosMainnet:
       return aptosAssetId
+    case KnownChainIds.ElysiumMainnet:
+      return elysiumAssetId
     default:
       return assertUnreachable(chainId)
   }

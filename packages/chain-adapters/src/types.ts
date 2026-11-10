@@ -74,6 +74,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.Account
     [KnownChainIds.AbstractMainnet]: evm.Account
     [KnownChainIds.RobinhoodMainnet]: evm.Account
+    [KnownChainIds.ElysiumMainnet]: evm.Account
 
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
@@ -153,6 +154,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.FeeData
     [KnownChainIds.AbstractMainnet]: evm.FeeData
     [KnownChainIds.RobinhoodMainnet]: evm.FeeData
+    [KnownChainIds.ElysiumMainnet]: evm.FeeData
 
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
@@ -264,6 +266,7 @@ export type ChainSignTx = {
   [KnownChainIds.AbstractMainnet]: ETHSignTx
   [KnownChainIds.RobinhoodMainnet]: ETHSignTx
   [KnownChainIds.HyperEvmMainnet]: ETHSignTx
+  [KnownChainIds.ElysiumMainnet]: ETHSignTx
 
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
@@ -346,6 +349,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.BuildTxInput
     [KnownChainIds.AbstractMainnet]: evm.BuildTxInput
     [KnownChainIds.RobinhoodMainnet]: evm.BuildTxInput
+    [KnownChainIds.ElysiumMainnet]: evm.BuildTxInput
 
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
@@ -478,6 +482,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.GetFeeDataInput
     [KnownChainIds.AbstractMainnet]: evm.GetFeeDataInput
     [KnownChainIds.RobinhoodMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.ElysiumMainnet]: evm.GetFeeDataInput
 
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
@@ -588,6 +593,7 @@ export enum ChainAdapterDisplayName {
   Abstract = 'Abstract',
   Robinhood = 'Robinhood',
   Aptos = 'Aptos',
+  Elysium = 'Elysium',
 }
 
 export type BroadcastTransactionInput = {

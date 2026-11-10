@@ -15,6 +15,7 @@ import {
   cosmosChainId,
   cronosChainId,
   dogeChainId,
+  elysiumChainId,
   ethChainId,
   flowEvmChainId,
   gnosisChainId,
@@ -263,5 +264,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
     ...(getConfig().VITE_FEATURE_ROBINHOOD ? [robinhoodChainId] : []),
     ...(getConfig().VITE_FEATURE_APTOS ? [aptosChainId] : []),
+    ...(getConfig().VITE_FEATURE_ELYSIUM ? [elysiumChainId] : []),
   ]
 }

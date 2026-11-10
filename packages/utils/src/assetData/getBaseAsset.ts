@@ -19,6 +19,7 @@ import {
   celo,
   cronos,
   dogecoin,
+  elysium,
   ethereal,
   ethereum,
   flowEvm,
@@ -162,6 +163,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return robinhood
     case KnownChainIds.AptosMainnet:
       return aptos
+    case KnownChainIds.ElysiumMainnet:
+      return elysium
     default:
       return assertUnreachable(knownChainId)
   }

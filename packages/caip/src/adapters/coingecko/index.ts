@@ -3,7 +3,7 @@ import invertBy from 'lodash/invertBy'
 import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
-import { fromChainId, toChainId } from '../../chainId/chainId'
+import { fromChainId } from '../../chainId/chainId'
 import {
   abstractChainId,
   aptosChainId,
@@ -19,6 +19,7 @@ import {
   CHAIN_REFERENCE,
   cosmosChainId,
   cronosChainId,
+  elysiumChainId,
   ethChainId,
   flowEvmChainId,
   gnosisChainId,
@@ -108,6 +109,7 @@ export enum CoingeckoAssetPlatform {
   Near = 'near-protocol',
   Abstract = 'abstract',
   Robinhood = 'robinhood',
+  Elysium = 'elysium-kinetiq',
 }
 
 type CoinGeckoId = string
@@ -214,6 +216,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Sei
         case CHAIN_REFERENCE.RobinhoodMainnet:
           return CoingeckoAssetPlatform.Robinhood
+        case CHAIN_REFERENCE.ElysiumMainnet:
+          return CoingeckoAssetPlatform.Elysium
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -396,6 +400,8 @@ export const coingeckoAssetPlatformToChainId = (
       return nearChainId
     case CoingeckoAssetPlatform.Robinhood:
       return robinhoodChainId
+    case CoingeckoAssetPlatform.Elysium:
+      return elysiumChainId
     default:
       return undefined
   }
@@ -404,16 +410,6 @@ export const coingeckoAssetPlatformToChainId = (
 export const makeCoingeckoAssetUrl = (assetId: AssetId): string | undefined => {
   const id = assetIdToCoingecko(assetId)
   if (!id) return
-
-  const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
-
-  if (assetNamespace === 'erc20') {
-    const assetPlatform = chainIdToCoingeckoAssetPlatform(
-      toChainId({ chainNamespace, chainReference }),
-    )
-
-    return `${coingeckoBaseUrl}/coins/${assetPlatform}/contract/${assetReference}`
-  }
 
   return `${coingeckoBaseUrl}/coins/${id}`
 }

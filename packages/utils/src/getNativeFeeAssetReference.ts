@@ -96,6 +96,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Soneium
           case CHAIN_REFERENCE.RobinhoodMainnet:
             return ASSET_REFERENCE.Robinhood
+          case CHAIN_REFERENCE.ElysiumMainnet:
+            return ASSET_REFERENCE.Elysium
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

@@ -11,6 +11,7 @@ import {
   bscChainId,
   celoChainId,
   cronosChainId,
+  elysiumChainId,
   etherealChainId,
   flowEvmChainId,
   gnosisChainId,
@@ -213,6 +214,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_TON && asset.chainId === tonChainId) return false
       if (!config.VITE_FEATURE_ROBINHOOD && asset.chainId === robinhoodChainId) return false
       if (!config.VITE_FEATURE_APTOS && asset.chainId === aptosChainId) return false
+      if (!config.VITE_FEATURE_ELYSIUM && asset.chainId === elysiumChainId) return false
       return true
     })
 

@@ -366,6 +366,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'fungible',
         assetReference: '0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b',
       })
+      const usdcOnElysium = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ElysiumMainnet,
+        assetNamespace,
+        assetReference: '0xb47c4c8f73f009cc0c0d3f92b388d13e293f0b65',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -390,6 +396,7 @@ describe('adapters:coingecko', () => {
         usdcOnSui,
         usdcOnNear,
         usdcOnAptos,
+        usdcOnElysium,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {

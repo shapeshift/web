@@ -15,8 +15,8 @@ import {
   postAptosFullNode,
   RawTransaction,
   SignedTransaction,
+  SimpleTransaction,
   TransactionAuthenticatorEd25519,
-  TransactionPayload,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
@@ -58,7 +58,12 @@ import {
 } from './constants'
 import { parseAptosTx } from './parser'
 import type { BuildCustomApiTxInput, Token } from './types'
-import { getBalancePayload, getDecimalsPayload, getTransferPayload } from './utils'
+import {
+  deserializePayload,
+  getBalancePayload,
+  getDecimalsPayload,
+  getTransferPayload,
+} from './utils'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -297,9 +302,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const rawTransaction = await generateRawTransaction({
         aptosConfig: this.client.config,
         sender: from,
-        payload: TransactionPayload.deserialize(
-          new Deserializer(Hex.fromHexInput(payload).toUint8Array()),
-        ),
+        payload: deserializePayload(payload),
       })
 
       return this.toSignTx(rawTransaction, { accountNumber, gasUnitPrice, maxGasAmount })
@@ -425,17 +428,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
       const { to, value, chainSpecific } = input
-      const { from, contractAddress } = chainSpecific
+      const { from, contractAddress, payload } = chainSpecific
 
       const [{ gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate }, transaction] =
         await Promise.all([
           this.client.getGasPriceEstimation(),
-          this.client.transaction.build.simple({
-            sender: from,
-            data: getTransferPayload(to, value, contractAddress),
-            // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
-            withFeePayer: true,
-          }),
+          payload
+            ? generateRawTransaction({
+                aptosConfig: this.client.config,
+                sender: from,
+                payload: deserializePayload(payload),
+                feePayerAddress: AccountAddress.ZERO,
+              }).then(rawTransaction => new SimpleTransaction(rawTransaction, AccountAddress.ZERO))
+            : this.client.transaction.build.simple({
+                sender: from,
+                data: getTransferPayload(to, value, contractAddress),
+                // sets the zero address as fee payer, which simulation accepts without checking anyone's gas balance
+                withFeePayer: true,
+              }),
         ])
 
       const [sim] = await this.client.transaction.simulate.simple({ transaction })

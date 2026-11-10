@@ -121,6 +121,7 @@ export type FeatureFlags = {
   DebridgeSwap: boolean
   BobGatewaySwap: boolean
   SymbiosisSwap: boolean
+  PanoraSwap: boolean
   LazyTxHistory: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
@@ -291,6 +292,7 @@ const initialState: Preferences = {
     DebridgeSwap: getConfig().VITE_FEATURE_DEBRIDGE_SWAP,
     BobGatewaySwap: getConfig().VITE_FEATURE_BOB_GATEWAY_SWAP,
     SymbiosisSwap: getConfig().VITE_FEATURE_SYMBIOSIS_SWAP,
+    PanoraSwap: getConfig().VITE_FEATURE_PANORA_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,

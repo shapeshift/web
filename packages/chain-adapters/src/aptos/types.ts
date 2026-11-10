@@ -28,7 +28,16 @@ export type BuildCustomApiTxInput = FeeData & {
   payload: string
 }
 
-export type GetFeeDataInput = {
+type GetTransferFeeDataInput = {
   from: string
   contractAddress: string | undefined
+  payload?: never
 }
+
+type GetPayloadFeeDataInput = {
+  from: string
+  payload: string
+  contractAddress?: never
+}
+
+export type GetFeeDataInput = GetTransferFeeDataInput | GetPayloadFeeDataInput

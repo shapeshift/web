@@ -87,6 +87,7 @@ const envSchema = z.object({
   ACROSS_API_KEY: z.string().default(''),
   BEBOP_API_KEY: z.string().min(1),
   BOB_GATEWAY_API_KEY: z.string().default(''),
+  PANORA_API_KEY: z.string().default(''),
   CHAINFLIP_API_KEY: z.string().min(1),
   NEAR_INTENTS_API_KEY: z.string().min(1),
   RELAY_API_KEY: z.string().min(1),

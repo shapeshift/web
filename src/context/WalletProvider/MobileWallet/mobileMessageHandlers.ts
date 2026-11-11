@@ -95,9 +95,10 @@ export type MobileConsoleParams = {
  *
  * Responses are matched to requests via an ID (Date.now())
  *
- * A 10 second timeout is included to avoid the Promise hanging
+ * A 10 second timeout is included to avoid the Promise hanging. Commands that wait on a
+ * native prompt pass a longer one.
  */
-const postMessage = <T>(msg: Message): Promise<T> => {
+const postMessage = <T>(msg: Message, timeoutMs = 10000): Promise<T> => {
   return new Promise((resolve, reject) => {
     const id = `${Date.now()}-${msg.cmd}`
     try {
@@ -113,7 +114,7 @@ const postMessage = <T>(msg: Message): Promise<T> => {
         // No effect if `eventListener` has already been removed
         window.removeEventListener('message', eventListener)
         reject(new Error(`PostMessage ${msg.cmd} timed out`))
-      }, 10000)
+      }, timeoutMs)
 
       window.addEventListener('message', eventListener)
 
@@ -200,13 +201,25 @@ export const createWallet = (): RevocableWallet => {
   return newWallet
 }
 
+// Long enough for the user to read and answer a native confirmation prompt
+const NATIVE_PROMPT_TIMEOUT_MS = 5 * 60 * 1000
+
+/**
+ * Whether the mobile app asks the user to confirm wallet deletion natively.
+ *
+ * The app defines this read-only flag only in the trusted top-level document. Older app
+ * versions do not confirm natively, so the web app must confirm itself when it is absent.
+ */
+export const hasNativeDeleteConfirmation = (): boolean =>
+  window.shapeshiftMobileCapabilities?.nativeDeleteConfirmation === true
+
 /**
  * Ask the mobile app to remove a saved wallet.
  *
- * This operation cannot be undone.
+ * Resolves `false` if the user cancels the native confirmation. This operation cannot be undone.
  */
 export const deleteWallet = (key: string): Promise<boolean> => {
-  return postMessage<boolean>({ cmd: 'deleteWallet', key })
+  return postMessage<boolean>({ cmd: 'deleteWallet', key }, NATIVE_PROMPT_TIMEOUT_MS)
 }
 
 /**

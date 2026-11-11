@@ -1,6 +1,6 @@
 import type { AvatarProps, ButtonProps } from '@chakra-ui/react'
 import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -8,12 +8,17 @@ import { useNavigate } from 'react-router-dom'
 
 import { WalletCard } from './WalletCard'
 
+import { useDeleteMobileWallet } from '@/components/MobileWalletDialog/routes/DeleteWallet/useDeleteMobileWallet'
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { MobileConfig } from '@/context/WalletProvider/MobileWallet/config'
-import { getWallet, listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import {
+  getWallet,
+  hasNativeDeleteConfirmation,
+  listWallets,
+} from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
@@ -43,6 +48,8 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   const [error, setError] = useState<string | null>(null)
   const translate = useTranslate()
   const [isInitializingWallet, setIsInitializingWallet] = useState<boolean>(false)
+  const queryClient = useQueryClient()
+  const deleteMobileWallet = useDeleteMobileWallet()
 
   const {
     isLoading,
@@ -140,10 +147,22 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   )
 
   const handleDelete = useCallback(
-    (wallet: RevocableWallet) => {
-      navigate(MobileWalletDialogRoutes.Delete, { state: { vault: wallet } })
+    async (wallet: RevocableWallet) => {
+      // Older app versions do not confirm natively, so show our own confirmation
+      if (!hasNativeDeleteConfirmation()) {
+        navigate(MobileWalletDialogRoutes.Delete, { state: { vault: wallet } })
+        return
+      }
+      try {
+        if (await deleteMobileWallet(wallet)) {
+          await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+        }
+      } catch (e) {
+        console.log(e)
+        setError('walletProvider.shapeShift.load.error.delete')
+      }
     },
-    [navigate],
+    [deleteMobileWallet, navigate, queryClient],
   )
 
   useEffect(() => {

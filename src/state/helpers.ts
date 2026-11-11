@@ -33,6 +33,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Test:
     case SwapperName.Avnu:
     case SwapperName.Cetus:
+    case SwapperName.Panora:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
     default:
@@ -63,6 +64,7 @@ export const getEnabledSwappers = (
     DebridgeSwap,
     BobGatewaySwap,
     SymbiosisSwap,
+    PanoraSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   walletName?: string,
@@ -132,6 +134,8 @@ export const getEnabledSwappers = (
       SymbiosisSwap &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Symbiosis)) &&
       !isLedgerTronSell,
+    [SwapperName.Panora]:
+      PanoraSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Panora)),
     [SwapperName.Test]: false,
   }
 }

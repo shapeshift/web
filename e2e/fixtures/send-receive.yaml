@@ -287,13 +287,6 @@ chains:
     sendAmountUsd: "0.1"
     flag: MEGAETH
 
-  - name: Berachain
-    symbol: BERA
-    assetId: eip155:80094/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: BERACHAIN
-
   - name: Cronos
     symbol: CRO
     assetId: eip155:25/slip44:60
@@ -308,68 +301,12 @@ chains:
     sendAmountUsd: "0.1"
     flag: SONIC
 
-  - name: Linea
-    symbol: ETH
-    assetId: eip155:59144/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: LINEA
-
-  - name: Scroll
-    symbol: ETH
-    assetId: eip155:534352/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: SCROLL
-
-  - name: Blast
-    symbol: ETH
-    assetId: eip155:81457/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: BLAST
-
-  - name: ZkSync Era
-    symbol: ETH
-    assetId: eip155:324/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: ZK_SYNC_ERA
-
-  - name: Hemi
-    symbol: ETH
-    assetId: eip155:43111/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: HEMI
-
   - name: Sei
     symbol: SEI
     assetId: eip155:1329/slip44:60
     type: evm
     sendAmountUsd: "0.1"
     flag: SEI
-
-  - name: Story
-    symbol: IP
-    assetId: eip155:1514/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: STORY
-
-  - name: WorldChain
-    symbol: WLD
-    assetId: eip155:480/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: WORLDCHAIN
-
-  - name: Plume
-    symbol: ETH
-    assetId: eip155:98866/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: PLUME
 
   - name: Unichain
     symbol: ETH
@@ -385,22 +322,8 @@ chains:
     sendAmountUsd: "0.1"
     flag: BOB
 
-  - name: Mode
-    symbol: ETH
-    assetId: eip155:34443/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: MODE
-
-  - name: Soneium
-    symbol: ETH
-    assetId: eip155:1868/slip44:60
-    type: evm
-    sendAmountUsd: "0.1"
-    flag: SONEIUM
-
   # EXCLUDED: Tron (too expensive for self-send testing)
-  # EXCLUDED: Ethereal, FlowEvm, Celo (.env.production disables them)
+  # EXCLUDED: Celo (.env.production disables it)
 
 # ============================================================================
 # STEP TEMPLATES

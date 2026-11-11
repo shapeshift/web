@@ -107,20 +107,25 @@ and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it 
     shared copy in your app, so the widget and your app share one AppKit instance and one wagmi state. A
     duplicated copy means the widget reads an empty store and shows no connection.
 
-  Your AppKit `networks` list must include every EVM chain you want the widget to use. Elysium
-  (`eip155:99901`) is not exported by `@reown/appkit/networks`, so register it with `defineChain`:
+  Your AppKit `networks` list must include every EVM chain you want the widget to use. Import the
+  chains `@reown/appkit/networks` exports, and define any it doesn't with `defineChain` from the same
+  package. AppKit fills in the CAIP fields (`chainNamespace`, `caipNetworkId`) from `id`. Elysium is
+  currently the only supported chain that needs this:
 
   ```ts
-  import { defineChain } from '@reown/appkit/networks'
+  import { defineChain, mainnet } from '@reown/appkit/networks'
 
   const elysium = defineChain({
     id: 99901,
-    caipNetworkId: 'eip155:99901',
-    chainNamespace: 'eip155',
     name: 'Elysium',
     nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
     rpcUrls: { default: { http: ['https://rpc.elysium.kinetiq.xyz'] } },
     blockExplorers: { default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' } },
+  })
+
+  createAppKit({
+    networks: [mainnet, elysium],
+    // ...the rest of your AppKit config
   })
   ```
 

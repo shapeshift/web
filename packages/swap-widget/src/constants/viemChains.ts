@@ -1,5 +1,4 @@
 import type { Chain, WalletClient } from 'viem'
-import { defineChain } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -16,8 +15,7 @@ import {
   polygon,
 } from 'viem/chains'
 
-// Plain object (not a viem Chain) so config/appkit.ts can reuse it across AppKit's viem copy
-export const ELYSIUM_CHAIN_DEFINITION = {
+export const elysium = {
   id: 99901,
   name: 'Elysium',
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
@@ -28,9 +26,7 @@ export const ELYSIUM_CHAIN_DEFINITION = {
   contracts: {
     multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
   },
-} as const
-
-const elysium = defineChain(ELYSIUM_CHAIN_DEFINITION)
+} as const satisfies Chain
 
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [mainnet.id]: {

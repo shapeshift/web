@@ -27,7 +27,7 @@ import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
-import { elysium } from '../config/appkit'
+import { elysium } from '../constants/viemChains'
 import { truncateAddress } from '../types'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 import { useIntegratorParams } from './useIntegratorParams'

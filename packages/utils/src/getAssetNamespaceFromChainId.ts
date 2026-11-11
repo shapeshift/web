@@ -31,23 +31,12 @@ export const getAssetNamespaceFromChainId = (
     case KnownChainIds.MantleMainnet:
     case KnownChainIds.InkMainnet:
     case KnownChainIds.MegaEthMainnet:
-    case KnownChainIds.BerachainMainnet:
     case KnownChainIds.CronosMainnet:
     case KnownChainIds.KatanaMainnet:
-    case KnownChainIds.PlumeMainnet:
-    case KnownChainIds.StoryMainnet:
-    case KnownChainIds.ZkSyncEraMainnet:
-    case KnownChainIds.WorldChainMainnet:
-    case KnownChainIds.HemiMainnet:
     case KnownChainIds.SeiMainnet:
-    case KnownChainIds.LineaMainnet:
-    case KnownChainIds.ScrollMainnet:
     case KnownChainIds.SonicMainnet:
     case KnownChainIds.UnichainMainnet:
     case KnownChainIds.BobMainnet:
-    case KnownChainIds.ModeMainnet:
-    case KnownChainIds.SoneiumMainnet:
-    case KnownChainIds.FlowEvmMainnet:
     case KnownChainIds.CeloMainnet:
     case KnownChainIds.RobinhoodMainnet:
     case KnownChainIds.ElysiumMainnet:

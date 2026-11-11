@@ -39,40 +39,18 @@ const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return PUBLIC_RPC_URLS.ink[0]
       case KnownChainIds.MegaEthMainnet:
         return PUBLIC_RPC_URLS.megaEth[0]
-      case KnownChainIds.BerachainMainnet:
-        return PUBLIC_RPC_URLS.berachain[0]
       case KnownChainIds.CronosMainnet:
         return PUBLIC_RPC_URLS.cronos[0]
       case KnownChainIds.KatanaMainnet:
         return PUBLIC_RPC_URLS.katana[0]
-      case KnownChainIds.FlowEvmMainnet:
-        return PUBLIC_RPC_URLS.flowEvm[0]
       case KnownChainIds.CeloMainnet:
         return PUBLIC_RPC_URLS.celo[0]
-      case KnownChainIds.PlumeMainnet:
-        return PUBLIC_RPC_URLS.plume[0]
-      case KnownChainIds.StoryMainnet:
-        return PUBLIC_RPC_URLS.story[0]
-      case KnownChainIds.ZkSyncEraMainnet:
-        return PUBLIC_RPC_URLS.zkSyncEra[0]
-      case KnownChainIds.WorldChainMainnet:
-        return PUBLIC_RPC_URLS.worldChain[0]
-      case KnownChainIds.HemiMainnet:
-        return PUBLIC_RPC_URLS.hemi[0]
-      case KnownChainIds.LineaMainnet:
-        return PUBLIC_RPC_URLS.linea[0]
-      case KnownChainIds.ScrollMainnet:
-        return PUBLIC_RPC_URLS.scroll[0]
       case KnownChainIds.SonicMainnet:
         return PUBLIC_RPC_URLS.sonic[0]
       case KnownChainIds.UnichainMainnet:
         return PUBLIC_RPC_URLS.unichain[0]
       case KnownChainIds.BobMainnet:
         return PUBLIC_RPC_URLS.bob[0]
-      case KnownChainIds.ModeMainnet:
-        return PUBLIC_RPC_URLS.mode[0]
-      case KnownChainIds.SoneiumMainnet:
-        return PUBLIC_RPC_URLS.soneium[0]
       case KnownChainIds.SeiMainnet:
         return PUBLIC_RPC_URLS.sei[0]
       case KnownChainIds.RobinhoodMainnet:

@@ -1655,7 +1655,7 @@ if (enabledFlags.Sui) assetIds.push(suiAssetId)
 ### Step 5.6: Add ETH Related Asset to Related Asset Index (CONDITIONAL - ETH-native chains only!)
 
 **ONLY for chains where ETH is the native gas token** (e.g., Optimism, Arbitrum, Base, Katana, MegaETH).
-**SKIP for chains with their own native token** (e.g., Berachain/BERA, Monad/MON, Tron/TRX, Sui/SUI).
+**SKIP for chains with their own native token** (e.g., Monad/MON, Tron/TRX, Sui/SUI).
 
 **Why this matters:** The related asset index groups the same asset across different chains (e.g., ETH on Ethereum, ETH on Optimism, ETH on Arbitrum). When a user views ETH, they can see all the chain variants. If your chain uses ETH as its native gas token and you don't add it here, the chain's ETH won't appear as a related asset in the UI.
 
@@ -1692,7 +1692,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
 
 **How to determine if this step applies:**
 - ✅ **ADD** if: Chain uses ETH as native gas (user pays gas in ETH, like Optimism, Base, Arbitrum)
-- ❌ **SKIP** if: Chain has its own native gas token (like BERA for Berachain, MON for Monad, TRX for Tron)
+- ❌ **SKIP** if: Chain has its own native gas token (like MON for Monad, TRX for Tron)
 
 **Reference**: Look at which assetIds are already in the array - they're all L2s/chains where the native token is ETH.
 

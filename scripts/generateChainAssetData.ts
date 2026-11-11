@@ -22,13 +22,13 @@ const GENERATE_ASSET_DATA_DIR = path.join(__dirname, 'generateAssetData')
 const resolveChainModule = async (
   input: string,
 ): Promise<{ dirName: string; modulePath: string } | undefined> => {
-  // First, try direct directory match (e.g., "linea")
+  // First, try direct directory match (e.g., "katana")
   const directPath = path.join(GENERATE_ASSET_DATA_DIR, input)
   if (fs.existsSync(path.join(directPath, 'index.ts'))) {
     return { dirName: input, modulePath: directPath }
   }
 
-  // Otherwise, treat as chainId (e.g., "eip155:59144") and scan modules.
+  // Otherwise, treat as chainId (e.g., "eip155:747474") and scan modules.
   // Import each module and call getAssets() with a single asset to check the chainId.
   const dirs = fs
     .readdirSync(GENERATE_ASSET_DATA_DIR, { withFileTypes: true })
@@ -37,7 +37,7 @@ const resolveChainModule = async (
     )
 
   // Parse chainId constant name from module source to avoid importing everything.
-  // Chain modules import e.g. `lineaChainId` from '@shapeshiftoss/caip'.
+  // Chain modules import e.g. `katanaChainId` from '@shapeshiftoss/caip'.
   // We resolve the constant to its value and match against the input.
   const caip = await import('@shapeshiftoss/caip')
 
@@ -92,7 +92,7 @@ const main = async () => {
       .sort()
 
     console.error('Usage: pnpm run generate:chain <chainId>')
-    console.error('Example: pnpm run generate:chain eip155:59144')
+    console.error('Example: pnpm run generate:chain eip155:747474')
     console.error(`\nAvailable chains: ${dirs.join(', ')}`)
     process.exit(1)
   }
@@ -100,7 +100,7 @@ const main = async () => {
   const resolved = await resolveChainModule(input)
   if (!resolved) {
     console.error(`Could not resolve chain module for "${input}"`)
-    console.error('Pass a chainId (e.g., eip155:59144) or directory name (e.g., linea)')
+    console.error('Pass a chainId (e.g., eip155:747474) or directory name (e.g., katana)')
     process.exit(1)
   }
 

@@ -46,4 +46,5 @@ export enum ChainflipNetwork {
   Arbitrum = 'Arbitrum',
   Solana = 'Solana',
   Tron = 'Tron',
+  Bsc = 'Bsc',
 }

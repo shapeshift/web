@@ -24,6 +24,8 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
 
+import { elysium } from '../constants/viemChains'
+
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
   polygon,
@@ -38,6 +40,7 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   hyperEvm,
   plasma,
   katana,
+  elysium,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

@@ -5,20 +5,14 @@ import {
   ethChainId,
   hyperEvmChainId,
   inkChainId,
-  lineaChainId,
   megaethChainId,
-  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   robinhoodChainId,
-  scrollChainId,
   solanaChainId,
-  soneiumChainId,
   unichainChainId,
-  worldChainChainId,
-  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -28,20 +22,14 @@ import {
   bsc,
   hyperEvm,
   ink,
-  linea,
   mainnet as ethereum,
   megaeth,
-  mode,
   monad,
   optimism,
   plasma,
   polygon,
   robinhood,
-  scroll,
-  soneium,
   unichain,
-  worldchain,
-  zksync,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -57,16 +45,10 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
   [inkChainId]: ink.id,
-  [lineaChainId]: linea.id,
-  [modeChainId]: mode.id,
   [plasmaChainId]: plasma.id,
-  [zkSyncEraChainId]: zksync.id,
-  [worldChainChainId]: worldchain.id,
   [unichainChainId]: unichain.id,
-  [soneiumChainId]: soneium.id,
   // Across uses a custom Solana chain ID
   [solanaChainId]: 34268394551451,
-  [scrollChainId]: scroll.id,
   [megaethChainId]: megaeth.id,
   [robinhoodChainId]: robinhood.id,
 }

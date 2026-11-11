@@ -404,11 +404,10 @@ ENABLED_FLAGS=$(cat "$WEB_REPO/.env" "$WEB_REPO/.env.production" 2>/dev/null | \
 
 Flag name → chain mapping (from `src/config.ts` and `src/constants/chains.ts`):
 OPTIMISM, BNBSMARTCHAIN, POLYGON, GNOSIS, ARBITRUM, SOLANA, STARKNET, TRON, SUI, NEAR,
-TON, BASE, MONAD, HYPEREVM, PLASMA, MANTLE, INK, MEGAETH, BERACHAIN, CRONOS, KATANA,
-FLOWEVM, CELO, PLUME, STORY, ZK_SYNC_ERA, WORLDCHAIN, HEMI, SEI,
-LINEA, SCROLL, SONIC, UNICHAIN, BOB, MODE, SONEIUM, MAYACHAIN, ZCASH
+TON, BASE, MONAD, HYPEREVM, PLASMA, MANTLE, INK, MEGAETH, CRONOS, KATANA,
+CELO, SEI, SONIC, UNICHAIN, BOB, MAYACHAIN, ZCASH
 
-Note: `.env.production` can explicitly disable chains that `.env` enables (e.g. `FLOWEVM=false`).
+Note: `.env.production` can explicitly disable chains that `.env` enables (e.g. `VITE_FEATURE_<CHAIN>=false`).
 
 ### 3. Resolve fixture dependencies
 

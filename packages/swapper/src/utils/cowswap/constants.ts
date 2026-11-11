@@ -30,7 +30,6 @@ export const SUPPORTED_CHAIN_IDS: ChainId[] = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PlasmaMainnet,
-  KnownChainIds.LineaMainnet,
   KnownChainIds.InkMainnet,
 ]
 

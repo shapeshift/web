@@ -127,6 +127,10 @@ const evmAdapters: Record<ChainId, adapters.EvmChainAdapter> = {
     rpcUrl: env.VITE_BOB_NODE_URL,
     getKnownTokens: makeGetKnownTokens(KnownChainIds.BobMainnet, 'erc20'),
   }),
+  [KnownChainIds.ElysiumMainnet]: new adapters.elysium.ChainAdapter({
+    rpcUrl: env.VITE_ELYSIUM_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.ElysiumMainnet, 'erc20'),
+  }),
   [KnownChainIds.HyperEvmMainnet]: new adapters.hyperevm.ChainAdapter({
     rpcUrl: env.VITE_HYPEREVM_NODE_URL,
     getKnownTokens: makeGetKnownTokens(KnownChainIds.HyperEvmMainnet, 'erc20'),

@@ -25,6 +25,7 @@ export const treasuryChainIds = [
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.UnichainMainnet,
   KnownChainIds.ElysiumMainnet,
+  KnownChainIds.AptosMainnet,
 ] as const
 
 export type TreasuryChainId = (typeof treasuryChainIds)[number]
@@ -57,3 +58,5 @@ export const DAO_TREASURY_ELYSIUM = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const DAO_TREASURY_STARKNET =
   '0x07ac2252f2da7cbf085e7a5ddc1318243aa818607cdd430dd2e17dd5d487606a'
 export const DAO_TREASURY_TON = 'UQAHHeOhXst-zSGGigQ8KgDzz89nACBR4TxXwXNjU4DsriLb'
+export const DAO_TREASURY_APTOS =
+  '0x7b504ecec7f738a716803a676e6d5df04d30240dcb8e5ba9a3acd70d5d91c2d8'

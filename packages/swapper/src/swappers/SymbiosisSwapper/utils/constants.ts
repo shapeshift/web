@@ -1,10 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
-  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  berachainChainId,
   bscChainId,
   cronosChainId,
   ethChainId,
@@ -12,21 +10,16 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
-  lineaChainId,
   mantleChainId,
-  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   robinhoodChainId,
-  scrollChainId,
   seiChainId,
-  soneiumChainId,
   sonicChainId,
   tronChainId,
   unichainChainId,
-  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 
 const SYMBIOSIS_TRON_CHAIN_ID = 728126428
@@ -40,18 +33,11 @@ const SYMBIOSIS_SUPPORTED_EVM_CHAIN_IDS: ChainId[] = [
   optimismChainId,
   baseChainId,
   gnosisChainId,
-  zkSyncEraChainId,
-  lineaChainId,
-  scrollChainId,
   mantleChainId,
-  modeChainId,
   seiChainId,
   cronosChainId,
   sonicChainId,
-  abstractChainId,
-  berachainChainId,
   unichainChainId,
-  soneiumChainId,
   hyperEvmChainId,
   katanaChainId,
   plasmaChainId,
@@ -95,9 +81,6 @@ export const SYMBIOSIS_MAX_SLIPPAGE_BPS = 1000
 export const SYMBIOSIS_PARTNER_ADDRESS = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const SYMBIOSIS_PARTNER_FEE_BPS = '60'
 export const SYMBIOSIS_PARTNER_FEE_DESCRIPTION = 'Partner fee'
-
-// Sent as X-Partner-Id so Symbiosis attributes our swaps to this client id in its explorer and metrics
-export const SYMBIOSIS_PARTNER_ID = 'shapeshift'
 
 export const DEFAULT_SYMBIOSIS_EVM_USER_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 export const DEFAULT_SYMBIOSIS_TRON_USER_ADDRESS = 'TLa2f6VPqDgRE67v1736s7bJ8Ray5wYjU7'

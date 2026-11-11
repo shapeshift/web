@@ -1,27 +1,17 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
-  berachainChainId,
-  blastChainId,
   bobChainId,
   celoChainId,
   cronosChainId,
   elysiumChainId,
-  flowEvmChainId,
-  hemiChainId,
   hyperEvmChainId,
   mantleChainId,
-  modeChainId,
-  plumeChainId,
   robinhoodChainId,
   seiChainId,
-  soneiumChainId,
   sonicChainId,
-  storyChainId,
   toAssetId,
   unichainChainId,
-  worldChainChainId,
-  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
@@ -58,22 +48,12 @@ import { EvmBaseAdapter } from './EvmBaseAdapter'
 import type { GasFeeDataEstimate, GasLimitEstimate, Token } from './types'
 
 const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
-  [berachainChainId]: '0x6969696969696969696969696969696969696969',
   [mantleChainId]: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
   [celoChainId]: '0x471EcE3750Da237f93B8E339c536989b8978a438',
   [cronosChainId]: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
-  [flowEvmChainId]: '0xd3bF53DAC106A0290B0483EcBC89d40FcC961f3e',
   [sonicChainId]: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38',
   [unichainChainId]: '0x4200000000000000000000000000000000000006',
   [bobChainId]: '0x4200000000000000000000000000000000000006',
-  [modeChainId]: '0x4200000000000000000000000000000000000006',
-  [soneiumChainId]: '0x4200000000000000000000000000000000000006',
-  [hemiChainId]: '0x4200000000000000000000000000000000000006',
-  [worldChainChainId]: '0x4200000000000000000000000000000000000006',
-  [blastChainId]: '0x4300000000000000000000000000000000000004',
-  [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
-  [storyChainId]: '0x1514000000000000000000000000000000000000',
-  [plumeChainId]: '0xea237441c92cae6fc17caaf9a7acb3f953be4bd1',
   [seiChainId]: '0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7',
   [robinhoodChainId]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
   [elysiumChainId]: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81',
@@ -339,9 +319,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   ): Promise<{ from: string; to: string; value: string }[]> {
     if (
       this.chainId === hyperEvmChainId ||
-      this.chainId === blastChainId ||
-      this.chainId === zkSyncEraChainId ||
-      this.chainId === flowEvmChainId ||
       this.chainId === celoChainId ||
       this.chainId === seiChainId ||
       this.chainId === elysiumChainId

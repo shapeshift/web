@@ -98,6 +98,7 @@ export type SwapperConfig = {
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
   VITE_SYMBIOSIS_API_URL: string
+  VITE_PANORA_API_KEY: string
 }
 
 export enum SwapperName {
@@ -123,6 +124,7 @@ export enum SwapperName {
   Symbiosis = 'Symbiosis',
   Fynd = 'Fynd',
   KyberSwap = 'KyberSwap',
+  Panora = 'Panora',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

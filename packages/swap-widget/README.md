@@ -107,13 +107,18 @@ and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it 
     shared copy in your app, so the widget and your app share one AppKit instance and one wagmi state. A
     duplicated copy means the widget reads an empty store and shows no connection.
 
-  Your AppKit `networks` list must include every EVM chain you want the widget to use. Import the
-  chains `@reown/appkit/networks` exports, and define any it doesn't with `defineChain` from the same
-  package. AppKit fills in the CAIP fields (`chainNamespace`, `caipNetworkId`) from `id`. Elysium is
-  currently the only supported chain that needs this:
+  Include every EVM chain you want the widget to use in **both** your `WagmiAdapter` `networks` and
+  your `createAppKit` `networks`. The widget reads balances through the wagmi config, which is built
+  only from the chains you pass to `WagmiAdapter`. If a chain is missing there, its balances don't
+  load, even when AppKit lists it. Import the chains `@reown/appkit/networks` exports, and define any
+  it doesn't with `defineChain` from the same package. AppKit fills in the CAIP fields
+  (`chainNamespace`, `caipNetworkId`) from `id`. Elysium is currently the only supported chain that
+  needs this:
 
   ```ts
   import { defineChain, mainnet } from '@reown/appkit/networks'
+  import { createAppKit } from '@reown/appkit/react'
+  import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
   const elysium = defineChain({
     id: 99901,
@@ -123,11 +128,18 @@ and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it 
     blockExplorers: { default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' } },
   })
 
+  const wagmiAdapter = new WagmiAdapter({ networks: [mainnet, elysium], projectId })
+
   createAppKit({
+    adapters: [wagmiAdapter],
     networks: [mainnet, elysium],
+    projectId,
     // ...the rest of your AppKit config
   })
   ```
+
+  If you also register Bitcoin or Solana adapters, add those networks to the `createAppKit` list only.
+  `WagmiAdapter` takes EVM chains.
 
 The header shows a built-in **Connect** button by default; set `showConnectButton={false}` to hide it
 and drive connection from your own UI.

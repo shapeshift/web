@@ -77,6 +77,13 @@ export const deviceRequest = async <T>(
   }
 }
 
+// Only retry transient failures: 4xx responses (including rate limits) and push verification
+// timeouts won't succeed on retry, and each mobile retry sends another verification push
+export const shouldRetryUserRequest = (failureCount: number, error: Error): boolean =>
+  failureCount < 3 &&
+  axios.isAxiosError(error) &&
+  (error.response === undefined || error.response.status >= 500)
+
 export const getUser = (): Promise<User> => deviceRequest('GET', '/me')
 export const getOrRegisterDevice = async (
   request: RegisterDeviceRequest,

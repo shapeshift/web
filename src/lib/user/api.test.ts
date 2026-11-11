@@ -92,4 +92,42 @@ describe('device-authenticated profile requests', () => {
       expect.objectContaining({ headers: { Authorization: `Bearer ${'cd'.repeat(32)}` } }),
     )
   })
+
+  it('shares one device login between concurrent requests', async () => {
+    request.mockResolvedValue({ data: { id: 'profile' } })
+    const { getUser } = await import('./api')
+    await Promise.all([getUser(), getUser(), getUser()])
+    expect(post).toHaveBeenCalledTimes(2)
+    expect(request).toHaveBeenCalledTimes(3)
+  })
+
+  it('does not keep renewing when the renewed token is also rejected', async () => {
+    const unauthorized = { isAxiosError: true, response: { status: 401 } }
+    request.mockRejectedValue(unauthorized)
+    post.mockResolvedValueOnce({ data: { id: 'new-challenge' } }).mockResolvedValueOnce({
+      data: {
+        token: 'cd'.repeat(32),
+        userId: 'profile',
+        expiresAt: new Date(Date.now() + 600_000).toISOString(),
+      },
+    })
+    const { getUser } = await import('./api')
+    await expect(getUser()).rejects.toBe(unauthorized)
+    expect(post).toHaveBeenCalledTimes(4)
+    expect(request).toHaveBeenCalledTimes(2)
+  })
+
+  it('retries only transient failures', async () => {
+    const { shouldRetryUserRequest } = await import('./api')
+    const axiosError = (status?: number) =>
+      Object.assign(new Error('request failed'), {
+        isAxiosError: true,
+        response: status ? { status } : undefined,
+      })
+    expect(shouldRetryUserRequest(0, axiosError())).toBe(true)
+    expect(shouldRetryUserRequest(0, axiosError(503))).toBe(true)
+    expect(shouldRetryUserRequest(3, axiosError(503))).toBe(false)
+    expect(shouldRetryUserRequest(0, axiosError(429))).toBe(false)
+    expect(shouldRetryUserRequest(0, new Error('Push verification was not received'))).toBe(false)
+  })
 })

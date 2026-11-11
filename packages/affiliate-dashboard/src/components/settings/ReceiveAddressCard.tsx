@@ -41,7 +41,7 @@ export const ReceiveAddressCard = ({
   return (
     <SettingsCard
       title='Receive Address'
-      description='Affiliate revenue is paid monthly in USDC on Ethereum mainnet. Use an address you control on Ethereum, not an exchange deposit address. Defaults to the owner wallet.'
+      description='Affiliate revenue is paid monthly in USDC on Ethereum mainnet. Use an address you control on Ethereum. Defaults to the owner wallet.'
     >
       <HStack spacing={3} wrap='wrap'>
         <Input

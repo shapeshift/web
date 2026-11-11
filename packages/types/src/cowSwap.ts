@@ -319,7 +319,6 @@ export enum CowNetwork {
   Polygon = 'polygon',
   Bnb = 'bnb',
   Plasma = 'plasma',
-  Linea = 'linea',
   Ink = 'ink',
 }
 
@@ -332,7 +331,6 @@ export type CowChainId =
   | KnownChainIds.PolygonMainnet
   | KnownChainIds.BnbSmartChainMainnet
   | KnownChainIds.PlasmaMainnet
-  | KnownChainIds.LineaMainnet
   | KnownChainIds.InkMainnet
 
 export type TypedDataField = { name: string; type: string }

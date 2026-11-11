@@ -1,5 +1,20 @@
-import type { InputEntryFunctionDataWithABI, InputViewFunctionData } from '@aptos-labs/ts-sdk'
-import { AccountAddress, generateTransactionPayloadWithABI, Hex } from '@aptos-labs/ts-sdk'
+import type {
+  EntryFunction,
+  InputEntryFunctionDataWithABI,
+  InputViewFunctionData,
+} from '@aptos-labs/ts-sdk'
+import {
+  AccountAddress,
+  Deserializer,
+  generateTransactionPayloadWithABI,
+  Hex,
+  RawTransaction,
+  TransactionExecutableEntryFunction,
+  TransactionExtraConfigV1,
+  TransactionInnerPayloadV1,
+  TransactionPayload,
+  TransactionPayloadEntryFunction,
+} from '@aptos-labs/ts-sdk'
 import { ASSET_NAMESPACE, getAptosAssetNamespace } from '@shapeshiftoss/caip'
 
 import { APT_COIN_TYPE, COIN_TRANSFER_ABI, FA_TRANSFER_ABI } from './constants'
@@ -48,6 +63,9 @@ export const getSerializedTransferPayload = (
   return Hex.fromHexInput(payload.bcsToBytes()).toString()
 }
 
+export const deserializePayload = (payload: string): TransactionPayload =>
+  TransactionPayload.deserialize(new Deserializer(Hex.fromHexInput(payload).toUint8Array()))
+
 export const getDecimalsPayload = (assetType: string): InputViewFunctionData => {
   if (isFungibleAssetReference(assetType)) {
     return {
@@ -74,4 +92,34 @@ export const getBalancePayload = (owner: string, assetType: string): InputViewFu
     typeArguments: [assetType],
     functionArguments: [owner],
   }
+}
+
+const getEntryFunction = ({ payload }: RawTransaction): EntryFunction => {
+  if (payload instanceof TransactionPayloadEntryFunction) return payload.entryFunction
+
+  if (
+    payload instanceof TransactionInnerPayloadV1 &&
+    payload.executable instanceof TransactionExecutableEntryFunction
+  ) {
+    // a multisig inner payload executes as the multisig account, which unwrapping would drop
+    if (
+      payload.extra_config instanceof TransactionExtraConfigV1 &&
+      payload.extra_config.multisigAddress
+    ) {
+      throw new Error('transaction is a multisig entry function call')
+    }
+
+    return payload.executable.entryFunction
+  }
+
+  throw new Error('transaction is not an entry function call')
+}
+
+// Keeps only the entry function call as a standard payload; sender, gas, expiry and any orderless nonce are set again at signing
+export const extractEntryFunctionPayload = (rawTransaction: string): string => {
+  const entryFunction = getEntryFunction(
+    RawTransaction.deserialize(new Deserializer(Hex.fromHexInput(rawTransaction).toUint8Array())),
+  )
+
+  return new TransactionPayloadEntryFunction(entryFunction).bcsToHex().toString()
 }

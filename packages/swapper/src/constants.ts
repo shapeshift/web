@@ -14,6 +14,7 @@ import { fyndApi, fyndSwapper } from './swappers/FyndSwapper'
 import { kyberApi, kyberSwapper } from './swappers/KyberSwapper'
 import { mayachainApi, mayachainSwapper } from './swappers/MayachainSwapper'
 import { nearIntentsApi, nearIntentsSwapper } from './swappers/NearIntentsSwapper'
+import { panoraApi, panoraSwapper } from './swappers/PanoraSwapper'
 import { portalsApi, portalsSwapper } from './swappers/PortalsSwapper'
 import { relayApi, relaySwapper } from './swappers/RelaySwapper'
 import { stonfiApi, stonfiSwapper } from './swappers/StonfiSwapper'
@@ -119,6 +120,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...kyberSwapper,
     ...kyberApi,
   },
+  [SwapperName.Panora]: {
+    ...panoraSwapper,
+    ...panoraApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -141,6 +146,7 @@ const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
 const DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
 // Symbiosis splits the tolerance across up to three legs, and a destination leg over its share pays out the transit token instead of reverting
 const DEFAULT_SYMBIOSIS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
+const DEFAULT_PANORA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -171,6 +177,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Across')
     case SwapperName.Debridge:
       return DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Panora:
+      return DEFAULT_PANORA_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.ButterSwap:
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:

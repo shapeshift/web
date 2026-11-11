@@ -68,6 +68,7 @@ export const ENABLED_SWAPPER_NAMES: readonly SwapperName[] = [
   SwapperName.BobGateway,
   SwapperName.ButterSwap,
   SwapperName.Chainflip,
+  SwapperName.KyberSwap,
   SwapperName.Mayachain,
   SwapperName.NearIntents,
   SwapperName.Portals,

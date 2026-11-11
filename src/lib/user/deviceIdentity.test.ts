@@ -48,7 +48,66 @@ describe('device identity', () => {
       }),
     ).rejects.toThrow('Invalid device challenge')
     await expect(
-      signDeviceChallenge(keys, { id, expiresAt: new Date(0).toISOString(), message }),
+      signDeviceChallenge(keys, { id: 'not-a-nonce', expiresAt, message }),
     ).rejects.toThrow('Invalid device challenge')
+    // Expiry is enforced by the server, so a skewed local clock doesn't block signing
+    const staleExpiry = new Date(0).toISOString()
+    await expect(
+      signDeviceChallenge(keys, {
+        id,
+        expiresAt: staleExpiry,
+        message: message.replace(expiresAt, staleExpiry),
+      }),
+    ).resolves.toMatch(/^[A-Za-z0-9+/]{86}==$/)
+  })
+
+  it('replaces an unusable stored key and drops its session', async () => {
+    const identity = await import('./deviceIdentity')
+    await identity.storeSession({
+      server: 'https://profile.example',
+      keyId: 'old',
+      token: 'ab'.repeat(32),
+      userId: 'old-profile',
+      expiresAt: new Date(Date.now() + 600_000).toISOString(),
+    })
+    const corrupt = await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open('shapeshift-notification-identity', 1)
+      request.onsuccess = () => {
+        const transaction = request.result.transaction('keys', 'readwrite')
+        transaction.objectStore('keys').put({ privateKey: 'garbage' }, 'identity')
+        transaction.oncomplete = () => {
+          request.result.close()
+          resolve()
+        }
+        transaction.onerror = () => reject(transaction.error)
+      }
+    })
+    expect(corrupt).toBeUndefined()
+    vi.resetModules()
+    const reloaded = await import('./deviceIdentity')
+    const keys = await reloaded.getDeviceIdentity()
+    expect(keys.privateKey.type).toBe('private')
+    expect(await reloaded.readStoredSession()).toBeUndefined()
+
+    const replaced = await reloaded.resetDeviceIdentity()
+    expect(await reloaded.exportDevicePublicKey(replaced)).not.toBe(
+      await reloaded.exportDevicePublicKey(keys),
+    )
+  })
+
+  it('only clears the stored session it was asked to clear', async () => {
+    const identity = await import('./deviceIdentity')
+    const stored = {
+      server: 'https://profile.example',
+      keyId: 'key',
+      token: 'cd'.repeat(32),
+      userId: 'profile',
+      expiresAt: new Date(Date.now() + 600_000).toISOString(),
+    }
+    await identity.storeSession(stored)
+    await identity.clearStoredSession('ab'.repeat(32))
+    expect(await identity.readStoredSession()).toEqual(stored)
+    await identity.clearStoredSession(stored.token)
+    expect(await identity.readStoredSession()).toBeUndefined()
   })
 })

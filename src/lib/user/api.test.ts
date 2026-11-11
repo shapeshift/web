@@ -1,21 +1,39 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { post, request, getPushVerification } = vi.hoisted(() => ({
-  post: vi.fn(),
-  request: vi.fn(),
-  getPushVerification: vi.fn(),
-}))
+const { post, request, getPushVerification, identity } = vi.hoisted(() => {
+  class DeviceKeyError extends Error {}
+  const state = { stored: undefined as Record<string, string> | undefined }
+  return {
+    post: vi.fn(),
+    request: vi.fn(),
+    getPushVerification: vi.fn(),
+    identity: {
+      state,
+      DeviceKeyError,
+      getDeviceIdentity: vi.fn(() => Promise.resolve({})),
+      resetDeviceIdentity: vi.fn(() => Promise.resolve({})),
+      describeDeviceKey: () => Promise.resolve({ publicKey: 'public-key', keyId: 'key' }),
+      signDeviceChallenge: vi.fn(() => Promise.resolve('proof')),
+      readStoredSession: () => Promise.resolve(state.stored),
+      storeSession: (value: Record<string, string>) => {
+        state.stored = value
+        return Promise.resolve()
+      },
+      clearStoredSession: vi.fn((token: string) => {
+        if (state.stored?.token === token) state.stored = undefined
+        return Promise.resolve()
+      }),
+      withDeviceLock: (run: () => Promise<unknown>) => run(),
+    },
+  }
+})
 vi.mock('axios', () => ({
   default: {
     create: () => ({ post, request }),
     isAxiosError: (error: { isAxiosError?: boolean }) => Boolean(error.isAxiosError),
   },
 }))
-vi.mock('./deviceIdentity', () => ({
-  getDeviceIdentity: () => ({}),
-  exportDevicePublicKey: () => 'public-key',
-  signDeviceChallenge: () => 'proof',
-}))
+vi.mock('./deviceIdentity', () => identity)
 vi.mock('@/context/WalletProvider/MobileWallet/mobileMessageHandlers', () => ({
   getPushVerification,
 }))
@@ -24,6 +42,10 @@ beforeEach(() => {
   post.mockReset()
   request.mockReset()
   getPushVerification.mockReset()
+  identity.signDeviceChallenge.mockClear()
+  identity.resetDeviceIdentity.mockClear()
+  identity.clearStoredSession.mockClear()
+  identity.state.stored = undefined
   vi.stubEnv('VITE_USER_SERVER_URL', 'https://profile.example')
   post.mockResolvedValueOnce({ data: { id: 'challenge' } }).mockResolvedValueOnce({
     data: {
@@ -129,5 +151,82 @@ describe('device-authenticated profile requests', () => {
     expect(shouldRetryUserRequest(3, axiosError(503))).toBe(false)
     expect(shouldRetryUserRequest(0, axiosError(429))).toBe(false)
     expect(shouldRetryUserRequest(0, new Error('Push verification was not received'))).toBe(false)
+  })
+
+  it('reuses the stored session after a reload instead of logging in again', async () => {
+    request.mockResolvedValue({ data: { id: 'profile' } })
+    await (await import('./api')).getUser()
+    vi.resetModules()
+    await (await import('./api')).getUser()
+    expect(post).toHaveBeenCalledTimes(2)
+    expect(request).toHaveBeenLastCalledWith(
+      expect.objectContaining({ headers: { Authorization: `Bearer ${'ab'.repeat(32)}` } }),
+    )
+  })
+
+  it('ignores a stored session issued by another user service', async () => {
+    identity.state.stored = {
+      server: 'https://other.example',
+      keyId: 'key',
+      token: 'ef'.repeat(32),
+      userId: 'profile',
+      expiresAt: new Date(Date.now() + 600_000).toISOString(),
+    }
+    request.mockResolvedValue({ data: { id: 'profile' } })
+    await (await import('./api')).getUser()
+    expect(post).toHaveBeenCalledTimes(2)
+    expect(identity.state.stored?.token).toBe('ab'.repeat(32))
+  })
+
+  it('discards rejected tokens from storage, including a revoked renewal', async () => {
+    request.mockRejectedValue({ isAxiosError: true, response: { status: 401 } })
+    post.mockResolvedValueOnce({ data: { id: 'new-challenge' } }).mockResolvedValueOnce({
+      data: {
+        token: 'cd'.repeat(32),
+        userId: 'profile',
+        expiresAt: new Date(Date.now() + 600_000).toISOString(),
+      },
+    })
+    await expect((await import('./api')).getUser()).rejects.toMatchObject({
+      response: { status: 401 },
+    })
+    expect(identity.clearStoredSession.mock.calls).toEqual([['ab'.repeat(32)], ['cd'.repeat(32)]])
+    expect(identity.state.stored).toBeUndefined()
+  })
+
+  it('replaces an unusable device key once', async () => {
+    request.mockResolvedValue({ data: { id: 'profile' } })
+    identity.signDeviceChallenge.mockImplementationOnce(() =>
+      Promise.reject(new identity.DeviceKeyError('Device key is unusable')),
+    )
+    post.mockReset()
+    post
+      .mockResolvedValueOnce({ data: { id: 'challenge' } })
+      .mockResolvedValueOnce({ data: { id: 'second-challenge' } })
+      .mockResolvedValueOnce({
+        data: {
+          token: 'ab'.repeat(32),
+          userId: 'profile',
+          expiresAt: new Date(Date.now() + 600_000).toISOString(),
+        },
+      })
+    expect(await (await import('./api')).getUser()).toEqual({ id: 'profile' })
+    expect(identity.resetDeviceIdentity).toHaveBeenCalledTimes(1)
+    expect(identity.signDeviceChallenge).toHaveBeenCalledTimes(2)
+  })
+
+  it('fails once without retrying when an old app has no push verification handler', async () => {
+    request.mockResolvedValueOnce({ data: { registrationId: 'registration' } })
+    const timeout = new Error('PostMessage getPushVerification timed out')
+    getPushVerification.mockRejectedValue(timeout)
+    const { getOrRegisterDevice, shouldRetryUserRequest } = await import('./api')
+    const result = getOrRegisterDevice({
+      userId: 'profile',
+      deviceType: 'MOBILE' as never,
+      deviceToken: 'ExpoPushToken[testing]',
+    })
+    await expect(result).rejects.toBe(timeout)
+    expect(getPushVerification).toHaveBeenCalledTimes(1)
+    expect(shouldRetryUserRequest(0, timeout)).toBe(false)
   })
 })

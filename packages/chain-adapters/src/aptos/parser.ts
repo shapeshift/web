@@ -10,7 +10,6 @@ import {
   isUserTransactionResponse,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { Transaction, TxTransfer } from '../types'
@@ -26,33 +25,27 @@ import {
   FUNGIBLE_STORE_RESOURCE_TYPE,
   OBJECT_CORE_RESOURCE_TYPE,
 } from './constants'
-import { addressesMatch } from './utils'
+import { addressesMatch, toCanonicalAddress, toCanonicalAssetType } from './utils'
 
-type ParsedTransfer = { assetId: AssetId; recipient: string; amount: string }
+type ParsedTransfer = { assetType: string; recipient: string; amount: string }
 
 // resolves a fungible asset metadata address or coin type to its assetId
 export type AptosAssetIdResolver = (assetType: string) => Promise<AssetId>
 
+type StoreResource =
+  | { type: typeof OBJECT_CORE_RESOURCE_TYPE; data: { owner: string } }
+  | { type: typeof FUNGIBLE_STORE_RESOURCE_TYPE; data: { metadata: { inner: string } } }
+  | { type: string; data: unknown }
+
 const parseTransferPayload = (
   payload: EntryFunctionPayloadResponse,
-  chainId: ChainId,
-  assetId: AssetId,
 ): ParsedTransfer | undefined => {
   const { function: fn, type_arguments: typeArgs, arguments: args } = payload
 
   if (COIN_TRANSFER_FUNCTIONS.includes(fn)) {
     // aptos_account::transfer has no type argument and only moves apt
-    const coinType = typeArgs[0] ?? APT_COIN_TYPE
-
     return {
-      assetId:
-        coinType === APT_COIN_TYPE
-          ? assetId
-          : toAssetId({
-              chainId,
-              assetNamespace: ASSET_NAMESPACE.aptosCoin,
-              assetReference: coinType,
-            }),
+      assetType: typeArgs[0] ?? APT_COIN_TYPE,
       recipient: String(args[0] ?? ''),
       amount: String(args[1] ?? '0'),
     }
@@ -64,11 +57,7 @@ const parseTransferPayload = (
     if (!reference) return
 
     return {
-      assetId: toAssetId({
-        chainId,
-        assetNamespace: ASSET_NAMESPACE.aptosFungible,
-        assetReference: reference,
-      }),
+      assetType: toCanonicalAssetType(reference),
       recipient: String(args[1] ?? ''),
       amount: String(args[2] ?? '0'),
     }
@@ -82,13 +71,19 @@ const getStores = (tx: UserTransactionResponse) => {
   for (const change of tx.changes) {
     if (change.type !== 'write_resource' || !('address' in change) || !('data' in change)) continue
 
-    const { address } = change
-    const { type, data } = change.data as { type: string; data: Record<string, any> }
+    const address = toCanonicalAddress(change.address)
+    const resource = change.data as StoreResource
     const store = stores.get(address) ?? {}
 
-    if (type === OBJECT_CORE_RESOURCE_TYPE) store.owner = data.owner
-    else if (type === FUNGIBLE_STORE_RESOURCE_TYPE) store.metadata = data.metadata?.inner
-    else continue
+    if (resource.type === OBJECT_CORE_RESOURCE_TYPE) {
+      store.owner = (resource.data as { owner: string }).owner
+    } else if (resource.type === FUNGIBLE_STORE_RESOURCE_TYPE) {
+      store.metadata = toCanonicalAddress(
+        (resource.data as { metadata: { inner: string } }).metadata.inner,
+      )
+    } else {
+      continue
+    }
 
     stores.set(address, store)
   }
@@ -118,18 +113,16 @@ export const getAptosBalanceChanges = (
     if (!sign) continue
 
     if (type === COIN_DEPOSIT_EVENT_TYPE || type === COIN_WITHDRAW_EVENT_TYPE) {
-      if (addressesMatch(data.account, pubkey)) add(data.coin_type, sign * BigInt(data.amount))
+      if (addressesMatch(data.account, pubkey)) {
+        add(toCanonicalAssetType(data.coin_type), sign * BigInt(data.amount))
+      }
       continue
     }
 
-    const store = stores.get(data.store)
+    const store = stores.get(toCanonicalAddress(data.store))
     if (!store?.metadata || !store.owner || !addressesMatch(store.owner, pubkey)) continue
 
     add(store.metadata, sign * BigInt(data.amount))
-  }
-
-  for (const [assetType, amount] of changes) {
-    if (amount === 0n) changes.delete(assetType)
   }
 
   return changes
@@ -144,16 +137,23 @@ const parseEventTransfers = async (
   pubkey: string,
   resolveAssetId: AptosAssetIdResolver,
 ): Promise<TxTransfer[]> => {
+  // a coin and its paired fungible asset are one asset, so net after resolving
+  const netByAssetId = new Map<AssetId, bigint>()
+  for (const [assetType, amount] of getAptosBalanceChanges(tx, pubkey)) {
+    const assetId = await resolveAssetId(assetType)
+    netByAssetId.set(assetId, (netByAssetId.get(assetId) ?? 0n) + amount)
+  }
+
   const contract = 'function' in tx.payload ? tx.payload.function.split('::')[0] : tx.sender
+  const counterparty = addressesMatch(tx.sender, pubkey) ? contract : tx.sender
 
-  return await Promise.all(
-    [...getAptosBalanceChanges(tx, pubkey)].map(async ([assetType, amount]) => {
-      const assetId = await resolveAssetId(assetType)
-
-      return amount > 0n
+  return [...netByAssetId]
+    .filter(([, amount]) => amount !== 0n)
+    .map(([assetId, amount]) =>
+      amount > 0n
         ? {
             assetId,
-            from: [contract],
+            from: [counterparty],
             to: [pubkey],
             type: TransferType.Receive,
             value: amount.toString(),
@@ -161,12 +161,11 @@ const parseEventTransfers = async (
         : {
             assetId,
             from: [pubkey],
-            to: [contract],
+            to: [counterparty],
             type: TransferType.Send,
             value: (-amount).toString(),
-          }
-    }),
-  )
+          },
+    )
 }
 
 // sponsored transactions are paid by the fee payer rather than the sender
@@ -191,13 +190,17 @@ export const parseAptosTx = async (
   const status = getAptosTxStatus(tx)
 
   const transfers: TxTransfer[] = []
-  const transfer =
-    'function' in tx.payload ? parseTransferPayload(tx.payload, chainId, assetId) : undefined
+  const transfer = 'function' in tx.payload ? parseTransferPayload(tx.payload) : undefined
 
   if (transfer) {
     const { sender } = tx
     const { recipient, amount: value } = transfer
-    const base = { assetId: transfer.assetId, from: [sender], to: [recipient], value }
+    const base = {
+      assetId: await resolveAssetId(transfer.assetType),
+      from: [sender],
+      to: [recipient],
+      value,
+    }
 
     if (addressesMatch(sender, pubkey)) transfers.push({ ...base, type: TransferType.Send })
     if (addressesMatch(recipient, pubkey)) transfers.push({ ...base, type: TransferType.Receive })

@@ -32,7 +32,7 @@ describe('validatePanoraSwap', () => {
 })
 
 describe('getPanoraTradeAmounts', () => {
-  it('adds the integrator fee back for the before-fees amount and reports it exactly', () => {
+  it('adds the whole integrator fee back for the before-fees amount and reports our half as the affiliate fee', () => {
     const input = {
       sellAsset: APT,
       buyAsset: USDC,
@@ -43,7 +43,7 @@ describe('getPanoraTradeAmounts', () => {
 
     expect(amounts.buyAmountAfterFeesCryptoBaseUnit).toBe('5573706')
     expect(amounts.buyAmountBeforeFeesCryptoBaseUnit).toBe('5607350')
-    expect(amounts.affiliateFee?.amountCryptoBaseUnit).toBe('33644')
+    expect(amounts.affiliateFee?.amountCryptoBaseUnit).toBe('16822')
     expect(amounts.affiliateFee?.assetId).toBe(USDC.assetId)
   })
 })

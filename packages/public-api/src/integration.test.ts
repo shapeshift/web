@@ -24,6 +24,7 @@ const ASSET_IDS = {
   MEGAETH: 'eip155:4326/slip44:60',
   MONAD: 'eip155:143/slip44:60',
   PLASMA: 'eip155:9745/slip44:60',
+  ROBINHOOD: 'eip155:4663/slip44:60',
   ZEC: 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133',
   ATOM: 'cosmos:cosmoshub-4/slip44:118',
   RUNE: 'cosmos:thorchain-1/slip44:931',
@@ -96,6 +97,12 @@ const RATES: { label: string; sellAssetId: string; buyAssetId: string; amount: s
     sellAssetId: ASSET_IDS.PLASMA,
     buyAssetId: ASSET_IDS.USDC_ETH,
     amount: '1000000000000000000',
+  },
+  {
+    label: 'Robinhood Chain',
+    sellAssetId: ASSET_IDS.ROBINHOOD,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    amount: '100000000000000000',
   },
   {
     label: 'Zcash Chain',
@@ -264,6 +271,15 @@ const QUOTES: {
     sendAddress: ADDRESS.evm,
     receiveAddress: ADDRESS.evm,
     amount: '1000000000000000000',
+  },
+  {
+    label: 'Second-Class EVM Adapter (Robinhood)',
+    sellAssetId: ASSET_IDS.ROBINHOOD,
+    buyAssetId: ASSET_IDS.USDC_ETH,
+    swapperName: 'Relay',
+    sendAddress: ADDRESS.evm,
+    receiveAddress: ADDRESS.evm,
+    amount: '100000000000000000',
   },
   {
     label: 'KyberSwap (native sell)',

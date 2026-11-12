@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { describe, expect, it } from 'vitest'
 
 import type { PanoraQuote, PanoraSwapResponse, PanoraTradeRateInput } from '../types'
-import { getPanoraTradeAmounts, validatePanoraSwap } from './helpers'
+import { getPanoraFeeParams, getPanoraTradeAmounts, validatePanoraSwap } from './helpers'
 
 const APT = { assetId: aptosAssetId, chainId: aptosChainId, precision: 8, symbol: 'APT' } as Asset
 const USDC = {
@@ -45,5 +45,15 @@ describe('getPanoraTradeAmounts', () => {
     expect(amounts.buyAmountBeforeFeesCryptoBaseUnit).toBe('5607350')
     expect(amounts.affiliateFee?.amountCryptoBaseUnit).toBe('33644')
     expect(amounts.affiliateFee?.assetId).toBe(USDC.assetId)
+  })
+})
+
+describe('getPanoraFeeParams', () => {
+  it('requests double the affiliate bps since Panora keeps half', () => {
+    expect(getPanoraFeeParams('60').integratorFeePercentage).toBe(1.2)
+  })
+
+  it('sends no fee params without an affiliate fee', () => {
+    expect(getPanoraFeeParams('0')).toEqual({})
   })
 })

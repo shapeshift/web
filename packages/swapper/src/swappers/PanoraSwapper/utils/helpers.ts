@@ -18,6 +18,7 @@ import type {
   PanoraTradeQuoteInput,
   PanoraTradeRateInput,
 } from '../types'
+import { PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER } from './constants'
 
 const invalidResponse = (message: string, details?: unknown): SwapErrorRight =>
   makeSwapErrorRight({ message, details, code: TradeQuoteError.InvalidResponse })
@@ -61,7 +62,10 @@ export const getPanoraFeeParams = (
   if (bnOrZero(affiliateBps).lte(0)) return {}
 
   return {
-    integratorFeePercentage: bn(affiliateBps).div(100).toNumber(),
+    integratorFeePercentage: bn(affiliateBps)
+      .times(PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER)
+      .div(100)
+      .toNumber(),
     integratorFeeAddress: getTreasuryAddressFromChainId(aptosChainId),
   }
 }

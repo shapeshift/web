@@ -56,13 +56,15 @@ import {
   INDEXER_PAGE_LIMIT,
   TX_EXPIRY_SECS,
 } from './constants'
-import { parseAptosTx } from './parser'
+import { isAptosNativeAssetType, parseAptosTx } from './parser'
 import type { BuildCustomApiTxInput, Token } from './types'
 import {
   deserializePayload,
   getBalancePayload,
   getDecimalsPayload,
   getTransferPayload,
+  isFungibleAssetReference,
+  toCanonicalAssetType,
 } from './utils'
 
 export interface ChainAdapterArgs {
@@ -81,6 +83,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   protected readonly chainId = aptosChainId
   protected readonly assetId = aptosAssetId
   protected readonly client: Aptos
+  private readonly pairedCoinTypes = new Map<string, Promise<string | undefined>>()
 
   constructor(args: ChainAdapterArgs) {
     this.client = new Aptos(
@@ -205,6 +208,52 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   private async getTokenPrecision(assetType: string): Promise<number> {
     const [decimals] = await this.client.view<[number]>({ payload: getDecimalsPayload(assetType) })
     return decimals
+  }
+
+  // the coin type a fungible asset is paired with, if any, which is how balances index it
+  private getPairedCoinType(metadata: string): Promise<string | undefined> {
+    const cached = this.pairedCoinTypes.get(metadata)
+    if (cached) return cached
+
+    const pending = (async () => {
+      const [{ vec }] = await this.client.view<
+        [{ vec: { account_address: string; module_name: string; struct_name: string }[] }]
+      >({ payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] } })
+
+      const [typeInfo] = vec
+      if (!typeInfo) return
+
+      const decode = (hex: string) => new TextDecoder().decode(Hex.fromHexInput(hex).toUint8Array())
+
+      return toCanonicalAssetType(
+        `${typeInfo.account_address}::${decode(typeInfo.module_name)}::${decode(
+          typeInfo.struct_name,
+        )}`,
+      )
+    })().catch(err => {
+      this.pairedCoinTypes.delete(metadata)
+      throw err
+    })
+
+    this.pairedCoinTypes.set(metadata, pending)
+    return pending
+  }
+
+  private async resolveAssetId(assetType: string): Promise<AssetId> {
+    if (isAptosNativeAssetType(assetType)) return this.assetId
+
+    // a failed lookup shouldn't fail the whole parse, so fall back to the fungible asset itself
+    const reference = isFungibleAssetReference(assetType)
+      ? (await this.getPairedCoinType(assetType).catch(() => undefined)) ?? assetType
+      : assetType
+
+    if (reference === APT_COIN_TYPE) return this.assetId
+
+    return toAssetId({
+      chainId: this.chainId,
+      assetNamespace: getAptosAssetNamespace(reference),
+      assetReference: reference,
+    })
   }
 
   private async getBalances(pubkey: string) {
@@ -507,7 +556,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         throw new Error(`unsupported transaction type: ${tx.type}`)
       }
 
-      return parseAptosTx(tx, pubkey, this.chainId, this.assetId)
+      return await parseAptosTx(tx, pubkey, this.chainId, this.assetId, assetType =>
+        this.resolveAssetId(assetType),
+      )
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.parseTx',

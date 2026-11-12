@@ -381,17 +381,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       }
 
       const wrappedNativeContract = WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID[this.chainId]
-      console.log(
-        '[SecondClassEvmAdapter parseTx]',
-        JSON.stringify({
-          chainId: this.chainId,
-          hash,
-          pubkey,
-          wrappedNativeContract,
-          internalTxsCount: internalTxs.length,
-          logsCount: receipt.logs.length,
-        }),
-      )
       if (wrappedNativeContract && internalTxs.length === 0) {
         const wrappedNativeBurnLogs = parseEventLogs({
           abi: erc20Abi,
@@ -401,17 +390,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
           log =>
             isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
             isAddressEqual(log.args.to, zeroAddress),
-        )
-        console.log(
-          '[SecondClassEvmAdapter parseTx] wrappedNativeBurnLogs',
-          JSON.stringify({
-            wrappedNativeBurnLogs: wrappedNativeBurnLogs.map(l => ({
-              address: l.address,
-              from: l.args.from,
-              to: l.args.to,
-              value: l.args.value.toString(),
-            })),
-          }),
         )
 
         for (const log of wrappedNativeBurnLogs) {
@@ -431,16 +409,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
               log.address &&
               isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
               log.topics[0] === WITHDRAWAL_TOPIC,
-          )
-          console.log(
-            '[SecondClassEvmAdapter parseTx] withdrawalLogs',
-            JSON.stringify({
-              withdrawalLogs: withdrawalLogs.map(l => ({
-                address: l.address,
-                topics: l.topics,
-                data: l.data,
-              })),
-            }),
           )
 
           for (const log of withdrawalLogs) {
@@ -473,10 +441,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
           }
         }
       }
-      console.log(
-        '[SecondClassEvmAdapter parseTx] final internalTxs',
-        JSON.stringify({ internalTxs, tokenTransferAddresses: receipt.logs.map(l => l.address) }),
-      )
 
       const block = receipt.blockHash
         ? await this.viemClient.getBlock({ blockHash: receipt.blockHash }).catch(() => null)

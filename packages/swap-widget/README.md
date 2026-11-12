@@ -45,6 +45,7 @@ npm install react react-dom \
 ```
 
 - **React 18 or 19** is supported (`^18.0.0 || ^19.0.0`).
+- **viem 2.55 or later** is required (`^2.55.0`).
 
 ### Import the stylesheet
 

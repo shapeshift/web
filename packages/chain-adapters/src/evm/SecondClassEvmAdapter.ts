@@ -320,6 +320,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     if (
       this.chainId === hyperEvmChainId ||
       this.chainId === celoChainId ||
+      this.chainId === mantleChainId ||
+      this.chainId === sonicChainId ||
       this.chainId === seiChainId ||
       this.chainId === elysiumChainId
     ) {

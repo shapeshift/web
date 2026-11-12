@@ -28,6 +28,19 @@ export const elysium = {
   },
 } as const satisfies Chain
 
+export const robinhood = {
+  id: 4663,
+  name: 'Robinhood Chain',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.mainnet.chain.robinhood.com'] } },
+  blockExplorers: {
+    default: { name: 'Blockscout', url: 'https://robinhoodchain.blockscout.com' },
+  },
+  contracts: {
+    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
+  },
+} as const satisfies Chain
+
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [mainnet.id]: {
     ...mainnet,
@@ -70,6 +83,7 @@ export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [plasma.id]: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
   [katana.id]: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
   [elysium.id]: elysium,
+  [robinhood.id]: robinhood,
 }
 
 export const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {

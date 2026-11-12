@@ -23,6 +23,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  robinhoodChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -257,6 +258,7 @@ export const EVM_CHAIN_IDS = {
   plasma: plasmaChainId,
   katana: katanaChainId,
   elysium: elysiumChainId,
+  robinhood: robinhoodChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {

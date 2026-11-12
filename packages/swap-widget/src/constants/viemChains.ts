@@ -13,6 +13,7 @@ import {
   optimism,
   plasma,
   polygon,
+  robinhood,
 } from 'viem/chains'
 
 export const elysium = {
@@ -22,19 +23,6 @@ export const elysium = {
   rpcUrls: { default: { http: ['https://rpc.elysium.kinetiq.xyz'] } },
   blockExplorers: {
     default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' },
-  },
-  contracts: {
-    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
-  },
-} as const satisfies Chain
-
-export const robinhood = {
-  id: 4663,
-  name: 'Robinhood Chain',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.mainnet.chain.robinhood.com'] } },
-  blockExplorers: {
-    default: { name: 'Blockscout', url: 'https://robinhoodchain.blockscout.com' },
   },
   contracts: {
     multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },

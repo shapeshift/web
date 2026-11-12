@@ -16,6 +16,7 @@ import {
   optimism,
   plasma,
   polygon,
+  robinhood,
   solana,
 } from '@reown/appkit/networks'
 import { createAppKit, useAppKit, useAppKitAccount } from '@reown/appkit/react'
@@ -224,6 +225,7 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   plasma,
   katana,
   elysium,
+  robinhood,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

@@ -663,6 +663,7 @@ const EVM_CHAIN_IDS = {
   plasma: 'eip155:9745',
   katana: 'eip155:747474',
   elysium: 'eip155:99901',
+  robinhood: 'eip155:4663',
 }
 
 const UTXO_CHAIN_IDS = {
@@ -742,6 +743,7 @@ disabled, only chains the widget can sign for or pay externally stay in the sele
 | Plasma            | `eip155:9745`                             | EVM    | ✅                   |
 | Katana            | `eip155:747474`                           | EVM    | ✅                   |
 | Elysium           | `eip155:99901`                            | EVM    | ✅                   |
+| Robinhood Chain   | `eip155:4663`                             | EVM    | ✅                   |
 | Bitcoin           | `bip122:000000000019d6689c085ae165831e93` | UTXO   | ✅                   |
 | Bitcoin Cash      | `bip122:000000000000000000651ef99cb9fcbe` | UTXO   | ✅                   |
 | Dogecoin          | `bip122:00000000001a91e3dace36e2be3bf030` | UTXO   | ✅                   |

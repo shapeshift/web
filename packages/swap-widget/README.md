@@ -112,8 +112,7 @@ and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it 
   only from the chains you pass to `WagmiAdapter`. If a chain is missing there, its balances don't
   load, even when AppKit lists it. Import the chains `@reown/appkit/networks` exports, and define any
   it doesn't with `defineChain` from the same package. AppKit fills in the CAIP fields
-  (`chainNamespace`, `caipNetworkId`) from `id`. Elysium needs this, and so does Robinhood Chain
-  if your app resolves `viem` below 2.55:
+  (`chainNamespace`, `caipNetworkId`) from `id`.
 
   ```ts
   import { defineChain, mainnet } from '@reown/appkit/networks'

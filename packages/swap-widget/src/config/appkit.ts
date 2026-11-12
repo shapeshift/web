@@ -14,6 +14,7 @@ import {
   optimism,
   plasma,
   polygon,
+  robinhood,
   solana,
 } from '@reown/appkit/networks'
 import { createAppKit, modal } from '@reown/appkit/react'
@@ -23,6 +24,8 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
+
+import { elysium } from '../constants/viemChains'
 
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
@@ -38,6 +41,8 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   hyperEvm,
   plasma,
   katana,
+  elysium,
+  robinhood,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

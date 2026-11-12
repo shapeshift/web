@@ -238,6 +238,7 @@ export const buildNearIntentsQuoteRequest = ({
     recipient,
     recipientType,
     deadline,
+    confidentiality: QuoteRequest.confidentiality.PUBLIC,
     referral: 'shapeshift',
     appFees: [
       {

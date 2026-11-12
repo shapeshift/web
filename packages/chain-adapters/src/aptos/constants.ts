@@ -5,6 +5,17 @@ export const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
 
 export const FEE_STATEMENT_EVENT_TYPE = '0x1::transaction_fee::FeeStatement'
 
+// apt's fungible asset metadata object, paired with the aptos coin
+export const APT_FA_METADATA = '0xa'
+
+export const FA_DEPOSIT_EVENT_TYPE = '0x1::fungible_asset::Deposit'
+export const FA_WITHDRAW_EVENT_TYPE = '0x1::fungible_asset::Withdraw'
+export const COIN_DEPOSIT_EVENT_TYPE = '0x1::coin::CoinDeposit'
+export const COIN_WITHDRAW_EVENT_TYPE = '0x1::coin::CoinWithdraw'
+
+export const OBJECT_CORE_RESOURCE_TYPE = '0x1::object::ObjectCore'
+export const FUNGIBLE_STORE_RESOURCE_TYPE = '0x1::fungible_asset::FungibleStore'
+
 export const INDEXER_PAGE_LIMIT = 100
 
 // the sdk default of 20s starts at build, so it can run out while a slow signer is confirming

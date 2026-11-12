@@ -2119,8 +2119,8 @@ importers:
         specifier: ^2.3.0
         version: 2.5.1(cross-fetch@4.1.0)(ethers@6.11.1(bufferutil@4.1.0)(utf-8-validate@5.0.10))(ipfs-only-hash@4.0.0)(multiformats@9.9.0)
       '@defuse-protocol/one-click-sdk-typescript':
-        specifier: ^0.1.1-0.2
-        version: 0.1.16
+        specifier: ^0.1.26
+        version: 0.1.26
       '@gobob/bob-sdk':
         specifier: 6.0.1
         version: 6.0.1(@tanstack/react-query@5.69.0(react@19.2.4))(bufferutil@4.1.0)(react-dom@18.2.0(patch_hash=472f33b26781cbf66543b4c1cdf5be1c2ea4cd7232403bb255cd75e280bf3158)(react@19.2.4))(react@19.2.4)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -3420,8 +3420,8 @@ packages:
     resolution: {integrity: sha512-QxULHAm7cNu72w97JUNCBFODFaXpbDg+dP8b/oWFAZ2MTRppA3U00Y2L1HqaS4J6yBqxwa/Y3nMBaxVKbB/NsA==}
     engines: {node: '>=20.19.0'}
 
-  '@defuse-protocol/one-click-sdk-typescript@0.1.16':
-    resolution: {integrity: sha512-uro+FN+6S/8GMNfd+Xbvhk3OgbNM2au57Zy8+aJmco0BhAB9irzQGeyf/qX9yIY0e+msgMvS3pP/tmm16I9IVw==}
+  '@defuse-protocol/one-click-sdk-typescript@0.1.26':
+    resolution: {integrity: sha512-vYoBgEbppergtYd/H1IaJW9Jm5mPrX+jAwuuhMvDFstirJB53KFe2HnGLTg0KNyg6qztbOeDK0sA/oEAee+EAw==}
     engines: {node: '>=16', pnpm: '>=8'}
 
   '@ecies/ciphers@0.2.5':
@@ -18428,10 +18428,14 @@ snapshots:
 
   '@csstools/css-tokenizer@4.0.0': {}
 
-  '@defuse-protocol/one-click-sdk-typescript@0.1.16':
+  '@defuse-protocol/one-click-sdk-typescript@0.1.26':
     dependencies:
+      '@noble/hashes': 1.8.0
+      '@scure/base': 2.4.0
       axios: 1.13.6(debug@4.4.3)
       form-data: 4.0.5
+      json-stable-stringify: 1.3.0
+      tweetnacl: 1.0.3
     transitivePeerDependencies:
       - debug
 

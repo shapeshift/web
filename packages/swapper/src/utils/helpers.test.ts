@@ -29,6 +29,12 @@ describe('getTreasuryAddressFromChainId', () => {
     [KnownChainIds.MegaEthMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
     [KnownChainIds.UnichainMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
     [KnownChainIds.ElysiumMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
+    [KnownChainIds.CeloMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
+    [KnownChainIds.CronosMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
+    [KnownChainIds.InkMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
+    [KnownChainIds.MantleMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
+    [KnownChainIds.SeiMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
+    [KnownChainIds.SonicMainnet]: '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC',
     [KnownChainIds.BitcoinMainnet]:
       'bc1q9xrjfet2a05r3jvsxx66rru7pysevk5dvqasdw9eeea3rfqlk33qr4hghh',
     [KnownChainIds.SolanaMainnet]: 'FxXyPB5RH4uHLPPJR5H89zGwZp19juBetmRwrxfsLj2j',

@@ -31,6 +31,21 @@ export const addressesMatch = (a: string, b: string): boolean => {
   }
 }
 
+// the AIP-40 form: long except for the reserved 0x0-0xf, as asset ids store them
+export const toCanonicalAddress = (address: string): string => {
+  try {
+    return AccountAddress.fromString(address, { maxMissingChars: 63 }).toString()
+  } catch {
+    return address
+  }
+}
+
+// a coin type's address part can come without leading zeros
+export const toCanonicalAssetType = (assetType: string): string => {
+  const [address, ...rest] = assetType.split('::')
+  return [toCanonicalAddress(address), ...rest].join('::')
+}
+
 export const getTransferPayload = (
   to: string,
   value: string,

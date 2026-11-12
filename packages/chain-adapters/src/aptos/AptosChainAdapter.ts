@@ -64,6 +64,7 @@ import {
   getDecimalsPayload,
   getTransferPayload,
   isFungibleAssetReference,
+  toCanonicalAssetType,
 } from './utils'
 
 export interface ChainAdapterArgs {
@@ -214,25 +215,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     const cached = this.pairedCoinTypes.get(metadata)
     if (cached) return cached
 
-    const pending = this.client
-      .view<[{ vec: { account_address: string; module_name: string; struct_name: string }[] }]>({
-        payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
-      })
-      .then(([{ vec }]) => {
-        const [typeInfo] = vec
-        if (!typeInfo) return
+    const pending = (async () => {
+      const [{ vec }] = await this.client.view<
+        [{ vec: { account_address: string; module_name: string; struct_name: string }[] }]
+      >({ payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] } })
 
-        const decode = (hex: string) =>
-          new TextDecoder().decode(Hex.fromHexInput(hex).toUint8Array())
+      const [typeInfo] = vec
+      if (!typeInfo) return
 
-        return `${typeInfo.account_address}::${decode(typeInfo.module_name)}::${decode(
+      const decode = (hex: string) => new TextDecoder().decode(Hex.fromHexInput(hex).toUint8Array())
+
+      return toCanonicalAssetType(
+        `${typeInfo.account_address}::${decode(typeInfo.module_name)}::${decode(
           typeInfo.struct_name,
-        )}`
-      })
-      .catch(err => {
-        this.pairedCoinTypes.delete(metadata)
-        throw err
-      })
+        )}`,
+      )
+    })().catch(err => {
+      this.pairedCoinTypes.delete(metadata)
+      throw err
+    })
 
     this.pairedCoinTypes.set(metadata, pending)
     return pending
@@ -241,8 +242,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   private async resolveAssetId(assetType: string): Promise<AssetId> {
     if (isAptosNativeAssetType(assetType)) return this.assetId
 
+    // a failed lookup shouldn't fail the whole parse, so fall back to the fungible asset itself
     const reference = isFungibleAssetReference(assetType)
-      ? (await this.getPairedCoinType(assetType)) ?? assetType
+      ? (await this.getPairedCoinType(assetType).catch(() => undefined)) ?? assetType
       : assetType
 
     if (reference === APT_COIN_TYPE) return this.assetId

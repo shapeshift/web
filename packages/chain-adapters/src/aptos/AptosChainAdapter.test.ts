@@ -654,6 +654,74 @@ describe('AptosChainAdapter', () => {
         ])
       })
 
+      it('falls back to the fungible asset when the paired coin lookup fails', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(panoraSwap)
+        client.view.mockRejectedValueOnce(new Error('429'))
+
+        const tx = await adapter.parseTx(panoraSwap.hash, SWAPPER)
+
+        expect(tx.transfers.map(({ assetId }) => assetId)).toEqual([
+          `aptos:1/fungible:${USDC_FA}`,
+          aptosAssetId,
+        ])
+      })
+
+      it('nets a coin and its paired fungible asset as one asset', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(
+          makeTx({
+            payload: {
+              ...makeTx().payload,
+              function: `${PANORA_ROUTER}::panora_swap::router_entry`,
+            },
+            events: [
+              {
+                type: '0x1::coin::CoinWithdraw',
+                data: { account: SWAPPER, amount: '100', coin_type: APT_COIN_TYPE },
+              },
+              { type: '0x1::fungible_asset::Deposit', data: { amount: '7', store: '0x0abc' } },
+            ],
+            changes: [
+              {
+                type: 'write_resource',
+                address: '0xabc',
+                data: { type: '0x1::object::ObjectCore', data: { owner: SWAPPER } },
+              },
+              {
+                type: 'write_resource',
+                address: '0x0000abc',
+                data: {
+                  type: '0x1::fungible_asset::FungibleStore',
+                  data: { metadata: { inner: '0xa' } },
+                },
+              },
+            ],
+          }),
+        )
+
+        const tx = await adapter.parseTx('0xtxhash', SWAPPER)
+
+        expect(tx.transfers.map(({ assetId, type, value }) => ({ assetId, type, value }))).toEqual([
+          { assetId: aptosAssetId, type: TransferType.Send, value: '93' },
+        ])
+      })
+
+      it('maps an fa transfer of apt to the native asset', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(
+          makeTx({
+            payload: {
+              type: 'entry_function_payload',
+              function: '0x1::primary_fungible_store::transfer',
+              type_arguments: [],
+              arguments: [{ inner: '0xa' }, ADDR, '5'],
+            },
+          }),
+        )
+
+        const tx = await adapter.parseTx('0xtxhash', ADDR)
+
+        expect(tx.transfers[0].assetId).toBe(aptosAssetId)
+      })
+
       it('reads no events from a failed swap', async () => {
         client.transaction.getTransactionByHash.mockResolvedValueOnce({
           ...panoraSwap,

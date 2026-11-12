@@ -19,6 +19,7 @@ export const SUPPORTED_CHAIN_IDS: readonly KnownChainIds[] = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.PolygonMainnet,
+  KnownChainIds.RobinhoodMainnet,
   // UTXO
   KnownChainIds.BitcoinCashMainnet,
   KnownChainIds.BitcoinMainnet,

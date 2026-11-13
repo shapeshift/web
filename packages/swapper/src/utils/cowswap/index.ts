@@ -55,6 +55,8 @@ export const getCowNetwork = (chainId: ChainId): CowNetwork | undefined => {
       return CowNetwork.Plasma
     case KnownChainIds.InkMainnet:
       return CowNetwork.Ink
+    case KnownChainIds.RobinhoodMainnet:
+      return CowNetwork.Robinhood
     default:
       return
   }

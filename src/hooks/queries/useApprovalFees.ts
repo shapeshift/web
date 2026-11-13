@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { getNativeErc20Address } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { maxUint256 } from 'viem'
@@ -37,10 +38,11 @@ export const useApprovalFees = ({
   enabled,
   isRefetchEnabled,
 }: UseApprovalFeesInput) => {
-  const { assetReference: to, chainId } = useMemo(() => {
-    if (!assetId) return { assetReference: undefined, chainId: undefined }
+  const { to, chainId } = useMemo(() => {
+    if (!assetId) return { to: undefined, chainId: undefined }
 
-    return fromAssetId(assetId)
+    const { assetReference, chainId } = fromAssetId(assetId)
+    return { to: getNativeErc20Address(assetId) ?? assetReference, chainId }
   }, [assetId])
 
   const approvalAmountCryptoBaseUnit = useMemo(

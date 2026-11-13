@@ -11,6 +11,8 @@ export const SWAPPER_ICONS: Partial<Record<SwapperName, string>> = {
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/maya_logo.png',
   [SwapperName.Chainflip]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/chainflip-icon.png',
+  [SwapperName.KyberSwap]:
+    'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/kyberswap-icon.png',
   //[SwapperName.ArbitrumBridge]: 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/arbitrum-bridge-icon.png',
   //[SwapperName.Bebop]: 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/bebop-icon.png',
   //[SwapperName.ButterSwap]: 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/butterswap.png',
@@ -25,6 +27,7 @@ export const SWAPPER_COLORS: Partial<Record<SwapperName, string>> = {
   [SwapperName.Thorchain]: '#00CCFF',
   [SwapperName.Mayachain]: '#4169E1',
   [SwapperName.Chainflip]: '#FF4081',
+  [SwapperName.KyberSwap]: '#31CB9E',
   //[SwapperName.ArbitrumBridge]: '#28A0F0',
   //[SwapperName.Bebop]: '#E91E63',
   //[SwapperName.ButterSwap]: '#FFD700',

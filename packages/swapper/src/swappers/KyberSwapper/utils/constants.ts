@@ -14,6 +14,7 @@ export const KYBER_CHAINS = {
   [KnownChainIds.BaseMainnet]: 'base',
   [KnownChainIds.AvalancheMainnet]: 'avalanche',
   [KnownChainIds.UnichainMainnet]: 'unichain',
+  [KnownChainIds.SonicMainnet]: 'sonic',
   [KnownChainIds.RobinhoodMainnet]: 'robinhood',
   [KnownChainIds.MonadMainnet]: 'monad',
   [KnownChainIds.HyperEvmMainnet]: 'hyperevm',

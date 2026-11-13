@@ -3,6 +3,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
+import { getNativeErc20Address } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -31,8 +32,10 @@ export const common = createQueryKeys('common', {
       // Asserts and makes the query error (i.e isError) if this errors - *not* a monadic error
       const adapter = assertGetChainAdapter(chainId)
 
-      // No approval needed for selling a fee asset
-      if (assetId === adapter.getFeeAssetId()) {
+      const nativeErc20Address = getNativeErc20Address(assetId)
+
+      // No approval needed for selling a fee asset, unless it's also an ERC20
+      if (assetId === adapter.getFeeAssetId() && !nativeErc20Address) {
         return Err(GetAllowanceErr.IsFeeAsset)
       }
 
@@ -54,7 +57,7 @@ export const common = createQueryKeys('common', {
       }
 
       const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-        address: assetReference,
+        address: nativeErc20Address ?? assetReference,
         spender,
         from,
         chainId,

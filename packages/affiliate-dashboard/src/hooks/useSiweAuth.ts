@@ -73,7 +73,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
         '',
         `URI: ${uri}`,
         'Version: 1',
-        'Chain ID: 42161',
+        'Chain ID: 1',
         `Nonce: ${nonce}`,
         `Issued At: ${issuedAt}`,
       ].join('\n')

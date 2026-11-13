@@ -13,7 +13,21 @@ import {
   optimism,
   plasma,
   polygon,
+  robinhood,
 } from 'viem/chains'
+
+export const elysium = {
+  id: 99901,
+  name: 'Elysium',
+  nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.elysium.kinetiq.xyz'] } },
+  blockExplorers: {
+    default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' },
+  },
+  contracts: {
+    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
+  },
+} as const satisfies Chain
 
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [mainnet.id]: {
@@ -56,6 +70,8 @@ export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   },
   [plasma.id]: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
   [katana.id]: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
+  [elysium.id]: elysium,
+  [robinhood.id]: robinhood,
 }
 
 export const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {

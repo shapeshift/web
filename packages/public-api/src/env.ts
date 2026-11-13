@@ -51,6 +51,7 @@ const envSchema = z.object({
   VITE_MEGAETH_NODE_URL: url,
   VITE_MONAD_NODE_URL: url,
   VITE_PLASMA_NODE_URL: url,
+  VITE_ROBINHOOD_NODE_URL: url,
 
   // Node URLs
   THORCHAIN_NODE_URL: url,

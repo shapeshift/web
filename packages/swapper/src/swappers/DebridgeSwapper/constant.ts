@@ -8,15 +8,12 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
-  mantleChainId,
   megaethChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   robinhoodChainId,
-  seiChainId,
-  sonicChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -39,15 +36,12 @@ export const chainIdToDebridgeChainId: Record<string, number> = {
   [polygonChainId]: polygon.id,
   [monadChainId]: 100000030,
   [hyperEvmChainId]: 100000022,
-  [seiChainId]: 100000027,
   [baseChainId]: base.id,
   [plasmaChainId]: 100000028,
   [arbitrumChainId]: arbitrum.id,
   [avalancheChainId]: avalanche.id,
-  [mantleChainId]: 100000023,
   [cronosChainId]: 100000019,
   [bobChainId]: 100000021,
-  [sonicChainId]: 100000014,
   [megaethChainId]: 100000031,
   [robinhoodChainId]: robinhood.id,
 }

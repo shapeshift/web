@@ -20,7 +20,6 @@ import {
   plasmaChainId,
   polygonChainId,
   robinhoodChainId,
-  seiChainId,
   solanaChainId,
   sonicChainId,
   tronChainId,
@@ -48,7 +47,6 @@ import {
   plasma,
   polygon,
   robinhood,
-  sei,
   sonic,
   tron,
   unichain,
@@ -82,7 +80,6 @@ export const chainIdToRelayChainId = {
   [sonicChainId]: sonic.id,
   [unichainChainId]: unichain.id,
   [bobChainId]: bob.id,
-  [seiChainId]: sei.id,
   [robinhoodChainId]: robinhood.id,
   [elysiumChainId]: 99901,
 }

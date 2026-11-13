@@ -1,5 +1,6 @@
 import {
   arbitrumChainId,
+  avalancheChainId,
   baseChainId,
   bscChainId,
   ethChainId,
@@ -18,6 +19,7 @@ import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
   arbitrum,
+  avalanche,
   base,
   bsc,
   hyperEvm,
@@ -38,6 +40,7 @@ import { AcrossErrorCode } from './utils/types'
 export const chainIdToAcrossChainId: Record<string, number> = {
   [ethChainId]: ethereum.id,
   [arbitrumChainId]: arbitrum.id,
+  [avalancheChainId]: avalanche.id,
   [baseChainId]: base.id,
   [optimismChainId]: optimism.id,
   [polygonChainId]: polygon.id,

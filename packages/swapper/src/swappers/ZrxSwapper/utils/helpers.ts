@@ -75,6 +75,41 @@ export const zrxTokenToAssetId = (token: string, chainId: ChainId): AssetId => {
           assetReference: ASSET_REFERENCE.Elysium,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case KnownChainIds.MonadMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Monad,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.HyperEvmMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.HyperEvm,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.PlasmaMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Plasma,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.MantleMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Mantle,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.InkMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Ink,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.SonicMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Sonic,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.UnichainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Unichain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${chainId}' not supported`)
     }

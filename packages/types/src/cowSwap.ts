@@ -320,6 +320,7 @@ export enum CowNetwork {
   Bnb = 'bnb',
   Plasma = 'plasma',
   Ink = 'ink',
+  Robinhood = 'robinhood',
 }
 
 export type CowChainId =
@@ -332,6 +333,7 @@ export type CowChainId =
   | KnownChainIds.BnbSmartChainMainnet
   | KnownChainIds.PlasmaMainnet
   | KnownChainIds.InkMainnet
+  | KnownChainIds.RobinhoodMainnet
 
 export type TypedDataField = { name: string; type: string }
 export type TypedDataTypes = Record<string, TypedDataField[]>

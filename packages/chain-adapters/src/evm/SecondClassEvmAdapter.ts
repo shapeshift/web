@@ -122,6 +122,13 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         { throwOnTimeout: true },
       )
 
+      // Flashblock rpcs (e.g. unichain) serve preconfirmed receipts before balance reads at latest include them
+      const latestBlockNumber = await this.requestQueue.add(
+        () => this.viemClient.getBlockNumber({ cacheTime: 0 }),
+        { throwOnTimeout: true },
+      )
+      if (latestBlockNumber < receipt.blockNumber) return TxStatus.Pending
+
       switch (receipt.status) {
         case 'success':
           return TxStatus.Confirmed

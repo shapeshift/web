@@ -10,7 +10,7 @@ import type {
   TradeRate,
 } from '@shapeshiftoss/swapper'
 import { getChainIdBySwapper, SwapperName, TradeType } from '@shapeshiftoss/swapper'
-import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { bnOrZero, getApprovalTokenAddress } from '@shapeshiftoss/utils'
 
 import { validateTradeQuote } from './validateTradeQuote'
 
@@ -171,7 +171,7 @@ const getFirstHopApprovalNetworkFeeCryptoBaseUnit = async (
     if (!allowanceContract) return
     if (fromAssetId(sellAsset.assetId).chainNamespace !== CHAIN_NAMESPACE.Evm) return
 
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    const contractAddress = getApprovalTokenAddress(sellAsset.assetId)
     if (!contractAddress) return
 
     const allowanceResult = await queryClient.fetchQuery({

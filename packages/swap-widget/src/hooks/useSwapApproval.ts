@@ -39,15 +39,6 @@ export const useSwapApproval = () => {
           return
         }
 
-        const sellAssetAddress = sellAsset.assetId.split('/')[1]?.split(':')[1]
-        if (!sellAssetAddress || !/^0x[a-fA-F0-9]{40}$/.test(sellAssetAddress)) {
-          actorRef.send({
-            type: 'APPROVAL_ERROR',
-            error: 'This asset does not need an approval',
-          })
-          return
-        }
-
         if (!sellAmountBaseUnit || sellAmountBaseUnit === '0') {
           actorRef.send({
             type: 'APPROVAL_ERROR',

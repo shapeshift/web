@@ -151,6 +151,10 @@ const evmAdapters: Record<ChainId, adapters.EvmChainAdapter> = {
     rpcUrl: env.VITE_PLASMA_NODE_URL,
     getKnownTokens: makeGetKnownTokens(KnownChainIds.PlasmaMainnet, 'erc20'),
   }),
+  [KnownChainIds.RobinhoodMainnet]: new adapters.robinhood.ChainAdapter({
+    rpcUrl: env.VITE_ROBINHOOD_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.RobinhoodMainnet, 'erc20'),
+  }),
 }
 
 const utxoAdapters: Record<ChainId, adapters.UtxoChainAdapter> = {

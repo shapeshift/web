@@ -1,6 +1,10 @@
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
-import { assertUnreachable, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import {
+  assertUnreachable,
+  contractAddressOrUndefined,
+  getNativeErc20Address,
+} from '@shapeshiftoss/utils'
 import type { Address, Hex, PublicClient, StateOverride } from 'viem'
 import { encodeFunctionData, erc20Abi, getAddress, maxUint256, pad, parseEther, toHex } from 'viem'
 
@@ -303,16 +307,20 @@ export const getMinimalStateOverride = async ({
   const from = getAddress(_from)
   const valueBigInt = BigInt(value || '0')
   const sellAmount = BigInt(sellAmountCryptoBaseUnit)
+  const nativeErc20Address = getNativeErc20Address(sellAsset.assetId)
   const contractAddress = isNativeEvmAsset(sellAsset.assetId)
-    ? undefined
+    ? nativeErc20Address
     : contractAddressOrUndefined(sellAsset.assetId)
+
+  // A native ERC20 pulled via transferFrom (no value sent) still draws on the native balance
+  const requiredNativeBalance = nativeErc20Address && valueBigInt === 0n ? sellAmount : valueBigInt
 
   const stateOverride: StateOverride = []
 
   const needsNativeBalance = async () => {
-    if (valueBigInt <= 0n) return false
+    if (requiredNativeBalance <= 0n) return false
     const balance = await client.getBalance({ address: from })
-    return balance < valueBigInt
+    return balance < requiredNativeBalance
   }
 
   if (!contractAddress) {
@@ -354,7 +362,7 @@ export const getMinimalStateOverride = async ({
 
   const stateDiff = (
     await Promise.all([
-      balance < sellAmount
+      !nativeErc20Address && balance < sellAmount
         ? discoverStorageSlot({
             client,
             chainId: sellAsset.chainId,

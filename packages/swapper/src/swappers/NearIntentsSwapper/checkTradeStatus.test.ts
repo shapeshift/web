@@ -10,11 +10,13 @@ vi.mock('./utils/oneClickService', () => ({
   OneClickService: { getExecutionStatus: vi.fn() },
 }))
 
-const makeInput = (): CheckTradeStatusInput =>
+const makeInput = (depositMemo?: string): CheckTradeStatusInput =>
   ({
     config: { VITE_NEAR_INTENTS_API_KEY: 'key' },
     swap: {
-      metadata: { swapperMetadata: { name: 'nearIntents', depositAddress: '0xdepositaddress' } },
+      metadata: {
+        swapperMetadata: { name: 'nearIntents', depositAddress: '0xdepositaddress', depositMemo },
+      },
     },
   }) as unknown as CheckTradeStatusInput
 
@@ -71,5 +73,19 @@ describe('near intents checkTradeStatus', () => {
     })
 
     expect((await nearIntentsApi.checkTradeStatus(makeInput())).sellTxHash).toBeUndefined()
+  })
+
+  it('looks the swap up by its deposit memo, as memo chains share a deposit address', async () => {
+    mockExecutionStatus({
+      status: 'PROCESSING',
+      swapDetails: { originChainTxHashes: [], destinationChainTxHashes: [] },
+    })
+
+    await nearIntentsApi.checkTradeStatus(makeInput('12345'))
+    await nearIntentsApi.checkTradeStatus(makeInput())
+
+    const { getExecutionStatus } = OneClickService
+    expect(getExecutionStatus).toHaveBeenNthCalledWith(1, '0xdepositaddress', '12345')
+    expect(getExecutionStatus).toHaveBeenNthCalledWith(2, '0xdepositaddress', undefined)
   })
 })

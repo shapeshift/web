@@ -2,7 +2,7 @@ import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { tron } from '@shapeshiftoss/chain-adapters'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { SwapperDeps, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { isToken } from '@shapeshiftoss/utils'
+import { getApprovalTokenAddress } from '@shapeshiftoss/utils'
 import type { Address } from 'viem'
 import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
 
@@ -20,10 +20,14 @@ const NO_APPROVAL: ApprovalInfo = { isRequired: false, spender: '', approvalTxs:
 // simulating the approve as the owner, so no token list is needed. A revert, a false return,
 // a non-standard (return-less) token, or a transient RPC failure all land on the reset side -
 // a spurious approve(spender, 0) is a harmless extra transaction, never an unexecutable quote
-const buildEvmApprovalInfo = async (step: TradeQuoteStep, owner: string): Promise<ApprovalInfo> => {
+const buildEvmApprovalInfo = async (
+  step: TradeQuoteStep,
+  owner: string,
+  approvalTokenAddress: string,
+): Promise<ApprovalInfo> => {
   const spender = step.allowanceContract
   const client = viemClientByChainId[step.sellAsset.chainId]
-  const tokenAddress = getAddress(fromAssetId(step.sellAsset.assetId).assetReference)
+  const tokenAddress = getAddress(approvalTokenAddress)
 
   const allowance = await client.readContract({
     address: tokenAddress,
@@ -116,14 +120,14 @@ export const buildApprovalInfo = (
   owner: string,
   deps: SwapperDeps,
 ): Promise<ApprovalInfo> => {
-  if (!isToken(step.sellAsset.assetId) || !step.allowanceContract)
-    return Promise.resolve(NO_APPROVAL)
+  const approvalTokenAddress = getApprovalTokenAddress(step.sellAsset.assetId)
+  if (!approvalTokenAddress || !step.allowanceContract) return Promise.resolve(NO_APPROVAL)
 
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
-      return buildEvmApprovalInfo(step, owner)
+      return buildEvmApprovalInfo(step, owner, approvalTokenAddress)
     case CHAIN_NAMESPACE.Tron:
       return buildTronApprovalInfo(
         step,

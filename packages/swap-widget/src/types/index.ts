@@ -9,6 +9,7 @@ import {
   CHAIN_NAMESPACE,
   cosmosChainId,
   dogeChainId,
+  elysiumChainId,
   ethChainId,
   fromChainId,
   gnosisChainId,
@@ -22,6 +23,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  robinhoodChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -45,6 +47,7 @@ export enum SwapperName {
   Thorchain = 'THORChain',
   Mayachain = 'MAYAChain',
   Chainflip = 'Chainflip',
+  KyberSwap = 'KyberSwap',
   //ArbitrumBridge = 'Arbitrum Bridge',
   //Avnu = 'AVNU',
   //Bebop = 'Bebop',
@@ -254,6 +257,8 @@ export const EVM_CHAIN_IDS = {
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,
   katana: katanaChainId,
+  elysium: elysiumChainId,
+  robinhood: robinhoodChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {

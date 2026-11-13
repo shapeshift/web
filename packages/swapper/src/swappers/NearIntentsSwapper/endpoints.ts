@@ -232,13 +232,15 @@ export const nearIntentsApi: SwapperApi = {
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     if (!swap) throw new Error('Missing swap')
 
-    const { depositAddress } = getSwapMetadata(swap.metadata.swapperMetadata, 'nearIntents')
+    const { depositAddress, depositMemo } = getSwapMetadata(
+      swap.metadata.swapperMetadata,
+      'nearIntents',
+    )
 
     initializeOneClickService(config.VITE_NEAR_INTENTS_API_KEY)
 
     try {
-      // TODO(gomes): SDK doesn't support depositMemo yet in getExecutionStatus
-      const statusResponse = await OneClickService.getExecutionStatus(depositAddress)
+      const statusResponse = await OneClickService.getExecutionStatus(depositAddress, depositMemo)
 
       const txStatus = mapNearIntentsStatus(statusResponse.status)
       const message = getNearIntentsStatusMessage(statusResponse.status)

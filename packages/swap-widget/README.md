@@ -45,6 +45,7 @@ npm install react react-dom \
 ```
 
 - **React 18 or 19** is supported (`^18.0.0 || ^19.0.0`).
+- **viem 2.55 or later** is required (`^2.55.0`).
 
 ### Import the stylesheet
 
@@ -106,6 +107,39 @@ and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it 
   - **Dedupe the AppKit/wagmi packages.** `@reown/appkit*`, `wagmi`, and `viem` must resolve to a single
     shared copy in your app, so the widget and your app share one AppKit instance and one wagmi state. A
     duplicated copy means the widget reads an empty store and shows no connection.
+
+  Include every EVM chain you want the widget to use in **both** your `WagmiAdapter` `networks` and
+  your `createAppKit` `networks`. The widget reads balances through the wagmi config, which is built
+  only from the chains you pass to `WagmiAdapter`. If a chain is missing there, its balances don't
+  load, even when AppKit lists it. Import the chains `@reown/appkit/networks` exports, and define any
+  it doesn't with `defineChain` from the same package. AppKit fills in the CAIP fields
+  (`chainNamespace`, `caipNetworkId`) from `id`.
+
+  ```ts
+  import { defineChain, mainnet } from '@reown/appkit/networks'
+  import { createAppKit } from '@reown/appkit/react'
+  import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+
+  const elysium = defineChain({
+    id: 99901,
+    name: 'Elysium',
+    nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
+    rpcUrls: { default: { http: ['https://rpc.elysium.kinetiq.xyz'] } },
+    blockExplorers: { default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' } },
+  })
+
+  const wagmiAdapter = new WagmiAdapter({ networks: [mainnet, elysium], projectId })
+
+  createAppKit({
+    adapters: [wagmiAdapter],
+    networks: [mainnet, elysium],
+    projectId,
+    // ...the rest of your AppKit config
+  })
+  ```
+
+  If you also register Bitcoin or Solana adapters, add those networks to the `createAppKit` list only.
+  `WagmiAdapter` takes EVM chains.
 
 The header shows a built-in **Connect** button by default; set `showConnectButton={false}` to hide it
 and drive connection from your own UI.
@@ -628,6 +662,8 @@ const EVM_CHAIN_IDS = {
   hyperEvm: 'eip155:999',
   plasma: 'eip155:9745',
   katana: 'eip155:747474',
+  elysium: 'eip155:99901',
+  robinhood: 'eip155:4663',
 }
 
 const UTXO_CHAIN_IDS = {
@@ -706,6 +742,8 @@ disabled, only chains the widget can sign for or pay externally stay in the sele
 | HyperEVM          | `eip155:999`                              | EVM    | ✅                   |
 | Plasma            | `eip155:9745`                             | EVM    | ✅                   |
 | Katana            | `eip155:747474`                           | EVM    | ✅                   |
+| Elysium           | `eip155:99901`                            | EVM    | ✅                   |
+| Robinhood Chain   | `eip155:4663`                             | EVM    | ✅                   |
 | Bitcoin           | `bip122:000000000019d6689c085ae165831e93` | UTXO   | ✅                   |
 | Bitcoin Cash      | `bip122:000000000000000000651ef99cb9fcbe` | UTXO   | ✅                   |
 | Dogecoin          | `bip122:00000000001a91e3dace36e2be3bf030` | UTXO   | ✅                   |
@@ -730,6 +768,7 @@ restrict which protocols are quoted.
 - **Relay** (`SwapperName.Relay`)
 - **THORChain** (`SwapperName.Thorchain`)
 - **MAYAChain** (`SwapperName.Mayachain`)
+- **KyberSwap** (`SwapperName.KyberSwap`) — same-chain EVM only
 
 Protocols marked *deposit address* can be paid from any wallet — see
 [Externally Paid Swaps](#externally-paid-swaps).

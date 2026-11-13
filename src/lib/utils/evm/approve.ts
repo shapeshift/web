@@ -1,5 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { getNativeErc20Address } from '@shapeshiftoss/utils'
 
 import {
   assertGetEvmChainAdapter,
@@ -18,7 +19,8 @@ export const approve = async ({
   from,
   pubKey,
 }: ApproveInputWithWallet) => {
-  const { assetReference: to, chainId } = fromAssetId(assetId)
+  const { assetReference, chainId } = fromAssetId(assetId)
+  const to = getNativeErc20Address(assetId) ?? assetReference
 
   const adapter = assertGetEvmChainAdapter(chainId)
 

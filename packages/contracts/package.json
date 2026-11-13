@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/contracts",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",

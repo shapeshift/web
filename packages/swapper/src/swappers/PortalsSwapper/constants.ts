@@ -14,4 +14,5 @@ export const chainIdToPortalsNetwork: Partial<Record<KnownChainIds, string>> = {
   [KnownChainIds.HyperEvmMainnet]: 'hyperevm',
   [KnownChainIds.SonicMainnet]: 'sonic',
   [KnownChainIds.PlasmaMainnet]: 'plasma',
+  [KnownChainIds.RobinhoodMainnet]: 'robinhood',
 }

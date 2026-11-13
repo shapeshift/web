@@ -10,6 +10,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  robinhoodChainId,
   sonicChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
@@ -149,6 +150,7 @@ export const getPortalsRouterAddressByChainId = (
     case baseChainId:
     case sonicChainId:
     case plasmaChainId:
+    case robinhoodChainId:
       return '0xb0324286b3ef7dddc93fb2ff7c8b7b8a3524803c'
     case hyperEvmChainId:
       return '0x2db3b92918ece265c7d5d9d975c69d89b8b1136c'

@@ -11,8 +11,6 @@ import {
   plasmaChainId,
   polygonChainId,
   robinhoodChainId,
-  seiChainId,
-  sonicChainId,
   tronChainId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
@@ -30,8 +28,6 @@ export const chainIdToBobGatewayChainName = {
   [bobChainId]: 'bob',
   [bscChainId]: 'bsc',
   [ethChainId]: 'ethereum',
-  [seiChainId]: 'sei',
-  [sonicChainId]: 'sonic',
   [unichainChainId]: 'unichain',
   [plasmaChainId]: 'plasma',
   [polygonChainId]: 'polygon',

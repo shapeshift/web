@@ -20,6 +20,7 @@ export const bebopSupportedEvmChainIds = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.RobinhoodMainnet,
+  KnownChainIds.HyperEvmMainnet,
 ] as const
 
 export const bebopSupportedChainIds = [
@@ -118,6 +119,7 @@ export const chainIdToBebopChain: Record<BebopSupportedChainId, string> = {
   [KnownChainIds.OptimismMainnet]: 'optimism',
   [KnownChainIds.BnbSmartChainMainnet]: 'bsc',
   [KnownChainIds.RobinhoodMainnet]: 'robinhood',
+  [KnownChainIds.HyperEvmMainnet]: 'hyperevm',
   [KnownChainIds.SolanaMainnet]: 'solana',
 }
 

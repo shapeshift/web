@@ -22,6 +22,13 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.BaseMainnet,
   KnownChainIds.RobinhoodMainnet,
   KnownChainIds.ElysiumMainnet,
+  KnownChainIds.MonadMainnet,
+  KnownChainIds.HyperEvmMainnet,
+  KnownChainIds.PlasmaMainnet,
+  KnownChainIds.MantleMainnet,
+  KnownChainIds.InkMainnet,
+  KnownChainIds.SonicMainnet,
+  KnownChainIds.UnichainMainnet,
 ])
 
 // https://0x.org/docs/developer-resources/faqs-and-troubleshooting

@@ -83,5 +83,15 @@ export const assertValidTrade = ({
     )
   }
 
+  // Routes involving Solana are bridge-only, so a Solana origin must also be USDC
+  if (sellAsset.chainId === solanaChainId && sellAsset.assetId !== usdcOnSolanaAssetId) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Across only supports USDC as source token on Solana',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   return Ok({ sellAcrossChainId, buyAcrossChainId })
 }

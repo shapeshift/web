@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { getExpoToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { isMobile } from '@/lib/globals'
-import { getOrCreateUser, getOrRegisterDevice } from '@/lib/user/api'
+import { getOrRegisterDevice, getUser, shouldRetryUserRequest } from '@/lib/user/api'
 import type { User } from '@/lib/user/types'
 import { DeviceType } from '@/lib/user/types'
 import { selectWalletEnabledAccountIds } from '@/state/slices/common-selectors'
@@ -43,11 +43,9 @@ export const useUser = (): UseUserData => {
     error: userError,
     refetch: refetchUser,
   } = useQuery({
-    queryKey: ['user', walletEnabledAccountIds],
-    queryFn:
-      walletEnabledAccountIds.length > 0 && isWebServicesEnabled
-        ? () => getOrCreateUser({ accountIds: walletEnabledAccountIds })
-        : skipToken,
+    queryKey: ['device-profile'],
+    queryFn: walletEnabledAccountIds.length > 0 && isWebServicesEnabled ? getUser : skipToken,
+    retry: shouldRetryUserRequest,
     staleTime: Infinity,
     gcTime: Infinity,
   })
@@ -70,10 +68,13 @@ export const useUser = (): UseUserData => {
                 }
               }
 
-              const storedDeviceToken = localStorage.getItem('deviceToken')
+              // Device tokens are globally unique server-side, so a token registered to a previous
+              // profile (wallet-based lookup, or a cleared device key) can't be reused by this one
+              const deviceTokenKey = `deviceToken:${userData.id}`
+              const storedDeviceToken = localStorage.getItem(deviceTokenKey)
               const deviceToken = storedDeviceToken ?? uuidv4()
               if (!storedDeviceToken) {
-                localStorage.setItem('deviceToken', deviceToken)
+                localStorage.setItem(deviceTokenKey, deviceToken)
               }
 
               return {
@@ -94,6 +95,7 @@ export const useUser = (): UseUserData => {
             }
           }
         : skipToken,
+    retry: shouldRetryUserRequest,
     staleTime: Infinity,
     gcTime: Infinity,
   })

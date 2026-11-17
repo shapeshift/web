@@ -4,6 +4,7 @@ declare global {
     ReactNativeWebView?: {
       postMessage: (msg: string) => void
     }
+    shapeshiftMobileCapabilities?: Readonly<{ nativeDeleteConfirmation?: boolean }>
   }
   interface String {
     split<Separator extends string | RegExp, Limit extends number>(

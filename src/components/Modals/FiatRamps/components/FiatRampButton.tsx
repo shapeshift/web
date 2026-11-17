@@ -70,17 +70,18 @@ export const FiatRampButton: React.FC<FiatRampButtonProps> = ({
       >
         <Flex
           flex={1}
+          minWidth={0}
           flexWrap='wrap'
           justifyContent='space-between'
           alignItems='center'
           gap={flexGap}
           width='100%'
         >
-          <Flex flexDirection='row' justifyContent='center' alignItems='center'>
-            <AssetIcon src={logo} boxSize='8' />
+          <Flex flexDirection='row' alignItems='center' minWidth={0}>
+            <AssetIcon src={logo} boxSize='8' flexShrink={0} />
             <Box textAlign='left' ml={2}>
               <Text fontWeight='bold' translation={label} />
-              <Text translation={info ?? ''} />
+              <Text whiteSpace='normal' overflowWrap='anywhere' translation={info ?? ''} />
             </Box>
           </Flex>
           <Flex gap={2}>{renderTags}</Flex>

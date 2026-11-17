@@ -22,7 +22,10 @@ import { SettingsListItem } from './SettingsListItem'
 
 import { getLocaleLabel } from '@/assets/translations/utils'
 import { RawText } from '@/components/Text'
-import { deleteWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import {
+  deleteWallet,
+  hasNativeDeleteConfirmation,
+} from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -81,21 +84,25 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose }) => {
   )
 
   const handleDeleteAccountsClick = useCallback(async () => {
-    if (window.confirm(translate('modals.settings.deleteAccountsConfirm'))) {
-      try {
-        await deleteWallet('*')
+    // The mobile app confirms natively when it advertises it; older versions do not
+    if (
+      !hasNativeDeleteConfirmation() &&
+      !window.confirm(translate('modals.settings.deleteAccountsConfirm'))
+    )
+      return
+    try {
+      if ((await deleteWallet('*')) !== true) return
 
-        appDispatch(portfolio.actions.clear())
+      appDispatch(portfolio.actions.clear())
 
-        if (onClose) {
-          onClose()
-        } else {
-          settings.close()
-        }
-        disconnect()
-      } catch (e) {
-        console.log(e)
+      if (onClose) {
+        onClose()
+      } else {
+        settings.close()
       }
+      disconnect()
+    } catch (e) {
+      console.log(e)
     }
   }, [translate, settings, disconnect, appDispatch, onClose])
 

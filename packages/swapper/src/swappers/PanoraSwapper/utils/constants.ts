@@ -5,6 +5,3 @@ export const PANORA_FALLBACK_NETWORK_FEE_CRYPTO_BASE_UNIT = '1000000'
 
 // Panora pays the integrator half of integratorFeePercentage and keeps the rest, so request double to receive affiliateBps
 export const PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER = 2
-
-// Panora rejects an integratorFeePercentage of 5 or more
-export const PANORA_MAX_INTEGRATOR_FEE_PERCENTAGE = 5

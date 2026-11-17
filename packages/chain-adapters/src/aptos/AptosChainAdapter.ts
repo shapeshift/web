@@ -12,17 +12,17 @@ import {
   isUserTransactionResponse,
   MimeType,
   Network,
+  parseEncodedStruct,
   postAptosFullNode,
   RawTransaction,
   SignedTransaction,
   SimpleTransaction,
   TransactionAuthenticatorEd25519,
 } from '@aptos-labs/ts-sdk'
-import type { AptosTypeInfo, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   aptosAssetId,
   aptosChainId,
-  aptosTypeInfoToCoinType,
   ASSET_REFERENCE,
   getAptosAssetNamespace,
   toAssetId,
@@ -57,13 +57,14 @@ import {
   INDEXER_PAGE_LIMIT,
   TX_EXPIRY_SECS,
 } from './constants'
-import { isAptosNativeAssetType, parseAptosTx } from './parser'
-import type { BuildCustomApiTxInput, Token } from './types'
+import { parseAptosTx } from './parser'
+import type { BuildCustomApiTxInput, MoveTypeInfo, Token } from './types'
 import {
   deserializePayload,
   getBalancePayload,
   getDecimalsPayload,
   getTransferPayload,
+  isAptosNativeAssetType,
   isFungibleAssetReference,
 } from './utils'
 
@@ -220,19 +221,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     const cached = this.pairedCoinTypes.get(metadata)
     if (cached) return cached
 
-    const pending = (async () => {
-      try {
-        const [{ vec }] = await this.client.view<[{ vec: AptosTypeInfo[] }]>({
-          payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
-        })
+    const pending = this.client
+      .view<[{ vec: MoveTypeInfo[] }]>({
+        payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
+      })
+      .then(([{ vec }]) => (vec[0] ? parseEncodedStruct(vec[0]) : undefined))
 
-        return vec[0] ? aptosTypeInfoToCoinType(vec[0]) : undefined
-      } catch (err) {
-        this.pairedCoinTypes.delete(metadata)
-        throw err
-      }
-    })()
-
+    pending.catch(() => this.pairedCoinTypes.delete(metadata))
     this.pairedCoinTypes.set(metadata, pending)
 
     return pending

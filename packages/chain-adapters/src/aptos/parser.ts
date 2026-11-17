@@ -5,6 +5,8 @@ import type {
   UserTransactionResponse,
 } from '@aptos-labs/ts-sdk'
 import {
+  AccountAddress,
+  getFunctionParts,
   isFeePayerSignature,
   isPendingTransactionResponse,
   isUserTransactionResponse,
@@ -15,7 +17,6 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Transaction, TxTransfer } from '../types'
 import {
   APT_COIN_TYPE,
-  APT_FA_METADATA,
   COIN_DEPOSIT_EVENT_TYPE,
   COIN_TRANSFER_FUNCTIONS,
   COIN_WITHDRAW_EVENT_TYPE,
@@ -32,10 +33,12 @@ type ParsedTransfer = { assetType: string; recipient: string; amount: string }
 
 export type AptosAssetIdResolver = (assetType: string) => Promise<AssetId>
 
-// keyed by fa metadata address in long form, or by coin type as the chain displays it
-type BalanceChange = { assetType: string; owner: string; amount: bigint }
-
-const FRAMEWORK_ADDRESS = '0x1'
+type BalanceChange = {
+  // a coin type as the chain displays it, or a canonical fa metadata address
+  assetType: string
+  owner: string
+  amount: bigint
+}
 
 const parseTransferPayload = (
   payload: EntryFunctionPayloadResponse,
@@ -70,20 +73,18 @@ const getStores = (tx: UserTransactionResponse) => {
   // object resource groups are written whole, so a store's owner and metadata come with any balance change
   for (const change of tx.changes) {
     if (change.type !== 'write_resource' || !('address' in change) || !('data' in change)) continue
-
-    // a write_resource change carries a resource, never module bytecode
     if (!('type' in change.data)) continue
 
-    const address = toCanonicalAddress(change.address)
     const { type, data } = change.data
+    if (type !== OBJECT_CORE_RESOURCE_TYPE && type !== FUNGIBLE_STORE_RESOURCE_TYPE) continue
+
+    const address = toCanonicalAddress(change.address)
     const store = stores.get(address) ?? {}
 
     if (type === OBJECT_CORE_RESOURCE_TYPE) {
       store.owner = toCanonicalAddress((data as { owner: string }).owner)
-    } else if (type === FUNGIBLE_STORE_RESOURCE_TYPE) {
-      store.metadata = toCanonicalAddress((data as { metadata: { inner: string } }).metadata.inner)
     } else {
-      continue
+      store.metadata = toCanonicalAddress((data as { metadata: { inner: string } }).metadata.inner)
     }
 
     stores.set(address, store)
@@ -94,11 +95,11 @@ const getStores = (tx: UserTransactionResponse) => {
     if (type !== FA_STORE_DELETION_EVENT_TYPE) continue
 
     const address = toCanonicalAddress(data.store)
-    const store = stores.get(address)
 
     stores.set(address, {
-      owner: store?.owner ?? toCanonicalAddress(data.owner),
-      metadata: store?.metadata ?? toCanonicalAddress(data.metadata),
+      owner: toCanonicalAddress(data.owner),
+      metadata: toCanonicalAddress(data.metadata),
+      ...stores.get(address),
     })
   }
 
@@ -137,25 +138,25 @@ const getBalanceChanges = (tx: UserTransactionResponse): BalanceChange[] => {
   })
 }
 
-export const isAptosNativeAssetType = (assetType: string): boolean =>
-  assetType === APT_COIN_TYPE || addressesMatch(assetType, APT_FA_METADATA)
-
 // swaps and other contract calls move funds through events rather than a transfer payload
 const parseEventTransfers = async (
   tx: UserTransactionResponse,
   pubkey: string,
   resolveAssetId: AptosAssetIdResolver,
 ): Promise<TxTransfer[]> => {
+  const owner = toCanonicalAddress(pubkey)
   const changes = getBalanceChanges(tx)
-  const isOwn = ({ owner }: BalanceChange) => addressesMatch(owner, pubkey)
+  const ownChanges = changes.filter(change => change.owner === owner)
   const isSender = addressesMatch(tx.sender, pubkey)
-  const contract = 'function' in tx.payload ? tx.payload.function.split('::')[0] : undefined
+  const contract =
+    'function' in tx.payload ? getFunctionParts(tx.payload.function).moduleAddress : undefined
 
   // framework calls and scripts move funds between accounts directly, so the other accounts are the counterparties
-  const isDirect = isSender && (!contract || addressesMatch(contract, FRAMEWORK_ADDRESS))
+  const isDirect =
+    isSender && (!contract || addressesMatch(contract, AccountAddress.ONE.toString()))
 
-  const resolved = isDirect ? changes : changes.filter(isOwn)
-  const assetTypes = [...new Set(resolved.map(({ assetType }) => assetType))]
+  const toResolve = isDirect ? changes : ownChanges
+  const assetTypes = [...new Set(toResolve.map(({ assetType }) => assetType))]
   const assetIds = new Map(
     await Promise.all(
       assetTypes.map(async assetType => [assetType, await resolveAssetId(assetType)] as const),
@@ -164,10 +165,9 @@ const parseEventTransfers = async (
 
   // a coin and its paired fungible asset are one asset, so net after resolving
   const netByAssetId = new Map<AssetId, bigint>()
-  for (const change of changes) {
-    const assetId = assetIds.get(change.assetType)
-    if (!assetId || !isOwn(change)) continue
-    netByAssetId.set(assetId, (netByAssetId.get(assetId) ?? 0n) + change.amount)
+  for (const { assetType, amount } of ownChanges) {
+    const assetId = assetIds.get(assetType)
+    if (assetId) netByAssetId.set(assetId, (netByAssetId.get(assetId) ?? 0n) + amount)
   }
 
   // the accounts on the other side of the pubkey's net change in this asset
@@ -176,32 +176,27 @@ const parseEventTransfers = async (
     if (!isDirect && contract) return [contract]
 
     const others = changes
-      .filter(change => !isOwn(change) && assetIds.get(change.assetType) === assetId)
-      .filter(change => (amount > 0n ? change.amount < 0n : change.amount > 0n))
-      .map(({ owner }) => owner)
+      .filter(change => change.owner !== owner && assetIds.get(change.assetType) === assetId)
+      .filter(change => change.amount * amount < 0n)
+      .map(change => change.owner)
 
     return others.length ? [...new Set(others)] : [contract ?? tx.sender]
   }
 
   return [...netByAssetId]
     .filter(([, amount]) => amount !== 0n)
-    .map(([assetId, amount]) =>
-      amount > 0n
-        ? {
-            assetId,
-            from: getCounterparties(assetId, amount),
-            to: [pubkey],
-            type: TransferType.Receive,
-            value: amount.toString(),
-          }
-        : {
-            assetId,
-            from: [pubkey],
-            to: getCounterparties(assetId, amount),
-            type: TransferType.Send,
-            value: (-amount).toString(),
-          },
-    )
+    .map(([assetId, amount]) => {
+      const isReceive = amount > 0n
+      const counterparties = getCounterparties(assetId, amount)
+
+      return {
+        assetId,
+        from: isReceive ? counterparties : [pubkey],
+        to: isReceive ? [pubkey] : counterparties,
+        type: isReceive ? TransferType.Receive : TransferType.Send,
+        value: (isReceive ? amount : -amount).toString(),
+      }
+    })
 }
 
 // sponsored transactions are paid by the fee payer rather than the sender

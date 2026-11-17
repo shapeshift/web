@@ -19,21 +19,6 @@ export const getAptosAssetNamespace = (assetReference: string): AssetNamespace =
     ? constants.ASSET_NAMESPACE.aptosCoin
     : constants.ASSET_NAMESPACE.aptosFungible
 
-export type AptosTypeInfo = { account_address: string; module_name: string; struct_name: string }
-
-const hexToUtf8 = (hex: string) =>
-  new TextDecoder().decode(
-    Uint8Array.from(hex.replace(/^0x/, '').match(/../g) ?? [], byte => parseInt(byte, 16)),
-  )
-
-// type_info returns its module and struct names as hex encoded bytes
-export const aptosTypeInfoToCoinType = ({
-  account_address,
-  module_name,
-  struct_name,
-}: AptosTypeInfo): string =>
-  `${account_address}::${hexToUtf8(module_name)}::${hexToUtf8(struct_name)}`
-
 export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
   chainReference: ChainReference,

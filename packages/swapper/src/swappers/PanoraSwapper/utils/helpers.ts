@@ -166,11 +166,10 @@ export const getPanoraTradeAmounts = ({
 > => {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
 
-  // toTokenAmount is net of the integrator fee, which feeTokenAmount values in the buy asset
+  // toTokenAmount already excludes the whole integrator fee, and feeTokenAmount is that fee in the buy asset
   const buyAmountAfterFeesCryptoBaseUnit = toBaseUnit(quote.toTokenAmount, buyAsset.precision)
   const integratorFeeCryptoBaseUnit = toBaseUnit(quote.feeTokenAmount, buyAsset.precision)
 
-  // half of the integrator fee is Panora's, so only the rest is ours
   const affiliateFeeCryptoBaseUnit = bn(integratorFeeCryptoBaseUnit)
     .div(PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER)
     .toFixed(0)

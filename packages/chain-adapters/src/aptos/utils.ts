@@ -5,6 +5,7 @@ import type {
 } from '@aptos-labs/ts-sdk'
 import {
   AccountAddress,
+  APTOS_FA,
   Deserializer,
   generateTransactionPayloadWithABI,
   Hex,
@@ -21,6 +22,9 @@ import { APT_COIN_TYPE, COIN_TRANSFER_ABI, FA_TRANSFER_ABI } from './constants'
 
 export const isFungibleAssetReference = (reference: string): boolean =>
   getAptosAssetNamespace(reference) === ASSET_NAMESPACE.aptosFungible
+
+export const isAptosNativeAssetType = (assetType: string): boolean =>
+  assetType === APT_COIN_TYPE || addressesMatch(assetType, APTOS_FA)
 
 // aptos addresses can differ in casing and leading zeros for the same account
 export const addressesMatch = (a: string, b: string): boolean => {

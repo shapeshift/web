@@ -26,7 +26,7 @@ export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault, onBack }) =
 
   const handleDelete = useCallback(async () => {
     try {
-      if (await deleteMobileWallet(vault)) return onBack()
+      if (await deleteMobileWallet(vault, onBack)) return
       // A cancelled native confirmation is not an error
       if (!hasNativeDeleteConfirmation()) setError('walletProvider.shapeShift.load.error.delete')
     } catch (e) {

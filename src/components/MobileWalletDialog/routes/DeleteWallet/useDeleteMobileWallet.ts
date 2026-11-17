@@ -10,7 +10,7 @@ import { useAppDispatch } from '@/state/store'
  * Delete a saved mobile wallet and clear its local state.
  *
  * Resolves `false` when the mobile app did not delete it, e.g. the user cancelled the
- * native confirmation.
+ * native confirmation. `onDeleted` runs in the same tick as the disconnect.
  */
 export const useDeleteMobileWallet = () => {
   const { disconnect, state } = useWallet()
@@ -18,7 +18,7 @@ export const useDeleteMobileWallet = () => {
   const connectedDeviceId = state.walletInfo?.deviceId
 
   return useCallback(
-    async (vault: RevocableWallet): Promise<boolean> => {
+    async (vault: RevocableWallet, onDeleted?: () => void): Promise<boolean> => {
       if (!vault.id) return false
       if ((await deleteWallet(vault.id)) !== true) return false
 
@@ -27,6 +27,7 @@ export const useDeleteMobileWallet = () => {
       if (connectedDeviceId === vault.id) {
         disconnect()
       }
+      onDeleted?.()
       return true
     },
     [appDispatch, connectedDeviceId, disconnect],

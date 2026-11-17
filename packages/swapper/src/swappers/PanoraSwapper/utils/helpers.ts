@@ -18,7 +18,10 @@ import type {
   PanoraTradeQuoteInput,
   PanoraTradeRateInput,
 } from '../types'
-import { PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER } from './constants'
+import {
+  PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER,
+  PANORA_MAX_INTEGRATOR_FEE_PERCENTAGE,
+} from './constants'
 
 const invalidResponse = (message: string, details?: unknown): SwapErrorRight =>
   makeSwapErrorRight({ message, details, code: TradeQuoteError.InvalidResponse })
@@ -58,16 +61,29 @@ export const assetIdToPanoraToken = (assetId: AssetId): string => {
 
 export const getPanoraFeeParams = (
   affiliateBps: string,
-): Pick<PanoraSwapRequest, 'integratorFeePercentage' | 'integratorFeeAddress'> => {
-  if (bnOrZero(affiliateBps).lte(0)) return {}
+): Result<
+  Pick<PanoraSwapRequest, 'integratorFeePercentage' | 'integratorFeeAddress'>,
+  SwapErrorRight
+> => {
+  if (bnOrZero(affiliateBps).lte(0)) return Ok({})
 
-  return {
-    integratorFeePercentage: bn(affiliateBps)
-      .times(PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER)
-      .div(100)
-      .toNumber(),
-    integratorFeeAddress: getTreasuryAddressFromChainId(aptosChainId),
+  const integratorFeePercentage = bn(affiliateBps)
+    .times(PANORA_INTEGRATOR_FEE_SPLIT_MULTIPLIER)
+    .div(100)
+
+  if (integratorFeePercentage.gte(PANORA_MAX_INTEGRATOR_FEE_PERCENTAGE)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Panora can't charge a ${affiliateBps} bps affiliate fee`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
   }
+
+  return Ok({
+    integratorFeePercentage: integratorFeePercentage.toNumber(),
+    integratorFeeAddress: getTreasuryAddressFromChainId(aptosChainId),
+  })
 }
 
 export const getPanoraRequestError = (error: SwapErrorRight): SwapErrorRight => {

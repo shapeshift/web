@@ -18,10 +18,11 @@ import {
   SimpleTransaction,
   TransactionAuthenticatorEd25519,
 } from '@aptos-labs/ts-sdk'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AptosTypeInfo, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   aptosAssetId,
   aptosChainId,
+  aptosTypeInfoToCoinType,
   ASSET_REFERENCE,
   getAptosAssetNamespace,
   toAssetId,
@@ -64,7 +65,6 @@ import {
   getDecimalsPayload,
   getTransferPayload,
   isFungibleAssetReference,
-  toCanonicalAssetType,
 } from './utils'
 
 export interface ChainAdapterArgs {
@@ -177,11 +177,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         balances
           .filter(({ asset_type }) => asset_type !== APT_COIN_TYPE)
           .map(async ({ asset_type, balance, metadata }) => ({
-            assetId: toAssetId({
-              chainId: this.chainId,
-              assetNamespace: getAptosAssetNamespace(asset_type),
-              assetReference: asset_type,
-            }),
+            assetId: this.getAssetId(asset_type),
             balance,
             symbol: metadata?.symbol ?? 'UNKNOWN',
             name: metadata?.name ?? asset_type,
@@ -210,30 +206,28 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     return decimals
   }
 
+  private getAssetId(assetReference: string): AssetId {
+    return toAssetId({
+      chainId: this.chainId,
+      assetNamespace: getAptosAssetNamespace(assetReference),
+      assetReference,
+    })
+  }
+
   // the coin type a fungible asset is paired with, if any, which is how balances index it
   private getPairedCoinType(metadata: string): Promise<string | undefined> {
     const cached = this.pairedCoinTypes.get(metadata)
     if (cached) return cached
 
-    const pending = (async () => {
-      const [{ vec }] = await this.client.view<
-        [{ vec: { account_address: string; module_name: string; struct_name: string }[] }]
-      >({ payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] } })
-
-      const [typeInfo] = vec
-      if (!typeInfo) return
-
-      const decode = (hex: string) => new TextDecoder().decode(Hex.fromHexInput(hex).toUint8Array())
-
-      return toCanonicalAssetType(
-        `${typeInfo.account_address}::${decode(typeInfo.module_name)}::${decode(
-          typeInfo.struct_name,
-        )}`,
-      )
-    })().catch(err => {
-      this.pairedCoinTypes.delete(metadata)
-      throw err
-    })
+    const pending = this.client
+      .view<[{ vec: AptosTypeInfo[] }]>({
+        payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
+      })
+      .then(([{ vec }]) => (vec[0] ? aptosTypeInfoToCoinType(vec[0]) : undefined))
+      .catch(err => {
+        this.pairedCoinTypes.delete(metadata)
+        throw err
+      })
 
     this.pairedCoinTypes.set(metadata, pending)
     return pending
@@ -242,18 +236,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   private async resolveAssetId(assetType: string): Promise<AssetId> {
     if (isAptosNativeAssetType(assetType)) return this.assetId
 
-    // a failed lookup shouldn't fail the whole parse, so fall back to the fungible asset itself
-    const reference = isFungibleAssetReference(assetType)
-      ? (await this.getPairedCoinType(assetType).catch(() => undefined)) ?? assetType
-      : assetType
+    if (!isFungibleAssetReference(assetType)) return this.getAssetId(assetType)
 
-    if (reference === APT_COIN_TYPE) return this.assetId
-
-    return toAssetId({
-      chainId: this.chainId,
-      assetNamespace: getAptosAssetNamespace(reference),
-      assetReference: reference,
-    })
+    return this.getAssetId((await this.getPairedCoinType(assetType)) ?? assetType)
   }
 
   private async getBalances(pubkey: string) {

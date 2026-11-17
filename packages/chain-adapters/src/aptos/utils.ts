@@ -40,12 +40,6 @@ export const toCanonicalAddress = (address: string): string => {
   }
 }
 
-// a coin type's address part can come without leading zeros
-export const toCanonicalAssetType = (assetType: string): string => {
-  const [address, ...rest] = assetType.split('::')
-  return [toCanonicalAddress(address), ...rest].join('::')
-}
-
 export const getTransferPayload = (
   to: string,
   value: string,

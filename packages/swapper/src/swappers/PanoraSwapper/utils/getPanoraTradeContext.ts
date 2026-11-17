@@ -54,6 +54,9 @@ export const getPanoraTradeContext = async ({
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Panora)
 
+  const maybeFeeParams = getPanoraFeeParams(affiliateBps)
+  if (maybeFeeParams.isErr()) return Err(maybeFeeParams.unwrapErr())
+
   const maybeResponse = await fetchPanoraSwap({
     request: {
       fromTokenAddress: assetIdToPanoraToken(sellAsset.assetId),
@@ -65,7 +68,7 @@ export const getPanoraTradeContext = async ({
       // The router pays out to toWalletAddress, which a walletless rate has to fill with a placeholder
       toWalletAddress: receiveAddress ?? sendAddress ?? APTOS_PLACEHOLDER_ADDRESS,
       slippagePercentage: bnOrZero(slippageTolerancePercentageDecimal).times(100).toNumber(),
-      ...getPanoraFeeParams(affiliateBps),
+      ...maybeFeeParams.unwrap(),
     },
     apiKey: deps.config.VITE_PANORA_API_KEY,
   })

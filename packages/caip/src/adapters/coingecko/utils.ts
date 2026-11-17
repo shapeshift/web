@@ -76,7 +76,9 @@ import {
   unichainChainId,
   zecChainId,
 } from '../../constants'
+import type { AptosTypeInfo } from '../../utils'
 import {
+  aptosTypeInfoToCoinType,
   bitcoinAssetMap,
   bitcoinCashAssetMap,
   cosmosAssetMap,
@@ -102,13 +104,6 @@ const APTOS_NODE_URL = 'https://fullnode.mainnet.aptoslabs.com/v1'
 // paired_coin aborts when the address isn't fungible asset metadata
 const MOVE_ABORT_VM_ERROR_CODE = 4016
 
-type AptosTypeInfo = { account_address: string; module_name: string; struct_name: string }
-
-const hexToUtf8 = (hex: string) =>
-  new TextDecoder().decode(
-    Uint8Array.from(hex.replace(/^0x/, '').match(/../g) ?? [], byte => parseInt(byte, 16)),
-  )
-
 // returns null when the address isn't fungible asset metadata
 const getAptosPairedCoinType = async (
   metadataAddress: string,
@@ -123,9 +118,7 @@ const getAptosPairedCoinType = async (
     const [typeInfo] = data[0].vec
     if (!typeInfo) return
 
-    const { account_address, module_name, struct_name } = typeInfo
-
-    return `${account_address}::${hexToUtf8(module_name)}::${hexToUtf8(struct_name)}`
+    return aptosTypeInfoToCoinType(typeInfo)
   } catch (err) {
     if (axios.isAxiosError(err) && err.response?.data?.vm_error_code === MOVE_ABORT_VM_ERROR_CODE) {
       return null

@@ -50,10 +50,15 @@ describe('getPanoraTradeAmounts', () => {
 
 describe('getPanoraFeeParams', () => {
   it('requests double the affiliate bps since Panora keeps half', () => {
-    expect(getPanoraFeeParams('60').integratorFeePercentage).toBe(1.2)
+    expect(getPanoraFeeParams('60').unwrap().integratorFeePercentage).toBe(1.2)
   })
 
   it('sends no fee params without an affiliate fee', () => {
-    expect(getPanoraFeeParams('0')).toEqual({})
+    expect(getPanoraFeeParams('0').unwrap()).toEqual({})
+  })
+
+  it('rejects an affiliate fee Panora would charge 5% or more for', () => {
+    expect(getPanoraFeeParams('249').isOk()).toBe(true)
+    expect(getPanoraFeeParams('250').isErr()).toBe(true)
   })
 })

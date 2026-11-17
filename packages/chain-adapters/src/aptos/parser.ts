@@ -25,17 +25,16 @@ import {
   FUNGIBLE_STORE_RESOURCE_TYPE,
   OBJECT_CORE_RESOURCE_TYPE,
 } from './constants'
-import { addressesMatch, toCanonicalAddress, toCanonicalAssetType } from './utils'
+import { addressesMatch, toCanonicalAddress } from './utils'
 
 type ParsedTransfer = { assetType: string; recipient: string; amount: string }
 
-// resolves a fungible asset metadata address or coin type to its assetId
 export type AptosAssetIdResolver = (assetType: string) => Promise<AssetId>
 
-type StoreResource =
-  | { type: typeof OBJECT_CORE_RESOURCE_TYPE; data: { owner: string } }
-  | { type: typeof FUNGIBLE_STORE_RESOURCE_TYPE; data: { metadata: { inner: string } } }
-  | { type: string; data: unknown }
+// keyed by fa metadata address in long form, or by coin type as the chain displays it
+type BalanceChange = { assetType: string; owner: string; amount: bigint }
+
+const FRAMEWORK_ADDRESS = '0x1'
 
 const parseTransferPayload = (
   payload: EntryFunctionPayloadResponse,
@@ -57,7 +56,7 @@ const parseTransferPayload = (
     if (!reference) return
 
     return {
-      assetType: toCanonicalAssetType(reference),
+      assetType: toCanonicalAddress(reference),
       recipient: String(args[1] ?? ''),
       amount: String(args[2] ?? '0'),
     }
@@ -72,15 +71,13 @@ const getStores = (tx: UserTransactionResponse) => {
     if (change.type !== 'write_resource' || !('address' in change) || !('data' in change)) continue
 
     const address = toCanonicalAddress(change.address)
-    const resource = change.data as StoreResource
+    const { type, data } = change.data
     const store = stores.get(address) ?? {}
 
-    if (resource.type === OBJECT_CORE_RESOURCE_TYPE) {
-      store.owner = (resource.data as { owner: string }).owner
-    } else if (resource.type === FUNGIBLE_STORE_RESOURCE_TYPE) {
-      store.metadata = toCanonicalAddress(
-        (resource.data as { metadata: { inner: string } }).metadata.inner,
-      )
+    if (type === OBJECT_CORE_RESOURCE_TYPE) {
+      store.owner = toCanonicalAddress((data as { owner: string }).owner)
+    } else if (type === FUNGIBLE_STORE_RESOURCE_TYPE) {
+      store.metadata = toCanonicalAddress((data as { metadata: { inner: string } }).metadata.inner)
     } else {
       continue
     }
@@ -91,45 +88,58 @@ const getStores = (tx: UserTransactionResponse) => {
   return stores
 }
 
-// net amount moved in (positive) or out (negative) of the pubkey's balances, keyed by fa metadata or coin type
-export const getAptosBalanceChanges = (
-  tx: UserTransactionResponse,
-  pubkey: string,
-): Map<string, bigint> => {
+const getBalanceChanges = (tx: UserTransactionResponse): BalanceChange[] => {
   const stores = getStores(tx)
-  const changes = new Map<string, bigint>()
 
-  const add = (assetType: string, amount: bigint) =>
-    changes.set(assetType, (changes.get(assetType) ?? 0n) + amount)
-
-  for (const { type, data } of tx.events) {
-    const sign =
-      type === FA_DEPOSIT_EVENT_TYPE || type === COIN_DEPOSIT_EVENT_TYPE
-        ? 1n
-        : type === FA_WITHDRAW_EVENT_TYPE || type === COIN_WITHDRAW_EVENT_TYPE
-        ? -1n
-        : 0n
-
-    if (!sign) continue
-
-    if (type === COIN_DEPOSIT_EVENT_TYPE || type === COIN_WITHDRAW_EVENT_TYPE) {
-      if (addressesMatch(data.account, pubkey)) {
-        add(toCanonicalAssetType(data.coin_type), sign * BigInt(data.amount))
+  return tx.events.flatMap(({ type, data }): BalanceChange[] => {
+    switch (type) {
+      case COIN_DEPOSIT_EVENT_TYPE:
+      case COIN_WITHDRAW_EVENT_TYPE: {
+        const sign = type === COIN_DEPOSIT_EVENT_TYPE ? 1n : -1n
+        return [
+          {
+            assetType: data.coin_type,
+            owner: toCanonicalAddress(data.account),
+            amount: sign * BigInt(data.amount),
+          },
+        ]
       }
-      continue
+      case FA_DEPOSIT_EVENT_TYPE:
+      case FA_WITHDRAW_EVENT_TYPE: {
+        const store = stores.get(toCanonicalAddress(data.store))
+        if (!store?.metadata || !store.owner) return []
+
+        const sign = type === FA_DEPOSIT_EVENT_TYPE ? 1n : -1n
+        return [
+          { assetType: store.metadata, owner: store.owner, amount: sign * BigInt(data.amount) },
+        ]
+      }
+      default:
+        return []
     }
-
-    const store = stores.get(toCanonicalAddress(data.store))
-    if (!store?.metadata || !store.owner || !addressesMatch(store.owner, pubkey)) continue
-
-    add(store.metadata, sign * BigInt(data.amount))
-  }
-
-  return changes
+  })
 }
 
 export const isAptosNativeAssetType = (assetType: string): boolean =>
   assetType === APT_COIN_TYPE || addressesMatch(assetType, APT_FA_METADATA)
+
+const getCounterparties = (
+  tx: UserTransactionResponse,
+  pubkey: string,
+  changes: BalanceChange[],
+): string[] => {
+  if (!addressesMatch(tx.sender, pubkey)) return [tx.sender]
+
+  const contract = 'function' in tx.payload ? tx.payload.function.split('::')[0] : undefined
+  if (contract && !addressesMatch(contract, FRAMEWORK_ADDRESS)) return [contract]
+
+  // framework calls and scripts move funds between accounts directly, so name the other accounts
+  const others = [
+    ...new Set(changes.map(({ owner }) => owner).filter(owner => !addressesMatch(owner, pubkey))),
+  ]
+
+  return others.length ? others : [contract ?? tx.sender]
+}
 
 // swaps and other contract calls move funds through events rather than a transfer payload
 const parseEventTransfers = async (
@@ -137,15 +147,25 @@ const parseEventTransfers = async (
   pubkey: string,
   resolveAssetId: AptosAssetIdResolver,
 ): Promise<TxTransfer[]> => {
+  const changes = getBalanceChanges(tx)
+  const ownChanges = changes.filter(({ owner }) => addressesMatch(owner, pubkey))
+
+  const assetTypes = [...new Set(ownChanges.map(({ assetType }) => assetType))]
+  const assetIds = new Map(
+    await Promise.all(
+      assetTypes.map(async assetType => [assetType, await resolveAssetId(assetType)] as const),
+    ),
+  )
+
   // a coin and its paired fungible asset are one asset, so net after resolving
   const netByAssetId = new Map<AssetId, bigint>()
-  for (const [assetType, amount] of getAptosBalanceChanges(tx, pubkey)) {
-    const assetId = await resolveAssetId(assetType)
+  for (const { assetType, amount } of ownChanges) {
+    const assetId = assetIds.get(assetType)
+    if (!assetId) continue
     netByAssetId.set(assetId, (netByAssetId.get(assetId) ?? 0n) + amount)
   }
 
-  const contract = 'function' in tx.payload ? tx.payload.function.split('::')[0] : tx.sender
-  const counterparty = addressesMatch(tx.sender, pubkey) ? contract : tx.sender
+  const counterparties = getCounterparties(tx, pubkey, changes)
 
   return [...netByAssetId]
     .filter(([, amount]) => amount !== 0n)
@@ -153,7 +173,7 @@ const parseEventTransfers = async (
       amount > 0n
         ? {
             assetId,
-            from: [counterparty],
+            from: counterparties,
             to: [pubkey],
             type: TransferType.Receive,
             value: amount.toString(),
@@ -161,7 +181,7 @@ const parseEventTransfers = async (
         : {
             assetId,
             from: [pubkey],
-            to: [counterparty],
+            to: counterparties,
             type: TransferType.Send,
             value: (-amount).toString(),
           },

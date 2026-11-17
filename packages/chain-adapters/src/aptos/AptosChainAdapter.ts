@@ -17,6 +17,7 @@ import {
   RawTransaction,
   SignedTransaction,
   SimpleTransaction,
+  sleep,
   TransactionAuthenticatorEd25519,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
@@ -55,6 +56,8 @@ import {
   APT_COIN_TYPE,
   FEE_STATEMENT_EVENT_TYPE,
   INDEXER_PAGE_LIMIT,
+  PAIRED_COIN_LOOKUP_ATTEMPTS,
+  PAIRED_COIN_LOOKUP_RETRY_DELAY_MS,
   TX_EXPIRY_SECS,
 } from './constants'
 import { parseAptosTx } from './parser'
@@ -217,15 +220,26 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   }
 
   // the coin type a fungible asset is paired with, if any, which is how balances index it
+  private async fetchPairedCoinType(metadata: string): Promise<string | undefined> {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const [{ vec }] = await this.client.view<[{ vec: MoveTypeInfo[] }]>({
+          payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
+        })
+
+        return vec[0] ? parseEncodedStruct(vec[0]) : undefined
+      } catch (err) {
+        if (attempt >= PAIRED_COIN_LOOKUP_ATTEMPTS) throw err
+        await sleep(PAIRED_COIN_LOOKUP_RETRY_DELAY_MS * attempt)
+      }
+    }
+  }
+
   private getPairedCoinType(metadata: string): Promise<string | undefined> {
     const cached = this.pairedCoinTypes.get(metadata)
     if (cached) return cached
 
-    const pending = this.client
-      .view<[{ vec: MoveTypeInfo[] }]>({
-        payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
-      })
-      .then(([{ vec }]) => (vec[0] ? parseEncodedStruct(vec[0]) : undefined))
+    const pending = this.fetchPairedCoinType(metadata)
 
     pending.catch(() => this.pairedCoinTypes.delete(metadata))
     this.pairedCoinTypes.set(metadata, pending)

@@ -12,8 +12,10 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ValidAddressResultType } from '../types'
+import aptTransfer from './__fixtures__/aptTransfer.json'
 import batchTransferCoins from './__fixtures__/batchTransferCoins.json'
 import panoraSwap from './__fixtures__/panoraSwap.json'
+import thlTransfer from './__fixtures__/thlTransfer.json'
 import { ChainAdapter } from './AptosChainAdapter'
 import { getSerializedTransferPayload } from './utils'
 
@@ -51,6 +53,7 @@ vi.mock('@aptos-labs/ts-sdk', async () => {
     AptosConfig: vi.fn(),
     generateRawTransaction: vi.fn(),
     Network: { MAINNET: 'mainnet' },
+    sleep: vi.fn().mockResolvedValue(null),
   }
 })
 
@@ -379,6 +382,29 @@ describe('AptosChainAdapter', () => {
   })
 
   describe('parseTx', () => {
+    // an object store write: its owner and the fungible asset it holds
+    const faStore = (address: string, owner: string, metadata: string) => [
+      {
+        type: 'write_resource',
+        address,
+        data: { type: '0x1::object::ObjectCore', data: { owner } },
+      },
+      {
+        type: 'write_resource',
+        address,
+        data: {
+          type: '0x1::fungible_asset::FungibleStore',
+          data: { metadata: { inner: metadata } },
+        },
+      },
+    ]
+
+    const faEvents = (amount: string, from: string, to: string) => [
+      { type: '0x1::fungible_asset::Withdraw', data: { amount, store: from } },
+      { type: '0x1::fungible_asset::Deposit', data: { amount, store: to } },
+    ]
+
+    // a synthetic apt transfer from SENDER to ADDR, for shapes no fixture covers
     const makeTx = (overrides: Record<string, unknown> = {}) => ({
       type: 'user_transaction',
       hash: '0xtxhash',
@@ -394,42 +420,100 @@ describe('AptosChainAdapter', () => {
         type_arguments: [APT_COIN_TYPE],
         arguments: [ADDR, '9423057'],
       },
-      events: [],
-      changes: [],
+      events: faEvents('9423057', '0xc1', '0xc2'),
+      changes: [...faStore('0xc1', SENDER, '0xa'), ...faStore('0xc2', ADDR, '0xa')],
       ...overrides,
     })
 
-    it('attributes a Receive transfer for inbound APT', async () => {
-      client.transaction.getTransactionByHash.mockResolvedValueOnce(makeTx())
-      const tx = await adapter.parseTx('0xtxhash', ADDR)
+    describe('transfers', () => {
+      const [APT_RECIPIENT, APT_AMOUNT] = aptTransfer.payload.arguments as string[]
 
-      expect(tx.status).toBe(TxStatus.Confirmed)
-      expect(tx.fee).toBeUndefined()
-      expect(tx.transfers).toEqual([
-        {
+      it('reads an APT send from the sender', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(aptTransfer)
+
+        const tx = await adapter.parseTx(aptTransfer.hash, aptTransfer.sender)
+
+        expect(tx.status).toBe(TxStatus.Confirmed)
+        expect(tx.fee).toEqual({
           assetId: aptosAssetId,
-          from: [SENDER],
-          to: [ADDR],
-          type: TransferType.Receive,
-          value: '9423057',
-        },
-      ])
-    })
+          value: (BigInt(aptTransfer.gas_used) * BigInt(aptTransfer.gas_unit_price)).toString(),
+        })
+        expect(tx.transfers).toEqual([
+          {
+            assetId: aptosAssetId,
+            from: [aptTransfer.sender],
+            to: [APT_RECIPIENT],
+            type: TransferType.Send,
+            value: APT_AMOUNT,
+          },
+        ])
+      })
 
-    it('attributes a Send transfer for outbound APT', async () => {
-      client.transaction.getTransactionByHash.mockResolvedValueOnce(makeTx())
-      const tx = await adapter.parseTx('0xtxhash', SENDER)
+      it('reads an APT receive from the recipient', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(aptTransfer)
 
-      expect(tx.fee).toEqual({ assetId: aptosAssetId, value: '15100' })
-      expect(tx.transfers).toEqual([
-        {
-          assetId: aptosAssetId,
-          from: [SENDER],
-          to: [ADDR],
-          type: TransferType.Send,
-          value: '9423057',
-        },
-      ])
+        const tx = await adapter.parseTx(aptTransfer.hash, APT_RECIPIENT)
+
+        expect(tx.fee).toBeUndefined()
+        expect(tx.transfers).toEqual([
+          {
+            assetId: aptosAssetId,
+            from: [aptTransfer.sender],
+            to: [APT_RECIPIENT],
+            type: TransferType.Receive,
+            value: APT_AMOUNT,
+          },
+        ])
+      })
+
+      it('names the recipients of a framework call that is not a plain transfer', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(batchTransferCoins)
+
+        const tx = await adapter.parseTx(batchTransferCoins.hash, batchTransferCoins.sender)
+
+        expect(tx.transfers).toEqual([
+          {
+            assetId: aptosAssetId,
+            from: [batchTransferCoins.sender],
+            to: ['0x144bc21dadd1285f1a93b05cfc093ebb59afbd0aab84ef13a2d8be7500dceccf'],
+            type: TransferType.Send,
+            value: '9212696913',
+          },
+        ])
+      })
+
+      it('keys a fungible asset paired with a coin by its short coin type, with padded addresses', async () => {
+        const THL =
+          '0x7fd500c11216f0fe3095d0c4b8aa4d64a4e2e04f83758462f2b127255643615::thl_coin::THL'
+        const [, recipient, amount] = thlTransfer.payload.arguments as [unknown, string, string]
+
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(thlTransfer)
+        // the live paired_coin response for THL's fungible asset
+        client.view.mockResolvedValueOnce([
+          {
+            vec: [
+              {
+                account_address:
+                  '0x7fd500c11216f0fe3095d0c4b8aa4d64a4e2e04f83758462f2b127255643615',
+                module_name: '0x74686c5f636f696e',
+                struct_name: '0x54484c',
+              },
+            ],
+          },
+        ])
+
+        const tx = await adapter.parseTx(thlTransfer.hash, recipient)
+
+        expect(tx.transfers).toEqual([
+          {
+            assetId: `aptos:1/coin:${THL}`,
+            from: ['0x0cf869189c785beaaad2f5c636ced4805aeae9cbf49070dc93aed2f16b99012a'],
+            to: [recipient],
+            type: TransferType.Receive,
+            value: amount,
+          },
+        ])
+      })
     })
 
     it('attributes the fee of a sponsored transaction to the fee payer, not the sender', async () => {
@@ -449,100 +533,11 @@ describe('AptosChainAdapter', () => {
       expect(feePayerTx.fee).toEqual({ assetId: aptosAssetId, value: '15100' })
     })
 
-    it('maps a FA primary_fungible_store::transfer to the right assetId and arg offsets', async () => {
+    it('reports nothing moved for a self-send', async () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce(
         makeTx({
-          payload: {
-            type: 'entry_function_payload',
-            function: '0x1::primary_fungible_store::transfer',
-            type_arguments: [],
-            arguments: [{ inner: USDC_FA }, ADDR, '5000000'],
-          },
-        }),
-      )
-
-      client.view.mockResolvedValueOnce([{ vec: [] }])
-
-      const tx = await adapter.parseTx('0xtxhash', ADDR)
-      expect(tx.transfers).toEqual([
-        {
-          assetId: `aptos:1/fungible:${USDC_FA}`,
-          from: [SENDER],
-          to: [ADDR],
-          type: TransferType.Receive,
-          value: '5000000',
-        },
-      ])
-    })
-
-    it('maps a FA aptos_account::transfer_fungible_assets to the right assetId and arg offsets', async () => {
-      client.transaction.getTransactionByHash.mockResolvedValueOnce(
-        makeTx({
-          payload: {
-            type: 'entry_function_payload',
-            function: '0x1::aptos_account::transfer_fungible_assets',
-            type_arguments: [],
-            arguments: [USDC_FA, ADDR, '5000000'],
-          },
-        }),
-      )
-
-      client.view.mockResolvedValueOnce([{ vec: [] }])
-
-      const tx = await adapter.parseTx('0xtxhash', ADDR)
-      expect(tx.transfers).toEqual([
-        {
-          assetId: `aptos:1/fungible:${USDC_FA}`,
-          from: [SENDER],
-          to: [ADDR],
-          type: TransferType.Receive,
-          value: '5000000',
-        },
-      ])
-    })
-
-    it('maps a legacy 0x1::aptos_account::transfer to APT', async () => {
-      client.transaction.getTransactionByHash.mockResolvedValueOnce(
-        makeTx({
-          payload: {
-            type: 'entry_function_payload',
-            function: '0x1::aptos_account::transfer',
-            type_arguments: [],
-            arguments: [ADDR, '1000'],
-          },
-        }),
-      )
-
-      const tx = await adapter.parseTx('0xtxhash', ADDR)
-      expect(tx.transfers).toEqual([
-        {
-          assetId: aptosAssetId,
-          from: [SENDER],
-          to: [ADDR],
-          type: TransferType.Receive,
-          value: '1000',
-        },
-      ])
-    })
-
-    it('returns Send+Receive when the user is both sender and recipient', async () => {
-      client.transaction.getTransactionByHash.mockResolvedValueOnce(
-        makeTx({ sender: ADDR, payload: { ...makeTx().payload, arguments: [ADDR, '100'] } }),
-      )
-
-      const tx = await adapter.parseTx('0xtxhash', ADDR)
-      expect(tx.transfers.map(t => t.type)).toEqual([TransferType.Send, TransferType.Receive])
-    })
-
-    it('returns an empty transfer list for unrelated payloads', async () => {
-      client.transaction.getTransactionByHash.mockResolvedValueOnce(
-        makeTx({
-          payload: {
-            type: 'entry_function_payload',
-            function: '0x123::some_dapp::do_thing',
-            type_arguments: [],
-            arguments: [],
-          },
+          sender: ADDR,
+          changes: [...faStore('0xc1', ADDR, '0xa'), ...faStore('0xc2', ADDR, '0xa')],
         }),
       )
 
@@ -550,7 +545,7 @@ describe('AptosChainAdapter', () => {
       expect(tx.transfers).toEqual([])
     })
 
-    it('marks pending transactions as Pending with no fee or block', async () => {
+    it('marks pending transactions as Pending with no fee, block or transfers', async () => {
       client.transaction.getTransactionByHash.mockResolvedValueOnce({
         type: 'pending_transaction',
         hash: '0xtxhash',
@@ -562,19 +557,10 @@ describe('AptosChainAdapter', () => {
       expect(tx.status).toBe(TxStatus.Pending)
       expect(tx.fee).toBeUndefined()
       expect(tx.blockHeight).toBe(0)
-      expect(tx.transfers).toHaveLength(1)
+      expect(tx.transfers).toEqual([])
     })
 
-    it('marks failed transactions as Failed, keeping the attempted transfer and the spent fee', async () => {
-      client.transaction.getTransactionByHash.mockResolvedValueOnce(makeTx({ success: false }))
-      const tx = await adapter.parseTx('0xtxhash', SENDER)
-      expect(tx.status).toBe(TxStatus.Failed)
-      expect(tx.confirmations).toBe(0)
-      expect(tx.transfers.map(t => t.type)).toEqual([TransferType.Send])
-      expect(tx.fee).toEqual({ assetId: aptosAssetId, value: '15100' })
-    })
-
-    describe('swaps', () => {
+    describe('contract calls and other balance changes', () => {
       const SWAPPER = '0x995bb48a5f4581efd9f6e41b0c2c56bbf16e5ac8efe703029bff0e088298c3b2'
       const PANORA_ROUTER = '0x1c3206329806286fd2223647c9f9b130e66baeb6d7224a18c1f642ffe48f3b4c'
 
@@ -611,27 +597,9 @@ describe('AptosChainAdapter', () => {
         expect(tx.transfers).toEqual([])
       })
 
-      it('keys a fungible asset paired with a coin by its coin type', async () => {
-        client.transaction.getTransactionByHash.mockResolvedValueOnce(panoraSwap)
-        client.view.mockResolvedValueOnce([
-          {
-            vec: [
-              {
-                account_address:
-                  '0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa',
-                module_name: '0x6173736574',
-                struct_name: '0x55534443',
-              },
-            ],
-          },
-        ])
-
-        const tx = await adapter.parseTx(panoraSwap.hash, SWAPPER)
-
-        expect(tx.transfers[0].assetId).toBe(`aptos:1/coin:${LEGACY_USDC}`)
-      })
-
-      it('reads legacy coin store events by account', async () => {
+      it('reads coin events by account, keyed by the coin type as the chain shows it', async () => {
+        const THL =
+          '0x7fd500c11216f0fe3095d0c4b8aa4d64a4e2e04f83758462f2b127255643615::thl_coin::THL'
         client.transaction.getTransactionByHash.mockResolvedValueOnce(
           makeTx({
             payload: {
@@ -641,7 +609,7 @@ describe('AptosChainAdapter', () => {
             events: [
               {
                 type: '0x1::coin::CoinWithdraw',
-                data: { account: SWAPPER, amount: '100', coin_type: LEGACY_USDC },
+                data: { account: SWAPPER, amount: '100', coin_type: THL },
               },
               {
                 type: '0x1::coin::CoinDeposit',
@@ -654,40 +622,30 @@ describe('AptosChainAdapter', () => {
         const tx = await adapter.parseTx('0xtxhash', SWAPPER)
 
         expect(tx.transfers.map(({ assetId, type, value }) => ({ assetId, type, value }))).toEqual([
-          { assetId: `aptos:1/coin:${LEGACY_USDC}`, type: TransferType.Send, value: '100' },
+          { assetId: `aptos:1/coin:${THL}`, type: TransferType.Send, value: '100' },
           { assetId: aptosAssetId, type: TransferType.Receive, value: '7' },
         ])
       })
 
-      it('fails the parse when the paired coin lookup fails rather than keying the wrong asset', async () => {
+      it('retries a failed paired coin lookup', async () => {
         client.transaction.getTransactionByHash.mockResolvedValueOnce(panoraSwap)
-        client.view.mockRejectedValueOnce(new Error('429'))
+        client.view.mockRejectedValueOnce(new Error('429')).mockResolvedValueOnce([{ vec: [] }])
 
-        await expect(adapter.parseTx(panoraSwap.hash, SWAPPER)).rejects.toThrow()
+        const tx = await adapter.parseTx(panoraSwap.hash, SWAPPER)
+
+        expect(client.view).toHaveBeenCalledTimes(2)
+        expect(tx.transfers.map(({ assetId }) => assetId)).toEqual([
+          `aptos:1/fungible:${USDC_FA}`,
+          aptosAssetId,
+        ])
       })
 
-      it('keys coins by the short coin type the chain and asset list use', async () => {
-        const THL =
-          '0x7fd500c11216f0fe3095d0c4b8aa4d64a4e2e04f83758462f2b127255643615::thl_coin::THL'
-        client.transaction.getTransactionByHash.mockResolvedValueOnce(
-          makeTx({
-            sender: SWAPPER,
-            payload: {
-              ...makeTx().payload,
-              function: `${PANORA_ROUTER}::panora_swap::router_entry`,
-            },
-            events: [
-              {
-                type: '0x1::coin::CoinWithdraw',
-                data: { account: SWAPPER, amount: '100', coin_type: THL },
-              },
-            ],
-          }),
-        )
+      it('fails the parse when the paired coin lookup keeps failing rather than keying the wrong asset', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(panoraSwap)
+        client.view.mockRejectedValue(new Error('429'))
 
-        const tx = await adapter.parseTx('0xtxhash', SWAPPER)
-
-        expect(tx.transfers[0].assetId).toBe(`aptos:1/coin:${THL}`)
+        await expect(adapter.parseTx(panoraSwap.hash, SWAPPER)).rejects.toThrow()
+        expect(client.view).toHaveBeenCalledTimes(3)
       })
 
       it('nets a coin and its paired fungible asset as one asset', async () => {
@@ -732,22 +690,6 @@ describe('AptosChainAdapter', () => {
       it('names counterparties per asset when a script sends one asset and receives another', async () => {
         const X = '0x00000000000000000000000000000000000000000000000000000000000000b1'
         const Y = '0x00000000000000000000000000000000000000000000000000000000000000b2'
-        const store = (address: string, owner: string, metadata: string) => [
-          {
-            type: 'write_resource',
-            address,
-            data: { type: '0x1::object::ObjectCore', data: { owner } },
-          },
-          {
-            type: 'write_resource',
-            address,
-            data: {
-              type: '0x1::fungible_asset::FungibleStore',
-              data: { metadata: { inner: metadata } },
-            },
-          },
-        ]
-
         client.transaction.getTransactionByHash.mockResolvedValueOnce(
           makeTx({
             sender: SWAPPER,
@@ -764,10 +706,10 @@ describe('AptosChainAdapter', () => {
               { type: '0x1::fungible_asset::Deposit', data: { amount: '9', store: '0xc4' } },
             ],
             changes: [
-              ...store('0xc1', SWAPPER, '0xa'),
-              ...store('0xc2', X, '0xa'),
-              ...store('0xc3', Y, USDC_FA),
-              ...store('0xc4', SWAPPER, USDC_FA),
+              ...faStore('0xc1', SWAPPER, '0xa'),
+              ...faStore('0xc2', X, '0xa'),
+              ...faStore('0xc3', Y, USDC_FA),
+              ...faStore('0xc4', SWAPPER, USDC_FA),
             ],
           }),
         )
@@ -812,40 +754,31 @@ describe('AptosChainAdapter', () => {
         ])
       })
 
-      it('maps an fa transfer of apt to the native asset', async () => {
+      it('names no counterparty for a script with no other account on the other side', async () => {
         client.transaction.getTransactionByHash.mockResolvedValueOnce(
           makeTx({
+            sender: SWAPPER,
             payload: {
-              type: 'entry_function_payload',
-              function: '0x1::primary_fungible_store::transfer',
+              type: 'script_payload',
+              code: { bytecode: '0x' },
               type_arguments: [],
-              arguments: [{ inner: '0xa' }, ADDR, '5'],
+              arguments: [],
             },
+            events: [
+              { type: '0x1::fungible_asset::Withdraw', data: { amount: '5', store: '0xc1' } },
+            ],
+            changes: faStore('0xc1', SWAPPER, '0xa'),
           }),
         )
 
-        const tx = await adapter.parseTx('0xtxhash', ADDR)
-
-        expect(tx.transfers[0].assetId).toBe(aptosAssetId)
-      })
-
-      it('names the recipients of a framework call that is not a plain transfer', async () => {
-        client.transaction.getTransactionByHash.mockResolvedValueOnce(batchTransferCoins)
-
-        const tx = await adapter.parseTx(batchTransferCoins.hash, batchTransferCoins.sender)
+        const tx = await adapter.parseTx('0xtxhash', SWAPPER)
 
         expect(tx.transfers).toEqual([
-          {
-            assetId: aptosAssetId,
-            from: [batchTransferCoins.sender],
-            to: ['0x144bc21dadd1285f1a93b05cfc093ebb59afbd0aab84ef13a2d8be7500dceccf'],
-            type: TransferType.Send,
-            value: '9212696913',
-          },
+          { assetId: aptosAssetId, from: [SWAPPER], to: [], type: TransferType.Send, value: '5' },
         ])
       })
 
-      it('reads no events from a failed swap', async () => {
+      it('marks a failed transaction as Failed with the spent fee and no transfers', async () => {
         client.transaction.getTransactionByHash.mockResolvedValueOnce({
           ...panoraSwap,
           success: false,
@@ -854,7 +787,12 @@ describe('AptosChainAdapter', () => {
         const tx = await adapter.parseTx(panoraSwap.hash, SWAPPER)
 
         expect(tx.status).toBe(TxStatus.Failed)
+        expect(tx.confirmations).toBe(0)
         expect(tx.transfers).toEqual([])
+        expect(tx.fee).toEqual({
+          assetId: aptosAssetId,
+          value: (BigInt(panoraSwap.gas_used) * BigInt(panoraSwap.gas_unit_price)).toString(),
+        })
       })
     })
 

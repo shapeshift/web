@@ -29,7 +29,9 @@ export const isAptosNativeAssetType = (assetType: string): boolean =>
 // aptos addresses can differ in casing and leading zeros for the same account
 export const addressesMatch = (a: string, b: string): boolean => {
   try {
-    return AccountAddress.fromString(a).equals(AccountAddress.fromString(b))
+    return AccountAddress.fromString(a, { maxMissingChars: 63 }).equals(
+      AccountAddress.fromString(b, { maxMissingChars: 63 }),
+    )
   } catch {
     return false
   }

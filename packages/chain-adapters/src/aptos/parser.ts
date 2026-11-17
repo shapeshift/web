@@ -1,5 +1,4 @@
 import type {
-  EntryFunctionPayloadResponse,
   PendingTransactionResponse,
   TransactionResponse,
   UserTransactionResponse,
@@ -16,20 +15,15 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { Transaction, TxTransfer } from '../types'
 import {
-  APT_COIN_TYPE,
   COIN_DEPOSIT_EVENT_TYPE,
-  COIN_TRANSFER_FUNCTIONS,
   COIN_WITHDRAW_EVENT_TYPE,
   FA_DEPOSIT_EVENT_TYPE,
   FA_STORE_DELETION_EVENT_TYPE,
-  FA_TRANSFER_FUNCTIONS,
   FA_WITHDRAW_EVENT_TYPE,
   FUNGIBLE_STORE_RESOURCE_TYPE,
   OBJECT_CORE_RESOURCE_TYPE,
 } from './constants'
 import { addressesMatch, toCanonicalAddress } from './utils'
-
-type ParsedTransfer = { assetType: string; recipient: string; amount: string }
 
 export type AptosAssetIdResolver = (assetType: string) => Promise<AssetId>
 
@@ -38,33 +32,6 @@ type BalanceChange = {
   assetType: string
   owner: string
   amount: bigint
-}
-
-const parseTransferPayload = (
-  payload: EntryFunctionPayloadResponse,
-): ParsedTransfer | undefined => {
-  const { function: fn, type_arguments: typeArgs, arguments: args } = payload
-
-  if (COIN_TRANSFER_FUNCTIONS.includes(fn)) {
-    // aptos_account::transfer has no type argument and only moves apt
-    return {
-      assetType: typeArgs[0] ?? APT_COIN_TYPE,
-      recipient: String(args[0] ?? ''),
-      amount: String(args[1] ?? '0'),
-    }
-  }
-
-  if (FA_TRANSFER_FUNCTIONS.includes(fn)) {
-    const metadata = args[0]
-    const reference = typeof metadata === 'string' ? metadata : metadata?.inner
-    if (!reference) return
-
-    return {
-      assetType: toCanonicalAddress(reference),
-      recipient: String(args[1] ?? ''),
-      amount: String(args[2] ?? '0'),
-    }
-  }
 }
 
 const getStores = (tx: UserTransactionResponse) => {
@@ -138,24 +105,24 @@ const getBalanceChanges = (tx: UserTransactionResponse): BalanceChange[] => {
   })
 }
 
-// swaps and other contract calls move funds through events rather than a transfer payload
-const parseEventTransfers = async (
+const parseTransfers = async (
   tx: UserTransactionResponse,
   pubkey: string,
   resolveAssetId: AptosAssetIdResolver,
 ): Promise<TxTransfer[]> => {
   const owner = toCanonicalAddress(pubkey)
-  const changes = getBalanceChanges(tx)
-  const ownChanges = changes.filter(change => change.owner === owner)
-  const isSender = addressesMatch(tx.sender, pubkey)
+  const sender = toCanonicalAddress(tx.sender)
   const contract =
-    'function' in tx.payload ? getFunctionParts(tx.payload.function).moduleAddress : undefined
+    'function' in tx.payload
+      ? toCanonicalAddress(getFunctionParts(tx.payload.function).moduleAddress)
+      : undefined
 
   // framework calls and scripts move funds between accounts directly, so the other accounts are the counterparties
-  const isDirect =
-    isSender && (!contract || addressesMatch(contract, AccountAddress.ONE.toString()))
+  const isSender = sender === owner
+  const isDirect = isSender && (!contract || contract === AccountAddress.ONE.toString())
 
-  const toResolve = isDirect ? changes : ownChanges
+  const changes = getBalanceChanges(tx)
+  const toResolve = isDirect ? changes : changes.filter(change => change.owner === owner)
   const assetTypes = [...new Set(toResolve.map(({ assetType }) => assetType))]
   const assetIds = new Map(
     await Promise.all(
@@ -165,14 +132,13 @@ const parseEventTransfers = async (
 
   // a coin and its paired fungible asset are one asset, so net after resolving
   const netByAssetId = new Map<AssetId, bigint>()
-  for (const { assetType, amount } of ownChanges) {
+  for (const { assetType, amount } of changes.filter(change => change.owner === owner)) {
     const assetId = assetIds.get(assetType)
     if (assetId) netByAssetId.set(assetId, (netByAssetId.get(assetId) ?? 0n) + amount)
   }
 
-  // the accounts on the other side of the pubkey's net change in this asset
   const getCounterparties = (assetId: AssetId, amount: bigint): string[] => {
-    if (!isSender) return [tx.sender]
+    if (!isSender) return [sender]
     if (!isDirect && contract) return [contract]
 
     const others = changes
@@ -180,7 +146,8 @@ const parseEventTransfers = async (
       .filter(change => change.amount * amount < 0n)
       .map(change => change.owner)
 
-    return others.length ? [...new Set(others)] : [contract ?? tx.sender]
+    if (others.length) return [...new Set(others)]
+    return contract ? [contract] : []
   }
 
   return [...netByAssetId]
@@ -191,8 +158,8 @@ const parseEventTransfers = async (
 
       return {
         assetId,
-        from: isReceive ? counterparties : [pubkey],
-        to: isReceive ? [pubkey] : counterparties,
+        from: isReceive ? counterparties : [owner],
+        to: isReceive ? [owner] : counterparties,
         type: isReceive ? TransferType.Receive : TransferType.Send,
         value: (isReceive ? amount : -amount).toString(),
       }
@@ -220,24 +187,8 @@ export const parseAptosTx = async (
   const isUserTx = isUserTransactionResponse(tx)
   const status = getAptosTxStatus(tx)
 
-  const transfers: TxTransfer[] = []
-  const transfer = 'function' in tx.payload ? parseTransferPayload(tx.payload) : undefined
-
-  if (transfer) {
-    const { sender } = tx
-    const { recipient, amount: value } = transfer
-    const base = {
-      assetId: await resolveAssetId(transfer.assetType),
-      from: [sender],
-      to: [recipient],
-      value,
-    }
-
-    if (addressesMatch(sender, pubkey)) transfers.push({ ...base, type: TransferType.Send })
-    if (addressesMatch(recipient, pubkey)) transfers.push({ ...base, type: TransferType.Receive })
-  } else if (isUserTx && tx.success) {
-    transfers.push(...(await parseEventTransfers(tx, pubkey, resolveAssetId)))
-  }
+  // funds only move in a successful transaction, and its events record what actually moved
+  const transfers = isUserTx && tx.success ? await parseTransfers(tx, pubkey, resolveAssetId) : []
 
   return {
     txid: tx.hash,

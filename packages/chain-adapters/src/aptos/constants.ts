@@ -9,6 +9,7 @@ export const APT_FA_METADATA = '0xa'
 
 export const FA_DEPOSIT_EVENT_TYPE = '0x1::fungible_asset::Deposit'
 export const FA_WITHDRAW_EVENT_TYPE = '0x1::fungible_asset::Withdraw'
+export const FA_STORE_DELETION_EVENT_TYPE = '0x1::fungible_asset::FungibleStoreDeletion'
 export const COIN_DEPOSIT_EVENT_TYPE = '0x1::coin::CoinDeposit'
 export const COIN_WITHDRAW_EVENT_TYPE = '0x1::coin::CoinWithdraw'
 

@@ -20,6 +20,7 @@ import {
   COIN_TRANSFER_FUNCTIONS,
   COIN_WITHDRAW_EVENT_TYPE,
   FA_DEPOSIT_EVENT_TYPE,
+  FA_STORE_DELETION_EVENT_TYPE,
   FA_TRANSFER_FUNCTIONS,
   FA_WITHDRAW_EVENT_TYPE,
   FUNGIBLE_STORE_RESOURCE_TYPE,
@@ -83,6 +84,19 @@ const getStores = (tx: UserTransactionResponse) => {
     }
 
     stores.set(address, store)
+  }
+
+  // a store deleted in the transaction has no final resource write, so its deletion event names it
+  for (const { type, data } of tx.events) {
+    if (type !== FA_STORE_DELETION_EVENT_TYPE) continue
+
+    const address = toCanonicalAddress(data.store)
+    const store = stores.get(address)
+
+    stores.set(address, {
+      owner: store?.owner ?? toCanonicalAddress(data.owner),
+      metadata: store?.metadata ?? toCanonicalAddress(data.metadata),
+    })
   }
 
   return stores

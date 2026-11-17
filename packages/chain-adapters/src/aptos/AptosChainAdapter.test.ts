@@ -729,6 +729,31 @@ describe('AptosChainAdapter', () => {
         ])
       })
 
+      it('reads a withdrawal from a store deleted in the same transaction', async () => {
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(
+          makeTx({
+            sender: SWAPPER,
+            payload: {
+              ...makeTx().payload,
+              function: `${PANORA_ROUTER}::panora_swap::router_entry`,
+            },
+            events: [
+              { type: '0x1::fungible_asset::Withdraw', data: { amount: '42', store: '0xdead' } },
+              {
+                type: '0x1::fungible_asset::FungibleStoreDeletion',
+                data: { store: '0xdead', owner: SWAPPER, metadata: '0xa' },
+              },
+            ],
+          }),
+        )
+
+        const tx = await adapter.parseTx('0xtxhash', SWAPPER)
+
+        expect(tx.transfers.map(({ assetId, type, value }) => ({ assetId, type, value }))).toEqual([
+          { assetId: aptosAssetId, type: TransferType.Send, value: '42' },
+        ])
+      })
+
       it('maps an fa transfer of apt to the native asset', async () => {
         client.transaction.getTransactionByHash.mockResolvedValueOnce(
           makeTx({

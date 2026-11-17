@@ -1,3 +1,4 @@
+import type { parseEncodedStruct } from '@aptos-labs/ts-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 
 import type * as types from '../types'
@@ -41,3 +42,5 @@ type GetPayloadFeeDataInput = {
 }
 
 export type GetFeeDataInput = GetTransferFeeDataInput | GetPayloadFeeDataInput
+
+export type MoveTypeInfo = Parameters<typeof parseEncodedStruct>[0]

@@ -12,10 +12,12 @@ import {
   isUserTransactionResponse,
   MimeType,
   Network,
+  parseEncodedStruct,
   postAptosFullNode,
   RawTransaction,
   SignedTransaction,
   SimpleTransaction,
+  sleep,
   TransactionAuthenticatorEd25519,
 } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
@@ -54,15 +56,19 @@ import {
   APT_COIN_TYPE,
   FEE_STATEMENT_EVENT_TYPE,
   INDEXER_PAGE_LIMIT,
+  PAIRED_COIN_LOOKUP_ATTEMPTS,
+  PAIRED_COIN_LOOKUP_RETRY_DELAY_MS,
   TX_EXPIRY_SECS,
 } from './constants'
 import { parseAptosTx } from './parser'
-import type { BuildCustomApiTxInput, Token } from './types'
+import type { BuildCustomApiTxInput, MoveTypeInfo, Token } from './types'
 import {
   deserializePayload,
   getBalancePayload,
   getDecimalsPayload,
   getTransferPayload,
+  isAptosNativeAssetType,
+  isFungibleAssetReference,
 } from './utils'
 
 export interface ChainAdapterArgs {
@@ -81,6 +87,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   protected readonly chainId = aptosChainId
   protected readonly assetId = aptosAssetId
   protected readonly client: Aptos
+
+  private readonly pairedCoinTypes = new Map<string, Promise<string | undefined>>()
 
   constructor(args: ChainAdapterArgs) {
     this.client = new Aptos(
@@ -174,11 +182,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         balances
           .filter(({ asset_type }) => asset_type !== APT_COIN_TYPE)
           .map(async ({ asset_type, balance, metadata }) => ({
-            assetId: toAssetId({
-              chainId: this.chainId,
-              assetNamespace: getAptosAssetNamespace(asset_type),
-              assetReference: asset_type,
-            }),
+            assetId: this.getAssetId(asset_type),
             balance,
             symbol: metadata?.symbol ?? 'UNKNOWN',
             name: metadata?.name ?? asset_type,
@@ -205,6 +209,49 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   private async getTokenPrecision(assetType: string): Promise<number> {
     const [decimals] = await this.client.view<[number]>({ payload: getDecimalsPayload(assetType) })
     return decimals
+  }
+
+  private getAssetId(assetReference: string): AssetId {
+    return toAssetId({
+      chainId: this.chainId,
+      assetNamespace: getAptosAssetNamespace(assetReference),
+      assetReference,
+    })
+  }
+
+  // the coin type a fungible asset is paired with, if any, which is how balances index it
+  private async fetchPairedCoinType(metadata: string): Promise<string | undefined> {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const [{ vec }] = await this.client.view<[{ vec: MoveTypeInfo[] }]>({
+          payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
+        })
+
+        return vec[0] ? parseEncodedStruct(vec[0]) : undefined
+      } catch (err) {
+        if (attempt >= PAIRED_COIN_LOOKUP_ATTEMPTS) throw err
+        await sleep(PAIRED_COIN_LOOKUP_RETRY_DELAY_MS * attempt)
+      }
+    }
+  }
+
+  private getPairedCoinType(metadata: string): Promise<string | undefined> {
+    const cached = this.pairedCoinTypes.get(metadata)
+    if (cached) return cached
+
+    const pending = this.fetchPairedCoinType(metadata)
+
+    pending.catch(() => this.pairedCoinTypes.delete(metadata))
+    this.pairedCoinTypes.set(metadata, pending)
+
+    return pending
+  }
+
+  private async resolveAssetId(assetType: string): Promise<AssetId> {
+    if (isAptosNativeAssetType(assetType)) return this.assetId
+    if (!isFungibleAssetReference(assetType)) return this.getAssetId(assetType)
+
+    return this.getAssetId((await this.getPairedCoinType(assetType)) ?? assetType)
   }
 
   private async getBalances(pubkey: string) {
@@ -507,7 +554,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         throw new Error(`unsupported transaction type: ${tx.type}`)
       }
 
-      return parseAptosTx(tx, pubkey, this.chainId, this.assetId)
+      return await parseAptosTx(tx, pubkey, this.chainId, this.assetId, assetType =>
+        this.resolveAssetId(assetType),
+      )
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.parseTx',

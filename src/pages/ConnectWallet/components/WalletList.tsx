@@ -155,6 +155,10 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
       }
       try {
         if (await deleteMobileWallet(wallet)) {
+          // A failed refetch keeps the previous data, so drop the wallet first
+          queryClient.setQueryData<RevocableWallet[]>(['listWallets'], (wallets = []) =>
+            wallets.filter(item => item.id !== wallet.id),
+          )
           await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
         }
       } catch (e) {

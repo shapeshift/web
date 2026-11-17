@@ -83,6 +83,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   protected readonly chainId = aptosChainId
   protected readonly assetId = aptosAssetId
   protected readonly client: Aptos
+
   private readonly pairedCoinTypes = new Map<string, Promise<string | undefined>>()
 
   constructor(args: ChainAdapterArgs) {
@@ -219,23 +220,26 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     const cached = this.pairedCoinTypes.get(metadata)
     if (cached) return cached
 
-    const pending = this.client
-      .view<[{ vec: AptosTypeInfo[] }]>({
-        payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
-      })
-      .then(([{ vec }]) => (vec[0] ? aptosTypeInfoToCoinType(vec[0]) : undefined))
-      .catch(err => {
+    const pending = (async () => {
+      try {
+        const [{ vec }] = await this.client.view<[{ vec: AptosTypeInfo[] }]>({
+          payload: { function: '0x1::coin::paired_coin', functionArguments: [metadata] },
+        })
+
+        return vec[0] ? aptosTypeInfoToCoinType(vec[0]) : undefined
+      } catch (err) {
         this.pairedCoinTypes.delete(metadata)
         throw err
-      })
+      }
+    })()
 
     this.pairedCoinTypes.set(metadata, pending)
+
     return pending
   }
 
   private async resolveAssetId(assetType: string): Promise<AssetId> {
     if (isAptosNativeAssetType(assetType)) return this.assetId
-
     if (!isFungibleAssetReference(assetType)) return this.getAssetId(assetType)
 
     return this.getAssetId((await this.getPairedCoinType(assetType)) ?? assetType)

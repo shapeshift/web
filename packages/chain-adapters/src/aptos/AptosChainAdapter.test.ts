@@ -729,6 +729,64 @@ describe('AptosChainAdapter', () => {
         ])
       })
 
+      it('names counterparties per asset when a script sends one asset and receives another', async () => {
+        const X = '0x00000000000000000000000000000000000000000000000000000000000000b1'
+        const Y = '0x00000000000000000000000000000000000000000000000000000000000000b2'
+        const store = (address: string, owner: string, metadata: string) => [
+          {
+            type: 'write_resource',
+            address,
+            data: { type: '0x1::object::ObjectCore', data: { owner } },
+          },
+          {
+            type: 'write_resource',
+            address,
+            data: {
+              type: '0x1::fungible_asset::FungibleStore',
+              data: { metadata: { inner: metadata } },
+            },
+          },
+        ]
+
+        client.transaction.getTransactionByHash.mockResolvedValueOnce(
+          makeTx({
+            sender: SWAPPER,
+            payload: {
+              type: 'script_payload',
+              code: { bytecode: '0x' },
+              type_arguments: [],
+              arguments: [],
+            },
+            events: [
+              { type: '0x1::fungible_asset::Withdraw', data: { amount: '5', store: '0xc1' } },
+              { type: '0x1::fungible_asset::Deposit', data: { amount: '5', store: '0xc2' } },
+              { type: '0x1::fungible_asset::Withdraw', data: { amount: '9', store: '0xc3' } },
+              { type: '0x1::fungible_asset::Deposit', data: { amount: '9', store: '0xc4' } },
+            ],
+            changes: [
+              ...store('0xc1', SWAPPER, '0xa'),
+              ...store('0xc2', X, '0xa'),
+              ...store('0xc3', Y, USDC_FA),
+              ...store('0xc4', SWAPPER, USDC_FA),
+            ],
+          }),
+        )
+        client.view.mockResolvedValue([{ vec: [] }])
+
+        const tx = await adapter.parseTx('0xtxhash', SWAPPER)
+
+        expect(tx.transfers).toEqual([
+          { assetId: aptosAssetId, from: [SWAPPER], to: [X], type: TransferType.Send, value: '5' },
+          {
+            assetId: `aptos:1/fungible:${USDC_FA}`,
+            from: [Y],
+            to: [SWAPPER],
+            type: TransferType.Receive,
+            value: '9',
+          },
+        ])
+      })
+
       it('reads a withdrawal from a store deleted in the same transaction', async () => {
         client.transaction.getTransactionByHash.mockResolvedValueOnce(
           makeTx({

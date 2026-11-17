@@ -71,6 +71,9 @@ const getStores = (tx: UserTransactionResponse) => {
   for (const change of tx.changes) {
     if (change.type !== 'write_resource' || !('address' in change) || !('data' in change)) continue
 
+    // a write_resource change carries a resource, never module bytecode
+    if (!('type' in change.data)) continue
+
     const address = toCanonicalAddress(change.address)
     const { type, data } = change.data
     const store = stores.get(address) ?? {}
@@ -137,24 +140,6 @@ const getBalanceChanges = (tx: UserTransactionResponse): BalanceChange[] => {
 export const isAptosNativeAssetType = (assetType: string): boolean =>
   assetType === APT_COIN_TYPE || addressesMatch(assetType, APT_FA_METADATA)
 
-const getCounterparties = (
-  tx: UserTransactionResponse,
-  pubkey: string,
-  changes: BalanceChange[],
-): string[] => {
-  if (!addressesMatch(tx.sender, pubkey)) return [tx.sender]
-
-  const contract = 'function' in tx.payload ? tx.payload.function.split('::')[0] : undefined
-  if (contract && !addressesMatch(contract, FRAMEWORK_ADDRESS)) return [contract]
-
-  // framework calls and scripts move funds between accounts directly, so name the other accounts
-  const others = [
-    ...new Set(changes.map(({ owner }) => owner).filter(owner => !addressesMatch(owner, pubkey))),
-  ]
-
-  return others.length ? others : [contract ?? tx.sender]
-}
-
 // swaps and other contract calls move funds through events rather than a transfer payload
 const parseEventTransfers = async (
   tx: UserTransactionResponse,
@@ -162,9 +147,15 @@ const parseEventTransfers = async (
   resolveAssetId: AptosAssetIdResolver,
 ): Promise<TxTransfer[]> => {
   const changes = getBalanceChanges(tx)
-  const ownChanges = changes.filter(({ owner }) => addressesMatch(owner, pubkey))
+  const isOwn = ({ owner }: BalanceChange) => addressesMatch(owner, pubkey)
+  const isSender = addressesMatch(tx.sender, pubkey)
+  const contract = 'function' in tx.payload ? tx.payload.function.split('::')[0] : undefined
 
-  const assetTypes = [...new Set(ownChanges.map(({ assetType }) => assetType))]
+  // framework calls and scripts move funds between accounts directly, so the other accounts are the counterparties
+  const isDirect = isSender && (!contract || addressesMatch(contract, FRAMEWORK_ADDRESS))
+
+  const resolved = isDirect ? changes : changes.filter(isOwn)
+  const assetTypes = [...new Set(resolved.map(({ assetType }) => assetType))]
   const assetIds = new Map(
     await Promise.all(
       assetTypes.map(async assetType => [assetType, await resolveAssetId(assetType)] as const),
@@ -173,13 +164,24 @@ const parseEventTransfers = async (
 
   // a coin and its paired fungible asset are one asset, so net after resolving
   const netByAssetId = new Map<AssetId, bigint>()
-  for (const { assetType, amount } of ownChanges) {
-    const assetId = assetIds.get(assetType)
-    if (!assetId) continue
-    netByAssetId.set(assetId, (netByAssetId.get(assetId) ?? 0n) + amount)
+  for (const change of changes) {
+    const assetId = assetIds.get(change.assetType)
+    if (!assetId || !isOwn(change)) continue
+    netByAssetId.set(assetId, (netByAssetId.get(assetId) ?? 0n) + change.amount)
   }
 
-  const counterparties = getCounterparties(tx, pubkey, changes)
+  // the accounts on the other side of the pubkey's net change in this asset
+  const getCounterparties = (assetId: AssetId, amount: bigint): string[] => {
+    if (!isSender) return [tx.sender]
+    if (!isDirect && contract) return [contract]
+
+    const others = changes
+      .filter(change => !isOwn(change) && assetIds.get(change.assetType) === assetId)
+      .filter(change => (amount > 0n ? change.amount < 0n : change.amount > 0n))
+      .map(({ owner }) => owner)
+
+    return others.length ? [...new Set(others)] : [contract ?? tx.sender]
+  }
 
   return [...netByAssetId]
     .filter(([, amount]) => amount !== 0n)
@@ -187,7 +189,7 @@ const parseEventTransfers = async (
       amount > 0n
         ? {
             assetId,
-            from: counterparties,
+            from: getCounterparties(assetId, amount),
             to: [pubkey],
             type: TransferType.Receive,
             value: amount.toString(),
@@ -195,7 +197,7 @@ const parseEventTransfers = async (
         : {
             assetId,
             from: [pubkey],
-            to: counterparties,
+            to: getCounterparties(assetId, amount),
             type: TransferType.Send,
             value: (-amount).toString(),
           },

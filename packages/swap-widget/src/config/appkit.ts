@@ -63,6 +63,20 @@ export const getActiveWagmiConfig = (): Config | undefined => {
   return evmAdapter?.wagmiConfig
 }
 
+// AppKit returns to the network list after a switch; close once the new network has an account
+const closeModalAfterNetworkSwitch = (appKit: ReturnType<typeof createAppKit>) => {
+  let lastNetworkId = appKit.getState().selectedNetworkId
+
+  return appKit.subscribeState(state => {
+    const hasSwitched = state.selectedNetworkId !== lastNetworkId
+    lastNetworkId = state.selectedNetworkId
+    if (!hasSwitched || !state.open) return
+
+    const namespace = state.activeChain
+    if (namespace && appKit.getAddressByChainNamespace(namespace)) void appKit.close()
+  })
+}
+
 export const initializeAppKit = (projectId: string): void => {
   // Already initialized — either by a previous call here, or by the host app. In
   // the latter case we skip entirely and reuse the host's AppKit + wagmi config.
@@ -78,7 +92,7 @@ export const initializeAppKit = (projectId: string): void => {
     wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()] as any,
   })
 
-  createAppKit({
+  const appKit = createAppKit({
     adapters: [wagmiAdapter, bitcoinAdapter, solanaAdapter],
     projectId,
     networks: [...ALL_NETWORKS] as [AppKitNetwork, ...AppKitNetwork[]],
@@ -86,4 +100,6 @@ export const initializeAppKit = (projectId: string): void => {
       send: false,
     },
   })
+
+  closeModalAfterNetworkSwitch(appKit)
 }

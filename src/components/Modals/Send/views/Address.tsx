@@ -58,6 +58,7 @@ export const Address = () => {
   const {
     setValue,
     getValues,
+    getFieldState,
     trigger,
     formState: { errors },
   } = useFormContext<SendInput>()
@@ -181,7 +182,9 @@ export const Address = () => {
             parseAddressInputWithChainIdArgs,
           )
           setIsValidating(false)
-          if (getValues(SendFormFields.Input) !== rawInput) return true
+          if (getValues(SendFormFields.Input) !== rawInput) {
+            return getFieldState(SendFormFields.Input).error?.message ?? true
+          }
           // set returned values
           setValue(SendFormFields.To, address)
           setValue(SendFormFields.VanityAddress, vanityAddress)
@@ -190,7 +193,7 @@ export const Address = () => {
         },
       },
     }),
-    [asset, getValues, setValue],
+    [asset, getFieldState, getValues, setValue],
   )
 
   const handleCancel = useCallback(() => {

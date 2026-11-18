@@ -82,6 +82,7 @@ export const SendAmountDetails = () => {
     control,
     setValue,
     getValues,
+    getFieldState,
     trigger,
     formState: { errors },
   } = useFormContext<SendInput>()
@@ -276,7 +277,9 @@ export const SendAmountDetails = () => {
             parseAddressInputWithChainIdArgs,
           )
           setIsValidating(false)
-          if (getValues(SendFormFields.Input) !== rawInput) return true
+          if (getValues(SendFormFields.Input) !== rawInput) {
+            return getFieldState(SendFormFields.Input).error?.message ?? true
+          }
           setValue(SendFormFields.To, address)
           setValue(SendFormFields.VanityAddress, vanityAddress)
           const invalidMessage = 'common.invalidAddress'
@@ -284,7 +287,7 @@ export const SendAmountDetails = () => {
         },
       },
     }),
-    [asset, getValues, setValue],
+    [asset, getFieldState, getValues, setValue],
   )
 
   const handleMemoChange = useCallback(

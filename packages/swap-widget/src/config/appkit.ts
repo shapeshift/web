@@ -26,7 +26,6 @@ import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
 
 import { elysium } from '../constants/viemChains'
-import { getChainType } from '../types'
 
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
@@ -62,36 +61,6 @@ export const isAppKitInitialized = (): boolean => modal !== undefined
 export const getActiveWagmiConfig = (): Config | undefined => {
   const evmAdapter = modal?.chainAdapters?.eip155 as WagmiAdapter | undefined
   return evmAdapter?.wagmiConfig
-}
-
-type ChainNamespace = 'eip155' | 'bip122' | 'solana'
-
-export const getNamespaceForChainId = (chainId: string): ChainNamespace | undefined => {
-  switch (getChainType(chainId)) {
-    case 'evm':
-      return 'eip155'
-    case 'utxo':
-      return 'bip122'
-    case 'solana':
-      return 'solana'
-    default:
-      return undefined
-  }
-}
-
-// Makes the sell chain's namespace AppKit's active one, so AppKit's button and modal show the
-// wallet the widget is using. Across namespaces AppKit only flips its active network - the
-// wallet isn't prompted - so this is safe to call whenever the sell asset changes.
-// Within a namespace it would prompt the wallet, so EVM chain switches stay in execution.
-export const activateNamespace = async (namespace: ChainNamespace, chainId: string) => {
-  if (!modal || modal.getActiveChainNamespace() === namespace) return
-
-  // A host-owned AppKit may not register every network, and switching to an unknown one alerts
-  const networks = modal.getCaipNetworks(namespace)
-  const network = networks.find(n => n.caipNetworkId === chainId) ?? networks[0]
-  if (!network) return
-
-  await modal.switchNetwork(network)
 }
 
 export const initializeAppKit = (projectId: string): void => {

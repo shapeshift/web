@@ -4,7 +4,6 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { createApiClient } from '../api/client'
-import { activateNamespace, getNamespaceForChainId } from '../config/appkit'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
@@ -370,22 +369,6 @@ const SwapWidgetCore = ({
       buyChainId,
     ],
   )
-
-  const isSellChainTypeConnected =
-    (sellChainType === 'evm' && evm.isConnected) ||
-    (sellChainType === 'utxo' && bitcoin.isConnected) ||
-    (sellChainType === 'solana' && solana.isConnected)
-
-  // Keep AppKit's active network - and so its button and modal - on the sell chain's wallet.
-  // Not keyed on the active network, so a manual switch in the modal isn't undone until Swap.
-  useEffect(() => {
-    if (!isSellChainTypeConnected) return
-    const namespace = getNamespaceForChainId(sellChainId)
-    if (!namespace) return
-    activateNamespace(namespace, sellChainId).catch(err =>
-      console.error('Failed to activate the sell chain namespace', err),
-    )
-  }, [isSellChainTypeConnected, sellChainId])
 
   // Unlike the initial sync below, a locked amount keeps tracking its prop
   useEffect(() => {

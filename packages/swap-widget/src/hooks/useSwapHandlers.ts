@@ -1,7 +1,6 @@
 import { useAppKit } from '@reown/appkit/react'
 import { useCallback } from 'react'
 
-import { activateNamespace, getNamespaceForChainId } from '../config/appkit'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
@@ -139,21 +138,13 @@ export const useSwapHandlers = ({
   }, [actorRef, partnerCode])
 
   const handleButtonClick = useCallback(
-    async (action: InputCtaAction) => {
+    (action: InputCtaAction) => {
       if (action === 'deposit') {
         actorRef.send({ type: 'FETCH_QUOTE', isDepositFlow: true })
         return
       }
 
       if (action === 'quote') {
-        // The user may have switched AppKit to another network since picking the sell asset
-        const { chainId } = actorRef.getSnapshot().context.sellAsset
-        const namespace = getNamespaceForChainId(chainId)
-        if (namespace) {
-          await activateNamespace(namespace, chainId).catch(err =>
-            console.error('Failed to activate the sell chain namespace', err),
-          )
-        }
         actorRef.send({ type: 'FETCH_QUOTE' })
         return
       }

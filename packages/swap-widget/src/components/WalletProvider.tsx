@@ -44,8 +44,8 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
 
-  // Mirrors AppKit's active account so this button and the AppKit modal always agree. The widget
-  // keeps that account on the sell chain's wallet (see activateNamespace)
+  // Mirrors AppKit's active account so this button and the AppKit modal always agree. The swap
+  // itself reads each namespace's wallet directly, so it doesn't depend on which one is active
   const { address: displayAddress } = useAppKitAccount()
 
   const handleClick = useCallback(() => {

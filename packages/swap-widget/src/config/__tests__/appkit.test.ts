@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { activateNamespace } from '../appkit'
+import { activateNamespace, getNamespaceForChainId } from '../appkit'
 
 const mockModal = vi.hoisted(() => ({
   getActiveChainNamespace: vi.fn(),
@@ -59,5 +59,17 @@ describe('activateNamespace', () => {
     mockModal.getCaipNetworks.mockReturnValue([btcNetwork])
     await activateNamespace('bip122', BTC_CHAIN_ID)
     expect(mockModal.switchNetwork).toHaveBeenCalledWith(btcNetwork)
+  })
+})
+
+describe('getNamespaceForChainId', () => {
+  it('maps each signable chain type to its AppKit namespace', () => {
+    expect(getNamespaceForChainId('eip155:42161')).toBe('eip155')
+    expect(getNamespaceForChainId(BTC_CHAIN_ID)).toBe('bip122')
+    expect(getNamespaceForChainId('solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp')).toBe('solana')
+  })
+
+  it('has no namespace for chains the widget cannot sign for', () => {
+    expect(getNamespaceForChainId('cosmos:cosmoshub-4')).toBeUndefined()
   })
 })

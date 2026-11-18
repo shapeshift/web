@@ -67,6 +67,7 @@ export const InputStep = ({
     !context.isSellAssetEvm && !context.isSellAssetUtxo && !context.isSellAssetSolana
 
   const supportsDepositRoute = isExternalPaymentSellChainId(context.sellAsset.chainId)
+  const sellChainName = getChainName(context.sellAsset.chainId)
 
   const amountBaseUnit = displayValues.isExactOutput
     ? context.buyAmountBaseUnit
@@ -148,7 +149,7 @@ export const InputStep = ({
       isDepositRoute: isDepositFlowAvailable,
       hasWalletForSellChain: !!walletSendAddress,
       isSellChainTypeConnected,
-      sellChainName: getChainName(context.sellAsset.chainId),
+      sellChainName,
       isUnsupportedChain,
       supportsDepositRoute,
       allowShapeshiftRedirect,
@@ -163,7 +164,7 @@ export const InputStep = ({
     isDepositFlowAvailable,
     walletSendAddress,
     isSellChainTypeConnected,
-    context.sellAsset.chainId,
+    sellChainName,
     isUnsupportedChain,
     supportsDepositRoute,
     allowShapeshiftRedirect,
@@ -459,6 +460,22 @@ export const InputStep = ({
           buttonText
         )}
       </button>
+
+      {isDepositFlowAvailable && !isUnsupportedChain && !isSellChainTypeConnected && (
+        <>
+          <div className='ssw-or-divider' aria-hidden='true'>
+            <span>or</span>
+          </div>
+          <button
+            className='ssw-action-btn ssw-secondary'
+            disabled={isQuoting}
+            onClick={() => onButtonClick('connect')}
+            type='button'
+          >
+            Connect {sellChainName} wallet
+          </button>
+        </>
+      )}
 
       {isUnsupportedChain &&
         isDepositFlowAvailable &&

@@ -6,7 +6,6 @@ import type { Config } from 'wagmi'
 import { WagmiProvider } from 'wagmi'
 
 import { getActiveWagmiConfig, initializeAppKit, isAppKitInitialized } from '../config/appkit'
-import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { truncateAddress } from '../types'
 
 const queryClient = new QueryClient()
@@ -45,11 +44,9 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
 
-  const { walletSendAddress } = useSwapWallet()
-  // Falls back to the active namespace's account, so a wallet connected on a network other than
-  // the sell chain's still reads as connected
-  const { address: activeAddress } = useAppKitAccount()
-  const displayAddress = walletSendAddress ?? activeAddress
+  // Mirrors AppKit's active account so this button and the AppKit modal always agree. The widget
+  // keeps that account on the sell chain's wallet (see activateNamespace)
+  const { address: displayAddress } = useAppKitAccount()
 
   const handleClick = useCallback(() => {
     open()

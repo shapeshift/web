@@ -1,7 +1,7 @@
 import { useAppKit } from '@reown/appkit/react'
 import { useCallback } from 'react'
 
-import { activateNamespace } from '../config/appkit'
+import { activateNamespace, getNamespaceForChainId } from '../config/appkit'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
@@ -146,18 +146,11 @@ export const useSwapHandlers = ({
       }
 
       if (action === 'quote') {
-        // The sell chain's wallet is connected but may not be AppKit's active namespace
-        const { sellAsset, isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana } =
-          actorRef.getSnapshot().context
-        const namespace = isSellAssetEvm
-          ? 'eip155'
-          : isSellAssetUtxo
-          ? 'bip122'
-          : isSellAssetSolana
-          ? 'solana'
-          : undefined
+        // The user may have switched AppKit to another network since picking the sell asset
+        const { chainId } = actorRef.getSnapshot().context.sellAsset
+        const namespace = getNamespaceForChainId(chainId)
         if (namespace) {
-          await activateNamespace(namespace, sellAsset.chainId).catch(err =>
+          await activateNamespace(namespace, chainId).catch(err =>
             console.error('Failed to activate the sell chain namespace', err),
           )
         }

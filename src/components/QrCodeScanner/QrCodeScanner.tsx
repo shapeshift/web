@@ -127,8 +127,8 @@ export const QrCodeScanner = ({
     if (useNativeScanner) setScanAttempt(attempt => attempt + 1)
   }, [useNativeScanner])
 
-  // Show loading state while waiting for native scanner
-  if (useNativeScanner && isNativeScannerLoading) {
+  // Native scanner shows a spinner until there is an error to display
+  if (useNativeScanner && (isNativeScannerLoading || !error)) {
     return (
       <SlideTransition>
         <DialogHeader>
@@ -177,7 +177,7 @@ export const QrCodeScanner = ({
               </Button>
             )}
           </Flex>
-        ) : useNativeScanner ? null : (
+        ) : (
           <Box style={boxStyle}>
             <QrCodeReader
               qrbox={qrBoxStyle}

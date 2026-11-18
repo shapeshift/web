@@ -6,7 +6,7 @@ import type {
   QrcodeSuccessCallback,
 } from 'html5-qrcode/cjs/core'
 import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { DialogBackButton } from '../Modal/components/DialogBackButton'
@@ -46,7 +46,7 @@ export const QrCodeScanner = ({
   onError,
   addressError,
 }: {
-  onSuccess: (decodedText: string, result: Html5QrcodeResult) => void
+  onSuccess: (decodedText: string, result: Html5QrcodeResult) => void | Promise<void>
   onBack: () => void
   onError?: (errorMessage: string, error: Html5QrcodeError) => void
   addressError?: string | null
@@ -62,6 +62,11 @@ export const QrCodeScanner = ({
   const [scanAttempt, setScanAttempt] = useState(0)
   const error = scanError ?? addressError
 
+  const callbacks = useRef({ onSuccess, onBack, onError })
+  useEffect(() => {
+    callbacks.current = { onSuccess, onBack, onError }
+  }, [onSuccess, onBack, onError])
+
   // Use native scanner when in mobile app with compatible version
   useEffect(() => {
     if (!useNativeScanner) return
@@ -74,17 +79,17 @@ export const QrCodeScanner = ({
         if (isCancelled) return
         // Create a minimal result object for compatibility
         const mockResult = { decodedText: data } as Html5QrcodeResult
-        await onSuccess(data, mockResult)
+        await callbacks.current.onSuccess(data, mockResult)
       })
       .catch(e => {
         if (isCancelled) return
         if (e.message === 'QR scan cancelled') {
-          onBack()
+          callbacks.current.onBack()
         } else {
           setScanError(e.message)
-          if (onError) {
-            onError(e.message, { type: Html5QrcodeErrorTypes.UNKWOWN_ERROR } as Html5QrcodeError)
-          }
+          callbacks.current.onError?.(e.message, {
+            type: Html5QrcodeErrorTypes.UNKWOWN_ERROR,
+          } as Html5QrcodeError)
         }
       })
       .finally(() => {
@@ -94,7 +99,7 @@ export const QrCodeScanner = ({
     return () => {
       isCancelled = true
     }
-  }, [useNativeScanner, onSuccess, onBack, onError, scanAttempt])
+  }, [useNativeScanner, scanAttempt])
 
   const handleScanSuccess: QrcodeSuccessCallback = useCallback(
     (decodedText, _result) => {
@@ -162,7 +167,7 @@ export const QrCodeScanner = ({
                 translation={
                   isPermissionError(error)
                     ? 'modals.send.errors.qrPermissions'
-                    : addressError ?? 'modals.send.errors.generic'
+                    : (!scanError && addressError) || 'modals.send.errors.generic'
                 }
               />
             </Alert>

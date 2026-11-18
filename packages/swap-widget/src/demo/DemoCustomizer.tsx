@@ -2,6 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ThemeConfig } from '../types'
 
+const AFFILIATE_DASHBOARD_URL = import.meta.env.VITE_AFFILIATE_DASHBOARD_URL
+
+if (!AFFILIATE_DASHBOARD_URL) throw new Error('VITE_AFFILIATE_DASHBOARD_URL is not set')
+
 export type ThemeColors = {
   bg: string
   card: string
@@ -250,7 +254,7 @@ ${formatColors(lightColors, 'light')}
         />
         <a
           className='demo-partner-code-link'
-          href='https://dashboard.affiliate.shapeshift.com/'
+          href={AFFILIATE_DASHBOARD_URL}
           target='_blank'
           rel='noopener noreferrer'
         >

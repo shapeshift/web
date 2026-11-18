@@ -197,6 +197,13 @@ body,
   line-height: 1.5;
 }
 
+.demo-affiliate-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--demo-text-secondary);
+  text-decoration: underline;
+}
+
 .demo-layout {
   display: flex;
   gap: 24px;

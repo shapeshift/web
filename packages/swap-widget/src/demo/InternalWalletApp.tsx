@@ -109,6 +109,14 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
             <p className='demo-subtitle'>
               Embeddable multi-chain swap widget powered by ShapeShift
             </p>
+            <a
+              className='demo-affiliate-link'
+              href='https://dashboard.affiliate.shapeshift.com/'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Affiliate Dashboard
+            </a>
           </div>
 
           <div className='demo-layout'>

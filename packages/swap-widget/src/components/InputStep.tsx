@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { getChainName } from '../constants/chains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
@@ -147,6 +148,7 @@ export const InputStep = ({
       isDepositRoute: isDepositFlowAvailable,
       hasWalletForSellChain: !!walletSendAddress,
       isSellChainTypeConnected,
+      sellChainName: getChainName(context.sellAsset.chainId),
       isUnsupportedChain,
       supportsDepositRoute,
       allowShapeshiftRedirect,
@@ -161,6 +163,7 @@ export const InputStep = ({
     isDepositFlowAvailable,
     walletSendAddress,
     isSellChainTypeConnected,
+    context.sellAsset.chainId,
     isUnsupportedChain,
     supportsDepositRoute,
     allowShapeshiftRedirect,

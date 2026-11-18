@@ -1,6 +1,7 @@
 import { useAppKit } from '@reown/appkit/react'
 import { useCallback } from 'react'
 
+import { activateNamespace } from '../config/appkit'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
@@ -138,13 +139,28 @@ export const useSwapHandlers = ({
   }, [actorRef, partnerCode])
 
   const handleButtonClick = useCallback(
-    (action: InputCtaAction) => {
+    async (action: InputCtaAction) => {
       if (action === 'deposit') {
         actorRef.send({ type: 'FETCH_QUOTE', isDepositFlow: true })
         return
       }
 
       if (action === 'quote') {
+        // The sell chain's wallet is connected but may not be AppKit's active namespace
+        const { sellAsset, isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana } =
+          actorRef.getSnapshot().context
+        const namespace = isSellAssetEvm
+          ? 'eip155'
+          : isSellAssetUtxo
+          ? 'bip122'
+          : isSellAssetSolana
+          ? 'solana'
+          : undefined
+        if (namespace) {
+          await activateNamespace(namespace, sellAsset.chainId).catch(err =>
+            console.error('Failed to activate the sell chain namespace', err),
+          )
+        }
         actorRef.send({ type: 'FETCH_QUOTE' })
         return
       }

@@ -11,6 +11,8 @@ type GetInputCtaArgs = {
   hasWalletForSellChain: boolean
   // The adapter for the sell chain's type is connected, whether or not it can serve this chain
   isSellChainTypeConnected: boolean
+  // Display name of the sell asset's network, e.g. "Bitcoin" or "Arbitrum"
+  sellChainName: string
   isUnsupportedChain: boolean
   supportsDepositRoute: boolean
   allowShapeshiftRedirect: boolean
@@ -31,6 +33,7 @@ export const getInputCta = ({
   isDepositRoute,
   hasWalletForSellChain,
   isSellChainTypeConnected,
+  sellChainName,
   isUnsupportedChain,
   supportsDepositRoute,
   allowShapeshiftRedirect,
@@ -64,7 +67,7 @@ export const getInputCta = ({
   if (!hasWalletForSellChain) {
     // Connected but on a sibling chain (a bitcoin wallet for a litecoin sell) - connecting again can't help
     if (isSellChainTypeConnected) return getUnsupportedCta(allowShapeshiftRedirect)
-    return { text: 'Connect Wallet', disabled: false, action: 'connect' }
+    return { text: `Connect ${sellChainName} wallet`, disabled: false, action: 'connect' }
   }
 
   if (!hasReceiveAddress) return { text: 'Enter receive address', disabled: true, action: 'none' }

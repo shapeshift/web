@@ -63,6 +63,22 @@ export const getActiveWagmiConfig = (): Config | undefined => {
   return evmAdapter?.wagmiConfig
 }
 
+type ChainNamespace = 'eip155' | 'bip122' | 'solana'
+
+// Makes the sell chain's namespace AppKit's active one before a swap. Across namespaces AppKit
+// only flips its active network - the wallet isn't prompted - so this is safe to call on Swap.
+// Within a namespace it would prompt the wallet, so EVM chain switches stay in execution.
+export const activateNamespace = async (namespace: ChainNamespace, chainId: string) => {
+  if (!modal || modal.getActiveChainNamespace() === namespace) return
+
+  // A host-owned AppKit may not register every network, and switching to an unknown one alerts
+  const networks = modal.getCaipNetworks(namespace)
+  const network = networks.find(n => n.caipNetworkId === chainId) ?? networks[0]
+  if (!network) return
+
+  await modal.switchNetwork(network)
+}
+
 export const initializeAppKit = (projectId: string): void => {
   // Already initialized — either by a previous call here, or by the host app. In
   // the latter case we skip entirely and reuse the host's AppKit + wagmi config.

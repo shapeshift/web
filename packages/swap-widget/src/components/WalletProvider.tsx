@@ -1,4 +1,4 @@
-import { useAppKit } from '@reown/appkit/react'
+import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
@@ -46,12 +46,16 @@ export const ConnectWalletButton = () => {
   const { open } = useAppKit()
 
   const { walletSendAddress } = useSwapWallet()
+  // Falls back to the active namespace's account, so a wallet connected on a network other than
+  // the sell chain's still reads as connected
+  const { address: activeAddress } = useAppKitAccount()
+  const displayAddress = walletSendAddress ?? activeAddress
 
   const handleClick = useCallback(() => {
     open()
   }, [open])
 
-  if (!walletSendAddress) {
+  if (!displayAddress) {
     return (
       <button onClick={handleClick} type='button' className='ssw-connect-btn'>
         <svg
@@ -72,7 +76,7 @@ export const ConnectWalletButton = () => {
 
   return (
     <button onClick={handleClick} type='button' className='ssw-connect-btn ssw-connected'>
-      {truncateAddress(walletSendAddress)}
+      {truncateAddress(displayAddress)}
     </button>
   )
 }

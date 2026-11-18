@@ -137,7 +137,8 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
   // The QR code scanning was succesful, doesn't mean the address itself is valid
   const handleQrSuccess = useCallback(
     (decodedText: string) => {
-      ;(async () => {
+      setAddressError(null)
+      return (async () => {
         try {
           // If this is a WalletConnect dApp QR Code, skip the whole send logic and auto-pair directly.
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
@@ -195,7 +196,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
               }
             return parseAddress({ address: decodedText })
           })()
-          if (!maybeUrlResult.assetId) return
+          if (!maybeUrlResult.assetId) {
+            setAddressError('modals.send.errors.generic')
+            return
+          }
 
           const { address, vanityAddress } = urlDirectResult
             ? {

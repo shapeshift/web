@@ -183,6 +183,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   // The QR code scanning was succesful, doesn't mean the address itself is valid
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
+      setAddressError(null)
       try {
         const urlDirectResult = parseUrlDirect(decodedText)
 

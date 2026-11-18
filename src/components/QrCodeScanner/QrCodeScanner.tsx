@@ -59,7 +59,8 @@ export const QrCodeScanner = ({
   const useNativeScanner = isMobile && isNativeQrScannerCompatible
   const [isNativeScannerLoading, setIsNativeScannerLoading] = useState(useNativeScanner)
 
-  const error = addressError ?? scanError
+  const [scanAttempt, setScanAttempt] = useState(0)
+  const error = scanError ?? addressError
 
   // Use native scanner when in mobile app with compatible version
   useEffect(() => {
@@ -69,15 +70,14 @@ export const QrCodeScanner = ({
     setIsNativeScannerLoading(true)
 
     openNativeQRScanner()
-      .then(data => {
+      .then(async data => {
         if (isCancelled) return
         // Create a minimal result object for compatibility
         const mockResult = { decodedText: data } as Html5QrcodeResult
-        onSuccess(data, mockResult)
+        await onSuccess(data, mockResult)
       })
       .catch(e => {
         if (isCancelled) return
-        setIsNativeScannerLoading(false)
         if (e.message === 'QR scan cancelled') {
           onBack()
         } else {
@@ -87,11 +87,14 @@ export const QrCodeScanner = ({
           }
         }
       })
+      .finally(() => {
+        if (!isCancelled) setIsNativeScannerLoading(false)
+      })
 
     return () => {
       isCancelled = true
     }
-  }, [useNativeScanner, onSuccess, onBack, onError])
+  }, [useNativeScanner, onSuccess, onBack, onError, scanAttempt])
 
   const handleScanSuccess: QrcodeSuccessCallback = useCallback(
     (decodedText, _result) => {
@@ -114,7 +117,10 @@ export const QrCodeScanner = ({
     [onError],
   )
 
-  const handlePermissionsButtonClick = useCallback(() => setScanError(null), [])
+  const handleRetry = useCallback(() => {
+    setScanError(null)
+    if (useNativeScanner) setScanAttempt(attempt => attempt + 1)
+  }, [useNativeScanner])
 
   // Show loading state while waiting for native scanner
   if (useNativeScanner && isNativeScannerLoading) {
@@ -160,13 +166,13 @@ export const QrCodeScanner = ({
                 }
               />
             </Alert>
-            {isPermissionError(error) && (
-              <Button colorScheme='blue' mt='5' onClick={handlePermissionsButtonClick}>
-                {translate('modals.send.permissionsButton')}
+            {(useNativeScanner || isPermissionError(error)) && (
+              <Button colorScheme='blue' mt='5' onClick={handleRetry}>
+                {translate(useNativeScanner ? 'common.retry' : 'modals.send.permissionsButton')}
               </Button>
             )}
           </Flex>
-        ) : (
+        ) : useNativeScanner ? null : (
           <Box style={boxStyle}>
             <QrCodeReader
               qrbox={qrBoxStyle}

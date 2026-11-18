@@ -63,16 +63,8 @@ export const getActiveWagmiConfig = (): Config | undefined => {
   return evmAdapter?.wagmiConfig
 }
 
-type NetworkSwitchSource = Pick<
-  ReturnType<typeof createAppKit>,
-  'getState' | 'subscribeState' | 'getActiveChainNamespace' | 'getAddressByChainNamespace' | 'close'
->
-
-// After a network switch, AppKit's switch view goes back to the network list instead of closing,
-// which reads as a failed switch. Close the modal once the switch lands on a network with an
-// account. A network without one is mid-connect, so the modal stays open for the Connect view.
-// Only wired up for an AppKit the widget created - a host-owned modal is the host's to manage.
-export const closeModalAfterNetworkSwitch = (appKit: NetworkSwitchSource) => {
+// AppKit returns to the network list after a switch; close once the new network has an account
+const closeModalAfterNetworkSwitch = (appKit: ReturnType<typeof createAppKit>) => {
   let lastNetworkId = appKit.getState().selectedNetworkId
 
   return appKit.subscribeState(state => {
@@ -80,7 +72,7 @@ export const closeModalAfterNetworkSwitch = (appKit: NetworkSwitchSource) => {
     lastNetworkId = state.selectedNetworkId
     if (!hasSwitched || !state.open) return
 
-    const namespace = appKit.getActiveChainNamespace()
+    const namespace = state.activeChain
     if (namespace && appKit.getAddressByChainNamespace(namespace)) void appKit.close()
   })
 }

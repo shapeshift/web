@@ -9,7 +9,7 @@ import { formatAmount, isExternalPaymentSellChainId } from '../types'
 import { shouldUseDepositFlow } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
 import type { InputCtaAction } from '../utils/inputCta'
-import { getInputCta } from '../utils/inputCta'
+import { getInputCta, getSecondaryCta } from '../utils/inputCta'
 import { QuoteSelector } from './QuoteSelector'
 import { ReceiveAddressRow } from './ReceiveAddressRow'
 import { RefundAddressRow } from './RefundAddressRow'
@@ -177,6 +177,15 @@ export const InputStep = ({
     displayValues.ratesError,
     displayValues.rates,
   ])
+
+  const secondaryCta = getSecondaryCta({
+    isDepositRoute: isDepositFlowAvailable,
+    isUnsupportedChain,
+    isSellChainTypeConnected,
+    sellChainName,
+    allowShapeshiftRedirect,
+    primaryAction: buttonAction,
+  })
 
   return (
     <>
@@ -461,7 +470,7 @@ export const InputStep = ({
         )}
       </button>
 
-      {isDepositFlowAvailable && !isUnsupportedChain && !isSellChainTypeConnected && (
+      {secondaryCta && (
         <>
           <div className='ssw-or-divider' aria-hidden='true'>
             <span>or</span>
@@ -469,32 +478,13 @@ export const InputStep = ({
           <button
             className='ssw-action-btn ssw-secondary'
             disabled={isQuoting}
-            onClick={() => onButtonClick('connect')}
+            onClick={() => onButtonClick(secondaryCta.action)}
             type='button'
           >
-            Connect {sellChainName} wallet
+            {secondaryCta.text}
           </button>
         </>
       )}
-
-      {isUnsupportedChain &&
-        isDepositFlowAvailable &&
-        allowShapeshiftRedirect &&
-        buttonAction !== 'redirect' && (
-          <>
-            <div className='ssw-or-divider' aria-hidden='true'>
-              <span>or</span>
-            </div>
-            <button
-              className='ssw-action-btn ssw-secondary'
-              disabled={isQuoting}
-              onClick={() => onButtonClick('redirect')}
-              type='button'
-            >
-              Proceed on ShapeShift
-            </button>
-          </>
-        )}
     </>
   )
 }

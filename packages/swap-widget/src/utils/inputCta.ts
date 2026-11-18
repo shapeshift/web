@@ -11,7 +11,6 @@ type GetInputCtaArgs = {
   hasWalletForSellChain: boolean
   // The adapter for the sell chain's type is connected, whether or not it can serve this chain
   isSellChainTypeConnected: boolean
-  // Display name of the sell asset's network, e.g. "Bitcoin" or "Arbitrum"
   sellChainName: string
   isUnsupportedChain: boolean
   supportsDepositRoute: boolean
@@ -28,6 +27,12 @@ const getUnsupportedCta = (allowShapeshiftRedirect: boolean): InputCta =>
   allowShapeshiftRedirect
     ? { text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' }
     : { text: 'Route not supported', disabled: true, action: 'none' }
+
+const getConnectCta = (sellChainName: string): InputCta => ({
+  text: `Connect ${sellChainName} wallet`,
+  disabled: false,
+  action: 'connect',
+})
 
 export const getInputCta = ({
   isDepositRoute,
@@ -67,10 +72,33 @@ export const getInputCta = ({
   if (!hasWalletForSellChain) {
     // Connected but on a sibling chain (a bitcoin wallet for a litecoin sell) - connecting again can't help
     if (isSellChainTypeConnected) return getUnsupportedCta(allowShapeshiftRedirect)
-    return { text: `Connect ${sellChainName} wallet`, disabled: false, action: 'connect' }
+    return getConnectCta(sellChainName)
   }
 
   if (!hasReceiveAddress) return { text: 'Enter receive address', disabled: true, action: 'none' }
 
   return { text: 'Swap', disabled: false, action: 'quote' }
+}
+
+type GetSecondaryCtaArgs = Pick<
+  GetInputCtaArgs,
+  | 'isDepositRoute'
+  | 'isUnsupportedChain'
+  | 'isSellChainTypeConnected'
+  | 'sellChainName'
+  | 'allowShapeshiftRedirect'
+> & { primaryAction: InputCtaAction }
+
+export const getSecondaryCta = ({
+  isDepositRoute,
+  isUnsupportedChain,
+  isSellChainTypeConnected,
+  sellChainName,
+  allowShapeshiftRedirect,
+  primaryAction,
+}: GetSecondaryCtaArgs): InputCta | undefined => {
+  if (!isDepositRoute) return
+  if (!isUnsupportedChain)
+    return isSellChainTypeConnected ? undefined : getConnectCta(sellChainName)
+  if (allowShapeshiftRedirect && primaryAction !== 'redirect') return getUnsupportedCta(true)
 }

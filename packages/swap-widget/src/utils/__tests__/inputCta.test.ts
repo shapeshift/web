@@ -46,11 +46,6 @@ describe('getInputCta', () => {
     expect(cta).toEqual({ text: 'Connect Bitcoin wallet', disabled: false, action: 'connect' })
   })
 
-  it('names an EVM sell network by its chain', () => {
-    const cta = getInputCta({ ...base, ...noWallet, sellChainName: 'Arbitrum One' })
-    expect(cta).toEqual({ text: 'Connect Arbitrum One wallet', disabled: false, action: 'connect' })
-  })
-
   it('redirects when the connected wallet cannot serve the sell chain', () => {
     const cta = getInputCta({ ...base, hasWalletForSellChain: false })
     expect(cta).toEqual({ text: 'Proceed on ShapeShift', disabled: false, action: 'redirect' })

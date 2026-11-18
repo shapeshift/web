@@ -248,6 +248,14 @@ ${formatColors(lightColors, 'light')}
           className='demo-color-text'
           style={{ width: '100%' }}
         />
+        <a
+          className='demo-partner-code-link'
+          href='https://dashboard.affiliate.shapeshift.com/'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          Manage in Affiliate Dashboard ↗
+        </a>
       </div>
 
       <div className='demo-customizer-section'>

@@ -179,14 +179,6 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
             <p className='demo-subtitle'>
               Host page owns Reown AppKit; the widget reads it from the singleton
             </p>
-            <a
-              className='demo-affiliate-link'
-              href='https://dashboard.affiliate.shapeshift.com/'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              Affiliate Dashboard
-            </a>
           </div>
 
           <div className='demo-layout'>

@@ -197,10 +197,15 @@ body,
   line-height: 1.5;
 }
 
-.demo-affiliate-link {
+.demo-partner-code-link {
   display: inline-block;
-  margin-top: 12px;
-  color: var(--demo-text-secondary);
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--demo-accent);
+  text-decoration: none;
+}
+
+.demo-partner-code-link:hover {
   text-decoration: underline;
 }
 

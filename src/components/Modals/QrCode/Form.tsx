@@ -136,152 +136,152 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
 
   // The QR code scanning was succesful, doesn't mean the address itself is valid
   const handleQrSuccess = useCallback(
-    (decodedText: string) => {
-      ;(async () => {
-        try {
-          // If this is a WalletConnect dApp QR Code, skip the whole send logic and auto-pair directly.
-          // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
-          if (decodedText.startsWith('wc:')) {
-            if (!isWalletConnectV2Uri(decodedText)) {
-              setAddressError(translate('plugins.walletConnectToDapps.modal.connect.invalidUri'))
-              return
-            }
-            try {
-              await pair?.({ uri: decodedText })
-              handleClose()
-            } catch (error: unknown) {
-              const errorMessage = error instanceof Error ? error.message : String(error)
-              if (errorMessage.includes('Pairing already exists')) {
-                toast({
-                  title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
-                  description: translate(
-                    'plugins.walletConnectToDapps.errors.pairingAlreadyExists',
-                  ),
-                  status: 'error',
-                  duration: 5000,
-                  isClosable: true,
-                })
-              } else {
-                captureException(error)
-                toast({
-                  title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
-                  description: errorMessage,
-                  status: 'error',
-                  duration: 5000,
-                  isClosable: true,
-                })
-              }
-              handleClose()
-            }
+    async (decodedText: string): Promise<void> => {
+      setAddressError(null)
+      try {
+        // If this is a WalletConnect dApp QR Code, skip the whole send logic and auto-pair directly.
+        // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
+        if (decodedText.startsWith('wc:')) {
+          if (!isWalletConnectV2Uri(decodedText)) {
+            setAddressError(translate('plugins.walletConnectToDapps.modal.connect.invalidUri'))
             return
           }
-
-          // This should
-          // - First attempt parsing as payment URI (BIP-21, ERC-681, Solana Pay) to extract address, amount, asset and chainId
-          // - If no valid payment URI, fall back to plain address parsing by exhausting knownChainIds
-          // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
-          // If no valid asset is found, it should go to the select asset step
-          const urlDirectResult = parseUrlDirect(decodedText)
-
-          // Attempts parsing as payment URI first, otherwise defaults to address parsing
-          // (finding assetId/chainId by exhausting knownChainIds)
-          const maybeUrlResult = await (() => {
-            if (urlDirectResult)
-              return {
-                assetId: urlDirectResult.assetId,
-                chainId: urlDirectResult.chainId,
-                value: decodedText,
-                amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
-              }
-            return parseAddress({ address: decodedText })
-          })()
-          if (!maybeUrlResult.assetId) return
-
-          const { address, vanityAddress } = urlDirectResult
-            ? {
-                address: urlDirectResult.maybeAddress,
-                vanityAddress: urlDirectResult.maybeAddress,
-              }
-            : await parseAddressInputWithChainId({
-                assetId: maybeUrlResult.assetId,
-                chainId: maybeUrlResult.chainId,
-                urlOrAddress: decodedText,
+          try {
+            await pair?.({ uri: decodedText })
+            handleClose()
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            if (errorMessage.includes('Pairing already exists')) {
+              toast({
+                title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+                description: translate('plugins.walletConnectToDapps.errors.pairingAlreadyExists'),
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
               })
-
-          methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
-          methods.setValue(SendFormFields.Input, address)
-          methods.setValue(SendFormFields.To, address)
-          methods.setValue(SendFormFields.VanityAddress, vanityAddress)
-
-          if (maybeUrlResult.amountCryptoPrecision) {
-            const marketData = selectMarketDataByAssetIdUserCurrency(
-              store.getState(),
-              maybeUrlResult.assetId ?? '',
-            )
-            methods.setValue(
-              SendFormFields.AmountCryptoPrecision,
-              maybeUrlResult.amountCryptoPrecision,
-            )
-            methods.setValue(
-              SendFormFields.FiatAmount,
-              bnOrZero(maybeUrlResult.amountCryptoPrecision)
-                .times(bnOrZero(marketData?.price))
-                .toString(),
-            )
-          }
-
-          const accountIds = selectPortfolioAccountIdsByAssetIdFilter(store.getState(), {
-            assetId: maybeUrlResult.assetId,
-          })
-          if (accountIds[0]) {
-            methods.setValue(SendFormFields.AccountId, accountIds[0])
-          }
-
-          const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
-          // i.e ERC-681 and Solana Pay for Solana, basically the exact same spec
-          const supportsErc681 =
-            chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
-          // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
-          // (although we have heuristics to make it safe)
-          // Without an explicit token in the QR code, the resolved asset defaults to the native fee asset (e.g ETH),
-          // which is ambiguous - the user may have intended to send a token on the same chain.
-          // If we have page context (initialAssetId) on the same chain, use that; otherwise show the asset selector.
-          const isAmbiguousTransfer = supportsErc681 && !isToken(maybeUrlResult.assetId)
-
-          if (isAmbiguousTransfer) {
-            if (initialAssetId) {
-              const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
-                fromAssetId(initialAssetId)
-              const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
-              const chainMatch = urlDirectResult
-                ? contextChainId === qrChainId
-                : contextChainNamespace === chainNamespace
-              if (chainMatch) {
-                methods.setValue(SendFormFields.AssetId, initialAssetId)
-                if (initialAssetId !== maybeUrlResult.assetId) {
-                  methods.setValue(SendFormFields.AmountCryptoPrecision, '')
-                  methods.setValue(SendFormFields.FiatAmount, '')
-                }
-                const state = store.getState()
-                const contextAccountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
-                  assetId: initialAssetId,
-                })
-                if (contextAccountIds[0]) {
-                  methods.setValue(SendFormFields.AccountId, contextAccountIds[0])
-                }
-                return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
-              }
+            } else {
+              captureException(error)
+              toast({
+                title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+                description: errorMessage,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+              })
             }
-            requestAnimationFrame(() => navigate(SendRoutes.Select))
-            return
+            handleClose()
           }
-          requestAnimationFrame(() =>
-            navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } }),
-          )
-        } catch (e: any) {
-          setAddressError(e.message)
+          return
         }
-      })()
+
+        // This should
+        // - First attempt parsing as payment URI (BIP-21, ERC-681, Solana Pay) to extract address, amount, asset and chainId
+        // - If no valid payment URI, fall back to plain address parsing by exhausting knownChainIds
+        // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
+        // If no valid asset is found, it should go to the select asset step
+        const urlDirectResult = parseUrlDirect(decodedText)
+
+        // Attempts parsing as payment URI first, otherwise defaults to address parsing
+        // (finding assetId/chainId by exhausting knownChainIds)
+        const maybeUrlResult = await (() => {
+          if (urlDirectResult)
+            return {
+              assetId: urlDirectResult.assetId,
+              chainId: urlDirectResult.chainId,
+              value: decodedText,
+              amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
+            }
+          return parseAddress({ address: decodedText })
+        })()
+        if (!maybeUrlResult.assetId) {
+          setAddressError('modals.send.errors.generic')
+          return
+        }
+
+        const { address, vanityAddress } = urlDirectResult
+          ? {
+              address: urlDirectResult.maybeAddress,
+              vanityAddress: urlDirectResult.maybeAddress,
+            }
+          : await parseAddressInputWithChainId({
+              assetId: maybeUrlResult.assetId,
+              chainId: maybeUrlResult.chainId,
+              urlOrAddress: decodedText,
+            })
+
+        methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
+        methods.setValue(SendFormFields.Input, address)
+        methods.setValue(SendFormFields.To, address)
+        methods.setValue(SendFormFields.VanityAddress, vanityAddress)
+
+        if (maybeUrlResult.amountCryptoPrecision) {
+          const marketData = selectMarketDataByAssetIdUserCurrency(
+            store.getState(),
+            maybeUrlResult.assetId ?? '',
+          )
+          methods.setValue(
+            SendFormFields.AmountCryptoPrecision,
+            maybeUrlResult.amountCryptoPrecision,
+          )
+          methods.setValue(
+            SendFormFields.FiatAmount,
+            bnOrZero(maybeUrlResult.amountCryptoPrecision)
+              .times(bnOrZero(marketData?.price))
+              .toString(),
+          )
+        }
+
+        const accountIds = selectPortfolioAccountIdsByAssetIdFilter(store.getState(), {
+          assetId: maybeUrlResult.assetId,
+        })
+        if (accountIds[0]) {
+          methods.setValue(SendFormFields.AccountId, accountIds[0])
+        }
+
+        const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
+        // i.e ERC-681 and Solana Pay for Solana, basically the exact same spec
+        const supportsErc681 =
+          chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
+        // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
+        // (although we have heuristics to make it safe)
+        // Without an explicit token in the QR code, the resolved asset defaults to the native fee asset (e.g ETH),
+        // which is ambiguous - the user may have intended to send a token on the same chain.
+        // If we have page context (initialAssetId) on the same chain, use that; otherwise show the asset selector.
+        const isAmbiguousTransfer = supportsErc681 && !isToken(maybeUrlResult.assetId)
+
+        if (isAmbiguousTransfer) {
+          if (initialAssetId) {
+            const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
+              fromAssetId(initialAssetId)
+            const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
+            const chainMatch = urlDirectResult
+              ? contextChainId === qrChainId
+              : contextChainNamespace === chainNamespace
+            if (chainMatch) {
+              methods.setValue(SendFormFields.AssetId, initialAssetId)
+              if (initialAssetId !== maybeUrlResult.assetId) {
+                methods.setValue(SendFormFields.AmountCryptoPrecision, '')
+                methods.setValue(SendFormFields.FiatAmount, '')
+              }
+              const state = store.getState()
+              const contextAccountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
+                assetId: initialAssetId,
+              })
+              if (contextAccountIds[0]) {
+                methods.setValue(SendFormFields.AccountId, contextAccountIds[0])
+              }
+              return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
+            }
+          }
+          requestAnimationFrame(() => navigate(SendRoutes.Select))
+          return
+        }
+        requestAnimationFrame(() =>
+          navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } }),
+        )
+      } catch (e) {
+        setAddressError(e instanceof Error && e.message ? e.message : 'modals.send.errors.generic')
+      }
     },
     [handleClose, initialAssetId, methods, navigate, pair, toast, translate],
   )

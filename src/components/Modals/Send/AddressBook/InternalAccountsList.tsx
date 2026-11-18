@@ -59,7 +59,8 @@ export const InternalAccountsList = memo(
       selectInternalAccountsBySearchQuery(state, searchFilter),
     )
 
-    const accountIds = !input || !addressError ? allAccountIds : searchAccountIds
+    const accountIds =
+      input && addressError && searchAccountIds.length ? searchAccountIds : allAccountIds
 
     const internalAccounts = useMemo(() => {
       return accountIds

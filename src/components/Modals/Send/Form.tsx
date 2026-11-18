@@ -183,6 +183,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   // The QR code scanning was succesful, doesn't mean the address itself is valid
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
+      setAddressError(null)
       try {
         const urlDirectResult = parseUrlDirect(decodedText)
 
@@ -265,8 +266,8 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           }
         }
         navigate(SendRoutes.Address)
-      } catch (e: any) {
-        setAddressError(e.message)
+      } catch (e) {
+        setAddressError(e instanceof Error && e.message ? e.message : 'modals.send.errors.generic')
       }
     },
     [initialAssetId, navigate, methods],

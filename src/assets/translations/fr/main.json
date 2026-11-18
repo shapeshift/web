@@ -2075,6 +2075,14 @@
         "header": "Échec de la connexion",
         "body": "Impossible de se connecter au porte-monnaie Seeker. Veuillez vérifier que l'app Seeker est installée et réessayer."
       }
+    },
+    "starknetInjected": {
+      "errors": {
+        "notInstalled": "%{name} n'est pas installé ou est désactivé. Activez-le dans votre navigateur et réessayez.",
+        "wrongNetwork": "Basculez vers le réseau principal Starknet dans %{name} et réessayez.",
+        "noAccount": "Aucun compte trouvé dans %{name}. Créez ou déverrouillez un compte sur le réseau principal Starknet et réessayez.",
+        "connectionFailed": "La connexion à %{name} a été refusée ou a échoué. Autorisez la requête dans %{name} et réessayez."
+      }
     }
   },
   "graph": {
@@ -2181,6 +2189,9 @@
       "deployButton": "Déployer le compte",
       "deploying": "Déploiement du compte...",
       "deployFailed": "Le déploiement a échoué"
+    },
+    "activateAccount": {
+      "description": "Ce compte Starknet n'est pas encore actif. Veuillez effectuer une transaction depuis l'extension %{name} pour l'activer, puis revenez."
     }
   },
   "tron": {
@@ -2924,8 +2935,9 @@
     }
   },
   "RFOX": {
-    "epochAwaitingUpdate": "En attente de la mise à jour de l'époque",
-    "epochAwaitingUpdateDescription": "Les récompenses, les totaux, l'APY et les estimations du simulateur pour l'époque actuelle seront disponibles dès la publication des données mises à jour. Vous pouvez toujours consulter et gérer votre position de staking.",
+    "closedEpochRewards": "Récompenses de %{month}",
+    "closedEpochRewardsTooltip": "Vos récompenses estimées pour %{month}. Versées automatiquement une fois l'époque terminée.",
+    "closedEpochSimulatorNotice": "En utilisant les taux de %{month}. Les taux actuels de l'époque peuvent différer.",
     "staking": "Staking rFOX",
     "stake": "Staker",
     "unstake": "Déstaker",
@@ -2983,7 +2995,6 @@
     "pendingRewardsBalance": "Solde des récompenses en attente",
     "pendingRewardsBalanceTooltip": "Vos récompenses à ce stade de l'époque. Elles évolueront en fonction des revenus et des changements du total de %{symbol} stakés. Le versement sera automatique à la fin de l'époque.",
     "claimTooltip": "Consultez vos %{symbol} stakés et réclamez-les une fois leur délai de repos écoulé.",
-    "lifetimeRewardsUnavailable": "Récompenses indisponibles",
     "lifetimeRewards": "Récompenses cumulées",
     "lifetimeRewardsHelper": "Le total à ce jour des récompenses que vous avez gagnées en stakant vos %{symbol}",
     "timeInPool": "Temps dans le pool",
@@ -3023,12 +3034,13 @@
     },
     "totals": "Totaux rFOX",
     "totalStaked": "Total des %{symbol} stakés",
-    "totalStakedHelper": "Le montant total des %{symbol} stakés",
-    "dataUnavailable": "Indisponible",
     "totalFeesCollected": "Total des frais collectés (cette époque)",
+    "totalFeesCollectedForMonth": "Total des frais perçus (%{month})",
     "emissionsPool": "Pool d'émissions %{symbol} (cette époque)",
+    "emissionsPoolForMonth": "Pool d'émissions %{symbol} (%{month})",
     "emissionsPoolHelper": "Le montant total des récompenses à distribuer aux stakeurs %{symbol}",
     "foxBuybackAmount": "Montant  du rachat de FOX (cette époque)",
+    "foxBuybackAmountForMonth": "Montant du rachat FOX (%{month})",
     "pendingDistribution": "Distribution en attente",
     "selectRuneAddress": "Sélectionnez une adresse RUNE",
     "lpSunsetWarningTitle": "Le programme est terminé",
@@ -3195,6 +3207,8 @@
       "blindSigningRequired": "Cette transaction nécessite une signature à l'aveugle. Veuillez activer « Blind signing » ou « Contract Data » dans les paramètres de votre app Ledger et réessayer.",
       "ledgerTronAllowDataDisabled": "Veuillez activer les données de transactions dans les paramètres de votre app TRON de Ledger et réessayer.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",
+      "starknetWrongNetwork": "%{name} doit être configuré sur Starknet Mainnet. Changez de réseau dans %{name} et réessayez.",
+      "starknetAccountChanged": "Le compte actif dans %{name} a changé. Veuillez vérifier la transaction avant de l'envoyer.",
       "signMessage": "Échec de la signature du message.",
       "broadcastTransaction": "Échec de la diffusion de la transaction.",
       "broadcastTransactionWithMessage": "Échec de la diffusion de la transaction (%{message}).",

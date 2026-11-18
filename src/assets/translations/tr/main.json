@@ -2075,6 +2075,14 @@
         "header": "Bağlantı başarısız oldu",
         "body": "Seeker cüzdanına bağlanılamadı. Lütfen Seeker uygulamasının kullanılabilir olduğundan emin olun ve tekrar deneyin."
       }
+    },
+    "starknetInjected": {
+      "errors": {
+        "notInstalled": "%{name} yüklü değil veya devre dışı bırakılmış. Tarayıcınızda etkinleştirin ve tekrar deneyin.",
+        "wrongNetwork": "%{name}'i Starknet Mainnet'e geçirin ve tekrar deneyin.",
+        "noAccount": "%{name}'de hiçbir hesap bulunamadı. Bir Starknet Mainnet hesabı oluşturun veya kilidini açın ve tekrar deneyin.",
+        "connectionFailed": "%{name} adresine bağlantı reddedildi veya başarısız oldu. Lütfen %{name} adresindeki isteği onaylayın ve tekrar deneyin."
+      }
     }
   },
   "graph": {
@@ -2181,6 +2189,9 @@
       "deployButton": "Hesabı Etkinleştir",
       "deploying": "Hesap Etkinleştiriliyor...",
       "deployFailed": "Etkinleştirme Başarısız Oldu"
+    },
+    "activateAccount": {
+      "description": "Bu Starknet hesabı henüz aktif değil. Aktifleştirmek için %{name} uzantısından herhangi bir işlem gönderin, ardından geri gelin."
     }
   },
   "tron": {
@@ -2924,8 +2935,9 @@
     }
   },
   "RFOX": {
-    "epochAwaitingUpdate": "Epoch güncellemesi bekleniyor",
-    "epochAwaitingUpdateDescription": "Güncel epoch ödülleri, toplamlar, APY ve simülatör tahminleri, güncellenmiş epoch verileri yayınlandıktan sonra geri dönecektir. Staking pozisyonunuzu görüntülemeye ve yönetmeye devam edebilirsiniz.",
+    "closedEpochRewards": "%{month} Ödülleri",
+    "closedEpochRewardsTooltip": "%{month} için tahmini ödülleriniz. Dönem sonunda otomatik olarak ödenir.",
+    "closedEpochSimulatorNotice": "%{month} oranları kullanılıyor. Geçerli dönem oranları farklılık gösterebilir.",
     "staking": "rFOX Stake Etme",
     "stake": "Stake",
     "unstake": "Stake Kaldır",
@@ -2983,7 +2995,6 @@
     "pendingRewardsBalance": "Bekleyen Ödül Bakiyesi",
     "pendingRewardsBalanceTooltip": "Dönemin bu noktasındaki ödülleriniz. Gelir ve toplam %{symbol} stake edilen miktar değiştikçe bu da değişecektir. Dönem sona erdikten sonra otomatik olarak ödenir.",
     "claimTooltip": "Henüz stake edilmemiş %{symbol}'unuzu görüntüleyin ve bekleme süresi dolduktan sonra talep edin.",
-    "lifetimeRewardsUnavailable": "Ödüller mevcut değil.",
     "lifetimeRewards": "Ömür Boyu Ödüller",
     "lifetimeRewardsHelper": "Bugüne kadar %{symbol}'unuzu stake ederek kazandığınız toplam ödüller",
     "timeInPool": "Havuzda Kalma Süresi",
@@ -3023,12 +3034,13 @@
     },
     "totals": "rFOX Toplamı",
     "totalStaked": "Toplam %{symbol} Stake Edildi",
-    "totalStakedHelper": "Toplam %{symbol} miktarı stake edildi",
-    "dataUnavailable": "Mevcut değil",
     "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
+    "totalFeesCollectedForMonth": "Toplam Tahsil Edilen Ücretler (%{month})",
     "emissionsPool": "%{symbol} Emisyon Havuzu (Bu Dönem)",
+    "emissionsPoolForMonth": "%{symbol} Emisyon Havuzu (%{month})",
     "emissionsPoolHelper": "Dağıtılacak toplam ödül miktarı %{symbol} staker",
     "foxBuybackAmount": "FOX Geri Alım Miktarı (Bu Dönem)",
+    "foxBuybackAmountForMonth": "FOX Geri Alım Miktarı (%{month})",
     "pendingDistribution": "Bekleyen Dağıtım",
     "selectRuneAddress": "Bir RUNE adresi seçin",
     "lpSunsetWarningTitle": "Program Sona Erdi",
@@ -3195,6 +3207,8 @@
       "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda Blind Signing veya Contract Data'yi etkinleştirin ve tekrar deneyin.",
       "ledgerTronAllowDataDisabled": "Lütfen Ledger TRON uygulamanızın ayarlarından İşlem Verilerini etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
+      "starknetWrongNetwork": "%{name} Starknet Mainnet olarak ayarlanmalıdır. %{name} içindeki ağı değiştirin ve tekrar deneyin.",
+      "starknetAccountChanged": "%{name} hesabındaki aktif hesap değişti. Göndermeden önce işlemi tekrar gözden geçirin.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",
       "broadcastTransactionWithMessage": "İşlem yayınlanamadı (%{message}).",

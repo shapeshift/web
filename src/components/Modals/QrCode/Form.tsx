@@ -279,8 +279,8 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
         requestAnimationFrame(() =>
           navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } }),
         )
-      } catch (e: any) {
-        setAddressError(e.message)
+      } catch (e) {
+        setAddressError(e instanceof Error && e.message ? e.message : 'modals.send.errors.generic')
       }
     },
     [handleClose, initialAssetId, methods, navigate, pair, toast, translate],

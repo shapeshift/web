@@ -5,7 +5,7 @@ import type {
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
 } from 'html5-qrcode/cjs/core'
-import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
+import { Html5QrcodeErrorTypes, Html5QrcodeResultFactory } from 'html5-qrcode/cjs/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -63,6 +63,7 @@ export const QrCodeScanner = ({
   const error = scanError ?? addressError
 
   const callbacks = useRef({ onSuccess, onBack, onError })
+  const isNativeScanActive = useRef(false)
   useEffect(() => {
     callbacks.current = { onSuccess, onBack, onError }
   }, [onSuccess, onBack, onError])
@@ -72,14 +73,14 @@ export const QrCodeScanner = ({
     if (!useNativeScanner) return
 
     let isCancelled = false
+    isNativeScanActive.current = true
+    setScanError(null)
     setIsNativeScannerLoading(true)
 
     openNativeQRScanner()
       .then(async data => {
         if (isCancelled) return
-        // Create a minimal result object for compatibility
-        const mockResult = { decodedText: data } as Html5QrcodeResult
-        await callbacks.current.onSuccess(data, mockResult)
+        await callbacks.current.onSuccess(data, Html5QrcodeResultFactory.createFromText(data))
       })
       .catch(e => {
         if (isCancelled) return
@@ -88,8 +89,9 @@ export const QrCodeScanner = ({
         } else {
           setScanError(e.message)
           callbacks.current.onError?.(e.message, {
+            errorMessage: e.message,
             type: Html5QrcodeErrorTypes.UNKWOWN_ERROR,
-          } as Html5QrcodeError)
+          })
         }
       })
       .finally(() => {
@@ -103,6 +105,7 @@ export const QrCodeScanner = ({
 
   const handleScanSuccess: QrcodeSuccessCallback = useCallback(
     (decodedText, _result) => {
+      if (isNativeScanActive.current) return
       onSuccess(decodedText, _result)
     },
     [onSuccess],
@@ -110,6 +113,7 @@ export const QrCodeScanner = ({
 
   const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = useCallback(
     (_errorMessage, error) => {
+      if (isNativeScanActive.current) return
       if (error?.type === Html5QrcodeErrorTypes.UNKWOWN_ERROR) {
         // https://github.com/mebjas/html5-qrcode/issues/320
         // 'NotFoundException: No MultiFormat Readers were able to detect the code' errors are thrown on every frame until a valid QR is detected, don't handle these

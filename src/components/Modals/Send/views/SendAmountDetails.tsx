@@ -275,7 +275,9 @@ export const SendAmountDetails = () => {
           const { address, vanityAddress } = await parseAddressInputWithChainId(
             parseAddressInputWithChainIdArgs,
           )
-          if (getValues(SendFormFields.Input) !== rawInput) {
+          const currentInput = getValues(SendFormFields.Input)
+          if (currentInput !== rawInput) {
+            if (!currentInput) setIsValidating(false)
             return getFieldState(SendFormFields.Input).error?.message ?? true
           }
           setIsValidating(false)

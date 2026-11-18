@@ -21,7 +21,7 @@ import { useSwapHandlers } from '../hooks/useSwapHandlers'
 import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, SwapWidgetFilters, SwapWidgetProps } from '../types'
-import { formatAmountForInput, getChainType } from '../types'
+import { formatAmountForInput, getChainType, isWidgetExecutableUtxoChainId } from '../types'
 import { validateAddress } from '../utils/addressValidation'
 import {
   clearPendingDeposit,
@@ -319,12 +319,11 @@ const SwapWidgetCore = ({
     (chainType: ReturnType<typeof getChainType>, chainId: string): string | undefined => {
       const address = (() => {
         if (chainType === 'evm') return evm.address
-        if (chainType === 'utxo') return bitcoin.address
+        if (chainType === 'utxo' && isWidgetExecutableUtxoChainId(chainId)) return bitcoin.address
         if (chainType === 'solana') return solana.address
         return undefined
       })()
 
-      // The utxo adapter holds a bitcoin address only, so it can't serve a doge, ltc or bch swap
       return address && validateAddress(address, chainId).valid ? address : undefined
     },
     [evm.address, bitcoin.address, solana.address],

@@ -128,7 +128,9 @@ export const QrCodeScanner = ({
 
   const handleRetry = useCallback(() => {
     setScanError(null)
-    if (useNativeScanner) setScanAttempt(attempt => attempt + 1)
+    if (!useNativeScanner) return
+    setIsNativeScannerLoading(true)
+    setScanAttempt(attempt => attempt + 1)
   }, [useNativeScanner])
 
   // Native scanner shows a spinner until there is an error to display

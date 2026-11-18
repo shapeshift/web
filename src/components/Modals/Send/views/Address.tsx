@@ -181,10 +181,10 @@ export const Address = () => {
           const { address, vanityAddress } = await parseAddressInputWithChainId(
             parseAddressInputWithChainIdArgs,
           )
-          setIsValidating(false)
           if (getValues(SendFormFields.Input) !== rawInput) {
             return getFieldState(SendFormFields.Input).error?.message ?? true
           }
+          setIsValidating(false)
           // set returned values
           setValue(SendFormFields.To, address)
           setValue(SendFormFields.VanityAddress, vanityAddress)

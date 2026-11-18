@@ -25,7 +25,6 @@ import {
   tronChainId,
 } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
-import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -196,7 +195,7 @@ export const SendAmountDetails = () => {
     useSendDetails()
 
   const supportsENS = asset?.chainId === ethChainId
-  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+  const addressError = errors[SendFormFields.Input]?.message ?? null
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -276,10 +275,10 @@ export const SendAmountDetails = () => {
           const { address, vanityAddress } = await parseAddressInputWithChainId(
             parseAddressInputWithChainIdArgs,
           )
-          setIsValidating(false)
           if (getValues(SendFormFields.Input) !== rawInput) {
             return getFieldState(SendFormFields.Input).error?.message ?? true
           }
+          setIsValidating(false)
           setValue(SendFormFields.To, address)
           setValue(SendFormFields.VanityAddress, vanityAddress)
           const invalidMessage = 'common.invalidAddress'
@@ -500,8 +499,8 @@ export const SendAmountDetails = () => {
                   Boolean(memoFieldError) ||
                   !to ||
                   !input ||
-                  addressError ||
-                  hasNoAccountForAsset ||
+                  !!addressError ||
+                  Boolean(hasNoAccountForAsset) ||
                   isCheckingDeployment ||
                   deployAccountMutation.isPending
             }
@@ -517,9 +516,7 @@ export const SendAmountDetails = () => {
             {translate(
               isStarknetDeploymentRequired
                 ? 'starknet.deployAccount.deployButton'
-                : Boolean(addressError)
-                ? addressError
-                : 'common.preview',
+                : addressError || 'common.preview',
             )}
           </Button>
         </Stack>

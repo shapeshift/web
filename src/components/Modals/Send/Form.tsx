@@ -266,8 +266,8 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           }
         }
         navigate(SendRoutes.Address)
-      } catch (e: any) {
-        setAddressError(e.message)
+      } catch (e) {
+        setAddressError(e instanceof Error && e.message ? e.message : 'modals.send.errors.generic')
       }
     },
     [initialAssetId, navigate, methods],

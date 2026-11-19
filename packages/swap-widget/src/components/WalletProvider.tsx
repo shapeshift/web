@@ -34,8 +34,10 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
   // We always own the WagmiProvider / QueryClient — built from the wagmi config we
   // read off the shared AppKit singleton (whether self-init or host-owned). This is
   // what lets a host integrate by calling createAppKit() alone, wrapping nothing.
+  // AppKit restores sessions itself, skipping wallets the user disconnected. wagmi's
+  // mount reconnect would also connect any wallet that still trusts the site.
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   )

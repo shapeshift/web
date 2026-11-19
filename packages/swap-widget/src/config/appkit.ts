@@ -26,6 +26,7 @@ import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
 
 import { elysium } from '../constants/viemChains'
+import { guardWalletInitiatedConnects } from './walletInitiatedConnect'
 
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
@@ -102,4 +103,5 @@ export const initializeAppKit = (projectId: string): void => {
   })
 
   closeModalAfterNetworkSwitch(appKit)
+  guardWalletInitiatedConnects(wagmiAdapter.wagmiConfig)
 }

@@ -1,9 +1,12 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import type { ReactElement, ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { SendInput } from './Form'
 import { Form } from './Form'
+import { SendFormFields, SendRoutes } from './SendCommon'
 
 const usdcAssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const mocks = vi.hoisted(() => ({
@@ -16,20 +19,20 @@ vi.mock('./hooks/useFormSend/useFormSend', () => ({
   useFormSend: () => ({ handleFormSend: vi.fn() }),
 }))
 vi.mock('./utils', () => ({ maybeFetchChangeAddress: vi.fn() }))
-vi.mock('./views/Confirm', () => ({ Confirm: () => null }))
-vi.mock('./views/SendAmountDetails', () => ({ SendAmountDetails: () => null }))
-vi.mock('./views/Address', async () => {
+vi.mock('./views/Confirm', () => ({ Confirm: (): null => null }))
+vi.mock('./views/SendAmountDetails', () => ({ SendAmountDetails: (): null => null }))
+vi.mock('./views/Address', async (): Promise<{ Address: () => ReactElement }> => {
   const { useFormContext, useWatch } = await import('react-hook-form')
   const { useNavigate } = await import('react-router-dom')
   return {
-    Address: () => {
-      const { control } = useFormContext()
-      const assetId = useWatch({ name: 'assetId', control })
+    Address: (): ReactElement => {
+      const { control } = useFormContext<SendInput>()
+      const assetId = useWatch({ name: SendFormFields.AssetId, control })
       const navigate = useNavigate()
       return (
         <>
           <output>{assetId}</output>
-          <button type='button' onClick={() => navigate('/send/scan')}>
+          <button type='button' onClick={() => navigate(SendRoutes.Scan)}>
             Scan
           </button>
         </>
@@ -38,14 +41,14 @@ vi.mock('./views/Address', async () => {
   }
 })
 vi.mock('@/components/QrCodeScanner/QrCodeScanner', () => ({
-  QrCodeScanner: ({ onSuccess }: { onSuccess: (value: string) => Promise<void> }) => (
+  QrCodeScanner: ({ onSuccess }: { onSuccess: (value: string) => Promise<void> }): ReactElement => (
     <button type='button' onClick={() => onSuccess('test recipient')}>
       Read QR
     </button>
   ),
 }))
 vi.mock('@/components/SelectAssets/SelectAssetRouter', () => ({
-  SelectAssetRouter: ({ onClick }: { onClick: (value: string) => void }) => (
+  SelectAssetRouter: ({ onClick }: { onClick: (value: string) => void }): ReactElement => (
     <button
       type='button'
       onClick={() => onClick('eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48')}
@@ -55,7 +58,7 @@ vi.mock('@/components/SelectAssets/SelectAssetRouter', () => ({
   ),
 }))
 vi.mock('@/components/SlideTransition', () => ({
-  SlideTransition: ({ children }: { children: React.ReactNode }) => children,
+  SlideTransition: ({ children }: { children: ReactNode }): ReactNode => children,
 }))
 vi.mock('@/hooks/useModal/useModal', () => ({ useModal: () => ({ close: vi.fn() }) }))
 vi.mock('@/hooks/useWallet/useWallet', () => ({ useWallet: () => ({ state: {} }) }))

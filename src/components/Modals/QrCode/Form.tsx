@@ -1,15 +1,15 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
+import { applyQrScanAsset } from '../Send/applyQrScanAsset'
 import type { SendInput } from '../Send/Form'
 import { useCompleteSendFlow } from '../Send/hooks/useCompleteSendFlow'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
@@ -24,16 +24,10 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
 import { parseUrlDirect } from '@/lib/address/bip21'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isWalletConnectV2Uri } from '@/plugins/walletConnectToDapps/components/modals/connect/utils'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import {
-  selectAssetById,
-  selectFirstAccountIdByChainId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountIdsByAssetIdFilter,
-} from '@/state/slices/selectors'
+import { selectAssetById, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
@@ -209,73 +203,21 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
               urlOrAddress: decodedText,
             })
 
-        methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
         methods.setValue(SendFormFields.Input, address)
         methods.setValue(SendFormFields.To, address)
         methods.setValue(SendFormFields.VanityAddress, vanityAddress)
 
-        if (maybeUrlResult.amountCryptoPrecision) {
-          const marketData = selectMarketDataByAssetIdUserCurrency(
-            store.getState(),
-            maybeUrlResult.assetId ?? '',
-          )
-          methods.setValue(
-            SendFormFields.AmountCryptoPrecision,
-            maybeUrlResult.amountCryptoPrecision,
-          )
-          methods.setValue(
-            SendFormFields.FiatAmount,
-            bnOrZero(maybeUrlResult.amountCryptoPrecision)
-              .times(bnOrZero(marketData?.price))
-              .toString(),
-          )
-        }
-
-        const accountIds = selectPortfolioAccountIdsByAssetIdFilter(store.getState(), {
-          assetId: maybeUrlResult.assetId,
+        const { isAmbiguous } = applyQrScanAsset(methods, {
+          qrAssetId: maybeUrlResult.assetId,
+          amountCryptoPrecision: maybeUrlResult.amountCryptoPrecision,
+          isPaymentUri: Boolean(urlDirectResult),
         })
-        if (accountIds[0]) {
-          methods.setValue(SendFormFields.AccountId, accountIds[0])
-        }
 
-        const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
-        // i.e ERC-681 and Solana Pay for Solana, basically the exact same spec
-        const supportsErc681 =
-          chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
-        // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
-        // (although we have heuristics to make it safe)
-        // Without an explicit token in the QR code, the resolved asset defaults to the native fee asset (e.g ETH),
-        // which is ambiguous - the user may have intended to send a token on the same chain.
-        // If we have page context (initialAssetId) on the same chain, use that; otherwise show the asset selector.
-        const isAmbiguousTransfer = supportsErc681 && !isToken(maybeUrlResult.assetId)
-
-        if (isAmbiguousTransfer) {
-          if (initialAssetId) {
-            const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
-              fromAssetId(initialAssetId)
-            const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
-            const chainMatch = urlDirectResult
-              ? contextChainId === qrChainId
-              : contextChainNamespace === chainNamespace
-            if (chainMatch) {
-              methods.setValue(SendFormFields.AssetId, initialAssetId)
-              if (initialAssetId !== maybeUrlResult.assetId) {
-                methods.setValue(SendFormFields.AmountCryptoPrecision, '')
-                methods.setValue(SendFormFields.FiatAmount, '')
-              }
-              const state = store.getState()
-              const contextAccountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
-                assetId: initialAssetId,
-              })
-              if (contextAccountIds[0]) {
-                methods.setValue(SendFormFields.AccountId, contextAccountIds[0])
-              }
-              return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
-            }
-          }
+        if (isAmbiguous) {
           requestAnimationFrame(() => navigate(SendRoutes.Select))
           return
         }
+
         requestAnimationFrame(() =>
           navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } }),
         )
@@ -283,7 +225,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
         setAddressError(e instanceof Error && e.message ? e.message : 'modals.send.errors.generic')
       }
     },
-    [handleClose, initialAssetId, methods, navigate, pair, toast, translate],
+    [handleClose, methods, navigate, pair, toast, translate],
   )
 
   const selectAssetsElement = useMemo(

@@ -34,6 +34,7 @@ export type AssetData = {
 type AssetListProps = AssetData & ListProps
 
 export const INCREASE_VIEWPORT_BY = { top: Infinity, bottom: 500 } as const
+const ASSET_ROW_HEIGHT = 64
 
 export const AssetList: FC<AssetListProps> = ({
   assets,
@@ -169,6 +170,7 @@ export const AssetList: FC<AssetListProps> = ({
       style={virtuosoStyle}
       overscan={1000}
       increaseViewportBy={INCREASE_VIEWPORT_BY}
+      defaultItemHeight={ASSET_ROW_HEIGHT}
     />
   )
 }

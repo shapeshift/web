@@ -7,27 +7,31 @@ const APPKIT_CONNECTIONS_KEY = '@appkit/connections'
 const APPKIT_DISCONNECTED_CONNECTOR_IDS_KEY = '@appkit/disconnected_connector_ids'
 const EVM_NAMESPACE = 'eip155'
 
-const readEvmEntries = (key: string): unknown[] => {
+// undefined when the record can't be read, so callers can tell that apart from an empty record
+const readEvmEntries = (key: string): unknown[] | undefined => {
   try {
     const raw = window.localStorage.getItem(key)
     if (!raw) return []
     const entries = JSON.parse(raw)?.[EVM_NAMESPACE]
     return Array.isArray(entries) ? entries : []
   } catch {
-    return []
+    return undefined
   }
 }
 
 // True only for a wallet the user connected through AppKit and hasn't disconnected since
 export const isUserConnectedConnector = (connectorId: string): boolean => {
   const id = connectorId.toLowerCase()
+  const disconnectedIds = readEvmEntries(APPKIT_DISCONNECTED_CONNECTOR_IDS_KEY)
+  const connections = readEvmEntries(APPKIT_CONNECTIONS_KEY)
+  if (!disconnectedIds || !connections) return false
 
-  const wasDisconnected = readEvmEntries(APPKIT_DISCONNECTED_CONNECTOR_IDS_KEY).some(
+  const wasDisconnected = disconnectedIds.some(
     entry => typeof entry === 'string' && entry.toLowerCase() === id,
   )
   if (wasDisconnected) return false
 
-  return readEvmEntries(APPKIT_CONNECTIONS_KEY).some(entry => {
+  return connections.some(entry => {
     const entryId = (entry as { connectorId?: unknown } | null)?.connectorId
     return typeof entryId === 'string' && entryId.toLowerCase() === id
   })
@@ -35,13 +39,19 @@ export const isUserConnectedConnector = (connectorId: string): boolean => {
 
 const guardedConnectors = new WeakSet<Connector>()
 
-// wagmi's `connect` event only fires when a wallet connects itself: the connect and reconnect
-// actions detach that listener before running. Injected wallets fire it on page load whenever
-// they still trust the site, even in incognito or after an explicit disconnect (Rabby ignores
-// wallet_revokePermissions), so drop it unless the user connected that wallet and kept it.
+// Injected wallets still trust the site in incognito or after an explicit disconnect (Rabby
+// ignores wallet_revokePermissions), so two paths would connect them without the user:
+// - the wallet's own `connect` event, which wagmi only listens to outside connect/reconnect
+// - reconnect, which wagmi runs on mount and AppKit runs for every connector when it has no
+//   records, connecting each connector whose isAuthorized() is true
+// Both are dropped unless the user connected that wallet and kept it.
 const guardConnector = (connector: Connector) => {
   if (connector.type !== 'injected' || guardedConnectors.has(connector)) return
   guardedConnectors.add(connector)
+
+  const isAuthorized = connector.isAuthorized.bind(connector)
+  connector.isAuthorized = () =>
+    isUserConnectedConnector(connector.id) ? isAuthorized() : Promise.resolve(false)
 
   const { emitter } = connector
   const emit = emitter.emit.bind(emitter)

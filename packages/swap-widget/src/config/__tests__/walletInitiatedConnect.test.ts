@@ -1,4 +1,4 @@
-import { createConfig, http, injected, mock } from '@wagmi/core'
+import { createConfig, http, injected, mock, reconnect } from '@wagmi/core'
 import { mainnet } from 'viem/chains'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -33,6 +33,30 @@ const walletAnnouncesAccount = (config: ReturnType<typeof makeConfig>, index = 0
   return connector
 }
 
+// A wallet that already trusts the site, so it reports an account without prompting
+const trustingProvider = {
+  request: ({ method }: { method: string }) => {
+    if (method === 'eth_accounts' || method === 'eth_requestAccounts')
+      return Promise.resolve([ACCOUNT])
+    if (method === 'eth_chainId') return Promise.resolve('0x1')
+    return Promise.resolve(null)
+  },
+  on: () => undefined,
+  removeListener: () => undefined,
+}
+
+const makeTrustingConfig = () =>
+  createConfig({
+    chains: [mainnet],
+    connectors: [
+      injected({
+        target: { id: 'io.rabby', name: 'Rabby', provider: trustingProvider as never },
+      }),
+    ],
+    multiInjectedProviderDiscovery: false,
+    transports: { [mainnet.id]: http() },
+  })
+
 afterEach(() => window.localStorage.clear())
 
 describe('isUserConnectedConnector', () => {
@@ -59,6 +83,12 @@ describe('isUserConnectedConnector', () => {
   it('is false when the records are unreadable', () => {
     window.localStorage.setItem('@appkit/connections', '{not json')
     expect(isUserConnectedConnector('io.metamask')).toBe(false)
+  })
+
+  it('is false when the disconnected record is unreadable', () => {
+    setConnected(['io.rabby'])
+    window.localStorage.setItem('@appkit/disconnected_connector_ids', '{not json')
+    expect(isUserConnectedConnector('io.rabby')).toBe(false)
   })
 })
 
@@ -123,6 +153,42 @@ describe('guardWalletInitiatedConnects', () => {
     guardWalletInitiatedConnects(config)
 
     config.connectors[0].emitter.emit('connect', { accounts: [ACCOUNT], chainId: mainnet.id })
+
+    expect(config.state.status).toBe('connected')
+  })
+
+  it('without the guard, reconnect connects any wallet that trusts the site', async () => {
+    const config = makeTrustingConfig()
+    await reconnect(config)
+    expect(config.state.status).toBe('connected')
+  })
+
+  it('stops reconnect connecting a wallet the user never connected, as AppKit does with no records', async () => {
+    const config = makeTrustingConfig()
+    guardWalletInitiatedConnects(config)
+
+    await reconnect(config, { connectors: [] })
+
+    expect(config.state.status).toBe('disconnected')
+  })
+
+  it('stops reconnect restoring a wallet the user disconnected', async () => {
+    const config = makeTrustingConfig()
+    guardWalletInitiatedConnects(config)
+    setConnected(['io.rabby'])
+    setDisconnected(['io.rabby'])
+
+    await reconnect(config)
+
+    expect(config.state.status).toBe('disconnected')
+  })
+
+  it('lets reconnect restore a wallet the user connected', async () => {
+    const config = makeTrustingConfig()
+    guardWalletInitiatedConnects(config)
+    setConnected(['io.rabby'])
+
+    await reconnect(config)
 
     expect(config.state.status).toBe('connected')
   })

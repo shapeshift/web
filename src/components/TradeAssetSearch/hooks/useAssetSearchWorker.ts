@@ -17,8 +17,17 @@ let postedAssets: unknown[] | null = null
 let lastRequestId = 0
 
 const getSharedWorker = () => {
-  sharedWorker ??= new AssetSearchWorker()
-  return sharedWorker
+  if (sharedWorker) return sharedWorker
+
+  const worker = new AssetSearchWorker()
+  worker.addEventListener('error', () => {
+    worker.terminate()
+    if (sharedWorker !== worker) return
+    sharedWorker = null
+    postedAssets = null
+  })
+  sharedWorker = worker
+  return worker
 }
 
 export type WorkerSearchState = {
@@ -91,9 +100,6 @@ export const useAssetSearchWorker = ({
 
     const handleError = (error: ErrorEvent) => {
       console.error('Worker error:', error)
-      worker.terminate()
-      sharedWorker = null
-      postedAssets = null
       setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
     }
 

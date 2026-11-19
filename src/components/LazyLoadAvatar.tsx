@@ -21,14 +21,17 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
 }) => {
   const [loadedSrc, setLoadedSrc] = useState<string>()
   const [failedSrc, setFailedSrc] = useState<string>()
-  const isKnownLoaded = Boolean(src && loadedSrcs.has(src))
+  const isKnownLoaded = Boolean(src && loadedSrcs.has(src)) && failedSrc !== src
 
   const handleImageLoaded = () => {
     if (!src) return
     loadedSrcs.add(src)
     setLoadedSrc(src)
   }
-  const handleImageError = () => setFailedSrc(src)
+  const handleImageError = () => {
+    if (src) loadedSrcs.delete(src)
+    setFailedSrc(src)
+  }
 
   return (
     <SkeletonCircle
@@ -44,6 +47,7 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
         ignoreFallback={isKnownLoaded}
         onLoad={handleImageLoaded}
         onError={handleImageError}
+        onErrorCapture={handleImageError}
         src={src}
         size={size}
         icon={icon}

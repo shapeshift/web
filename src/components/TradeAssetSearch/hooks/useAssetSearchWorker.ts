@@ -5,12 +5,30 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
-import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
+import type { AssetSearchWorkerOutboundMessage, SearchableAsset } from '@/lib/assetSearch'
 import { profiler } from '@/lib/performanceProfiler'
 import { selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type WorkerState = 'initializing' | 'ready' | 'failed'
+
+let sharedWorker: Worker | null = null
+let postedAssets: unknown[] | null = null
+let lastRequestId = 0
+
+const getSharedWorker = () => {
+  if (sharedWorker) return sharedWorker
+
+  const worker = new AssetSearchWorker()
+  worker.addEventListener('error', () => {
+    worker.terminate()
+    if (sharedWorker !== worker) return
+    sharedWorker = null
+    postedAssets = null
+  })
+  sharedWorker = worker
+  return worker
+}
 
 export type WorkerSearchState = {
   workerState: WorkerState
@@ -36,7 +54,6 @@ export const useAssetSearchWorker = ({
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
 
-  const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
   const searchStartTimeRef = useRef<Map<number, { startTime: number; query: string }>>(new Map())
   const [searchString, setSearchString] = useState('')
@@ -49,72 +66,81 @@ export const useAssetSearchWorker = ({
   })
 
   useEffect(() => {
-    if (workerRef.current) return
-
+    let worker: Worker
     try {
-      const worker = new AssetSearchWorker()
-      workerRef.current = worker
-
-      worker.onmessage = (event: MessageEvent<AssetSearchWorkerOutboundMessage>) => {
-        const { type, requestId, payload } = event.data
-        if (type !== 'searchResult') return
-        if (requestId !== requestIdRef.current) {
-          searchStartTimeRef.current.delete(requestId)
-          return
-        }
-
-        const searchInfo = searchStartTimeRef.current.get(requestId)
-        if (searchInfo) {
-          const duration = performance.now() - searchInfo.startTime
-          profiler.trackAssetSearch(searchInfo.query, duration)
-          searchStartTimeRef.current.delete(requestId)
-        }
-
-        setWorkerSearchState(prev => ({
-          ...prev,
-          workerState: 'ready',
-          searchResults: payload.assetIds,
-          isSearching: false,
-        }))
-      }
-
-      worker.onerror = error => {
-        console.error('Worker error:', error)
-        setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
-      }
+      worker = getSharedWorker()
     } catch (error) {
       console.error('Failed to initialize worker:', error)
       setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
+      return
     }
 
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate()
-        workerRef.current = null
+    const handleMessage = (event: MessageEvent<AssetSearchWorkerOutboundMessage>) => {
+      const { type, requestId, payload } = event.data
+      if (type !== 'searchResult') return
+      if (requestId !== requestIdRef.current) {
+        searchStartTimeRef.current.delete(requestId)
+        return
       }
+
+      const searchInfo = searchStartTimeRef.current.get(requestId)
+      if (searchInfo) {
+        const duration = performance.now() - searchInfo.startTime
+        profiler.trackAssetSearch(searchInfo.query, duration)
+        searchStartTimeRef.current.delete(requestId)
+      }
+
+      setWorkerSearchState(prev => ({
+        ...prev,
+        workerState: 'ready',
+        searchResults: payload.assetIds,
+        isSearching: false,
+      }))
+    }
+
+    const handleError = (error: ErrorEvent) => {
+      console.error('Worker error:', error)
+      setWorkerSearchState(prev => ({ ...prev, workerState: 'failed' }))
+    }
+
+    worker.addEventListener('message', handleMessage)
+    worker.addEventListener('error', handleError)
+
+    return () => {
+      worker.removeEventListener('message', handleMessage)
+      worker.removeEventListener('error', handleError)
     }
   }, [])
 
   // Update worker with new assets
   useEffect(() => {
-    if (workerRef.current && assets.length) {
-      workerRef.current.postMessage({
-        type: 'updateAssets',
-        payload: { assets },
-      })
-      setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
-    } else {
-      setWorkerSearchState(prev => ({
-        ...prev,
-        workerState: 'initializing',
-      }))
+    if (!assets.length) {
+      setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))
+      return
     }
+    if (!sharedWorker) return
+
+    if (postedAssets !== assets) {
+      const searchableAssets: SearchableAsset[] = assets.map(
+        ({ assetId, name, symbol, chainId, isPrimary, relatedAssetKey }) => ({
+          assetId,
+          name,
+          symbol,
+          chainId,
+          isPrimary,
+          relatedAssetKey,
+        }),
+      )
+      sharedWorker.postMessage({ type: 'updateAssets', payload: { assets: searchableAssets } })
+      postedAssets = assets
+    }
+    setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
   }, [assets])
 
   // Event-driven search function
   const performSearch = useCallback(
     (searchTerm: string) => {
-      const worker = workerRef.current
+      const worker = sharedWorker
 
       if (!worker || workerSearchState.workerState !== 'ready') {
         return
@@ -129,7 +155,7 @@ export const useAssetSearchWorker = ({
         return
       }
 
-      const nextRequestId = requestIdRef.current + 1
+      const nextRequestId = ++lastRequestId
       requestIdRef.current = nextRequestId
       searchStartTimeRef.current.clear()
       searchStartTimeRef.current.set(nextRequestId, {

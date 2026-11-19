@@ -218,17 +218,18 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           const isAmbiguousAsset = supportsErc681 && !isToken(maybeUrlResult.assetId)
 
           // If the QR code didn't explicitly specify a token (plain address scan),
-          // and we already have an asset from the page context on the same chain, keep it
+          // keep the currently selected asset when the chain matches
           const resolvedAssetId = (() => {
-            if (isAmbiguousAsset && initialAssetId) {
+            const selectedAssetId = methods.getValues(SendFormFields.AssetId)
+            if (isAmbiguousAsset && selectedAssetId) {
               const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
-                fromAssetId(initialAssetId)
+                fromAssetId(selectedAssetId)
               const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
               const chainMatch = urlDirectResult
                 ? contextChainId === qrChainId
                 : contextChainNamespace === chainNamespace
               if (chainMatch) {
-                return initialAssetId
+                return selectedAssetId
               }
             }
             return maybeUrlResult.assetId
@@ -270,7 +271,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         setAddressError(e instanceof Error && e.message ? e.message : 'modals.send.errors.generic')
       }
     },
-    [initialAssetId, navigate, methods],
+    [navigate, methods],
   )
 
   const qrCodeScanner = useMemo(

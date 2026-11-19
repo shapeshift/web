@@ -19,7 +19,7 @@ import { Confirm } from '../Send/views/Confirm'
 
 import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
-import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { SelectAssets } from '@/components/SelectAssets/SelectAssets'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
@@ -286,8 +286,8 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
     [handleClose, initialAssetId, methods, navigate, pair, toast, translate],
   )
 
-  const selectAssetRouterElement = useMemo(
-    () => <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />,
+  const selectAssetsElement = useMemo(
+    () => <SelectAssets onBack={handleBack} onClick={handleAssetSelect} />,
     [handleBack, handleAssetSelect],
   )
 
@@ -314,7 +314,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
       >
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
-            <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouterElement} />
+            <Route path={SendRoutes.Select} element={selectAssetsElement} />
             <Route path={SendRoutes.Address} element={addressElement} />
             <Route path={SendRoutes.AmountDetails} element={detailsElement} />
             <Route path={SendRoutes.Scan} element={qrCodeScannerElement} />

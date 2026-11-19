@@ -4,7 +4,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom'
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import { SelectAssetView } from './SelectAssetView'
 
-export const entries = [SelectAssetRoutes.Search]
+export const entries = [`/${SelectAssetRoutes.Search}`]
 
 type SelectAssetRouterProps = {
   onClick: (assetId: AssetId) => void

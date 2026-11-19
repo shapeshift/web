@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Route, Switch } from 'wouter'
+import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { SelectAssetRoutes } from './SelectAssetCommon'
 import type { SelectAssetLocation } from './SelectAssetRouter'
@@ -31,27 +30,21 @@ export const SelectAssetView = ({
     () => (
       <Route
         path={SelectAssetRoutes.Search}
-        // This is already within a useMemo call, lint rule drunk
-      >
-        {<SelectAssets onBack={handleBack} onClick={onClick} />}
-      </Route>
+        element={<SelectAssets onBack={handleBack} onClick={onClick} />}
+      />
     ),
     [handleBack, onClick],
   )
 
   const redirectRoute = useMemo(
-    () => (
-      <Route path='/'>
-        <SelectAssets onBack={handleBack} onClick={onClick} />
-      </Route>
-    ),
+    () => <Route path='*' element={<SelectAssets onBack={handleBack} onClick={onClick} />} />,
     [handleBack, onClick],
   )
 
   return (
-    <Switch>
+    <Routes>
       {searchRoute}
       {redirectRoute}
-    </Switch>
+    </Routes>
   )
 }

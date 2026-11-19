@@ -18,7 +18,7 @@ import { Confirm } from './views/Confirm'
 
 import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
-import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { SelectAssets } from '@/components/SelectAssets/SelectAssets'
 import { SlideTransition } from '@/components/SlideTransition'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -280,8 +280,8 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     [addressError, handleBack, handleQrSuccess],
   )
 
-  const selectAssetRouter = useMemo(
-    () => <SelectAssetRouter onClick={handleAssetSelect} />,
+  const selectAssets = useMemo(
+    () => <SelectAssets onClick={handleAssetSelect} />,
     [handleAssetSelect],
   )
 
@@ -303,10 +303,10 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         <AnimatePresence mode='wait' initial={false}>
           {/* Instead of a redirect which would produce a flash of content, we simply render the select route in place of <Switch />ing here */}
           {!initialAssetId && !assetId ? (
-            <SlideTransition className='flex flex-col h-full'>{selectAssetRouter}</SlideTransition>
+            <SlideTransition className='flex flex-col h-full'>{selectAssets}</SlideTransition>
           ) : (
             <Switch location={location.pathname}>
-              <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
+              <Route path={SendRoutes.Select}>{selectAssets}</Route>
               <Route path={SendRoutes.Address}>{address}</Route>
               <Route path={SendRoutes.AmountDetails}>{sendAmount}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>

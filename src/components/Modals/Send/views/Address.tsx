@@ -28,7 +28,6 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -147,12 +146,7 @@ export const Address = () => {
     }
 
     setValue(SendFormFields.AssetId, '')
-    navigate(SendRoutes.Select, {
-      state: {
-        toRoute: SelectAssetRoutes.Search,
-        assetId: '',
-      },
-    })
+    navigate(SendRoutes.Select)
   }, [navigate, setValue, isFromQrCode])
 
   const addressInputRules = useMemo(

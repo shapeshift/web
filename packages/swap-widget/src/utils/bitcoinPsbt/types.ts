@@ -9,18 +9,23 @@ export type Utxo = {
 export type BuildTransferPsbtArgs = {
   network?: Network
   address: string
-  publicKey: string | undefined
+  publicKey?: string
   utxos: Utxo[]
   getPrevTxHex: (txid: string) => Promise<string>
   to: string
   amount: bigint
-  opReturnData: string | undefined
+  opReturnData?: string
   feePerByte: bigint
 }
 
 export type BuiltTransferPsbt = {
   psbt: string
   signInputs: { address: string; index: number }[]
+}
+
+export type FinalizeSignedPsbtArgs = {
+  signedPsbt: string
+  network?: Network
 }
 
 export type FinalizedTransfer = {

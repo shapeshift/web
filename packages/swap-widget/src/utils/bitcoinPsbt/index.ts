@@ -6,6 +6,7 @@ import {
   networks,
   payments,
   Psbt,
+  toXOnly,
 } from '@shapeshiftoss/bitcoinjs-lib'
 import coinSelect from 'coinselect'
 
@@ -14,10 +15,19 @@ import type {
   BuildTransferPsbtArgs,
   BuiltTransferPsbt,
   FinalizedTransfer,
+  FinalizeSignedPsbtArgs,
   SpendData,
 } from './types'
 
-export type * from './types'
+export type {
+  BuildTransferPsbtArgs,
+  BuiltTransferPsbt,
+  FinalizedTransfer,
+  FinalizeSignedPsbtArgs,
+  Utxo,
+} from './types'
+
+initEccLib(ecc)
 
 const MAX_OP_RETURN_BYTES = 80
 
@@ -28,24 +38,28 @@ const PREV_TX_FETCH_BATCH_SIZE = 5
 
 const getAddressType = (address: string, network: Network): AddressType => {
   try {
-    const { version, data, prefix } = bitcoinAddress.fromBech32(address)
-    if (prefix === network.bech32 && version === 0 && data.length === 20) return 'wpkh'
-    if (prefix === network.bech32 && version === 1 && data.length === 32) return 'tr'
-  } catch {
-    try {
+    if (address.toLowerCase().startsWith(`${network.bech32}1`)) {
+      const { version, data } = bitcoinAddress.fromBech32(address)
+      if (version === 0 && data.length === 20) return 'wpkh'
+      if (version === 1 && data.length === 32) return 'tr'
+    } else {
       const { version } = bitcoinAddress.fromBase58Check(address)
       if (version === network.pubKeyHash) return 'pkh'
       if (version === network.scriptHash) return 'sh'
-    } catch {}
-  }
-  throw new Error('Unsupported Bitcoin address type')
+    }
+  } catch {}
+
+  throw new Error('Unsupported address type')
 }
 
 const hexToBytes = (hex: string): Uint8Array =>
   Uint8Array.from(hex.match(/.{2}/g) ?? [], byte => parseInt(byte, 16))
 
 const decodePublicKey = (publicKey: string | undefined): Uint8Array => {
-  if (!publicKey) throw new Error('Wallet did not share the public key for its address')
+  if (!publicKey) {
+    throw new Error('A public key is required to spend from p2sh and taproot addresses')
+  }
+
   return hexToBytes(publicKey)
 }
 
@@ -63,24 +77,24 @@ const getSpendData = (
       const redeem = payments.p2wpkh({ pubkey: decodePublicKey(publicKey), network })
       const payment = payments.p2sh({ redeem, network })
       if (payment.address !== address) {
-        throw new Error('Wallet public key does not match its p2sh address')
+        throw new Error('Public key does not match the p2sh address')
       }
       return { redeemScript: redeem.output }
     }
     case 'tr': {
-      const key = decodePublicKey(publicKey)
-      const tapInternalKey = key.length === 33 ? key.slice(1) : key
+      const tapInternalKey = toXOnly(decodePublicKey(publicKey))
       if (payments.p2tr({ internalPubkey: tapInternalKey, network }).address !== address) {
-        throw new Error('Wallet public key does not match its taproot address')
+        throw new Error('Public key does not match the taproot address')
       }
       return { tapInternalKey }
     }
     default:
-      throw new Error('Unsupported Bitcoin address type')
+      throw new Error('Unsupported address type')
   }
 }
 
 const encodeOpReturn = (opReturnData: string): Uint8Array => {
+  // Copied so the bytes pass the library's Uint8Array check when TextEncoder comes from another realm
   const data = Uint8Array.from(new TextEncoder().encode(opReturnData))
   if (data.length > MAX_OP_RETURN_BYTES) {
     throw new Error(`OP_RETURN data is ${data.length} bytes, over the ${MAX_OP_RETURN_BYTES} limit`)
@@ -118,8 +132,6 @@ export const buildTransferPsbt = async ({
   opReturnData,
   feePerByte,
 }: BuildTransferPsbtArgs): Promise<BuiltTransferPsbt> => {
-  initEccLib(ecc)
-
   const type = getAddressType(address, network)
   const script = bitcoinAddress.toOutputScript(address, network)
   const spendData = getSpendData(type, address, publicKey, network)
@@ -167,13 +179,11 @@ export const buildTransferPsbt = async ({
   }
 }
 
-// Wallets differ on whether they finalize, so only the inputs still carrying signatures are finalized here
-export const finalizeSignedPsbt = (
-  signedPsbt: string,
-  network: Network = networks.bitcoin,
-): FinalizedTransfer => {
-  initEccLib(ecc)
-
+// Wallets differ on whether they finalize, so only inputs still carrying signatures are finalized
+export const finalizeSignedPsbt = ({
+  signedPsbt,
+  network = networks.bitcoin,
+}: FinalizeSignedPsbtArgs): FinalizedTransfer => {
   const psbt = Psbt.fromBase64(signedPsbt, { network })
 
   psbt.data.inputs.forEach((input, index) => {

@@ -8,6 +8,7 @@ import {
   payments,
   Psbt,
   script as bitcoinScript,
+  toXOnly,
   Transaction,
 } from '@shapeshiftoss/bitcoinjs-lib'
 import { describe, expect, it } from 'vitest'
@@ -28,7 +29,7 @@ const SH_ADDRESS = payments.p2sh({
   redeem: payments.p2wpkh({ pubkey: PUBLIC_KEY_BYTES, network }),
   network,
 }).address as string
-const TR_ADDRESS = payments.p2tr({ internalPubkey: PUBLIC_KEY_BYTES.slice(1), network })
+const TR_ADDRESS = payments.p2tr({ internalPubkey: toXOnly(PUBLIC_KEY_BYTES), network })
   .address as string
 const PKH_ADDRESS = payments.p2pkh({ pubkey: PUBLIC_KEY_BYTES, network }).address as string
 
@@ -40,16 +41,19 @@ const ecdsaSigner: Signer = {
   sign: hash => ecc.sign(hash, PRIVATE_KEY),
 }
 
-const taprootSigner: Signer = (() => {
-  const tweak = crypto.taggedHash('TapTweak', PUBLIC_KEY_BYTES.slice(1))
-  const evenKey = PUBLIC_KEY_BYTES[0] === 3 ? ecc.privateNegate(PRIVATE_KEY) : PRIVATE_KEY
+// Taproot key-path spends sign with the private key tweaked by the internal key (BIP-341)
+const makeTaprootSigner = (privateKey: Uint8Array, publicKey: Uint8Array): Signer => {
+  const tweak = crypto.taggedHash('TapTweak', toXOnly(publicKey))
+  const evenKey = publicKey[0] === 3 ? ecc.privateNegate(privateKey) : privateKey
   const tweakedKey = ecc.privateAdd(evenKey, tweak) as Uint8Array
   return {
     publicKey: ecc.pointFromScalar(tweakedKey, true) as Uint8Array,
     sign: hash => ecc.sign(hash, tweakedKey),
     signSchnorr: hash => ecc.signSchnorr(hash, tweakedKey),
   }
-})()
+}
+
+const taprootSigner = makeTaprootSigner(PRIVATE_KEY, PUBLIC_KEY_BYTES)
 
 const signerFor = (address: string) => (address === TR_ADDRESS ? taprootSigner : ecdsaSigner)
 
@@ -81,7 +85,6 @@ const transferArgs = (address: string, values = [100_000]) => ({
   ...fundWallet(address, values),
   to: RECIPIENT,
   amount: 50_000n,
-  opReturnData: undefined,
   feePerByte: 5n,
 })
 
@@ -98,14 +101,12 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     ['taproot', TR_ADDRESS],
     ['legacy', PKH_ADDRESS],
   ])('pays the recipient, returns change and carries the memo last (%s)', async (_, address) => {
-    const args = {
+    const built = await buildTransferPsbt({
       ...transferArgs(address, [40_000, 100_000]),
       opReturnData: MEMO,
-      feePerByte: 10n,
-    }
-    const built = await buildTransferPsbt(args)
+    })
 
-    const { txHex, txid } = finalizeSignedPsbt(signAsWallet(built.psbt, address))
+    const { txHex, txid } = finalizeSignedPsbt({ signedPsbt: signAsWallet(built.psbt, address) })
     const tx = Transaction.fromHex(txHex)
 
     expect(tx.getId()).toBe(txid)
@@ -120,27 +121,45 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     expect(opcode).toBe(bitcoinScript.OPS.OP_RETURN)
     expect(toHex(data as Uint8Array)).toBe(toHex(new TextEncoder().encode(MEMO)))
 
-    const unsigned = Psbt.fromBase64(built.psbt, { network })
-    const inputTotal = unsigned.txInputs.reduce((sum, { hash }) => {
-      const txid = toHex(Uint8Array.from(hash).reverse())
-      return sum + (args.utxos.find(utxo => utxo.txid === txid)?.value ?? 0n)
-    }, 0n)
-    const outputTotal = tx.outs.reduce((sum, { value }) => sum + value, 0n)
-    expect(inputTotal - outputTotal).toBeGreaterThanOrEqual(10n * BigInt(tx.virtualSize()))
     expect(built.signInputs).toEqual(
       Array.from({ length: tx.ins.length }, (_, index) => ({ address, index })),
     )
-
-    unsigned.data.inputs.forEach((input, index) => {
-      expect(input.nonWitnessUtxo).toBeDefined()
-      expect(unsigned.txInputs[index].sequence).toBe(0xfffffffd)
-    })
   })
+
+  it.each([
+    ['native segwit', WPKH_ADDRESS],
+    ['taproot', TR_ADDRESS],
+    ['legacy', PKH_ADDRESS],
+  ])(
+    'covers the fee rate and marks every input replaceable with its parent tx (%s)',
+    async (_, address) => {
+      const args = { ...transferArgs(address, [40_000, 100_000]), feePerByte: 10n }
+      const built = await buildTransferPsbt(args)
+      const tx = Transaction.fromHex(
+        finalizeSignedPsbt({ signedPsbt: signAsWallet(built.psbt, address) }).txHex,
+      )
+
+      const unsigned = Psbt.fromBase64(built.psbt, { network })
+      const inputTotal = unsigned.txInputs.reduce((sum, { hash }) => {
+        const txid = toHex(Uint8Array.from(hash).reverse())
+        return sum + (args.utxos.find(utxo => utxo.txid === txid)?.value ?? 0n)
+      }, 0n)
+      const outputTotal = tx.outs.reduce((sum, { value }) => sum + value, 0n)
+      expect(inputTotal - outputTotal).toBeGreaterThanOrEqual(10n * BigInt(tx.virtualSize()))
+
+      unsigned.data.inputs.forEach((input, index) => {
+        expect(input.nonWitnessUtxo).toBeDefined()
+        expect(unsigned.txInputs[index].sequence).toBe(0xfffffffd)
+      })
+    },
+  )
 
   it('builds a plain transfer without an OP_RETURN when there is no memo', async () => {
     const built = await buildTransferPsbt(transferArgs(WPKH_ADDRESS))
 
-    const tx = Transaction.fromHex(finalizeSignedPsbt(signAsWallet(built.psbt, WPKH_ADDRESS)).txHex)
+    const tx = Transaction.fromHex(
+      finalizeSignedPsbt({ signedPsbt: signAsWallet(built.psbt, WPKH_ADDRESS) }).txHex,
+    )
     expect(tx.outs.some(({ script }) => script[0] === bitcoinScript.OPS.OP_RETURN)).toBe(false)
   })
 
@@ -150,7 +169,7 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     const signed = Psbt.fromBase64(signAsWallet(built.psbt, TR_ADDRESS), { network })
     signed.finalizeAllInputs()
 
-    expect(() => finalizeSignedPsbt(signed.toBase64())).not.toThrow()
+    expect(() => finalizeSignedPsbt({ signedPsbt: signed.toBase64() })).not.toThrow()
   })
 
   it('rejects a psbt with an input the wallet did not sign', async () => {
@@ -159,7 +178,7 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     const partiallySigned = Psbt.fromBase64(built.psbt, { network })
     partiallySigned.signInput(0, ecdsaSigner)
 
-    expect(() => finalizeSignedPsbt(partiallySigned.toBase64())).toThrow(
+    expect(() => finalizeSignedPsbt({ signedPsbt: partiallySigned.toBase64() })).toThrow(
       'Wallet did not sign input 1',
     )
   })

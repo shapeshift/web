@@ -1,4 +1,4 @@
-import type { BitcoinUtxo } from '../utils/bitcoinPsbt'
+import type { Utxo } from '../utils/bitcoinPsbt'
 
 const UNCHAINED_BITCOIN_API = 'https://api.bitcoin.shapeshift.com/api/v1'
 
@@ -21,7 +21,7 @@ export const getBitcoinBalance = async (address: string): Promise<string> => {
   return (BigInt(balance) + BigInt(unconfirmedBalance ?? '0')).toString()
 }
 
-export const getBitcoinUtxos = async (address: string): Promise<BitcoinUtxo[]> => {
+export const getBitcoinUtxos = async (address: string): Promise<Utxo[]> => {
   const utxos = await getJson<UnchainedUtxo[]>(`/account/${address}/utxos`, 'UTXOs')
   return utxos.map(({ txid, vout, value }) => ({ txid, vout, value: BigInt(value) }))
 }
@@ -48,7 +48,6 @@ export const broadcastBitcoinTx = async (txHex: string): Promise<void> => {
     body: JSON.stringify({ hex: txHex }),
   }).catch(() => undefined)
 
-  // No response may still mean the tx landed, so status tracking decides
   if (!response || response.ok) return
 
   const { message } = await response.json().catch(() => ({ message: response.statusText }))

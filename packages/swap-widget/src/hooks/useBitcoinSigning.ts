@@ -64,7 +64,7 @@ export type UseBitcoinSigningResult = {
   reset: () => void
 }
 
-// AppKit forwards only the first signInputs index to Leather, while an empty list has it sign every input it owns
+// AppKit forwards only the first signInputs index to Leather, while omitting it has Leather sign all inputs
 const LEATHER_PROVIDER_ID = 'LeatherProvider'
 
 const REJECTED_BY_USER = 'Transaction rejected by user'
@@ -130,7 +130,7 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         if (!signedPsbt) throw new Error('Wallet did not return a signed transaction')
 
         const { txHex, txid } = finalizeSignedPsbt(signedPsbt)
-        await broadcastBitcoinTx(txHex, txid)
+        await broadcastBitcoinTx(txHex)
 
         setState(prev => ({ ...prev, isLoading: false, txid }))
         return txid

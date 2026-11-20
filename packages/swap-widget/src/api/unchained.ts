@@ -7,8 +7,6 @@ type UnchainedUtxo = { txid: string; vout: number; value: string }
 type UnchainedNetworkFee = { satsPerKiloByte: number }
 type UnchainedNetworkFees = Partial<Record<'fast' | 'average' | 'slow', UnchainedNetworkFee>>
 
-const BROADCAST_CONFIRM_DELAYS_MS = [1_000, 2_000, 4_000]
-
 const getJson = async <T>(path: string, label: string): Promise<T> => {
   const response = await fetch(`${UNCHAINED_BITCOIN_API}${path}`)
   if (!response.ok) throw new Error(`Failed to fetch Bitcoin ${label}: ${response.status}`)
@@ -43,30 +41,16 @@ export const getBitcoinTxHex = async (txid: string): Promise<string> => {
   return hex
 }
 
-const isTxKnown = async (txid: string): Promise<boolean> => {
-  for (const delayMs of BROADCAST_CONFIRM_DELAYS_MS) {
-    await new Promise(resolve => setTimeout(resolve, delayMs))
-    if (
-      await getBitcoinTxHex(txid).then(
-        () => true,
-        () => false,
-      )
-    )
-      return true
-  }
-  return false
-}
-
-// A lost broadcast response can hide an accepted tx, and failing it would invite a second payment on retry
-export const broadcastBitcoinTx = async (txHex: string, txid: string): Promise<void> => {
+export const broadcastBitcoinTx = async (txHex: string): Promise<void> => {
   const response = await fetch(`${UNCHAINED_BITCOIN_API}/send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ hex: txHex }),
   }).catch(() => undefined)
 
-  if (response?.ok || (await isTxKnown(txid))) return
+  // No response may still mean the tx landed, so status tracking decides
+  if (!response || response.ok) return
 
-  const reason = response ? await response.text() : 'network error'
-  throw new Error(`Failed to broadcast transaction: ${reason}`)
+  const { message } = await response.json().catch(() => ({ message: response.statusText }))
+  throw new Error(`Failed to broadcast transaction: ${message}`)
 }

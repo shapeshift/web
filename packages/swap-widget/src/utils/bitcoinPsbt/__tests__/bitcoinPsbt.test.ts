@@ -106,7 +106,10 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
       opReturnData: MEMO,
     })
 
-    const { txHex, txid } = finalizeSignedPsbt({ signedPsbt: signAsWallet(built.psbt, address) })
+    const { txHex, txid } = finalizeSignedPsbt({
+      builtPsbt: built.psbt,
+      signedPsbt: signAsWallet(built.psbt, address),
+    })
     const tx = Transaction.fromHex(txHex)
 
     expect(tx.getId()).toBe(txid)
@@ -133,10 +136,11 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
   ])(
     'covers the fee rate and marks every input replaceable with its parent tx (%s)',
     async (_, address) => {
-      const args = { ...transferArgs(address, [40_000, 100_000]), feePerByte: 10n }
+      const args = { ...transferArgs(address, [40_000, 100_000]), to: TR_ADDRESS, feePerByte: 10n }
       const built = await buildTransferPsbt(args)
       const tx = Transaction.fromHex(
-        finalizeSignedPsbt({ signedPsbt: signAsWallet(built.psbt, address) }).txHex,
+        finalizeSignedPsbt({ builtPsbt: built.psbt, signedPsbt: signAsWallet(built.psbt, address) })
+          .txHex,
       )
 
       const unsigned = Psbt.fromBase64(built.psbt, { network })
@@ -158,7 +162,10 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     const built = await buildTransferPsbt(transferArgs(WPKH_ADDRESS))
 
     const tx = Transaction.fromHex(
-      finalizeSignedPsbt({ signedPsbt: signAsWallet(built.psbt, WPKH_ADDRESS) }).txHex,
+      finalizeSignedPsbt({
+        builtPsbt: built.psbt,
+        signedPsbt: signAsWallet(built.psbt, WPKH_ADDRESS),
+      }).txHex,
     )
     expect(tx.outs.some(({ script }) => script[0] === bitcoinScript.OPS.OP_RETURN)).toBe(false)
   })
@@ -169,7 +176,9 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     const signed = Psbt.fromBase64(signAsWallet(built.psbt, TR_ADDRESS), { network })
     signed.finalizeAllInputs()
 
-    expect(() => finalizeSignedPsbt({ signedPsbt: signed.toBase64() })).not.toThrow()
+    expect(() =>
+      finalizeSignedPsbt({ builtPsbt: built.psbt, signedPsbt: signed.toBase64() }),
+    ).not.toThrow()
   })
 
   it('rejects a psbt with an input the wallet did not sign', async () => {
@@ -178,9 +187,33 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     const partiallySigned = Psbt.fromBase64(built.psbt, { network })
     partiallySigned.signInput(0, ecdsaSigner)
 
-    expect(() => finalizeSignedPsbt({ signedPsbt: partiallySigned.toBase64() })).toThrow(
-      'Wallet did not sign input 1',
-    )
+    expect(() =>
+      finalizeSignedPsbt({ builtPsbt: built.psbt, signedPsbt: partiallySigned.toBase64() }),
+    ).toThrow('Wallet did not sign input 1')
+  })
+
+  it('rejects a psbt the wallet changed while signing', async () => {
+    const built = await buildTransferPsbt({ ...transferArgs(WPKH_ADDRESS), opReturnData: MEMO })
+    const tampered = await buildTransferPsbt(transferArgs(WPKH_ADDRESS))
+
+    expect(() =>
+      finalizeSignedPsbt({
+        builtPsbt: built.psbt,
+        signedPsbt: signAsWallet(tampered.psbt, WPKH_ADDRESS),
+      }),
+    ).toThrow('Wallet changed the transaction while signing')
+  })
+
+  it('accepts an uppercase taproot address', async () => {
+    const built = await buildTransferPsbt(transferArgs(TR_ADDRESS.toUpperCase()))
+
+    expect(built.signInputs).toHaveLength(1)
+  })
+
+  it('surfaces the decode error for a malformed address', async () => {
+    await expect(
+      buildTransferPsbt({ ...transferArgs(WPKH_ADDRESS), address: `${RECIPIENT.slice(0, -1)}x` }),
+    ).rejects.toThrow('Invalid checksum')
   })
 
   it('throws when the balance cannot cover the amount and fee', async () => {

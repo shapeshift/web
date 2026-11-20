@@ -24,6 +24,7 @@ export type BuiltTransferPsbt = {
 }
 
 export type FinalizeSignedPsbtArgs = {
+  builtPsbt: string
   signedPsbt: string
   network?: Network
 }

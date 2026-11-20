@@ -30,27 +30,25 @@ export type {
 initEccLib(ecc)
 
 const MAX_OP_RETURN_BYTES = 80
-
-// BIP-125 opt-in replace-by-fee, matching the app's bitcoin transfers
 const RBF_SEQUENCE = 0xfffffffd
-
 const PREV_TX_FETCH_BATCH_SIZE = 5
 
 const getAddressType = (address: string, network: Network): AddressType => {
-  try {
-    if (address.toLowerCase().startsWith(`${network.bech32}1`)) {
-      const { version, data } = bitcoinAddress.fromBech32(address)
-      if (version === 0 && data.length === 20) return 'wpkh'
-      if (version === 1 && data.length === 32) return 'tr'
-    } else {
-      const { version } = bitcoinAddress.fromBase58Check(address)
-      if (version === network.pubKeyHash) return 'pkh'
-      if (version === network.scriptHash) return 'sh'
-    }
-  } catch {}
+  if (address.toLowerCase().startsWith(`${network.bech32}1`)) {
+    const { version, data } = bitcoinAddress.fromBech32(address)
+    if (version === 0 && data.length === 20) return 'wpkh'
+    if (version === 1 && data.length === 32) return 'tr'
+  } else {
+    const { version } = bitcoinAddress.fromBase58Check(address)
+    if (version === network.pubKeyHash) return 'pkh'
+    if (version === network.scriptHash) return 'sh'
+  }
 
   throw new Error('Unsupported address type')
 }
+
+const bytesEqual = (a: Uint8Array | undefined, b: Uint8Array | undefined): boolean =>
+  !!a && !!b && a.length === b.length && a.every((byte, index) => byte === b[index])
 
 const hexToBytes = (hex: string): Uint8Array =>
   Uint8Array.from(hex.match(/.{2}/g) ?? [], byte => parseInt(byte, 16))
@@ -65,7 +63,7 @@ const decodePublicKey = (publicKey: string | undefined): Uint8Array => {
 
 const getSpendData = (
   type: AddressType,
-  address: string,
+  script: Uint8Array,
   publicKey: string | undefined,
   network: Network,
 ): SpendData => {
@@ -76,16 +74,20 @@ const getSpendData = (
     case 'sh': {
       const redeem = payments.p2wpkh({ pubkey: decodePublicKey(publicKey), network })
       const payment = payments.p2sh({ redeem, network })
-      if (payment.address !== address) {
+
+      if (!bytesEqual(payment.output, script)) {
         throw new Error('Public key does not match the p2sh address')
       }
+
       return { redeemScript: redeem.output }
     }
     case 'tr': {
       const tapInternalKey = toXOnly(decodePublicKey(publicKey))
-      if (payments.p2tr({ internalPubkey: tapInternalKey, network }).address !== address) {
+
+      if (!bytesEqual(payments.p2tr({ internalPubkey: tapInternalKey, network }).output, script)) {
         throw new Error('Public key does not match the taproot address')
       }
+
       return { tapInternalKey }
     }
     default:
@@ -94,14 +96,16 @@ const getSpendData = (
 }
 
 const encodeOpReturn = (opReturnData: string): Uint8Array => {
-  // Copied so the bytes pass the library's Uint8Array check when TextEncoder comes from another realm
+  // TextEncoder can hand back another realm's Uint8Array (iframes, jsdom), which fails the library's instanceof check
   const data = Uint8Array.from(new TextEncoder().encode(opReturnData))
+
   if (data.length > MAX_OP_RETURN_BYTES) {
     throw new Error(`OP_RETURN data is ${data.length} bytes, over the ${MAX_OP_RETURN_BYTES} limit`)
   }
 
   const { output } = payments.embed({ data: [data] })
   if (!output) throw new Error('Unable to build the OP_RETURN script')
+
   return output
 }
 
@@ -134,13 +138,14 @@ export const buildTransferPsbt = async ({
 }: BuildTransferPsbtArgs): Promise<BuiltTransferPsbt> => {
   const type = getAddressType(address, network)
   const script = bitcoinAddress.toOutputScript(address, network)
-  const spendData = getSpendData(type, address, publicKey, network)
+  const spendData = getSpendData(type, script, publicKey, network)
+  const recipientScript = bitcoinAddress.toOutputScript(to, network)
   const opReturnScript = opReturnData ? encodeOpReturn(opReturnData) : undefined
 
   const selection = coinSelect(
     utxos.map(utxo => ({ ...utxo, value: Number(utxo.value) })),
     [
-      { address: to, value: Number(amount) },
+      { script: recipientScript, value: Number(amount) },
       ...(opReturnScript ? [{ script: opReturnScript, value: 0 }] : []),
     ],
     Number(feePerByte),
@@ -150,7 +155,7 @@ export const buildTransferPsbt = async ({
     throw new Error('Insufficient balance to cover the amount and network fee')
   }
 
-  const change = selection.outputs.find(output => !output.address && !output.script)
+  const change = selection.outputs.find(output => !output.script)
   const prevTxs = await fetchPrevTxs(
     selection.inputs.map(input => input.txid),
     getPrevTxHex,
@@ -169,8 +174,8 @@ export const buildTransferPsbt = async ({
     })
   })
 
-  psbt.addOutput({ address: to, value: amount })
-  if (change?.value) psbt.addOutput({ address, value: BigInt(change.value) })
+  psbt.addOutput({ script: recipientScript, value: amount })
+  if (change?.value) psbt.addOutput({ script, value: BigInt(change.value) })
   if (opReturnScript) psbt.addOutput({ script: opReturnScript, value: 0n })
 
   return {
@@ -179,12 +184,36 @@ export const buildTransferPsbt = async ({
   }
 }
 
-// Wallets differ on whether they finalize, so only inputs still carrying signatures are finalized
+const assertSameTransaction = (built: Psbt, signed: Psbt): void => {
+  const sameInputs =
+    built.txInputs.length === signed.txInputs.length &&
+    built.txInputs.every(
+      (input, index) =>
+        bytesEqual(input.hash, signed.txInputs[index].hash) &&
+        input.index === signed.txInputs[index].index,
+    )
+
+  const sameOutputs =
+    built.txOutputs.length === signed.txOutputs.length &&
+    built.txOutputs.every(
+      (output, index) =>
+        bytesEqual(output.script, signed.txOutputs[index].script) &&
+        output.value === signed.txOutputs[index].value,
+    )
+
+  if (!sameInputs || !sameOutputs) {
+    throw new Error('Wallet changed the transaction while signing')
+  }
+}
+
 export const finalizeSignedPsbt = ({
+  builtPsbt,
   signedPsbt,
   network = networks.bitcoin,
 }: FinalizeSignedPsbtArgs): FinalizedTransfer => {
   const psbt = Psbt.fromBase64(signedPsbt, { network })
+
+  assertSameTransaction(Psbt.fromBase64(builtPsbt, { network }), psbt)
 
   psbt.data.inputs.forEach((input, index) => {
     if (input.finalScriptWitness?.length || input.finalScriptSig?.length) return
@@ -195,5 +224,6 @@ export const finalizeSignedPsbt = ({
   })
 
   const tx = psbt.extractTransaction()
+
   return { txHex: tx.toHex(), txid: tx.getId() }
 }

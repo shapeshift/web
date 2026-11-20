@@ -129,7 +129,7 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         const signedPsbt = typeof signed === 'string' ? signed : signed?.psbt
         if (!signedPsbt) throw new Error('Wallet did not return a signed transaction')
 
-        const { txHex, txid } = finalizeSignedPsbt({ signedPsbt })
+        const { txHex, txid } = finalizeSignedPsbt({ builtPsbt: psbt, signedPsbt })
         await broadcastBitcoinTx(txHex)
 
         setState(prev => ({ ...prev, isLoading: false, txid }))

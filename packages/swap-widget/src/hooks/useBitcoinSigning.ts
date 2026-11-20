@@ -96,6 +96,9 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
   const sendTransaction = useCallback(
     async (params: BitcoinSendTransactionParams): Promise<string> => {
       if (!provider?.signPSBT || !address) throw new Error('Bitcoin wallet not connected')
+      if (address.toLowerCase().startsWith('bc1p')) {
+        throw new Error('Swapping from a taproot (bc1p) address is not supported yet')
+      }
 
       setState(prev => ({ ...prev, isLoading: true, error: undefined, txid: undefined }))
 

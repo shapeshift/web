@@ -96,8 +96,7 @@ const getSpendData = (
 }
 
 const encodeOpReturn = (opReturnData: string): Uint8Array => {
-  // TextEncoder can hand back another realm's Uint8Array (iframes, jsdom), which fails the library's instanceof check
-  const data = Uint8Array.from(new TextEncoder().encode(opReturnData))
+  const data = new TextEncoder().encode(opReturnData)
 
   if (data.length > MAX_OP_RETURN_BYTES) {
     throw new Error(`OP_RETURN data is ${data.length} bytes, over the ${MAX_OP_RETURN_BYTES} limit`)
@@ -156,10 +155,14 @@ export const buildTransferPsbt = async ({
   }
 
   const change = selection.outputs.find(output => !output.script)
-  const prevTxs = await fetchPrevTxs(
-    selection.inputs.map(input => input.txid),
-    getPrevTxHex,
-  )
+  // Taproot signatures commit to every input amount, so signers don't need the parent tx
+  const prevTxs =
+    type === 'tr'
+      ? undefined
+      : await fetchPrevTxs(
+          selection.inputs.map(input => input.txid),
+          getPrevTxHex,
+        )
 
   const psbt = new Psbt({ network })
 
@@ -168,7 +171,7 @@ export const buildTransferPsbt = async ({
       hash: input.txid,
       index: input.vout,
       sequence: RBF_SEQUENCE,
-      nonWitnessUtxo: prevTxs.get(input.txid),
+      ...(prevTxs && { nonWitnessUtxo: prevTxs.get(input.txid) }),
       ...(type !== 'pkh' && { witnessUtxo: { script, value: BigInt(input.value) } }),
       ...spendData,
     })

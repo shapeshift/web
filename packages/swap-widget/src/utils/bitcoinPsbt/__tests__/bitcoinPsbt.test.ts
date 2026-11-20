@@ -1,3 +1,4 @@
+// @vitest-environment node
 import ecc from '@bitcoinerlab/secp256k1'
 import type { Signer } from '@shapeshiftoss/bitcoinjs-lib'
 import {
@@ -133,30 +134,27 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     ['native segwit', WPKH_ADDRESS],
     ['taproot', TR_ADDRESS],
     ['legacy', PKH_ADDRESS],
-  ])(
-    'covers the fee rate and marks every input replaceable with its parent tx (%s)',
-    async (_, address) => {
-      const args = { ...transferArgs(address, [40_000, 100_000]), to: TR_ADDRESS, feePerByte: 10n }
-      const built = await buildTransferPsbt(args)
-      const tx = Transaction.fromHex(
-        finalizeSignedPsbt({ builtPsbt: built.psbt, signedPsbt: signAsWallet(built.psbt, address) })
-          .txHex,
-      )
+  ])('covers the fee rate and marks every input replaceable (%s)', async (_, address) => {
+    const args = { ...transferArgs(address, [40_000, 100_000]), to: TR_ADDRESS, feePerByte: 10n }
+    const built = await buildTransferPsbt(args)
+    const tx = Transaction.fromHex(
+      finalizeSignedPsbt({ builtPsbt: built.psbt, signedPsbt: signAsWallet(built.psbt, address) })
+        .txHex,
+    )
 
-      const unsigned = Psbt.fromBase64(built.psbt, { network })
-      const inputTotal = unsigned.txInputs.reduce((sum, { hash }) => {
-        const txid = toHex(Uint8Array.from(hash).reverse())
-        return sum + (args.utxos.find(utxo => utxo.txid === txid)?.value ?? 0n)
-      }, 0n)
-      const outputTotal = tx.outs.reduce((sum, { value }) => sum + value, 0n)
-      expect(inputTotal - outputTotal).toBeGreaterThanOrEqual(10n * BigInt(tx.virtualSize()))
+    const unsigned = Psbt.fromBase64(built.psbt, { network })
+    const inputTotal = unsigned.txInputs.reduce((sum, { hash }) => {
+      const txid = toHex(Uint8Array.from(hash).reverse())
+      return sum + (args.utxos.find(utxo => utxo.txid === txid)?.value ?? 0n)
+    }, 0n)
+    const outputTotal = tx.outs.reduce((sum, { value }) => sum + value, 0n)
+    expect(inputTotal - outputTotal).toBeGreaterThanOrEqual(10n * BigInt(tx.virtualSize()))
 
-      unsigned.data.inputs.forEach((input, index) => {
-        expect(input.nonWitnessUtxo).toBeDefined()
-        expect(unsigned.txInputs[index].sequence).toBe(0xfffffffd)
-      })
-    },
-  )
+    unsigned.data.inputs.forEach((input, index) => {
+      expect(input.nonWitnessUtxo === undefined).toBe(address === TR_ADDRESS)
+      expect(unsigned.txInputs[index].sequence).toBe(0xfffffffd)
+    })
+  })
 
   it('builds a plain transfer without an OP_RETURN when there is no memo', async () => {
     const built = await buildTransferPsbt(transferArgs(WPKH_ADDRESS))

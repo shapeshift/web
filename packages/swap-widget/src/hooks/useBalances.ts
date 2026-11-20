@@ -8,6 +8,7 @@ import { useCallback, useMemo } from 'react'
 import { erc20Abi } from 'viem'
 import { useConfig } from 'wagmi'
 
+import { getBitcoinBalance } from '../api/unchained'
 import type { AssetId } from '../types'
 import {
   formatAmount,
@@ -58,7 +59,6 @@ type ParsedAssetSolana = {
 
 type ParsedAsset = ParsedAssetEvm | ParsedAssetUtxo | ParsedAssetSolana | null
 
-const MEMPOOL_API_BASE = 'https://mempool.space/api'
 const SOLANA_PUBLIC_RPC = 'https://api.mainnet-beta.solana.com'
 
 const parseAssetIdMultiChain = (assetId: AssetId): ParsedAsset => {
@@ -123,27 +123,6 @@ const parseAssetId = (
   } catch {
     return null
   }
-}
-
-const fetchBitcoinBalance = async (
-  address: string,
-  network: 'mainnet' | 'testnet' = 'mainnet',
-): Promise<string> => {
-  const baseUrl = network === 'testnet' ? 'https://mempool.space/testnet/api' : MEMPOOL_API_BASE
-
-  const response = await fetch(`${baseUrl}/address/${address}`)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch Bitcoin balance: ${response.status}`)
-  }
-
-  const data = await response.json()
-  const confirmedFunded = data.chain_stats?.funded_txo_sum ?? 0
-  const confirmedSpent = data.chain_stats?.spent_txo_sum ?? 0
-  const mempoolFunded = data.mempool_stats?.funded_txo_sum ?? 0
-  const mempoolSpent = data.mempool_stats?.spent_txo_sum ?? 0
-  const totalBalance = confirmedFunded - confirmedSpent + (mempoolFunded - mempoolSpent)
-
-  return totalBalance.toString()
 }
 
 export const useEvmBalances = (
@@ -310,7 +289,7 @@ export const useBitcoinBalance = (
         queryFn: async () => {
           if (!address || !assetId || !isUtxo) return null
           try {
-            const balance = await fetchBitcoinBalance(address)
+            const balance = await getBitcoinBalance(address)
             return {
               assetId,
               balance,
@@ -655,7 +634,7 @@ export const useMultiChainBalances = (
       queryFn: async () => {
         if (!utxoAddress) return null
         try {
-          const balance = await fetchBitcoinBalance(utxoAddress)
+          const balance = await getBitcoinBalance(utxoAddress)
           return {
             assetId: asset.assetId,
             balance,

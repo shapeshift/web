@@ -1994,6 +1994,12 @@ importers:
 
   packages/swap-widget:
     dependencies:
+      '@scure/base':
+        specifier: 1.2.6
+        version: 1.2.6
+      '@scure/btc-signer':
+        specifier: 1.8.1
+        version: 1.8.1
       '@shapeshiftoss/caip':
         specifier: workspace:^
         version: link:../caip

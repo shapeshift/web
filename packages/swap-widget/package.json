@@ -32,6 +32,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@scure/base": "1.2.6",
+    "@scure/btc-signer": "1.8.1",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",

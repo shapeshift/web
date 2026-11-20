@@ -2,6 +2,15 @@ import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
 import { useCallback, useMemo, useState } from 'react'
 
+import {
+  broadcastBitcoinTx,
+  getBitcoinFeePerByte,
+  getBitcoinTxHex,
+  getBitcoinUtxos,
+} from '../api/unchained'
+import { buildTransferPsbt, finalizeSignedPsbt } from '../utils/bitcoinPsbt'
+import { getErrorMessage, isUserRejection } from '../utils/errors'
+
 type AccountAddress = string | { address?: string; purpose?: string | number }
 
 type AccountAddressArray = AccountAddress[]
@@ -13,6 +22,7 @@ export type SignInput = {
 }
 
 type BitcoinConnectorExtended = BitcoinConnector & {
+  wallet?: { id?: string }
   getAccountAddresses?: () => Promise<AccountAddressArray> | AccountAddressArray
   signPSBT?: (params: {
     psbt: string
@@ -25,10 +35,10 @@ type BitcoinConnectorExtended = BitcoinConnector & {
   }) => Promise<string | { signature?: string }>
 }
 
-export type SendTransferParams = {
-  recipientAddress: string
-  amount: string
-  memo?: string
+export type BitcoinSendTransactionParams = {
+  to: string
+  value: string
+  opReturnData: string | undefined
 }
 
 export type SignPsbtParams = {
@@ -46,13 +56,21 @@ export type BitcoinSigningState = {
 export type UseBitcoinSigningResult = {
   isConnected: boolean
   address: string | undefined
-  sendTransfer: (params: SendTransferParams) => Promise<string>
+  sendTransaction: (params: BitcoinSendTransactionParams) => Promise<string>
   signPsbt: (params: SignPsbtParams) => Promise<string>
   signMessage: (message: string) => Promise<string>
   getAccountAddresses: () => Promise<string[]>
   state: BitcoinSigningState
   reset: () => void
 }
+
+// AppKit forwards only the first signInputs index to Leather, while an empty list has it sign every input it owns
+const LEATHER_PROVIDER_ID = 'LeatherProvider'
+
+const REJECTED_BY_USER = 'Transaction rejected by user'
+
+const toWalletError = (error: unknown): unknown =>
+  isUserRejection(getErrorMessage(error, '')) ? new Error(REJECTED_BY_USER) : error
 
 export const useBitcoinSigning = (): UseBitcoinSigningResult => {
   const { walletProvider } = useAppKitProvider<BitcoinConnector>('bip122')
@@ -75,46 +93,54 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     return appKitBtcAddress ?? btcAccounts[0]?.address
   }, [provider, isBtcConnected, appKitBtcAddress, btcAccounts])
 
-  const sendTransfer = useCallback(
-    async (params: SendTransferParams): Promise<string> => {
-      if (!provider?.sendTransfer) {
-        throw new Error('Bitcoin wallet not connected')
-      }
+  const sendTransaction = useCallback(
+    async (params: BitcoinSendTransactionParams): Promise<string> => {
+      if (!provider?.signPSBT || !address) throw new Error('Bitcoin wallet not connected')
 
       setState(prev => ({ ...prev, isLoading: true, error: undefined, txid: undefined }))
 
       try {
-        const txid = await provider.sendTransfer({
-          recipient: params.recipientAddress,
-          amount: params.amount,
-          ...(params.memo && { memo: params.memo }),
+        const [utxos, feePerByte] = await Promise.all([
+          getBitcoinUtxos(address),
+          getBitcoinFeePerByte(),
+        ])
+
+        const { psbt, signInputs } = await buildTransferPsbt({
+          address,
+          publicKey: btcAccounts.find(account => account.address === address)?.publicKey,
+          utxos,
+          getPrevTxHex: getBitcoinTxHex,
+          to: params.to,
+          amount: BigInt(params.value),
+          opReturnData: params.opReturnData,
+          feePerByte,
         })
 
-        if (!txid) {
-          throw new Error('Transaction submitted but no txid returned')
-        }
+        const signed = await provider
+          .signPSBT({
+            psbt,
+            signInputs: provider.wallet?.id === LEATHER_PROVIDER_ID ? [] : signInputs,
+            broadcast: false,
+          })
+          .catch(error => {
+            throw toWalletError(error)
+          })
+
+        const signedPsbt = typeof signed === 'string' ? signed : signed?.psbt
+        if (!signedPsbt) throw new Error('Wallet did not return a signed transaction')
+
+        const { txHex, txid } = finalizeSignedPsbt(signedPsbt)
+        await broadcastBitcoinTx(txHex, txid)
 
         setState(prev => ({ ...prev, isLoading: false, txid }))
         return txid
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Failed to send Bitcoin transfer'
-
-        if (
-          errorMessage.toLowerCase().includes('rejected') ||
-          errorMessage.toLowerCase().includes('denied') ||
-          errorMessage.toLowerCase().includes('cancelled') ||
-          errorMessage.toLowerCase().includes('user refused')
-        ) {
-          setState(prev => ({ ...prev, isLoading: false, error: 'Transaction rejected by user' }))
-          throw new Error('Transaction rejected by user')
-        }
-
+        const errorMessage = getErrorMessage(error, 'Failed to send Bitcoin transaction')
         setState(prev => ({ ...prev, isLoading: false, error: errorMessage }))
         throw error
       }
     },
-    [provider],
+    [provider, address, btcAccounts],
   )
 
   const signPsbt = useCallback(
@@ -142,14 +168,9 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
 
         return txidOrPsbt
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to sign PSBT'
+        const errorMessage = getErrorMessage(error, 'Failed to sign PSBT')
 
-        if (
-          errorMessage.toLowerCase().includes('rejected') ||
-          errorMessage.toLowerCase().includes('denied') ||
-          errorMessage.toLowerCase().includes('cancelled') ||
-          errorMessage.toLowerCase().includes('user refused')
-        ) {
+        if (isUserRejection(errorMessage)) {
           setState(prev => ({ ...prev, isLoading: false, error: 'Signing rejected by user' }))
           throw new Error('Signing rejected by user')
         }
@@ -243,13 +264,22 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     () => ({
       isConnected,
       address,
-      sendTransfer,
+      sendTransaction,
       signPsbt,
       signMessage,
       getAccountAddresses,
       state,
       reset,
     }),
-    [isConnected, address, sendTransfer, signPsbt, signMessage, getAccountAddresses, state, reset],
+    [
+      isConnected,
+      address,
+      sendTransaction,
+      signPsbt,
+      signMessage,
+      getAccountAddresses,
+      state,
+      reset,
+    ],
   )
 }

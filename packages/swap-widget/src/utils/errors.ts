@@ -9,3 +9,8 @@ export const getErrorMessage = (error: unknown, fallback = 'Unknown error'): str
   }
   return fallback
 }
+
+export const isUserRejection = (message: string): boolean =>
+  ['rejected', 'denied', 'cancelled', 'user refused'].some(term =>
+    message.toLowerCase().includes(term),
+  )

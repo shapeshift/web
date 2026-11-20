@@ -40,8 +40,10 @@ export const applyQrScanAsset = (
 
   if (assetId !== selectedAssetId || !selectedAccountId) {
     const [accountId] = selectPortfolioAccountIdsByAssetIdFilter(state, { assetId })
-    if (accountId) methods.setValue(SendFormFields.AccountId, accountId)
+    methods.setValue(SendFormFields.AccountId, accountId ?? '')
   }
+
+  methods.setValue(SendFormFields.SendMax, false)
 
   const price = selectMarketDataByAssetIdUserCurrency(state, assetId)?.price
   methods.setValue(

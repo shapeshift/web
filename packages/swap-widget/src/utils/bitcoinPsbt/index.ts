@@ -8,8 +8,8 @@ import {
   Psbt,
   toXOnly,
 } from '@shapeshiftoss/bitcoinjs-lib'
-import coinSelect from 'coinselect'
 
+import { getDustLimit, selectUtxos } from './selectUtxos'
 import type {
   AddressType,
   BuildTransferPsbtArgs,
@@ -141,49 +141,50 @@ export const buildTransferPsbt = async ({
   const recipientScript = bitcoinAddress.toOutputScript(to, network)
   const opReturnScript = opReturnData ? encodeOpReturn(opReturnData) : undefined
 
-  const selection = coinSelect(
-    utxos.map(utxo => ({ ...utxo, value: Number(utxo.value) })),
-    [
-      { script: recipientScript, value: Number(amount) },
-      ...(opReturnScript ? [{ script: opReturnScript, value: 0 }] : []),
-    ],
-    Number(feePerByte),
-  )
-
-  if (!selection.inputs || !selection.outputs) {
-    throw new Error('Insufficient balance to cover the amount and network fee')
+  if (amount < getDustLimit(recipientScript)) {
+    throw new Error(`Amount is below the ${getDustLimit(recipientScript)} sat dust limit`)
   }
 
-  const change = selection.outputs.find(output => !output.script)
+  const { inputs, change } = selectUtxos({
+    type,
+    utxos,
+    outputs: [
+      { script: recipientScript, value: amount },
+      ...(opReturnScript ? [{ script: opReturnScript, value: 0n }] : []),
+    ],
+    changeScript: script,
+    feePerByte,
+  })
+
   // Taproot signatures commit to every input amount, so signers don't need the parent tx
   const prevTxs =
     type === 'tr'
       ? undefined
       : await fetchPrevTxs(
-          selection.inputs.map(input => input.txid),
+          inputs.map(input => input.txid),
           getPrevTxHex,
         )
 
   const psbt = new Psbt({ network })
 
-  selection.inputs.forEach(input => {
+  inputs.forEach(input => {
     psbt.addInput({
       hash: input.txid,
       index: input.vout,
       sequence: RBF_SEQUENCE,
       ...(prevTxs && { nonWitnessUtxo: prevTxs.get(input.txid) }),
-      ...(type !== 'pkh' && { witnessUtxo: { script, value: BigInt(input.value) } }),
+      ...(type !== 'pkh' && { witnessUtxo: { script, value: input.value } }),
       ...spendData,
     })
   })
 
   psbt.addOutput({ script: recipientScript, value: amount })
-  if (change?.value) psbt.addOutput({ script, value: BigInt(change.value) })
+  if (change) psbt.addOutput({ script, value: change })
   if (opReturnScript) psbt.addOutput({ script: opReturnScript, value: 0n })
 
   return {
     psbt: psbt.toBase64(),
-    signInputs: selection.inputs.map((_, index) => ({ address, index })),
+    signInputs: inputs.map((_, index) => ({ address, index })),
   }
 }
 

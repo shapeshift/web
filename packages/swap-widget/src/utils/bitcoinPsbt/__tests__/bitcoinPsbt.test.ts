@@ -16,6 +16,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Utxo } from '..'
 import { buildTransferPsbt, finalizeSignedPsbt } from '..'
+import { getDustLimit } from '../selectUtxos'
 
 initEccLib(ecc)
 
@@ -97,6 +98,82 @@ const signAsWallet = (psbtBase64: string, address: string): string => {
 
 describe('buildTransferPsbt + finalizeSignedPsbt', () => {
   it.each([
+    ['wpkh', WPKH_ADDRESS],
+    ['sh', SH_ADDRESS],
+    ['tr', TR_ADDRESS],
+    ['pkh', PKH_ADDRESS],
+  ] as const)(
+    'never underpays, keeps change above dust and bounds overpayment across random wallets (%s)',
+    async (_, address) => {
+      let seed = 42
+      const random = (max: number) => {
+        seed = (seed * 1_103_515_245 + 12_345) % 2_147_483_648
+        return seed % max
+      }
+
+      const outcomes: { kind: 'change' | 'folded' | 'insufficient'; checks: boolean[] }[] = []
+
+      for (let run = 0; run < 60; run++) {
+        const values = Array.from({ length: 1 + random(6) }, () => 1_000 + random(200_000))
+        const balance = values.reduce((sum, value) => sum + value, 0)
+        const amount = BigInt(294 + random(balance))
+        const feePerByte = BigInt(1 + random(60))
+        const opReturnData = random(2) ? MEMO : undefined
+        const args = { ...transferArgs(address, values), amount, feePerByte, opReturnData }
+
+        const built = await buildTransferPsbt(args).catch((error: Error) => error)
+
+        if (built instanceof Error) {
+          const generousFeeForAll = feePerByte * BigInt(10 + values.length * 148 + 200)
+          outcomes.push({
+            kind: 'insufficient',
+            checks: [
+              built.message.includes('Insufficient balance'),
+              BigInt(balance) < amount + generousFeeForAll,
+            ],
+          })
+          continue
+        }
+
+        const tx = Transaction.fromHex(
+          finalizeSignedPsbt({
+            builtPsbt: built.psbt,
+            signedPsbt: signAsWallet(built.psbt, address),
+          }).txHex,
+        )
+        const inputTotal = tx.ins.reduce((sum, { hash }) => {
+          const txid = toHex(Uint8Array.from(hash).reverse())
+          return sum + (args.utxos.find(utxo => utxo.txid === txid)?.value ?? 0n)
+        }, 0n)
+        const fee = inputTotal - tx.outs.reduce((sum, { value }) => sum + value, 0n)
+        const minimumFee = feePerByte * BigInt(tx.virtualSize())
+        const sizingSlack = feePerByte * BigInt(11 * tx.ins.length + 4)
+        const dustLimit = getDustLimit(outputScript(address))
+        const foldedChangeSlack = feePerByte * (34n + 148n) + dustLimit
+        const change = tx.outs.find(({ script }) => toHex(script) === toHex(outputScript(address)))
+
+        outcomes.push({
+          kind: change ? 'change' : 'folded',
+          checks: [
+            tx.outs[0].value === amount,
+            fee >= minimumFee,
+            change
+              ? change.value >= dustLimit && fee <= minimumFee + sizingSlack
+              : fee <= minimumFee + sizingSlack + foldedChangeSlack,
+          ],
+        })
+      }
+
+      expect(outcomes).toEqual(
+        outcomes.map(({ kind, checks }) => ({ kind, checks: checks.map(() => true) })),
+      )
+      expect(new Set(outcomes.map(({ kind }) => kind))).toEqual(
+        new Set(['change', 'folded', 'insufficient']),
+      )
+    },
+  )
+
+  it.each([
     ['native segwit', WPKH_ADDRESS],
     ['nested segwit', SH_ADDRESS],
     ['taproot', TR_ADDRESS],
@@ -132,29 +209,41 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
 
   it.each([
     ['native segwit', WPKH_ADDRESS],
+    ['nested segwit', SH_ADDRESS],
     ['taproot', TR_ADDRESS],
     ['legacy', PKH_ADDRESS],
-  ])('covers the fee rate and marks every input replaceable (%s)', async (_, address) => {
-    const args = { ...transferArgs(address, [40_000, 100_000]), to: TR_ADDRESS, feePerByte: 10n }
-    const built = await buildTransferPsbt(args)
-    const tx = Transaction.fromHex(
-      finalizeSignedPsbt({ builtPsbt: built.psbt, signedPsbt: signAsWallet(built.psbt, address) })
-        .txHex,
-    )
+  ])(
+    'pays the fee rate for its real size and marks every input replaceable (%s)',
+    async (_, address) => {
+      const args = {
+        ...transferArgs(address, [40_000, 100_000]),
+        to: TR_ADDRESS,
+        amount: 120_000n,
+        feePerByte: 10n,
+      }
+      const built = await buildTransferPsbt(args)
+      const tx = Transaction.fromHex(
+        finalizeSignedPsbt({ builtPsbt: built.psbt, signedPsbt: signAsWallet(built.psbt, address) })
+          .txHex,
+      )
 
-    const unsigned = Psbt.fromBase64(built.psbt, { network })
-    const inputTotal = unsigned.txInputs.reduce((sum, { hash }) => {
-      const txid = toHex(Uint8Array.from(hash).reverse())
-      return sum + (args.utxos.find(utxo => utxo.txid === txid)?.value ?? 0n)
-    }, 0n)
-    const outputTotal = tx.outs.reduce((sum, { value }) => sum + value, 0n)
-    expect(inputTotal - outputTotal).toBeGreaterThanOrEqual(10n * BigInt(tx.virtualSize()))
+      const unsigned = Psbt.fromBase64(built.psbt, { network })
+      const inputTotal = unsigned.txInputs.reduce((sum, { hash }) => {
+        const txid = toHex(Uint8Array.from(hash).reverse())
+        return sum + (args.utxos.find(utxo => utxo.txid === txid)?.value ?? 0n)
+      }, 0n)
+      const outputTotal = tx.outs.reduce((sum, { value }) => sum + value, 0n)
+      const fee = inputTotal - outputTotal
+      expect(tx.ins).toHaveLength(2)
+      expect(fee).toBeGreaterThanOrEqual(10n * BigInt(tx.virtualSize()))
+      expect(fee).toBeLessThanOrEqual(10n * BigInt(tx.virtualSize() + 11 * tx.ins.length + 4))
 
-    unsigned.data.inputs.forEach((input, index) => {
-      expect(input.nonWitnessUtxo === undefined).toBe(address === TR_ADDRESS)
-      expect(unsigned.txInputs[index].sequence).toBe(0xfffffffd)
-    })
-  })
+      unsigned.data.inputs.forEach((input, index) => {
+        expect(input.nonWitnessUtxo === undefined).toBe(address === TR_ADDRESS)
+        expect(unsigned.txInputs[index].sequence).toBe(0xfffffffd)
+      })
+    },
+  )
 
   it('builds a plain transfer without an OP_RETURN when there is no memo', async () => {
     const built = await buildTransferPsbt(transferArgs(WPKH_ADDRESS))
@@ -212,6 +301,25 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
     await expect(
       buildTransferPsbt({ ...transferArgs(WPKH_ADDRESS), address: `${RECIPIENT.slice(0, -1)}x` }),
     ).rejects.toThrow('Invalid checksum')
+  })
+
+  it('spends nearly the whole balance and folds sub-dust change into the fee', async () => {
+    const built = await buildTransferPsbt(transferArgs(WPKH_ADDRESS, [50_800]))
+
+    const tx = Transaction.fromHex(
+      finalizeSignedPsbt({
+        builtPsbt: built.psbt,
+        signedPsbt: signAsWallet(built.psbt, WPKH_ADDRESS),
+      }).txHex,
+    )
+    expect(tx.outs).toHaveLength(1)
+    expect(tx.outs[0].value).toBe(50_000n)
+  })
+
+  it('throws when the amount is below the recipient dust limit', async () => {
+    await expect(
+      buildTransferPsbt({ ...transferArgs(WPKH_ADDRESS), amount: 293n }),
+    ).rejects.toThrow('294 sat dust limit')
   })
 
   it('throws when the balance cannot cover the amount and fee', async () => {

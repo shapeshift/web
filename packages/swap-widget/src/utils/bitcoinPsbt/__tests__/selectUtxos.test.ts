@@ -40,9 +40,14 @@ describe('selectUtxos', () => {
   })
 
   it('keeps change at the dust limit and folds anything below it into the fee', () => {
-    // change = total - 50_000 - 144 vbytes (with the change output)
-    expect(select([50_438], 50_000).change).toBe(294n)
-    expect(select([50_437], 50_000).change).toBe(0n)
+    // change = total - 50_000 - 141 vbytes (with the change output)
+    expect(select([50_435], 50_000).change).toBe(294n)
+    expect(select([50_434], 50_000).change).toBe(0n)
+  })
+
+  it('keeps spendable change that coinselect leaves to the miner at high fee rates', () => {
+    // coinselect wants 148 x 100 sats of change; 10_900 is well above the 294-sat dust limit
+    expect(select([100_000], 75_000, 100).change).toBe(100_000n - 75_000n - 141n * 100n)
   })
 
   it('returns the original utxos', () => {

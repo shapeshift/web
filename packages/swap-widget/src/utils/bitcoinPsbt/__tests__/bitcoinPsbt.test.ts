@@ -147,9 +147,9 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
         }, 0n)
         const fee = inputTotal - tx.outs.reduce((sum, { value }) => sum + value, 0n)
         const minimumFee = feePerByte * BigInt(tx.virtualSize())
-        const sizingSlack = feePerByte * BigInt(11 * tx.ins.length + 4)
+        const sizingSlack = feePerByte * BigInt(2 * tx.ins.length + 1)
         const dustLimit = getDustLimit(outputScript(address))
-        const foldedChangeSlack = feePerByte * (34n + 148n) + dustLimit
+        const foldedChangeSlack = dustLimit + feePerByte * 43n
         const change = tx.outs.find(({ script }) => toHex(script) === toHex(outputScript(address)))
 
         outcomes.push({
@@ -236,7 +236,7 @@ describe('buildTransferPsbt + finalizeSignedPsbt', () => {
       const fee = inputTotal - outputTotal
       expect(tx.ins).toHaveLength(2)
       expect(fee).toBeGreaterThanOrEqual(10n * BigInt(tx.virtualSize()))
-      expect(fee).toBeLessThanOrEqual(10n * BigInt(tx.virtualSize() + 11 * tx.ins.length + 4))
+      expect(fee).toBeLessThanOrEqual(10n * BigInt(tx.virtualSize() + 2 * tx.ins.length + 1))
 
       unsigned.data.inputs.forEach((input, index) => {
         expect(input.nonWitnessUtxo === undefined).toBe(address === TR_ADDRESS)

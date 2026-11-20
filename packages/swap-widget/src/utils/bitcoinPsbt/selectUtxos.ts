@@ -8,16 +8,19 @@ const DUST_RELAY_FEE = 3n
 // Spend sizes Bitcoin Core uses when pricing dust, in bytes
 const DUST_SPEND_BYTES = { legacy: 148n, witness: 67n }
 
-// Signed input vbytes, rounded up to also cover the segwit marker and coinselect's fixed 34-byte change output
+// Signed input vbytes, rounded up to also cover the segwit marker
 const INPUT_VBYTES: Record<AddressType, number> = {
   pkh: 148,
   sh: 92,
   wpkh: 69,
-  tr: 67,
+  tr: 58,
 }
 
 // coinselect sizes an input as 41 bytes plus its script length, so a blank script of the remainder sets its size
 const COINSELECT_INPUT_BASE_BYTES = 41
+
+// Version, locktime and the input and output counts
+const TX_OVERHEAD_BYTES = 10
 
 const outputSize = (script: Uint8Array): number => 8 + 1 + script.length
 
@@ -62,14 +65,24 @@ export const selectUtxos = ({
     Number(feePerByte),
   )
 
-  if (!selection.inputs || !selection.outputs) {
+  if (!selection.inputs) {
     throw new Error('Insufficient balance to cover the amount and network fee')
   }
 
-  const change = BigInt(selection.outputs.find(output => !output.script)?.value ?? 0)
+  const inputs = selection.inputs.map(({ utxo }) => utxo)
 
-  return {
-    inputs: selection.inputs.map(({ utxo }) => utxo),
-    change: change >= getDustLimit(changeScript) ? change : 0n,
-  }
+  // coinselect drops change under 148 bytes x fee rate, so change is recomputed and kept down to the dust limit
+  const vbytesWithChange =
+    TX_OVERHEAD_BYTES +
+    inputs.length * INPUT_VBYTES[type] +
+    [...outputs.map(({ script }) => script), changeScript].reduce(
+      (sum, script) => sum + outputSize(script),
+      0,
+    )
+  const change =
+    inputs.reduce((sum, { value }) => sum + value, 0n) -
+    outputs.reduce((sum, { value }) => sum + value, 0n) -
+    BigInt(vbytesWithChange) * feePerByte
+
+  return { inputs, change: change >= getDustLimit(changeScript) ? change : 0n }
 }

@@ -1,162 +1,109 @@
-import type {
-  GetEvmTradeQuoteInput,
-  GetEvmTradeRateInput,
-  GetSolanaTradeQuoteInput,
-  GetSolanaTradeRateInput,
-} from '../../../types'
+import type { GetEvmTradeQuoteInput, GetEvmTradeRateInput } from '../../../types'
 
-export type AcrossTradeQuoteInput = GetEvmTradeQuoteInput | GetSolanaTradeQuoteInput
-export type AcrossTradeRateInput = GetEvmTradeRateInput | GetSolanaTradeRateInput
+export type AcrossTradeQuoteInput = GetEvmTradeQuoteInput
+export type AcrossTradeRateInput = GetEvmTradeRateInput
 
-export type AcrossTokenInfo = {
-  address: string
-  decimals: number
-  symbol: string
-  name: string
+export type AcrossMetadata = {
+  name: 'across'
+  orderId: string
+}
+
+type AcrossTokenRef = {
   chainId: number
+  address: string
 }
 
-export type AcrossSwapStep = {
-  tokenIn: AcrossTokenInfo
-  tokenOut: AcrossTokenInfo
-  inputAmount: string
-  outputAmount: string
-  minOutputAmount: string
-  maxInputAmount: string
-  swapProvider: { name: string; sources: string[] }
-  slippage: number
+export type AcrossQuoteRequest = {
+  origin: { token: AcrossTokenRef; amount: string; depositor: string }
+  destination: { token: AcrossTokenRef; recipient: string }
+  amountType: 'exact_input'
+  authorizationPolicy: { allowedTypes: ['approval'] }
+  appFeeBps?: number
 }
 
-export type AcrossFeePart = {
+type AcrossToken = AcrossTokenRef & {
+  kind: 'token' | 'native'
+  symbol: string
+  decimals: number
+}
+
+type AcrossFeeAmount = {
+  amount?: string
+  amountUsd?: string
+  token: AcrossToken
+}
+
+export type AcrossApprovalAction = {
+  kind: 'approve_token'
+  id: 'approval' | 'approval-reset'
+  chainId: number
+  tokenAddress: string
+  spender: string
   amount: string
-  pct: string
-  token: AcrossTokenInfo
 }
 
-export type AcrossBridgeFeeDetails = {
-  type: 'across'
-  relayerCapital: AcrossFeePart
-  destinationGas: AcrossFeePart
-  lp: AcrossFeePart
-}
-
-export type AcrossBridgeStep = {
-  inputAmount: string
-  outputAmount: string
-  tokenIn: AcrossTokenInfo
-  tokenOut: AcrossTokenInfo
-  fees: {
-    amount: string
-    pct: string
-    token: AcrossTokenInfo
-    details: AcrossBridgeFeeDetails
-  }
-  provider: string
-}
-
-export type AcrossFeeBreakdown = {
-  amount: string
-  amountUsd: string
-  token: AcrossTokenInfo
-  pct: string
-  details: {
-    type: string
-    swapImpact: { amount: string; amountUsd: string; token: AcrossTokenInfo; pct: string }
-    app: { amount: string; amountUsd: string; pct: string; token: AcrossTokenInfo }
-    bridge: AcrossBridgeStep['fees']
-  }
-}
-
-export type AcrossSwapTx = {
-  simulationSuccess: boolean
+export type AcrossTransactionAction = {
+  kind: 'send_transaction'
+  id: 'prefunded-store' | 'swap-execute'
+  ecosystem?: 'evm' | 'solana' | 'tron'
   chainId: number
   to: string
   data: string
-  value?: string
-  gas?: string
-  maxFeePerGas?: string
-  maxPriorityFeePerGas?: string
-  ecosystem: 'evm' | 'svm'
+  value: string
 }
 
-export type AcrossSwapApprovalResponse = {
-  crossSwapType:
-    | 'bridgeableToBridgeable'
-    | 'bridgeableToBridgeableIndirect'
-    | 'bridgeableToAny'
-    | 'anyToBridgeable'
-    | 'anyToAny'
-  amountType: string
+type AcrossOtherAction = {
+  kind: 'sign_typed_data' | 'sign_transaction' | 'submit_execution'
+  id: string
+}
 
-  approvalTxns: {
-    chainId: number
-    to: string
-    data: string
+export type AcrossNextAction = AcrossApprovalAction | AcrossTransactionAction | AcrossOtherAction
+
+export type AcrossGasEstimate = {
+  leg: 'origin' | 'destination'
+  effect: 'included_in_transfer_fee' | 'paid_by_wallet'
+  actionId?: string
+  amount: string
+  gasUnits?: string
+}
+
+export type AcrossQuote = {
+  orderId: string
+  expiresAt: string
+  originValidUntil: string
+  expectedFillTimeMs: number
+  origin: { token: AcrossToken; amount: string }
+  destination: { token: AcrossToken; amount: string; minAmount: string; grossAmount?: string }
+  fee: {
+    totalFee: AcrossFeeAmount
+    transferFee: AcrossFeeAmount
+    appFee: AcrossFeeAmount
+    maxTotalFee: AcrossFeeAmount
+    maxTransferFee: AcrossFeeAmount
+  }
+  gasEstimates?: AcrossGasEstimate[]
+  nextActions: AcrossNextAction[]
+}
+
+export type AcrossTransferState = 'pending' | 'completed' | 'refunded' | 'failed'
+
+export type AcrossTransfer = {
+  orderId: string
+  status: {
+    state: AcrossTransferState
+    reason: string
+    description: string
+    isTerminal: boolean
+  }
+  transactions: {
+    type: 'deposit' | 'fill' | 'refund' | 'intermediate'
+    transaction: { txnRef?: string | null; explorerUrl?: string | null }
   }[]
-
-  swapTx: AcrossSwapTx
-
-  checks: {
-    allowance: { token: string; spender: string; actual: string; expected: string }
-    balance: { token: string; actual: string; expected: string }
-  }
-
-  steps: {
-    originSwap?: AcrossSwapStep
-    bridge: AcrossBridgeStep
-    destinationSwap?: AcrossSwapStep
-  }
-
-  inputToken: AcrossTokenInfo
-  outputToken: AcrossTokenInfo
-  refundToken: AcrossTokenInfo
-
-  inputAmount: string
-  maxInputAmount: string
-  expectedOutputAmount: string
-  minOutputAmount: string
-
-  fees: {
-    total: AcrossFeeBreakdown
-    totalMax: AcrossFeeBreakdown
-    originGas: { amount: string; amountUsd: string; token: AcrossTokenInfo }
-  }
-
-  expectedFillTime: number
-  quoteExpiryTimestamp: number
-  id: string
 }
 
-export type AcrossDepositStatus = {
-  status: 'filled' | 'pending' | 'expired' | 'refunded' | 'slowFillRequested'
-  fillTxnRef?: string
-  destinationChainId: number
-  originChainId: number
-  depositId: number
-  depositTxnRef: string
-  depositRefundTxnRef?: string
-  actionsSucceeded?: boolean
-  pagination: { currentIndex: number; maxIndex: number }
-}
-
-export type AcrossError = {
-  type: string
+export type AcrossApiError = {
   code: string
-  status: number
   message: string
-  id: string
-}
-
-export const isAcrossError = (error: unknown): error is AcrossError => {
-  return typeof error === 'object' && error !== null && 'code' in error && 'status' in error
-}
-
-export enum AcrossErrorCode {
-  InvalidParam = 'INVALID_PARAM',
-  AmountTooLow = 'AMOUNT_TOO_LOW',
-  RouteNotFound = 'ROUTE_NOT_FOUND',
-  NoBridgeRoutes = 'NO_BRIDGE_ROUTES',
-  UnsupportedToken = 'UNSUPPORTED_TOKEN',
-  InsufficientLiquidity = 'INSUFFICIENT_LIQUIDITY',
-  InternalError = 'INTERNAL_ERROR',
+  param?: string
+  details?: { amountLimits?: { side: 'min' | 'max' } }
 }

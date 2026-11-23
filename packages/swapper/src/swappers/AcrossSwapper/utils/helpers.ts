@@ -1,9 +1,4 @@
-import {
-  fromAssetId,
-  isAssetReference,
-  solanaChainId,
-  usdcOnSolanaAssetId,
-} from '@shapeshiftoss/caip'
+import { fromAssetId, isAssetReference, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -12,23 +7,19 @@ import { zeroAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../../utils/helpers'
 import {
-  ACROSS_SOLANA_TOKEN_ADDRESS,
+  ACROSS_SOLANA_NATIVE_TOKEN_ADDRESS,
   chainIdToAcrossChainId,
-  DEFAULT_ACROSS_EVM_TOKEN_ADDRESS,
   DEFAULT_ACROSS_EVM_USER_ADDRESS,
   DEFAULT_ACROSS_SOLANA_USER_ADDRESS,
 } from '../constant'
 
 export const getAcrossAssetAddress = (assetId: string): string => {
-  if (isNativeEvmAsset(assetId)) return DEFAULT_ACROSS_EVM_TOKEN_ADDRESS
-
   const { chainId, assetReference } = fromAssetId(assetId)
-  if (chainId === solanaChainId && !isAssetReference(assetReference)) return assetReference
-  if (chainId === solanaChainId) return ACROSS_SOLANA_TOKEN_ADDRESS
 
-  return isAssetReference(assetReference) ? zeroAddress : assetReference
+  if (!isAssetReference(assetReference)) return assetReference
+
+  return chainId === solanaChainId ? ACROSS_SOLANA_NATIVE_TOKEN_ADDRESS : zeroAddress
 }
 
 export const getDefaultUserAddress = (chainId: string): string => {
@@ -39,9 +30,11 @@ export const getDefaultUserAddress = (chainId: string): string => {
 export const assertValidTrade = ({
   sellAsset,
   buyAsset,
+  isSolanaEnabled,
 }: {
   sellAsset: Asset
   buyAsset: Asset
+  isSolanaEnabled: boolean
 }): Result<{ sellAcrossChainId: number; buyAcrossChainId: number }, SwapErrorRight> => {
   if (sellAsset.chainId === buyAsset.chainId) {
     return Err(
@@ -73,22 +66,21 @@ export const assertValidTrade = ({
     )
   }
 
-  // Across only supports USDC as the bridgeable token on Solana destinations
-  if (buyAsset.chainId === solanaChainId && buyAsset.assetId !== usdcOnSolanaAssetId) {
+  // Solana origins need a post-broadcast execution submission, which isn't wired yet
+  if (sellAsset.chainId === solanaChainId) {
     return Err(
       makeSwapErrorRight({
-        message: 'Across only supports USDC as destination token on Solana',
-        code: TradeQuoteError.UnsupportedTradePair,
+        message: 'Across does not support Solana as a source chain',
+        code: TradeQuoteError.UnsupportedChain,
       }),
     )
   }
 
-  // Routes involving Solana are bridge-only, so a Solana origin must also be USDC
-  if (sellAsset.chainId === solanaChainId && sellAsset.assetId !== usdcOnSolanaAssetId) {
+  if (buyAsset.chainId === solanaChainId && !isSolanaEnabled) {
     return Err(
       makeSwapErrorRight({
-        message: 'Across only supports USDC as source token on Solana',
-        code: TradeQuoteError.UnsupportedTradePair,
+        message: 'Across Solana routes are not enabled',
+        code: TradeQuoteError.UnsupportedChain,
       }),
     )
   }

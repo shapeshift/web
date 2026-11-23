@@ -4,8 +4,8 @@ import axios from 'axios'
 import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { getTradeRate } from './getTradeRate/getTradeRate'
+import { getAcrossTradeQuote } from './swapperApi/getTradeQuote'
+import { getAcrossTradeRate } from './swapperApi/getTradeRate'
 import { acrossService } from './utils/acrossService'
 import type {
   AcrossApiError,
@@ -15,8 +15,8 @@ import type {
 } from './utils/types'
 
 export const acrossApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input as AcrossTradeQuoteInput, deps),
-  getTradeRate: (input, deps) => getTradeRate(input as AcrossTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getAcrossTradeQuote(input as AcrossTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getAcrossTradeRate(input as AcrossTradeRateInput, deps),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
   checkTradeStatus: async ({

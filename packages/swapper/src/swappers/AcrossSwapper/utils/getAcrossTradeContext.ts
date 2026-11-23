@@ -212,7 +212,7 @@ export const getAcrossTradeContext = async ({
 
         return buildAffiliateFee({
           strategy: 'buy_asset',
-          affiliateBps,
+          affiliateBps: appFeeBps.toString(),
           sellAsset,
           buyAsset,
           sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,

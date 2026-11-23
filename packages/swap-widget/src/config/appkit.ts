@@ -21,6 +21,7 @@ import { createAppKit, modal } from '@reown/appkit/react'
 import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
 import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { getBaseAsset } from '@shapeshiftoss/utils'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
@@ -45,6 +46,12 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   elysium,
   robinhood,
 ]
+
+const CHAIN_IMAGES = EVM_NETWORKS.reduce<Record<number | string, string>>((images, { id }) => {
+  const asset = getBaseAsset(`eip155:${id}`)
+  const image = asset.networkIcon ?? asset.icon
+  return image ? { ...images, [id]: image } : images
+}, {})
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]
 
@@ -97,6 +104,7 @@ export const initializeAppKit = (projectId: string): void => {
     adapters: [wagmiAdapter, bitcoinAdapter, solanaAdapter],
     projectId,
     networks: [...ALL_NETWORKS] as [AppKitNetwork, ...AppKitNetwork[]],
+    chainImages: CHAIN_IMAGES,
     features: {
       send: false,
     },

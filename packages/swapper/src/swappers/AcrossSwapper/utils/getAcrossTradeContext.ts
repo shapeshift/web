@@ -177,6 +177,24 @@ export const getAcrossTradeContext = async ({
         .toFixed()
     : undefined
 
+  const userSlippageTolerancePercentageDecimal = input.slippageTolerancePercentageDecimal
+
+  // Across can't apply a custom slippage, so only offer quotes whose guaranteed minimum is within it
+  if (
+    userSlippageTolerancePercentageDecimal &&
+    bnOrZero(slippageTolerancePercentageDecimal).gt(userSlippageTolerancePercentageDecimal)
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getAcrossTradeContext] slippage exceeds the custom slippage tolerance',
+        code: TradeQuoteError.FinalQuoteMaxSlippageExceeded,
+        details: {
+          expectedSlippage: bnOrZero(slippageTolerancePercentageDecimal).times(100).toFixed(2),
+        },
+      }),
+    )
+  }
+
   const walletGasEstimate = quote.gasEstimates?.find(
     estimate => estimate.effect === 'paid_by_wallet' && estimate.actionId === 'prefunded-store',
   )

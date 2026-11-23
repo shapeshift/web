@@ -21,11 +21,11 @@ import { createAppKit, modal } from '@reown/appkit/react'
 import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
 import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { getBaseAsset } from '@shapeshiftoss/utils'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
 
+import { getChainIcon } from '../constants/chains'
 import { elysium } from '../constants/viemChains'
 import { guardWalletInitiatedConnects } from './walletInitiatedConnect'
 
@@ -47,13 +47,18 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   robinhood,
 ]
 
-const CHAIN_IMAGES = EVM_NETWORKS.reduce<Record<number | string, string>>((images, { id }) => {
-  const asset = getBaseAsset(`eip155:${id}`)
-  const image = asset.networkIcon ?? asset.icon
-  return image ? { ...images, [id]: image } : images
-}, {})
-
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]
+
+// Reown has no artwork for some networks (Monad, MegaETH, ...) and renders a globe;
+// supply our own icons, keyed by network id as AppKit expects.
+const CHAIN_IMAGES: Record<number | string, string> = Object.fromEntries(
+  ALL_NETWORKS.flatMap(network => {
+    // EVM entries are plain viem chains without a caipNetworkId
+    const chainId = 'caipNetworkId' in network ? network.caipNetworkId : `eip155:${network.id}`
+    const image = getChainIcon(chainId)
+    return image ? [[network.id, image]] : []
+  }),
+)
 
 // AppKit keeps a module-level `modal` singleton, set by `createAppKit` whether
 // it's called by this widget (self-init) or by the host app. Reading it lets the

@@ -1,16 +1,7 @@
-import { solanaChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import {
-  BigAmount,
-  bnOrZero,
-  chainIdToFeeAssetId,
-  convertPrecision,
-  isTreasuryChainId,
-} from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
-import { zeroAddress } from 'viem'
 
 import type {
   QuoteFeeData,
@@ -22,13 +13,18 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { getTreasuryAddressFromChainId, normalizeEpochToMs } from '../../../utils/helpers'
-import { acrossChainIdToChainId, acrossErrorCodeToTradeQuoteError } from '../constant'
+import { acrossErrorCodeToTradeQuoteError } from '../constant'
 import { fetchAcrossTrade } from './fetchAcrossTrade'
 import type { GetAcrossStepDataArgs } from './getAcrossStepData'
 import { assertValidTrade, getAcrossAssetAddress } from './helpers'
-import type { AcrossTradeQuoteInput, AcrossTradeRateInput } from './types'
-import { isAcrossError } from './types'
+import type {
+  AcrossApiError,
+  AcrossApprovalAction,
+  AcrossTradeQuoteInput,
+  AcrossTradeRateInput,
+  AcrossTransactionAction,
+} from './types'
+import { getAcrossApiError } from './types'
 
 type AcrossTradeContext = {
   tradeCommon: TradeCommon
@@ -36,6 +32,16 @@ type AcrossTradeContext = {
   protocolFees: QuoteFeeData['protocolFees']
   stepDataArgs: Omit<GetAcrossStepDataArgs, 'type' | 'input'>
   deadline: number
+}
+
+const getTradeQuoteError = (error: AcrossApiError): TradeQuoteError => {
+  if (error.code === 'policy.amount_out_of_range') {
+    return error.details?.amountLimits?.side === 'max'
+      ? TradeQuoteError.NoRouteFound
+      : TradeQuoteError.SellAmountBelowMinimum
+  }
+
+  return acrossErrorCodeToTradeQuoteError[error.code] ?? TradeQuoteError.UnknownError
 }
 
 export const getAcrossTradeContext = async ({
@@ -55,48 +61,22 @@ export const getAcrossTradeContext = async ({
   if (assertion.isErr()) return Err(assertion.unwrapErr())
   const { sellAcrossChainId, buyAcrossChainId } = assertion.unwrap()
 
-  const isSolanaRoute = sellAsset.chainId === solanaChainId || buyAsset.chainId === solanaChainId
-
-  const appFee = (() => {
-    if (isSolanaRoute) return
-    if (!isTreasuryChainId(buyAsset.chainId)) return
-
-    const bps = bnOrZero(affiliateBps)
-    if (!bps.isFinite() || bps.lte(0)) return
-
-    return bps.div(10000).toNumber()
-  })()
-
-  const appFeeRecipient = (() => {
-    if (appFee === undefined) return
-
-    try {
-      return getTreasuryAddressFromChainId(buyAsset.chainId).toLowerCase()
-    } catch (e) {
-      console.error(
-        `[getAcrossTradeContext] Failed to get treasury address for chainId ${buyAsset.chainId}, affiliate fee will not be applied`,
-        e,
-      )
-    }
-  })()
-
-  const slippage = input.slippageTolerancePercentageDecimal ?? 'auto'
-  const integratorId = deps.config.VITE_ACROSS_INTEGRATOR_ID || undefined
+  const appFeeBps = bnOrZero(affiliateBps).toNumber()
 
   const maybeQuote = await fetchAcrossTrade(
     {
-      tradeType: 'exactInput',
-      amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      inputToken: getAcrossAssetAddress(sellAsset.assetId),
-      outputToken: getAcrossAssetAddress(buyAsset.assetId),
-      originChainId: sellAcrossChainId,
-      destinationChainId: buyAcrossChainId,
-      depositor,
-      recipient,
-      appFee,
-      appFeeRecipient,
-      integratorId,
-      slippage,
+      origin: {
+        token: { chainId: sellAcrossChainId, address: getAcrossAssetAddress(sellAsset.assetId) },
+        amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        depositor,
+      },
+      destination: {
+        token: { chainId: buyAcrossChainId, address: getAcrossAssetAddress(buyAsset.assetId) },
+        recipient,
+      },
+      amountType: 'exact_input',
+      authorizationPolicy: { allowedTypes: ['approval'] },
+      ...(appFeeBps > 0 && { appFeeBps }),
     },
     deps.config,
   )
@@ -104,33 +84,67 @@ export const getAcrossTradeContext = async ({
   if (maybeQuote.isErr()) {
     const error = maybeQuote.unwrapErr()
 
-    if (!axios.isAxiosError(error.cause)) {
+    const acrossError = axios.isAxiosError(error.cause)
+      ? getAcrossApiError(error.cause.response?.data)
+      : undefined
+
+    if (!acrossError) {
       return Err(
         makeSwapErrorRight({ message: 'Unknown error', code: TradeQuoteError.UnknownError }),
       )
     }
-
-    const acrossError = error.cause?.response?.data
-
-    if (!isAcrossError(acrossError)) {
-      return Err(
-        makeSwapErrorRight({ message: 'Unknown error', code: TradeQuoteError.UnknownError }),
-      )
-    }
-
-    const tradeQuoteErrorCode = acrossErrorCodeToTradeQuoteError[acrossError.code]
 
     return Err(
       makeSwapErrorRight({
         message: acrossError.message,
-        code: tradeQuoteErrorCode ?? TradeQuoteError.UnknownError,
+        code: getTradeQuoteError(acrossError),
+        details: { code: acrossError.code, param: acrossError.param },
       }),
     )
   }
 
   const { data: quote } = maybeQuote.unwrap()
 
-  const buyAmountAfterFeesCryptoBaseUnit = quote.expectedOutputAmount
+  const approvalAction = quote.nextActions.find(
+    (action): action is AcrossApprovalAction =>
+      action.kind === 'approve_token' && action.id === 'approval',
+  )
+
+  const transactionAction = quote.nextActions.find(
+    (action): action is AcrossTransactionAction =>
+      action.kind === 'send_transaction' && action.id === 'prefunded-store',
+  )
+
+  const hasUnsupportedAction = quote.nextActions.some(
+    action => action.kind !== 'approve_token' && action !== transactionAction,
+  )
+
+  if (!transactionAction || hasUnsupportedAction) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getAcrossTradeContext] unsupported actions: ${quote.nextActions
+          .map(action => action.id)
+          .join(', ')}`,
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
+
+  const buyAmountAfterFeesCryptoBaseUnit = quote.destination.amount
+
+  const buyAmountBeforeFeesCryptoBaseUnit =
+    quote.destination.grossAmount ??
+    BigAmount.fromBaseUnit({
+      value: buyAmountAfterFeesCryptoBaseUnit,
+      precision: buyAsset.precision,
+    })
+      .plus(
+        BigAmount.fromBaseUnit({
+          value: quote.fee.totalFee.amount ?? quote.fee.appFee.amount ?? '0',
+          precision: buyAsset.precision,
+        }),
+      )
+      .toBaseUnit()
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -139,78 +153,27 @@ export const getAcrossTradeContext = async ({
     buyAsset,
   })
 
-  const bridgeFeeAmount = quote.fees.total.amount
-  const bridgeFeeAsset = quote.fees.total.token
-
-  const buyAssetAcrossAddress = getAcrossAssetAddress(buyAsset.assetId)
-
-  const isBridgeFeeInBuyAsset =
-    bridgeFeeAsset.chainId === buyAcrossChainId &&
-    (bridgeFeeAsset.address === buyAssetAcrossAddress ||
-      (isEvmChainId(buyAsset.chainId) &&
-        bridgeFeeAsset.address.toLowerCase() === buyAssetAcrossAddress.toLowerCase()))
-
-  const buyAmountBeforeFeesCryptoBaseUnit = (() => {
-    if (!isBridgeFeeInBuyAsset) return buyAmountAfterFeesCryptoBaseUnit
-
-    const bridgeFeeInBuyAssetPrecision = BigAmount.fromBaseUnit({
-      value: convertPrecision({
-        value: bridgeFeeAmount,
-        inputExponent: bridgeFeeAsset.decimals,
-        outputExponent: buyAsset.precision,
-      }).toFixed(0),
-      precision: buyAsset.precision,
-    })
-
-    return BigAmount.fromBaseUnit({
-      value: buyAmountAfterFeesCryptoBaseUnit,
-      precision: buyAsset.precision,
-    })
-      .plus(bridgeFeeInBuyAssetPrecision)
-      .toBaseUnit()
-  })()
-
-  // Build protocol fee asset ID — Across returns its own numeric chain IDs, convert to CAIP
-  const bridgeFeeAssetCaipChainId = acrossChainIdToChainId[bridgeFeeAsset.chainId.toString()]
-
-  const bridgeFeeAssetId = (() => {
-    if (!bridgeFeeAssetCaipChainId) return
-
-    const isNativeFeeAsset = (() => {
-      if (bridgeFeeAssetCaipChainId === solanaChainId) {
-        return (
-          bridgeFeeAsset.address === 'So11111111111111111111111111111111111111112' ||
-          bridgeFeeAsset.address === zeroAddress
-        )
-      }
-      return bridgeFeeAsset.address === zeroAddress
-    })()
-
-    if (isNativeFeeAsset) return chainIdToFeeAssetId(bridgeFeeAssetCaipChainId)
-
-    const tokenStandard = bridgeFeeAssetCaipChainId.startsWith('solana') ? 'token' : 'erc20'
-    return `${bridgeFeeAssetCaipChainId}/${tokenStandard}:${bridgeFeeAsset.address}`
-  })()
-
-  const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
-
-  const protocolFees: QuoteFeeData['protocolFees'] = bridgeFeeAssetId
+  // Fees are always denominated in the destination token
+  const protocolFees: QuoteFeeData['protocolFees'] = quote.fee.transferFee.amount
     ? {
-        [bridgeFeeAssetId]: {
-          amountCryptoBaseUnit: bridgeFeeAmount,
-          asset: {
-            symbol: bridgeFeeAsset.symbol,
-            chainId: bridgeFeeAssetCaipChainId,
-            precision: bridgeFeeAsset.decimals,
-          },
+        [buyAsset.assetId]: {
+          amountCryptoBaseUnit: quote.fee.transferFee.amount,
+          asset: buyAsset,
           requiresBalance: false,
         },
       }
     : {}
 
+  // Approvals are skipped when the depositor already has allowance, the deposit contract is the spender
+  const allowanceContract = approvalAction?.spender ?? transactionAction.to
+
+  const walletGasEstimate = quote.gasEstimates?.find(
+    estimate => estimate.effect === 'paid_by_wallet' && estimate.actionId === 'prefunded-store',
+  )
+
   return Ok({
     tradeCommon: {
-      id: quote.id,
+      id: quote.orderId,
       rate,
       swapperName: SwapperName.Across,
       affiliateBps,
@@ -225,9 +188,9 @@ export const getAcrossTradeContext = async ({
       buyAsset,
       sellAsset,
       source: SwapperName.Across,
-      estimatedExecutionTimeMs: quote.expectedFillTime * 1000,
+      estimatedExecutionTimeMs: quote.expectedFillTimeMs,
       affiliateFee:
-        appFee !== undefined && appFeeRecipient !== undefined
+        appFeeBps > 0
           ? buildAffiliateFee({
               strategy: 'buy_asset',
               affiliateBps,
@@ -240,14 +203,15 @@ export const getAcrossTradeContext = async ({
     },
     protocolFees,
     stepDataArgs: {
-      swapTx: quote.swapTx,
+      transactionAction,
       sellAsset,
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       from: depositor,
       spenderAddress: allowanceContract,
-      fallbackNetworkFeeCryptoBaseUnit: quote.fees.originGas.amount,
+      providerGasLimit: walletGasEstimate?.gasUnits,
+      fallbackNetworkFeeCryptoBaseUnit: walletGasEstimate?.amount ?? '0',
       deps,
     },
-    deadline: normalizeEpochToMs(quote.quoteExpiryTimestamp),
+    deadline: new Date(quote.originValidUntil).getTime(),
   })
 }

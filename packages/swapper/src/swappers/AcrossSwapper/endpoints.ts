@@ -1,16 +1,15 @@
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { SwapperApi } from '../../types'
-import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { checkEvmSwapStatus } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
-import { acrossService, getAcrossRequestConfig } from './utils/acrossService'
+import { acrossService } from './utils/acrossService'
 import type {
-  AcrossDepositStatus,
   AcrossTradeQuoteInput,
   AcrossTradeRateInput,
+  AcrossTransfersResponse,
 } from './utils/types'
 
 export const acrossApi: SwapperApi = {
@@ -18,18 +17,6 @@ export const acrossApi: SwapperApi = {
   getTradeRate: (input, deps) => getTradeRate(input as AcrossTradeRateInput, deps),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
-  getUnsignedSolanaMessage: ({ tradeQuote, stepIndex }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('unable to execute a trade rate')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { transactionData } = step
-    if (transactionData?.type !== 'solana_serialized_tx') {
-      throw new Error('invalid solana transaction')
-    }
-
-    return Promise.resolve({ serializedTx: transactionData.serializedTx })
-  },
   checkTradeStatus: async ({
     txHash,
     chainId,
@@ -38,73 +25,54 @@ export const acrossApi: SwapperApi = {
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }) => {
-    if (isEvmChainId(chainId)) {
-      const sourceTxStatus = await checkEvmSwapStatus({
-        txHash,
-        chainId,
-        address,
-        assertGetEvmChainAdapter,
-        fetchIsSmartContractAddressQuery,
-      })
+    const sourceTxStatus = await checkEvmSwapStatus({
+      txHash,
+      chainId,
+      address,
+      assertGetEvmChainAdapter,
+      fetchIsSmartContractAddressQuery,
+    })
 
-      if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
+    if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
 
-      txHash = sourceTxStatus.buyTxHash ?? txHash
-    }
+    const depositTxHash = sourceTxStatus.buyTxHash ?? txHash
 
-    const maybeStatusResponse = await acrossService.get<AcrossDepositStatus>(
-      `${config.VITE_ACROSS_API_URL}/deposit/status?depositTxnRef=${txHash}`,
-      getAcrossRequestConfig(config),
+    const maybeTransfersResponse = await acrossService.get<AcrossTransfersResponse>(
+      `${config.VITE_ACROSS_API_URL}/v1/transfers`,
+      { params: { txnRef: depositTxHash } },
     )
 
-    if (maybeStatusResponse.isErr()) {
-      return {
-        buyTxHash: undefined,
-        status: TxStatus.Unknown,
-        message: undefined,
-      }
+    if (maybeTransfersResponse.isErr()) {
+      return { buyTxHash: undefined, status: TxStatus.Unknown, message: undefined }
     }
 
-    const { data: statusResponse } = maybeStatusResponse.unwrap()
+    const [transfer] = maybeTransfersResponse.unwrap().data.transfers
+
+    // The deposit can land before Across indexes it
+    if (!transfer) return { buyTxHash: undefined, status: TxStatus.Pending, message: undefined }
 
     const status = (() => {
-      switch (statusResponse.status) {
-        case 'filled':
+      switch (transfer.status.state) {
+        case 'completed':
           return TxStatus.Confirmed
         case 'pending':
           return TxStatus.Pending
-        case 'slowFillRequested':
-          return TxStatus.Pending
-        case 'expired':
-          return TxStatus.Failed
         case 'refunded':
+        case 'failed':
           return TxStatus.Failed
         default:
           return TxStatus.Unknown
       }
     })()
 
-    const message = (() => {
-      switch (statusResponse.status) {
-        case 'pending':
-          return 'Deposit detected, processing...'
-        case 'slowFillRequested':
-          return 'Taking longer than usual, waiting for fill...'
-        case 'expired':
-          return 'Deposit expired'
-        case 'refunded':
-          return 'Deposit refunded on origin chain'
-        default:
-          return undefined
-      }
-    })()
-
-    const buyTxHash = statusResponse.fillTxnRef
+    const buyTxHash =
+      transfer.transactions.find(({ type }) => type === 'fill')?.transaction.txnRef ?? undefined
 
     return {
       status,
       buyTxHash,
-      message,
+      message: status === TxStatus.Confirmed ? undefined : transfer.status.description,
+      swapperTxId: transfer.orderId,
     }
   },
 }

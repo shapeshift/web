@@ -93,8 +93,6 @@ export type SwapperConfig = {
   VITE_NEAR_INTENTS_API_KEY: string
   VITE_SUI_NODE_URL: string
   VITE_ACROSS_API_URL: string
-  VITE_ACROSS_INTEGRATOR_ID: string
-  VITE_ACROSS_API_KEY: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
   VITE_SYMBIOSIS_API_URL: string

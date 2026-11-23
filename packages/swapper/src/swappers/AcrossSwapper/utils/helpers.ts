@@ -14,7 +14,6 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import {
-  ACROSS_SOLANA_TOKEN_ADDRESS,
   chainIdToAcrossChainId,
   DEFAULT_ACROSS_EVM_TOKEN_ADDRESS,
   DEFAULT_ACROSS_EVM_USER_ADDRESS,
@@ -24,9 +23,7 @@ import {
 export const getAcrossAssetAddress = (assetId: string): string => {
   if (isNativeEvmAsset(assetId)) return DEFAULT_ACROSS_EVM_TOKEN_ADDRESS
 
-  const { chainId, assetReference } = fromAssetId(assetId)
-  if (chainId === solanaChainId && !isAssetReference(assetReference)) return assetReference
-  if (chainId === solanaChainId) return ACROSS_SOLANA_TOKEN_ADDRESS
+  const { assetReference } = fromAssetId(assetId)
 
   return isAssetReference(assetReference) ? zeroAddress : assetReference
 }
@@ -83,12 +80,12 @@ export const assertValidTrade = ({
     )
   }
 
-  // Routes involving Solana are bridge-only, so a Solana origin must also be USDC
-  if (sellAsset.chainId === solanaChainId && sellAsset.assetId !== usdcOnSolanaAssetId) {
+  // Solana origins need a post-broadcast execution submission, which isn't wired yet
+  if (sellAsset.chainId === solanaChainId) {
     return Err(
       makeSwapErrorRight({
-        message: 'Across only supports USDC as source token on Solana',
-        code: TradeQuoteError.UnsupportedTradePair,
+        message: 'Across does not support Solana as a source chain',
+        code: TradeQuoteError.UnsupportedChain,
       }),
     )
   }

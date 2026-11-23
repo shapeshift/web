@@ -1038,7 +1038,7 @@
       "smartContractWalletNotSupported": "Akıllı sözleşme cüzdanı desteklenmiyor",
       "unsafeQuote": "Bu miktar, bu çift için önerilen minimum tutarın altındadır (%{recommendedMin} %{symbol}). Bu, işleminizin başarısız olmasına veya fon kaybına neden olabilir.",
       "rateLimitExceeded": "Limit aşıldı, daha sonra tekrar deneyin",
-      "maxSlippageExceededWithExpectedSlippage": "Bu işlem için izin verilen maksimum kayma toleransı aşıldı. Beklenen kayma: %{expectedSlippage}%. Daha yüksek bir kayma toleransıyla tekrar deneyin.",
+      "maxSlippageExceededWithExpectedSlippage": "Bu işlem için izin verilen maksimum kayma toleransı simülasyon sırasında aşıldı. Beklenen kayma: %{expectedSlippage}%. Daha yüksek bir kayma toleransıyla tekrar deneyin.",
       "executionRevertedWithExpectedSlippage": "Yürütme sırasında geri döndürüldü. Bu, yetersiz kayma toleransından kaynaklanıyor olabilir. Beklenen kayma: %{expectedSlippage}%. Daha yüksek bir kayma toleransıyla tekrar deneyin.",
       "slippageToleranceExceeded": "Kayma toleransı aşıldı.",
       "underMinimumAmount": "Bu işlemdeki varlıklardan bir veya daha fazlası, bu işlem için gereken asgari tutarın altındadır.",

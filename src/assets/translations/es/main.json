@@ -1038,7 +1038,7 @@
       "smartContractWalletNotSupported": "Billetera no soporta contrato inteligente",
       "unsafeQuote": "Cantidad debajo del mínimo recomendado para este par (%{recommendedMin} %{symbol}). Esto podría provocar fracaso o pérdida de fondos.",
       "rateLimitExceeded": "Se superó el límite de tarifa, intente más tarde",
-      "maxSlippageExceededWithExpectedSlippage": "Se excedió la tolerancia máxima de deslizamiento permitida. Deslizamiento esperado: %{expectedSlippage}%. Inténtalo nuevamente con una tolerancia mayor.",
+      "maxSlippageExceededWithExpectedSlippage": "Durante la simulación se excedió la tolerancia máxima de deslizamiento permitida. Deslizamiento esperado: %{expectedSlippage}%. Inténtelo nuevamente con una tolerancia mayor.",
       "executionRevertedWithExpectedSlippage": "Ejecución revertida durante ejecución. Puede deberse a una tolerancia de deslizamiento insuficiente. Deslizamiento esperado: %{expectedSlippage}%. Inténtelo nuevamente con tolerancia mayor.",
       "slippageToleranceExceeded": "Tolerancia para deslizamiento excedida.",
       "underMinimumAmount": "Uno o más activos en esta operación están por debajo del monto mínimo requerido para la operación.",

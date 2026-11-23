@@ -1038,7 +1038,7 @@
       "smartContractWalletNotSupported": "スマートコントラクトウォレットはサポートされていません",
       "unsafeQuote": "この量は、このペアの推奨最小値 (%{recommendedMin} %{symbol}) を下回っています。これにより、取引が失敗したり、資金が損失したりする可能性があります。",
       "rateLimitExceeded": "レート制限を超えました。しばらくしてからもう一度お試しください",
-      "maxSlippageExceededWithExpectedSlippage": "この取引の最大許容スリッページを超えました。 予想されるスリッページ: %{expectedSlippage}%。 より高いスリッページ許容値でもう一度お試しください。",
+      "maxSlippageExceededWithExpectedSlippage": "シミュレーション中に、この取引の最大許容スリッページを超えました。 予想されるスリッページ: %{expectedSlippage}%。 より高いスリッページ許容値でもう一度お試しください。",
       "executionRevertedWithExpectedSlippage": "実行中が中断されました。これは、スリップ許容度が不十分なことが原因である可能性があります。予想されるスリップ: %{expectedSlippage}%。より高いスリップ許容度で再試行してください。",
       "slippageToleranceExceeded": "スリッページ許容値を超えました。",
       "underMinimumAmount": "この取引の資産の 1 つ以上が、この取引に必要な最小額を下回ってしまっています。",

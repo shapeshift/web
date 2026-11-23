@@ -1038,7 +1038,7 @@
       "smartContractWalletNotSupported": "不支持智能合约钱包",
       "unsafeQuote": "此金额低于该交易对的建议最小值 (%{recommendedMin} %{symbol})。这可能会导致你的交易失败或资金损失。",
       "rateLimitExceeded": "超出费率限制，请稍后重试",
-      "maxSlippageExceededWithExpectedSlippage": "此交易超出了滑点容差。预计滑点：%{expectedSlippage}%。请使用更高的滑点容差重试。",
+      "maxSlippageExceededWithExpectedSlippage": "此交易在模拟过程中超出了滑点容差。预计滑点：%{expectedSlippage}%。请使用更高的滑点容差重试。",
       "executionRevertedWithExpectedSlippage": "在执行时发生回滚。这可能是由于滑点容差不足。预计滑点：%{expectedSlippage}%。请使用更高的滑点容差重试。",
       "slippageToleranceExceeded": "超出滑点容差",
       "underMinimumAmount": "此交易中的一种或多种资产低于最低要求数量。",

@@ -24,7 +24,6 @@ import type {
   AcrossTradeRateInput,
   AcrossTransactionAction,
 } from './types'
-import { getAcrossApiError } from './types'
 
 type AcrossTradeContext = {
   tradeCommon: TradeCommon
@@ -84,11 +83,11 @@ export const getAcrossTradeContext = async ({
   if (maybeQuote.isErr()) {
     const error = maybeQuote.unwrapErr()
 
-    const acrossError = axios.isAxiosError(error.cause)
-      ? getAcrossApiError(error.cause.response?.data)
+    const acrossError = axios.isAxiosError<AcrossApiError>(error.cause)
+      ? error.cause.response?.data
       : undefined
 
-    if (!acrossError) {
+    if (!acrossError?.code) {
       return Err(
         makeSwapErrorRight({ message: 'Unknown error', code: TradeQuoteError.UnknownError }),
       )

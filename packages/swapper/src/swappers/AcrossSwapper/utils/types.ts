@@ -107,14 +107,3 @@ export type AcrossApiError = {
   param?: string
   details?: { amountLimits?: { side: 'min' | 'max' } }
 }
-
-// The API wraps errors in `error`, the gateway (401/429) returns them flat
-export const getAcrossApiError = (data: unknown): AcrossApiError | undefined => {
-  if (typeof data !== 'object' || data === null) return
-
-  const error = 'error' in data ? data.error : data
-  if (typeof error !== 'object' || error === null) return
-  if (!('code' in error) || typeof error.code !== 'string') return
-
-  return error as AcrossApiError
-}

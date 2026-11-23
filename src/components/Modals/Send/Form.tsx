@@ -1,14 +1,14 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
+import { applyQrScanAsset } from './applyQrScanAsset'
 import { useCompleteSendFlow } from './hooks/useCompleteSendFlow'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -18,19 +18,17 @@ import { Confirm } from './views/Confirm'
 
 import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
-import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { SelectAssets } from '@/components/SelectAssets/SelectAssets'
 import { SlideTransition } from '@/components/SlideTransition'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
 import { parseUrlDirect } from '@/lib/address/bip21'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectFirstAccountIdByChainId,
-  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -183,6 +181,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   // The QR code scanning was succesful, doesn't mean the address itself is valid
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
+      setAddressError(null)
       try {
         const urlDirectResult = parseUrlDirect(decodedText)
 
@@ -197,79 +196,36 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           return parseAddress({ address: decodedText })
         })()
 
-        const address = urlDirectResult
-          ? urlDirectResult.maybeAddress
-          : (
-              await parseAddressInputWithChainId({
-                assetId: maybeUrlResult.assetId,
-                chainId: maybeUrlResult.chainId,
-                urlOrAddress: decodedText,
-              })
-            ).address
+        const { address, vanityAddress } = urlDirectResult
+          ? {
+              address: urlDirectResult.maybeAddress,
+              vanityAddress: urlDirectResult.maybeAddress,
+            }
+          : await parseAddressInputWithChainId({
+              assetId: maybeUrlResult.assetId,
+              chainId: maybeUrlResult.chainId,
+              urlOrAddress: decodedText,
+            })
 
         methods.setValue(SendFormFields.Input, address)
 
-        // Update assetId and accountId if detected from QR code
-        if (maybeUrlResult.assetId) {
-          const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
-          const supportsErc681 =
-            chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
-          const isAmbiguousAsset = supportsErc681 && !isToken(maybeUrlResult.assetId)
+        if (!maybeUrlResult.assetId) return navigate(SendRoutes.Address)
 
-          // If the QR code didn't explicitly specify a token (plain address scan),
-          // and we already have an asset from the page context on the same chain, keep it
-          const resolvedAssetId = (() => {
-            if (isAmbiguousAsset && initialAssetId) {
-              const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
-                fromAssetId(initialAssetId)
-              const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
-              const chainMatch = urlDirectResult
-                ? contextChainId === qrChainId
-                : contextChainNamespace === chainNamespace
-              if (chainMatch) {
-                return initialAssetId
-              }
-            }
-            return maybeUrlResult.assetId
-          })()
+        const { isAmbiguous } = applyQrScanAsset(methods, {
+          qrAssetId: maybeUrlResult.assetId,
+          amountCryptoPrecision: maybeUrlResult.amountCryptoPrecision,
+          isPaymentUri: Boolean(urlDirectResult),
+        })
+        if (isAmbiguous) return navigate(SendRoutes.Select)
 
-          methods.setValue(SendFormFields.AssetId, resolvedAssetId)
-
-          // Get accounts for this asset to ensure we have a valid accountId
-          const state = store.getState()
-          const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
-            assetId: resolvedAssetId,
-          })
-          const accountId = accountIds[0]
-
-          // Only set accountId if one exists for this asset
-          if (accountId) {
-            methods.setValue(SendFormFields.AccountId, accountId)
-          }
-
-          if (maybeUrlResult.amountCryptoPrecision && resolvedAssetId === maybeUrlResult.assetId) {
-            const marketData = selectMarketDataByAssetIdUserCurrency(
-              store.getState(),
-              maybeUrlResult.assetId ?? '',
-            )
-            methods.setValue(
-              SendFormFields.AmountCryptoPrecision,
-              maybeUrlResult.amountCryptoPrecision,
-            )
-            methods.setValue(
-              SendFormFields.FiatAmount,
-              bnOrZero(maybeUrlResult.amountCryptoPrecision)
-                .times(bnOrZero(marketData?.price))
-                .toString(),
-            )
-          }
-        }
-        navigate(SendRoutes.Address)
-      } catch (e: any) {
-        setAddressError(e.message)
+        methods.setValue(SendFormFields.To, address)
+        methods.setValue(SendFormFields.VanityAddress, vanityAddress)
+        navigate(SendRoutes.AmountDetails)
+      } catch (e) {
+        setAddressError(e instanceof Error && e.message ? e.message : 'modals.send.errors.generic')
       }
     },
-    [initialAssetId, navigate, methods],
+    [navigate, methods],
   )
 
   const qrCodeScanner = useMemo(
@@ -279,8 +235,8 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     [addressError, handleBack, handleQrSuccess],
   )
 
-  const selectAssetRouter = useMemo(
-    () => <SelectAssetRouter onClick={handleAssetSelect} />,
+  const selectAssets = useMemo(
+    () => <SelectAssets onClick={handleAssetSelect} />,
     [handleAssetSelect],
   )
 
@@ -302,10 +258,10 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         <AnimatePresence mode='wait' initial={false}>
           {/* Instead of a redirect which would produce a flash of content, we simply render the select route in place of <Switch />ing here */}
           {!initialAssetId && !assetId ? (
-            <SlideTransition className='flex flex-col h-full'>{selectAssetRouter}</SlideTransition>
+            <SlideTransition className='flex flex-col h-full'>{selectAssets}</SlideTransition>
           ) : (
             <Switch location={location.pathname}>
-              <Route path={SendRoutes.Select}>{selectAssetRouter}</Route>
+              <Route path={SendRoutes.Select}>{selectAssets}</Route>
               <Route path={SendRoutes.Address}>{address}</Route>
               <Route path={SendRoutes.AmountDetails}>{sendAmount}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>

@@ -2075,6 +2075,14 @@
         "header": "Conexión Fallida",
         "body": "No se puede conectar billetera Seeker. Asegurese que la app Seeker esté disponible y vuelve a intentarlo."
       }
+    },
+    "starknetInjected": {
+      "errors": {
+        "notInstalled": "%{name} no está instalada o está deshabilitada. Habilítela en su navegador e intente de nuevo.",
+        "wrongNetwork": "Cambia %{name} a red principal Starknet e intenta de nuevo.",
+        "noAccount": "No hay cuenta en %{name}. Crea o desbloquea una cuenta Starknet Mainnet e intenta de nuevo.",
+        "connectionFailed": "La conexión a %{name} fue rechazada o falló. Apruebe la solicitud en %{name} e intente de nuevo."
+      }
     }
   },
   "graph": {
@@ -2181,6 +2189,9 @@
       "deployButton": "Implementar Cuenta",
       "deploying": "Implementando Cuenta...",
       "deployFailed": "Implementación Fallida"
+    },
+    "activateAccount": {
+      "description": "Cuenta Starknet aún no está activa. Envía cualquier transacción desde la extensión %{name} para activarla y luego regresa."
     }
   },
   "tron": {
@@ -2924,8 +2935,9 @@
     }
   },
   "RFOX": {
-    "epochAwaitingUpdate": "Esperando actualización de época",
-    "epochAwaitingUpdateDescription": "Las recompensas, totales, APY y estimaciones del simulador se actualizarán una vez que se publiquen los datos actualizados de cada época. Aún puede consultar y gestionar su posición de staking.",
+    "closedEpochRewards": "%{month} Recompensas",
+    "closedEpochRewardsTooltip": "Recompensas estimadas para %{month}. Se pagarán automáticamente una vez finalizada la época.",
+    "closedEpochSimulatorNotice": "Utilizando las tasas de %{month}. Las tasas de época actuales pueden variar.",
     "staking": "Staking rFOX",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -2983,7 +2995,6 @@
     "pendingRewardsBalance": "Saldo de Recompensas Pendiente",
     "pendingRewardsBalanceTooltip": "Tus recompensas en este punto de la época. Esto cambiará a medida que varíen los ingresos y el porcentaje total de %{symbol} en staking. Se pagarán automáticamente al finalizar la época.",
     "claimTooltip": "Vea su %{symbol} sin staking y reclame cuando haya transcurrido su tiempo de espera.",
-    "lifetimeRewardsUnavailable": "Recompensas no disponibles",
     "lifetimeRewards": "Recompensas de por Vida",
     "lifetimeRewardsHelper": "Recompensas totales que ha obtenido por staking %{symbol} hasta la fecha",
     "timeInPool": "Tiempo en Pool",
@@ -3023,12 +3034,13 @@
     },
     "totals": "rFOX Totales",
     "totalStaked": "Total %{symbol} en Staking",
-    "totalStakedHelper": "Cantidad total %{symbol} en staking",
-    "dataUnavailable": "No disponibles",
     "totalFeesCollected": "Tarifas totales cobradas (esta época)",
+    "totalFeesCollectedForMonth": "Total de Comisiones Recaudadas (%{month})",
     "emissionsPool": "Fondo de Emisiones %{symbol} (esta época)",
+    "emissionsPoolForMonth": "%{symbol} Fondo de emisiones (%{month})",
     "emissionsPoolHelper": "Cantidad total de recompensas que se distribuirán a %{symbol} participantes",
     "foxBuybackAmount": "Recompra de FOX (en esta época)",
+    "foxBuybackAmountForMonth": "Importe de recompra de FOX (%{month})",
     "pendingDistribution": "Distribución Pendiente",
     "selectRuneAddress": "Seleccione una dirección RUNE",
     "lpSunsetWarningTitle": "Programa Finalizado",
@@ -3195,6 +3207,8 @@
       "blindSigningRequired": "Transacción requiere firma ciega. Activa Blind Signing o Contract Data en la configuración de tu app Ledger y vuelve a intentarlo.",
       "ledgerTronAllowDataDisabled": "Habilite los datos de transacciones en la configuración de su app Ledger TRON y vuelva a intentarlo.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
+      "starknetWrongNetwork": "%{name} debe estar configurado en Starknet Mainnet. Cambie de red en %{name} e intente de nuevo.",
+      "starknetAccountChanged": "La cuenta activa en %{name} ha cambiado. Revise la transacción nuevamente antes de enviarla.",
       "signMessage": "No se pudo firmar el mensaje.",
       "broadcastTransaction": "No se pudo transmitir la transacción.",
       "broadcastTransactionWithMessage": "Error al transmitir la transacción (%{message}).",

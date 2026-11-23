@@ -1994,6 +1994,12 @@ importers:
 
   packages/swap-widget:
     dependencies:
+      '@bitcoinerlab/secp256k1':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@shapeshiftoss/bitcoinjs-lib':
+        specifier: 7.0.0-shapeshift.3
+        version: 7.0.0-shapeshift.3(typescript@5.2.2)
       '@shapeshiftoss/caip':
         specifier: workspace:^
         version: link:../caip
@@ -2015,6 +2021,9 @@ importers:
       cashaddrjs:
         specifier: ^0.3.12
         version: 0.3.12
+      coinselect:
+        specifier: ^3.1.13
+        version: 3.1.13
       p-queue:
         specifier: ^8.0.1
         version: 8.1.1

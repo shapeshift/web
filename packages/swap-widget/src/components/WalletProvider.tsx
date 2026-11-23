@@ -1,4 +1,4 @@
-import { useAppKit } from '@reown/appkit/react'
+import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import type { Config } from 'wagmi'
 import { WagmiProvider } from 'wagmi'
 
 import { getActiveWagmiConfig, initializeAppKit, isAppKitInitialized } from '../config/appkit'
-import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { truncateAddress } from '../types'
 
 const queryClient = new QueryClient()
@@ -45,13 +44,14 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
 
-  const { walletSendAddress } = useSwapWallet()
+  // AppKit's active account so the button matches the modal; swaps read each namespace's wallet directly
+  const { address: displayAddress } = useAppKitAccount()
 
   const handleClick = useCallback(() => {
     open()
   }, [open])
 
-  if (!walletSendAddress) {
+  if (!displayAddress) {
     return (
       <button onClick={handleClick} type='button' className='ssw-connect-btn'>
         <svg
@@ -72,7 +72,7 @@ export const ConnectWalletButton = () => {
 
   return (
     <button onClick={handleClick} type='button' className='ssw-connect-btn ssw-connected'>
-      {truncateAddress(walletSendAddress)}
+      {truncateAddress(displayAddress)}
     </button>
   )
 }

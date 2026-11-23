@@ -46,6 +46,7 @@ import type { Mixpanel } from 'mixpanel-browser'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
+import type { AcrossMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { AvnuMetadata } from './swappers/AvnuSwapper/types'
 import type { BebopMetadata } from './swappers/BebopSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
@@ -87,14 +88,13 @@ export type SwapperConfig = {
   VITE_CHAINFLIP_API_KEY: string
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
+  VITE_FEATURE_ACROSS_SOLANA: boolean
   VITE_RELAY_API_URL: string
   VITE_RELAY_API_KEY: string
   VITE_BEBOP_API_KEY: string
   VITE_NEAR_INTENTS_API_KEY: string
   VITE_SUI_NODE_URL: string
   VITE_ACROSS_API_URL: string
-  VITE_ACROSS_INTEGRATOR_ID: string
-  VITE_ACROSS_API_KEY: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
   VITE_SYMBIOSIS_API_URL: string
@@ -549,6 +549,7 @@ export type SwapperMetadata =
   | RelayMetadata
   | DebridgeMetadata
   | BobGatewayMetadata
+  | AcrossMetadata
   | ChainflipMetadata
   | NearIntentsMetadata
   | AvnuMetadata
@@ -678,11 +679,7 @@ export type BebopSolanaMessageToSign = {
   quoteId: string
 }
 
-export type AcrossSolanaMessageToSign = {
-  serializedTx: string
-}
-
-export type SolanaMessageToSign = BebopSolanaMessageToSign | AcrossSolanaMessageToSign
+export type SolanaMessageToSign = BebopSolanaMessageToSign
 
 export type SolanaMessageExecutionProps = {
   // Sign only - the swapper submits the signature to its own api (bebop RFQ orders)

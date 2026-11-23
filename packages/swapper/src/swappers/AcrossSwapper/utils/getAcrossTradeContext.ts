@@ -189,17 +189,27 @@ export const getAcrossTradeContext = async ({
       sellAsset,
       source: SwapperName.Across,
       estimatedExecutionTimeMs: quote.expectedFillTimeMs,
-      affiliateFee:
-        appFeeBps > 0
-          ? buildAffiliateFee({
-              strategy: 'buy_asset',
-              affiliateBps,
-              sellAsset,
-              buyAsset,
-              sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-            })
-          : undefined,
+      affiliateFee: (() => {
+        if (appFeeBps <= 0) return
+
+        if (quote.fee.appFee.amount) {
+          return {
+            assetId: buyAsset.assetId,
+            amountCryptoBaseUnit: quote.fee.appFee.amount,
+            asset: buyAsset,
+          }
+        }
+
+        return buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          isEstimate: true,
+        })
+      })(),
     },
     protocolFees,
     stepDataArgs: {

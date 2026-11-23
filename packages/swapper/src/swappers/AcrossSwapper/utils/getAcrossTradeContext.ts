@@ -1,4 +1,4 @@
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -137,17 +137,9 @@ export const getAcrossTradeContext = async ({
 
   const buyAmountBeforeFeesCryptoBaseUnit =
     quote.destination.grossAmount ??
-    BigAmount.fromBaseUnit({
-      value: buyAmountAfterFeesCryptoBaseUnit,
-      precision: buyAsset.precision,
-    })
-      .plus(
-        BigAmount.fromBaseUnit({
-          value: quote.fee.totalFee.amount ?? quote.fee.appFee.amount ?? '0',
-          precision: buyAsset.precision,
-        }),
-      )
-      .toBaseUnit()
+    bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+      .plus(bnOrZero(quote.fee.totalFee.amount ?? quote.fee.appFee.amount))
+      .toFixed(0)
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,

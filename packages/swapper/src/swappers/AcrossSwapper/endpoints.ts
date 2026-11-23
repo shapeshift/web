@@ -8,6 +8,7 @@ import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { acrossService } from './utils/acrossService'
 import type { AcrossTradeQuoteInput, AcrossTradeRateInput, AcrossTransfer } from './utils/types'
+import { getAcrossApiError } from './utils/types'
 
 export const acrossApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as AcrossTradeQuoteInput, deps),
@@ -44,8 +45,10 @@ export const acrossApi: SwapperApi = {
     if (maybeTransferResponse.isErr()) {
       const error = maybeTransferResponse.unwrapErr()
 
-      // The deposit can land before Across indexes it
-      const isNotIndexed = axios.isAxiosError(error.cause) && error.cause.response?.status === 404
+      // Across returns not_found.transfer until it indexes the deposit, usually seconds
+      const isNotIndexed =
+        axios.isAxiosError(error.cause) &&
+        getAcrossApiError(error.cause.response?.data)?.code === 'not_found.transfer'
 
       return {
         buyTxHash: undefined,

@@ -1,4 +1,4 @@
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -170,6 +170,13 @@ export const getAcrossTradeContext = async ({
   // Approvals are skipped when the depositor already has allowance, the deposit contract is the spender
   const allowanceContract = approvalAction?.spender ?? transactionAction.to
 
+  // Across applies its own slippage, the guaranteed minimum is the floor below the expected output
+  const slippageTolerancePercentageDecimal = bnOrZero(quote.destination.amount).gt(0)
+    ? bnOrZero(1)
+        .minus(bnOrZero(quote.destination.minAmount).div(quote.destination.amount))
+        .toFixed()
+    : undefined
+
   const walletGasEstimate = quote.gasEstimates?.find(
     estimate => estimate.effect === 'paid_by_wallet' && estimate.actionId === 'prefunded-store',
   )
@@ -180,7 +187,7 @@ export const getAcrossTradeContext = async ({
       rate,
       swapperName: SwapperName.Across,
       affiliateBps,
-      slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
+      slippageTolerancePercentageDecimal,
     },
     stepCommon: {
       allowanceContract,

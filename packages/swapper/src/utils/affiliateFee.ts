@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 
 import type { AffiliateFee } from '../types'
 
@@ -17,6 +17,10 @@ type BuildAffiliateFeeParams = {
   fixedAssetId?: AssetId
   isEstimate?: boolean
 }
+
+// Providers that keep a share of our fee need the gross bps that still nets affiliateBps
+export const getGrossAffiliateBps = (affiliateBps: string, providerFeeShare: number): number =>
+  bnOrZero(affiliateBps).div(providerFeeShare).integerValue(BigNumber.ROUND_CEIL).toNumber()
 
 export const buildAffiliateFee = (params: BuildAffiliateFeeParams): AffiliateFee | undefined => {
   const {

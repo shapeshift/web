@@ -1,4 +1,4 @@
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -12,14 +12,16 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { buildAffiliateFee } from '../../../utils/affiliateFee'
-import { acrossErrorCodeToTradeQuoteError } from '../constant'
-import { fetchAcrossTrade } from './fetchAcrossTrade'
+import { buildAffiliateFee, getGrossAffiliateBps } from '../../../utils/affiliateFee'
+import { ACROSS_APP_FEE_SHARE, acrossErrorCodeToTradeQuoteError } from '../constant'
+import { acrossService } from './acrossService'
 import type { GetAcrossStepDataArgs } from './getAcrossStepData'
-import { assertValidTrade, getAcrossAppFeeBps, getAcrossAssetAddress } from './helpers'
+import { assertValidTrade, getAcrossAssetAddress } from './helpers'
 import type {
   AcrossApiError,
   AcrossApprovalAction,
+  AcrossQuote,
+  AcrossQuoteRequest,
   AcrossTradeQuoteInput,
   AcrossTradeRateInput,
   AcrossTransactionAction,
@@ -64,24 +66,26 @@ export const getAcrossTradeContext = async ({
   if (assertion.isErr()) return Err(assertion.unwrapErr())
   const { sellAcrossChainId, buyAcrossChainId } = assertion.unwrap()
 
-  const appFeeBps = getAcrossAppFeeBps(affiliateBps)
+  const appFeeBps = getGrossAffiliateBps(affiliateBps, ACROSS_APP_FEE_SHARE)
 
-  const maybeQuote = await fetchAcrossTrade(
-    {
-      origin: {
-        token: { chainId: sellAcrossChainId, address: getAcrossAssetAddress(sellAsset.assetId) },
-        amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        depositor,
-      },
-      destination: {
-        token: { chainId: buyAcrossChainId, address: getAcrossAssetAddress(buyAsset.assetId) },
-        recipient,
-      },
-      amountType: 'exact_input',
-      authorizationPolicy: { allowedTypes: ['approval'] },
-      ...(appFeeBps > 0 && { appFeeBps }),
+  const request: AcrossQuoteRequest = {
+    origin: {
+      token: { chainId: sellAcrossChainId, address: getAcrossAssetAddress(sellAsset.assetId) },
+      amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      depositor,
     },
-    deps.config,
+    destination: {
+      token: { chainId: buyAcrossChainId, address: getAcrossAssetAddress(buyAsset.assetId) },
+      recipient,
+    },
+    amountType: 'exact_input',
+    authorizationPolicy: { allowedTypes: ['approval'] },
+    ...(appFeeBps > 0 && { appFeeBps }),
+  }
+
+  const maybeQuote = await acrossService.post<AcrossQuote>(
+    `${deps.config.VITE_ACROSS_API_URL}/v1/quotes`,
+    request,
   )
 
   if (maybeQuote.isErr()) {
@@ -91,17 +95,11 @@ export const getAcrossTradeContext = async ({
       ? error.cause.response?.data
       : undefined
 
-    if (!acrossError?.code) {
-      return Err(
-        makeSwapErrorRight({ message: 'Unknown error', code: TradeQuoteError.UnknownError }),
-      )
-    }
-
     return Err(
       makeSwapErrorRight({
-        message: acrossError.message,
-        code: getTradeQuoteError(acrossError),
-        details: { code: acrossError.code, param: acrossError.param },
+        message: acrossError?.message ?? 'Unknown error',
+        code: acrossError?.code ? getTradeQuoteError(acrossError) : TradeQuoteError.UnknownError,
+        details: acrossError && { code: acrossError.code, param: acrossError.param },
       }),
     )
   }
@@ -163,26 +161,18 @@ export const getAcrossTradeContext = async ({
   const allowanceContract = approvalAction?.spender ?? transactionAction.to
 
   // Across applies its own slippage, the guaranteed minimum is the floor below the expected output
-  const slippageTolerancePercentageDecimal = bnOrZero(quote.destination.amount).gt(0)
-    ? bnOrZero(1)
-        .minus(bnOrZero(quote.destination.minAmount).div(quote.destination.amount))
-        .toFixed()
-    : undefined
-
-  const userSlippageTolerancePercentageDecimal = input.slippageTolerancePercentageDecimal
+  const slippage = bn(1).minus(bn(quote.destination.minAmount).div(quote.destination.amount))
 
   // Across can't apply a custom slippage, so only offer quotes whose guaranteed minimum is within it
   if (
-    userSlippageTolerancePercentageDecimal &&
-    bnOrZero(slippageTolerancePercentageDecimal).gt(userSlippageTolerancePercentageDecimal)
+    input.slippageTolerancePercentageDecimal &&
+    slippage.gt(input.slippageTolerancePercentageDecimal)
   ) {
     return Err(
       makeSwapErrorRight({
         message: '[getAcrossTradeContext] slippage exceeds the custom slippage tolerance',
         code: TradeQuoteError.FinalQuoteMaxSlippageExceeded,
-        details: {
-          expectedSlippage: bnOrZero(slippageTolerancePercentageDecimal).times(100).toFixed(2),
-        },
+        details: { expectedSlippage: slippage.times(100).toFixed(2) },
       }),
     )
   }
@@ -197,7 +187,7 @@ export const getAcrossTradeContext = async ({
       rate,
       swapperName: SwapperName.Across,
       affiliateBps,
-      slippageTolerancePercentageDecimal,
+      slippageTolerancePercentageDecimal: slippage.toFixed(),
     },
     stepCommon: {
       allowanceContract,

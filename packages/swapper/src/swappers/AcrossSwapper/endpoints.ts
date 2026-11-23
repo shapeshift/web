@@ -13,7 +13,15 @@ import type {
   AcrossTradeQuoteInput,
   AcrossTradeRateInput,
   AcrossTransfer,
+  AcrossTransferState,
 } from './utils/types'
+
+const acrossTransferStateToTxStatus: Record<AcrossTransferState, TxStatus> = {
+  completed: TxStatus.Confirmed,
+  pending: TxStatus.Pending,
+  refunded: TxStatus.Failed,
+  failed: TxStatus.Failed,
+}
 
 export const acrossApi: SwapperApi = {
   getTradeQuote: (input, deps) => getAcrossTradeQuote(input as AcrossTradeQuoteInput, deps),
@@ -32,7 +40,10 @@ export const acrossApi: SwapperApi = {
     if (!swap) throw new Error('[Across] swap is required for status check')
 
     const { orderId } = getSwapMetadata(swap.metadata.swapperMetadata, 'across')
-    const swapperTxLink = `${ACROSS_TRANSFER_BASE_URL}/${orderId}`
+    const swapperTx = {
+      swapperTxId: orderId,
+      swapperTxLink: `${ACROSS_TRANSFER_BASE_URL}/${orderId}`,
+    }
 
     const sourceTxStatus = await checkEvmSwapStatus({
       txHash,
@@ -43,7 +54,7 @@ export const acrossApi: SwapperApi = {
     })
 
     if (sourceTxStatus.status !== TxStatus.Confirmed) {
-      return { ...sourceTxStatus, swapperTxId: orderId, swapperTxLink }
+      return { ...sourceTxStatus, ...swapperTx }
     }
 
     const maybeTransferResponse = await acrossService.get<AcrossTransfer>(
@@ -62,26 +73,13 @@ export const acrossApi: SwapperApi = {
         buyTxHash: undefined,
         status: isNotIndexed ? TxStatus.Pending : TxStatus.Unknown,
         message: undefined,
-        swapperTxId: orderId,
-        swapperTxLink,
+        ...swapperTx,
       }
     }
 
     const { data: transfer } = maybeTransferResponse.unwrap()
 
-    const status = (() => {
-      switch (transfer.status.state) {
-        case 'completed':
-          return TxStatus.Confirmed
-        case 'pending':
-          return TxStatus.Pending
-        case 'refunded':
-        case 'failed':
-          return TxStatus.Failed
-        default:
-          return TxStatus.Unknown
-      }
-    })()
+    const status = acrossTransferStateToTxStatus[transfer.status.state] ?? TxStatus.Unknown
 
     const buyTxHash =
       transfer.transactions.find(({ type }) => type === 'fill')?.transaction.txnRef ?? undefined
@@ -90,8 +88,7 @@ export const acrossApi: SwapperApi = {
       status,
       buyTxHash,
       message: status === TxStatus.Confirmed ? undefined : transfer.status.description,
-      swapperTxId: orderId,
-      swapperTxLink,
+      ...swapperTx,
     }
   },
 }

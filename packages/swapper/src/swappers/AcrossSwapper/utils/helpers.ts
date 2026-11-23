@@ -1,6 +1,5 @@
 import { fromAssetId, isAssetReference, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigNumber, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
@@ -8,25 +7,20 @@ import { zeroAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../../utils/helpers'
 import {
-  ACROSS_APP_FEE_SHARE,
+  ACROSS_SOLANA_NATIVE_TOKEN_ADDRESS,
   chainIdToAcrossChainId,
-  DEFAULT_ACROSS_EVM_TOKEN_ADDRESS,
   DEFAULT_ACROSS_EVM_USER_ADDRESS,
   DEFAULT_ACROSS_SOLANA_USER_ADDRESS,
 } from '../constant'
 
 export const getAcrossAssetAddress = (assetId: string): string => {
-  if (isNativeEvmAsset(assetId)) return DEFAULT_ACROSS_EVM_TOKEN_ADDRESS
+  const { chainId, assetReference } = fromAssetId(assetId)
 
-  const { assetReference } = fromAssetId(assetId)
+  if (!isAssetReference(assetReference)) return assetReference
 
-  return isAssetReference(assetReference) ? zeroAddress : assetReference
+  return chainId === solanaChainId ? ACROSS_SOLANA_NATIVE_TOKEN_ADDRESS : zeroAddress
 }
-
-export const getAcrossAppFeeBps = (affiliateBps: string): number =>
-  bnOrZero(affiliateBps).div(ACROSS_APP_FEE_SHARE).integerValue(BigNumber.ROUND_CEIL).toNumber()
 
 export const getDefaultUserAddress = (chainId: string): string => {
   if (chainId === solanaChainId) return DEFAULT_ACROSS_SOLANA_USER_ADDRESS
@@ -72,22 +66,20 @@ export const assertValidTrade = ({
     )
   }
 
-  const isSolanaRoute = sellAsset.chainId === solanaChainId || buyAsset.chainId === solanaChainId
-
-  if (isSolanaRoute && !isSolanaEnabled) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Across Solana routes are not enabled',
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
-
   // Solana origins need a post-broadcast execution submission, which isn't wired yet
   if (sellAsset.chainId === solanaChainId) {
     return Err(
       makeSwapErrorRight({
         message: 'Across does not support Solana as a source chain',
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  if (buyAsset.chainId === solanaChainId && !isSolanaEnabled) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Across Solana routes are not enabled',
         code: TradeQuoteError.UnsupportedChain,
       }),
     )

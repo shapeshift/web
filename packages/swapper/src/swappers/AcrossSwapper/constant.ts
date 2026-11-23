@@ -15,8 +15,6 @@ import {
   solanaChainId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
-import invert from 'lodash/invert'
-import { zeroAddress } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -54,9 +52,7 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [robinhoodChainId]: robinhood.id,
 }
 
-export const acrossChainIdToChainId = invert(chainIdToAcrossChainId)
-export const ACROSS_SUPPORTED_CHAIN_IDS = Object.keys(chainIdToAcrossChainId)
-export const DEFAULT_ACROSS_EVM_TOKEN_ADDRESS = zeroAddress
+export const ACROSS_SOLANA_NATIVE_TOKEN_ADDRESS = '11111111111111111111111111111111'
 export const DEFAULT_ACROSS_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 export const DEFAULT_ACROSS_SOLANA_USER_ADDRESS = 'CbKGgVKLJFb8bBrf58DnAkdryX6ubewVytn7X957YwNr'
 

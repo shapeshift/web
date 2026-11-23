@@ -85,7 +85,7 @@ export type AcrossQuote = {
   nextActions: AcrossNextAction[]
 }
 
-type AcrossTransferState = 'pending' | 'completed' | 'refunded' | 'failed'
+export type AcrossTransferState = 'pending' | 'completed' | 'refunded' | 'failed'
 
 export type AcrossTransfer = {
   orderId: string

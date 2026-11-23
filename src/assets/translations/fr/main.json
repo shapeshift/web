@@ -1038,7 +1038,7 @@
       "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge",
       "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l'échec de votre transaction ou une perte de fonds.",
       "rateLimitExceeded": "Limite de tentatives dépassée, réessayer plus tard",
-      "maxSlippageExceededWithExpectedSlippage": "La tolérance de glissement/slippage maximale autorisée pour cette transaction a été dépassée durant la simulation. Glissement attendu : %{expectedSlippage}%. Réessayez avec une tolérance de glissement plus élevée.",
+      "maxSlippageExceededWithExpectedSlippage": "La tolérance de glissement/slippage maximale autorisée pour cette transaction a été dépassée. Glissement attendu : %{expectedSlippage}%. Réessayez avec une tolérance de glissement plus élevée.",
       "executionRevertedWithExpectedSlippage": "L'exécution a été annulée durant l'exécution. Cela peut être dû à une tolérance de glissement/slippage insuffisante. Glissement attendu : %{expectedSlippage}%. Réessayez avec une tolérance de glissement plus élevée.",
       "slippageToleranceExceeded": "Tolérance de glissement/slippage dépassée.",
       "underMinimumAmount": "Un ou plusieurs des actifs de cet échange sont inférieurs au montant minimum requis pour cet échange.",

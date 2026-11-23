@@ -1038,7 +1038,7 @@
       "smartContractWalletNotSupported": "Smart Contract Wallet wird nicht unterstützt",
       "unsafeQuote": "Dieser Betrag liegt unter dem empfohlenen Mindestwert für dieses Paar (%{recommendedMin} %{symbol}). Dies könnte zum Scheitern Ihres Handels oder zum Verlust von Werten führen.",
       "rateLimitExceeded": "Ratenlimit überschritten. Versuchen Sie es später erneut.",
-      "maxSlippageExceededWithExpectedSlippage": "Die maximal zulässige Slippage Toleranz für diesen Handel wurde während der Simulation überschritten. Erwarteter Slippage: %{expectedSlippage}%. Versuchen Sie es erneut mit einer höheren Slippage Toleranz.",
+      "maxSlippageExceededWithExpectedSlippage": "Die maximal zulässige Slippage Toleranz für diesen Handel wurde überschritten. Erwarteter Slippage: %{expectedSlippage}%. Versuchen Sie es erneut mit einer höheren Slippage Toleranz.",
       "executionRevertedWithExpectedSlippage": "Die Ausführung wurde während des Prozesses zurückgesetzt. Dies kann an einer unzureichenden Slippage Toleranz liegen. Erwarteter Slippage: %{expectedSlippage} %. Versuchen Sie es erneut mit einer höheren Slippage Toleranz.",
       "slippageToleranceExceeded": "Slippage Toleranz überschritten.",
       "underMinimumAmount": "Ein oder mehrere Vermögenswerte in diesem Handel liegen unter dem erforderlichen Mindestbetrag.",

@@ -1038,7 +1038,7 @@
       "smartContractWalletNotSupported": "Contrato inteligente da carteira não suportada. ",
       "unsafeQuote": "Este valor está abaixo do mínimo recomendado para este par (%{recommendedMin} %{symbol}). Isso pode causar falha na negociação ou perda dos fundos.",
       "rateLimitExceeded": "Limite de taxa excedido. Tente novamente mais tarde",
-      "maxSlippageExceededWithExpectedSlippage": "A tolerância máxima de slippage permitida para esta negociação foi excedida durante a simulação. Slippage esperado: %{expectedSlippage}%. Tente novamente com uma tolerância de slipppage maior.",
+      "maxSlippageExceededWithExpectedSlippage": "A tolerância máxima de slippage permitida para esta negociação foi excedida. Slippage esperado: %{expectedSlippage}%. Tente novamente com uma tolerância de slippage maior.",
       "executionRevertedWithExpectedSlippage": "Execução revertida durante a execução. Isso pode ser devido à tolerância de slipipage insuficiente. Slippage esperado: %{expectedSlippage}%. Tente novamente com uma tolerância de slippage maior.",
       "slippageToleranceExceeded": "Tolerância de slippage excedida.",
       "underMinimumAmount": "Um ou mais ativos nesta negociação estão abaixo do valor mínimo exigido para esta negociação.",

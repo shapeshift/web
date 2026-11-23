@@ -4,6 +4,7 @@ import axios from 'axios'
 import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
+import { ACROSS_TRANSFER_BASE_URL } from './constant'
 import { getAcrossTradeQuote } from './swapperApi/getTradeQuote'
 import { getAcrossTradeRate } from './swapperApi/getTradeRate'
 import { acrossService } from './utils/acrossService'
@@ -31,6 +32,7 @@ export const acrossApi: SwapperApi = {
     if (!swap) throw new Error('[Across] swap is required for status check')
 
     const { orderId } = getSwapMetadata(swap.metadata.swapperMetadata, 'across')
+    const swapperTxLink = `${ACROSS_TRANSFER_BASE_URL}/${orderId}`
 
     const sourceTxStatus = await checkEvmSwapStatus({
       txHash,
@@ -40,7 +42,9 @@ export const acrossApi: SwapperApi = {
       fetchIsSmartContractAddressQuery,
     })
 
-    if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
+    if (sourceTxStatus.status !== TxStatus.Confirmed) {
+      return { ...sourceTxStatus, swapperTxId: orderId, swapperTxLink }
+    }
 
     const maybeTransferResponse = await acrossService.get<AcrossTransfer>(
       `${config.VITE_ACROSS_API_URL}/v1/transfers/${orderId}`,
@@ -58,6 +62,8 @@ export const acrossApi: SwapperApi = {
         buyTxHash: undefined,
         status: isNotIndexed ? TxStatus.Pending : TxStatus.Unknown,
         message: undefined,
+        swapperTxId: orderId,
+        swapperTxLink,
       }
     }
 
@@ -85,6 +91,7 @@ export const acrossApi: SwapperApi = {
       buyTxHash,
       message: status === TxStatus.Confirmed ? undefined : transfer.status.description,
       swapperTxId: orderId,
+      swapperTxLink,
     }
   },
 }

@@ -60,6 +60,8 @@ export const DEFAULT_ACROSS_EVM_TOKEN_ADDRESS = zeroAddress
 export const DEFAULT_ACROSS_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 export const DEFAULT_ACROSS_SOLANA_USER_ADDRESS = 'CbKGgVKLJFb8bBrf58DnAkdryX6ubewVytn7X957YwNr'
 
+export const ACROSS_TRANSFER_BASE_URL = 'https://across.to/transfer'
+
 // Across keeps 25% of the app fee, so request the gross bps that nets affiliateBps
 export const ACROSS_APP_FEE_SHARE = 0.75
 

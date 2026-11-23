@@ -679,11 +679,7 @@ export type BebopSolanaMessageToSign = {
   quoteId: string
 }
 
-export type AcrossSolanaMessageToSign = {
-  serializedTx: string
-}
-
-export type SolanaMessageToSign = BebopSolanaMessageToSign | AcrossSolanaMessageToSign
+export type SolanaMessageToSign = BebopSolanaMessageToSign
 
 export type SolanaMessageExecutionProps = {
   // Sign only - the swapper submits the signature to its own api (bebop RFQ orders)

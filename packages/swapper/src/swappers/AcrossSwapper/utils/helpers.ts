@@ -5,6 +5,7 @@ import {
   usdcOnSolanaAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { BigNumber, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
@@ -14,6 +15,7 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../../utils/helpers'
 import {
+  ACROSS_APP_FEE_SHARE,
   chainIdToAcrossChainId,
   DEFAULT_ACROSS_EVM_TOKEN_ADDRESS,
   DEFAULT_ACROSS_EVM_USER_ADDRESS,
@@ -27,6 +29,9 @@ export const getAcrossAssetAddress = (assetId: string): string => {
 
   return isAssetReference(assetReference) ? zeroAddress : assetReference
 }
+
+export const getAcrossAppFeeBps = (affiliateBps: string): number =>
+  bnOrZero(affiliateBps).div(ACROSS_APP_FEE_SHARE).integerValue(BigNumber.ROUND_CEIL).toNumber()
 
 export const getDefaultUserAddress = (chainId: string): string => {
   if (chainId === solanaChainId) return DEFAULT_ACROSS_SOLANA_USER_ADDRESS

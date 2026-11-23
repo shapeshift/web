@@ -1,4 +1,4 @@
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -16,7 +16,7 @@ import { buildAffiliateFee } from '../../../utils/affiliateFee'
 import { acrossErrorCodeToTradeQuoteError } from '../constant'
 import { fetchAcrossTrade } from './fetchAcrossTrade'
 import type { GetAcrossStepDataArgs } from './getAcrossStepData'
-import { assertValidTrade, getAcrossAssetAddress } from './helpers'
+import { assertValidTrade, getAcrossAppFeeBps, getAcrossAssetAddress } from './helpers'
 import type {
   AcrossApiError,
   AcrossApprovalAction,
@@ -61,7 +61,7 @@ export const getAcrossTradeContext = async ({
   if (assertion.isErr()) return Err(assertion.unwrapErr())
   const { sellAcrossChainId, buyAcrossChainId } = assertion.unwrap()
 
-  const appFeeBps = bnOrZero(affiliateBps).toNumber()
+  const appFeeBps = getAcrossAppFeeBps(affiliateBps)
 
   const maybeQuote = await fetchAcrossTrade(
     {

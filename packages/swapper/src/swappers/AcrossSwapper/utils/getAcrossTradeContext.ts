@@ -56,7 +56,11 @@ export const getAcrossTradeContext = async ({
 }): Promise<Result<AcrossTradeContext, SwapErrorRight>> => {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
 
-  const assertion = assertValidTrade({ sellAsset, buyAsset })
+  const assertion = assertValidTrade({
+    sellAsset,
+    buyAsset,
+    isSolanaEnabled: deps.config.VITE_FEATURE_ACROSS_SOLANA,
+  })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
   const { sellAcrossChainId, buyAcrossChainId } = assertion.unwrap()
 

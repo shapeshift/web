@@ -1,9 +1,4 @@
-import {
-  fromAssetId,
-  isAssetReference,
-  solanaChainId,
-  usdcOnSolanaAssetId,
-} from '@shapeshiftoss/caip'
+import { fromAssetId, isAssetReference, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -41,9 +36,11 @@ export const getDefaultUserAddress = (chainId: string): string => {
 export const assertValidTrade = ({
   sellAsset,
   buyAsset,
+  isSolanaEnabled,
 }: {
   sellAsset: Asset
   buyAsset: Asset
+  isSolanaEnabled: boolean
 }): Result<{ sellAcrossChainId: number; buyAcrossChainId: number }, SwapErrorRight> => {
   if (sellAsset.chainId === buyAsset.chainId) {
     return Err(
@@ -75,12 +72,13 @@ export const assertValidTrade = ({
     )
   }
 
-  // Across only supports USDC as the bridgeable token on Solana destinations
-  if (buyAsset.chainId === solanaChainId && buyAsset.assetId !== usdcOnSolanaAssetId) {
+  const isSolanaRoute = sellAsset.chainId === solanaChainId || buyAsset.chainId === solanaChainId
+
+  if (isSolanaRoute && !isSolanaEnabled) {
     return Err(
       makeSwapErrorRight({
-        message: 'Across only supports USDC as destination token on Solana',
-        code: TradeQuoteError.UnsupportedTradePair,
+        message: 'Across Solana routes are not enabled',
+        code: TradeQuoteError.UnsupportedChain,
       }),
     )
   }

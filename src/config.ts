@@ -231,6 +231,7 @@ const validators = {
   VITE_NEAR_INTENTS_API_KEY: str(),
   VITE_FEATURE_STONFI_SWAP: bool({ default: false }),
   VITE_FEATURE_ACROSS_SWAP: bool({ default: false }),
+  VITE_FEATURE_ACROSS_SOLANA: bool({ default: false }),
   VITE_ACROSS_API_URL: url(),
   VITE_FEATURE_DEBRIDGE_SWAP: bool({ default: false }),
   VITE_FEATURE_PANORA_SWAP: bool({ default: false }),

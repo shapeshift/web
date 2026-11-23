@@ -97,6 +97,7 @@ const envSchema = z.object({
   FEATURE_THORCHAINSWAP_LONGTAIL: flag,
   FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: flag,
   FEATURE_CHAINFLIP_SWAP_DCA: flag,
+  FEATURE_ACROSS_SOLANA: flag.default('false'),
 
   // Affiliate
   DEFAULT_AFFILIATE_BPS: z.string().regex(/^\d+$/, 'DEFAULT_AFFILIATE_BPS must be numeric'),

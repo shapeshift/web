@@ -88,6 +88,7 @@ export type SwapperConfig = {
   VITE_CHAINFLIP_API_KEY: string
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
+  VITE_FEATURE_ACROSS_SOLANA: boolean
   VITE_RELAY_API_URL: string
   VITE_RELAY_API_KEY: string
   VITE_BEBOP_API_KEY: string

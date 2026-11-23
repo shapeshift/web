@@ -3,6 +3,11 @@ import type { GetEvmTradeQuoteInput, GetEvmTradeRateInput } from '../../../types
 export type AcrossTradeQuoteInput = GetEvmTradeQuoteInput
 export type AcrossTradeRateInput = GetEvmTradeRateInput
 
+export type AcrossMetadata = {
+  name: 'across'
+  orderId: string
+}
+
 type AcrossTokenRef = {
   chainId: number
   address: string
@@ -94,10 +99,6 @@ export type AcrossTransfer = {
     type: 'deposit' | 'fill' | 'refund' | 'intermediate'
     transaction: { txnRef?: string | null; explorerUrl?: string | null }
   }[]
-}
-
-export type AcrossTransfersResponse = {
-  transfers: AcrossTransfer[]
 }
 
 export type AcrossApiError = {

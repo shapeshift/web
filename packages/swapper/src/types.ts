@@ -46,6 +46,7 @@ import type { Mixpanel } from 'mixpanel-browser'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
+import type { AcrossMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { AvnuMetadata } from './swappers/AvnuSwapper/types'
 import type { BebopMetadata } from './swappers/BebopSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
@@ -547,6 +548,7 @@ export type SwapperMetadata =
   | RelayMetadata
   | DebridgeMetadata
   | BobGatewayMetadata
+  | AcrossMetadata
   | ChainflipMetadata
   | NearIntentsMetadata
   | AvnuMetadata

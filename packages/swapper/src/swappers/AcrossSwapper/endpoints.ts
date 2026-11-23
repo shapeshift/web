@@ -1,16 +1,13 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import axios from 'axios'
 
 import type { SwapperApi } from '../../types'
-import { checkEvmSwapStatus } from '../../utils'
+import { checkEvmSwapStatus, getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { acrossService } from './utils/acrossService'
-import type {
-  AcrossTradeQuoteInput,
-  AcrossTradeRateInput,
-  AcrossTransfersResponse,
-} from './utils/types'
+import type { AcrossTradeQuoteInput, AcrossTradeRateInput, AcrossTransfer } from './utils/types'
 
 export const acrossApi: SwapperApi = {
   getTradeQuote: (input, deps) => getTradeQuote(input as AcrossTradeQuoteInput, deps),
@@ -21,10 +18,15 @@ export const acrossApi: SwapperApi = {
     txHash,
     chainId,
     address,
+    swap,
     config,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }) => {
+    if (!swap) throw new Error('[Across] swap is required for status check')
+
+    const { orderId } = getSwapMetadata(swap.metadata.swapperMetadata, 'across')
+
     const sourceTxStatus = await checkEvmSwapStatus({
       txHash,
       chainId,
@@ -35,21 +37,24 @@ export const acrossApi: SwapperApi = {
 
     if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
 
-    const depositTxHash = sourceTxStatus.buyTxHash ?? txHash
-
-    const maybeTransfersResponse = await acrossService.get<AcrossTransfersResponse>(
-      `${config.VITE_ACROSS_API_URL}/v1/transfers`,
-      { params: { txnRef: depositTxHash } },
+    const maybeTransferResponse = await acrossService.get<AcrossTransfer>(
+      `${config.VITE_ACROSS_API_URL}/v1/transfers/${orderId}`,
     )
 
-    if (maybeTransfersResponse.isErr()) {
-      return { buyTxHash: undefined, status: TxStatus.Unknown, message: undefined }
+    if (maybeTransferResponse.isErr()) {
+      const error = maybeTransferResponse.unwrapErr()
+
+      // The deposit can land before Across indexes it
+      const isNotIndexed = axios.isAxiosError(error.cause) && error.cause.response?.status === 404
+
+      return {
+        buyTxHash: undefined,
+        status: isNotIndexed ? TxStatus.Pending : TxStatus.Unknown,
+        message: undefined,
+      }
     }
 
-    const [transfer] = maybeTransfersResponse.unwrap().data.transfers
-
-    // The deposit can land before Across indexes it
-    if (!transfer) return { buyTxHash: undefined, status: TxStatus.Pending, message: undefined }
+    const { data: transfer } = maybeTransferResponse.unwrap()
 
     const status = (() => {
       switch (transfer.status.state) {
@@ -72,7 +77,7 @@ export const acrossApi: SwapperApi = {
       status,
       buyTxHash,
       message: status === TxStatus.Confirmed ? undefined : transfer.status.description,
-      swapperTxId: transfer.orderId,
+      swapperTxId: orderId,
     }
   },
 }

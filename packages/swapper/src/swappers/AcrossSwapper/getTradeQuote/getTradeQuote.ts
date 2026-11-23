@@ -42,6 +42,7 @@ export const getTradeQuote = async (
         ...stepCommon,
         accountNumber,
         transactionData,
+        swapperMetadata: { name: 'across', orderId: tradeCommon.id },
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

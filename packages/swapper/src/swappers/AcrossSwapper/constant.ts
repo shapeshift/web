@@ -49,18 +49,14 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [inkChainId]: ink.id,
   [plasmaChainId]: plasma.id,
   [unichainChainId]: unichain.id,
-  // Across uses a custom Solana chain ID
-  [solanaChainId]: 34268394551451,
+  [solanaChainId]: 34268394551451, // Across uses a custom Solana chain ID
   [megaethChainId]: megaeth.id,
   [robinhoodChainId]: robinhood.id,
 }
 
 export const acrossChainIdToChainId = invert(chainIdToAcrossChainId)
-
 export const ACROSS_SUPPORTED_CHAIN_IDS = Object.keys(chainIdToAcrossChainId)
-
 export const DEFAULT_ACROSS_EVM_TOKEN_ADDRESS = zeroAddress
-
 export const DEFAULT_ACROSS_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 export const DEFAULT_ACROSS_SOLANA_USER_ADDRESS = 'CbKGgVKLJFb8bBrf58DnAkdryX6ubewVytn7X957YwNr'
 

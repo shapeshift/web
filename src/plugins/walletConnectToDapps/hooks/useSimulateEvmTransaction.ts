@@ -9,11 +9,7 @@ import type { TransactionParams } from '../types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import {
-  getGasEstimateFailure,
-  getRecommendedGasLimit,
-  toNumberString,
-} from '@/plugins/walletConnectToDapps/utils'
+import { getRecommendedGasLimit, toNumberString } from '@/plugins/walletConnectToDapps/utils'
 import { simulateTransaction } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   selectFeeAssetByChainId,
@@ -102,13 +98,9 @@ export const useSimulateEvmTransaction = ({
     return getRecommendedGasLimit(gasLimitQuery.data?.gasLimit, dappGasLimit)
   }, [gasLimitQuery.isLoading, gasLimitQuery.data, dappGasLimit])
 
-  const gasEstimateFailure = useMemo(
-    () => getGasEstimateFailure(gasLimitQuery.error),
-    [gasLimitQuery.error],
-  )
-
   const gasLimit = bnOrZero(userGasLimit).gt(0) ? userGasLimit : recommendedGasLimit
   const isGasLimitLoading = !gasLimit && gasLimitQuery.isLoading
+  const isGasLimitUnavailable = !gasLimit && !gasLimitQuery.isLoading
 
   const fee = useMemo(() => {
     const feeData = gasFeeDataQuery.data?.[speed]
@@ -141,8 +133,8 @@ export const useSimulateEvmTransaction = ({
     recommendedGasLimit,
     gasLimit,
     isGasLimitLoading,
-    gasEstimateFailure,
-    isGasEstimateError: gasLimitQuery.isError,
+    isGasLimitUnavailable,
+    gasEstimateError: gasLimitQuery.error,
     fee,
   }
 }

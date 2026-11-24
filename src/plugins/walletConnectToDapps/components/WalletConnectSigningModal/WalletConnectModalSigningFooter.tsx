@@ -146,11 +146,12 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
 
   // Message requests have no form, but useWatch still needs a control to subscribe to
   const fallbackForm = useForm<CustomTransactionData>()
-  const { speed, gasLimit: userGasLimit } = useWatch({
+  const [speed, userGasLimit] = useWatch({
     control: (formContext ?? fallbackForm).control,
+    name: ['speed', 'gasLimit'],
   })
 
-  const { simulationQuery, gasLimit, isGasLimitLoading, gasEstimateFailure, isGasEstimateError } =
+  const { simulationQuery, gasLimit, isGasLimitLoading, gasEstimateError } =
     useSimulateEvmTransaction({
       transaction,
       chainId,
@@ -173,13 +174,11 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
         <VStack px={2} spacing={4} width='full'>
           <WalletConnectSigningWithSection accountId={accountId} />
           {transaction && chainId && (
-            <GasSelectionMenu transaction={transaction} chainId={chainId} />
+            <>
+              <GasSelectionMenu transaction={transaction} chainId={chainId} />
+              <GasEstimateAlert error={gasEstimateError} hasGasLimit={!!gasLimit} />
+            </>
           )}
-          <GasEstimateAlert
-            failure={gasEstimateFailure}
-            isEstimateError={isGasEstimateError}
-            hasGasLimit={!!gasLimit}
-          />
         </VStack>
         <HStack spacing={4} w='full'>
           <Button

@@ -19,6 +19,7 @@ vi.mock('@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction', () => 
     simulationQuery: { isLoading: false },
     gasLimit: gasLimit || mockSimulation.recommendedGasLimit,
     isGasLimitLoading: mockSimulation.isGasLimitLoading,
+    gasEstimateError: null,
   }),
 }))
 

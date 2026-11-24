@@ -93,7 +93,7 @@ export const getRecommendedGasLimit = (
   return BigNumber.max(estimatedGasLimit, bnOrZero(dappGasLimit)).toFixed()
 }
 
-export type GasEstimateFailure = { type: 'revert'; reason?: string } | { type: 'insufficientFunds' }
+type GasEstimateFailure = { type: 'revert'; reason?: string } | { type: 'insufficientFunds' }
 
 export const getGasEstimateFailure = (error: unknown): GasEstimateFailure | undefined => {
   if (!(error instanceof BaseError)) return

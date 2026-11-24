@@ -2,35 +2,22 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from '@chakra-ui/
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import type { GasEstimateFailure } from '@/plugins/walletConnectToDapps/utils'
+import { getGasEstimateFailure } from '@/plugins/walletConnectToDapps/utils'
 
 const alertIcon = <AlertIcon />
 
 type GasEstimateAlertProps = {
-  failure: GasEstimateFailure | undefined
-  isEstimateError: boolean
+  error: unknown
   hasGasLimit: boolean
 }
 
-export const GasEstimateAlert: FC<GasEstimateAlertProps> = ({
-  failure,
-  isEstimateError,
-  hasGasLimit,
-}) => {
+export const GasEstimateAlert: FC<GasEstimateAlertProps> = ({ error, hasGasLimit }) => {
   const translate = useTranslate()
 
-  if (!failure && !(isEstimateError && !hasGasLimit)) return null
+  if (!error) return null
 
-  const reason = (() => {
-    if (failure?.type === 'insufficientFunds')
-      return translate(
-        'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.insufficientFunds',
-      )
-    if (failure?.reason)
-      return translate('plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.reason', {
-        reason: failure.reason,
-      })
-  })()
+  const failure = getGasEstimateFailure(error)
+  if (!failure && hasGasLimit) return null
 
   return (
     <Alert status='warning' variant='subtle' borderRadius='lg' fontSize='sm'>
@@ -50,9 +37,18 @@ export const GasEstimateAlert: FC<GasEstimateAlertProps> = ({
               : 'plugins.walletConnectToDapps.modal.sendTransaction.setGasLimit',
           )}
         </AlertDescription>
-        {reason && (
+        {failure?.type === 'insufficientFunds' && (
+          <AlertDescription display='block'>
+            {translate(
+              'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.insufficientFunds',
+            )}
+          </AlertDescription>
+        )}
+        {failure?.type === 'revert' && failure.reason && (
           <AlertDescription display='block' wordBreak='break-word'>
-            {reason}
+            {translate('plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.reason', {
+              reason: failure.reason,
+            })}
           </AlertDescription>
         )}
       </Box>

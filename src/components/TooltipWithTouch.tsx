@@ -8,8 +8,8 @@ const isKeyboardFocus = (target: Element, lastPointerType: string | undefined) =
   try {
     return target.matches(':focus-visible')
   } catch {
-    // :focus-visible is unsupported before Firefox 85
-    return lastPointerType !== 'touch'
+    // :focus-visible is unsupported before Firefox 85 and Safari 15.4
+    return lastPointerType === undefined || lastPointerType === 'mouse'
   }
 }
 
@@ -27,11 +27,10 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
   const hasTouchMovedRef = useRef(false)
   const lastPointerTypeRef = useRef<string | undefined>(undefined)
 
-  // Tap outside or Escape closes, whatever the viewport width or the input that opened it
   useEffect(() => {
     if (!isTooltipOpen) return
 
-    const handleTouchOutside = (event: TouchEvent) => {
+    const handlePointerDownOutside = (event: PointerEvent) => {
       if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
         onTooltipClose()
       }
@@ -41,11 +40,11 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
       if (event.key === 'Escape') onTooltipClose()
     }
 
-    document.addEventListener('touchstart', handleTouchOutside)
+    document.addEventListener('pointerdown', handlePointerDownOutside)
     document.addEventListener('keydown', handleEscape)
 
     return () => {
-      document.removeEventListener('touchstart', handleTouchOutside)
+      document.removeEventListener('pointerdown', handlePointerDownOutside)
       document.removeEventListener('keydown', handleEscape)
     }
   }, [isTooltipOpen, onTooltipClose])
@@ -73,33 +72,23 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
 
   const handleTooltipToggle = useCallback(
     (e: React.TouchEvent) => {
+      if (e.cancelable) e.preventDefault()
       // A touch that moved was a scroll, not a tap
-      if (hasTouchMovedRef.current) return
-
-      e.preventDefault()
-      onTooltipToggle()
+      if (!hasTouchMovedRef.current) onTooltipToggle()
     },
     [onTooltipToggle],
   )
 
-  const { onClose: onCallerClose } = otherProps
-  const handleClose = useCallback(() => {
-    onCallerClose?.()
-    // Chakra also closes on pointerleave, which a touch fires right after lifting; touch closes via toggle/outside tap/Escape
-    if (lastPointerTypeRef.current === 'touch') return
-    onTooltipClose()
-  }, [onCallerClose, onTooltipClose])
-
-  const handlePointerType = useCallback((e: React.PointerEvent) => {
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
     lastPointerTypeRef.current = e.pointerType
   }, [])
 
   const handleFocus = useCallback(
     (e: React.FocusEvent) => {
-      // Keyboard focus only; a tap can also focus the trigger and would fight the touch toggle
-      if (isKeyboardFocus(e.target, lastPointerTypeRef.current)) onTooltipOpen()
+      if (label !== undefined && isKeyboardFocus(e.target, lastPointerTypeRef.current))
+        onTooltipOpen()
     },
-    [onTooltipOpen],
+    [label, onTooltipOpen],
   )
 
   const handleTooltipClose = useCallback(
@@ -118,15 +107,14 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
       alignItems='center'
       onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
       onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
-      onPointerEnter={handlePointerType}
-      onPointerDown={handlePointerType}
+      onPointerDown={handlePointerDown}
       onFocus={handleFocus}
       onBlur={onTooltipClose}
       onTouchStart={label !== undefined ? handleTouchStart : undefined}
       onTouchMove={label !== undefined ? handleTouchMove : undefined}
       onTouchEnd={label !== undefined ? handleTooltipToggle : undefined} // Don't rug the user with a preventDefault if there's no label
     >
-      <Tooltip isOpen={isTooltipOpen} label={label} {...otherProps} onClose={handleClose}>
+      <Tooltip isOpen={isTooltipOpen} label={label} {...otherProps}>
         {children}
       </Tooltip>
     </Box>

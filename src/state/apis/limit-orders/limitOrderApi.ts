@@ -35,7 +35,6 @@ import {
   SellTokenSource,
   SigningScheme,
 } from '@shapeshiftoss/types'
-import { isSome } from '@shapeshiftoss/utils'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { TypedData } from 'eip-712'
@@ -46,6 +45,7 @@ import { zeroAddress } from 'viem'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 
 import { getConfig } from '@/config'
+import { isFulfilled, isRejected } from '@/lib/utils'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import type { ReduxState } from '@/state/reducer'
 import { selectConfirmedLimitOrder } from '@/state/slices/limitOrderSlice/selectors'
@@ -61,6 +61,11 @@ export type LimitOrderQuoteParams = {
   receiveAddress: Address | undefined
 }
 
+type LimitOrdersResponse = {
+  orders: { order: Order; accountId: AccountId }[]
+  failedAccountIds: AccountId[]
+}
+
 export const limitOrderApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'limitOrderApi',
@@ -68,64 +73,65 @@ export const limitOrderApi = createApi({
   tagTypes: ['limitOrders', 'limitOrderQuote'] as const,
   baseQuery: fakeBaseQuery<CowSwapError | null>(),
   endpoints: build => ({
-    getLimitOrders: build.query<{ order: Order; accountId: AccountId }[], AccountId[]>({
+    getLimitOrders: build.query<LimitOrdersResponse, AccountId[]>({
       queryFn: async (accountIds: AccountId[]) => {
         const supportedAccountIds = accountIds.filter(accountId => {
           const { chainId } = fromAccountId(accountId)
           return Boolean(getCowNetwork(chainId))
         })
 
-        try {
-          const results = await Promise.all(
-            supportedAccountIds.map(async accountId => {
-              const { account, chainId } = fromAccountId(accountId)
-              const network = assertGetCowNetwork(chainId)
-              const config = getConfig()
-              const baseUrl = config.VITE_COWSWAP_BASE_URL
+        const results = await Promise.allSettled(
+          supportedAccountIds.map(async accountId => {
+            const { account, chainId } = fromAccountId(accountId)
+            const network = assertGetCowNetwork(chainId)
+            const config = getConfig()
+            const baseUrl = config.VITE_COWSWAP_BASE_URL
 
-              try {
-                const result = await axios.get<Order[]>(
-                  `${baseUrl}/${network}/api/v1/account/${account}/orders?limit=1000`,
-                )
+            const result = await axios.get<Order[]>(
+              `${baseUrl}/${network}/api/v1/account/${account}/orders?limit=1000`,
+            )
 
-                // CowSwap limit and spot orders API is the same, so we need to filter out spot orders
-                // there are no parameters to filter from their API, they are filtering after fetching
-                // on their interface as it's some custom metadata they add
-                const limitOrders = result.data.filter(order => {
-                  // This shouldn't happen but...
-                  if (!order.fullAppData) return true
+            // CowSwap limit and spot orders API is the same, so we need to filter out spot orders
+            // there are no parameters to filter from their API, they are filtering after fetching
+            // on their interface as it's some custom metadata they add
+            const limitOrders = result.data.filter(order => {
+              // This shouldn't happen but...
+              if (!order.fullAppData) return true
 
-                  const appData = JSON.parse(order.fullAppData) as ParsedAppData
+              const appData = JSON.parse(order.fullAppData) as ParsedAppData
 
-                  // Legacy appdata was used for market orders only
-                  if (isLegacyAppData(appData)) return false
+              // Legacy appdata was used for market orders only
+              if (isLegacyAppData(appData)) return false
 
-                  return appData.metadata?.orderClass?.orderClass !== OrderClass.MARKET
-                })
+              return appData.metadata?.orderClass?.orderClass !== OrderClass.MARKET
+            })
 
-                return limitOrders.map(order => {
-                  return { order, accountId }
-                })
-              } catch (e) {
-                console.error(`Error fetching orders for account ${accountId}:`, e)
-                return []
-              }
-            }),
-          )
+            return limitOrders.map(order => {
+              return { order, accountId }
+            })
+          }),
+        )
 
-          const flattened = orderBy(
-            results.flat().filter(isSome),
-            ({ order }) => order.creationDate,
-            'desc',
-          )
+        const failedAccountIds = supportedAccountIds.filter((_, i) => isRejected(results[i]))
+        const fulfilled = results.filter(isFulfilled)
 
-          return { data: flattened }
-        } catch (e) {
-          const axiosError = e as AxiosError
+        if (failedAccountIds.length && !fulfilled.length) {
+          const reason = results.find(isRejected)?.reason
+          console.error('Error fetching limit orders:', reason)
+          const axiosError = reason as AxiosError<CowSwapError>
           return {
-            error: (axiosError.response?.data ?? null) as CowSwapError | null,
+            error:
+              axiosError.response?.data ?? ({ description: axiosError.message } as CowSwapError),
           }
         }
+
+        const orders = orderBy(
+          fulfilled.flatMap(({ value }) => value),
+          ({ order }) => order.creationDate,
+          'desc',
+        )
+
+        return { data: { orders, failedAccountIds } }
       },
       providesTags: ['limitOrders'],
     }),

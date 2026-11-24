@@ -9,7 +9,6 @@ export type CollapsibleLimitOrderListProps = {
   isOpen: boolean
   width: string | number
   height: string | number
-  isLoading: boolean
   ml: CardProps['ml']
 }
 
@@ -17,10 +16,10 @@ export const CollapsibleLimitOrderList: React.FC<CollapsibleLimitOrderListProps>
   isOpen,
   width,
   height,
-  isLoading,
   ml,
 }) => {
-  const borderColor = useColorModeValue('border.base', 'transparent') // Patch styling: border to remedy box shadow cut off in light mode
+  // Patch styling: border to remedy box shadow cut off in light mode
+  const borderColor = useColorModeValue('border.base', 'transparent')
 
   const cardProps: CardProps = useMemo(
     () => ({
@@ -34,7 +33,7 @@ export const CollapsibleLimitOrderList: React.FC<CollapsibleLimitOrderListProps>
 
   return (
     <HorizontalCollapse isOpen={isOpen} width={width} height={height}>
-      <LimitOrderList isLoading={isLoading} cardProps={cardProps} />
+      <LimitOrderList cardProps={cardProps} />
     </HorizontalCollapse>
   )
 }

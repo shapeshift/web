@@ -71,6 +71,14 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
     onTooltipClose()
   }, [onCallerClose, onTooltipClose])
 
+  const handleFocus = useCallback(
+    (e: React.FocusEvent) => {
+      // Keyboard focus only; a tap can also focus the trigger and would fight the touch toggle
+      if (e.target.matches(':focus-visible')) onTooltipOpen()
+    },
+    [onTooltipOpen],
+  )
+
   const handleTooltipClose = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
@@ -87,8 +95,8 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
       alignItems='center'
       onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
       onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
-      onFocus={isLargerThanMd ? onTooltipOpen : undefined}
-      onBlur={isLargerThanMd ? onTooltipClose : undefined}
+      onFocus={handleFocus}
+      onBlur={onTooltipClose}
       onTouchStart={label !== undefined ? handleTouchStart : undefined}
       onTouchMove={label !== undefined ? handleTouchMove : undefined}
       onTouchEnd={label !== undefined ? handleTooltipToggle : undefined} // Don't rug the user with a preventDefault if there's no label

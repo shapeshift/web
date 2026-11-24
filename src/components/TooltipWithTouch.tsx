@@ -18,21 +18,28 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
   const hasTouchMovedRef = useRef(false)
   const lastPointerTypeRef = useRef<string | undefined>(undefined)
 
-  // Click outside to close on mobile
+  // Tap outside or Escape closes, whatever the viewport width or the input that opened it
   useEffect(() => {
-    if (!isLargerThanMd && isTooltipOpen) {
-      const handleTouchOutside = (event: TouchEvent) => {
-        if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
-          onTooltipClose()
-        }
-      }
+    if (!isTooltipOpen) return
 
-      document.addEventListener('touchstart', handleTouchOutside)
-      return () => {
-        document.removeEventListener('touchstart', handleTouchOutside)
+    const handleTouchOutside = (event: TouchEvent) => {
+      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+        onTooltipClose()
       }
     }
-  }, [isTooltipOpen, isLargerThanMd, onTooltipClose])
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onTooltipClose()
+    }
+
+    document.addEventListener('touchstart', handleTouchOutside)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isTooltipOpen, onTooltipClose])
 
   const handleToolTipOpen = useCallback(
     (e: React.MouseEvent) => {
@@ -69,7 +76,7 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
   const { onClose: onCallerClose } = otherProps
   const handleClose = useCallback(() => {
     onCallerClose?.()
-    // Chakra also closes on pointerleave, which a touch fires right after lifting; touch closes via toggle/outside tap
+    // Chakra also closes on pointerleave, which a touch fires right after lifting; touch closes via toggle/outside tap/Escape
     if (lastPointerTypeRef.current === 'touch') return
     onTooltipClose()
   }, [onCallerClose, onTooltipClose])

@@ -1,9 +1,11 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
+import { BaseError, ExecutionRevertedError, HttpRequestError } from 'viem'
 import { describe, expect, it } from 'vitest'
 
 import {
   extractConnectedAccounts,
+  getGasEstimateRevert,
   getRecommendedGasLimit,
   isMethodPermittedForAccount,
 } from './utils'
@@ -87,6 +89,33 @@ describe('getRecommendedGasLimit', () => {
   })
 
   it('uses the buffered estimate without a dApp gas limit', () => {
-    expect(getRecommendedGasLimit(82798, undefined)).toBe('99358')
+    expect(getRecommendedGasLimit('82798', undefined)).toBe('99358')
+  })
+})
+
+describe('getGasEstimateRevert', () => {
+  const estimateError = (details: string) =>
+    new BaseError('Estimate gas failed', {
+      cause: new ExecutionRevertedError({ cause: new BaseError('RPC error', { details }) }),
+    })
+
+  it('returns the revert reason from a reverted estimate', () => {
+    expect(
+      getGasEstimateRevert(estimateError('execution reverted: ERC20: insufficient allowance')),
+    ).toEqual({ reason: 'ERC20: insufficient allowance' })
+  })
+
+  it('flags a revert without a reason', () => {
+    expect(getGasEstimateRevert(estimateError('execution reverted'))).toEqual({
+      reason: undefined,
+    })
+  })
+
+  it('ignores estimation outages', () => {
+    expect(getGasEstimateRevert(new HttpRequestError({ url: 'https://rpc.example' }))).toBe(
+      undefined,
+    )
+    expect(getGasEstimateRevert(new Error('unchained unavailable'))).toBe(undefined)
+    expect(getGasEstimateRevert(null)).toBe(undefined)
   })
 })

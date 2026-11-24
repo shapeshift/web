@@ -1,4 +1,14 @@
-import { Button, HStack, Image, VStack } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  HStack,
+  Image,
+  VStack,
+} from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { btcChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
@@ -144,12 +154,13 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
 
   const speed = formContext?.watch('speed')
 
-  const { simulationQuery, gasLimit, isGasLimitLoading } = useSimulateEvmTransaction({
-    transaction,
-    chainId,
-    speed,
-    gasLimit: formContext?.watch('gasLimit'),
-  })
+  const { simulationQuery, gasLimit, isGasLimitLoading, gasEstimateRevert } =
+    useSimulateEvmTransaction({
+      transaction,
+      chainId,
+      speed,
+      gasLimit: formContext?.watch('gasLimit'),
+    })
 
   const isSimulationLoading = simulationQuery.isLoading
   const isGasLimitMissing = !!transaction && !gasLimit
@@ -167,6 +178,31 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
           <WalletConnectSigningWithSection accountId={accountId} />
           {transaction && chainId && (
             <GasSelectionMenu transaction={transaction} chainId={chainId} />
+          )}
+          {gasEstimateRevert && (
+            <Alert status='warning' variant='subtle' borderRadius='lg' fontSize='sm'>
+              <AlertIcon />
+              <Box>
+                <AlertTitle>
+                  {translate(
+                    'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.title',
+                  )}
+                </AlertTitle>
+                <AlertDescription display='block'>
+                  {translate(
+                    'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.description',
+                  )}
+                </AlertDescription>
+                {gasEstimateRevert.reason && (
+                  <AlertDescription display='block' wordBreak='break-word'>
+                    {translate(
+                      'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.reason',
+                      { reason: gasEstimateRevert.reason },
+                    )}
+                  </AlertDescription>
+                )}
+              </Box>
+            </Alert>
           )}
         </VStack>
         <HStack spacing={4} w='full'>

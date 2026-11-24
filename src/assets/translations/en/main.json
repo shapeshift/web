@@ -2310,6 +2310,11 @@
               "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
           },
+          "likelyToFail": {
+            "title": "This transaction is likely to fail",
+            "description": "Confirming it may still cost a network fee.",
+            "reason": "Reason: %{reason}"
+          },
           "recipientAddress": "Recipient Address",
           "amount": "Amount",
           "amountSats": "%{amount} sats",

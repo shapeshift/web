@@ -9,7 +9,11 @@ import type { TransactionParams } from '../types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import { getRecommendedGasLimit, toNumberString } from '@/plugins/walletConnectToDapps/utils'
+import {
+  getGasEstimateRevert,
+  getRecommendedGasLimit,
+  toNumberString,
+} from '@/plugins/walletConnectToDapps/utils'
 import { simulateTransaction } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   selectFeeAssetByChainId,
@@ -37,7 +41,7 @@ export const useSimulateEvmTransaction = ({
   // dApp gas is only a floor since dApps can under-estimate it
   const dappGasLimit = toNumberString(transaction?.gasLimit ?? transaction?.gas)
 
-  // Calldata decoding, asset changes and gas_used; fixed per tx, so never polled
+  // Calldata decoding and asset changes for display; fixed per tx, so never polled
   const tenderlySimulationQuery = useQuery({
     queryKey: [
       'tenderlySimulation',
@@ -72,7 +76,6 @@ export const useSimulateEvmTransaction = ({
     retry: false,
   })
 
-  // Gas limit from eth_estimateGas, since Tenderly's gas_used is net of refunds
   const gasLimitQuery = useQuery({
     queryKey: [
       'evmGasLimit',
@@ -96,11 +99,13 @@ export const useSimulateEvmTransaction = ({
   const recommendedGasLimit = useMemo(() => {
     if (gasLimitQuery.isLoading) return
 
-    return getRecommendedGasLimit(
-      gasLimitQuery.data?.gasLimit ?? tenderlySimulationQuery.data?.transaction.gas_used,
-      dappGasLimit,
-    )
-  }, [gasLimitQuery.isLoading, gasLimitQuery.data, tenderlySimulationQuery.data, dappGasLimit])
+    return getRecommendedGasLimit(gasLimitQuery.data?.gasLimit, dappGasLimit)
+  }, [gasLimitQuery.isLoading, gasLimitQuery.data, dappGasLimit])
+
+  const gasEstimateRevert = useMemo(
+    () => getGasEstimateRevert(gasLimitQuery.error),
+    [gasLimitQuery.error],
+  )
 
   const gasLimit = bnOrZero(userGasLimit).gt(0) ? userGasLimit : recommendedGasLimit
   const isGasLimitLoading = !gasLimit && gasLimitQuery.isLoading
@@ -136,6 +141,7 @@ export const useSimulateEvmTransaction = ({
     recommendedGasLimit,
     gasLimit,
     isGasLimitLoading,
+    gasEstimateRevert,
     fee,
   }
 }

@@ -2,7 +2,15 @@ import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, toAccountId, toChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
 import BigNumber from 'bignumber.js'
-import { hexToBigInt, hexToString, isAddress, isHex, validateTypedData } from 'viem'
+import {
+  BaseError,
+  ExecutionRevertedError,
+  hexToBigInt,
+  hexToString,
+  isAddress,
+  isHex,
+  validateTypedData,
+} from 'viem'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
@@ -72,7 +80,7 @@ export const isMethodPermittedForAccount = (
 const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
 
 export const getRecommendedGasLimit = (
-  baseGasLimit: string | number | undefined,
+  baseGasLimit: string | undefined,
   dappGasLimit: string | undefined,
 ): string | undefined => {
   if (!baseGasLimit) return dappGasLimit
@@ -82,6 +90,17 @@ export const getRecommendedGasLimit = (
     .integerValue(BigNumber.ROUND_CEIL)
 
   return BigNumber.max(estimatedGasLimit, bnOrZero(dappGasLimit)).toFixed()
+}
+
+// Distinguishes a reverting tx from an estimation outage (unchained and RPC both unreachable)
+export const getGasEstimateRevert = (error: unknown): { reason?: string } | undefined => {
+  if (!(error instanceof BaseError)) return
+
+  const reverted = error.walk(cause => cause instanceof ExecutionRevertedError)
+  if (!(reverted instanceof BaseError)) return
+
+  const reason = reverted.details.replace(/^execution reverted:?\s*/i, '').trim()
+  return { reason: reason || undefined }
 }
 
 export const extractAllConnectedAccounts = (

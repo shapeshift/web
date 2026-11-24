@@ -2312,12 +2312,12 @@
           },
           "likelyToFail": {
             "title": "This transaction is likely to fail",
-            "description": "Confirming it may still cost a network fee.",
+            "description": "If it fails, you'll still pay the network fee.",
             "reason": "Reason: %{reason}",
             "insufficientFunds": "Reason: not enough balance to cover the amount and network fee."
           },
           "gasEstimateUnavailable": "Unable to estimate gas",
-          "setGasLimit": "Set a gas limit in Advanced Parameters to confirm.",
+          "setGasLimit": "Set a gas limit in Advanced Parameters.",
           "recipientAddress": "Recipient Address",
           "amount": "Amount",
           "amountSats": "%{amount} sats",

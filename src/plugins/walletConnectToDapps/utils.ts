@@ -84,13 +84,14 @@ export const getRecommendedGasLimit = (
   baseGasLimit: string | undefined,
   dappGasLimit: string | undefined,
 ): string | undefined => {
-  if (!baseGasLimit) return dappGasLimit
+  const validDappGasLimit = bnOrZero(dappGasLimit).gt(0) ? dappGasLimit : undefined
+  if (!baseGasLimit) return validDappGasLimit
+  if (bnOrZero(validDappGasLimit).gte(baseGasLimit)) return validDappGasLimit
 
-  const estimatedGasLimit = bnOrZero(baseGasLimit)
+  return bnOrZero(baseGasLimit)
     .times(GAS_LIMIT_BUFFER_MULTIPLIER)
     .integerValue(BigNumber.ROUND_CEIL)
-
-  return BigNumber.max(estimatedGasLimit, bnOrZero(dappGasLimit)).toFixed()
+    .toFixed()
 }
 
 type GasEstimateFailure = { type: 'revert'; reason?: string } | { type: 'insufficientFunds' }
@@ -99,7 +100,7 @@ export const getGasEstimateFailure = (error: unknown): GasEstimateFailure | unde
   if (!(error instanceof BaseError)) return
 
   // revm-based nodes (e.g. reth) say "OutOfFunds", which viem doesn't map to InsufficientFundsError
-  const isOutOfFunds = /OutOfFunds/i.test(error.details)
+  const isOutOfFunds = /OutOfFunds/i.test(error.details ?? '')
   if (isOutOfFunds || error.walk(cause => cause instanceof InsufficientFundsError)) {
     return { type: 'insufficientFunds' }
   }
@@ -107,8 +108,8 @@ export const getGasEstimateFailure = (error: unknown): GasEstimateFailure | unde
   const reverted = error.walk(cause => cause instanceof ExecutionRevertedError)
   if (!(reverted instanceof BaseError)) return
 
-  const reason = reverted.details.match(/^execution reverted:\s*(.+)$/is)?.[1]?.trim()
-  return { type: 'revert', reason: reason || undefined }
+  const reason = (reverted.details ?? '').match(/^execution reverted:\s*(.+)$/is)?.[1]?.trim()
+  return { type: 'revert', reason: reason && !isHex(reason) ? reason : undefined }
 }
 
 export const extractAllConnectedAccounts = (

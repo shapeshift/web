@@ -80,12 +80,18 @@ describe('getRecommendedGasLimit', () => {
     expect(getRecommendedGasLimit('123716', '99358')).toBe('148460')
   })
 
-  it('keeps a dApp gas limit above the buffered estimate', () => {
-    expect(getRecommendedGasLimit('100000', '200000')).toBe('200000')
+  it('keeps a dApp gas limit that covers the estimate', () => {
+    expect(getRecommendedGasLimit('95000', '100000')).toBe('100000')
+    expect(getRecommendedGasLimit('100000', '100000')).toBe('100000')
   })
 
   it('falls back to the dApp gas limit without an estimate', () => {
     expect(getRecommendedGasLimit(undefined, '99358')).toBe('99358')
+  })
+
+  it('ignores a zero dApp gas limit', () => {
+    expect(getRecommendedGasLimit(undefined, '0')).toBe(undefined)
+    expect(getRecommendedGasLimit('82798', '0')).toBe('99358')
   })
 
   it('uses the buffered estimate without a dApp gas limit', () => {
@@ -110,6 +116,10 @@ describe('getGasEstimateFailure', () => {
       reason: undefined,
     })
     expect(getGasEstimateFailure(reverted('gas required exceeds allowance (0)'))).toEqual({
+      type: 'revert',
+      reason: undefined,
+    })
+    expect(getGasEstimateFailure(reverted('execution reverted: 0x08c379a0000000'))).toEqual({
       type: 'revert',
       reason: undefined,
     })

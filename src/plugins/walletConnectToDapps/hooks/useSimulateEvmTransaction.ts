@@ -34,7 +34,7 @@ export const useSimulateEvmTransaction = ({
     feeAsset ? selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId) : null,
   )
 
-  // dApp gas is only a floor since dApps can under-estimate it
+  // dApp gas is trusted unless it's below our estimate, since dApps can under-estimate it
   const dappGasLimit = toNumberString(transaction?.gasLimit ?? transaction?.gas)
 
   // Calldata decoding and asset changes for display; fixed per tx, so never polled

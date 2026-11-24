@@ -1,8 +1,10 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Link, Text as CText, usePrevious } from '@chakra-ui/react'
+import type { SerializedError } from '@reduxjs/toolkit'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
-import type { Order } from '@shapeshiftoss/types'
+import type { CowSwapError, Order } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
@@ -20,7 +22,15 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
-export const useLimitOrdersQuery = () => {
+type LimitOrdersQueryResult = {
+  data: { order: Order; accountId: AccountId }[] | undefined
+  currentData: { order: Order; accountId: AccountId }[] | undefined
+  failedAccountIds: AccountId[]
+  error: CowSwapError | SerializedError | null | undefined
+  isLoading: boolean
+}
+
+export const useLimitOrdersQuery = (): LimitOrdersQueryResult => {
   const { evmAccountIds } = useAppSelector(selectPartitionedAccountIds)
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
   const {

@@ -148,10 +148,11 @@ const OrdersEmptyState: FC<{ translation: string; hasWarning?: boolean }> = ({
 
 const OrdersWarning: FC<{ translation: string }> = ({ translation }) => {
   const translate = useTranslate()
+  const label = translate(translation)
 
   return (
-    <TooltipWithTouch label={translate(translation)}>
-      <WarningTwoIcon color='text.warning' boxSize={4} />
+    <TooltipWithTouch label={label}>
+      <WarningTwoIcon color='text.warning' boxSize={4} tabIndex={0} role='img' aria-label={label} />
     </TooltipWithTouch>
   )
 }

@@ -2,7 +2,11 @@ import { solanaChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
 import { describe, expect, it } from 'vitest'
 
-import { extractConnectedAccounts, getRecommendedGasLimit } from './utils'
+import {
+  extractConnectedAccounts,
+  getRecommendedGasLimit,
+  isMethodPermittedForAccount,
+} from './utils'
 
 const SOLANA_ADDRESS = '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV'
 const ETH_ACCOUNT_ID = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
@@ -32,6 +36,40 @@ describe('extractConnectedAccounts', () => {
       `${solanaChainId}:${SOLANA_ADDRESS}`,
       ETH_ACCOUNT_ID,
     ])
+  })
+})
+
+describe('isMethodPermittedForAccount', () => {
+  const checksummedSession: Pick<SessionTypes.Struct, 'namespaces'> = {
+    namespaces: {
+      eip155: {
+        accounts: ['eip155:8453:0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'],
+        chains: ['eip155:8453'],
+        methods: ['personal_sign'],
+        events: [],
+      },
+    },
+  }
+  const accountId = 'eip155:8453:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
+
+  it('matches a checksummed session account to its lowercased account id', () => {
+    expect(isMethodPermittedForAccount(checksummedSession, 'personal_sign', accountId)).toBe(true)
+  })
+
+  it('rejects a method the session does not permit', () => {
+    expect(isMethodPermittedForAccount(checksummedSession, 'eth_sendTransaction', accountId)).toBe(
+      false,
+    )
+  })
+
+  it('rejects an account outside the session', () => {
+    expect(
+      isMethodPermittedForAccount(
+        checksummedSession,
+        'personal_sign',
+        'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535',
+      ),
+    ).toBe(false)
   })
 })
 

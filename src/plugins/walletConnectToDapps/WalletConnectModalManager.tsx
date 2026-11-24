@@ -40,7 +40,11 @@ import type {
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
-import { extractConnectedAccounts, getRequestAccount } from '@/plugins/walletConnectToDapps/utils'
+import {
+  extractConnectedAccounts,
+  getRequestAccount,
+  isMethodPermittedForAccount,
+} from '@/plugins/walletConnectToDapps/utils'
 import { approveBIP122Request } from '@/plugins/walletConnectToDapps/utils/BIP122RequestHandlerUtil'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
@@ -124,10 +128,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     if (!session || session.expiry * 1000 <= Date.now())
       throw new Error('WalletConnect session expired')
     const { chainId: requestChain, request } = requestEvent.params
-    const permitted = Object.values(session.namespaces).some(
-      namespace =>
-        namespace.methods.includes(request.method) && namespace.accounts.includes(accountId),
-    )
+    const permitted = isMethodPermittedForAccount(session, request.method, accountId)
     if (
       !permitted ||
       getRequestAccount(

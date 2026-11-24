@@ -57,6 +57,17 @@ export const extractConnectedAccounts = (
     .filter(isSome)
 }
 
+export const isMethodPermittedForAccount = (
+  session: Pick<SessionTypes.Struct, 'namespaces'>,
+  method: string,
+  accountId: AccountId,
+): boolean =>
+  Object.values(session.namespaces).some(
+    namespace =>
+      namespace.methods.includes(method) &&
+      namespace.accounts.some(account => toSupportedAccountId(account) === accountId),
+  )
+
 // Headroom on the recommended gas limit for state drift between estimation and broadcast
 const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
 

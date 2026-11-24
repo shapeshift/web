@@ -3,7 +3,4 @@ import { executeEvmTransaction } from '../../utils'
 
 export const acrossSwapper: Swapper = {
   executeEvmTransaction,
-  executeSolanaMessage: ({ serializedTx }, { signAndBroadcastSerializedTransaction }) => {
-    return signAndBroadcastSerializedTransaction(serializedTx)
-  },
 }

@@ -58,10 +58,10 @@ const executeUtxo = (txData: UtxoTransactionData, bitcoin: BitcoinSigner): Promi
 
   bitcoin.reset()
 
-  return bitcoin.sendTransfer({
-    recipientAddress: txData.to,
-    amount: txData.value,
-    memo: txData.opReturnData,
+  return bitcoin.sendTransaction({
+    to: txData.to,
+    value: txData.value,
+    opReturnData: txData.opReturnData,
   })
 }
 

@@ -11,7 +11,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
-import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +28,6 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
@@ -58,6 +56,8 @@ export const Address = () => {
   const translate = useTranslate()
   const {
     setValue,
+    getValues,
+    getFieldState,
     trigger,
     formState: { errors },
   } = useFormContext<SendInput>()
@@ -125,7 +125,7 @@ export const Address = () => {
   )
 
   const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
-  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+  const addressError = errors[SendFormFields.Input]?.message ?? null
 
   const showSaveButton = useMemo(() => {
     return Boolean(
@@ -146,12 +146,7 @@ export const Address = () => {
     }
 
     setValue(SendFormFields.AssetId, '')
-    navigate(SendRoutes.Select, {
-      state: {
-        toRoute: SelectAssetRoutes.Search,
-        assetId: '',
-      },
-    })
+    navigate(SendRoutes.Select)
   }, [navigate, setValue, isFromQrCode])
 
   const addressInputRules = useMemo(
@@ -180,6 +175,11 @@ export const Address = () => {
           const { address, vanityAddress } = await parseAddressInputWithChainId(
             parseAddressInputWithChainIdArgs,
           )
+          const currentInput = getValues(SendFormFields.Input)
+          if (currentInput !== rawInput) {
+            if (!currentInput) setIsValidating(false)
+            return getFieldState(SendFormFields.Input).error?.message ?? true
+          }
           setIsValidating(false)
           // set returned values
           setValue(SendFormFields.To, address)
@@ -189,7 +189,7 @@ export const Address = () => {
         },
       },
     }),
-    [asset, setValue],
+    [asset, getFieldState, getValues, setValue],
   )
 
   const handleCancel = useCallback(() => {
@@ -280,7 +280,7 @@ export const Address = () => {
           )}
           <Button
             width='full'
-            isDisabled={!isSendSupported || !address || !input || addressError}
+            isDisabled={!isSendSupported || !address || !input || !!addressError}
             isLoading={isValidating}
             colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'

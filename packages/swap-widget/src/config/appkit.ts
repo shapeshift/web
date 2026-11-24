@@ -25,7 +25,9 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
 
+import { getChainIcon } from '../constants/chains'
 import { elysium } from '../constants/viemChains'
+import { guardWalletInitiatedConnects } from './walletInitiatedConnect'
 
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
@@ -47,6 +49,17 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]
 
+// Reown has no artwork for some networks (Monad, MegaETH, ...) and renders a globe;
+// supply our own icons, keyed by network id as AppKit expects.
+const CHAIN_IMAGES: Record<number | string, string> = Object.fromEntries(
+  ALL_NETWORKS.flatMap(network => {
+    // EVM entries are plain viem chains without a caipNetworkId
+    const chainId = 'caipNetworkId' in network ? network.caipNetworkId : `eip155:${network.id}`
+    const image = getChainIcon(chainId)
+    return image ? [[network.id, image]] : []
+  }),
+)
+
 // AppKit keeps a module-level `modal` singleton, set by `createAppKit` whether
 // it's called by this widget (self-init) or by the host app. Reading it lets the
 // widget detect — and hook into — an AppKit the host already initialized, as long
@@ -61,6 +74,20 @@ export const isAppKitInitialized = (): boolean => modal !== undefined
 export const getActiveWagmiConfig = (): Config | undefined => {
   const evmAdapter = modal?.chainAdapters?.eip155 as WagmiAdapter | undefined
   return evmAdapter?.wagmiConfig
+}
+
+// AppKit returns to the network list after a switch; close once the new network has an account
+const closeModalAfterNetworkSwitch = (appKit: ReturnType<typeof createAppKit>) => {
+  let lastNetworkId = appKit.getState().selectedNetworkId
+
+  return appKit.subscribeState(state => {
+    const hasSwitched = state.selectedNetworkId !== lastNetworkId
+    lastNetworkId = state.selectedNetworkId
+    if (!hasSwitched || !state.open) return
+
+    const namespace = state.activeChain
+    if (namespace && appKit.getAddressByChainNamespace(namespace)) void appKit.close()
+  })
 }
 
 export const initializeAppKit = (projectId: string): void => {
@@ -78,12 +105,16 @@ export const initializeAppKit = (projectId: string): void => {
     wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()] as any,
   })
 
-  createAppKit({
+  const appKit = createAppKit({
     adapters: [wagmiAdapter, bitcoinAdapter, solanaAdapter],
     projectId,
     networks: [...ALL_NETWORKS] as [AppKitNetwork, ...AppKitNetwork[]],
+    chainImages: CHAIN_IMAGES,
     features: {
       send: false,
     },
   })
+
+  closeModalAfterNetworkSwitch(appKit)
+  guardWalletInitiatedConnects(wagmiAdapter.wagmiConfig)
 }

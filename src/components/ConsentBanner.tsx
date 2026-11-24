@@ -13,6 +13,7 @@ import { store } from '@/state/store'
 
 const containerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const containerAlignItems = { base: 'flex-start', md: 'center' }
+const containerPx = { base: 4, md: 8 }
 
 export const ConsentBanner: React.FC = () => {
   const translate = useTranslate()
@@ -49,6 +50,7 @@ export const ConsentBanner: React.FC = () => {
         <Container
           display='flex'
           flexDir={containerFlexDir}
+          px={containerPx}
           py={6}
           maxWidth='container.xl'
           alignItems={containerAlignItems}

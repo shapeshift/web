@@ -14,11 +14,13 @@ import type {
 } from '../../../types'
 import { SwapperName } from '../../../types'
 import { getInputOutputRate } from '../../../utils'
+import { getGrossAffiliateBps } from '../../../utils/affiliateFee'
 import { isNativeEvmAsset, normalizeEpochToMs } from '../../../utils/helpers'
 import type { FyndTradeQuoteInput, FyndTradeRateInput } from '../types'
+import { FYND_CLIENT_FEE_SHARE } from './constants'
 import { fetchFromFynd } from './fetchFromFynd'
 import type { GetFyndStepDataArgs } from './getFyndStepData'
-import { assertValidTrade, getFyndClientFeeBps, getFyndRouteProtocols } from './helpers'
+import { assertValidTrade, getFyndRouteProtocols } from './helpers'
 
 type FyndTradeContext = {
   tradeCommon: TradeCommon
@@ -49,7 +51,7 @@ export const getFyndTradeContext = async ({
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Fynd)
 
-  const clientFeeBps = getFyndClientFeeBps(affiliateBps)
+  const clientFeeBps = getGrossAffiliateBps(affiliateBps, FYND_CLIENT_FEE_SHARE)
 
   const maybeQuote = await fetchFromFynd({
     input,

@@ -1,110 +1,94 @@
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import axios from 'axios'
 
 import type { SwapperApi } from '../../types'
-import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { checkEvmSwapStatus, getSwapMetadata } from '../../utils'
 import { getEvmTransactionFees, getUnsignedEvmTransaction } from '../../utils/evm'
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { getTradeRate } from './getTradeRate/getTradeRate'
-import { acrossService, getAcrossRequestConfig } from './utils/acrossService'
+import { ACROSS_TRANSFER_BASE_URL } from './constant'
+import { getAcrossTradeQuote } from './swapperApi/getTradeQuote'
+import { getAcrossTradeRate } from './swapperApi/getTradeRate'
+import { acrossService } from './utils/acrossService'
 import type {
-  AcrossDepositStatus,
+  AcrossApiError,
   AcrossTradeQuoteInput,
   AcrossTradeRateInput,
+  AcrossTransfer,
+  AcrossTransferState,
 } from './utils/types'
 
+const acrossTransferStateToTxStatus: Record<AcrossTransferState, TxStatus> = {
+  completed: TxStatus.Confirmed,
+  pending: TxStatus.Pending,
+  refunded: TxStatus.Failed,
+  failed: TxStatus.Failed,
+}
+
 export const acrossApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input as AcrossTradeQuoteInput, deps),
-  getTradeRate: (input, deps) => getTradeRate(input as AcrossTradeRateInput, deps),
+  getTradeQuote: (input, deps) => getAcrossTradeQuote(input as AcrossTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getAcrossTradeRate(input as AcrossTradeRateInput, deps),
   getEvmTransactionFees,
   getUnsignedEvmTransaction,
-  getUnsignedSolanaMessage: ({ tradeQuote, stepIndex }) => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('unable to execute a trade rate')
-
-    const step = getExecutableTradeStep(tradeQuote, stepIndex)
-
-    const { transactionData } = step
-    if (transactionData?.type !== 'solana_serialized_tx') {
-      throw new Error('invalid solana transaction')
-    }
-
-    return Promise.resolve({ serializedTx: transactionData.serializedTx })
-  },
   checkTradeStatus: async ({
     txHash,
     chainId,
     address,
+    swap,
     config,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }) => {
-    if (isEvmChainId(chainId)) {
-      const sourceTxStatus = await checkEvmSwapStatus({
-        txHash,
-        chainId,
-        address,
-        assertGetEvmChainAdapter,
-        fetchIsSmartContractAddressQuery,
-      })
+    if (!swap) throw new Error('[Across] swap is required for status check')
 
-      if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
-
-      txHash = sourceTxStatus.buyTxHash ?? txHash
+    const { orderId } = getSwapMetadata(swap.metadata.swapperMetadata, 'across')
+    const swapperTx = {
+      swapperTxId: orderId,
+      swapperTxLink: `${ACROSS_TRANSFER_BASE_URL}/${orderId}`,
     }
 
-    const maybeStatusResponse = await acrossService.get<AcrossDepositStatus>(
-      `${config.VITE_ACROSS_API_URL}/deposit/status?depositTxnRef=${txHash}`,
-      getAcrossRequestConfig(config),
+    const sourceTxStatus = await checkEvmSwapStatus({
+      txHash,
+      chainId,
+      address,
+      assertGetEvmChainAdapter,
+      fetchIsSmartContractAddressQuery,
+    })
+
+    if (sourceTxStatus.status !== TxStatus.Confirmed) {
+      return { ...sourceTxStatus, ...swapperTx }
+    }
+
+    const maybeTransferResponse = await acrossService.get<AcrossTransfer>(
+      `${config.VITE_ACROSS_API_URL}/v1/transfers/${orderId}`,
     )
 
-    if (maybeStatusResponse.isErr()) {
+    if (maybeTransferResponse.isErr()) {
+      const error = maybeTransferResponse.unwrapErr()
+
+      // Across returns not_found.transfer until it indexes the deposit, usually seconds
+      const isNotIndexed =
+        axios.isAxiosError<AcrossApiError>(error.cause) &&
+        error.cause.response?.data?.code === 'not_found.transfer'
+
       return {
         buyTxHash: undefined,
-        status: TxStatus.Unknown,
+        status: isNotIndexed ? TxStatus.Pending : TxStatus.Unknown,
         message: undefined,
+        ...swapperTx,
       }
     }
 
-    const { data: statusResponse } = maybeStatusResponse.unwrap()
+    const { data: transfer } = maybeTransferResponse.unwrap()
 
-    const status = (() => {
-      switch (statusResponse.status) {
-        case 'filled':
-          return TxStatus.Confirmed
-        case 'pending':
-          return TxStatus.Pending
-        case 'slowFillRequested':
-          return TxStatus.Pending
-        case 'expired':
-          return TxStatus.Failed
-        case 'refunded':
-          return TxStatus.Failed
-        default:
-          return TxStatus.Unknown
-      }
-    })()
+    const status = acrossTransferStateToTxStatus[transfer.status.state] ?? TxStatus.Unknown
 
-    const message = (() => {
-      switch (statusResponse.status) {
-        case 'pending':
-          return 'Deposit detected, processing...'
-        case 'slowFillRequested':
-          return 'Taking longer than usual, waiting for fill...'
-        case 'expired':
-          return 'Deposit expired'
-        case 'refunded':
-          return 'Deposit refunded on origin chain'
-        default:
-          return undefined
-      }
-    })()
-
-    const buyTxHash = statusResponse.fillTxnRef
+    const buyTxHash =
+      transfer.transactions.find(({ type }) => type === 'fill')?.transaction.txnRef ?? undefined
 
     return {
       status,
       buyTxHash,
-      message,
+      message: status === TxStatus.Confirmed ? undefined : transfer.status.description,
+      ...swapperTx,
     }
   },
 }

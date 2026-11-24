@@ -7,7 +7,7 @@ import { getAcrossTradeContext } from '../utils/getAcrossTradeContext'
 import { getDefaultUserAddress } from '../utils/helpers'
 import type { AcrossTradeRateInput } from '../utils/types'
 
-export const getTradeRate = async (
+export const getAcrossTradeRate = async (
   input: AcrossTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {

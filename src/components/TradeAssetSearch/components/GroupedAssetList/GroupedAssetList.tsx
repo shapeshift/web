@@ -13,12 +13,15 @@ import { Text } from '@/components/Text'
 
 const Footer = () => <Box height='0.5rem' />
 const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div> // this cannot be Fragment as styles are applied
-const VirtuosoItem = ({ children }: ItemProps<React.FC>) => (
-  <Box px={2} width='100%' minHeight='64px'>
+const VirtuosoItem = ({ children, item: _item, ...props }: ItemProps<React.FC>) => (
+  <Box {...props} px={2} width='100%' minHeight='64px'>
     {children}
   </Box>
 )
 const components = { TopItemList, Footer, Item: VirtuosoItem }
+
+// Also the list's size estimate, so the sticky header doesn't shift the list on the first frame
+const GROUP_HEADER_HEIGHT = 56
 
 const backgroundColor = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
 const style = { minHeight: 'calc(50vh + 40px)' }
@@ -56,8 +59,9 @@ export const GroupedAssetList = ({
             backgroundColor={backgroundColor}
             color='text.subtle'
             fontWeight='medium'
-            pt={4}
-            pb={4}
+            height={`${GROUP_HEADER_HEIGHT}px`}
+            display='flex'
+            alignItems='center'
             px={6}
             translation={groups[index]}
           />
@@ -123,6 +127,7 @@ export const GroupedAssetList = ({
       style={style}
       overscan={200}
       increaseViewportBy={INCREASE_VIEWPORT_BY}
+      defaultItemHeight={GROUP_HEADER_HEIGHT}
     />
   )
 }

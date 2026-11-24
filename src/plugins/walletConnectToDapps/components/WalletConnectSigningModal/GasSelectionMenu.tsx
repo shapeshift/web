@@ -36,13 +36,36 @@ const SPEED_OPTIONS = [
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
 const chevronIcon = <ChevronDownIcon />
 
+type FeeAmountProps = {
+  fee: ReturnType<typeof useSimulateEvmTransaction>['fee']
+  isUnavailable: boolean
+}
+
+const FeeAmount: FC<FeeAmountProps> = ({ fee, isUnavailable }) => {
+  if (fee)
+    return (
+      <RawText fontSize='sm' fontWeight='medium'>
+        {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
+      </RawText>
+    )
+
+  if (isUnavailable)
+    return (
+      <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+        —
+      </RawText>
+    )
+
+  return <Skeleton height='20px' width='180px' />
+}
+
 export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chainId }) => {
   const translate = useTranslate()
   const { setValue } = useFormContext<CustomTransactionData>()
 
   const { speed: selectedSpeed, gasLimit } = useWatch<CustomTransactionData>()
 
-  const { fee } = useSimulateEvmTransaction({
+  const { fee, isGasLimitUnavailable } = useSimulateEvmTransaction({
     transaction,
     chainId,
     speed: selectedSpeed,
@@ -66,18 +89,10 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     [handleSpeedChange],
   )
 
-  const isLoading = !fee
-
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
-        {isLoading ? (
-          <Skeleton height='20px' width='180px' />
-        ) : (
-          <RawText fontSize='sm' fontWeight='medium'>
-            {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
-          </RawText>
-        )}
+        <FeeAmount fee={fee} isUnavailable={isGasLimitUnavailable} />
         <HStack spacing={1} align='center'>
           <HelperTooltip
             label={translate('modals.status.estimatedGas')}

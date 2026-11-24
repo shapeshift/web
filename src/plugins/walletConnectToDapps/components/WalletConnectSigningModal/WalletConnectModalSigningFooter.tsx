@@ -5,9 +5,11 @@ import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { WalletConnectFooter } from '../WalletConnectFooter'
+import { GasEstimateAlert } from './GasEstimateAlert'
 import { GasSelectionMenu } from './GasSelectionMenu'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -142,14 +144,20 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const translate = useTranslate()
 
-  const speed = formContext?.watch('speed')
-
-  const { simulationQuery, gasLimit, isGasLimitLoading } = useSimulateEvmTransaction({
-    transaction,
-    chainId,
-    speed,
-    gasLimit: formContext?.watch('gasLimit'),
+  // Message requests have no form, but useWatch still needs a control to subscribe to
+  const fallbackForm = useForm<CustomTransactionData>()
+  const [speed, userGasLimit] = useWatch({
+    control: (formContext ?? fallbackForm).control,
+    name: ['speed', 'gasLimit'],
   })
+
+  const { simulationQuery, gasLimit, isGasLimitLoading, gasEstimateError } =
+    useSimulateEvmTransaction({
+      transaction,
+      chainId,
+      speed,
+      gasLimit: userGasLimit,
+    })
 
   const isSimulationLoading = simulationQuery.isLoading
   const isGasLimitMissing = !!transaction && !gasLimit
@@ -166,7 +174,10 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
         <VStack px={2} spacing={4} width='full'>
           <WalletConnectSigningWithSection accountId={accountId} />
           {transaction && chainId && (
-            <GasSelectionMenu transaction={transaction} chainId={chainId} />
+            <>
+              <GasSelectionMenu transaction={transaction} chainId={chainId} />
+              <GasEstimateAlert error={gasEstimateError} hasGasLimit={!!gasLimit} />
+            </>
           )}
         </VStack>
         <HStack spacing={4} w='full'>

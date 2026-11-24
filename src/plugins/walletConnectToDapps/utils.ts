@@ -1,8 +1,19 @@
 import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, toAccountId, toChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
-import { hexToBigInt, hexToString, isAddress, isHex, validateTypedData } from 'viem'
+import BigNumber from 'bignumber.js'
+import {
+  BaseError,
+  ExecutionRevertedError,
+  hexToBigInt,
+  hexToString,
+  InsufficientFundsError,
+  isAddress,
+  isHex,
+  validateTypedData,
+} from 'viem'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import type { WalletConnectState } from '@/plugins/walletConnectToDapps/types'
 
@@ -53,6 +64,52 @@ export const extractConnectedAccounts = (
     .flatMap(namespace => namespace.accounts ?? [])
     .map(toSupportedAccountId)
     .filter(isSome)
+}
+
+export const isMethodPermittedForAccount = (
+  session: Pick<SessionTypes.Struct, 'namespaces'>,
+  method: string,
+  accountId: AccountId,
+): boolean =>
+  Object.values(session.namespaces).some(
+    namespace =>
+      namespace.methods.includes(method) &&
+      namespace.accounts.some(account => toSupportedAccountId(account) === accountId),
+  )
+
+// Headroom on the recommended gas limit for state drift between estimation and broadcast
+const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
+
+export const getRecommendedGasLimit = (
+  baseGasLimit: string | undefined,
+  dappGasLimit: string | undefined,
+): string | undefined => {
+  const validDappGasLimit = bnOrZero(dappGasLimit).gt(0) ? dappGasLimit : undefined
+  if (!baseGasLimit) return validDappGasLimit
+  if (bnOrZero(validDappGasLimit).gte(baseGasLimit)) return validDappGasLimit
+
+  return bnOrZero(baseGasLimit)
+    .times(GAS_LIMIT_BUFFER_MULTIPLIER)
+    .integerValue(BigNumber.ROUND_CEIL)
+    .toFixed()
+}
+
+type GasEstimateFailure = { type: 'revert'; reason?: string } | { type: 'insufficientFunds' }
+
+export const getGasEstimateFailure = (error: unknown): GasEstimateFailure | undefined => {
+  if (!(error instanceof BaseError)) return
+
+  // revm-based nodes (e.g. reth) say "OutOfFunds", which viem doesn't map to InsufficientFundsError
+  const isOutOfFunds = /OutOfFunds/i.test(error.details ?? '')
+  if (isOutOfFunds || error.walk(cause => cause instanceof InsufficientFundsError)) {
+    return { type: 'insufficientFunds' }
+  }
+
+  const reverted = error.walk(cause => cause instanceof ExecutionRevertedError)
+  if (!(reverted instanceof BaseError)) return
+
+  const reason = (reverted.details ?? '').match(/^execution reverted:\s*(.+)$/is)?.[1]?.trim()
+  return { type: 'revert', reason: reason && !isHex(reason) ? reason : undefined }
 }
 
 export const extractAllConnectedAccounts = (

@@ -16,6 +16,7 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
   const boxRef = useRef<HTMLDivElement>(null)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const hasTouchMovedRef = useRef(false)
+  const lastPointerTypeRef = useRef<string | undefined>(undefined)
 
   // Click outside to close on mobile
   useEffect(() => {
@@ -68,8 +69,14 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
   const { onClose: onCallerClose } = otherProps
   const handleClose = useCallback(() => {
     onCallerClose?.()
+    // Chakra also closes on pointerleave, which a touch fires right after lifting; touch closes via toggle/outside tap
+    if (lastPointerTypeRef.current === 'touch') return
     onTooltipClose()
   }, [onCallerClose, onTooltipClose])
+
+  const handlePointerType = useCallback((e: React.PointerEvent) => {
+    lastPointerTypeRef.current = e.pointerType
+  }, [])
 
   const handleFocus = useCallback(
     (e: React.FocusEvent) => {
@@ -95,19 +102,15 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
       alignItems='center'
       onMouseEnter={isLargerThanMd ? handleToolTipOpen : undefined}
       onMouseLeave={isLargerThanMd ? handleTooltipClose : undefined}
+      onPointerEnter={handlePointerType}
+      onPointerDown={handlePointerType}
       onFocus={handleFocus}
       onBlur={onTooltipClose}
       onTouchStart={label !== undefined ? handleTouchStart : undefined}
       onTouchMove={label !== undefined ? handleTouchMove : undefined}
       onTouchEnd={label !== undefined ? handleTooltipToggle : undefined} // Don't rug the user with a preventDefault if there's no label
     >
-      <Tooltip
-        isOpen={isTooltipOpen}
-        label={label}
-        {...otherProps}
-        // Chakra closes on pointerleave, which fires right after a touch ends, so only desktop gets it (for Escape)
-        onClose={isLargerThanMd ? handleClose : onCallerClose}
-      >
+      <Tooltip isOpen={isTooltipOpen} label={label} {...otherProps} onClose={handleClose}>
         {children}
       </Tooltip>
     </Box>

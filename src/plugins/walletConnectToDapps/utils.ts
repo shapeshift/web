@@ -1,8 +1,10 @@
 import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, toAccountId, toChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
+import BigNumber from 'bignumber.js'
 import { hexToBigInt, hexToString, isAddress, isHex, validateTypedData } from 'viem'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import type { WalletConnectState } from '@/plugins/walletConnectToDapps/types'
 
@@ -53,6 +55,22 @@ export const extractConnectedAccounts = (
     .flatMap(namespace => namespace.accounts ?? [])
     .map(toSupportedAccountId)
     .filter(isSome)
+}
+
+// Headroom on the recommended gas limit for state drift between estimation and broadcast
+const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
+
+export const getRecommendedGasLimit = (
+  baseGasLimit: string | number | undefined,
+  dappGasLimit: string | undefined,
+): string | undefined => {
+  if (!baseGasLimit) return dappGasLimit
+
+  const estimatedGasLimit = bnOrZero(baseGasLimit)
+    .times(GAS_LIMIT_BUFFER_MULTIPLIER)
+    .integerValue(BigNumber.ROUND_CEIL)
+
+  return BigNumber.max(estimatedGasLimit, bnOrZero(dappGasLimit)).toFixed()
 }
 
 export const extractAllConnectedAccounts = (

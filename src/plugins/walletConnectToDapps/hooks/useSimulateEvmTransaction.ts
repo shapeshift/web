@@ -3,23 +3,19 @@ import * as adapters from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 
 import type { TransactionParams } from '../types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
-import { toNumberString } from '@/plugins/walletConnectToDapps/utils'
+import { getRecommendedGasLimit, toNumberString } from '@/plugins/walletConnectToDapps/utils'
 import { simulateTransaction } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
-// Headroom on the recommended gas limit for state drift between estimation and broadcast
-const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
 
 export const useSimulateEvmTransaction = ({
   transaction,
@@ -30,13 +26,16 @@ export const useSimulateEvmTransaction = ({
   transaction: TransactionParams | undefined
   chainId: ChainId
   speed?: FeeDataKey
-  // dApp-supplied or user-edited gas limit, which takes precedence over the recommendation
+  // User-edited gas limit, which takes precedence over the recommendation
   gasLimit?: string
 }) => {
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const marketData = useAppSelector(state =>
     feeAsset ? selectMarketDataByAssetIdUserCurrency(state, feeAsset.assetId) : null,
   )
+
+  // dApp gas is only a floor since dApps can under-estimate it
+  const dappGasLimit = toNumberString(transaction?.gasLimit ?? transaction?.gas)
 
   // Calldata decoding, asset changes and gas_used; fixed per tx, so never polled
   const tenderlySimulationQuery = useQuery({
@@ -46,7 +45,7 @@ export const useSimulateEvmTransaction = ({
       transaction?.from,
       transaction?.to,
       transaction?.data,
-      transaction?.gas,
+      dappGasLimit,
       transaction?.value,
     ],
     queryFn: transaction
@@ -55,7 +54,7 @@ export const useSimulateEvmTransaction = ({
             chainId,
             from: transaction.from,
             to: transaction.to,
-            gas: transaction.gas ? Number(transaction.gas) : undefined,
+            gas: dappGasLimit ? Number(dappGasLimit) : undefined,
             data: transaction.data,
             value: transaction.value,
           })
@@ -97,15 +96,11 @@ export const useSimulateEvmTransaction = ({
   const recommendedGasLimit = useMemo(() => {
     if (gasLimitQuery.isLoading) return
 
-    const baseGasLimit =
-      gasLimitQuery.data?.gasLimit ?? tenderlySimulationQuery.data?.transaction.gas_used
-    if (!baseGasLimit) return
-
-    return bnOrZero(baseGasLimit)
-      .times(GAS_LIMIT_BUFFER_MULTIPLIER)
-      .integerValue(BigNumber.ROUND_CEIL)
-      .toFixed()
-  }, [gasLimitQuery.isLoading, gasLimitQuery.data, tenderlySimulationQuery.data])
+    return getRecommendedGasLimit(
+      gasLimitQuery.data?.gasLimit ?? tenderlySimulationQuery.data?.transaction.gas_used,
+      dappGasLimit,
+    )
+  }, [gasLimitQuery.isLoading, gasLimitQuery.data, tenderlySimulationQuery.data, dappGasLimit])
 
   const gasLimit = bnOrZero(userGasLimit).gt(0) ? userGasLimit : recommendedGasLimit
   const isGasLimitLoading = !gasLimit && gasLimitQuery.isLoading

@@ -92,7 +92,7 @@ describe('WalletConnectModalSigningFooter', () => {
     expect(onConfirm.mock.calls[0][0].gasLimit).toBe('211295')
   })
 
-  it('allows a dApp-supplied gas limit without waiting for estimation', () => {
+  it('allows a user-set gas limit without waiting for estimation', () => {
     render(<TestFooter gasLimit='21000' />)
     expect(screen.getByRole('button', { name: 'Confirm' })).toHaveProperty('disabled', false)
   })

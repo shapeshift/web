@@ -2,7 +2,7 @@ import { solanaChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
 import { describe, expect, it } from 'vitest'
 
-import { extractConnectedAccounts } from './utils'
+import { extractConnectedAccounts, getRecommendedGasLimit } from './utils'
 
 const SOLANA_ADDRESS = '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV'
 const ETH_ACCOUNT_ID = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
@@ -32,5 +32,23 @@ describe('extractConnectedAccounts', () => {
       `${solanaChainId}:${SOLANA_ADDRESS}`,
       ETH_ACCOUNT_ID,
     ])
+  })
+})
+
+describe('getRecommendedGasLimit', () => {
+  it('raises an under-estimated dApp gas limit to the buffered estimate', () => {
+    expect(getRecommendedGasLimit('123716', '99358')).toBe('148460')
+  })
+
+  it('keeps a dApp gas limit above the buffered estimate', () => {
+    expect(getRecommendedGasLimit('100000', '200000')).toBe('200000')
+  })
+
+  it('falls back to the dApp gas limit without an estimate', () => {
+    expect(getRecommendedGasLimit(undefined, '99358')).toBe('99358')
+  })
+
+  it('uses the buffered estimate without a dApp gas limit', () => {
+    expect(getRecommendedGasLimit(82798, undefined)).toBe('99358')
   })
 })

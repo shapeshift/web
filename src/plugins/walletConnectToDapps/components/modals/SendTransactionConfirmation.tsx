@@ -11,7 +11,6 @@ import type {
   CustomTransactionData,
   EthSendTransactionCallRequest,
 } from '@/plugins/walletConnectToDapps/types'
-import { toNumberString } from '@/plugins/walletConnectToDapps/utils'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 
 export const SendTransactionConfirmation: FC<
@@ -22,7 +21,6 @@ export const SendTransactionConfirmation: FC<
 
   const form = useForm<CustomTransactionData>({
     defaultValues: {
-      gasLimit: toNumberString(transaction?.gasLimit ?? transaction?.gas),
       speed: FeeDataKey.Fast,
     },
   })

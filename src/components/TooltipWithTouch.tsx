@@ -93,7 +93,13 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
       onTouchMove={label !== undefined ? handleTouchMove : undefined}
       onTouchEnd={label !== undefined ? handleTooltipToggle : undefined} // Don't rug the user with a preventDefault if there's no label
     >
-      <Tooltip isOpen={isTooltipOpen} label={label} {...otherProps} onClose={handleClose}>
+      <Tooltip
+        isOpen={isTooltipOpen}
+        label={label}
+        {...otherProps}
+        // Chakra closes on pointerleave, which fires right after a touch ends, so only desktop gets it (for Escape)
+        onClose={isLargerThanMd ? handleClose : onCallerClose}
+      >
         {children}
       </Tooltip>
     </Box>

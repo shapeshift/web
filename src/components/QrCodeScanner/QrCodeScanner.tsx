@@ -5,8 +5,8 @@ import type {
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
 } from 'html5-qrcode/cjs/core'
-import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
-import { useCallback, useEffect, useState } from 'react'
+import { Html5QrcodeErrorTypes, Html5QrcodeResultFactory } from 'html5-qrcode/cjs/core'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { DialogBackButton } from '../Modal/components/DialogBackButton'
@@ -46,7 +46,7 @@ export const QrCodeScanner = ({
   onError,
   addressError,
 }: {
-  onSuccess: (decodedText: string, result: Html5QrcodeResult) => void
+  onSuccess: (decodedText: string, result: Html5QrcodeResult) => void | Promise<void>
   onBack: () => void
   onError?: (errorMessage: string, error: Html5QrcodeError) => void
   addressError?: string | null
@@ -59,42 +59,53 @@ export const QrCodeScanner = ({
   const useNativeScanner = isMobile && isNativeQrScannerCompatible
   const [isNativeScannerLoading, setIsNativeScannerLoading] = useState(useNativeScanner)
 
-  const error = addressError ?? scanError
+  const [scanAttempt, setScanAttempt] = useState(0)
+  const error = scanError ?? addressError
+
+  const callbacks = useRef({ onSuccess, onBack, onError })
+  const isNativeScanActive = useRef(false)
+  useEffect(() => {
+    callbacks.current = { onSuccess, onBack, onError }
+  }, [onSuccess, onBack, onError])
 
   // Use native scanner when in mobile app with compatible version
   useEffect(() => {
     if (!useNativeScanner) return
 
     let isCancelled = false
+    isNativeScanActive.current = true
+    setScanError(null)
     setIsNativeScannerLoading(true)
 
     openNativeQRScanner()
-      .then(data => {
+      .then(async data => {
         if (isCancelled) return
-        // Create a minimal result object for compatibility
-        const mockResult = { decodedText: data } as Html5QrcodeResult
-        onSuccess(data, mockResult)
+        await callbacks.current.onSuccess(data, Html5QrcodeResultFactory.createFromText(data))
       })
       .catch(e => {
         if (isCancelled) return
-        setIsNativeScannerLoading(false)
         if (e.message === 'QR scan cancelled') {
-          onBack()
+          callbacks.current.onBack()
         } else {
           setScanError(e.message)
-          if (onError) {
-            onError(e.message, { type: Html5QrcodeErrorTypes.UNKWOWN_ERROR } as Html5QrcodeError)
-          }
+          callbacks.current.onError?.(e.message, {
+            errorMessage: e.message,
+            type: Html5QrcodeErrorTypes.UNKWOWN_ERROR,
+          })
         }
+      })
+      .finally(() => {
+        if (!isCancelled) setIsNativeScannerLoading(false)
       })
 
     return () => {
       isCancelled = true
     }
-  }, [useNativeScanner, onSuccess, onBack, onError])
+  }, [useNativeScanner, scanAttempt])
 
   const handleScanSuccess: QrcodeSuccessCallback = useCallback(
     (decodedText, _result) => {
+      if (isNativeScanActive.current) return
       onSuccess(decodedText, _result)
     },
     [onSuccess],
@@ -102,6 +113,7 @@ export const QrCodeScanner = ({
 
   const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = useCallback(
     (_errorMessage, error) => {
+      if (isNativeScanActive.current) return
       if (error?.type === Html5QrcodeErrorTypes.UNKWOWN_ERROR) {
         // https://github.com/mebjas/html5-qrcode/issues/320
         // 'NotFoundException: No MultiFormat Readers were able to detect the code' errors are thrown on every frame until a valid QR is detected, don't handle these
@@ -114,10 +126,15 @@ export const QrCodeScanner = ({
     [onError],
   )
 
-  const handlePermissionsButtonClick = useCallback(() => setScanError(null), [])
+  const handleRetry = useCallback(() => {
+    setScanError(null)
+    if (!useNativeScanner) return
+    setIsNativeScannerLoading(true)
+    setScanAttempt(attempt => attempt + 1)
+  }, [useNativeScanner])
 
-  // Show loading state while waiting for native scanner
-  if (useNativeScanner && isNativeScannerLoading) {
+  // Native scanner shows a spinner until there is an error to display
+  if (useNativeScanner && (isNativeScannerLoading || !error)) {
     return (
       <SlideTransition>
         <DialogHeader>
@@ -156,13 +173,13 @@ export const QrCodeScanner = ({
                 translation={
                   isPermissionError(error)
                     ? 'modals.send.errors.qrPermissions'
-                    : addressError ?? 'modals.send.errors.generic'
+                    : (!scanError && addressError) || 'modals.send.errors.generic'
                 }
               />
             </Alert>
-            {isPermissionError(error) && (
-              <Button colorScheme='blue' mt='5' onClick={handlePermissionsButtonClick}>
-                {translate('modals.send.permissionsButton')}
+            {(useNativeScanner || isPermissionError(error)) && (
+              <Button colorScheme='blue' mt='5' onClick={handleRetry}>
+                {translate(useNativeScanner ? 'common.retry' : 'modals.send.permissionsButton')}
               </Button>
             )}
           </Flex>

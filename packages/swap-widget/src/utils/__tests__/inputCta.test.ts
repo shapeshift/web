@@ -6,6 +6,7 @@ const base = {
   isDepositRoute: false,
   hasWalletForSellChain: true,
   isSellChainTypeConnected: true,
+  sellChainName: 'Bitcoin',
   isUnsupportedChain: false,
   supportsDepositRoute: false,
   allowShapeshiftRedirect: true,
@@ -42,7 +43,7 @@ describe('getInputCta', () => {
 
   it('falls back to connect when the selected rate is wallet-only', () => {
     const cta = getInputCta({ ...base, ...noWallet })
-    expect(cta).toEqual({ text: 'Connect Wallet', disabled: false, action: 'connect' })
+    expect(cta).toEqual({ text: 'Connect Bitcoin wallet', disabled: false, action: 'connect' })
   })
 
   it('redirects when the connected wallet cannot serve the sell chain', () => {

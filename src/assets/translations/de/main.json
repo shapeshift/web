@@ -2075,6 +2075,14 @@
         "header": "Verbindung fehlgeschlagen",
         "body": "Es konnte keine Verbindung zu Ihrer Seeker Wallet hergestellt werden. Bitte stellen Sie sicher, dass die Seeker App verfügbar ist, und versuchen Sie es erneut."
       }
+    },
+    "starknetInjected": {
+      "errors": {
+        "notInstalled": "%{name} ist nicht installiert oder deaktiviert. Aktivieren Sie es in Ihrem Browser und versuchen Sie es erneut.",
+        "wrongNetwork": "Wechseln Sie %{name} zum Starknet Mainnet und versuchen Sie es erneut.",
+        "noAccount": "Kein Konto in %{name} gefunden. Erstellen oder entsperren Sie ein Starknet-Mainnet-Konto und versuchen Sie es erneut.",
+        "connectionFailed": "Die Verbindung zu %{name} wurde abgelehnt oder ist fehlgeschlagen. Genehmigen Sie die Anfrage in %{name} und versuchen Sie es erneut."
+      }
     }
   },
   "graph": {
@@ -2181,6 +2189,9 @@
       "deployButton": "Konto bereitstellen",
       "deploying": "Konto wird bereitgestellt...",
       "deployFailed": "Bereitstellung fehlgeschlagen"
+    },
+    "activateAccount": {
+      "description": "Dieses Starknet Konto ist noch nicht aktiv. Senden Sie eine beliebige Transaktion von der %{name} , um es zu aktivieren, und kehren Sie dann zurück."
     }
   },
   "tron": {
@@ -2924,8 +2935,9 @@
     }
   },
   "RFOX": {
-    "epochAwaitingUpdate": "Warte auf Epochenaktualisierung",
-    "epochAwaitingUpdateDescription": "Die aktuellen Epochenbelohnungen, Gesamtbeträge, der Jahreszins (APY) und die Simulator Schätzungen werden nach Veröffentlichung der aktualisierten Epochendaten wieder angezeigt. Sie können Ihre Staking-Position weiterhin einsehen und verwalten.",
+    "closedEpochRewards": "%{month} Prämien",
+    "closedEpochRewardsTooltip": "Ihre geschätzten Prämien für %{month}. Auszahlung automatisch nach Abschluss der Epoche.",
+    "closedEpochSimulatorNotice": "Verwende %{month} Kurse. Die aktuellen Kurse können abweichen.",
     "staking": "rFOX Staking",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -2983,7 +2995,6 @@
     "pendingRewardsBalance": "Ausstehendes Prämienguthaben",
     "pendingRewardsBalanceTooltip": "Ihre Belohnungen zu diesem Zeitpunkt der Epoche. Diese ändern sich mit den Einnahmen und dem gesamten eingesetzten %{symbol}. Die Auszahlung erfolgt automatisch nach Ende der Epoche.",
     "claimTooltip": "Sehen Sie sich Ihre nicht gestakten %{symbol} an und beanspruchen Sie sie, sobald die Abklingzeit abgelaufen ist.",
-    "lifetimeRewardsUnavailable": "Prämien nicht verfügbar",
     "lifetimeRewards": "Bisherige Belohnungen",
     "lifetimeRewardsHelper": "Die Gesamtbelohnungen, die Sie bisher durch das Staking Ihres %{symbol} erhalten haben",
     "timeInPool": "Zeit im Pool",
@@ -3023,12 +3034,13 @@
     },
     "totals": "rFOX Summen",
     "totalStaked": "gestaketer Gesamtbetrag %{symbol} ",
-    "totalStakedHelper": "Der Gesamtbetrag der gestaketen %{symbol}",
-    "dataUnavailable": "Nicht verfügbar",
     "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
+    "totalFeesCollectedForMonth": "Gesamteinnahmen aus Gebühren (%{month})",
     "emissionsPool": "%{symbol} Emissionspool (diese Epoche)",
+    "emissionsPoolForMonth": "%{symbol} Emissionspool (%{month})",
     "emissionsPoolHelper": "Die Gesamtsumme der zu verteilenden Belohnungen %{symbol} stakers",
     "foxBuybackAmount": "Rückkaufbetrag von FOX (Diese Epoche)",
+    "foxBuybackAmountForMonth": "FOX-Rückkaufbetrag (%{month})",
     "pendingDistribution": "Ausstehende Verteilung",
     "selectRuneAddress": "Wählen Sie eine RUNE Adresse",
     "lpSunsetWarningTitle": "Programm beendet",
@@ -3195,6 +3207,8 @@
       "blindSigningRequired": "Für diese Transaktion ist eine Blindsignatur erforderlich. Bitte aktivieren Sie Blind signing oder Contract Data in den Einstellungen Ihrer Ledger App und versuchen Sie es erneut.",
       "ledgerTronAllowDataDisabled": "Bitte aktivieren Sie die Transaktionsdaten in den Einstellungen Ihrer Ledger TRON App und versuchen Sie es erneut.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
+      "starknetWrongNetwork": "%{name} muss auf Starknet Mainnet eingestellt sein. Wechseln Sie das Netzwerk in %{name} und versuchen Sie es erneut.",
+      "starknetAccountChanged": "Das aktive Konto in %{name} hat sich geändert. Überprüfen Sie die Transaktion erneut, vor dem  Absenden.",
       "signMessage": "Signieren der Nachricht fehlgeschlagen.",
       "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",
       "broadcastTransactionWithMessage": "Senden der Transaktion (%{message}) fehlgeschlagen.",

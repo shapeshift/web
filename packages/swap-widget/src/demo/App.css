@@ -197,6 +197,18 @@ body,
   line-height: 1.5;
 }
 
+.demo-partner-code-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--demo-accent);
+  text-decoration: none;
+}
+
+.demo-partner-code-link:hover {
+  text-decoration: underline;
+}
+
 .demo-layout {
   display: flex;
   gap: 24px;

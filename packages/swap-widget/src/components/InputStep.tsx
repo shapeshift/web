@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { getChainName } from '../constants/chains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import type { SwapDisplayValues } from '../hooks/useSwapDisplayValues'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
@@ -8,7 +9,7 @@ import { formatAmount, isExternalPaymentSellChainId } from '../types'
 import { shouldUseDepositFlow } from '../utils/depositFlow'
 import { cryptoToFiat } from '../utils/fiatConversion'
 import type { InputCtaAction } from '../utils/inputCta'
-import { getInputCta } from '../utils/inputCta'
+import { getInputCta, getSecondaryCta } from '../utils/inputCta'
 import { QuoteSelector } from './QuoteSelector'
 import { ReceiveAddressRow } from './ReceiveAddressRow'
 import { RefundAddressRow } from './RefundAddressRow'
@@ -66,6 +67,7 @@ export const InputStep = ({
     !context.isSellAssetEvm && !context.isSellAssetUtxo && !context.isSellAssetSolana
 
   const supportsDepositRoute = isExternalPaymentSellChainId(context.sellAsset.chainId)
+  const sellChainName = getChainName(context.sellAsset.chainId)
 
   const amountBaseUnit = displayValues.isExactOutput
     ? context.buyAmountBaseUnit
@@ -147,6 +149,7 @@ export const InputStep = ({
       isDepositRoute: isDepositFlowAvailable,
       hasWalletForSellChain: !!walletSendAddress,
       isSellChainTypeConnected,
+      sellChainName,
       isUnsupportedChain,
       supportsDepositRoute,
       allowShapeshiftRedirect,
@@ -161,6 +164,7 @@ export const InputStep = ({
     isDepositFlowAvailable,
     walletSendAddress,
     isSellChainTypeConnected,
+    sellChainName,
     isUnsupportedChain,
     supportsDepositRoute,
     allowShapeshiftRedirect,
@@ -173,6 +177,15 @@ export const InputStep = ({
     displayValues.ratesError,
     displayValues.rates,
   ])
+
+  const secondaryCta = getSecondaryCta({
+    isDepositRoute: isDepositFlowAvailable,
+    isUnsupportedChain,
+    isSellChainTypeConnected,
+    sellChainName,
+    allowShapeshiftRedirect,
+    primaryAction: buttonAction,
+  })
 
   return (
     <>
@@ -457,24 +470,21 @@ export const InputStep = ({
         )}
       </button>
 
-      {isUnsupportedChain &&
-        isDepositFlowAvailable &&
-        allowShapeshiftRedirect &&
-        buttonAction !== 'redirect' && (
-          <>
-            <div className='ssw-or-divider' aria-hidden='true'>
-              <span>or</span>
-            </div>
-            <button
-              className='ssw-action-btn ssw-secondary'
-              disabled={isQuoting}
-              onClick={() => onButtonClick('redirect')}
-              type='button'
-            >
-              Proceed on ShapeShift
-            </button>
-          </>
-        )}
+      {secondaryCta && (
+        <>
+          <div className='ssw-or-divider' aria-hidden='true'>
+            <span>or</span>
+          </div>
+          <button
+            className='ssw-action-btn ssw-secondary'
+            disabled={isQuoting}
+            onClick={() => onButtonClick(secondaryCta.action)}
+            type='button'
+          >
+            {secondaryCta.text}
+          </button>
+        </>
+      )}
     </>
   )
 }

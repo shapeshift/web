@@ -2075,6 +2075,14 @@
         "header": "连接失败",
         "body": "无法连接到 Seeker 钱包。请确保 Seeker 应用已打开并重试。"
       }
+    },
+    "starknetInjected": {
+      "errors": {
+        "notInstalled": "%{name} 未安装或已被禁用。请在浏览器中启用它，然后重试。",
+        "wrongNetwork": "请将 %{name} 切换至 Starknet 主网，然后重试。",
+        "noAccount": "在 %{name} 中未找到帐户。请创建或解锁一个 Starknet 主网账户，然后重试。",
+        "connectionFailed": "与 %{name} 的连接被拒绝或失败。请在 %{name} 中批准连接请求，然后重试。"
+      }
     }
   },
   "graph": {
@@ -2181,6 +2189,9 @@
       "deployButton": "部署帐户",
       "deploying": "部署帐户中...",
       "deployFailed": "部署失败"
+    },
+    "activateAccount": {
+      "description": "此 Starknet 帐户尚未激活。请通过 %{name} 扩展程序发送任意一笔交易以激活帐户，然后返回此处。"
     }
   },
   "tron": {
@@ -2924,8 +2935,9 @@
     }
   },
   "RFOX": {
-    "epochAwaitingUpdate": "等待时段更新中",
-    "epochAwaitingUpdateDescription": "更新后的时段数据发布后，当前时段的奖励、总量、APY 和模拟器预估数据将恢复显示。在此期间，您仍然可以查看和管理自己的质押仓位。",
+    "closedEpochRewards": "%{month} 奖励",
+    "closedEpochRewardsTooltip": "您在 %{month} 的预计奖励。时段最终确认后将自动发放。",
+    "closedEpochSimulatorNotice": "按 %{month} 的费率计算。当前时段的费率可能有所不同。",
     "staking": "rFOX 质押",
     "stake": "质押",
     "unstake": "取消质押",
@@ -2983,7 +2995,6 @@
     "pendingRewardsBalance": "待处理奖励余额",
     "pendingRewardsBalanceTooltip": "这是您在当前时段截至目前可获得的奖励。随着收入和 %{symbol} 总质押量的变化，该数值也会随之变化。时段结束后将自动发放。",
     "claimTooltip": "查看您取消质押的 %{symbol}，冷却期结束后即可领取",
-    "lifetimeRewardsUnavailable": "奖励不可用",
     "lifetimeRewards": "终生奖励",
     "lifetimeRewardsHelper": "截至目前，您质押 %{symbol} 所赚取的总奖励",
     "timeInPool": "在池中的时间",
@@ -3023,12 +3034,13 @@
     },
     "totals": "rFOX 总计",
     "totalStaked": "%{symbol} 总质押",
-    "totalStakedHelper": "%{symbol} 总质押数",
-    "dataUnavailable": "不可用",
     "totalFeesCollected": "收取的费用总额（当前时段）",
+    "totalFeesCollectedForMonth": "累计费用 (%{month})",
     "emissionsPool": "%{symbol} 排放池 (当前时段)",
+    "emissionsPoolForMonth": "%{symbol} 排放池 (%{month})",
     "emissionsPoolHelper": "将分发给 %{symbol} 质押者的总奖励数量。",
     "foxBuybackAmount": "FOX 回购量 (当前时段)",
+    "foxBuybackAmountForMonth": "FOX 回购数量 (%{month})",
     "pendingDistribution": "待分配奖励",
     "selectRuneAddress": "选择一个 RUNE 地址",
     "lpSunsetWarningTitle": "项目已结束",
@@ -3195,6 +3207,8 @@
       "blindSigningRequired": "此交易需要盲签。 请在您的 Ledger 应用中启用 Blind signing 或 Contract Data 并重试。",
       "ledgerTronAllowDataDisabled": "请在您的 Ledger TRON 应用中启用 Transactions Data 功能并重试。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",
+      "starknetWrongNetwork": "%{name} 必须设置为 Starknet 主网。请在 %{name} 中切换网络，然后重试。",
+      "starknetAccountChanged": "%{name} 中的当前活动帐户已更改。请重新检查交易后再发送。",
       "signMessage": "消息签名失败。",
       "broadcastTransaction": "广播交易失败。",
       "broadcastTransactionWithMessage": "无法广播交易 (%{message})。",

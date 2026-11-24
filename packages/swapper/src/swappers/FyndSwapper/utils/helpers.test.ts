@@ -2,18 +2,19 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Hex } from 'viem'
 import { describe, expect, it } from 'vitest'
 
+import { getGrossAffiliateBps } from '../../../utils/affiliateFee'
 import { ETH, WETH } from '../../../utils/test-data/assets'
 import type { FyndTransaction } from '../types'
-import { FYND_CHAINS } from './constants'
-import { getFyndClientFeeBps, validateFyndQuoteResponse } from './helpers'
+import { FYND_CHAINS, FYND_CLIENT_FEE_SHARE } from './constants'
+import { validateFyndQuoteResponse } from './helpers'
 
-describe('getFyndClientFeeBps', () => {
+describe('getGrossAffiliateBps', () => {
   it.each([
     ['nets the default fee after the 20% share', '60', 75],
     ['rounds up so the net never falls short', '55', 69],
     ['requests nothing for a fee-free swap', '0', 0],
   ])('%s', (_label, affiliateBps, grossBps) => {
-    expect(getFyndClientFeeBps(affiliateBps)).toBe(grossBps)
+    expect(getGrossAffiliateBps(affiliateBps, FYND_CLIENT_FEE_SHARE)).toBe(grossBps)
   })
 })
 

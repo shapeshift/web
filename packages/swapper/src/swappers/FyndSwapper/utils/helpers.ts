@@ -42,9 +42,6 @@ export const getFyndRouteProtocols = (swaps: FyndRouteSwap[] | undefined): strin
   return [...new Set(venues)].map(formatFyndProtocol)
 }
 
-export const getFyndClientFeeBps = (affiliateBps: string): number =>
-  bn(affiliateBps).div(FYND_CLIENT_FEE_SHARE).integerValue(BigNumber.ROUND_CEIL).toNumber()
-
 export const convertAssetIdToFyndToken = (assetId: AssetId): Address => {
   if (isNativeEvmAsset(assetId)) return zeroAddress
 

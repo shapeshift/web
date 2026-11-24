@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/swap-widget",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Embeddable swap widget using ShapeShift API",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -32,6 +32,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.2.0",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.3",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
@@ -39,6 +41,7 @@
     "bech32": "^2.0.0",
     "bs58check": "^4.0.0",
     "cashaddrjs": "^0.3.12",
+    "coinselect": "^3.1.13",
     "p-queue": "^8.0.1",
     "qrcode-generator": "^1.5.2",
     "react-virtuoso": "^4.7.11",

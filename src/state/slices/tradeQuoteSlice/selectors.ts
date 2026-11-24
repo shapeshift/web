@@ -513,8 +513,9 @@ export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> 
   selectQuoteSlippageTolerancePercentageDecimal,
   selectUserSlippagePercentageDecimal,
   (activeSwapperName, quoteSlippageTolerancePercentage, slippagePreferencePercentage) => {
-    if (slippagePreferencePercentage) return slippagePreferencePercentage
+    // The quote's slippage is what gets applied, a swapper that can't set a custom value reports its own
     if (quoteSlippageTolerancePercentage) return quoteSlippageTolerancePercentage
+    if (slippagePreferencePercentage) return slippagePreferencePercentage
 
     try {
       return getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)

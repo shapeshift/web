@@ -2075,6 +2075,14 @@
         "header": "接続に失敗しました",
         "body": "Seekerウォレットに接続できません。Seekerアプリが利用可能であることを確認して、もう一度お試しください。"
       }
+    },
+    "starknetInjected": {
+      "errors": {
+        "notInstalled": "%{name}がインストールされていないか、無効になっています。ブラウザで有効にして、もう一度お試しください。",
+        "wrongNetwork": "%{name}をStarknet Mainnetに切り替えて、もう一度お試しください。",
+        "noAccount": "%{name}にアカウントが見つかりません。Starknet Mainnetのアカウントを作成するかロックを解除して、もう一度お試しください。",
+        "connectionFailed": "%{name}への接続が拒否されたか、失敗しました。%{name}でリクエストを承認して、もう一度お試しください。"
+      }
     }
   },
   "graph": {
@@ -2181,6 +2189,9 @@
       "deployButton": "アカウントをデプロイする",
       "deploying": "アカウントをデプロイしています...",
       "deployFailed": "デプロイに失敗しました"
+    },
+    "activateAccount": {
+      "description": "このStarknetアカウントはまだ有効化されていません。%{name}拡張機能から任意のトランザクションを送信して有効化してから、ここに戻ってきてください。"
     }
   },
   "tron": {
@@ -2924,8 +2935,9 @@
     }
   },
   "RFOX": {
-    "epochAwaitingUpdate": "エポックの更新を待っています",
-    "epochAwaitingUpdateDescription": "更新されたエポックデータが公開されると、現在のエポックの報酬、合計、APY、シミュレーターの見積もりが再び表示されます。ステーキングポジションの確認と管理は引き続き可能です。",
+    "closedEpochRewards": "%{month}の報酬",
+    "closedEpochRewardsTooltip": "%{month}の推定報酬です。エポックが確定すると自動的に支払われます。",
+    "closedEpochSimulatorNotice": "%{month}のレートを使用しています。現在のエポックのレートとは異なる場合があります。",
     "staking": "rFOXステーキング",
     "stake": "ステーク",
     "unstake": "ステーク解除",
@@ -2983,7 +2995,6 @@
     "pendingRewardsBalance": "保留中の報酬残高",
     "pendingRewardsBalanceTooltip": "現時点での報酬額です。収益やステーキングされた総 %{symbol} の変動に伴い変化します。報酬はエポック終了後に自動的に支払われます。",
     "claimTooltip": "アンステーキングされた %{symbol} を確認し、クールダウン期間が経過したら請求してください。",
-    "lifetimeRewardsUnavailable": "報酬は利用できません",
     "lifetimeRewards": "生涯報酬",
     "lifetimeRewardsHelper": "これまでに%{symbol}をステーキングして獲得した合計報酬",
     "timeInPool": "プール中の時間",
@@ -3023,12 +3034,13 @@
     },
     "totals": "rFOX の合計",
     "totalStaked": "合計 %{symbol} ステークされています",
-    "totalStakedHelper": "賭けられた%{symbol}の合計金額",
-    "dataUnavailable": "利用できません",
     "totalFeesCollected": "徴収された合計手数料（このエポック中で）",
+    "totalFeesCollectedForMonth": "回収した手数料の合計（%{month}）",
     "emissionsPool": "%{symbol} 排出プール (この時代)",
+    "emissionsPoolForMonth": "%{symbol} 排出プール（%{month}）",
     "emissionsPoolHelper": "%{symbol}人のステーカーに分配される報酬の合計額",
     "foxBuybackAmount": "FOXの買い戻し額（今期）",
+    "foxBuybackAmountForMonth": "FOXの買い戻し額（%{month}）",
     "pendingDistribution": "配布保留中",
     "selectRuneAddress": "RUNEアドレスを選択",
     "lpSunsetWarningTitle": "プログラム終了",
@@ -3195,6 +3207,8 @@
       "blindSigningRequired": "トランザクションにはブラインド署名が必要です。Ledgerアプリの設定で「Blind signing」または「Contract Data」を有効にして、もう一度お試しください。",
       "ledgerTronAllowDataDisabled": "Ledger TRON アプリの設定でトランザクションデータを有効にして、もう一度お試しください。",
       "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",
+      "starknetWrongNetwork": "%{name}はStarknet Mainnetに設定する必要があります。%{name}でネットワークを切り替えて、もう一度お試しください。",
+      "starknetAccountChanged": "%{name}で使用中のアカウントが変更されました。送信前に取引内容をもう一度確認してください。",
       "signMessage": "メッセージの署名に失敗しました。",
       "broadcastTransaction": "トランザクションのブロードキャストに失敗しました。",
       "broadcastTransactionWithMessage": "トランザクション (%{message}) のブロードキャストに失敗しました。",

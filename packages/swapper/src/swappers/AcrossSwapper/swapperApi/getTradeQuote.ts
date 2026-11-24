@@ -7,7 +7,7 @@ import { getAcrossStepData } from '../utils/getAcrossStepData'
 import { getAcrossTradeContext } from '../utils/getAcrossTradeContext'
 import type { AcrossTradeQuoteInput } from '../utils/types'
 
-export const getTradeQuote = async (
+export const getAcrossTradeQuote = async (
   input: AcrossTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
@@ -42,6 +42,7 @@ export const getTradeQuote = async (
         ...stepCommon,
         accountNumber,
         transactionData,
+        swapperMetadata: { name: 'across', orderId: tradeCommon.id },
         feeData: { networkFeeCryptoBaseUnit, protocolFees },
       },
     ],

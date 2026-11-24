@@ -7,7 +7,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { ReceiveRoutes } from './ReceiveCommon'
 
 import { ReceiveInfo } from '@/components/Modals/Receive/ReceiveInfo'
-import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
+import { SelectAssets } from '@/components/SelectAssets/SelectAssets'
 import { selectAssetById } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
@@ -43,8 +43,8 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
     [currentAsset, accountId, selectedAsset, navigate],
   )
 
-  const selectAssetRouterElement = useMemo(
-    () => <SelectAssetRouter onClick={handleAssetSelect} />,
+  const selectAssetsElement = useMemo(
+    () => <SelectAssets onClick={handleAssetSelect} />,
     [handleAssetSelect],
   )
 
@@ -56,7 +56,7 @@ export const ReceiveRouter: React.FC<ReceiveRouterProps> = ({ assetId, accountId
     <AnimatePresence mode='wait' initial={false}>
       <Routes>
         <Route path={ReceiveRoutes.Info} element={receiveInfoElement} />
-        <Route path={`${ReceiveRoutes.Select}/*`} element={selectAssetRouterElement} />
+        <Route path={ReceiveRoutes.Select} element={selectAssetsElement} />
       </Routes>
     </AnimatePresence>
   )

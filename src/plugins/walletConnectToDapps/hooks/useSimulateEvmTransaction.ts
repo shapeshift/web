@@ -10,7 +10,7 @@ import type { TransactionParams } from '../types'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import {
-  getGasEstimateRevert,
+  getGasEstimateFailure,
   getRecommendedGasLimit,
   toNumberString,
 } from '@/plugins/walletConnectToDapps/utils'
@@ -49,7 +49,6 @@ export const useSimulateEvmTransaction = ({
       transaction?.from,
       transaction?.to,
       transaction?.data,
-      dappGasLimit,
       transaction?.value,
     ],
     queryFn: transaction
@@ -58,7 +57,6 @@ export const useSimulateEvmTransaction = ({
             chainId,
             from: transaction.from,
             to: transaction.to,
-            gas: dappGasLimit ? Number(dappGasLimit) : undefined,
             data: transaction.data,
             value: transaction.value,
           })
@@ -93,6 +91,8 @@ export const useSimulateEvmTransaction = ({
             chainSpecific: { from: transaction.from, data: transaction.data },
           })
       : skipToken,
+    // Per request: a cached revert from an earlier request would bypass the estimate
+    gcTime: 0,
     retry: false,
   })
 
@@ -102,8 +102,8 @@ export const useSimulateEvmTransaction = ({
     return getRecommendedGasLimit(gasLimitQuery.data?.gasLimit, dappGasLimit)
   }, [gasLimitQuery.isLoading, gasLimitQuery.data, dappGasLimit])
 
-  const gasEstimateRevert = useMemo(
-    () => getGasEstimateRevert(gasLimitQuery.error),
+  const gasEstimateFailure = useMemo(
+    () => getGasEstimateFailure(gasLimitQuery.error),
     [gasLimitQuery.error],
   )
 
@@ -141,7 +141,8 @@ export const useSimulateEvmTransaction = ({
     recommendedGasLimit,
     gasLimit,
     isGasLimitLoading,
-    gasEstimateRevert,
+    gasEstimateFailure,
+    isGasEstimateError: gasLimitQuery.isError,
     fee,
   }
 }

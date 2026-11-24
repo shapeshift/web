@@ -1,11 +1,11 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
-import { BaseError, ExecutionRevertedError, HttpRequestError } from 'viem'
+import { BaseError, ExecutionRevertedError, HttpRequestError, InsufficientFundsError } from 'viem'
 import { describe, expect, it } from 'vitest'
 
 import {
   extractConnectedAccounts,
-  getGasEstimateRevert,
+  getGasEstimateFailure,
   getRecommendedGasLimit,
   isMethodPermittedForAccount,
 } from './utils'
@@ -93,29 +93,44 @@ describe('getRecommendedGasLimit', () => {
   })
 })
 
-describe('getGasEstimateRevert', () => {
-  const estimateError = (details: string) =>
-    new BaseError('Estimate gas failed', {
-      cause: new ExecutionRevertedError({ cause: new BaseError('RPC error', { details }) }),
-    })
+describe('getGasEstimateFailure', () => {
+  const estimateError = (cause: BaseError) => new BaseError('Estimate gas failed', { cause })
+  const reverted = (details: string) =>
+    estimateError(new ExecutionRevertedError({ cause: new BaseError('RPC error', { details }) }))
 
-  it('returns the revert reason from a reverted estimate', () => {
+  it('returns the contract revert reason', () => {
     expect(
-      getGasEstimateRevert(estimateError('execution reverted: ERC20: insufficient allowance')),
-    ).toEqual({ reason: 'ERC20: insufficient allowance' })
+      getGasEstimateFailure(reverted('execution reverted: ERC20: insufficient allowance')),
+    ).toEqual({ type: 'revert', reason: 'ERC20: insufficient allowance' })
   })
 
-  it('flags a revert without a reason', () => {
-    expect(getGasEstimateRevert(estimateError('execution reverted'))).toEqual({
+  it('omits the reason when the node gives none', () => {
+    expect(getGasEstimateFailure(reverted('execution reverted'))).toEqual({
+      type: 'revert',
+      reason: undefined,
+    })
+    expect(getGasEstimateFailure(reverted('gas required exceeds allowance (0)'))).toEqual({
+      type: 'revert',
       reason: undefined,
     })
   })
 
+  it('flags insufficient funds', () => {
+    expect(getGasEstimateFailure(estimateError(new InsufficientFundsError()))).toEqual({
+      type: 'insufficientFunds',
+    })
+    expect(
+      getGasEstimateFailure(
+        estimateError(new BaseError('RPC error', { details: 'EVM error: OutOfFunds' })),
+      ),
+    ).toEqual({ type: 'insufficientFunds' })
+  })
+
   it('ignores estimation outages', () => {
-    expect(getGasEstimateRevert(new HttpRequestError({ url: 'https://rpc.example' }))).toBe(
+    expect(getGasEstimateFailure(new HttpRequestError({ url: 'https://rpc.example' }))).toBe(
       undefined,
     )
-    expect(getGasEstimateRevert(new Error('unchained unavailable'))).toBe(undefined)
-    expect(getGasEstimateRevert(null)).toBe(undefined)
+    expect(getGasEstimateFailure(new Error('unchained unavailable'))).toBe(undefined)
+    expect(getGasEstimateFailure(null)).toBe(undefined)
   })
 })

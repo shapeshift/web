@@ -1,23 +1,15 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  Button,
-  HStack,
-  Image,
-  VStack,
-} from '@chakra-ui/react'
+import { Button, HStack, Image, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { btcChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { WalletConnectFooter } from '../WalletConnectFooter'
+import { GasEstimateAlert } from './GasEstimateAlert'
 import { GasSelectionMenu } from './GasSelectionMenu'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -152,14 +144,18 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
   const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
   const translate = useTranslate()
 
-  const speed = formContext?.watch('speed')
+  // Message requests have no form, but useWatch still needs a control to subscribe to
+  const fallbackForm = useForm<CustomTransactionData>()
+  const { speed, gasLimit: userGasLimit } = useWatch({
+    control: (formContext ?? fallbackForm).control,
+  })
 
-  const { simulationQuery, gasLimit, isGasLimitLoading, gasEstimateRevert } =
+  const { simulationQuery, gasLimit, isGasLimitLoading, gasEstimateFailure, isGasEstimateError } =
     useSimulateEvmTransaction({
       transaction,
       chainId,
       speed,
-      gasLimit: formContext?.watch('gasLimit'),
+      gasLimit: userGasLimit,
     })
 
   const isSimulationLoading = simulationQuery.isLoading
@@ -179,31 +175,11 @@ export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps
           {transaction && chainId && (
             <GasSelectionMenu transaction={transaction} chainId={chainId} />
           )}
-          {gasEstimateRevert && (
-            <Alert status='warning' variant='subtle' borderRadius='lg' fontSize='sm'>
-              <AlertIcon />
-              <Box>
-                <AlertTitle>
-                  {translate(
-                    'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.title',
-                  )}
-                </AlertTitle>
-                <AlertDescription display='block'>
-                  {translate(
-                    'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.description',
-                  )}
-                </AlertDescription>
-                {gasEstimateRevert.reason && (
-                  <AlertDescription display='block' wordBreak='break-word'>
-                    {translate(
-                      'plugins.walletConnectToDapps.modal.sendTransaction.likelyToFail.reason',
-                      { reason: gasEstimateRevert.reason },
-                    )}
-                  </AlertDescription>
-                )}
-              </Box>
-            </Alert>
-          )}
+          <GasEstimateAlert
+            failure={gasEstimateFailure}
+            isEstimateError={isGasEstimateError}
+            hasGasLimit={!!gasLimit}
+          />
         </VStack>
         <HStack spacing={4} w='full'>
           <Button

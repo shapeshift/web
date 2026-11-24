@@ -7,6 +7,7 @@ import {
   ExecutionRevertedError,
   hexToBigInt,
   hexToString,
+  InsufficientFundsError,
   isAddress,
   isHex,
   validateTypedData,
@@ -92,15 +93,22 @@ export const getRecommendedGasLimit = (
   return BigNumber.max(estimatedGasLimit, bnOrZero(dappGasLimit)).toFixed()
 }
 
-// Distinguishes a reverting tx from an estimation outage (unchained and RPC both unreachable)
-export const getGasEstimateRevert = (error: unknown): { reason?: string } | undefined => {
+export type GasEstimateFailure = { type: 'revert'; reason?: string } | { type: 'insufficientFunds' }
+
+export const getGasEstimateFailure = (error: unknown): GasEstimateFailure | undefined => {
   if (!(error instanceof BaseError)) return
+
+  // revm-based nodes (e.g. reth) say "OutOfFunds", which viem doesn't map to InsufficientFundsError
+  const isOutOfFunds = /OutOfFunds/i.test(error.details)
+  if (isOutOfFunds || error.walk(cause => cause instanceof InsufficientFundsError)) {
+    return { type: 'insufficientFunds' }
+  }
 
   const reverted = error.walk(cause => cause instanceof ExecutionRevertedError)
   if (!(reverted instanceof BaseError)) return
 
-  const reason = reverted.details.replace(/^execution reverted:?\s*/i, '').trim()
-  return { reason: reason || undefined }
+  const reason = reverted.details.match(/^execution reverted:\s*(.+)$/is)?.[1]?.trim()
+  return { type: 'revert', reason: reason || undefined }
 }
 
 export const extractAllConnectedAccounts = (

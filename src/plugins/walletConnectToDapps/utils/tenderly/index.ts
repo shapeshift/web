@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId, monadChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import type { Address } from 'viem'
 import { getAddress, isAddress, isAddressEqual, zeroAddress } from 'viem'
@@ -193,14 +193,12 @@ export const simulateTransaction = async ({
   chainId,
   from,
   to,
-  gas,
   data: inputData,
   value,
 }: {
   chainId: ChainId
   from: string
   to: string
-  gas?: number
   data: string
   value?: string
 }): Promise<TenderlySimulationResponse | null> => {
@@ -208,15 +206,11 @@ export const simulateTransaction = async ({
     const { chainReference } = fromChainId(chainId)
     const networkId = chainReference
 
-    // Only pass gas for Monad chain, as Tenderly returns unrealistic gas estimates for Monad
-    const maybeGas = chainId === monadChainId ? gas : undefined
-
     const requestBody: TenderlySimulationRequest = {
       network_id: networkId,
       from,
       to,
       input: inputData,
-      gas: maybeGas,
       value,
     }
 

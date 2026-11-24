@@ -42,7 +42,11 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
 
   const { speed: selectedSpeed, gasLimit } = useWatch<CustomTransactionData>()
 
-  const { fee } = useSimulateEvmTransaction({
+  const {
+    fee,
+    gasLimit: resolvedGasLimit,
+    isGasLimitLoading,
+  } = useSimulateEvmTransaction({
     transaction,
     chainId,
     speed: selectedSpeed,
@@ -66,17 +70,21 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     [handleSpeedChange],
   )
 
-  const isLoading = !fee
+  const isFeeUnavailable = !resolvedGasLimit && !isGasLimitLoading
 
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
-        {isLoading ? (
-          <Skeleton height='20px' width='180px' />
-        ) : (
+        {fee ? (
           <RawText fontSize='sm' fontWeight='medium'>
             {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
           </RawText>
+        ) : isFeeUnavailable ? (
+          <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+            —
+          </RawText>
+        ) : (
+          <Skeleton height='20px' width='180px' />
         )}
         <HStack spacing={1} align='center'>
           <HelperTooltip

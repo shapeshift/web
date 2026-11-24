@@ -4,6 +4,15 @@ import { useCallback, useEffect, useRef } from 'react'
 
 import { breakpoints } from '@/theme/theme'
 
+const isKeyboardFocus = (target: Element, lastPointerType: string | undefined) => {
+  try {
+    return target.matches(':focus-visible')
+  } catch {
+    // :focus-visible is unsupported before Firefox 85
+    return lastPointerType !== 'touch'
+  }
+}
+
 export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...otherProps }) => {
   const {
     isOpen: isTooltipOpen,
@@ -88,7 +97,7 @@ export const TooltipWithTouch: React.FC<TooltipProps> = ({ children, label, ...o
   const handleFocus = useCallback(
     (e: React.FocusEvent) => {
       // Keyboard focus only; a tap can also focus the trigger and would fight the touch toggle
-      if (e.target.matches(':focus-visible')) onTooltipOpen()
+      if (isKeyboardFocus(e.target, lastPointerTypeRef.current)) onTooltipOpen()
     },
     [onTooltipOpen],
   )

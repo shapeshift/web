@@ -4,6 +4,7 @@ import { clearAction } from './clearAction'
 import { clearAddressBook } from './clearAddressBook'
 import { clearAssets } from './clearAssets'
 import { clearClaimActions } from './clearClaimActions'
+import { clearLimitOrderApi } from './clearLimitOrderApi'
 import { clearLocalWallet } from './clearLocalWallet'
 import { clearMarketData } from './clearMarketData'
 import { clearOpportunities } from './clearOpportunities'
@@ -85,4 +86,8 @@ export const clearSwapsMigrations = {
 export const clearAddressBookMigrations = {
   0: clearAddressBook,
   1: clearRemovedChainAddressBook,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearLimitOrderApiMigrations = {
+  1: clearLimitOrderApi,
 } as unknown as Omit<MigrationManifest, '_persist'>

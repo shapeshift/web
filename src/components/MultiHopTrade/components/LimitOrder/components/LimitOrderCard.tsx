@@ -16,8 +16,8 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { ChainIcon } from '@/components/ChainMenu'
-import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { RawText } from '@/components/Text'
+import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { getConfig } from '@/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertGetChainAdapter } from '@/lib/utils'
@@ -64,6 +64,12 @@ const fontSize = {
   sm: 'sm',
 }
 
+const truncateProps = {
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+} as const
+
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   uid,
   buyAmountCryptoBaseUnit,
@@ -87,11 +93,12 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const buyAsset = useSelectorWithArgs(selectAssetById, buyAssetId)
   const sellAsset = useSelectorWithArgs(selectAssetById, sellAssetId)
   const explorerTxLink = buyAsset?.explorerTxLink
+  const isFulfilled = status === OrderStatus.FULFILLED
 
   const { data: tradeTxLink } = useQuery({
     queryKey: ['cowTrade', uid],
     queryFn:
-      status === OrderStatus.FULFILLED && explorerTxLink
+      isFulfilled && explorerTxLink
         ? () => {
             const chainId = fromAccountId(accountId).chainId
             const network = assertGetCowNetwork(chainId)
@@ -234,11 +241,6 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     [limitPrice, toCrypto, buyAsset],
   )
 
-  const executionPriceCryptoFormatted = useMemo(
-    () => toCrypto(executionPrice, buyAsset?.symbol ?? ''),
-    [executionPrice, toCrypto, buyAsset],
-  )
-
   const sellAmountPrecision = useMemo(
     () => getAdaptivePrecision(sellAmountCryptoPrecision),
     [sellAmountCryptoPrecision],
@@ -249,12 +251,9 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     [buyAmountCryptoPrecision],
   )
 
-  const limitPricePrecision = useMemo(() => getAdaptivePrecision(limitPrice), [limitPrice])
+  const displayPrice = isFulfilled ? executionPrice : limitPrice
 
-  const executionPricePrecision = useMemo(
-    () => getAdaptivePrecision(executionPrice),
-    [executionPrice],
-  )
+  const displayPricePrecision = useMemo(() => getAdaptivePrecision(displayPrice), [displayPrice])
 
   const tagColorScheme = useMemo(() => {
     switch (status) {
@@ -287,14 +286,14 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const expiryText = useMemo(
     () =>
-      validTo && status !== OrderStatus.FULFILLED
+      validTo && !isFulfilled
         ? translate('limitOrder.expires', {
             time: formatDistanceToNow(validTo * 1000, {
               addSuffix: true,
             }),
           })
         : undefined,
-    [status, validTo, translate],
+    [isFulfilled, validTo, translate],
   )
 
   const warningText = useMemo(() => {
@@ -326,102 +325,102 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   return (
     <Tr>
       <Td>
-        <Flex alignItems='center' gap={4}>
+        <Flex alignItems='center' gap={3}>
           <AssetIconWithBadge size='sm' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
             <Center borderRadius='full' boxSize='100%' bg='purple.500'>
               <ChainIcon chainId={sellAsset.chainId} boxSize='100%' />
             </Center>
           </AssetIconWithBadge>
-          <Flex direction='column'>
-            <HoverTooltip placement='top' label={sellAmountCryptoFormatted}>
+          <Flex direction='column' minW={0}>
+            <TooltipWithTouch placement='top' label={sellAmountCryptoFormatted}>
               <Amount.Crypto
                 value={sellAmountCryptoPrecision}
                 symbol={sellAsset.symbol}
+                color='text.subtle'
                 fontSize={fontSize}
                 maximumFractionDigits={sellAmountPrecision}
+                {...truncateProps}
               />
-            </HoverTooltip>
-            <HoverTooltip placement='top' label={buyAmountCryptoFormatted}>
+            </TooltipWithTouch>
+            <TooltipWithTouch placement='top' label={buyAmountCryptoFormatted}>
               <Amount.Crypto
                 value={buyAmountCryptoPrecision}
                 symbol={buyAsset.symbol}
                 fontSize={fontSize}
                 maximumFractionDigits={buyAmountPrecision}
+                {...truncateProps}
               />
-            </HoverTooltip>
+            </TooltipWithTouch>
           </Flex>
         </Flex>
       </Td>
 
       <Td>
-        <Flex direction='column' gap={1}>
-          <HoverTooltip placement='top' label={limitPriceCryptoFormatted}>
+        <Flex direction='column' minW={0}>
+          <TooltipWithTouch
+            placement='top'
+            label={
+              isFulfilled
+                ? translate('limitOrder.limitPriceValue', { price: limitPriceCryptoFormatted })
+                : limitPriceCryptoFormatted
+            }
+          >
             <Amount.Crypto
-              value={limitPrice}
+              value={displayPrice}
               symbol={buyAsset.symbol}
-              color={status === OrderStatus.FULFILLED ? 'text.subtle' : 'text.base'}
               fontSize={fontSize}
-              maximumFractionDigits={limitPricePrecision}
+              maximumFractionDigits={displayPricePrecision}
+              {...truncateProps}
             />
-          </HoverTooltip>
-          {status === OrderStatus.FULFILLED && (
-            <HoverTooltip placement='top' label={executionPriceCryptoFormatted}>
-              <Amount.Crypto
-                value={executionPrice}
-                symbol={buyAsset.symbol}
-                fontSize={fontSize}
-                color='text.base'
-                maximumFractionDigits={executionPricePrecision}
-              />
-            </HoverTooltip>
-          )}
+          </TooltipWithTouch>
+          <RawText color='text.subtle' fontSize={fontSize} {...truncateProps}>
+            {translate('limitOrder.perAsset', { symbol: sellAsset.symbol })}
+          </RawText>
         </Flex>
       </Td>
 
       <Td>
         <Flex alignItems='center' gap={2}>
           {filledDecimalPercentage > 0 && filledDecimalPercentage !== 1 ? (
-            <Flex flexDirection='column' align='flex-start' gap={1}>
+            <Flex flexDirection='column' align='flex-start' gap={1} flex='0 1 60px' minW={0}>
               <RawText fontSize='xs'>{`${(filledDecimalPercentage * 100).toFixed(0)}%`}</RawText>
               <Progress
                 value={filledDecimalPercentage * 100}
-                width='60px'
+                width='full'
                 size='sm'
                 borderRadius='full'
                 colorScheme={barColorScheme}
               />
             </Flex>
           ) : (
-            <HoverTooltip label={expiryText} isDisabled={status !== OrderStatus.OPEN}>
+            <TooltipWithTouch label={status === OrderStatus.OPEN ? expiryText : undefined}>
               <Tag size='sm' colorScheme={tagColorScheme} variant='subtle'>
                 <Flex direction='row' alignItems='center' justifyContent='center' gap={1}>
                   <Text>{translate(`limitOrder.status.${status}`)}</Text>
-                  {status === OrderStatus.FULFILLED && explorerTxLink && maybeExternalLink}
+                  {isFulfilled && explorerTxLink && maybeExternalLink}
                 </Flex>
               </Tag>
-            </HoverTooltip>
+            </TooltipWithTouch>
           )}
           {warningText && (
-            <HoverTooltip label={warningText}>
-              <WarningTwoIcon color='yellow.500' boxSize={4} />
-            </HoverTooltip>
+            <TooltipWithTouch label={warningText}>
+              <WarningTwoIcon color='text.warning' boxSize={4} />
+            </TooltipWithTouch>
+          )}
+          {status === OrderStatus.OPEN && onCancelClick && (
+            <IconButton
+              icon={closeIcon}
+              variant='ghost'
+              sx={iconButtonSx}
+              size='sm'
+              colorScheme='gray'
+              ms='auto'
+              onClick={handleCancel}
+              aria-label={translate('limitOrder.cancel.cancelOrder')}
+            />
           )}
         </Flex>
       </Td>
-
-      {status === OrderStatus.OPEN && (
-        <Td isNumeric>
-          <IconButton
-            icon={closeIcon}
-            variant='ghost'
-            sx={iconButtonSx}
-            size='sm'
-            colorScheme='gray'
-            onClick={handleCancel}
-            aria-label='Cancel order'
-          />
-        </Td>
-      )}
     </Tr>
   )
 }

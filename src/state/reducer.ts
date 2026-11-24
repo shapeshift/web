@@ -12,6 +12,7 @@ import {
   clearActionMigrations,
   clearAddressBookMigrations,
   clearAssetsMigrations,
+  clearLimitOrderApiMigrations,
   clearMarketDataMigrations,
   clearOpportunitiesMigrations,
   clearPortfolioMigrations,
@@ -149,8 +150,9 @@ const assetsPersistConfig = {
 const limitOrderApiPersistConfig = {
   key: 'limitOrderApi',
   storage,
-  version: 0,
+  version: Math.max(...Object.keys(clearLimitOrderApiMigrations).map(Number)),
   throttle: PERSIST_THROTTLE_MS,
+  migrate: createMigrate(clearLimitOrderApiMigrations, { debug: false }),
 }
 
 const actionPersistConfig = {

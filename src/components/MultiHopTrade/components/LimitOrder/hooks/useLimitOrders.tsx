@@ -27,16 +27,23 @@ export const useLimitOrdersQuery = () => {
     state: { isLoadingLocalWallet, modal, isConnected },
   } = useWallet()
 
-  return useGetLimitOrdersQuery(evmAccountIds, {
+  const isWalletLoading =
+    isLoadingLocalWallet || (isConnected && (modal || portfolioLoadingStatus === 'loading'))
+  const skip = isWalletLoading || !isConnected || !evmAccountIds.length
+
+  const query = useGetLimitOrdersQuery(evmAccountIds, {
     pollingInterval: 15_000,
     refetchOnMountOrArgChange: false,
-    skip:
-      !evmAccountIds.length ||
-      !isConnected ||
-      portfolioLoadingStatus === 'loading' ||
-      modal ||
-      isLoadingLocalWallet,
+    skip,
   })
+
+  return {
+    data: query.data?.orders,
+    currentData: query.currentData?.orders,
+    failedAccountIds: query.currentData?.failedAccountIds ?? [],
+    error: query.error,
+    isLoading: isWalletLoading || (!skip && !query.currentData && !query.error),
+  }
 }
 
 export const useLimitOrders = () => {

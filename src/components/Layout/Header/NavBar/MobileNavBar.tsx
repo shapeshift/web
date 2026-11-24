@@ -1,6 +1,7 @@
 import { SimpleGrid } from '@chakra-ui/react'
 import { union } from 'lodash'
 import { memo, useLayoutEffect, useMemo, useRef } from 'react'
+import ResizeObserver from 'resize-observer-polyfill'
 
 import { MobileNavLink } from './MobileNavLink'
 

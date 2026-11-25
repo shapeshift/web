@@ -8,14 +8,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useAssetService } from './useAssetService'
 
-import type { GetLoadedAssets } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
 import { ethereum, fox, usdc } from '@/test/mocks/assets'
 
 const mocks = vi.hoisted(() => ({
-  getLoadedAssets: undefined as GetLoadedAssets | undefined,
   service: {
     assetsById: {} as Record<AssetId, Asset>,
     assetIds: [] as AssetId[],
@@ -26,10 +24,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/lib/asset-service', async importOriginal => ({
   ...(await importOriginal<object>()),
-  initAssetService: (getLoadedAssets: GetLoadedAssets) => {
-    mocks.getLoadedAssets = getLoadedAssets
-    return Promise.resolve()
-  },
+  initAssetService: () => Promise.resolve(),
   getAssetService: () => mocks.service,
 }))
 
@@ -66,17 +61,6 @@ describe('useAssetService', () => {
     expect(store.getState().assets.version).toBe('v1')
   })
 
-  it('leaves the store untouched when the version is unchanged', async () => {
-    setServiceAssets([ethereum, fox], 'v1')
-    await loadAssetService()
-    const { byId, ids } = store.getState().assets
-
-    await loadAssetService()
-
-    expect(store.getState().assets.byId).toBe(byId)
-    expect(store.getState().assets.ids).toBe(ids)
-  })
-
   it('replaces the assets when the version changes', async () => {
     setServiceAssets([ethereum, fox], 'v1')
     await loadAssetService()
@@ -87,19 +71,6 @@ describe('useAssetService', () => {
     expect(store.getState().assets.ids).toEqual([ethereum.assetId])
     expect(store.getState().assets.byId[fox.assetId]).toBeUndefined()
     expect(store.getState().assets.version).toBe('v2')
-  })
-
-  it('offers the service the generated assets in the store for the version they were loaded from', async () => {
-    setServiceAssets([ethereum, fox], 'v1')
-    await loadAssetService()
-    store.dispatch(assets.actions.upsertAsset(usdc))
-
-    expect(mocks.getLoadedAssets?.('v2')).toBeUndefined()
-    expect(mocks.getLoadedAssets?.('v1')).toEqual({
-      assetsById: { [ethereum.assetId]: ethereum, [fox.assetId]: fox },
-      assetIds: [ethereum.assetId, fox.assetId],
-      relatedAssetIndex: {},
-    })
   })
 
   it('keeps a watched runtime asset when the version changes', async () => {

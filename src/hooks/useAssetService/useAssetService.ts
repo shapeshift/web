@@ -3,7 +3,6 @@ import { CHAIN_NAMESPACE, fromChainId, starknetChainId } from '@shapeshiftoss/ca
 import { useQuery } from '@tanstack/react-query'
 
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
-import type { GetLoadedAssets } from '@/lib/asset-service'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -24,27 +23,6 @@ const KNOWN_TOKEN_SCANNING_CHAIN_IDS: Set<ChainId> = new Set([
 export const chainScansKnownTokens = (chainId: ChainId): boolean =>
   KNOWN_TOKEN_SCANNING_CHAIN_IDS.has(chainId)
 
-// The generated assets the store already holds for the given version, without the runtime assets
-const getLoadedAssets: GetLoadedAssets = version => {
-  const {
-    byId,
-    ids,
-    relatedAssetIndex,
-    runtimeAssetIds,
-    version: loadedVersion,
-  } = store.getState().assets
-  if (loadedVersion !== version) return
-
-  const runtimeAssetIdSet = new Set(runtimeAssetIds)
-  const assetIds = ids.filter(assetId => !runtimeAssetIdSet.has(assetId))
-
-  return {
-    assetsById: Object.fromEntries(assetIds.map(assetId => [assetId, byId[assetId]])),
-    assetIds,
-    relatedAssetIndex,
-  } as ReturnType<GetLoadedAssets>
-}
-
 // The assets any account has a balance for, as of the last time the accounts were fetched
 const getHeldAssetIds = (): AssetId[] =>
   Object.values(portfolio.selectors.selectAccountBalancesById(store.getState())).flatMap(
@@ -58,12 +36,8 @@ export const useAssetService = () => {
   return useQuery({
     queryKey: ASSET_SERVICE_QUERY_KEY,
     queryFn: async () => {
-      await initAssetService(getLoadedAssets)
+      await initAssetService()
       const service = getAssetService()
-
-      // The store already holds the assets for this build and asset data, and the service was loaded from them
-      if (service.version && service.version === assets.selectors.selectVersion(store.getState()))
-        return true
 
       dispatch(
         assets.actions.setGeneratedAssets({

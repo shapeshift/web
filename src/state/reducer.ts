@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit'
-import { createMigrate, persistReducer } from 'redux-persist'
+import { createMigrate, createTransform, persistReducer } from 'redux-persist'
 
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
@@ -139,9 +139,21 @@ const marketDataPersistConfig = {
   throttle: PERSIST_THROTTLE_MS,
 }
 
+// Generated assets are loaded by the asset service each session, so only the runtime assets are persisted
+const persistRuntimeAssetsOnly = createTransform<unknown, unknown, AssetsState>(
+  (_subState, key, state) => {
+    if (key === 'ids') return state.runtimeAssetIds
+    return Object.fromEntries(state.runtimeAssetIds.map(assetId => [assetId, state.byId[assetId]]))
+  },
+  undefined,
+  { whitelist: ['byId', 'ids'] },
+)
+
 const assetsPersistConfig = {
   key: 'assets',
   storage,
+  blacklist: ['relatedAssetIndex'],
+  transforms: [persistRuntimeAssetsOnly],
   version: Math.max(...Object.keys(clearAssetsMigrations).map(Number)),
   migrate: createMigrate(clearAssetsMigrations, { debug: false }),
   throttle: PERSIST_THROTTLE_MS,

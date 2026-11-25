@@ -92,13 +92,7 @@ class WorkerStorage {
       profiler.trackIndexedDB(pending.type, data.duration, pending.key)
     }
 
-    if (data.type === 'getItemResult') {
-      pending.resolve(data.value)
-    } else if (data.type === 'setItemResult') {
-      pending.resolve(data.value)
-    } else if (data.type === 'removeItemResult') {
-      pending.resolve(undefined)
-    }
+    pending.resolve(data.type === 'getItemResult' ? data.value : undefined)
   }
 
   private withKeyLock<T>(key: string, operation: () => Promise<T>): Promise<T> {

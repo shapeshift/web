@@ -23,6 +23,8 @@ import { QueryClientProvider } from '@/context/QueryClientProvider/QueryClientPr
 import { KeepKeyProvider } from '@/context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from '@/context/WalletProvider/WalletProvider'
 import { DefiManagerProvider } from '@/features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { useAssetService } from '@/hooks/useAssetService/useAssetService'
+import { initAssetService } from '@/lib/asset-service'
 import { wagmiConfig } from '@/lib/wagmi-config'
 import { ErrorPage } from '@/pages/ErrorPage/ErrorPage'
 import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
@@ -39,6 +41,15 @@ type ProvidersProps = {
 const manager = createLocalStorageManager('ss-theme')
 
 const splashScreen = <SplashScreen />
+
+// Starts loading the assets while the persisted state rehydrates, the gate's query then awaits the same load
+initAssetService().catch(() => {})
+
+// The app reads assets synchronously from the store, so it renders once the asset service has loaded or failed
+const AssetServiceGate = ({ children }: { children: React.ReactNode }) => {
+  const { isPending } = useAssetService()
+  return isPending ? splashScreen : children
+}
 
 export function AppProviders({ children }: ProvidersProps) {
   const handleError = useCallback(
@@ -73,36 +84,38 @@ export function AppProviders({ children }: ProvidersProps) {
               <I18nProvider>
                 <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
                   <PersistGate loading={splashScreen} persistor={persistor}>
-                    <HashRouter basename='/'>
-                      <ScrollToTop />
-                      <BrowserRouterProvider>
-                        <ModalStackProvider>
-                          <WalletProvider>
-                            <KeepKeyProvider>
-                              <WalletConnectV2Provider>
-                                <ActionCenterProvider>
-                                  <ModalProvider>
-                                    <ErrorBoundary
-                                      FallbackComponent={ErrorPage}
-                                      onError={handleError}
-                                    >
-                                      <AppProvider>
-                                        <DefiManagerProvider>
-                                          {children}
-                                          <Suspense fallback={defaultSuspenseFallback}>
-                                            <WalletViewsRouter />
-                                          </Suspense>
-                                        </DefiManagerProvider>
-                                      </AppProvider>
-                                    </ErrorBoundary>
-                                  </ModalProvider>
-                                </ActionCenterProvider>
-                              </WalletConnectV2Provider>
-                            </KeepKeyProvider>
-                          </WalletProvider>
-                        </ModalStackProvider>
-                      </BrowserRouterProvider>
-                    </HashRouter>
+                    <AssetServiceGate>
+                      <HashRouter basename='/'>
+                        <ScrollToTop />
+                        <BrowserRouterProvider>
+                          <ModalStackProvider>
+                            <WalletProvider>
+                              <KeepKeyProvider>
+                                <WalletConnectV2Provider>
+                                  <ActionCenterProvider>
+                                    <ModalProvider>
+                                      <ErrorBoundary
+                                        FallbackComponent={ErrorPage}
+                                        onError={handleError}
+                                      >
+                                        <AppProvider>
+                                          <DefiManagerProvider>
+                                            {children}
+                                            <Suspense fallback={defaultSuspenseFallback}>
+                                              <WalletViewsRouter />
+                                            </Suspense>
+                                          </DefiManagerProvider>
+                                        </AppProvider>
+                                      </ErrorBoundary>
+                                    </ModalProvider>
+                                  </ActionCenterProvider>
+                                </WalletConnectV2Provider>
+                              </KeepKeyProvider>
+                            </WalletProvider>
+                          </ModalStackProvider>
+                        </BrowserRouterProvider>
+                      </HashRouter>
+                    </AssetServiceGate>
                   </PersistGate>
                 </ChakraProvider>
               </I18nProvider>

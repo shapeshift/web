@@ -10,18 +10,6 @@ import type {
 } from '@shapeshiftoss/metamask-snaps-types'
 
 import { SNAP_ID } from './common'
-import { utxoGetAccountPaths } from './utxo'
-
-export function litecoinGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-  return utxoGetAccountPaths(msg)
-}
-
-export function litecoinNextAccountPath(
-  _msg: core.BTCAccountPath,
-): core.BTCAccountPath | undefined {
-  // Only support one account for now (like portis).
-  return undefined
-}
 
 export async function litecoinGetAddress(
   msg: core.BTCGetAddress,

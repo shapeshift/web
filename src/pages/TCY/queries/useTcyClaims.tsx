@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -31,6 +32,13 @@ const isNoTcyClaimsError = (error: unknown): boolean =>
   error.response?.status === 400 &&
   JSON.stringify(error.response.data).includes("doesn't have any tcy to claim")
 
+// Only the fee asset of a THORChain savers chain other than THORChain itself can hold TCY claims
+const getTcyClaimFeeAssetId = (accountId: AccountId) => {
+  const assetId = getChainAdapterManager().get(fromAccountId(accountId).chainId)?.getFeeAssetId()
+  if (!assetId || !isSupportedThorchainSaversAssetId(assetId) || isRune(assetId)) return
+  return assetId
+}
+
 export const useTCYClaims = (accountNumber: number | 'all') => {
   const {
     state: { isConnected, wallet, isLocked },
@@ -44,11 +52,12 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
   const allAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const accountIds = useMemo(
     () =>
-      accountNumber === 'all'
+      (accountNumber === 'all'
         ? allAccountIds
         : Object.values(accountIdsByAccountNumberAndChainId[accountNumber] || {})
             .flat()
-            .filter(isSome),
+            .filter(isSome)
+      ).filter(accountId => getTcyClaimFeeAssetId(accountId)),
     [accountNumber, allAccountIds, accountIdsByAccountNumberAndChainId],
   )
 
@@ -66,11 +75,8 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
         if (!isConnected) return null
 
         const activeAddresses = await (() => {
-          const chainId = fromAccountId(accountId).chainId
-          const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+          const assetId = getTcyClaimFeeAssetId(accountId)
           if (!assetId) return []
-          if (!isSupportedThorchainSaversAssetId(assetId)) return []
-          if (isRune(assetId)) return []
 
           // UTXO-based chains are the odd ones, for all address-based, we can simply use the `account` caip-10 part
           if (!isUtxoChainId(fromAccountId(accountId).chainId))

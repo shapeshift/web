@@ -6,7 +6,6 @@ import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { VersionedTransaction } from '@solana/web3.js'
 import { getWallets } from '@wallet-standard/app'
 import type { Wallet, WalletAccount } from '@wallet-standard/base'
-import { ethErrors, serializeError } from 'eth-rpc-errors'
 import isObject from 'lodash/isObject'
 import type { EIP6963ProviderDetail } from 'mipd'
 
@@ -710,54 +709,11 @@ export class MetaMaskNativeMultiChainHDWallet
   }
 
   public async ethAddChain(params: AddEthereumChainParameter): Promise<void> {
-    // at this point, we know that we're in the context of a valid MetaMask provider
-    await this.provider.request({ method: 'wallet_addEthereumChain', params: [params] })
+    await Eth.ethAddChain(this.provider, params)
   }
 
   public async ethSwitchChain(params: AddEthereumChainParameter): Promise<void> {
-    try {
-      // at this point, we know that we're in the context of a valid MetaMask provider
-      await this.provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: params.chainId }],
-      })
-    } catch (e: any) {
-      const error = serializeError(e)
-      // https://docs.metamask.io/guide/ethereum-provider.html#errors
-      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
-      if (error.code === -32603) {
-        try {
-          await this.ethAddChain(params)
-          return
-        } catch (addChainE: any) {
-          const addChainError = serializeError(addChainE)
-
-          if (addChainError.code === 4001) {
-            throw ethErrors.provider.userRejectedRequest()
-          }
-
-          if (!(addChainError.data as any)?.originalError) {
-            throw addChainError
-          }
-
-          throw (addChainError.data as any).originalError as {
-            code: number
-            message: string
-            stack: string
-          }
-        }
-      }
-
-      if (error.code === 4001) {
-        throw ethErrors.provider.userRejectedRequest()
-      }
-
-      throw (error.data as any).originalError as {
-        code: number
-        message: string
-        stack: string
-      }
-    }
+    await Eth.ethSwitchChain(this.provider, params)
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {

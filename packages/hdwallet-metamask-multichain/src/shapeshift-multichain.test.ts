@@ -22,6 +22,25 @@ describe('HDWalletInfo', () => {
   })
 })
 
+const sendTxMsg: core.ETHSignTx = {
+  addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+  nonce: '0xDEADBEEF',
+  gasPrice: '0xDEADBEEF',
+  gasLimit: '0xDEADBEEF',
+  to: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
+  value: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
+  data: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
+  chainId: 57073,
+}
+
+const addChainParams: core.AddEthereumChainParameter = {
+  chainId: '0xdef1',
+  chainName: 'Ink',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: ['https://rpc-gel.inkonchain.com'],
+  blockExplorerUrls: ['https://explorer.inkonchain.com'],
+}
+
 describe('MetaMaskMultiChainHDWallet', () => {
   let wallet: MetaMaskMultiChainHDWallet
   beforeEach(() => {
@@ -74,18 +93,18 @@ describe('MetaMaskMultiChainHDWallet', () => {
     `)
   })
 
-  it('ethSignMessage returns null on error', async () => {
+  it('ethSignMessage throws the provider error', async () => {
     wallet.provider = {
       request: vi.fn().mockRejectedValue(new Error('An Error has occurred')),
     }
 
     const msg = '0x737570657220736563726574206d657373616765' // super secret message
-    const sig = await wallet.ethSignMessage({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      message: msg,
-    })
-
-    expect(sig).toBe(null)
+    await expect(
+      wallet.ethSignMessage({
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        message: msg,
+      }),
+    ).rejects.toThrow('An Error has occurred')
   })
 
   it('ethGetAddress returns a valid address', async () => {
@@ -109,16 +128,7 @@ describe('MetaMaskMultiChainHDWallet', () => {
       request: vi.fn().mockReturnValue('0x123'),
     }
 
-    const hash = await wallet.ethSendTx({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      nonce: '0xDEADBEEF',
-      gasPrice: '0xDEADBEEF',
-      gasLimit: '0xDEADBEEF',
-      to: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
-      value: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
-      data: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
-      chainId: 1,
-    })
+    const hash = await wallet.ethSendTx(sendTxMsg)
     expect(wallet.provider.request).toHaveBeenCalled()
     expect(hash).toMatchObject({ hash: '0x123' })
   })
@@ -141,23 +151,69 @@ describe('MetaMaskMultiChainHDWallet', () => {
     expect(wallet.provider.request).toHaveBeenCalled()
     expect(hash).toMatchObject({ hash: '0x123' })
   })
-  it('ethSendTx returns null on error', async () => {
+  it('ethSendTx throws the provider error', async () => {
     wallet.provider = {
       request: vi.fn().mockRejectedValue(new Error('An Error has occurred')),
     }
 
-    const hash = await wallet.ethSendTx({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      nonce: '0xDEADBEEF',
-      gasPrice: '0xDEADBEEF',
-      gasLimit: '0xDEADBEEF',
-      to: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
-      value: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
-      data: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
-      chainId: 1,
+    await expect(wallet.ethSendTx(sendTxMsg)).rejects.toThrow('An Error has occurred')
+  })
+  it('ethSendTx requests account permissions and retries when the chain is unauthorized', async () => {
+    wallet.provider = {
+      request: vi
+        .fn()
+        .mockRejectedValueOnce({ code: 4100, message: 'not authorized' })
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce('0x123'),
+    }
+
+    const hash = await wallet.ethSendTx(sendTxMsg)
+
+    expect(wallet.provider.request).toHaveBeenNthCalledWith(2, {
+      method: 'wallet_requestPermissions',
+      params: [{ eth_accounts: {} }],
     })
-    expect(wallet.provider.request).toHaveBeenCalled()
-    expect(hash).toBe(null)
+    expect(wallet.provider.request).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({ method: 'eth_sendTransaction' }),
+    )
+    expect(hash).toMatchObject({ hash: '0x123' })
+  })
+  it.each([
+    ['unrecognized chain', { code: 4902, message: 'Unrecognized chain ID' }],
+    [
+      'wrapped unrecognized chain',
+      { code: -32603, message: 'Internal error', data: { originalError: { code: 4902 } } },
+    ],
+  ])('ethSwitchChain adds the chain on %s', async (_, switchError) => {
+    wallet.provider = {
+      request: vi.fn().mockRejectedValueOnce(switchError).mockResolvedValueOnce(null),
+    }
+
+    await wallet.ethSwitchChain(addChainParams)
+
+    expect(wallet.provider.request).toHaveBeenNthCalledWith(2, {
+      method: 'wallet_addEthereumChain',
+      params: [addChainParams],
+    })
+  })
+  it('ethSwitchChain resolves when MetaMask errors after adding the chain', async () => {
+    wallet.provider = {
+      request: vi
+        .fn()
+        .mockRejectedValueOnce({ code: 4902, message: 'Unrecognized chain ID' })
+        .mockRejectedValueOnce({ code: -32603, message: 'n.find is not a function' }),
+    }
+
+    await expect(wallet.ethSwitchChain(addChainParams)).resolves.toBeUndefined()
+  })
+  it('ethSwitchChain throws a user rejection without adding the chain', async () => {
+    wallet.provider = {
+      request: vi.fn().mockRejectedValue({ code: 4001, message: 'User rejected the request.' }),
+    }
+
+    await expect(wallet.ethSwitchChain(addChainParams)).rejects.toMatchObject({ code: 4001 })
+    expect(wallet.provider.request).toHaveBeenCalledTimes(1)
   })
   it('ethVerifyMessage returns null as its not implemented', async () => {
     wallet.provider = {

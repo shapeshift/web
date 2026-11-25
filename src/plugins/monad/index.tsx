@@ -1,9 +1,9 @@
-import { fromAssetId, monadChainId } from '@shapeshiftoss/caip'
+import { monadChainId } from '@shapeshiftoss/caip'
 import { monad } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { getConfig } from '@/config'
-import { getAssetService } from '@/lib/asset-service'
+import { createGetKnownTokens } from '@/lib/asset-service'
 import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
@@ -19,21 +19,7 @@ export default function register(): Plugins {
             [
               KnownChainIds.MonadMainnet,
               () => {
-                const getKnownTokens = () => {
-                  const assetService = getAssetService()
-                  return assetService.assets
-                    .filter(asset => {
-                      const { chainId, assetNamespace } = fromAssetId(asset.assetId)
-                      return chainId === monadChainId && assetNamespace === 'erc20'
-                    })
-                    .map(asset => ({
-                      assetId: asset.assetId,
-                      contractAddress: fromAssetId(asset.assetId).assetReference,
-                      symbol: asset.symbol,
-                      name: asset.name,
-                      precision: asset.precision,
-                    }))
-                }
+                const getKnownTokens = createGetKnownTokens(monadChainId, 'erc20')
 
                 return new monad.ChainAdapter({
                   rpcUrl: getConfig().VITE_MONAD_NODE_URL,

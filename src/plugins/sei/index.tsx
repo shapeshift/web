@@ -1,9 +1,9 @@
-import { fromAssetId, seiChainId } from '@shapeshiftoss/caip'
+import { seiChainId } from '@shapeshiftoss/caip'
 import { sei } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { getConfig } from '@/config'
-import { getAssetService } from '@/lib/asset-service'
+import { createGetKnownTokens } from '@/lib/asset-service'
 import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
@@ -19,21 +19,7 @@ export default function register(): Plugins {
             [
               KnownChainIds.SeiMainnet,
               () => {
-                const getKnownTokens = () => {
-                  const assetService = getAssetService()
-                  return assetService.assets
-                    .filter(asset => {
-                      const { chainId, assetNamespace } = fromAssetId(asset.assetId)
-                      return chainId === seiChainId && assetNamespace === 'erc20'
-                    })
-                    .map(asset => ({
-                      assetId: asset.assetId,
-                      contractAddress: fromAssetId(asset.assetId).assetReference,
-                      symbol: asset.symbol,
-                      name: asset.name,
-                      precision: asset.precision,
-                    }))
-                }
+                const getKnownTokens = createGetKnownTokens(seiChainId, 'erc20')
 
                 return new sei.ChainAdapter({
                   rpcUrl: getConfig().VITE_SEI_NODE_URL,

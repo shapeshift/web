@@ -241,7 +241,6 @@ const validators = {
   VITE_FEATURE_SYMBIOSIS_SWAP: bool({ default: false }),
   VITE_SYMBIOSIS_API_URL: url(),
   VITE_PANORA_API_KEY: str(),
-  VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_AFFILIATE_REVENUE_URL: url(),
   VITE_FEATURE_LEDGER_READ_ONLY: bool({ default: false }),
   VITE_FEATURE_SWAPPER_FIAT_RAMPS: bool({ default: false }),

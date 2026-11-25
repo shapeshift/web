@@ -16,7 +16,6 @@ import {
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { reloadWebview } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -59,7 +58,6 @@ const ClearCacheButton = ({
 }
 
 export const ClearCache = ({ isDrawer = false }: MaybeDrawerProps) => {
-  const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
   const dispatch = useAppDispatch()
   const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const translate = useTranslate()
@@ -84,12 +82,10 @@ export const ClearCache = ({ isDrawer = false }: MaybeDrawerProps) => {
     dispatch(txHistory.actions.clear())
     dispatch(txHistoryApi.util.resetApiState())
 
-    if (isLazyTxHistoryEnabled) return
-
     requestedAccountIds.forEach(requestedAccountId =>
       dispatch(txHistoryApi.endpoints.getAllTxHistory.initiate(requestedAccountId)),
     )
-  }, [dispatch, requestedAccountIds, isLazyTxHistoryEnabled])
+  }, [dispatch, requestedAccountIds])
 
   const clearButtons = useMemo(
     () => (

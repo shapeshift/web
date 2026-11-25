@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, original } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId, thorchainChainId } from '@shapeshiftoss/caip'
@@ -79,41 +79,47 @@ export const initialState: TxHistory = {
   hydrationMeta: {},
 }
 
-const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: AccountId) => {
+const updateOrInsertTxs = (txHistory: TxHistory, txsByAccountId: TransactionsByAccountId) => {
   const { txs, hydrationMeta } = txHistory
+  const upsertedTxsById: TxHistoryById = {}
 
   let newTxAdded = false
-  let minTxBlockTime = Infinity
-  for (const tx of incomingTxs) {
-    if (tx.blockTime < minTxBlockTime) minTxBlockTime = tx.blockTime
+  for (const [accountId, incomingTxs] of Object.entries(txsByAccountId)) {
+    let minTxBlockTime = Infinity
+    for (const tx of incomingTxs) {
+      if (tx.blockTime < minTxBlockTime) minTxBlockTime = tx.blockTime
 
-    const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
+      const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
 
-    // track if new transactions have been added to prompt (re)sort of ids
-    if (newTxAdded === false && !txs.byId[txIndex]) newTxAdded = true
+      // track if new transactions have been added to prompt (re)sort of ids
+      if (!(txIndex in txs.byId)) newTxAdded = true
 
-    // update or insert tx
-    txs.byId[txIndex] = tx
+      // update or insert tx
+      txs.byId[txIndex] = tx
+      upsertedTxsById[txIndex] = tx
 
-    // find all the related assetIds, and keep an index of txids related to each assetId
-    getRelatedAssetIds(tx).forEach(relatedAssetId =>
-      deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
-    )
-  }
-
-  // (re)sort ids by block timestamp if any new transaction were added
-  if (newTxAdded) {
-    const getBlockTime = ([_, tx]: [string, Tx]) => tx.blockTime
-    txs.ids = orderBy(Object.entries(txs.byId), getBlockTime, 'desc').map(([txIndex, _]) => txIndex)
-  }
-
-  // update the min tx block time if required
-  if (minTxBlockTime < (hydrationMeta[accountId]?.minTxBlockTime ?? Infinity)) {
-    hydrationMeta[accountId] = {
-      isHydrated: false,
-      isErrored: false,
-      minTxBlockTime,
+      // find all the related assetIds, and keep an index of txids related to each assetId
+      getRelatedAssetIds(tx).forEach(relatedAssetId =>
+        deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
+      )
     }
+
+    // update the min tx block time if required
+    if (minTxBlockTime < (hydrationMeta[accountId]?.minTxBlockTime ?? Infinity)) {
+      hydrationMeta[accountId] = {
+        isHydrated: false,
+        isErrored: false,
+        minTxBlockTime,
+      }
+    }
+  }
+
+  // (re)sort ids by block timestamp if any new transaction were added, reading plain txs rather than a draft of each
+  if (newTxAdded) {
+    const originalTxsById = original(txs.byId) ?? {}
+    const getBlockTime = (txIndex: TxId) =>
+      (upsertedTxsById[txIndex] ?? originalTxsById[txIndex])?.blockTime
+    txs.ids = orderBy(Object.keys(txs.byId) as TxId[], getBlockTime, 'desc')
   }
 }
 
@@ -125,12 +131,10 @@ export const txHistory = createSlice({
       return initialState
     }),
     onMessage: create.reducer((txState, { payload }: TxMessage) => {
-      updateOrInsertTxs(txState, [payload.message], payload.accountId)
+      updateOrInsertTxs(txState, { [payload.accountId]: [payload.message] })
     }),
     upsertTxsByAccountId: create.reducer((txState, { payload }: TxsMessage) => {
-      for (const [accountId, txs] of Object.entries(payload)) {
-        updateOrInsertTxs(txState, txs, accountId)
-      }
+      updateOrInsertTxs(txState, payload)
 
       return txState
     }),

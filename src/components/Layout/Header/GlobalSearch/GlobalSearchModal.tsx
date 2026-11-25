@@ -2,6 +2,7 @@ import type { UseDisclosureReturn } from '@chakra-ui/react'
 import {
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
@@ -13,6 +14,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
+import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
@@ -27,8 +29,8 @@ import { selectAssets, selectAssetsBySearchQuery } from '@/state/slices/selector
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-const inputGroupProps = { size: 'xl' }
-const sxProp2 = { p: 0 }
+const inputGroupProps = { size: 'xl', flex: 1 }
+const sxProp2 = { p: 0, display: 'flex', alignItems: 'center' }
 
 export const GlobalSearchModal = memo(
   ({
@@ -37,6 +39,7 @@ export const GlobalSearchModal = memo(
     onOpen,
     onToggle,
   }: Pick<UseDisclosureReturn, 'isOpen' | 'onClose' | 'onOpen' | 'onToggle'>) => {
+    const translate = useTranslate()
     const [activeIndex, setActiveIndex] = useState(0)
     const [searchQuery, setSearchQuery] = useState('')
     const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
@@ -207,6 +210,12 @@ export const GlobalSearchModal = memo(
                 inputGroupProps={inputGroupProps}
                 borderBottomRadius={0}
                 borderWidth={0}
+              />
+              <ModalCloseButton
+                position='static'
+                flexShrink={0}
+                mx={2}
+                aria-label={translate('common.close')}
               />
             </ModalHeader>
             <ModalBody px={0} ref={menuRef}>

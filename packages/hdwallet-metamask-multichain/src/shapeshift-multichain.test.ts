@@ -80,9 +80,18 @@ describe('MetaMaskMultiChainHDWallet', () => {
     const signedTx = { serialized: 'signed', body: '', authInfoBytes: '', signatures: [] }
     vi.mocked(snapsAdapter.thorchainSignTransaction).mockResolvedValue(signedTx)
 
-    const msg = {
+    const msg: core.ThorchainSignTx = {
       addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-    } as core.ThorchainSignTx
+      tx: {
+        msg: [{ type: 'thorchain/MsgDeposit', value: {} }],
+        fee: { amount: [{ amount: '0', denom: 'rune' }], gas: '500000000' },
+        signatures: [],
+        memo: 'tcy+',
+      },
+      chain_id: 'thorchain-1',
+      account_number: '0',
+      sequence: '0',
+    }
 
     expect(await wallet.thorchainSignTx(msg)).toEqual(signedTx)
     expect(snapsAdapter.thorchainGetAddress).not.toHaveBeenCalled()
@@ -95,9 +104,17 @@ describe('MetaMaskMultiChainHDWallet', () => {
     const signedTx = { serialized: 'signed', body: '', authInfoBytes: '', signatures: [] }
     vi.mocked(snapsAdapter.cosmosSignTransaction).mockResolvedValue(signedTx)
 
-    const msg = {
+    const msg: core.CosmosSignTx = {
       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-    } as core.CosmosSignTx
+      tx: {
+        msg: [{ type: 'cosmos-sdk/MsgSend', value: {} }],
+        fee: { amount: [{ amount: '5000', denom: 'uatom' }], gas: '200000' },
+        signatures: [],
+      },
+      chain_id: 'cosmoshub-4',
+      account_number: '0',
+      sequence: '0',
+    }
 
     expect(await wallet.cosmosSignTx(msg)).toEqual(signedTx)
     expect(snapsAdapter.cosmosGetAddress).not.toHaveBeenCalled()

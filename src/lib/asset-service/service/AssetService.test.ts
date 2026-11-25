@@ -163,43 +163,12 @@ describe('AssetService', () => {
       expect(getAssetService().version).toBe('abc1234:test:test')
     })
 
-    it('has no version for an unversioned build, so the assets are always reloaded', async () => {
+    it('has no version for an unversioned build', async () => {
       const { getAssetService, initAssetService } = await importAssetService('')
-      const getLoadedAssets = vi.fn()
-      await initAssetService(getLoadedAssets)
+      await initAssetService()
 
       expect(getAssetService().version).toBeUndefined()
-      expect(getLoadedAssets).not.toHaveBeenCalled()
       expect(hasFetchedAssetData()).toBe(true)
-    })
-
-    it('uses the assets already loaded from its version without fetching the asset data', async () => {
-      const { getAssetService, initAssetService } = await importAssetService('abc1234')
-      const loadedAssets = {
-        assetsById: { [EthAsset.assetId]: EthAsset },
-        assetIds: [EthAsset.assetId],
-        relatedAssetIndex: { [EthAsset.assetId]: [EthAsset.assetId] },
-      }
-      const getLoadedAssets = vi.fn().mockReturnValue(loadedAssets)
-
-      await initAssetService(getLoadedAssets)
-
-      const assetService = getAssetService()
-      expect(getLoadedAssets).toHaveBeenCalledWith('abc1234:test:test')
-      expect(hasFetchedAssetData()).toBe(false)
-      expect(assetService.assetsById).toBe(loadedAssets.assetsById)
-      expect(assetService.assetIds).toEqual([EthAsset.assetId])
-      expect(assetService.assets).toEqual([EthAsset])
-      expect(assetService.relatedAssetIndex).toBe(loadedAssets.relatedAssetIndex)
-    })
-
-    it('fetches the asset data when none is loaded from its version', async () => {
-      const { getAssetService, initAssetService } = await importAssetService('abc1234')
-
-      await initAssetService(() => undefined)
-
-      expect(hasFetchedAssetData()).toBe(true)
-      expect(getAssetService().assetIds).toEqual(mockData.assetData.ids)
     })
 
     it('can be retried after a failed load', async () => {

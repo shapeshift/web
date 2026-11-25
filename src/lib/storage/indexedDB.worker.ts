@@ -28,7 +28,7 @@ export type IndexedDBWorkerInboundMessage =
 export type IndexedDBWorkerOutboundMessage =
   | { type: 'ready' }
   | { type: 'getItemResult'; requestId: number; value: unknown; duration: number }
-  | { type: 'setItemResult'; requestId: number; value: unknown; duration: number }
+  | { type: 'setItemResult'; requestId: number; duration: number }
   | { type: 'removeItemResult'; requestId: number; duration: number }
   | { type: 'error'; requestId: number; error: string }
 
@@ -62,7 +62,6 @@ const handleSetItem = async (requestId: number, key: string, value: unknown): Pr
     const result: IndexedDBWorkerOutboundMessage = {
       type: 'setItemResult',
       requestId,
-      value,
       duration,
     }
     postMessage(result)

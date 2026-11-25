@@ -1,4 +1,4 @@
-import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
+import { createSlice, original, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
@@ -9,7 +9,6 @@ import merge from 'lodash/merge'
 import type { MarketDataById } from './types'
 import { trimOutOfBoundsMarketData } from './utils'
 
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
@@ -69,25 +68,22 @@ export const marketData = createSlice({
         state,
         { payload }: { payload: MarketDataById<AssetId> },
       ) {
-        state.crypto.byId = Object.assign(state.crypto.byId, payload) // upsert
-        state.crypto.ids = Object.keys(state.crypto.byId).sort((assetIdA, assetIdB) => {
-          const marketDataA = state.crypto.byId[assetIdA]
-          const marketDataB = state.crypto.byId[assetIdB]
-          if (!marketDataA || !marketDataB) return 0
-          const marketCapA = bnOrZero(marketDataA.marketCap)
-          const marketCapB = bnOrZero(marketDataB.marketCap)
-
-          return marketCapB.comparedTo(marketCapA) ?? 0
-        })
-
-        // Rebuilds state.crypto.byId with the ordered index we just built above
-        state.crypto.byId = state.crypto.ids.reduce<Partial<Record<AssetId, MarketData>>>(
-          (acc, assetId) => {
-            acc[assetId] = state.crypto.byId[assetId]
-            return acc
-          },
+        // Sorting plain objects on parsed market caps, as each single asset update re-sorts every asset
+        const byId: MarketDataById<AssetId> = Object.assign(
           {},
+          original(state.crypto.byId),
+          payload,
         )
+        const marketCapByAssetId = new Map(
+          Object.entries(byId).map(([assetId, data]) => [assetId, Number(data?.marketCap) || 0]),
+        )
+        const ids = Object.keys(byId).sort(
+          (assetIdA, assetIdB) =>
+            (marketCapByAssetId.get(assetIdB) ?? 0) - (marketCapByAssetId.get(assetIdA) ?? 0),
+        )
+
+        state.crypto.ids = ids
+        state.crypto.byId = Object.fromEntries(ids.map(assetId => [assetId, byId[assetId]]))
       },
 
       // Use the `prepareAutoBatched` utility to automatically

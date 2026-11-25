@@ -57,6 +57,8 @@ const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return PUBLIC_RPC_URLS.robinhood[0]
       case KnownChainIds.ElysiumMainnet:
         return PUBLIC_RPC_URLS.elysium[0]
+      case KnownChainIds.ArcMainnet:
+        return PUBLIC_RPC_URLS.arc[0]
       default:
         return assertUnreachable(chainId)
     }

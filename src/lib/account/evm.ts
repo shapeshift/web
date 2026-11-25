@@ -1,6 +1,7 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
+  arcChainId,
   avalancheChainId,
   baseChainId,
   bobChainId,
@@ -30,6 +31,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isMetaMask,
   supportsArbitrum,
+  supportsArc,
   supportsAvalanche,
   supportsBase,
   supportsBob,
@@ -179,6 +181,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === bobChainId && !supportsBob(wallet)) continue
     if (chainId === robinhoodChainId && !supportsRobinhood(wallet)) continue
     if (chainId === elysiumChainId && !supportsElysium(wallet)) continue
+    if (chainId === arcChainId && !supportsArc(wallet)) continue
     if (
       isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

@@ -290,6 +290,18 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0xb47c4c8f73f009cc0c0d3f92b388d13e293f0b65',
       })
+      const usdcOnArc = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ArcMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Arc,
+      })
+      const usdcErc20ViewOnArc = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ArcMainnet,
+        assetNamespace,
+        assetReference: '0x3600000000000000000000000000000000000000',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -312,6 +324,8 @@ describe('adapters:coingecko', () => {
         usdcOnNear,
         usdcOnAptos,
         usdcOnElysium,
+        usdcOnArc,
+        usdcErc20ViewOnArc,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {

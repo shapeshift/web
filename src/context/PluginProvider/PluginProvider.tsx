@@ -138,6 +138,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Robinhood && chainId === KnownChainIds.RobinhoodMainnet) return false
       if (!featureFlags.Aptos && chainId === KnownChainIds.AptosMainnet) return false
       if (!featureFlags.Elysium && chainId === KnownChainIds.ElysiumMainnet) return false
+      if (!featureFlags.Arc && chainId === KnownChainIds.ArcMainnet) return false
       return true
     })
 

@@ -2,6 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   aptosAssetId,
   arbitrumAssetId,
+  arcAssetId,
   avalancheAssetId,
   baseAssetId,
   bchAssetId,
@@ -122,6 +123,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return aptosAssetId
     case KnownChainIds.ElysiumMainnet:
       return elysiumAssetId
+    case KnownChainIds.ArcMainnet:
+      return arcAssetId
     default:
       return assertUnreachable(chainId)
   }

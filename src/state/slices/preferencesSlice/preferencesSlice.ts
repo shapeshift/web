@@ -125,6 +125,7 @@ export type FeatureFlags = {
   Robinhood: boolean
   Aptos: boolean
   Elysium: boolean
+  Arc: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -284,6 +285,7 @@ const initialState: Preferences = {
     Robinhood: getConfig().VITE_FEATURE_ROBINHOOD,
     Aptos: getConfig().VITE_FEATURE_APTOS,
     Elysium: getConfig().VITE_FEATURE_ELYSIUM,
+    Arc: getConfig().VITE_FEATURE_ARC,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

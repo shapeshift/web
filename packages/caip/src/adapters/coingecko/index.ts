@@ -7,6 +7,7 @@ import { fromChainId } from '../../chainId/chainId'
 import {
   aptosChainId,
   arbitrumChainId,
+  arcChainId,
   avalancheChainId,
   baseChainId,
   bobChainId,
@@ -84,6 +85,7 @@ export enum CoingeckoAssetPlatform {
   Near = 'near-protocol',
   Robinhood = 'robinhood',
   Elysium = 'elysium-kinetiq',
+  Arc = 'arc',
 }
 
 type CoinGeckoId = string
@@ -166,6 +168,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Robinhood
         case CHAIN_REFERENCE.ElysiumMainnet:
           return CoingeckoAssetPlatform.Elysium
+        case CHAIN_REFERENCE.ArcMainnet:
+          return CoingeckoAssetPlatform.Arc
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -324,6 +328,8 @@ export const coingeckoAssetPlatformToChainId = (
       return robinhoodChainId
     case CoingeckoAssetPlatform.Elysium:
       return elysiumChainId
+    case CoingeckoAssetPlatform.Arc:
+      return arcChainId
     default:
       return undefined
   }

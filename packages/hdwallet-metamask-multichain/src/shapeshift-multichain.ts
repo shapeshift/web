@@ -224,6 +224,7 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsThorchain = true
   readonly _supportsRobinhood = true
   readonly _supportsElysium = true
+  readonly _supportsArc = true
 
   info: MetaMaskMultiChainHDWalletInfo & core.HDWalletInfo
   cosmosAddress?: string | null

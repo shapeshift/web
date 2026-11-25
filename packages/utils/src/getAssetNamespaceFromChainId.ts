@@ -40,6 +40,7 @@ export const getAssetNamespaceFromChainId = (
     case KnownChainIds.CeloMainnet:
     case KnownChainIds.RobinhoodMainnet:
     case KnownChainIds.ElysiumMainnet:
+    case KnownChainIds.ArcMainnet:
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.StarknetMainnet:
       return ASSET_NAMESPACE.starknetToken

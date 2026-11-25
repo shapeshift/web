@@ -36,6 +36,7 @@ import near from "./near_mainnet/adapter.json";
 import ton from "./ton_mainnet/adapter.json";
 import aptos from "./aptos_1/adapter.json";
 import elysium from "./eip155_99901/adapter.json";
+import arc from "./eip155_5042/adapter.json";
 
 export {
   bitcoin,
@@ -76,4 +77,5 @@ export {
   ton,
   aptos,
   elysium,
+  arc,
 };

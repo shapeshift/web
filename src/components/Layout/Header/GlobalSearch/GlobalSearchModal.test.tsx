@@ -1,5 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import type { ReactElement } from 'react'
 import { useState } from 'react'
 import { I18n } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
@@ -32,11 +33,13 @@ vi.mock('./AssetSearchResults', () => ({ AssetSearchResults: () => null }))
 
 const onClose = vi.fn()
 const onToggle = vi.fn()
-const messages = { common: { clear: 'Clear', close: 'Close' } }
+const messages: { common: { clear: string; close: string } } = {
+  common: { clear: 'Clear', close: 'Close' },
+}
 
-const Search = () => {
+const Search = (): ReactElement => {
   const [isOpen, setIsOpen] = useState(true)
-  const handleClose = () => {
+  const handleClose = (): void => {
     onClose()
     setIsOpen(false)
   }
@@ -58,21 +61,26 @@ const Search = () => {
   )
 }
 
-afterEach(() => vi.clearAllMocks())
+afterEach((): void => {
+  vi.clearAllMocks()
+})
 
-describe('GlobalSearchModal dismissal', () => {
-  it.each(['', 'bitcoin'])('closes without choosing an asset for query "%s"', async query => {
-    render(<Search />)
-    if (query) fireEvent.change(screen.getByRole('textbox'), { target: { value: query } })
+describe('GlobalSearchModal dismissal', (): void => {
+  it.each(['', 'bitcoin'])(
+    'closes without choosing an asset for query "%s"',
+    async (query: string): Promise<void> => {
+      render(<Search />)
+      if (query) fireEvent.change(screen.getByRole('textbox'), { target: { value: query } })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Close', exact: true }))
+      fireEvent.click(screen.getByRole('button', { name: 'Close', exact: true }))
 
-    expect(onClose).toHaveBeenCalledOnce()
-    expect(onToggle).not.toHaveBeenCalled()
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
-  })
+      expect(onClose).toHaveBeenCalledOnce()
+      expect(onToggle).not.toHaveBeenCalled()
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    },
+  )
 
-  it('keeps clearing the query separate from closing the modal', async () => {
+  it('keeps clearing the query separate from closing the modal', async (): Promise<void> => {
     render(<Search />)
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'bitcoin' } })
     await waitFor(() =>
@@ -81,7 +89,9 @@ describe('GlobalSearchModal dismissal', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }))
 
-    expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('')
+    const input = screen.getByRole('textbox')
+    if (!(input instanceof HTMLInputElement)) throw new Error('Expected a search input')
+    expect(input.value).toBe('')
     expect(screen.getByRole('dialog')).toBeTruthy()
     expect(onClose).not.toHaveBeenCalled()
   })

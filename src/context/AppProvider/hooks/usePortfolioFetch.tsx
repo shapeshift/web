@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 
 import { useAssetService } from '@/hooks/useAssetService/useAssetService'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -13,8 +12,6 @@ export const usePortfolioFetch = () => {
   const { isLoadingLocalWallet, modal, wallet } = useWallet().state
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const { isPending: isAssetServicePending } = useAssetService()
-
-  const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
 
   useEffect(() => {
     if (!wallet) return
@@ -38,17 +35,8 @@ export const usePortfolioFetch = () => {
       })
     }
 
-    if (isLazyTxHistoryEnabled) return
-
     enabledWalletAccountIds.forEach(requestedAccountId => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
-  }, [
-    dispatch,
-    enabledWalletAccountIds,
-    isAssetServicePending,
-    isLazyTxHistoryEnabled,
-    isLoadingLocalWallet,
-    modal,
-  ])
+  }, [dispatch, enabledWalletAccountIds, isAssetServicePending, isLoadingLocalWallet, modal])
 }

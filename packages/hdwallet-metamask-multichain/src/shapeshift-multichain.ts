@@ -1,6 +1,5 @@
 import type { AddEthereumChainParameter, Address } from '@shapeshiftoss/hdwallet-core'
 import * as core from '@shapeshiftoss/hdwallet-core'
-import { ethErrors, serializeError } from 'eth-rpc-errors'
 import isObject from 'lodash/isObject'
 import type { EIP6963ProviderDetail } from 'mipd'
 
@@ -686,54 +685,11 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async ethAddChain(params: AddEthereumChainParameter): Promise<void> {
-    // at this point, we know that we're in the context of a valid MetaMask provider
-    await this.provider.request({ method: 'wallet_addEthereumChain', params: [params] })
+    await Eth.ethAddChain(this.provider, params)
   }
 
   public async ethSwitchChain(params: AddEthereumChainParameter): Promise<void> {
-    try {
-      // at this point, we know that we're in the context of a valid MetaMask provider
-      await this.provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: params.chainId }],
-      })
-    } catch (e: any) {
-      const error = serializeError(e)
-      // https://docs.metamask.io/guide/ethereum-provider.html#errors
-      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
-      if (error.code === -32603) {
-        try {
-          await this.ethAddChain(params)
-          return
-        } catch (addChainE: any) {
-          const addChainError = serializeError(addChainE)
-
-          if (addChainError.code === 4001) {
-            throw ethErrors.provider.userRejectedRequest()
-          }
-
-          if (!(addChainError.data as any)?.originalError) {
-            throw addChainError
-          }
-
-          throw (addChainError.data as any).originalError as {
-            code: number
-            message: string
-            stack: string
-          }
-        }
-      }
-
-      if (error.code === 4001) {
-        throw ethErrors.provider.userRejectedRequest()
-      }
-
-      throw (error.data as any).originalError as {
-        code: number
-        message: string
-        stack: string
-      }
-    }
+    await Eth.ethSwitchChain(this.provider, params)
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {

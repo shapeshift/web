@@ -1,6 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
+  arcChainId,
   avalancheChainId,
   baseChainId,
   bchChainId,
@@ -259,6 +260,7 @@ export const EVM_CHAIN_IDS = {
   katana: katanaChainId,
   elysium: elysiumChainId,
   robinhood: robinhoodChainId,
+  arc: arcChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {

@@ -113,7 +113,8 @@ and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it 
   only from the chains you pass to `WagmiAdapter`. If a chain is missing there, its balances don't
   load, even when AppKit lists it. Import the chains `@reown/appkit/networks` exports, and define any
   it doesn't with `defineChain` from the same package. AppKit fills in the CAIP fields
-  (`chainNamespace`, `caipNetworkId`) from `id`.
+  (`chainNamespace`, `caipNetworkId`) from `id`. Before viem 2.56.6, the `arc` export has no RPC URL,
+  so define Arc the same way (`id: 5042`, native USDC with 18 decimals, `https://rpc.mainnet.arc.io`).
 
   ```ts
   import { defineChain, mainnet } from '@reown/appkit/networks'
@@ -664,6 +665,7 @@ const EVM_CHAIN_IDS = {
   katana: 'eip155:747474',
   elysium: 'eip155:99901',
   robinhood: 'eip155:4663',
+  arc: 'eip155:5042',
 }
 
 const UTXO_CHAIN_IDS = {
@@ -744,6 +746,7 @@ disabled, only chains the widget can sign for or pay externally stay in the sele
 | Katana            | `eip155:747474`                           | EVM    | ✅                   |
 | Elysium           | `eip155:99901`                            | EVM    | ✅                   |
 | Robinhood Chain   | `eip155:4663`                             | EVM    | ✅                   |
+| Arc               | `eip155:5042`                             | EVM    | ✅                   |
 | Bitcoin           | `bip122:000000000019d6689c085ae165831e93` | UTXO   | ✅                   |
 | Bitcoin Cash      | `bip122:000000000000000000651ef99cb9fcbe` | UTXO   | ✅                   |
 | Dogecoin          | `bip122:00000000001a91e3dace36e2be3bf030` | UTXO   | ✅                   |

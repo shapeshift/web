@@ -26,7 +26,7 @@ import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import type { Config } from 'wagmi'
 
 import { getChainIcon } from '../constants/chains'
-import { elysium } from '../constants/viemChains'
+import { arc, elysium } from '../constants/viemChains'
 import { guardWalletInitiatedConnects } from './walletInitiatedConnect'
 
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
@@ -45,6 +45,7 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   katana,
   elysium,
   robinhood,
+  arc,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

@@ -1,6 +1,7 @@
 import type { Asset } from '@shapeshiftoss/types'
 import {
   arbitrum,
+  arc,
   atom,
   avax,
   base,
@@ -49,6 +50,7 @@ const BASE_ASSETS_BY_CHAIN_ID: Record<ChainId, Asset> = {
   [katana.chainId]: katana,
   [elysium.chainId]: elysium,
   [robinhood.chainId]: robinhood,
+  [arc.chainId]: arc,
   [bitcoin.chainId]: bitcoin,
   [bitcoincash.chainId]: bitcoincash,
   [dogecoin.chainId]: dogecoin,

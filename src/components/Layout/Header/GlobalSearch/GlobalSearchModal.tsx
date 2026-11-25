@@ -1,7 +1,10 @@
 import type { UseDisclosureReturn } from '@chakra-ui/react'
 import {
+  Flex,
+  Heading,
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
@@ -13,6 +16,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
+import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 import scrollIntoView from 'scroll-into-view-if-needed'
 
@@ -29,6 +33,8 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const inputGroupProps = { size: 'xl' }
 const sxProp2 = { p: 0 }
+const mobileOnlyDisplay = { base: 'flex', md: 'none' }
+const inputTopRadius = { base: 0, md: 'xl' }
 
 export const GlobalSearchModal = memo(
   ({
@@ -37,6 +43,7 @@ export const GlobalSearchModal = memo(
     onOpen,
     onToggle,
   }: Pick<UseDisclosureReturn, 'isOpen' | 'onClose' | 'onOpen' | 'onToggle'>) => {
+    const translate = useTranslate()
     const [activeIndex, setActiveIndex] = useState(0)
     const [searchQuery, setSearchQuery] = useState('')
     const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
@@ -200,11 +207,17 @@ export const GlobalSearchModal = memo(
               borderBottomWidth={1}
               borderColor='whiteAlpha.100'
             >
+              <Flex display={mobileOnlyDisplay} alignItems='center' justifyContent='center' h={12}>
+                <Heading fontSize='md'>{translate('common.assetSearch')}</Heading>
+                <ModalCloseButton aria-label={translate('common.close')} />
+              </Flex>
               <GlobalFilter
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 onKeyDown={onKeyDown}
                 inputGroupProps={inputGroupProps}
+                placeholder={translate('common.nameSymbolOrAddress')}
+                borderTopRadius={inputTopRadius}
                 borderBottomRadius={0}
                 borderWidth={0}
               />

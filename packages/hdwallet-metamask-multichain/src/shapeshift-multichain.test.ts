@@ -207,6 +207,21 @@ describe('MetaMaskMultiChainHDWallet', () => {
 
     await expect(wallet.ethSwitchChain(addChainParams)).resolves.toBeUndefined()
   })
+  it('ethSwitchChain adds the chain when the provider error has no code', async () => {
+    wallet.provider = {
+      request: vi
+        .fn()
+        .mockRejectedValueOnce(new Error('Unrecognized chain ID'))
+        .mockResolvedValueOnce(null),
+    }
+
+    await wallet.ethSwitchChain(addChainParams)
+
+    expect(wallet.provider.request).toHaveBeenNthCalledWith(2, {
+      method: 'wallet_addEthereumChain',
+      params: [addChainParams],
+    })
+  })
   it('ethSwitchChain throws a user rejection without adding the chain', async () => {
     wallet.provider = {
       request: vi.fn().mockRejectedValue({ code: 4001, message: 'User rejected the request.' }),

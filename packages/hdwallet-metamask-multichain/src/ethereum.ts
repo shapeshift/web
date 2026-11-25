@@ -5,13 +5,16 @@ import { isHexString } from 'ethers/lib/utils'
 
 const UNRECOGNIZED_CHAIN_ERROR_CODE = 4902
 
-type ProviderError = { code: number; message: string }
+type ProviderError = { code: number; message?: string }
 
 const unwrapProviderError = (error: unknown): ProviderError => {
   const serializedError = serializeError(error)
-  const originalError = (serializedError.data as { originalError?: ProviderError } | undefined)
-    ?.originalError
-  return originalError ?? serializedError
+  const originalError = (
+    serializedError.data as { originalError?: Partial<ProviderError> } | undefined
+  )?.originalError
+  return typeof originalError?.code === 'number'
+    ? { code: originalError.code, message: originalError.message }
+    : serializedError
 }
 
 const toSwitchChainError = (providerError: ProviderError) =>
@@ -63,7 +66,7 @@ export async function ethSwitchChain(
       // MetaMask throws this after successfully adding the chain: https://github.com/shapeshift/web/issues/9301#issuecomment-2790459115
       const isAddedDespiteError =
         providerAddChainError.code === errorCodes.rpc.internal &&
-        providerAddChainError.message.includes('is not a function')
+        providerAddChainError.message?.includes('is not a function')
       if (isAddedDespiteError) return
       throw toSwitchChainError(providerAddChainError)
     }

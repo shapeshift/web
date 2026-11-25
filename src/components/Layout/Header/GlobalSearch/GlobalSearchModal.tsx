@@ -1,5 +1,7 @@
 import type { UseDisclosureReturn } from '@chakra-ui/react'
 import {
+  Flex,
+  Heading,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -29,8 +31,10 @@ import { selectAssets, selectAssetsBySearchQuery } from '@/state/slices/selector
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
-const inputGroupProps = { size: 'xl', flex: 1 }
-const sxProp2 = { p: 0, display: 'flex', alignItems: 'center' }
+const inputGroupProps = { size: 'xl' }
+const sxProp2 = { p: 0 }
+const mobileOnlyDisplay = { base: 'flex', md: 'none' }
+const inputTopRadius = { base: 0, md: 'xl' }
 
 export const GlobalSearchModal = memo(
   ({
@@ -203,19 +207,19 @@ export const GlobalSearchModal = memo(
               borderBottomWidth={1}
               borderColor='whiteAlpha.100'
             >
+              <Flex display={mobileOnlyDisplay} alignItems='center' justifyContent='center' h={12}>
+                <Heading fontSize='md'>{translate('common.assetSearch')}</Heading>
+                <ModalCloseButton aria-label={translate('common.close')} />
+              </Flex>
               <GlobalFilter
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 onKeyDown={onKeyDown}
                 inputGroupProps={inputGroupProps}
+                placeholder={translate('common.nameSymbolOrAddress')}
+                borderTopRadius={inputTopRadius}
                 borderBottomRadius={0}
                 borderWidth={0}
-              />
-              <ModalCloseButton
-                position='static'
-                flexShrink={0}
-                mx={2}
-                aria-label={translate('common.close')}
               />
             </ModalHeader>
             <ModalBody px={0} ref={menuRef}>

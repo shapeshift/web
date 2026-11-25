@@ -112,6 +112,8 @@
     "search": "Search",
     "searchAsset": "Search for asset",
     "searchNameOrAddress": "Search by name or address",
+    "assetSearch": "Asset Search",
+    "nameSymbolOrAddress": "Name, symbol or address",
     "enterAmount": "Enter Amount",
     "enterAddress": "Enter Address",
     "pageNotFound": "The page you're looking for cannot be found",

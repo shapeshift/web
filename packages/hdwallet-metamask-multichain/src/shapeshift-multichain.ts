@@ -586,8 +586,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async bitcoinCashSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const address = await this.bitcoinCashGetAddress(this.provider)
-    return address ? Btc.bitcoinSignTx(msg) : null
+    return Btc.bitcoinSignTx(msg)
   }
 
   /** COSMOS */
@@ -623,8 +622,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-    const address = await this.cosmosGetAddress(this.provider)
-    return address ? Cosmos.cosmosSignTx(msg) : null
+    return Cosmos.cosmosSignTx(msg)
   }
 
   /** DOGECOIN */
@@ -660,8 +658,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async dogecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const address = await this.dogecoinGetAddress(this.provider)
-    return address ? Doge.dogecoinSignTx(msg) : null
+    return Doge.dogecoinSignTx(msg)
   }
 
   /** ETHEREUM */
@@ -784,8 +781,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async litecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const address = await this.litecoinGetAddress(this.provider)
-    return address ? Litecoin.litecoinSignTx(msg) : null
+    return Litecoin.litecoinSignTx(msg)
   }
 
   /** THORCHAIN */
@@ -823,8 +819,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
-    const address = await this.thorchainGetAddress(this.provider)
-    return address ? Thorchain.thorchainSignTx(msg) : null
+    return Thorchain.thorchainSignTx(msg)
   }
 
   public async getDeviceID(): Promise<string> {

@@ -1,8 +1,17 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import * as snapsAdapter from '@shapeshiftoss/metamask-snaps-adapter'
 import type { EIP6963ProviderInfo } from 'mipd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MetaMaskMultiChainHDWallet, MetaMaskMultiChainHDWalletInfo } from '.'
+
+vi.mock('@shapeshiftoss/metamask-snaps-adapter', async importOriginal => ({
+  ...(await importOriginal<typeof snapsAdapter>()),
+  cosmosGetAddress: vi.fn(),
+  cosmosSignTransaction: vi.fn(),
+  thorchainGetAddress: vi.fn(),
+  thorchainSignTransaction: vi.fn(),
+}))
 
 describe('HDWalletInfo', () => {
   const info = new MetaMaskMultiChainHDWalletInfo()
@@ -65,6 +74,36 @@ describe('MetaMaskMultiChainHDWallet', () => {
     expect(await wallet.supportsOfflineSigning()).toBe(false)
     expect(wallet.supportsBip44Accounts()).toBe(false)
     expect(await wallet.supportsBroadcast()).toBe(true)
+  })
+
+  it('signs thorchain txs without an address cached on this wallet instance', async () => {
+    const signedTx = { serialized: 'signed', body: '', authInfoBytes: '', signatures: [] }
+    vi.mocked(snapsAdapter.thorchainSignTransaction).mockResolvedValue(signedTx)
+
+    const msg = {
+      addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
+    } as core.ThorchainSignTx
+
+    expect(await wallet.thorchainSignTx(msg)).toEqual(signedTx)
+    expect(snapsAdapter.thorchainGetAddress).not.toHaveBeenCalled()
+    expect(snapsAdapter.thorchainSignTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ transaction: msg }),
+    )
+  })
+
+  it('signs cosmos txs without an address cached on this wallet instance', async () => {
+    const signedTx = { serialized: 'signed', body: '', authInfoBytes: '', signatures: [] }
+    vi.mocked(snapsAdapter.cosmosSignTransaction).mockResolvedValue(signedTx)
+
+    const msg = {
+      addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+    } as core.CosmosSignTx
+
+    expect(await wallet.cosmosSignTx(msg)).toEqual(signedTx)
+    expect(snapsAdapter.cosmosGetAddress).not.toHaveBeenCalled()
+    expect(snapsAdapter.cosmosSignTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ transaction: msg }),
+    )
   })
 
   it('should test ethSignMessage', async () => {

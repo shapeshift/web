@@ -103,44 +103,7 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
     }
   }
 
-  public async bitcoinSupportsNetwork(chainId = 0): Promise<boolean> {
-    return chainId === 0
-  }
-
-  public async bitcoinSupportsSecureTransfer(): Promise<boolean> {
-    return false
-  }
-
-  public bitcoinSupportsNativeShapeShift(): boolean {
-    return false
-  }
-
-  public bitcoinGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    return Btc.bitcoinGetAccountPaths(msg)
-  }
-
   public bitcoinNextAccountPath(_msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined
-  }
-
-  public async bitcoinCashSupportsNetwork(chainId = 145): Promise<boolean> {
-    return chainId === 145
-  }
-
-  public async bitcoinCashSupportsSecureTransfer(): Promise<boolean> {
-    return false
-  }
-
-  public bitcoinCashSupportsNativeShapeShift(): boolean {
-    return false
-  }
-
-  public bitcoinCashGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    return Btc.bitcoinGetAccountPaths(msg)
-  }
-
-  public bitcoinCashNextAccountPath(_msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     // TODO: What do we do here?
     return undefined
   }
@@ -162,27 +125,6 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
   }
 
   public cosmosNextAccountPath(_msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined
-  }
-
-  public async dogecoinSupportsNetwork(chainId = 3): Promise<boolean> {
-    return chainId === 3
-  }
-
-  public async dogecoinSupportsSecureTransfer(): Promise<boolean> {
-    return false
-  }
-
-  public dogecoinSupportsNativeShapeShift(): boolean {
-    return false
-  }
-
-  public dogecoinGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    return Doge.dogecoinGetAccountPaths(msg)
-  }
-
-  public dogecoinNextAccountPath(_msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     // TODO: What do we do here?
     return undefined
   }
@@ -210,27 +152,6 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
 
   public async ethSupportsEIP1559(): Promise<boolean> {
     return true
-  }
-
-  public async litecoinSupportsNetwork(chainId = 2): Promise<boolean> {
-    return chainId === 2
-  }
-
-  public async litecoinSupportsSecureTransfer(): Promise<boolean> {
-    return false
-  }
-
-  public litecoinSupportsNativeShapeShift(): boolean {
-    return false
-  }
-
-  public litecoinGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    return Litecoin.litecoinGetAccountPaths(msg)
-  }
-
-  public litecoinNextAccountPath(_msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined
   }
 
   public async thorchainSupportsNetwork(chainId = 931): Promise<boolean> {
@@ -305,14 +226,9 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsElysium = true
 
   info: MetaMaskMultiChainHDWalletInfo & core.HDWalletInfo
-  bitcoinAddress?: string | null
-  bitcoinCashAddress?: string | null
   cosmosAddress?: string | null
-  dogecoinAddress?: string | null
   ethAddress?: Address | null
   providerRdns: string
-  litecoinAddress?: string | null
-  osmosisAddress?: string | null
   thorchainAddress?: string | null
   provider: any
 
@@ -553,43 +469,6 @@ export class MetaMaskMultiChainHDWallet
     return utxo.utxoSupportsCoin(coin)
   }
 
-  /** BITCOIN CASH */
-
-  public async bitcoinCashSupportsSecureTransfer(): Promise<boolean> {
-    return false
-  }
-
-  public bitcoinCashSupportsNativeShapeShift(): boolean {
-    return false
-  }
-
-  public bitcoinCashGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    return BtcCash.bitcoinCashGetAccountPaths(msg)
-  }
-
-  public bitcoinCashNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return this.info.bitcoinCashNextAccountPath(msg)
-  }
-
-  public async bitcoinCashGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    if (this.bitcoinCashAddress) {
-      return this.bitcoinCashAddress
-    }
-    const address = await BtcCash.bitcoinCashGetAddress(msg)
-    if (address && typeof address === 'string') {
-      this.bitcoinCashAddress = address
-      return address
-    } else {
-      this.bitcoinCashAddress = null
-      return null
-    }
-  }
-
-  public async bitcoinCashSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const address = await this.bitcoinCashGetAddress(this.provider)
-    return address ? Btc.bitcoinSignTx(msg) : null
-  }
-
   /** COSMOS */
 
   public async cosmosSupportsSecureTransfer(): Promise<boolean> {
@@ -623,45 +502,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-    const address = await this.cosmosGetAddress(this.provider)
-    return address ? Cosmos.cosmosSignTx(msg) : null
-  }
-
-  /** DOGECOIN */
-
-  public async dogecoinSupportsSecureTransfer(): Promise<boolean> {
-    return false
-  }
-
-  public dogecoinSupportsNativeShapeShift(): boolean {
-    return false
-  }
-
-  public dogecoinGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    return Doge.dogecoinGetAccountPaths(msg)
-  }
-
-  public dogecoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return this.info.dogecoinNextAccountPath(msg)
-  }
-
-  public async dogecoinGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    if (this.dogecoinAddress) {
-      return this.dogecoinAddress
-    }
-    const address = await Doge.dogecoinGetAddress(msg)
-    if (address && typeof address === 'string') {
-      this.dogecoinAddress = address
-      return address
-    } else {
-      this.dogecoinAddress = null
-      return null
-    }
-  }
-
-  public async dogecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const address = await this.dogecoinGetAddress(this.provider)
-    return address ? Doge.dogecoinSignTx(msg) : null
+    return Cosmos.cosmosSignTx(msg)
   }
 
   /** ETHEREUM */
@@ -751,43 +592,6 @@ export class MetaMaskMultiChainHDWallet
     return Eth.ethVerifyMessage(msg, this.provider)
   }
 
-  /** LITECOIN */
-
-  public async litecoinSupportsSecureTransfer(): Promise<boolean> {
-    return false
-  }
-
-  public litecoinSupportsNativeShapeShift(): boolean {
-    return false
-  }
-
-  public litecoinGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    return Litecoin.litecoinGetAccountPaths(msg)
-  }
-
-  public litecoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return this.info.litecoinNextAccountPath(msg)
-  }
-
-  public async litecoinGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    if (this.litecoinAddress) {
-      return this.litecoinAddress
-    }
-    const address = await Litecoin.litecoinGetAddress(msg)
-    if (address && typeof address === 'string') {
-      this.litecoinAddress = address
-      return address
-    } else {
-      this.litecoinAddress = null
-      return null
-    }
-  }
-
-  public async litecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const address = await this.litecoinGetAddress(this.provider)
-    return address ? Litecoin.litecoinSignTx(msg) : null
-  }
-
   /** THORCHAIN */
 
   public async thorchainSupportsSecureTransfer(): Promise<boolean> {
@@ -823,8 +627,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
-    const address = await this.thorchainGetAddress(this.provider)
-    return address ? Thorchain.thorchainSignTx(msg) : null
+    return Thorchain.thorchainSignTx(msg)
   }
 
   public async getDeviceID(): Promise<string> {

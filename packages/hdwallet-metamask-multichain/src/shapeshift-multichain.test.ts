@@ -1,8 +1,17 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import * as snapsAdapter from '@shapeshiftoss/metamask-snaps-adapter'
 import type { EIP6963ProviderInfo } from 'mipd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MetaMaskMultiChainHDWallet, MetaMaskMultiChainHDWalletInfo } from '.'
+
+vi.mock('@shapeshiftoss/metamask-snaps-adapter', async importOriginal => ({
+  ...(await importOriginal<typeof snapsAdapter>()),
+  cosmosGetAddress: vi.fn(),
+  cosmosSignTransaction: vi.fn(),
+  thorchainGetAddress: vi.fn(),
+  thorchainSignTransaction: vi.fn(),
+}))
 
 describe('HDWalletInfo', () => {
   const info = new MetaMaskMultiChainHDWalletInfo()
@@ -65,6 +74,53 @@ describe('MetaMaskMultiChainHDWallet', () => {
     expect(await wallet.supportsOfflineSigning()).toBe(false)
     expect(wallet.supportsBip44Accounts()).toBe(false)
     expect(await wallet.supportsBroadcast()).toBe(true)
+  })
+
+  it('signs thorchain txs without an address cached on this wallet instance', async () => {
+    const signedTx = { serialized: 'signed', body: '', authInfoBytes: '', signatures: [] }
+    vi.mocked(snapsAdapter.thorchainSignTransaction).mockResolvedValue(signedTx)
+
+    const msg: core.ThorchainSignTx = {
+      addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
+      tx: {
+        msg: [{ type: 'thorchain/MsgDeposit', value: {} }],
+        fee: { amount: [{ amount: '0', denom: 'rune' }], gas: '500000000' },
+        signatures: [],
+        memo: 'tcy+',
+      },
+      chain_id: 'thorchain-1',
+      account_number: '0',
+      sequence: '0',
+    }
+
+    expect(await wallet.thorchainSignTx(msg)).toEqual(signedTx)
+    expect(snapsAdapter.thorchainGetAddress).not.toHaveBeenCalled()
+    expect(snapsAdapter.thorchainSignTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ transaction: msg }),
+    )
+  })
+
+  it('signs cosmos txs without an address cached on this wallet instance', async () => {
+    const signedTx = { serialized: 'signed', body: '', authInfoBytes: '', signatures: [] }
+    vi.mocked(snapsAdapter.cosmosSignTransaction).mockResolvedValue(signedTx)
+
+    const msg: core.CosmosSignTx = {
+      addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+      tx: {
+        msg: [{ type: 'cosmos-sdk/MsgSend', value: {} }],
+        fee: { amount: [{ amount: '5000', denom: 'uatom' }], gas: '200000' },
+        signatures: [],
+      },
+      chain_id: 'cosmoshub-4',
+      account_number: '0',
+      sequence: '0',
+    }
+
+    expect(await wallet.cosmosSignTx(msg)).toEqual(signedTx)
+    expect(snapsAdapter.cosmosGetAddress).not.toHaveBeenCalled()
+    expect(snapsAdapter.cosmosSignTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ transaction: msg }),
+    )
   })
 
   it('should test ethSignMessage', async () => {

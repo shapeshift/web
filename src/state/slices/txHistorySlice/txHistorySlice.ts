@@ -81,6 +81,7 @@ export const initialState: TxHistory = {
 
 const updateOrInsertTxs = (txHistory: TxHistory, txsByAccountId: TransactionsByAccountId) => {
   const { txs, hydrationMeta } = txHistory
+  const originalTxsById = original(txs.byId) ?? txs.byId
   const upsertedTxsById: TxHistoryById = {}
 
   let newTxAdded = false
@@ -92,10 +93,8 @@ const updateOrInsertTxs = (txHistory: TxHistory, txsByAccountId: TransactionsByA
       const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
 
       // track if new transactions have been added to prompt (re)sort of ids
-      if (!(txIndex in txs.byId)) newTxAdded = true
+      if (!(txIndex in originalTxsById)) newTxAdded = true
 
-      // update or insert tx
-      txs.byId[txIndex] = tx
       upsertedTxsById[txIndex] = tx
 
       // find all the related assetIds, and keep an index of txids related to each assetId
@@ -114,12 +113,13 @@ const updateOrInsertTxs = (txHistory: TxHistory, txsByAccountId: TransactionsByA
     }
   }
 
-  // (re)sort ids by block timestamp if any new transaction were added, reading plain txs rather than a draft of each
+  // Writing into the draft would copy a property descriptor per stored tx on every upsert, so plain txs are spread once
+  const byId: TxHistoryById = { ...originalTxsById, ...upsertedTxsById }
+  txs.byId = byId
+
+  // (re)sort ids by block timestamp if any new transaction were added
   if (newTxAdded) {
-    const originalTxsById = original(txs.byId) ?? {}
-    const getBlockTime = (txIndex: TxId) =>
-      (upsertedTxsById[txIndex] ?? originalTxsById[txIndex])?.blockTime
-    txs.ids = orderBy(Object.keys(txs.byId) as TxId[], getBlockTime, 'desc')
+    txs.ids = orderBy(Object.keys(byId) as TxId[], txIndex => byId[txIndex].blockTime, 'desc')
   }
 }
 

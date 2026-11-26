@@ -17,3 +17,7 @@ interface EthereumProvider {
 interface Window {
   ethereum?: EthereumProvider
 }
+
+interface ImportMetaEnv {
+  readonly VITE_ENABLE_DEMO_RECEIVE_ADDRESS_PARAMS?: string
+}

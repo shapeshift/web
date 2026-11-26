@@ -1,5 +1,6 @@
 import {
   arbitrumChainId,
+  arcChainId,
   avalancheChainId,
   baseChainId,
   bobChainId,
@@ -29,6 +30,7 @@ import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
   arbitrum,
+  arc,
   avalanche,
   base,
   bob,
@@ -82,6 +84,7 @@ export const chainIdToRelayChainId = {
   [bobChainId]: bob.id,
   [robinhoodChainId]: robinhood.id,
   [elysiumChainId]: 99901,
+  [arcChainId]: arc.id,
 }
 
 export enum RelayStatusMessage {

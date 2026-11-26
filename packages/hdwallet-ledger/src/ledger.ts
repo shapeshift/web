@@ -448,6 +448,7 @@ export class LedgerHDWallet
   readonly _supportsNear = true
   readonly _supportsRobinhood = true
   readonly _supportsElysium = true
+  readonly _supportsArc = true
 
   _isLedger = true
 

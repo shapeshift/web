@@ -52,6 +52,7 @@ export enum KnownChainIds {
   RobinhoodMainnet = 'eip155:4663',
   AptosMainnet = 'aptos:1',
   ElysiumMainnet = 'eip155:99901',
+  ArcMainnet = 'eip155:5042',
 }
 
 export type EvmChainId =
@@ -78,6 +79,7 @@ export type EvmChainId =
   | KnownChainIds.BobMainnet
   | KnownChainIds.RobinhoodMainnet
   | KnownChainIds.ElysiumMainnet
+  | KnownChainIds.ArcMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet

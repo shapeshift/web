@@ -5,6 +5,7 @@ import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
 import { csp as aptos } from './chains/aptos'
 import { csp as arbitrum } from './chains/arbitrum'
+import { csp as arc } from './chains/arc'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
 import { csp as bitcoin } from './chains/bitcoin'
@@ -184,4 +185,5 @@ export const csps = [
   robinhood,
   elysium,
   panora,
+  arc,
 ]

@@ -8,6 +8,8 @@ import {
   aptosChainId,
   arbitrumAssetId,
   arbitrumChainId,
+  arcAssetId,
+  arcChainId,
   ASSET_NAMESPACE,
   avalancheAssetId,
   avalancheChainId,
@@ -591,6 +593,20 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Arc)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ArcMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Arc],
+          })
+          prev[arcChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -628,6 +644,7 @@ export const parseData = (coins: CoingeckoCoin[]): Promise<AssetMap> => {
         'eip155:99901/erc20:0xba876237b0f021a6c6d852d6c26e107997cc5e81': 'wrapped-hype',
         'eip155:99901/erc20:0xe45a355d9e9cad2ad85f2d03e3ee3102a036acf0': 'kinetiq',
       },
+      [arcChainId]: { [arcAssetId]: 'usd-coin' },
     },
   )
 

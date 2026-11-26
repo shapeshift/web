@@ -1,5 +1,6 @@
 import aptos from '@/plugins/aptos'
 import arbitrum from '@/plugins/arbitrum'
+import arc from '@/plugins/arc'
 import avalanche from '@/plugins/avalanche'
 import base from '@/plugins/base'
 import bitcoin from '@/plugins/bitcoin'
@@ -80,4 +81,5 @@ export const activePlugins = [
   robinhood,
   aptos,
   elysium,
+  arc,
 ]

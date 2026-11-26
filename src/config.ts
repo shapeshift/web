@@ -77,6 +77,7 @@ const validators = {
   VITE_NEAR_NODE_URL: url(),
   VITE_ROBINHOOD_NODE_URL: url(),
   VITE_ELYSIUM_NODE_URL: url(),
+  VITE_ARC_NODE_URL: url(),
   VITE_NEAR_NODE_URL_FALLBACK_1: url({ default: '' }),
   VITE_NEAR_NODE_URL_FALLBACK_2: url({ default: '' }),
   VITE_FASTNEAR_API_URL: url(),
@@ -267,6 +268,7 @@ const validators = {
   VITE_APTOS_INDEXER_URL: url(),
   VITE_APTOS_API_KEY: str({ default: '' }),
   VITE_FEATURE_ELYSIUM: bool({ default: false }),
+  VITE_FEATURE_ARC: bool({ default: false }),
   VITE_AGENTIC_SERVER_BASE_URL: url({
     default: 'https://api.agent.shapeshift.com',
   }),

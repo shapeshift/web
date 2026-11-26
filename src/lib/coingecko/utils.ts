@@ -2,6 +2,7 @@ import {
   adapters,
   aptosChainId,
   arbitrumChainId,
+  arcChainId,
   avalancheChainId,
   baseChainId,
   bchChainId,
@@ -241,5 +242,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_ROBINHOOD ? [robinhoodChainId] : []),
     ...(getConfig().VITE_FEATURE_APTOS ? [aptosChainId] : []),
     ...(getConfig().VITE_FEATURE_ELYSIUM ? [elysiumChainId] : []),
+    ...(getConfig().VITE_FEATURE_ARC ? [arcChainId] : []),
   ]
 }

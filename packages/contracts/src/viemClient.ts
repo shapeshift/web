@@ -5,6 +5,7 @@ import type { Chain, PublicClient } from 'viem'
 import { createPublicClient, defineChain, fallback, http } from 'viem'
 import {
   arbitrum,
+  arc,
   avalanche,
   base,
   bob,
@@ -141,6 +142,13 @@ export const elysium = defineChain({
 
 export const viemElysiumClient = createRpcClient(elysium, undefined, PUBLIC_RPC_URLS.elysium)
 
+// viem's arc definition ships without multicall3
+export const viemArcClient = createRpcClient(
+  { ...arc, contracts: { multicall3 } },
+  undefined,
+  PUBLIC_RPC_URLS.arc,
+)
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -165,6 +173,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.SeiMainnet]: viemSeiClient,
   [KnownChainIds.RobinhoodMainnet]: viemRobinhoodClient,
   [KnownChainIds.ElysiumMainnet]: viemElysiumClient,
+  [KnownChainIds.ArcMainnet]: viemArcClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -191,6 +200,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.SeiMainnet]: sei.id,
   [KnownChainIds.RobinhoodMainnet]: robinhood.id,
   [KnownChainIds.ElysiumMainnet]: elysium.id,
+  [KnownChainIds.ArcMainnet]: arc.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -217,6 +227,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [sei.id]: viemSeiClient,
   [robinhood.id]: viemRobinhoodClient,
   [elysium.id]: viemElysiumClient,
+  [arc.id]: viemArcClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

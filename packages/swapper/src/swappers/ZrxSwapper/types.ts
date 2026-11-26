@@ -24,6 +24,7 @@ export const zrxSupportedChainIds = [
   KnownChainIds.InkMainnet,
   KnownChainIds.SonicMainnet,
   KnownChainIds.UnichainMainnet,
+  KnownChainIds.ArcMainnet,
 ] as const
 
 export type ZrxSupportedChainId = (typeof zrxSupportedChainIds)[number]

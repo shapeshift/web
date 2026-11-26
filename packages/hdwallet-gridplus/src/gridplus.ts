@@ -378,6 +378,7 @@ export class GridPlusHDWallet
   readonly _supportsEthSwitchChain = false
   readonly _supportsRobinhood = false
   readonly _supportsElysium = false
+  readonly _supportsArc = false
   readonly _supportsGnosis = true
   readonly _supportsMayachain = true
   readonly _supportsOptimism = true

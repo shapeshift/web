@@ -16,6 +16,7 @@ import {
 
 import * as aptos from './aptos'
 import * as arbitrum from './arbitrum'
+import * as arc from './arc'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -76,6 +77,7 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
   const robinhoodAssets = await robinhood.getAssets()
   const aptosAssets = await aptos.getAssets()
   const elysiumAssets = await elysium.getAssets()
+  const arcAssets = await arc.getAssets()
 
   // all assets, included assets to be blacklisted
   return [
@@ -120,5 +122,6 @@ export const getUnfilteredAssetData = async (): Promise<Asset[]> => {
     ...robinhoodAssets,
     ...aptosAssets,
     ...elysiumAssets,
+    ...arcAssets,
   ]
 }

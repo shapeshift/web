@@ -142,6 +142,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsTerraInfo = false
   readonly _supportsRobinhood = false
   readonly _supportsElysium = false
+  readonly _supportsArc = false
 
   info: CoinbaseHDWalletInfo & core.HDWalletInfo
   ethAddress?: Address | null

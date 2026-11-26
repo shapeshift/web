@@ -3,6 +3,7 @@ import {
   adapters,
   aptosChainId,
   arbitrumChainId,
+  arcChainId,
   baseChainId,
   bobChainId,
   bscChainId,
@@ -187,6 +188,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_ROBINHOOD && asset.chainId === robinhoodChainId) return false
       if (!config.VITE_FEATURE_APTOS && asset.chainId === aptosChainId) return false
       if (!config.VITE_FEATURE_ELYSIUM && asset.chainId === elysiumChainId) return false
+      if (!config.VITE_FEATURE_ARC && asset.chainId === arcChainId) return false
       return true
     })
 

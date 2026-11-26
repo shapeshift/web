@@ -1,0 +1,35 @@
+{
+  "camelName": "arc",
+  "pascalName": "Arc",
+  "upperName": "ARC",
+  "chainId": 5042,
+  "viemChainName": "arc",
+  "nativeSymbol": "USDC",
+  "nativeName": "USDC",
+  "nativePrecision": 18,
+  "isNativeEth": false,
+  "color": "#2373CB",
+  "networkIconUrl": "https://assets.relay.link/icons/5042/light.png",
+  "nativeIconUrl": "https://assets.coingecko.com/coins/images/6319/large/USDC.png",
+  "explorerUrl": "https://explorer.arc.io",
+  "explorerAddressLink": "https://explorer.arc.io/address/",
+  "explorerTxLink": "https://explorer.arc.io/tx/",
+  "rpcUrl": "https://rpc.mainnet.arc.io",
+  "publicRpcUrls": [
+    "https://rpc.mainnet.arc.io",
+    "https://rpc.blockdaemon.mainnet.arc.io",
+    "https://rpc.drpc.mainnet.arc.io",
+    "https://rpc.quicknode.mainnet.arc.io"
+  ],
+  "coingeckoPlatform": "arc",
+  "wrappedNativeAddress": null,
+  "relatedAssetKey": "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "shortName": "ARC",
+  "swappers": {
+    "relay": { "supported": true, "relayChainId": 5042 },
+    "across": { "supported": false },
+    "portals": { "supported": true },
+    "zerion": { "supported": true },
+    "yieldxyz": { "supported": false }
+  }
+}

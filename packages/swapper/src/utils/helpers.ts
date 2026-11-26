@@ -6,6 +6,7 @@ import {
   chainIdToFeeAssetId,
   DAO_TREASURY_APTOS,
   DAO_TREASURY_ARBITRUM,
+  DAO_TREASURY_ARC,
   DAO_TREASURY_AVALANCHE,
   DAO_TREASURY_BASE,
   DAO_TREASURY_BITCOIN,
@@ -87,6 +88,7 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.SeiMainnet]: DAO_TREASURY_SEI,
   [KnownChainIds.SonicMainnet]: DAO_TREASURY_SONIC,
   [KnownChainIds.AptosMainnet]: DAO_TREASURY_APTOS,
+  [KnownChainIds.ArcMainnet]: DAO_TREASURY_ARC,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

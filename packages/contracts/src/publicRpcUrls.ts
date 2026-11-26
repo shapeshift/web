@@ -67,4 +67,10 @@ export const PUBLIC_RPC_URLS = {
   ],
   robinhood: ['https://rpc.mainnet.chain.robinhood.com', 'https://robinhood-rpc.publicnode.com'],
   elysium: ['https://rpc.elysium.kinetiq.xyz', 'https://elysium.drpc.org'],
+  arc: [
+    'https://rpc.mainnet.arc.io',
+    'https://rpc.blockdaemon.mainnet.arc.io',
+    'https://rpc.drpc.mainnet.arc.io',
+    'https://rpc.quicknode.mainnet.arc.io',
+  ],
 } as const

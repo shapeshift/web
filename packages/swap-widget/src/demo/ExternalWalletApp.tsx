@@ -28,7 +28,7 @@ import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
-import { elysium } from '../constants/viemChains'
+import { arc, elysium } from '../constants/viemChains'
 import { truncateAddress } from '../types'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 import { useIntegratorParams } from './useIntegratorParams'
@@ -226,6 +226,7 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   katana,
   elysium,
   robinhood,
+  arc,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

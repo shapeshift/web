@@ -29,6 +29,20 @@ export const elysium = {
   },
 } as const satisfies Chain
 
+// viem's arc export has no RPC URLs or multicall3 before 2.56.6
+export const arc = {
+  id: 5042,
+  name: 'Arc',
+  nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.mainnet.arc.io'] } },
+  blockExplorers: {
+    default: { name: 'Arc Explorer', url: 'https://explorer.arc.io' },
+  },
+  contracts: {
+    multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' },
+  },
+} as const satisfies Chain
+
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [mainnet.id]: {
     ...mainnet,
@@ -72,6 +86,7 @@ export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [katana.id]: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
   [elysium.id]: elysium,
   [robinhood.id]: robinhood,
+  [arc.id]: arc,
 }
 
 export const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {

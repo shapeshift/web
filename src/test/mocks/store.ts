@@ -197,6 +197,7 @@ export const mockStore: ReduxState = {
       Robinhood: false,
       Aptos: true,
       Elysium: false,
+      Arc: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

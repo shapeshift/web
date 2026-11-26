@@ -30,6 +30,7 @@ export const unichainAssetId: AssetId = 'eip155:130/slip44:60'
 export const bobAssetId: AssetId = 'eip155:60808/slip44:60'
 export const seiAssetId: AssetId = 'eip155:1329/slip44:60'
 export const elysiumAssetId: AssetId = 'eip155:99901/slip44:60'
+export const arcAssetId: AssetId = 'eip155:5042/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -111,6 +112,7 @@ export const unichainChainId: ChainId = 'eip155:130'
 export const bobChainId: ChainId = 'eip155:60808'
 export const seiChainId: ChainId = 'eip155:1329'
 export const elysiumChainId: ChainId = 'eip155:99901'
+export const arcChainId: ChainId = 'eip155:5042'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -182,6 +184,7 @@ export const CHAIN_REFERENCE = {
   RobinhoodMainnet: '4663', // https://chainlist.org/chain/4663
   AptosMainnet: '1', // https://namespaces.chainagnostic.org/aptos/caip2
   ElysiumMainnet: '99901', // https://elysium.kinetiq.xyz/docs/connecting-to-elysium
+  ArcMainnet: '5042', // https://docs.arc.io/arc/references/rpc-endpoints
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -240,6 +243,7 @@ export const ASSET_REFERENCE = {
   Robinhood: '60', // evm chain which uses ethereum derivation path as common practice
   Aptos: '637',
   Elysium: '60', // evm chain which uses ethereum derivation path as common practice
+  Arc: '60', // evm chain which uses ethereum derivation path as common practice
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -274,6 +278,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.CeloMainnet,
     CHAIN_REFERENCE.RobinhoodMainnet,
     CHAIN_REFERENCE.ElysiumMainnet,
+    CHAIN_REFERENCE.ArcMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -354,4 +359,5 @@ export const FEE_ASSET_IDS = [
   katanaAssetId,
   aptosAssetId,
   elysiumAssetId,
+  arcAssetId,
 ]

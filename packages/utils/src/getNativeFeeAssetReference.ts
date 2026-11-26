@@ -70,6 +70,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Robinhood
           case CHAIN_REFERENCE.ElysiumMainnet:
             return ASSET_REFERENCE.Elysium
+          case CHAIN_REFERENCE.ArcMainnet:
+            return ASSET_REFERENCE.Arc
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

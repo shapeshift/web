@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  arcChainId,
   ASSET_NAMESPACE,
   bobChainId,
   celoChainId,
@@ -330,7 +331,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       this.chainId === mantleChainId ||
       this.chainId === sonicChainId ||
       this.chainId === seiChainId ||
-      this.chainId === elysiumChainId
+      this.chainId === elysiumChainId ||
+      this.chainId === arcChainId
     ) {
       return []
     }

@@ -1,5 +1,5 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { TransactionReceiptNotFoundError } from 'viem'
+import { numberToHex, TransactionReceiptNotFoundError } from 'viem'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import * as monad from './monad/MonadChainAdapter'
@@ -17,7 +17,6 @@ const mockViemClient = {
   estimateFeesPerGas: vi.fn(),
   sendRawTransaction: vi.fn(),
   request: vi.fn(),
-  multicall: vi.fn(),
   readContract: vi.fn(),
   getTransaction: vi.fn(),
   getBlock: vi.fn(),
@@ -41,6 +40,11 @@ const FOO_TOKEN: TokenInfo = {
   name: 'Foo',
   precision: 18,
 }
+
+const balanceResult = (balance: bigint) => ({
+  success: true,
+  returnData: numberToHex(balance, { size: 32 }),
+})
 
 const makeAdapter = (getKnownTokens: () => TokenInfo[] = () => []) =>
   new monad.ChainAdapter({
@@ -96,20 +100,18 @@ describe('SecondClassEvmAdapter', () => {
     })
 
     it('scans nothing and reports no tokens when there are no known tokens', async () => {
-      const multicall = vi.spyOn(mockViemClient, 'multicall')
+      const readContract = vi.spyOn(mockViemClient, 'readContract')
       const adapter = makeAdapter(() => [])
 
       const account = await adapter.getAccount(pubkey)
 
       expect(account.balance).toBe('42')
       expect(account.chainSpecific.tokens).toEqual([])
-      expect(multicall).not.toHaveBeenCalled()
+      expect(readContract).not.toHaveBeenCalled()
     })
 
     it('returns token balances when there are known tokens', async () => {
-      vi.spyOn(mockViemClient, 'multicall').mockResolvedValue([
-        { status: 'success', result: BigInt(1000) },
-      ])
+      vi.spyOn(mockViemClient, 'readContract').mockResolvedValue([balanceResult(BigInt(1000))])
       const adapter = makeAdapter(() => [FOO_TOKEN])
 
       const account = await adapter.getAccount(pubkey)
@@ -126,9 +128,7 @@ describe('SecondClassEvmAdapter', () => {
     })
 
     it('omits zero balances from the known tokens', async () => {
-      vi.spyOn(mockViemClient, 'multicall').mockResolvedValue([
-        { status: 'success', result: BigInt(0) },
-      ])
+      vi.spyOn(mockViemClient, 'readContract').mockResolvedValue([balanceResult(BigInt(0))])
       const adapter = makeAdapter(() => [FOO_TOKEN])
 
       const account = await adapter.getAccount(pubkey)
@@ -137,8 +137,8 @@ describe('SecondClassEvmAdapter', () => {
     })
 
     it('keeps the native balance when the token batch fails', async () => {
-      vi.spyOn(mockViemClient, 'multicall').mockResolvedValue([
-        { status: 'failure', error: new Error('rpc failed') },
+      vi.spyOn(mockViemClient, 'readContract').mockResolvedValue([
+        { success: false, returnData: '0x' },
       ])
       const adapter = makeAdapter(() => [FOO_TOKEN])
 
@@ -148,21 +148,31 @@ describe('SecondClassEvmAdapter', () => {
       expect(account.chainSpecific.tokens).toEqual([])
     })
 
+    it('skips a token whose balance call returns no data', async () => {
+      vi.spyOn(mockViemClient, 'readContract').mockResolvedValue([
+        { success: true, returnData: '0x' },
+      ])
+      const adapter = makeAdapter(() => [FOO_TOKEN])
+
+      const account = await adapter.getAccount(pubkey)
+
+      expect(account.chainSpecific.tokens).toEqual([])
+    })
+
     it('skips known tokens with malformed addresses', async () => {
-      const multicall = vi
-        .spyOn(mockViemClient, 'multicall')
-        .mockResolvedValue([{ status: 'success', result: BigInt(1000) }])
+      const readContract = vi
+        .spyOn(mockViemClient, 'readContract')
+        .mockResolvedValue([balanceResult(BigInt(1000))])
       const adapter = makeAdapter(() => [{ ...FOO_TOKEN, contractAddress: '0xnope' }, FOO_TOKEN])
 
       const account = await adapter.getAccount(pubkey)
 
-      expect(multicall.mock.calls[0][0].contracts).toHaveLength(1)
+      expect(readContract.mock.calls[0][0].args[0]).toHaveLength(1)
       expect(account.chainSpecific.tokens).toHaveLength(1)
     })
 
     it('reads token balances individually on chains without multicall3', async () => {
-      const multicall = vi.spyOn(mockViemClient, 'multicall')
-      vi.spyOn(mockViemClient, 'readContract').mockResolvedValue(BigInt(1000))
+      const readContract = vi.spyOn(mockViemClient, 'readContract').mockResolvedValue(BigInt(1000))
       const { chain } = mockViemClient
       mockViemClient.chain = { contracts: {} } as typeof chain
       const adapter = makeAdapter(() => [FOO_TOKEN])
@@ -173,7 +183,7 @@ describe('SecondClassEvmAdapter', () => {
 
       expect(account.balance).toBe('42')
       expect(account.chainSpecific.tokens).toHaveLength(1)
-      expect(multicall).not.toHaveBeenCalled()
+      expect(readContract.mock.calls[0][0].functionName).toBe('balanceOf')
     })
   })
 })

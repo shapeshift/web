@@ -1,5 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, original } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
@@ -51,6 +51,10 @@ type SetGeneratedAssetsPayload = Pick<
   watchedAssetIds: AssetId[]
   heldAssetIds: AssetId[]
 }
+
+// Appends while keeping the order and dropping duplicates, reading the original ids as a draft would visit every asset id
+const appendAssetIds = (state: AssetsState, assetIds: AssetId[]): AssetId[] =>
+  Array.from(new Set((original(state.ids) ?? state.ids).concat(assetIds)))
 
 export const assets = createSlice({
   name: 'assets',
@@ -106,9 +110,8 @@ export const assets = createSlice({
       const ids = action.payload.ids.filter(assetId => action.payload.byId[assetId])
       const newAssetIds = ids.filter(assetId => !state.byId[assetId])
 
-      state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
-      // Note this preserves the original sorting while removing duplicates.
-      state.ids = Array.from(new Set(state.ids.concat(ids)))
+      Object.assign(state.byId, action.payload.byId) // upsert
+      state.ids = appendAssetIds(state, ids)
 
       if (newAssetIds.length === 0) return
       state.runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds.concat(newAssetIds)))
@@ -120,8 +123,8 @@ export const assets = createSlice({
 
       const byId = Object.fromEntries(ids.map(assetId => [assetId, action.payload.byId[assetId]]))
 
-      state.byId = Object.assign({}, state.byId, byId)
-      state.ids = Array.from(new Set(state.ids.concat(ids)))
+      Object.assign(state.byId, byId)
+      state.ids = appendAssetIds(state, ids)
       state.runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds.concat(ids)))
     }),
     upsertAsset: create.reducer((state, action: PayloadAction<Asset>) => {
@@ -129,8 +132,7 @@ export const assets = createSlice({
       if (!state.byId[assetId]) state.runtimeAssetIds.push(assetId)
 
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
-      // Note this preserves the original sorting while removing duplicates.
-      state.ids = Array.from(new Set(state.ids.concat(assetId)))
+      state.ids = appendAssetIds(state, [assetId])
     }),
     // A custom asset is one a user chose to import, as opposed to one the app came across
     addCustomAsset: create.reducer((state, action: PayloadAction<Asset>) => {
@@ -140,7 +142,7 @@ export const assets = createSlice({
       if (isGeneratedAsset) return
 
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
-      state.ids = Array.from(new Set(state.ids.concat(assetId)))
+      state.ids = appendAssetIds(state, [assetId])
       state.runtimeAssetIds = Array.from(new Set(state.runtimeAssetIds.concat(assetId)))
       state.customAssetIds = Array.from(new Set(state.customAssetIds.concat(assetId)))
     }),

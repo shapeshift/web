@@ -10,7 +10,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { JSX } from 'react'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { LuChevronsUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'
 
@@ -75,7 +75,7 @@ export const SharedTradeInputHeader = ({
   isStandalone,
 }: SharedTradeInputHeaderProps) => {
   const translate = useTranslate()
-  const [selectedTab, setSelectedTab] = useState<TradeInputTab>(initialTab)
+  const selectedTab = initialTab
   const activeTextColor = useColorModeValue('black', 'white')
   const activeBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
@@ -104,7 +104,6 @@ export const SharedTradeInputHeader = ({
 
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
-      setSelectedTab(newTab)
       onChangeTab(newTab)
     },
     [onChangeTab],

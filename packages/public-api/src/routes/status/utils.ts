@@ -1,3 +1,4 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Response } from 'express'
 
 import { getAsset } from '../../assets'
@@ -6,6 +7,7 @@ import { callSwapService, fetchSwapService } from '../../lib/fetchSwapService'
 import type { StoredQuote } from '../../lib/quoteStore'
 import type { ErrorResponse } from '../../types'
 import { STATUS_TIMEOUT_MS } from './constants'
+import { normalizeTxHash } from './txHash'
 import type { SwapServiceStatus, SwapStatusResponse } from './types'
 import { SwapServiceStatusSchema } from './types'
 
@@ -15,6 +17,13 @@ export const statusErrors = {
   TX_HASH_REQUIRED: {
     status: 400,
     body: { error: 'txHash is required to begin tracking', code: 'TX_HASH_REQUIRED' },
+  },
+  INVALID_TX_HASH: {
+    status: 400,
+    body: {
+      error: 'txHash is not a transaction hash on the sell chain',
+      code: 'INVALID_TX_HASH',
+    },
   },
   TX_HASH_MISMATCH: {
     status: 409,
@@ -48,6 +57,10 @@ export const sendError = (res: Response, { status, body }: StatusError): void =>
   res.status(status).json(body)
 }
 
+// The hash in its sell chain's canonical spelling, or undefined when it can't be a hash on that chain
+export const normalizeSellTxHash = (storedQuote: StoredQuote, txHash: string): string | undefined =>
+  normalizeTxHash(fromAssetId(storedQuote.sellAssetId).chainId, txHash)
+
 export const validateTxHash = (
   storedQuote: StoredQuote,
   txHash: string | undefined,
@@ -56,7 +69,12 @@ export const validateTxHash = (
     return statusErrors.TX_HASH_REQUIRED
   }
 
-  if (txHash && storedQuote.txHash && storedQuote.txHash !== txHash) {
+  if (!txHash) return
+
+  const normalizedTxHash = normalizeSellTxHash(storedQuote, txHash)
+  if (!normalizedTxHash) return statusErrors.INVALID_TX_HASH
+
+  if (storedQuote.txHash && storedQuote.txHash !== normalizedTxHash) {
     return statusErrors.TX_HASH_MISMATCH
   }
 }

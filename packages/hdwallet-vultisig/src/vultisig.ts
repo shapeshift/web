@@ -238,6 +238,7 @@ export class VultisigHDWallet
   readonly _supportsUnichain = false
   readonly _supportsRobinhood = false
   readonly _supportsElysium = false
+  readonly _supportsArc = false
   readonly _supportsBSC = true
   readonly _supportsSolana = true
   readonly _supportsThorchain = true

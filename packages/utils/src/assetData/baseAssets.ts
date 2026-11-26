@@ -668,3 +668,20 @@ export const elysium: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://elysium.kinetiq.xyz/tx/',
   relatedAssetKey: 'eip155:999/slip44:60',
 })
+
+export const arc: Readonly<Asset> = Object.freeze({
+  assetId: caip.arcAssetId,
+  chainId: caip.arcChainId,
+  name: 'USDC',
+  networkName: 'Arc',
+  symbol: 'USDC',
+  precision: 18,
+  color: '#2373CB',
+  networkColor: '#2373CB',
+  icon: 'https://assets.coingecko.com/coins/images/6319/large/USDC.png',
+  networkIcon: 'https://assets.relay.link/icons/5042/light.png',
+  explorer: 'https://explorer.arc.io',
+  explorerAddressLink: 'https://explorer.arc.io/address/',
+  explorerTxLink: 'https://explorer.arc.io/tx/',
+  relatedAssetKey: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+})

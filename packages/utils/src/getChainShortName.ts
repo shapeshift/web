@@ -80,6 +80,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'APT'
     case KnownChainIds.ElysiumMainnet:
       return 'ELY'
+    case KnownChainIds.ArcMainnet:
+      return 'ARC'
     default: {
       assertUnreachable(chainId)
     }

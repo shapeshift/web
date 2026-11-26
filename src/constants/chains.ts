@@ -27,6 +27,7 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.RobinhoodMainnet,
   KnownChainIds.AptosMainnet,
   KnownChainIds.ElysiumMainnet,
+  KnownChainIds.ArcMainnet,
 ]
 
 // returns known ChainIds as an array, excluding the ones that are currently flagged off
@@ -60,6 +61,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.RobinhoodMainnet && !enabledFlags.Robinhood) return false
   if (chainId === KnownChainIds.AptosMainnet && !enabledFlags.Aptos) return false
   if (chainId === KnownChainIds.ElysiumMainnet && !enabledFlags.Elysium) return false
+  if (chainId === KnownChainIds.ArcMainnet && !enabledFlags.Arc) return false
 
   return true
 })

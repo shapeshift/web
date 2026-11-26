@@ -3,6 +3,7 @@ import {
   adapters,
   aptosChainId,
   arbitrumChainId,
+  arcChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
@@ -39,6 +40,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import {
   aptos,
   arbitrum,
+  arc,
   avax,
   base,
   bnbsmartchain,
@@ -343,6 +345,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: elysium.explorer,
           explorerAddressLink: elysium.explorerAddressLink,
           explorerTxLink: elysium.explorerTxLink,
+        }
+      case arcChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: arc.explorer,
+          explorerAddressLink: arc.explorerAddressLink,
+          explorerTxLink: arc.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

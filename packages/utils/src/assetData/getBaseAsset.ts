@@ -6,6 +6,7 @@ import { assertUnreachable } from '../assertUnreachable'
 import {
   aptos,
   arbitrum,
+  arc,
   atom,
   avax,
   base,
@@ -123,6 +124,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return aptos
     case KnownChainIds.ElysiumMainnet:
       return elysium
+    case KnownChainIds.ArcMainnet:
+      return arc
     default:
       return assertUnreachable(knownChainId)
   }

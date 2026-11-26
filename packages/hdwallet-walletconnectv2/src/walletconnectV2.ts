@@ -222,6 +222,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   readonly _supportsUnichain = true
   readonly _supportsRobinhood = true
   readonly _supportsElysium = true
+  readonly _supportsArc = true
 
   info: WalletConnectV2WalletInfo & HDWalletInfo
   provider: EthereumProvider

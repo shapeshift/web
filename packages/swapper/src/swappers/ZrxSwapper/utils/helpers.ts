@@ -110,6 +110,11 @@ export const zrxTokenToAssetId = (token: string, chainId: ChainId): AssetId => {
           assetReference: ASSET_REFERENCE.Unichain,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case KnownChainIds.ArcMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Arc,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${chainId}' not supported`)
     }

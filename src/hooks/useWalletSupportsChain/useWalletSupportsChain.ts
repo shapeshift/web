@@ -90,6 +90,7 @@ const featureFlagByChainId: Record<KnownChainIds, Flag | null> = {
   [KnownChainIds.RobinhoodMainnet]: 'Robinhood',
   [KnownChainIds.AptosMainnet]: 'Aptos',
   [KnownChainIds.ElysiumMainnet]: 'Elysium',
+  [KnownChainIds.ArcMainnet]: 'Arc',
 }
 
 type WalletSupportsChainArgs = {

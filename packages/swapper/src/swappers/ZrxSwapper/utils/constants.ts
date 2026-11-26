@@ -29,6 +29,7 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.InkMainnet,
   KnownChainIds.SonicMainnet,
   KnownChainIds.UnichainMainnet,
+  KnownChainIds.ArcMainnet,
 ])
 
 // https://0x.org/docs/developer-resources/faqs-and-troubleshooting

@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   aptosAssetId,
+  arcAssetId,
   bobAssetId,
   celoAssetId,
   cronosAssetId,
@@ -69,6 +70,7 @@ export const queryFn = async () => {
   if (enabledFlags.Robinhood) assetIds.push(robinhoodAssetId)
   if (enabledFlags.Aptos) assetIds.push(aptosAssetId)
   if (enabledFlags.Elysium) assetIds.push(elysiumAssetId)
+  if (enabledFlags.Arc) assetIds.push(arcAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]

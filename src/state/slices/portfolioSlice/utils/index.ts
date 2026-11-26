@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   aptosChainId,
   arbitrumChainId,
+  arcChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
@@ -55,6 +56,7 @@ import {
   isVultisig,
   supportsAptos,
   supportsArbitrum,
+  supportsArc,
   supportsAvalanche,
   supportsBase,
   supportsBob,
@@ -166,6 +168,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case tonChainId:
     case aptosChainId:
     case elysiumChainId:
+    case arcChainId:
       return middleEllipsis(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
@@ -643,6 +646,8 @@ export const isChainSupportedByWallet = (chainId: ChainId, wallet: HDWallet): bo
       return supportsAptos(wallet)
     case elysiumChainId:
       return supportsElysium(wallet)
+    case arcChainId:
+      return supportsArc(wallet)
     default:
       return false
   }

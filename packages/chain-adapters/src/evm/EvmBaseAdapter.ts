@@ -10,6 +10,7 @@ import type {
 } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
+  supportsArc,
   supportsAvalanche,
   supportsBase,
   supportsBob,
@@ -112,6 +113,7 @@ export const evmChainIds = [
   KnownChainIds.SeiMainnet,
   KnownChainIds.RobinhoodMainnet,
   KnownChainIds.ElysiumMainnet,
+  KnownChainIds.ArcMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -236,6 +238,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsRobinhood(wallet)
         case Number(fromChainId(KnownChainIds.ElysiumMainnet).chainReference):
           return supportsElysium(wallet)
+        case Number(fromChainId(KnownChainIds.ArcMainnet).chainReference):
+          return supportsArc(wallet)
         default:
           return false
       }
@@ -382,6 +386,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'HYPE',
         symbol: 'HYPE',
         explorer: 'https://elysium.kinetiq.xyz',
+      },
+      [KnownChainIds.ArcMainnet]: {
+        name: 'USDC',
+        symbol: 'USDC',
+        explorer: 'https://explorer.arc.io',
       },
     }[this.chainId]
 

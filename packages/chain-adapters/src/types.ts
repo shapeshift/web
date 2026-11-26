@@ -61,6 +61,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.Account
     [KnownChainIds.RobinhoodMainnet]: evm.Account
     [KnownChainIds.ElysiumMainnet]: evm.Account
+    [KnownChainIds.ArcMainnet]: evm.Account
 
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
@@ -127,6 +128,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.FeeData
     [KnownChainIds.RobinhoodMainnet]: evm.FeeData
     [KnownChainIds.ElysiumMainnet]: evm.FeeData
+    [KnownChainIds.ArcMainnet]: evm.FeeData
 
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
@@ -225,6 +227,7 @@ export type ChainSignTx = {
   [KnownChainIds.RobinhoodMainnet]: ETHSignTx
   [KnownChainIds.HyperEvmMainnet]: ETHSignTx
   [KnownChainIds.ElysiumMainnet]: ETHSignTx
+  [KnownChainIds.ArcMainnet]: ETHSignTx
 
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
@@ -294,6 +297,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.BuildTxInput
     [KnownChainIds.RobinhoodMainnet]: evm.BuildTxInput
     [KnownChainIds.ElysiumMainnet]: evm.BuildTxInput
+    [KnownChainIds.ArcMainnet]: evm.BuildTxInput
 
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
@@ -413,6 +417,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.SeiMainnet]: evm.GetFeeDataInput
     [KnownChainIds.RobinhoodMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ElysiumMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.ArcMainnet]: evm.GetFeeDataInput
 
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
@@ -510,6 +515,7 @@ export enum ChainAdapterDisplayName {
   Robinhood = 'Robinhood',
   Aptos = 'Aptos',
   Elysium = 'Elysium',
+  Arc = 'Arc',
 }
 
 export type BroadcastTransactionInput = {

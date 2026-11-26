@@ -5,6 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 export const SUPPORTED_CHAIN_IDS: readonly KnownChainIds[] = [
   // EVM
   KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.ArcMainnet,
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.BnbSmartChainMainnet,

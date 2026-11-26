@@ -148,14 +148,33 @@ export const marketData = createSlice({
   },
 })
 
+const MARKET_DATA_FLUSH_DELAY_MS = 100
+
+let pendingMarketDataById: MarketDataById<AssetId> = {}
+let marketDataFlushTimeout: ReturnType<typeof setTimeout> | undefined
+
+// Each update re-sorts all market data, so prices fetched together are set in one update
+const queueMarketDataUpdate = (
+  dispatch: AppDispatch,
+  assetId: AssetId,
+  currentMarketData: MarketData,
+) => {
+  pendingMarketDataById[assetId] = currentMarketData
+  if (marketDataFlushTimeout) return
+
+  marketDataFlushTimeout = setTimeout(() => {
+    const payload = pendingMarketDataById
+    pendingMarketDataById = {}
+    marketDataFlushTimeout = undefined
+    dispatch(marketData.actions.setCryptoMarketData(payload))
+  }, MARKET_DATA_FLUSH_DELAY_MS)
+}
+
 // Async queuer to control findByAssetId() fetching parallelism
 const findbyAssetIdQueue = new AsyncQueuer(
   async ({ assetId, dispatch }: { assetId: AssetId; dispatch: AppDispatch; priority: number }) => {
     const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
-    if (currentMarketData) {
-      const payload = { [assetId]: currentMarketData }
-      dispatch(marketData.actions.setCryptoMarketData(payload))
-    }
+    if (currentMarketData) queueMarketDataUpdate(dispatch, assetId, currentMarketData)
   },
   {
     concurrency: 25, // Process max. 25 AssetIds at once

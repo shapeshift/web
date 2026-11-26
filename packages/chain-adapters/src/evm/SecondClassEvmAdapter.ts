@@ -21,10 +21,13 @@ import chunk from 'lodash/chunk'
 import PQueue from 'p-queue'
 import type { Address, Hex, PublicClient } from 'viem'
 import {
+  decodeFunctionResult,
+  encodeFunctionData,
   erc20Abi,
   getAddress,
   isAddress,
   isAddressEqual,
+  multicall3Abi,
   parseEventLogs,
   TransactionReceiptNotFoundError,
   zeroAddress,
@@ -187,21 +190,29 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     const multicallAddress = this.viemClient.chain?.contracts?.multicall3?.address
     if (!multicallAddress) return this.getTokenBalancesIndividually(address, knownTokens)
 
+    // The client's multicall batching schedules every call of a multicall one by one, so the balance reads go straight to aggregate3
+    const balanceOfCallData = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: 'balanceOf',
+      args: [address],
+    })
+
     const results = (
       await Promise.all(
         chunk(knownTokens, BATCH_SIZE).map(batch =>
           this.requestQueue.add(
             () =>
-              this.viemClient.multicall({
-                contracts: batch.map(token => ({
-                  address: getAddress(token.contractAddress),
-                  abi: erc20Abi,
-                  functionName: 'balanceOf' as const,
-                  args: [address],
-                })),
-                allowFailure: true,
-                multicallAddress,
-                batchSize: 0,
+              this.viemClient.readContract({
+                address: multicallAddress,
+                abi: multicall3Abi,
+                functionName: 'aggregate3',
+                args: [
+                  batch.map(token => ({
+                    target: getAddress(token.contractAddress),
+                    allowFailure: true,
+                    callData: balanceOfCallData,
+                  })),
+                ],
               }),
             { throwOnTimeout: true },
           ),
@@ -210,18 +221,28 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     ).flat()
 
     return knownTokens.flatMap((token, i) => {
-      const result = results[i]
-      if (result.status !== 'success') return []
+      const { success, returnData } = results[i]
+      if (!success) return []
 
-      return [
-        {
-          assetId: token.assetId,
-          balance: result.result.toString(),
-          symbol: token.symbol,
-          name: token.name,
-          precision: token.precision,
-        },
-      ]
+      try {
+        const balance = decodeFunctionResult({
+          abi: erc20Abi,
+          functionName: 'balanceOf',
+          data: returnData,
+        })
+
+        return [
+          {
+            assetId: token.assetId,
+            balance: balance.toString(),
+            symbol: token.symbol,
+            name: token.name,
+            precision: token.precision,
+          },
+        ]
+      } catch {
+        return []
+      }
     })
   }
 

@@ -28,6 +28,7 @@ import { SettingsMenu } from './SettingsMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
 import { TCYIcon } from '@/components/Icons/TCYIcon'
+import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -59,8 +60,8 @@ const iconButtonSx = { display: 'flex', [fullSearchMediaQuery]: { display: 'none
 const baseTradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: TbRefresh },
   { label: 'limitOrder.heading', path: '/limit', icon: TbLayersSelected },
-  { label: 'fiatRamps.buy', path: '/ramp/buy', icon: TbCreditCard },
-  { label: 'fiatRamps.sell', path: '/ramp/sell', icon: TbArrowRight },
+  { label: 'fiatRamps.buy', path: FiatRampRoutePaths.Buy, icon: TbCreditCard },
+  { label: 'fiatRamps.sell', path: FiatRampRoutePaths.Sell, icon: TbArrowRight },
 ]
 
 const exploreSubMenuItems = [

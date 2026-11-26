@@ -1,9 +1,11 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isGridPlus, isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -17,6 +19,19 @@ import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
+
+type DiscoveryResult = { isDegraded?: boolean; chainId?: ChainId }
+
+// Many components read the discovery status, so the per-chain results are combined into one shared, structurally stable value
+const combineDiscoveryResults = (results: UseQueryResult<DiscoveryResult>[]) => ({
+  isLoading: results.some(result => result.isLoading),
+  isFetching: results.some(result => result.isFetching),
+  degradedChainIds: results.flatMap(result =>
+    result.data?.isDegraded ? [result.data.chainId] : [],
+  ),
+})
+
+const DISCOVERY_NOTIFY_ON_CHANGE_PROPS = ['data', 'isLoading', 'isFetching'] as const
 
 export const useDiscoverAccounts = () => {
   const dispatch = useAppDispatch()
@@ -168,6 +183,7 @@ export const useDiscoverAccounts = () => {
         },
         staleTime: Infinity,
         gcTime: Infinity,
+        notifyOnChangeProps: [...DISCOVERY_NOTIFY_ON_CHANGE_PROPS],
         // Discovering before the asset service loads pins an empty token list, cached forever
         enabled:
           Boolean(wallet && deviceId) && !(isAssetServicePending && chainScansKnownTokens(chainId)),
@@ -184,8 +200,9 @@ export const useDiscoverAccounts = () => {
     ],
   )
 
-  const accountsDiscoveryQueries = useQueries({
+  const discovery = useQueries({
     queries,
+    combine: combineDiscoveryResults,
   })
 
   // Gated-off queries are idle, so without this consumers act on chains we haven't discovered yet
@@ -197,12 +214,12 @@ export const useDiscoverAccounts = () => {
       supportedChainIds.some(chainScansKnownTokens)
 
     return {
-      isLoading: isAwaitingAssetService || accountsDiscoveryQueries.some(query => query.isLoading),
-      isFetching:
-        isAwaitingAssetService || accountsDiscoveryQueries.some(query => query.isFetching),
+      isLoading: isAwaitingAssetService || discovery.isLoading,
+      isFetching: isAwaitingAssetService || discovery.isFetching,
     }
   }, [
-    accountsDiscoveryQueries,
+    discovery.isLoading,
+    discovery.isFetching,
     deviceId,
     isAssetServicePending,
     shouldSkipAutoDiscovery,
@@ -210,17 +227,9 @@ export const useDiscoverAccounts = () => {
     wallet,
   ])
 
-  const degradedChainIds = useMemo(() => {
-    return accountsDiscoveryQueries
-      .filter(query => query.data?.isDegraded)
-      .map(query => {
-        return query.data?.chainId
-      })
-  }, [accountsDiscoveryQueries])
-
   return {
     isLoading,
     isFetching,
-    degradedChainIds,
+    degradedChainIds: discovery.degradedChainIds,
   }
 }

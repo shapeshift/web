@@ -1,3 +1,4 @@
+import bs58 from 'bs58'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { StoredQuote } from '../../lib/quoteStore'
@@ -23,6 +24,13 @@ const SOLANA = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
 const TRON = 'tron:0x2b6653dc'
 const NEAR = 'near:mainnet'
 const STARKNET = 'starknet:SN_MAIN'
+const SUI = 'sui:35834a8a'
+const TON = 'ton:mainnet'
+
+const SUI_DIGEST = bs58.encode(Buffer.from(HEX, 'hex'))
+const TON_BASE64 = Buffer.from(HEX, 'hex').toString('base64')
+const TON_BASE64URL = Buffer.from(HEX, 'hex').toString('base64url')
+const STARKNET_FIELD_PRIME = 2n ** 251n + 17n * 2n ** 192n + 1n
 
 describe('normalizeTxHash', () => {
   it.each([`0x${HEX}`, `0x${HEX.toUpperCase()}`, HEX, ` 0X${HEX} `])(
@@ -61,8 +69,65 @@ describe('normalizeTxHash', () => {
     expect(normalizeTxHash(SOLANA, SOLANA_SIGNATURE)).toBe(SOLANA_SIGNATURE)
   })
 
-  it('lowercases a Starknet hash without padding it', () => {
-    expect(normalizeTxHash(STARKNET, '0x0ABC')).toBe('0x0abc')
+  it.each([
+    [SOLANA, '1'.repeat(65)],
+    [SOLANA, `1${SOLANA_SIGNATURE}`],
+    [SUI, '1'.repeat(33)],
+    [NEAR, `1${SUI_DIGEST}`],
+    [SUI, SOLANA_SIGNATURE],
+  ])('rejects base58 on %s that does not decode to the right length: %s', (chainId, hash) => {
+    expect(normalizeTxHash(chainId, hash)).toBeUndefined()
+  })
+
+  it.each([
+    [SOLANA, '1'.repeat(64)],
+    [SUI, SUI_DIGEST],
+    [NEAR, SUI_DIGEST],
+  ])('keeps base58 on %s that decodes to the right length', (chainId, hash) => {
+    expect(normalizeTxHash(chainId, hash)).toBe(hash)
+  })
+
+  it.each([
+    ['0x0ABC', '0xabc'],
+    ['0xabc', '0xabc'],
+    [`0x${'0'.repeat(61)}abc`, '0xabc'],
+    ['0x0', '0x0'],
+    [`0x${'0'.repeat(64)}`, '0x0'],
+  ])('spells a Starknet field element one way: %s', (hash, expected) => {
+    expect(normalizeTxHash(STARKNET, hash)).toBe(expected)
+  })
+
+  it('accepts the largest Starknet field element', () => {
+    const max = STARKNET_FIELD_PRIME - 1n
+    expect(normalizeTxHash(STARKNET, `0x${max.toString(16)}`)).toBe(`0x${max.toString(16)}`)
+  })
+
+  it.each([`0x${STARKNET_FIELD_PRIME.toString(16)}`, `0x${'f'.repeat(64)}`])(
+    'rejects a Starknet value outside the field: %s',
+    hash => {
+      expect(normalizeTxHash(STARKNET, hash)).toBeUndefined()
+    },
+  )
+
+  it.each([
+    HEX,
+    HEX.toUpperCase(),
+    `0x${HEX}`,
+    TON_BASE64,
+    TON_BASE64.replace(/=$/, ''),
+    TON_BASE64URL,
+    `${TON_BASE64URL}=`,
+  ])('spells every encoding of a TON hash as lowercase hex: %s', hash => {
+    expect(normalizeTxHash(TON, hash)).toBe(HEX)
+  })
+
+  it.each([
+    Buffer.alloc(31).toString('base64'),
+    Buffer.alloc(33).toString('base64'),
+    `${TON_BASE64.slice(0, -2)}*=`,
+    HEX.slice(2),
+  ])('rejects a TON hash that is not 32 bytes: %s', hash => {
+    expect(normalizeTxHash(TON, hash)).toBeUndefined()
   })
 })
 

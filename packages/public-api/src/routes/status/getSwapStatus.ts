@@ -6,7 +6,14 @@ import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
 import type { SwapServiceStatus } from './types'
 import { StatusRequestSchema, SwapStatusResponseSchema } from './types'
-import { getSwap, registerQuote, sendError, toResponse, validateTxHash } from './utils'
+import {
+  getSwap,
+  normalizeSellTxHash,
+  registerQuote,
+  sendError,
+  toResponse,
+  validateTxHash,
+} from './utils'
 
 registry.registerPath({
   method: 'get',
@@ -25,7 +32,10 @@ registry.registerPath({
       description: 'Swap status',
       content: { 'application/json': { schema: SwapStatusResponseSchema } },
     },
-    400: { description: 'Invalid request parameters or txHash required to begin tracking' },
+    400: {
+      description:
+        'Invalid request parameters, txHash is not a transaction hash on the sell chain, or txHash required to begin tracking',
+    },
     404: { description: 'Quote not found or expired' },
     409: { description: 'Transaction hash mismatch' },
     429: rateLimitResponse,
@@ -60,7 +70,9 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         return
       }
 
-      const registration = { ...storedQuote, txHash: storedQuote.txHash ?? txHash }
+      // validated above, so a hash passed here normalizes
+      const boundTxHash = txHash ? normalizeSellTxHash(storedQuote, txHash) : undefined
+      const registration = { ...storedQuote, txHash: storedQuote.txHash ?? boundTxHash }
 
       // Remembered so a retry can omit the hash
       if (registration.txHash !== storedQuote.txHash) quoteStore.set(quoteId, registration)

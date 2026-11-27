@@ -46,6 +46,26 @@ export const fetchRelayRequestByTxHash = async (
   )
 }
 
+// A late or requoted deposit can fill under a new request, the quote requestId then never settles
+export const fetchRelayRequestIdByDepositAddress = async (
+  depositAddress: string,
+  txHash: string,
+  config: SwapperConfig,
+): Promise<Result<string | undefined, SwapErrorRight>> => {
+  const maybeResponse = await relayService.get<{ requests?: RelayRequest[] }>(
+    `${config.VITE_RELAY_API_URL}/requests/v3?depositAddress=${depositAddress}&sortBy=updatedAt&sortDirection=desc&limit=20`,
+    getRelayRequestConfig(config),
+  )
+
+  // An open address can hold several deposits, keep the request funded by this tx
+  return maybeResponse.map(
+    ({ data }) =>
+      data.requests?.find(
+        request => request.depositAddress?.depositTxHash?.toLowerCase() === txHash.toLowerCase(),
+      )?.id,
+  )
+}
+
 export const getRelayRequestFailureMessage = (request: RelayRequest): string => {
   const { failReason, refundFailReason } = request.data ?? {}
 

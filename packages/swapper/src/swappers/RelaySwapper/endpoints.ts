@@ -13,7 +13,11 @@ import { getExactOutputTradeRate, getTradeRate } from './getTradeRate/getTradeRa
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 import { getRelayRequestConfig, relayService } from './utils/relayService'
-import { getRelayTrackingLink, relayStatusToTxStatus } from './utils/relayStatus'
+import {
+  fetchRelayRequestIdByDepositAddress,
+  getRelayTrackingLink,
+  relayStatusToTxStatus,
+} from './utils/relayStatus'
 import type {
   RelayExactOutputTradeQuoteInput,
   RelayExactOutputTradeRateInput,
@@ -106,8 +110,21 @@ export const relayApi: SwapperApi = {
     const swapperTxId = txHash
     const swapperTxLink = getRelayTrackingLink(txHash)
 
+    // relay may fill a deposit address order under a new request, find it from the deposit tx
+    const requestId = await (async () => {
+      if (!relayMetadata.depositAddress) return relayMetadata.relayId
+      const maybeRequestId = await fetchRelayRequestIdByDepositAddress(
+        relayMetadata.depositAddress,
+        txHash,
+        config,
+      )
+      return maybeRequestId.isOk()
+        ? maybeRequestId.unwrap() ?? relayMetadata.relayId
+        : relayMetadata.relayId
+    })()
+
     const maybeStatusResponse = await relayService.get<RelayStatus>(
-      `${config.VITE_RELAY_API_URL}/intents/status/v3?requestId=${relayMetadata.relayId}`,
+      `${config.VITE_RELAY_API_URL}/intents/status/v3?requestId=${requestId}`,
       getRelayRequestConfig(config),
     )
 

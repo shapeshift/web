@@ -137,12 +137,15 @@ export async function getRelayStepData({
   }
 
   if (isRelayQuoteUtxoItemData(data)) {
-    if (!data.psbt) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
-
-    const relayer = getRelayPsbtRelayer(data.psbt, sellAmountCryptoBaseUnit)
+    const relayer =
+      data.depositAddress ??
+      (data.psbt ? getRelayPsbtRelayer(data.psbt, sellAmountCryptoBaseUnit) : undefined)
+    // a deposit address already identifies the order, the psbt relayer needs the order id memo
+    const opReturnData = data.depositAddress ? undefined : orderId
 
     if (!relayer) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
-    if (!orderId) return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
+    if (!data.depositAddress && !orderId)
+      return Err(makeTradeStepBuildFailedErr('getRelayStepData'))
 
     const estimate = () =>
       getUtxoNetworkFeeCryptoBaseUnit({
@@ -150,7 +153,7 @@ export async function getRelayStepData({
         pubkey: xpub,
         to: relayer,
         value: sellAmountCryptoBaseUnit,
-        opReturnData: orderId,
+        opReturnData,
       })
 
     if (type === 'rate') {
@@ -175,7 +178,7 @@ export async function getRelayStepData({
         transactionData: {
           type: 'utxo',
           to: relayer,
-          opReturnData: orderId,
+          opReturnData,
           value: sellAmountCryptoBaseUnit,
         },
         networkFeeCryptoBaseUnit,

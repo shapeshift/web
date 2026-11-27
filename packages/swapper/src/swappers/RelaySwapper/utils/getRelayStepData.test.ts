@@ -1,4 +1,4 @@
-import { tronChainId } from '@shapeshiftoss/caip'
+import { btcChainId, tronChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -158,6 +158,68 @@ describe('getRelayStepData', () => {
         input: {} as GetTradeQuoteInput,
         from: FROM,
         deps: makeDeps(tronAdapter()),
+      })
+
+      expect(actual.isErr()).toBe(true)
+    })
+  })
+
+  describe('utxo', () => {
+    const BTC: Asset = { ...ETH, assetId: `${btcChainId}/slip44:0`, chainId: btcChainId }
+    const DEPOSIT_ADDRESS = 'bc1qfkzdag43wgq6mp5x8ntrkewvr7eg0w80772u09'
+
+    const utxoDeps = (getFeeData = vi.fn().mockResolvedValue({ fast: { txFee: '1410' } })) => ({
+      getFeeData,
+      deps: { assertGetUtxoChainAdapter: () => ({ getFeeData }) } as unknown as SwapperDeps,
+    })
+
+    const utxoArgs = {
+      ...baseArgs,
+      sellAsset: BTC,
+      sellAmountCryptoBaseUnit: '20000',
+      orderId: '0xf26be73a99642f692d143078e5f1b9d5ac1e04b4a6057c486340b27aff631875',
+      xpub: 'zpub',
+      fallbackNetworkFeeCryptoBaseUnit: '1000',
+      from: 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa',
+    }
+
+    it('sends to the deposit address without the order id memo', async () => {
+      const { getFeeData, deps } = utxoDeps()
+
+      const actual = await getRelayStepData({
+        ...utxoArgs,
+        data: { depositAddress: DEPOSIT_ADDRESS },
+        type: 'quote',
+        input: {} as GetTradeQuoteInput,
+        deps,
+      })
+
+      expect(actual.unwrap()).toEqual({
+        transactionData: {
+          type: 'utxo',
+          to: DEPOSIT_ADDRESS,
+          opReturnData: undefined,
+          value: '20000',
+        },
+        networkFeeCryptoBaseUnit: '1410',
+      })
+      expect(getFeeData).toHaveBeenCalledWith({
+        to: DEPOSIT_ADDRESS,
+        value: '20000',
+        chainSpecific: { pubkey: 'zpub', opReturnData: undefined },
+        sendMax: false,
+      })
+    })
+
+    it('fails to build without a deposit address or psbt', async () => {
+      const { deps } = utxoDeps()
+
+      const actual = await getRelayStepData({
+        ...utxoArgs,
+        data: { psbt: undefined },
+        type: 'quote',
+        input: {} as GetTradeQuoteInput,
+        deps,
       })
 
       expect(actual.isErr()).toBe(true)

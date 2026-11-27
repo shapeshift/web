@@ -35,6 +35,7 @@ const getQuote = async (
     relayStepInputs,
     stepDataArgs,
     relayId,
+    depositAddress,
     deadline,
   } = maybeContext.unwrap()
 
@@ -57,6 +58,7 @@ const getQuote = async (
           swapperMetadata: {
             name: 'relay',
             relayId,
+            depositAddress,
             data: transactionData?.type === 'evm' ? transactionData.data : undefined,
           },
           feeData: { networkFeeCryptoBaseUnit, protocolFees },

@@ -28,6 +28,8 @@ export type RelayExactOutputTradeRateInput = WithExactBuyAmount<RelayTradeRateIn
 export type RelayMetadata = {
   name: 'relay'
   relayId: string
+  // btc deposit address, the stable id of the order when relay moves the fill to a new request
+  depositAddress?: string
   // EVM calldata, preserved solely for relay's /transactions/single indexer `tx` param.
   data?: string
 }
@@ -46,7 +48,9 @@ export type RelayRequestData = {
 
 // A single entry of the /requests/v3 listing, keyed by origin tx hash
 export type RelayRequest = {
+  id?: string
   status?: RelayStatus['status']
+  depositAddress?: { depositTxHash?: string | null } | null
   data?: RelayRequestData
 }
 
@@ -98,6 +102,7 @@ export type RelayFetchQuoteParams<T extends 'quote' | 'rate'> = {
   refundTo: string
   slippageTolerance?: string
   appFees?: AppFee[]
+  useDepositAddress?: boolean
 }
 
 export type RelayToken = {
@@ -146,6 +151,7 @@ export type RelayQuoteEvmItemData = {
 
 export type RelayQuoteUtxoItemData = {
   psbt?: string
+  depositAddress?: string
   to?: string
   opReturnData?: string
 }
@@ -176,6 +182,7 @@ export type RelayQuoteItem = {
 export type RelayQuoteStep = {
   id: string
   requestId: string
+  depositAddress?: string
   items?: RelayQuoteItem[]
 }
 
@@ -214,7 +221,7 @@ export const isRelayQuoteUtxoItemData = (
     | RelayQuoteSolanaItemData
     | RelayQuoteTronItemData,
 ): item is RelayQuoteUtxoItemData => {
-  return 'psbt' in item
+  return 'psbt' in item || 'depositAddress' in item
 }
 
 export const isRelayQuoteEvmItemData = (

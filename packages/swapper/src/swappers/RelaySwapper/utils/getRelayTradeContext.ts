@@ -49,6 +49,7 @@ type RelayTradeContext = {
   // data/spenderAddress are per-step - the callers pair them from relayStepInputs
   stepDataArgs: Omit<GetRelayStepDataArgs, 'type' | 'input' | 'data' | 'spenderAddress'>
   relayId: string
+  depositAddress: string | undefined
   deadline: number | undefined
 }
 
@@ -99,6 +100,8 @@ export const getRelayTradeContext = async ({
       refundTo,
       slippageTolerance: slippageToleranceBps,
       refundOnOrigin: true,
+      // relay can no longer build a btc psbt for the placeholder sender, a deposit address needs only its balance
+      ...(sellAsset.chainId === btcChainId && { useDepositAddress: true }),
       referrer: 'shapeshift',
       appFees: [
         {
@@ -393,7 +396,9 @@ export const getRelayTradeContext = async ({
   const deadline = orderDeadline === undefined ? undefined : normalizeEpochToMs(orderDeadline)
 
   const relayStepInputs = swapSteps.map(step => {
-    const data = step.items?.[0]?.data
+    const data = step.depositAddress
+      ? { depositAddress: step.depositAddress }
+      : step.items?.[0]?.data
     return { data, allowanceContract: getRelayAllowanceContract(data) }
   })
 
@@ -447,5 +452,6 @@ export const getRelayTradeContext = async ({
       deps,
     },
     relayId,
+    depositAddress: quote.steps[0].depositAddress,
   })
 }
